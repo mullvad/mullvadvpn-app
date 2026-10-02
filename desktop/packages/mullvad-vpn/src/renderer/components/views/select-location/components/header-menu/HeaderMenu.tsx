@@ -16,7 +16,8 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
   const { hasRecents, setEnabledRecents } = useRecents();
   const { multihop, setMultihop } = useMultihop();
-  const { setLocationType } = useSelectLocationViewContext();
+  const { setLocationType, setIsolatedItem, setSearchTerm, locationType } =
+    useSelectLocationViewContext();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -32,28 +33,37 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   }, [onOpenChange, setEnabledRecents]);
 
   const handleMultihopAlways = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'always' });
-  }, [onOpenChange, setMultihop]);
+    onOpenChange?.(false);
+    setLocationType(LocationType.exit);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopNever = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'never' });
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setLocationType, setMultihop]);
+    onOpenChange?.(false);
+    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
+      setLocationType(LocationType.exit);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
+    }
+  }, [locationType, onOpenChange, setIsolatedItem, setLocationType, setMultihop, setSearchTerm]);
 
   const handleMultihopWhenNeeded = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'when-needed' });
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setLocationType, setMultihop]);
+    onOpenChange?.(false);
+    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
+      setLocationType(LocationType.exit);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
+    }
+  }, [locationType, onOpenChange, setIsolatedItem, setLocationType, setMultihop, setSearchTerm]);
 
   return (
     <>
       <Menu onOpenChange={onOpenChange} {...props}>
         <Menu.Popup>
           <Menu.Option>
-            <Menu.Option.Trigger onClick={navigateToFilter}>
+            <Menu.Option.Trigger as="a" onClick={navigateToFilter}>
               <Menu.Option.Item>
                 <Menu.Option.Item.Icon icon="filter" />
                 <Menu.Option.Item.Label>{messages.gettext('Filters')}</Menu.Option.Item.Label>
