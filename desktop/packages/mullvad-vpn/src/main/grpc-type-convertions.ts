@@ -374,6 +374,8 @@ function convertFromFeatureIndicator(
   switch (featureIndicator) {
     case grpcTypes.FeatureIndicator.QUANTUM_RESISTANCE:
       return FeatureIndicator.quantumResistance;
+    case grpcTypes.FeatureIndicator.CUSTOM_VPN:
+      throw new Error('unsupported');
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:

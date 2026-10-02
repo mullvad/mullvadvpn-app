@@ -171,6 +171,19 @@ service ManagementService {
   // mark the migration as completed. This will cause GetMigrationEvent to return a null-value
   // indefinitely.
   rpc ClearMigrationMessage(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  // Personal VPN
+  rpc SetCustomVpnConfig(CustomVpnConfig) returns (CustomVpnConfigError) {}
+  rpc SetCustomVpnConfigStatus(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  // Parse a wg-quick config file and store it as the personal VPN config.
+  rpc ImportCustomVpnConfig(google.protobuf.StringValue) returns (CustomVpnConfigError) {}
+  rpc GetCustomVpnStats(google.protobuf.Empty) returns (CustomVpnStats) {}
+}
+
+message CustomVpnStats {
+  uint64 tx_bytes = 1;
+  uint64 rx_bytes = 2;
+  google.protobuf.Timestamp last_handshake_time = 3;
 }
 
 message LogLevel { LogLevelValue level = 1; }
@@ -378,6 +391,8 @@ enum FeatureIndicator {
   CUSTOM_MTU = 13;
   DAITA = 14;
   MULTIHOP_AUTO = 15;
+  CUSTOM_VPN = 16;
+  CUSTOM_VPN_ACTIVE = 17;
 }
 
 message ObfuscationInfo {
@@ -574,6 +589,11 @@ message Settings {
   repeated RelayOverride relay_overrides = 12;
   optional Recents recents = 13;
   bool update_default_location = 14;
+  // Warning: This field contains the private key for the custom VPN.
+  // This is fine on Android, as only the Mullvad app can access the gRPC socket,
+  // but this may not be the case for other platforms.
+  optional CustomVpnConfig custom_vpn_config = 15;
+  bool custom_vpn_enabled = 16;
 }
 
 message SettingsKeyList { repeated SettingsKey keys = 1; }
@@ -681,6 +701,29 @@ message WireguardConfig {
   string ipv4_gateway = 3;
   optional string ipv6_gateway = 4;
 }
+
+message CustomVpnConfig {
+  message TunnelConfig {
+    bytes private_key = 1;
+    // One or more tunnel interface IPs (no CIDR). Must be non-empty.
+    // Typically one IPv4 and/or one IPv6 address.
+    repeated string ips = 2;
+  }
+  message PeerConfig {
+    bytes public_key = 1;
+    // CIDR
+    repeated string allowed_ip = 2;
+    // ip:port
+    string endpoint = 3;
+  }
+
+  // optional
+  TunnelConfig tunnel = 1;
+  // optional
+  PeerConfig peer = 2;
+}
+
+message CustomVpnConfigError { string error = 1; }
 
 message QuantumResistantState {
   enum State {

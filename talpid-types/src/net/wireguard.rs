@@ -20,6 +20,8 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    #[cfg(feature = "custom-vpn")]
+    pub custom_vpn: Option<CustomVpnConfig>,
 }
 
 impl TunnelParameters {
@@ -55,11 +57,18 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
+        // Personal VPN requires the gotatun device graph; the kernel backend has no such path.
+        let pvpn = cfg_select! {
+            feature = "custom-vpn" => self.custom_vpn.is_some(),
+            _ => false,
+        };
+
         cfg!(target_os = "macos")
             || self.options.userspace
             || self.options.daita
             // Always prefer GotaTun for multihop on Windows
             || (cfg!(target_os = "windows") && self.connection.exit_peer.is_some())
+            || pvpn
     }
 }
 
@@ -333,6 +342,35 @@ impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", STANDARD.encode(self.as_bytes()))
     }
+}
+
+/// Personal VPN tunnel interface configuration (WireGuard-based).
+///
+/// `ips` carries one or more interface addresses (typically one IPv4 and/or
+/// one IPv6, matching a wg-quick `Address = ...` line). Must be non-empty;
+/// construction/parsing from proto and wg-quick both reject an empty list.
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnTunnelConfig {
+    pub private_key: PrivateKey,
+    pub ips: Vec<std::net::IpAddr>,
+}
+
+/// Personal VPN peer configuration (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnPeerConfig {
+    pub public_key: PublicKey,
+    pub allowed_ip: Vec<IpNetwork>,
+    pub endpoint: SocketAddr,
+}
+
+/// Personal VPN configuration (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnConfig {
+    pub tunnel: CustomVpnTunnelConfig,
+    pub peer: CustomVpnPeerConfig,
 }
 
 fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>
