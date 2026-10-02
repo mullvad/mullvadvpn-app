@@ -107,6 +107,8 @@ use talpid_core::{
 };
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
+#[cfg(feature = "custom-vpn")]
+use talpid_types::Stats;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
@@ -473,6 +475,18 @@ pub enum DaemonCommand {
     /// TODO
     /// After this event, GetMultihopMigration will indefinitely return a None-value.
     DeleteMultihopMigration,
+    /// Set custom VPN configuration
+    #[cfg(feature = "custom-vpn")]
+    SetCustomVpnConfig(
+        oneshot::Sender<String>,
+        Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ),
+    /// Enable or disable the custom VPN
+    #[cfg(feature = "custom-vpn")]
+    SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
+    /// Get custom VPN stats
+    #[cfg(feature = "custom-vpn")]
+    GetCustomVpnStats(oneshot::Sender<Stats>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -680,6 +694,8 @@ impl<E> DaemonEventSender<E> {
 
 pub struct Daemon {
     tunnel_state: TunnelState,
+    #[cfg(feature = "custom-vpn")]
+    last_custom_handshake: Option<std::time::SystemTime>,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -905,6 +921,11 @@ impl Daemon {
             relay_selector.clone(),
             settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
+            #[cfg(feature = "custom-vpn")]
+            settings
+                .custom_vpn_config
+                .clone()
+                .filter(|_| settings.custom_vpn_enabled),
         );
 
         let param_gen = parameters_generator.clone();
@@ -1075,6 +1096,8 @@ impl Daemon {
                 #[cfg(not(target_os = "android"))]
                 locked_down: settings.lockdown_mode,
             },
+            #[cfg(feature = "custom-vpn")]
+            last_custom_handshake: None,
             target_state,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunneling_pid_manager,
@@ -1282,6 +1305,8 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    #[cfg(feature = "custom-vpn")]
+                    self.last_custom_handshake,
                 );
                 TunnelState::Connecting {
                     endpoint,
@@ -1294,6 +1319,8 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    #[cfg(feature = "custom-vpn")]
+                    self.last_custom_handshake,
                 );
                 TunnelState::Connected {
                     endpoint,
@@ -1302,6 +1329,12 @@ impl Daemon {
                 }
             }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
+                // Reset custom VPN handshake if not connected
+                #[cfg(feature = "custom-vpn")]
+                {
+                    self.last_custom_handshake = None;
+                }
+
                 TunnelState::Disconnecting(after_disconnect)
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
@@ -1464,8 +1497,13 @@ impl Daemon {
                 let ip_override = feature_indicators
                     .active_features()
                     .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
-                let new_feature_indicators =
-                    compute_feature_indicators(self.settings.settings(), endpoint, ip_override);
+                let new_feature_indicators = compute_feature_indicators(
+                    self.settings.settings(),
+                    endpoint,
+                    ip_override,
+                    #[cfg(feature = "custom-vpn")]
+                    self.last_custom_handshake,
+                );
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
@@ -1663,6 +1701,14 @@ impl Daemon {
             DeleteAccount(tx) => self.on_delete_account(tx),
             GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
             DeleteMultihopMigration => self.on_delete_multihop_migration().await,
+            #[cfg(feature = "custom-vpn")]
+            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            #[cfg(feature = "custom-vpn")]
+            SetCustomVpnConfigStatus(tx, enabled) => {
+                self.on_set_custom_vpn_config_status(tx, enabled).await
+            }
+            #[cfg(feature = "custom-vpn")]
+            GetCustomVpnStats(tx) => self.on_get_custom_vpn_stats(tx),
         }
     }
 
@@ -2688,6 +2734,75 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
             }
         }
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn on_set_custom_vpn_config(
+        &mut self,
+        tx: oneshot::Sender<String>,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_config = config)
+            .await
+        {
+            Ok(_) => {
+                let effective = if self.settings.settings().custom_vpn_enabled {
+                    self.settings.settings().custom_vpn_config.clone()
+                } else {
+                    None
+                };
+                self.parameters_generator.set_custom_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.reconnect_tunnel();
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config")
+                );
+                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
+            }
+        }
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn on_set_custom_vpn_config_status(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        enabled: bool,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_enabled = enabled)
+            .await
+        {
+            Ok(changed) => {
+                if changed {
+                    let effective = if self.settings.settings().custom_vpn_enabled {
+                        self.settings.settings().custom_vpn_config.clone()
+                    } else {
+                        None
+                    };
+                    self.parameters_generator.set_custom_vpn(effective).await;
+                    self.reconnect_tunnel();
+                }
+                Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config status")
+                );
+                Self::oneshot_send(tx, Err(err), "set_custom_vpn_config_status");
+            }
+        }
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    fn on_get_custom_vpn_stats(&self, tx: oneshot::Sender<Stats>) {
+        self.send_tunnel_command(TunnelCommand::CustomVpnStats(tx));
     }
 
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
