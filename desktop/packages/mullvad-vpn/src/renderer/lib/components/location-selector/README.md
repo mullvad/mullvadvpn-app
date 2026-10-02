@@ -69,20 +69,20 @@
         <LocationSelector.Items>
           {(isolatedItem ? [isolatedItem] : Object.keys(placeholderData)).map((item, index) => {
             return (
-              <LocationSelector.Items.Item
+              <LocationSelector.Items.TextFieldItem
                 key={item}
                 id={item}
                 type={index === 0 ? 'entry' : 'exit'}>
-                <LocationSelector.Items.Item.TextField
+                <LocationSelector.Items.TextFieldItem.TextField
                   value={placeholderData[item]}
                   onValueChange={handleOnValueChange}>
-                  <LocationSelector.Items.Item.TextField.Input placeholder={'Location ' + item} />
-                  <LocationSelector.Items.Item.TextField.ClearButton />
-                </LocationSelector.Items.Item.TextField>
-                <LocationSelector.Items.Item.TrailingButton visible={isolatedItem === undefined}>
-                  <LocationSelector.Items.Item.TrailingButton.Icon icon="filter" />
-                </LocationSelector.Items.Item.TrailingButton>
-              </LocationSelector.Items.Item>
+                  <LocationSelector.Items.TextFieldItem.TextField.Input placeholder={'Location ' + item} />
+                  <LocationSelector.Items.TextFieldItem.TextField.ClearButton />
+                </LocationSelector.Items.TextFieldItem.TextField>
+                <LocationSelector.Items.TextFieldItem.TrailingButton visible={isolatedItem === undefined}>
+                  <LocationSelector.Items.TextFieldItem.TrailingButton.Icon icon="filter" />
+                </LocationSelector.Items.TextFieldItem.TrailingButton>
+              </LocationSelector.Items.TextFieldItem>
             );
           })}
         </LocationSelector.Items>
