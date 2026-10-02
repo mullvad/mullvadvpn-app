@@ -21,7 +21,7 @@ extension ProblemReportView {
                     HStack {
                         Spacer()
                         Text("App Logs")
-                            .font(Font.system(.title2, design: .default))
+                            .font(.mullvadSmallSemiBold)
                         Spacer()
                     }
                     HStack {
