@@ -2,8 +2,10 @@
   "appteam-desktop": [
     ".github/workflows/rust-min-publish-age.yml",
     "building/Dockerfile",
+    "building/install-rust.sh",
     "building/linux-container-image.txt",
     "building/reproducible-build.sh",
+    "building/setup-debian-snapshot.sh",
     "building/sigstore/mullvad/mullvadvpn-app-build@**",
     "building/sigstore/mullvad/mullvadvpn-app-build-node-grpc-bindings@**",
     "ci/buildserver-build.sh",

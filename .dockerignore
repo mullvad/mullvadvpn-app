@@ -1,2 +1,6 @@
 **/*
+!building/setup-debian-snapshot.sh
+!building/install-rust.sh
+!rust-toolchain.toml
+!android/docker/pkcs11_java.cfg
 !desktop/package.json
