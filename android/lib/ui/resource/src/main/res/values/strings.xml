@@ -263,6 +263,9 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
+    <string name="personal_vpn">Personal VPN</string>
+    <string name="personal_vpn_description">Personal VPN allows you to connect to another WireGuard peer, while using Mullvad VPN. The entire connection will be tunneled through your connection to Mullvad.\n\nWith Personal VPN you will hide your personal server IP VPN and can connect to it without having to switch VPN.</string>
+
     <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
@@ -596,4 +599,27 @@
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
     <string name="connected_server">Connected server</string>
+    <string name="custom_tunnels">Custom tunnels</string>
+    <string name="custom_tunnels_description_first_paragraph">Allows you to connect to another WireGuard peer while using Mullvad VPN. The entire connection will be tunneled through your Mullvad connection.</string>
+    <string name="custom_tunnels_description_second_paragraph">This hides your custom tunnel IP and you can connect to it without having to disconnect.</string>
+    <string name="custom_tunnels_description_info">Using Multihop with a custom WireGuard tunnel might result in connection instability</string>
+    <string name="configurations">Configurations</string>
+    <string name="custom_tunnels_tap_to_add">Tap “+” to add a custom tunnel profile</string>
+    <string name="add_new_configuration">Add new configuration</string>
+    <string name="import_wireguard_configuration">Import WireGuard configuration</string>
+    <string name="custom_tunnels_experimental_warning">Experimental feature: May not work as expected.</string>
+    <string name="custom_tunnels_single_configuration_warning"><b>Custom tunnels</b> is currently restricted to a single configuration</string>
+    <string name="custom_tunnels_configuration_saved">Custom tunnel configuration saved</string>
+    <string name="custom_tunnels_configuration_failed_to_save">Failed to save custom tunnel configuration</string>
+    <string name="create_configuration">Create configuration</string>
+    <string name="edit_configuration">Edit %s</string>
+    <string name="custom_tunnels_edit_interface">Interface</string>
+    <string name="private_key">Private key</string>
+    <string name="address">Address</string>
+    <string name="add_address">Add Address</string>
+    <string name="peer">Peer</string>
+    <string name="public_key">Public key</string>
+    <string name="allowed_ips">Allowed IPs</string>
+    <string name="add_ip">Add IP</string>
+    <string name="endpoint">Endpoint</string>
 </resources>

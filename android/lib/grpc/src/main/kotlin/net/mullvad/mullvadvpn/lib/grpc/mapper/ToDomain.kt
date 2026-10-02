@@ -39,6 +39,8 @@ import mullvad_daemon.management_interface.NormalRelaySettings
 import mullvad_daemon.management_interface.ObfuscationEndpoint
 import mullvad_daemon.management_interface.ObfuscationSettings
 import mullvad_daemon.management_interface.Ownership
+import mullvad_daemon.management_interface.PersonalVpnConfig
+import mullvad_daemon.management_interface.PersonalVpnStats
 import mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId
 import mullvad_daemon.management_interface.PortRange
 import mullvad_daemon.management_interface.QuantumResistantState
@@ -114,6 +116,8 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationType as ModelObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError as ModelParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.PeerConfig as ModelPeerConfig
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId as ModelPlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.Port as ModelPort
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -140,12 +144,15 @@ import net.mullvad.mullvadvpn.lib.model.SocksAuth as ModelSocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration as ModelSplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings as ModelSplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol as ModelTransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelConfig as ModelTunnelConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint as ModelTunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions as ModelTunnelOptions
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelStats as ModelTunnelStats
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardKey as ModelWireguardKey
 
 // For some reason Detekt 2.0-alpha6 thinks this is unreachable (probably a bug in
 // Detekt; should try removing the @Suppress when Detekt 2.0 is stable).
@@ -377,6 +384,8 @@ internal fun Settings.toDomain(): ModelSettings =
         splitTunnelSettings = split_tunnel!!.toDomain(),
         apiAccessMethodSettings = api_access_methods!!.toDomain(),
         recents = recents.toDomain(),
+        personalVpnEnabled = personal_vpn_enabled,
+        personalVpnConfig = personal_vpn_config?.toDomain(),
     )
 
 internal fun RelayOverride.toDomain(): ModelRelayOverride =
@@ -759,6 +768,8 @@ internal fun FeatureIndicator.toDomain() =
         FeatureIndicator.QUIC -> ModelFeatureIndicator.QUIC
         FeatureIndicator.LWO -> ModelFeatureIndicator.LWO
         FeatureIndicator.WIREGUARD_PORT -> ModelFeatureIndicator.WIREGUARD_PORT
+        FeatureIndicator.PERSONAL_VPN -> ModelFeatureIndicator.PERSONAL_VPN
+        FeatureIndicator.PERSONAL_VPN_ACTIVE -> ModelFeatureIndicator.PERSONAL_VPN_ACTIVE
         FeatureIndicator.LOCKDOWN_MODE -> error("Feature not supported ${this.name}")
     }
 
@@ -834,3 +845,25 @@ internal fun SplitFilterMigration.Scenario.toDomain(): ModelScenario =
         SplitFilterMigration.Scenario.SevenA -> ModelScenario.SEVEN_A
         SplitFilterMigration.Scenario.SevenB -> ModelScenario.SEVEN_B
     }
+
+@Suppress("UnsafeCallOnNullableType")
+internal fun PersonalVpnConfig.toDomain(): ModelPersonalVpnConfig =
+    ModelPersonalVpnConfig(tunnelConfig = tunnel!!.toDomain(), peerConfig = peer!!.toDomain())
+
+@Suppress("UnsafeCallOnNullableType")
+internal fun PersonalVpnConfig.TunnelConfig.toDomain(): ModelTunnelConfig =
+    ModelTunnelConfig(
+        privateKey = ModelWireguardKey.from(private_key.base64()).getOrNull()!!,
+        tunnelIps = ips.map { it.toInetAddress() },
+    )
+
+@Suppress("UnsafeCallOnNullableType")
+internal fun PersonalVpnConfig.PeerConfig.toDomain(): ModelPeerConfig =
+    ModelPeerConfig(
+        publicKey = ModelWireguardKey.from(public_key.base64()).getOrNull()!!,
+        allowedIps = allowed_ip,
+        endpoint = endpoint.toInetSocketAddress(),
+    )
+
+internal fun PersonalVpnStats.toDomain(): ModelTunnelStats =
+    ModelTunnelStats(rx = rx_bytes, tx = tx_bytes, lastHandshake = last_handshake_time)
