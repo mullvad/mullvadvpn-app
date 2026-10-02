@@ -23,3 +23,8 @@ sealed interface Lc<out L, out T> {
 }
 
 fun <L, T> T.toLc(): Lc<L, T> = Lc.Content(this)
+
+@JvmInline value class IsModal(val value: Boolean)
+
+val Lc<IsModal, Any>.loadingIsModal
+    get() = this == Lc.Loading(IsModal(true))

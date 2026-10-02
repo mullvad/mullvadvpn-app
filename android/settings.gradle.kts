@@ -75,6 +75,8 @@ include(
     ":lib:feature:multihopmigration:api",
     ":lib:feature:notification:impl",
     ":lib:feature:notification:api",
+    ":lib:feature:customvpn:api",
+    ":lib:feature:customvpn:impl",
     ":lib:feature:problemreport:impl",
     ":lib:feature:problemreport:api",
     ":lib:feature:redeemvoucher:impl",
