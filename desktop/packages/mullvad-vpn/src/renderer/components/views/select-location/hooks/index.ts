@@ -5,3 +5,5 @@ export * from './use-show-exit-item';
 export * from './use-show-automatic-entry-item';
 export * from './use-location-selector-items';
 export * from './use-has-custom-lists';
+export * from './use-measure-location-selector';
+export * from './use-location-slides';
