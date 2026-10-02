@@ -19,7 +19,7 @@ export const StyledSelectableLabel = styled(Flex)`
 export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected: boolean }>`
   ${({ $selected }) => {
     return css`
-      --transition-duration: 0.15s;
+      --transition-duration: 0.25s;
 
       position: absolute;
       transition:
@@ -34,7 +34,7 @@ export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected:
 
 const StyledText = styled(Text)<{ $selected: boolean; $disabled: boolean }>`
   ${({ $selected, $disabled }) => css`
-    --transition-duration: 0.15s;
+    --transition-duration: 0.25s;
 
     transition: transform var(--transition-duration) ease-out;
     transform: translateX(${$selected ? 32 : 0}px);
