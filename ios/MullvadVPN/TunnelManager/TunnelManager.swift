@@ -371,6 +371,7 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
+    //FIXME: Change this to avoid using operations or polling the tunnel here.
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         // Start polling the tunnel immediately when the user reconnects
         startPollingTunnelStatus(interval: tunnelStatusPollInterval)
