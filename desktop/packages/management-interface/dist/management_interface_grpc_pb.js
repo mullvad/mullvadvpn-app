@@ -327,6 +327,39 @@ function deserialize_mullvad_daemon_management_interface_ObfuscationSettings(buf
   return management_interface_pb.ObfuscationSettings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_PersonalVpnConfig(arg) {
+  if (!(arg instanceof management_interface_pb.PersonalVpnConfig)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.PersonalVpnConfig');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_PersonalVpnConfig(buffer_arg) {
+  return management_interface_pb.PersonalVpnConfig.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_mullvad_daemon_management_interface_PersonalVpnConfigError(arg) {
+  if (!(arg instanceof management_interface_pb.PersonalVpnConfigError)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.PersonalVpnConfigError');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_PersonalVpnConfigError(buffer_arg) {
+  return management_interface_pb.PersonalVpnConfigError.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_mullvad_daemon_management_interface_PersonalVpnStats(arg) {
+  if (!(arg instanceof management_interface_pb.PersonalVpnStats)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.PersonalVpnStats');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_PersonalVpnStats(buffer_arg) {
+  return management_interface_pb.PersonalVpnStats.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId(arg) {
   if (!(arg instanceof management_interface_pb.PlayExternalObfuscatedAccountId)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId');
@@ -1580,6 +1613,53 @@ clearMigrationMessage: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  // Personal VPN
+setPersonalVpnConfig: {
+    path: '/mullvad_daemon.management_interface.ManagementService/SetPersonalVpnConfig',
+    requestStream: false,
+    responseStream: false,
+    requestType: management_interface_pb.PersonalVpnConfig,
+    responseType: management_interface_pb.PersonalVpnConfigError,
+    requestSerialize: serialize_mullvad_daemon_management_interface_PersonalVpnConfig,
+    requestDeserialize: deserialize_mullvad_daemon_management_interface_PersonalVpnConfig,
+    responseSerialize: serialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+  },
+  setPersonalVpnConfigStatus: {
+    path: '/mullvad_daemon.management_interface.ManagementService/SetPersonalVpnConfigStatus',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_wrappers_pb.BoolValue,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_google_protobuf_BoolValue,
+    requestDeserialize: deserialize_google_protobuf_BoolValue,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  // Parse a wg-quick config file and store it as the personal VPN config.
+importPersonalVpnConfig: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ImportPersonalVpnConfig',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_wrappers_pb.StringValue,
+    responseType: management_interface_pb.PersonalVpnConfigError,
+    requestSerialize: serialize_google_protobuf_StringValue,
+    requestDeserialize: deserialize_google_protobuf_StringValue,
+    responseSerialize: serialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+  },
+  // Always exists
+getPersonalVpnStats: {
+    path: '/mullvad_daemon.management_interface.ManagementService/GetPersonalVpnStats',
+    requestStream: false,
+    responseStream: true,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.PersonalVpnStats,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_PersonalVpnStats,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_PersonalVpnStats,
   },
 };
 
