@@ -10,7 +10,7 @@
 
 import Foundation
 
-// Placeholder to acknoweldge a tunnel message that doesn't need to return data
+// Placeholder to acknowledge a tunnel message that doesn't need to return data
 public enum TunnelReply: Codable, Sendable {
     case ok
 }

@@ -147,7 +147,10 @@
                 setInternalStateReconnecting(with: selectedRelays)
                 reasserting = false
 
-                completionHandler?(nil)
+                /// If this doesn't work, a fake internal connected state will be simulated
+                /// which will be polled every 500ms
+                let reply = try? TunnelProviderReply(observedState).encode()
+                completionHandler?(reply)
 
                 // The PacketTunnel does not run on the simulator.
                 // Fake a reconnecting state that becomes connected after long enough for the UI to change appropriately.
@@ -172,10 +175,10 @@
             case let .cancelAPIRequest(listId):
                 apiRequestProxy.cancelRequest(identifier: listId)
 
-                completionHandler?(nil)
+                completionHandler?(try? TunnelProviderReply(TunnelReply.ok).encode())
 
             case .privateKeyRotation:
-                completionHandler?(nil)
+                completionHandler?(try? TunnelProviderReply(TunnelReply.ok).encode())
             }
 
             onHandleProviderMessage?(message)
