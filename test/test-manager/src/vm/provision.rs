@@ -1,7 +1,6 @@
 use crate::{
     config::{OsType, Provisioner, VmConfig},
     package,
-    tests::config::BOOTSTRAP_SCRIPT,
 };
 use anyhow::{Context, Result, bail};
 use ssh2::{File, Session};
@@ -13,6 +12,24 @@ use std::{
     time::Instant,
 };
 use test_rpc::UNPRIVILEGED_USER;
+
+const BOOTSTRAP_SCRIPT_NAME: &str = "ssh-setup.sh";
+/// Script for bootstrapping the test-runner on Linux and macOS after the test-manager has
+/// successfully logged in.
+const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../scripts/",
+    "ssh-setup.sh"
+));
+
+const WINDOWS_BOOTSTRAP_SCRIPT_NAME: &str = "ssh-setup.ps1";
+/// Script for bootstrapping the test-runner on Windows after the test-manager has successfully
+/// logged in.
+const WINDOWS_BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../scripts/",
+    "ssh-setup.ps1"
+));
 
 /// Returns the directory in the test runner where the test-runner binary is installed.
 pub async fn provision(
@@ -100,12 +117,13 @@ fn blocking_ssh(
     local_app_manifest: package::Manifest,
 ) -> Result<String> {
     let remote_dir = match os_type {
-        // FIXME: There is a problem with the `ssh2` crate (both with scp and sftp) that
-        // we can not create new directories, so instead we have to rely on pre-existing
-        // directories if we want to create / upload files to the Windows guest. As a
-        // workaround, use `C:` as a temporary directory.
-        OsType::Windows => "c:",
+        OsType::Windows => r"C:\testing",
         OsType::Macos | OsType::Linux => "/opt/testing",
+    };
+
+    let exe_suffix = match os_type {
+        OsType::Windows => ".exe",
+        OsType::Macos | OsType::Linux => "",
     };
 
     // Directory that receives the payload. Any directory that the SSH user has access to.
@@ -128,74 +146,116 @@ fn blocking_ssh(
         .userauth_password(&user, &password)
         .context("SSH auth failed")?;
 
+    if os_type == OsType::Windows {
+        // There is a problem with the `ssh2` crate (both with scp and sftp) that we can not create
+        // new directories on Windows, so create the directory using a command instead.
+        let cmd = format!(
+            r#"powershell -NoProfile -NonInteractive -Command "New-Item -ItemType Directory -Force -Path '{remote_temp_dir}' | Out-Null""#
+        );
+        ssh_exec(&session, &cmd)
+            .map(drop)
+            .with_context(|| format!("Failed to create '{remote_temp_dir}' on remote"))?;
+    }
+
     let temp_dir = Path::new(remote_temp_dir);
+    let executable_opts = FileOpts {
+        // Windows has no executable bit
+        executable: os_type != OsType::Windows,
+    };
     // Transfer a test runner
-    let source = local_runner_dir.join("test-runner");
-    ssh_send_file_with_opts(&session, &source, temp_dir, FileOpts { executable: true })
+    let source = local_runner_dir.join(format!("test-runner{exe_suffix}"));
+    ssh_send_file_with_opts(&session, &source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer connection-checker
-    let source = local_runner_dir.join("connection-checker");
-    ssh_send_file_with_opts(&session, &source, temp_dir, FileOpts { executable: true })
+    let source = local_runner_dir.join(format!("connection-checker{exe_suffix}"));
+    ssh_send_file_with_opts(&session, &source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer app packages
     let source = &local_app_manifest.app_package_path;
-    ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+    ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     if let Some(source) = &local_app_manifest.app_package_to_upgrade_from_path {
-        ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+        ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
             .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
         log::warn!("No previous app package to upgrade from to send to remote")
     }
     if let Some(source) = &local_app_manifest.gui_package_path {
-        ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+        ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
             .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
         log::warn!("No UI e2e test to send to remote")
     }
 
+    let app_package_path = file_name(&local_app_manifest.app_package_path);
+    let app_package_to_upgrade_from_path = local_app_manifest
+        .app_package_to_upgrade_from_path
+        .as_deref()
+        .map(file_name);
+    let gui_package_path = local_app_manifest
+        .gui_package_path
+        .as_deref()
+        .map(file_name);
+
     // Transfer setup script
-    if matches!(os_type, OsType::Linux | OsType::Macos) {
-        // TODO: Move this name to a constant somewhere?
-        let bootstrap_script_dest = temp_dir.join("ssh-setup.sh");
-        ssh_write_with_opts(
-            &session,
-            &bootstrap_script_dest,
-            BOOTSTRAP_SCRIPT,
-            FileOpts { executable: true },
-        )
-        .context("failed to send bootstrap script to remote")?;
+    let cmd = match os_type {
+        OsType::Linux | OsType::Macos => {
+            let bootstrap_script_dest = temp_dir.join(BOOTSTRAP_SCRIPT_NAME);
+            ssh_write_with_opts(
+                &session,
+                &bootstrap_script_dest,
+                BOOTSTRAP_SCRIPT,
+                FileOpts { executable: true },
+            )
+            .context("failed to send bootstrap script to remote")?;
 
-        // Run setup script
-        let app_package_path = local_app_manifest
-            .app_package_path
-            .file_name()
-            .unwrap()
-            .to_string_lossy();
-        let app_package_to_upgrade_from_path = local_app_manifest
-            .app_package_to_upgrade_from_path
-            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-            .unwrap_or_default();
-        let gui_package_path = local_app_manifest
-            .gui_package_path
-            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-            .unwrap_or_default();
+            format!(
+                r#"sudo {} {remote_dir} "{app_package_path}" "{}" "{}" "{UNPRIVILEGED_USER}""#,
+                bootstrap_script_dest.display(),
+                app_package_to_upgrade_from_path.unwrap_or_default(),
+                gui_package_path.unwrap_or_default(),
+            )
+        }
+        OsType::Windows => {
+            let bootstrap_script_dest = temp_dir.join(WINDOWS_BOOTSTRAP_SCRIPT_NAME);
+            ssh_write_with_opts(
+                &session,
+                &bootstrap_script_dest,
+                WINDOWS_BOOTSTRAP_SCRIPT,
+                FileOpts::default(),
+            )
+            .context("failed to send bootstrap script to remote")?;
 
-        // Run the setup script in the test runner
-        let cmd = format!(
-            r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}" "{UNPRIVILEGED_USER}""#,
-            bootstrap_script_dest.display(),
-        );
-        log::debug!("Running setup script on remote, cmd: {cmd}");
-        ssh_exec(&session, &cmd)
-            .map(drop)
-            .context("Failed to run setup script")?;
-    }
+            // Optional arguments are omitted rather than passed as empty strings, since
+            // `powershell -File` does not reliably forward empty arguments.
+            let mut cmd = format!(
+                r#"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "{}" -RunnerDir "{remote_dir}" -AppPackage "{app_package_path}""#,
+                bootstrap_script_dest.display(),
+            );
+            if let Some(path) = app_package_to_upgrade_from_path {
+                cmd.push_str(&format!(r#" -PreviousApp "{path}""#));
+            }
+            if let Some(path) = gui_package_path {
+                cmd.push_str(&format!(r#" -UiRunner "{path}""#));
+            }
+            cmd
+        }
+    };
+
+    // Run the setup script in the test runner
+    log::debug!("Running setup script on remote, cmd: {cmd}");
+    ssh_exec(&session, &cmd)
+        .map(drop)
+        .context("Failed to run setup script")?;
 
     Ok(remote_dir.to_string())
+}
+
+fn file_name(path: &Path) -> String {
+    path.file_name().unwrap().to_string_lossy().into_owned()
 }
 
 /// Copy a `source` file to `dest_dir` in the test runner with opts.
@@ -237,12 +297,14 @@ fn ssh_write_with_opts<P: AsRef<Path>>(
     opts: FileOpts,
 ) -> Result<File> {
     let sftp = session.sftp()?;
-    let mut remote_file = sftp.create(dest.as_ref())?;
+    let mut remote_file = sftp
+        .create(dest.as_ref())
+        .context("failed to create file")?;
 
     io::copy(&mut source, &mut remote_file).context("failed to write file")?;
 
     if opts.executable {
-        make_executable(&mut remote_file)?;
+        make_executable(&mut remote_file).context("failed to make file executable")?;
     };
 
     Ok(remote_file)
