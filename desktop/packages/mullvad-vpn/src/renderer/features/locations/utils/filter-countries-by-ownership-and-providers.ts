@@ -1,19 +1,17 @@
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import type { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
-import { filterLocationsByFilters } from './filter-locations-by-filters';
+import { filterCountries } from './filter-countries';
 import { getOwnershipFilter } from './get-ownership-filter';
 import { getProviderFilter } from './get-provider-filter';
 
-export function filterLocationsByOwnershipAndProviders(
-  locations: IRelayLocationCountryRedux[],
+export function filterCountriesByOwnershipAndProviders(
+  countries: IRelayLocationCountryRedux[],
   ownership?: Ownership,
   providers?: Array<string>,
 ): IRelayLocationCountryRedux[] {
   const filters = [getOwnershipFilter(ownership), getProviderFilter(providers)];
 
   return filters.some((filter) => filter !== undefined)
-    ? filterLocationsByFilters(locations, (relay) =>
-        filters.every((filter) => filter?.(relay) ?? true),
-      )
-    : locations;
+    ? filterCountries(countries, (relay) => filters.every((filter) => filter?.(relay) ?? true))
+    : countries;
 }
