@@ -2,6 +2,7 @@ import React from 'react';
 
 import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
+import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -10,6 +11,10 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  isolatedItem: LocationSelectorSelectedItem | undefined;
+  setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
+  isLocationSelectorExpanded: boolean;
+  setIsLocationSelectorExpanded: (value: boolean) => void;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -32,12 +37,23 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
 
+  const [isolatedItem, stateSetIsolatedItem] = React.useState<
+    LocationSelectorSelectedItem | undefined
+  >(undefined);
+  const setIsolatedItem = React.useCallback((value: LocationSelectorSelectedItem | undefined) => {
+    React.startTransition(() => {
+      stateSetIsolatedItem(value);
+    });
+  }, []);
+
   const [searchTerm, stateSetSearchTerm] = React.useState('');
   const setSearchTerm = React.useCallback((value: string) => {
     React.startTransition(() => {
       stateSetSearchTerm(value);
     });
   }, []);
+
+  const [isLocationSelectorExpanded, setIsLocationSelectorExpanded] = React.useState(true);
 
   const setLocationType = React.useCallback(
     (value: LocationType) => {
@@ -54,8 +70,20 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setLocationType,
       searchTerm,
       setSearchTerm,
+      isolatedItem,
+      setIsolatedItem,
+      isLocationSelectorExpanded,
+      setIsLocationSelectorExpanded,
     }),
-    [locationTypeSelector, setLocationType, searchTerm, setSearchTerm],
+    [
+      locationTypeSelector,
+      setLocationType,
+      searchTerm,
+      setSearchTerm,
+      isolatedItem,
+      setIsolatedItem,
+      isLocationSelectorExpanded,
+    ],
   );
 
   return (
