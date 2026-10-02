@@ -3,13 +3,6 @@ use test_rpc::meta::Os;
 
 pub static TEST_CONFIG: TestConfigContainer = TestConfigContainer::new();
 
-/// Script for bootstrapping the test-runner after the test-manager has successfully logged in.
-pub const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../scripts/",
-    "ssh-setup.sh"
-));
-
 /// Constants that are accessible from each test via `TEST_CONFIG`.
 /// The constants must be initialized before running any tests using `TEST_CONFIG.init()`.
 #[derive(Debug, Clone)]

@@ -1,8 +1,9 @@
 use std::env::var;
 
 fn main() {
-    // Rebuild if SSH provision script changes
+    // Rebuild if SSH provision scripts change
     println!("cargo::rerun-if-changed=../scripts/ssh-setup.sh");
+    println!("cargo::rerun-if-changed=../scripts/ssh-setup.ps1");
 
     let link_statically = var("TEST_MANAGER_STATIC").is_ok_and(|x| x != "0");
 

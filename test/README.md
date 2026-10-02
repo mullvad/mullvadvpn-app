@@ -107,6 +107,17 @@ cargo run --bin test-manager set macos-ventura tart ventura-base macos \
 cargo run -p test-manager run-vm macos-ventura
 ```
 
+### Windows
+
+```bash
+# Create or edit configuration
+# Use SSH to deploy the test runner. This requires OpenSSH Server to be enabled in the image,
+# see ./docs/BUILD_OS_IMAGE.md
+cargo run --bin test-manager set windows11 qemu ./os-images/windows11.qcow2 windows \
+    --architecture x64 --tpm \
+    --provisioner ssh --ssh-user test --ssh-password test
+```
+
 ## Testing the app
 
 To automatically download and test a pre-built version of the app, use the `test-by-version.sh` script, see `test-by-version.sh --help` for instructions.
