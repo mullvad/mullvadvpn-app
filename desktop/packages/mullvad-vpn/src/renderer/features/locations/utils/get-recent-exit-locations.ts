@@ -9,7 +9,7 @@ export const getRecentExitLocations = (
   }
 
   const { exits } = recentLocations;
-  const uniqueExitLocations = getUniqueLocations(exits);
+  const uniqueExitLocations = getUniqueLocations(exits, 3);
 
   return uniqueExitLocations.length > 0 ? uniqueExitLocations : undefined;
 };

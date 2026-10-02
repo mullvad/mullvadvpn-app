@@ -18,7 +18,12 @@ export function useMapReduxCountriesToCountryLocations(
   return React.useMemo(() => {
     return relayList
       .map((country) =>
-        mapReduxCountryToCountryLocation(country, selectedLocation, disabledLocation, locale),
+        mapReduxCountryToCountryLocation(
+          country,
+          selectedLocation === 'any' ? undefined : selectedLocation,
+          disabledLocation,
+          locale,
+        ),
       )
       .sort((a, b) => a.label.localeCompare(b.label, locale));
   }, [relayList, disabledLocation, selectedLocation, locale]);

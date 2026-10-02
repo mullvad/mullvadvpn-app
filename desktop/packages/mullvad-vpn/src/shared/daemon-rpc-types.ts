@@ -469,9 +469,12 @@ export type SplitFilterMigrationEvent = {
   scenario: SplitFilterMigrationScenario;
 };
 
+export type RecentEntry = 'automatic' | RelayLocation;
+export type RecentExit = RelayLocation;
+
 export type Recents = {
-  entries: RelayLocation[];
-  exits: RelayLocation[];
+  entries: RecentEntry[];
+  exits: RecentExit[];
 };
 
 export type ShadowsocksCipher = {

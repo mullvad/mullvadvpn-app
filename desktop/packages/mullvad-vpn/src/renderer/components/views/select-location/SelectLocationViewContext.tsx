@@ -1,17 +1,6 @@
 import React from 'react';
 
-import {
-  useFilterCountryLocations,
-  useMapCustomListsToLocations,
-  useMapRecentsToLocations,
-  useMapReduxCountriesToCountryLocations,
-  useSearchCountryLocations,
-  useSearchCustomListLocations,
-  useSelectedEntryOrExitLocation,
-} from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { getRecentEntryLocations, getRecentExitLocations } from '../../../features/locations/utils';
-import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
@@ -21,10 +10,6 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  countryLocations: ReturnType<typeof useSearchCountryLocations>;
-  customListLocations: ReturnType<typeof useSearchCustomListLocations>;
-  recentEntryLocations: ReturnType<typeof getRecentEntryLocations>;
-  recentExitLocations: ReturnType<typeof getRecentExitLocations>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -45,67 +30,32 @@ type SelectLocationViewProviderProps = React.PropsWithChildren;
 
 export function SelectLocationViewProvider({ children }: SelectLocationViewProviderProps) {
   const { setSelectLocationView } = useActions(userInterface);
-  const [searchTerm, setSearchTerm] = React.useState('');
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
-  const { multihop } = useMultihop();
 
-  const locationType = React.useMemo(() => {
-    const allowEntryLocations = multihop === 'always';
-    if (allowEntryLocations) {
-      return locationTypeSelector;
-    }
+  const [searchTerm, stateSetSearchTerm] = React.useState('');
+  const setSearchTerm = React.useCallback((value: string) => {
+    React.startTransition(() => {
+      stateSetSearchTerm(value);
+    });
+  }, []);
 
-    return LocationType.exit;
-  }, [locationTypeSelector, multihop]);
-
-  const filteredCountries = useFilterCountryLocations(locationType);
-  const filteredCountryLocations = useMapReduxCountriesToCountryLocations(
-    locationType,
-    filteredCountries,
+  const setLocationType = React.useCallback(
+    (value: LocationType) => {
+      React.startTransition(() => {
+        setSelectLocationView(value);
+      });
+    },
+    [setSelectLocationView],
   );
-  const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
-
-  const selectedLocation = useSelectedEntryOrExitLocation(locationType);
-
-  const filteredCustomListLocations = useMapCustomListsToLocations(
-    searchedCountryLocations,
-    searchTerm,
-    selectedLocation,
-  );
-  const searchedCustomListLocations = useSearchCustomListLocations(
-    filteredCustomListLocations,
-    searchTerm,
-  );
-
-  const recentLocations = useMapRecentsToLocations(
-    searchedCountryLocations,
-    searchedCustomListLocations,
-  );
-
-  const recentEntryLocations = getRecentEntryLocations(recentLocations);
-  const recentExitLocations = getRecentExitLocations(recentLocations);
 
   const value = React.useMemo(
     () => ({
-      locationType,
-      setLocationType: setSelectLocationView,
+      locationType: locationTypeSelector,
+      setLocationType,
       searchTerm,
       setSearchTerm,
-      countryLocations: searchedCountryLocations,
-      customListLocations: searchedCustomListLocations,
-      recentEntryLocations,
-      recentExitLocations,
     }),
-    [
-      searchedCustomListLocations,
-      searchedCountryLocations,
-      locationType,
-      searchTerm,
-      setSearchTerm,
-      setSelectLocationView,
-      recentEntryLocations,
-      recentExitLocations,
-    ],
+    [locationTypeSelector, setLocationType, searchTerm, setSearchTerm],
   );
 
   return (
