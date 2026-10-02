@@ -146,8 +146,12 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
 
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
         let session = tunnelProvider.connection as? VPNTunnelProviderSessionProtocol
+        // Explicitly fail to send the message if the tunnel session is not up
+        guard let session else {
+            throw SendTunnelProviderMessageError.tunnelDown(.invalid)
+        }
 
-        try session?.sendProviderMessage(messageData, responseHandler: responseHandler)
+        try session.sendProviderMessage(messageData, responseHandler: responseHandler)
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {
