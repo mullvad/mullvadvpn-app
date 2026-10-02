@@ -1,9 +1,9 @@
 import type { icons } from '../../../../../../../../../../../../icon/types';
-import type { LocationSelectorItemType } from '../../../../../../../LocationSelectorItem';
-import { useLocationSelectorItemContext } from '../../../../../../../LocationSelectorItemContext';
+import type { LocationSelectorItemType } from '../../../../../../../../../types';
+import { useLocationSelectorTextFieldItemContext } from '../../../../../../../LocationSelectorTextFieldItemContext';
 
 export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof icons {
-  const { focusInsideTextField } = useLocationSelectorItemContext();
+  const { focusInsideTextField } = useLocationSelectorTextFieldItemContext();
   if (focusInsideTextField) {
     return 'search';
   }
