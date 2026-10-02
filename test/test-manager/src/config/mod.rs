@@ -7,5 +7,5 @@ mod vm;
 
 use error::Error;
 pub use io::ConfigFile;
-pub use manifest::{Config, Display, EnvironmentConfig};
+pub use manifest::{Config, Display, Environment, EnvironmentConfig};
 pub use vm::{Architecture, OsType, PackageType, Provisioner, VmConfig, VmType};

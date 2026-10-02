@@ -62,10 +62,9 @@ enum Commands {
         #[arg(long, group = "display_args")]
         display: bool,
 
-        /// Name of the environment in the config file to use, e.g. for the API, conncheck and
-        /// test locations. If not set, the default environment settings are used.
-        #[arg(long)]
-        env: Option<String>,
+        /// Environment to use, e.g. for the API, conncheck and test locations.
+        #[arg(long, value_enum, default_value_t = config::Environment::Staging)]
+        env: config::Environment,
 
         /// Run VNC server on a specified port
         #[arg(long, group = "display_args")]
@@ -153,9 +152,9 @@ enum ConfigArg {
     Which,
     /// Print the account number of an environment
     Account {
-        /// Name of the environment. If not set, the default environment settings are used.
-        #[arg(long)]
-        env: Option<String>,
+        /// Environment to use.
+        #[arg(long, value_enum, default_value_t = config::Environment::Staging)]
+        env: config::Environment,
     },
     /// Manage VM-specific setting
     #[clap(subcommand)]
@@ -233,7 +232,7 @@ async fn inner_main() -> Result<()> {
                 Ok(())
             }
             ConfigArg::Account { env } => {
-                let env_config = get_environment(&config, env.as_deref())?;
+                let env_config = config.get_environment(env);
                 println!("{}", get_account(None, &env_config)?);
                 Ok(())
             }
@@ -337,13 +336,10 @@ async fn inner_main() -> Result<()> {
                 (true, true) => unreachable!("invalid combination"),
             };
 
-            let env_config = get_environment(&config, env.as_deref())?;
+            let env_config = config.get_environment(env);
             let account = get_account(account, &env_config)?;
-            let mullvad_host = env_config.mullvad_host;
-            log::info!(
-                "Environment: {} ({mullvad_host})",
-                env.as_deref().unwrap_or("default")
-            );
+            let mullvad_host = env_config.mullvad_host().to_owned();
+            log::info!("Environment: {env:?} ({mullvad_host})");
 
             let vm_config = vm::get_vm_config(&config, &vm).context("Cannot get VM config")?;
             let runner_target = TargetInfo::try_from(vm_config)?;
@@ -395,7 +391,7 @@ async fn inner_main() -> Result<()> {
 
             let mut tests = get_filtered_tests(&test_filters, &skip)?;
             for test in tests.iter_mut() {
-                test.location = env_config.test_locations.lookup(test.name).cloned();
+                test.location = env_config.test_locations(test.name).cloned();
             }
 
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
@@ -447,20 +443,6 @@ async fn inner_main() -> Result<()> {
             Ok(())
         }
     }
-}
-
-/// Get the settings for the environment `env`, or the default settings if `env` is `None`.
-fn get_environment(
-    config: &config::Config,
-    env: Option<&str>,
-) -> Result<config::EnvironmentConfig> {
-    let Some(env) = env else {
-        return Ok(config::EnvironmentConfig::default());
-    };
-    config
-        .get_environment(env)
-        .cloned()
-        .with_context(|| format!("Environment '{env}' is not configured"))
 }
 
 /// Return `account` if set, otherwise the account of `env_config`.
