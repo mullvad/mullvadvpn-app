@@ -18,9 +18,6 @@ import Operations
 import PacketTunnelCore
 import UIKit
 
-/// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
-private let tunnelStatusPollInterval: Duration = .milliseconds(500)
-
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
 final class TunnelManager: @unchecked Sendable {
@@ -57,6 +54,8 @@ final class TunnelManager: @unchecked Sendable {
     private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(
         5
     )
+    /// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
+    private var tunnelStatusPollInterval: Duration = .milliseconds(500)
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
@@ -117,8 +116,15 @@ final class TunnelManager: @unchecked Sendable {
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(applicationDidBecomeActive),
-            name: UIApplication.didBecomeActiveNotification,
+            selector: #selector(willEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
             object: nil
         )
 
@@ -371,10 +377,7 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
-    //FIXME: Change this to avoid using operations or polling the tunnel here.
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        // Start polling the tunnel immediately when the user reconnects
-        startPollingTunnelStatus(interval: tunnelStatusPollInterval)
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
             do {
                 guard let tunnel = self.tunnel else {
@@ -662,12 +665,24 @@ final class TunnelManager: @unchecked Sendable {
 
     // MARK: - Private methods
 
-    @objc private func applicationDidBecomeActive() {
-        #if DEBUG
-            logger.debug("Refresh device state and tunnel status due to application becoming active.")
-        #endif
-        refreshTunnelStatus()
-        refreshDeviceState()
+    @objc private func willEnterForeground() {
+        internalQueue.async { [self] in
+            #if DEBUG
+                logger.debug("Refresh device state and tunnel status due to application becoming active.")
+            #endif
+            cancelPollingTunnelStatus()
+            tunnelStatusPollInterval = .milliseconds(500)
+            startPollingTunnelStatus(interval: tunnelStatusPollInterval)
+            refreshDeviceState()
+        }
+    }
+
+    @objc private func didEnterBackground() {
+        internalQueue.async { [self] in
+            cancelPollingTunnelStatus()
+            tunnelStatusPollInterval = .seconds(5)
+            startPollingTunnelStatus(interval: tunnelStatusPollInterval)
+        }
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
