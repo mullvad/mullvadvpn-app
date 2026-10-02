@@ -1,13 +1,13 @@
 import type { TextFieldIconProps } from '../../../../../../../../../../../text-field/components';
 import { LocationSelectorIcon } from '../../../../../../../../../locations-selector-icon';
-import { useIsLocationSelected } from '../../../../../../hooks';
-import { useLocationSelectorItemContext } from '../../../../../../LocationSelectorItemContext';
+import { useIsLocationSelected } from '../../../../../../../../hooks';
+import { useLocationSelectorTextFieldItemContext } from '../../../../../../LocationSelectorTextFieldItemContext';
 import { useGetLocationIcon, useGetLocationIconColor } from './hooks';
 
 export type LocationSelectorInputIconProps = Omit<TextFieldIconProps, 'icon'>;
 
 export function LocationSelectorInputIcon(props: LocationSelectorInputIconProps) {
-  const { type, id } = useLocationSelectorItemContext();
+  const { type, id } = useLocationSelectorTextFieldItemContext();
   const selected = useIsLocationSelected(id);
   const iconColor = useGetLocationIconColor(selected);
   const icon = useGetLocationIcon(type);
@@ -18,7 +18,7 @@ export function LocationSelectorInputIcon(props: LocationSelectorInputIconProps)
       icon={icon}
       color={iconColor}
       backgroundColor={backgroundColor}
-      horizontalOffset={-3}
+      horizontalOffset={3}
       {...props}
     />
   );
