@@ -52,7 +52,9 @@ class CustomListViewController: UIViewController {
             title: NSLocalizedString("Save", comment: ""),
             textStyle: .headline,
             primaryAction: UIAction { [weak self] _ in
-                self?.onSave()
+                Task {
+                    await self?.onSave()
+                }
             }
         )
         barButtonItem.setAccessibilityIdentifier(.saveCreateCustomListButton)
@@ -146,9 +148,9 @@ class CustomListViewController: UIViewController {
         }
     }
 
-    private func onSave() {
+    private func onSave() async {
         do {
-            try interactor.save(list: subject.value.customList)
+            try await interactor.save(list: subject.value.customList)
             delegate?.customListDidSave(subject.value.customList)
         } catch {
             if let error = error as? CustomRelayListError {
@@ -177,9 +179,11 @@ class CustomListViewController: UIViewController {
                     style: .destructive,
                     accessibilityId: .confirmDeleteCustomListButton,
                     handler: {
-                        self.interactor
-                            .delete(customList: self.subject.value.customList)
-                        self.delegate?.customListDidDelete(self.subject.value.customList)
+                        Task {
+                            await self.interactor
+                                .delete(customList: self.subject.value.customList)
+                            self.delegate?.customListDidDelete(self.subject.value.customList)
+                        }
                     }
                 ),
                 AlertAction(
