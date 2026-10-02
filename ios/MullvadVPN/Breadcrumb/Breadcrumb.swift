@@ -12,21 +12,18 @@ import SwiftUI
 import UIKit
 
 enum Breadcrumb: Hashable {
-    case info(SettingsNavigationRoute)
     case warning(SettingsNavigationRoute)
     case error(SettingsNavigationRoute)
 
     var navigationRoute: SettingsNavigationRoute {
         switch self {
-        case .info(let route), .warning(let route), .error(let route):
+        case .warning(let route), .error(let route):
             route
         }
     }
 
     var icon: UIImage {
         switch self {
-        case .info:
-            .stateOnline
         case .warning:
             .stateIssue
         case .error:
@@ -36,12 +33,19 @@ enum Breadcrumb: Hashable {
 
     var image: Image {
         switch self {
-        case .info:
-            .mullvadIconStateOnline
         case .warning:
             .mullvadIconStateIssue
         case .error:
             .mullvadIconStateOffline
+        }
+    }
+
+    var settingsImage: Image {
+        switch self {
+        case .warning:
+            .mullvadIconSettingsWarning
+        case .error:
+            .mullvadIconSettingsError
         }
     }
 }
@@ -50,6 +54,5 @@ extension Set where Element == Breadcrumb {
     var mostSevere: Breadcrumb? {
         first { if case .error = $0 { true } else { false } }
             ?? first { if case .warning = $0 { true } else { false } }
-            ?? first { if case .info = $0 { true } else { false } }
     }
 }

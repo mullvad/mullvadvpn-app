@@ -60,6 +60,7 @@ private struct FrameModifier: ViewModifier {
 
         case .height(let height):
             content.frame(height: height * scale)
+
         case nil:
             content
                 .aspectRatio(contentMode: .fit)
