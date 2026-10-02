@@ -12,6 +12,8 @@ import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,10 +23,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -212,6 +220,40 @@ internal fun rememberMapCameraController(
     return controller
 }
 
+/**
+ * Returns the regions of the window, in window coordinates, where gestures may be confused with
+ * system input, such as the back gesture at the left/right screen edges and the home/app switching
+ * gesture at the bottom of the screen.
+ */
+@Composable
+private fun rememberSystemGestureRegions(): List<Rect> {
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val windowSize = LocalWindowInfo.current.containerSize
+
+    val safeGestures = WindowInsets.safeGestures
+    val left = safeGestures.getLeft(density, layoutDirection)
+    val top = safeGestures.getTop(density)
+    val right = safeGestures.getRight(density, layoutDirection)
+    val bottom = safeGestures.getBottom(density)
+
+    return remember(left, top, right, bottom, windowSize) {
+        val windowWidth = windowSize.width.toFloat()
+        val windowHeight = windowSize.height.toFloat()
+
+        listOf(
+            // Left edge, where the back gesture can be performed.
+            Rect(0f, 0f, left.toFloat(), windowHeight),
+            // Right edge, where the back gesture can be performed.
+            Rect(windowWidth - right.toFloat(), 0f, windowWidth, windowHeight),
+            // Top edge.
+            Rect(0f, 0f, windowWidth, top.toFloat()),
+            // Bottom edge, where the home/app switching gestures are performed.
+            Rect(0f, windowHeight - bottom.toFloat(), windowWidth, windowHeight),
+        )
+    }
+}
+
 @Composable
 fun InteractiveMap(
     currentLocation: LatLong,
@@ -255,10 +297,14 @@ fun InteractiveMap(
             },
             globeColors,
         )
+    val systemGestureRegions = rememberSystemGestureRegions()
+
+    var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     AndroidView(
         modifier =
-            Modifier.pointerInput(lifeCycleState) {
+            Modifier.onGloballyPositioned { layoutCoordinates = it }
+                .pointerInput(lifeCycleState) {
                     detectTapGestures(
                         onTap = {
                             val result = view?.closestMarker(it) ?: return@detectTapGestures
@@ -266,13 +312,18 @@ fun InteractiveMap(
                         }
                     )
                 }
-                .pointerInput(lifeCycleState) {
+                .pointerInput(lifeCycleState, systemGestureRegions) {
                     detectTransformGesturesWithEnd(
                         onGestureStart = { controller.onGestureStart() },
                         onGesture = { centroid, pan, zoom ->
                             controller.onGesture(centroid, pan, zoom) { view?.getPosition(it) }
                         },
                         onGestureEnd = { controller.onGestureEnd() },
+                        shouldIgnoreGesture = { position ->
+                            val windowPosition = layoutCoordinates?.localToWindow(position)
+                            windowPosition != null &&
+                                systemGestureRegions.any { it.contains(windowPosition) }
+                        },
                     )
                 },
         factory = { MapSurfaceView(it) },
@@ -324,14 +375,23 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
     onGestureStart: () -> Unit,
     onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
     onGestureEnd: () -> Unit,
+    shouldIgnoreGesture: (position: Offset) -> Boolean = { false },
 ) {
     awaitEachGesture {
         var zoom = 1f
         var pan = Offset.Zero
         var pastTouchSlop = false
         val touchSlop = viewConfiguration.touchSlop
+        val firstDown = awaitFirstDown(requireUnconsumed = false)
 
-        awaitFirstDown(requireUnconsumed = false)
+        // Ignore the entire gesture if it starts in a region reserved for system gestures so
+        // that the gesture can be handled by the system instead. Returning here is safe since
+        // awaitEachGesture waits for all pointers to be released before detecting the next
+        // gesture.
+        if (shouldIgnoreGesture(firstDown.position)) {
+            return@awaitEachGesture
+        }
+
         onGestureStart()
         do {
             val event = awaitPointerEvent()
