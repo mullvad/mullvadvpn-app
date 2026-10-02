@@ -49,6 +49,8 @@ impl CustomTunnelEndpoint {
                 options,
                 generic_options: tunnel_options.generic,
                 obfuscation: None,
+                #[cfg(feature = "personal-vpn")]
+                personal_vpn: None,
             }
         };
         Ok(parameters)

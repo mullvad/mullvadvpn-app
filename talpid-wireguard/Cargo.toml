@@ -9,9 +9,12 @@ license.workspace = true
 [dependencies]
 async-trait = { workspace = true }
 byteorder = "1"
+either = { workspace = true, optional = true }
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 internet-checksum = "0.2"
+ip_network = { version = "0.4", optional = true }
+ip_network_table = { version = "0.2", optional = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
 once_cell = { workspace = true }
@@ -31,6 +34,7 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 tokio-util = { workspace = true, features = ["rt"] }
 tun = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation", features = ["gotatun"] }
+zerocopy = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
@@ -58,6 +62,13 @@ windows-sys = { workspace = true }
 
 [features]
 multihop-pcap = ["gotatun/pcap"]
+personal-vpn = [
+  "talpid-types/personal-vpn",
+  "talpid-tunnel/personal-vpn",
+  "dep:either",
+  "dep:ip_network",
+  "dep:ip_network_table",
+]
 
 [lints]
 workspace = true

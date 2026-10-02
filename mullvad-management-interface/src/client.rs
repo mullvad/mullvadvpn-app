@@ -674,6 +674,35 @@ impl MullvadProxyClient {
 
         Ok(listener.map(|item| Ok(item?.message)))
     }
+
+    #[cfg(feature = "personal-vpn")]
+    pub async fn set_personal_vpn_config(
+        &mut self,
+        config: Option<talpid_types::net::wireguard::UnresolvedPersonalVpnConfig>,
+    ) -> Result<String> {
+        let proto_config = match config {
+            Some(c) => types::PersonalVpnConfig::from(c),
+            None => types::PersonalVpnConfig {
+                tunnel: None,
+                peer: None,
+            },
+        };
+        let response = self.0.set_personal_vpn_config(proto_config).await?;
+        Ok(response.into_inner().error)
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    pub async fn set_personal_vpn_config_status(&mut self, enabled: bool) -> Result<()> {
+        self.0.set_personal_vpn_config_status(enabled).await?;
+        Ok(())
+    }
+
+    /// Import a personal VPN configuration from the contents of a wg-quick file.
+    #[cfg(feature = "personal-vpn")]
+    pub async fn import_personal_vpn_config(&mut self, body: String) -> Result<String> {
+        let response = self.0.import_personal_vpn_config(body).await?;
+        Ok(response.into_inner().error)
+    }
 }
 
 #[cfg(not(target_os = "android"))]

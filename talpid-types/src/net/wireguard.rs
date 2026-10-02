@@ -20,6 +20,8 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    #[cfg(feature = "personal-vpn")]
+    pub personal_vpn: Option<PersonalVpnConfig>,
 }
 
 impl TunnelParameters {
@@ -55,11 +57,18 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
+        // Personal VPN requires the gotatun device graph; the kernel backend has no such path.
+        let pvpn = cfg_select! {
+            feature = "personal-vpn" => self.personal_vpn.is_some(),
+            _ => false,
+        };
+
         cfg!(target_os = "macos")
             || self.options.userspace
             || self.options.daita
             // Always prefer GotaTun for multihop on Windows
             || (cfg!(target_os = "windows") && self.connection.exit_peer.is_some())
+            || pvpn
     }
 }
 
@@ -332,6 +341,102 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", STANDARD.encode(self.as_bytes()))
+    }
+}
+
+/// Personal VPN tunnel interface configuration (WireGuard-based).
+///
+/// `ips` carries one or more interface addresses (typically one IPv4 and/or
+/// one IPv6, matching a wg-quick `Address = ...` line). Must be non-empty;
+/// construction/parsing from proto and wg-quick both reject an empty list.
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PersonalVpnTunnelConfig {
+    pub private_key: PrivateKey,
+    pub ips: Vec<std::net::IpAddr>,
+}
+
+/// Personal VPN peer configuration (WireGuard-based).
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PersonalVpnPeerConfig {
+    pub public_key: PublicKey,
+    pub allowed_ip: Vec<IpNetwork>,
+    pub endpoint: SocketAddr,
+}
+
+/// Personal VPN configuration (WireGuard-based).
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct PersonalVpnConfig {
+    pub tunnel: PersonalVpnTunnelConfig,
+    pub peer: PersonalVpnPeerConfig,
+}
+
+/// Pre-resolution variant of [`PersonalVpnPeerConfig`] whose endpoint is a
+/// free-form `<host>:<port>` string. `<host>` may be an IP literal or a DNS
+/// name; [`UnresolvedPersonalVpnConfig::resolve`] turns it into a concrete
+/// [`SocketAddr`].
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedPersonalVpnPeerConfig {
+    pub public_key: PublicKey,
+    pub allowed_ip: Vec<IpNetwork>,
+    pub endpoint: String,
+}
+
+/// Pre-resolution variant of [`PersonalVpnConfig`].
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedPersonalVpnConfig {
+    pub tunnel: PersonalVpnTunnelConfig,
+    pub peer: UnresolvedPersonalVpnPeerConfig,
+}
+
+#[cfg(feature = "personal-vpn")]
+impl UnresolvedPersonalVpnConfig {
+    const RESOLVE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+
+    /// Resolve the peer endpoint via DNS (fast-pathing when the endpoint is
+    /// already an IP literal) and produce a concrete [`PersonalVpnConfig`].
+    ///
+    /// Blocks on a DNS lookup, capped at [`RESOLVE_TIMEOUT`]. Prefers IPv4 if
+    /// DNS returns both families.
+    pub async fn resolve(self) -> Result<PersonalVpnConfig, std::io::Error> {
+        let endpoint = if let Ok(addr) = self.peer.endpoint.parse::<SocketAddr>() {
+            addr
+        } else {
+            let lookup = tokio::net::lookup_host(&self.peer.endpoint);
+            let addrs = tokio::time::timeout(Self::RESOLVE_TIMEOUT, lookup)
+                .await
+                .map_err(|_| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::TimedOut,
+                        format!(
+                            "DNS lookup for {} timed out after {:?}",
+                            self.peer.endpoint,
+                            Self::RESOLVE_TIMEOUT
+                        ),
+                    )
+                })??;
+            let mut addrs: Vec<SocketAddr> = addrs.collect();
+            if addrs.is_empty() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    format!("no addresses found for {}", self.peer.endpoint),
+                ));
+            }
+            addrs.sort_by_key(|a| !a.is_ipv4());
+            addrs[0]
+        };
+        Ok(PersonalVpnConfig {
+            tunnel: self.tunnel,
+            peer: PersonalVpnPeerConfig {
+                public_key: self.peer.public_key,
+                allowed_ip: self.peer.allowed_ip,
+                endpoint,
+            },
+        })
     }
 }
 

@@ -49,11 +49,16 @@ pub enum Error {
 
 pub type AppUpgradeBroadcast = tokio::sync::broadcast::Sender<version::AppUpgradeEvent>;
 
+#[cfg(feature = "personal-vpn")]
+pub type PersonalVpnStatsBroadcast = tokio::sync::broadcast::Sender<types::PersonalVpnStats>;
+
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
     log_reload_handle: crate::logging::LogHandle,
+    #[cfg(feature = "personal-vpn")]
+    personal_vpn_stats: PersonalVpnStatsBroadcast,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -62,6 +67,9 @@ type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::Dae
 
 type AppUpgradeEventListenerReceiver =
     Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
+
+type PersonalVpnStatsListenerReceiver =
+    Box<dyn futures::Stream<Item = Result<types::PersonalVpnStats, Status>> + Send + Unpin>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -72,6 +80,7 @@ impl ManagementService for ManagementServiceImpl {
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
+    type GetPersonalVpnStatsStream = PersonalVpnStatsListenerReceiver;
 
     // Control and get the tunnel state
     //
@@ -1359,6 +1368,109 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::DeleteMultihopMigration)?;
         Ok(Response::new(()))
     }
+    #[cfg(feature = "personal-vpn")]
+    async fn set_personal_vpn_config(
+        &self,
+        request: Request<types::PersonalVpnConfig>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("set_personal_vpn_config");
+        let request = request.into_inner();
+        let config = if request.peer.is_none() && request.tunnel.is_none() {
+            None
+        } else {
+            Some(
+                talpid_types::net::wireguard::UnresolvedPersonalVpnConfig::try_from(request)
+                    .map_err(map_protobuf_type_err)?,
+            )
+        };
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfig(tx, config))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::PersonalVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enabled = request.into_inner();
+        log::debug!("set_personal_vpn_config_status({})", enabled);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfigStatus(tx, enabled))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn import_personal_vpn_config(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("import_personal_vpn_config");
+        let body = request.into_inner();
+        let config = <talpid_types::net::wireguard::UnresolvedPersonalVpnConfig as std::str::FromStr>::from_str(&body)
+            .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfig(tx, Some(config)))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::PersonalVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn get_personal_vpn_stats(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
+        log::debug!("get_personal_vpn_stats");
+        let rx = self.personal_vpn_stats.subscribe();
+        let stream = tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+            Ok(stats) => Ok(stats),
+            Err(error) => Err(Status::internal(format!(
+                "Failed to receive personal VPN stats: {error}"
+            ))),
+        });
+        Ok(Response::new(
+            Box::new(stream) as Self::GetPersonalVpnStatsStream
+        ))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn set_personal_vpn_config(
+        &self,
+        _request: Request<types::PersonalVpnConfig>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("set_personal_vpn_config");
+        Ok(Response::new(types::PersonalVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enabled = request.into_inner();
+        log::debug!("set_personal_vpn_config_status({})", enabled);
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn import_personal_vpn_config(
+        &self,
+        _request: Request<String>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("import_personal_vpn_config");
+        Ok(Response::new(types::PersonalVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn get_personal_vpn_stats(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
+        log::debug!("get_personal_vpn_stats");
+        Ok(Response::new(
+            Box::new(futures::stream::empty()) as Self::GetPersonalVpnStatsStream
+        ))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -1397,6 +1509,9 @@ impl ManagementInterfaceServer {
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
+        #[cfg(feature = "personal-vpn")]
+        let personal_vpn_stats: PersonalVpnStatsBroadcast = tokio::sync::broadcast::channel(32).0;
+
         // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
         // to abort the gRPC server, the sender can be awaited to know when the gRPC server has
         // received and started processing the shutdown signal.
@@ -1407,6 +1522,8 @@ impl ManagementInterfaceServer {
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
             log_reload_handle,
+            #[cfg(feature = "personal-vpn")]
+            personal_vpn_stats: personal_vpn_stats.clone(),
         };
 
         let relay_selector_service = RelaySelectorServer::new(relay_selector);
@@ -1426,7 +1543,11 @@ impl ManagementInterfaceServer {
             rpc_socket_path.display()
         );
 
-        let broadcast = ManagementInterfaceEventBroadcaster { subscriptions };
+        let broadcast = ManagementInterfaceEventBroadcaster {
+            subscriptions,
+            #[cfg(feature = "personal-vpn")]
+            personal_vpn_stats,
+        };
 
         Ok(ManagementInterfaceServer {
             rpc_server_join_handle,
@@ -1465,12 +1586,34 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
+    #[cfg(feature = "personal-vpn")]
+    personal_vpn_stats: PersonalVpnStatsBroadcast,
 }
 
 impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: types::DaemonEvent) {
         let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
+    }
+
+    /// Send new personal VPN stats to all subscribed clients.
+    #[cfg(feature = "personal-vpn")]
+    pub(crate) fn notify_personal_vpn_stats(&self, stats: talpid_types::Stats) {
+        let stats = types::PersonalVpnStats {
+            last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
+                let duration = handshake
+                    .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                    .ok()?;
+                Some(types::Timestamp {
+                    seconds: i64::try_from(duration.as_secs()).ok()?,
+                    nanos: 0,
+                })
+            }),
+            tx_bytes: stats.tx_bytes,
+            rx_bytes: stats.rx_bytes,
+        };
+        // An error here means no client is currently subscribed, which is fine.
+        let _ = self.personal_vpn_stats.send(stats);
     }
 
     /// Notify that the tunnel state changed.

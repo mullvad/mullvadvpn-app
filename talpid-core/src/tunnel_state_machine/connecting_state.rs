@@ -152,6 +152,8 @@ impl ConnectingState {
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
+                        #[cfg(feature = "personal-vpn")]
+                        shared_values.personal_vpn_stats_tx.clone(),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -226,6 +228,7 @@ impl ConnectingState {
             })
     }
 
+    #[cfg_attr(feature = "personal-vpn", expect(clippy::too_many_arguments))]
     fn start_tunnel(
         runtime: tokio::runtime::Handle,
         parameters: TunnelParameters,
@@ -234,6 +237,9 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
+        #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
+            tokio::sync::mpsc::Sender<talpid_types::Stats>,
+        >,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
@@ -261,6 +267,8 @@ impl ConnectingState {
                 tun_provider,
                 retry_attempt,
                 route_manager,
+                #[cfg(feature = "personal-vpn")]
+                personal_vpn_stats: personal_vpn_stats_tx,
             };
 
             #[cfg(target_os = "windows")]
