@@ -17,4 +17,6 @@ enum class FeatureIndicator {
     SERVER_IP_OVERRIDE,
     CUSTOM_MTU,
     QUANTUM_RESISTANCE,
+    PERSONAL_VPN,
+    PERSONAL_VPN_ACTIVE,
 }
