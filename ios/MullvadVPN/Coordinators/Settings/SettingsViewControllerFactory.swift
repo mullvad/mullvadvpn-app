@@ -108,11 +108,21 @@ final class SettingsViewControllerFactory {
     }
 
     private func makeProblemReportViewController() -> MakeChildResult {
+        let viewController = UIHostingController(
+            rootView: ProblemReportView(
+                viewModel: ProblemReportViewModel(
+                    interactor: interactorFactory.makeProblemReportInteractor()
+                )
+            )
+        )
+        // For reasons known only to the SwiftUI gods, the hosting view's `backgroundColor` is
+        // `.white` by default. Which is not a problem, except during navigation transitions,
+        // where the SwiftUI view is scaled down, jarringly exposing the white backing.
+        // This is mitigated by explicitly setting the colour here.
+        viewController.view.backgroundColor = UIColor.secondaryColor
         return .viewController(
-            ProblemReportViewController(
-                interactor: interactorFactory.makeProblemReportInteractor(),
-                alertPresenter: alertPresenter
-            ))
+            viewController
+        )
     }
 
     private func makeAPIAccessCoordinator() -> MakeChildResult {

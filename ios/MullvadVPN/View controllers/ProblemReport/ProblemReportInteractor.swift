@@ -15,7 +15,36 @@ import MullvadRustRuntime
 import MullvadTypes
 import Operations
 
-final class ProblemReportInteractor: @unchecked Sendable {
+protocol ProblemReportInteractorProtocol: Sendable {
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void)
+
+    func sendReport(
+        email: String,
+        message: String,
+        includeAccountTokenInLogs: Bool,
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
+    )
+}
+
+extension ProblemReportInteractorProtocol {
+    func fetchReportString() async -> String {
+        await withCheckedContinuation { continuation in
+            self.fetchReportString { continuation.resume(returning: $0) }
+        }
+    }
+
+    func sendReport(email: String, message: String, includeAccountTokenInLogs: Bool) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            self.sendReport(
+                email: email,
+                message: message,
+                includeAccountTokenInLogs: includeAccountTokenInLogs
+            ) { continuation.resume(with: $0) }
+        }
+    }
+}
+
+final class ProblemReportInteractor: ProblemReportInteractorProtocol, @unchecked Sendable {
     private let apiProxy: APIQuerying
     private let tunnelManager: TunnelManager
     private let consolidatedLog: ConsolidatedApplicationLog
@@ -100,6 +129,34 @@ final class ProblemReportInteractor: @unchecked Sendable {
             DispatchQueue.main.async {
                 completion(result)
             }
+        }
+    }
+}
+
+// MARK: A mock interactor for SwiftUI Previews
+
+struct MockProblemReportInteractor: ProblemReportInteractorProtocol {
+    var reportError: (any Error)?
+
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
+        completion(
+            """
+            The log file will go here
+            =========================
+
+            Something something something...
+            """
+        )
+    }
+
+    func sendReport(
+        email: String, message: String, includeAccountTokenInLogs: Bool,
+        completion: @escaping (Result<Void, any Error>) -> Void
+    ) {
+        if let reportError {
+            completion(.failure(reportError))
+        } else {
+            completion(.success(()))
         }
     }
 }

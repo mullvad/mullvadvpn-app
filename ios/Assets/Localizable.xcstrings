@@ -6993,6 +6993,9 @@
         }
       }
     },
+    "App Logs" : {
+
+    },
     "Are you sure you want to delete the account %@?" : {
       "localizations" : {
         "da" : {
@@ -12341,6 +12344,9 @@
           }
         }
       }
+    },
+    "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our **privacy policy**" : {
+
     },
     "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
       "localizations" : {
@@ -24533,6 +24539,9 @@
         }
       }
     },
+    "Email (optional)" : {
+
+    },
     "Enable" : {
       "localizations" : {
         "da" : {
@@ -25785,6 +25794,9 @@
           }
         }
       }
+    },
+    "Enter your email" : {
+
     },
     "Entry" : {
       "localizations" : {
@@ -53795,6 +53807,9 @@
           }
         }
       }
+    },
+    "Problem description" : {
+
     },
     "Providers" : {
       "localizations" : {

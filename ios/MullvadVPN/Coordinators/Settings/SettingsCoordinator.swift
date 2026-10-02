@@ -339,7 +339,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return .notificationSettings
         case is UIHostingController<ChangeLogView<ChangeLogViewModel>>:
             return .changelog
-        case is ProblemReportViewController:
+        case is UIHostingController<ProblemReportView>:
             return .problemReport
         default:
             return nil
