@@ -14,13 +14,15 @@ export type LocationSelectorRowProps = React.PropsWithChildren<{
   position: LocationSelectorRowPropsPositions;
 }>;
 
-export const StyledFlexRow = styled(FlexRow)<{ $position: LocationSelectorRowPropsPositions }>`
-  ${({ $position }) => {
+export const StyledLocationSelectorRowContent = styled(FlexRow).attrs({
+  gap: 'small',
+  alignItems: 'center',
+  padding: { left: 'tiny' },
+})`
+  ${() => {
     return css`
       position: relative;
-      height: 100%;
-      padding-bottom: ${$position === 'top' ? spacings.tiny : 0};
-      padding-top: ${$position === 'bottom' ? spacings.tiny : 0};
+      min-height: 28px;
     `;
   }}
 `;
@@ -37,16 +39,8 @@ function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
 
   return (
     <LocationSelectorRowProvider position={position}>
-      <StyledLocationSelectorRow expanded={expanded}>
-        <Expandable.Content>
-          <StyledFlexRow
-            gap="small"
-            alignItems="center"
-            padding={{ left: 'tiny' }}
-            $position={position}>
-            {children}
-          </StyledFlexRow>
-        </Expandable.Content>
+      <StyledLocationSelectorRow expanded={expanded} initial={false}>
+        <Expandable.Content>{children}</Expandable.Content>
       </StyledLocationSelectorRow>
     </LocationSelectorRowProvider>
   );
@@ -55,6 +49,7 @@ function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
 const LocationSelectorRowNamespace = Object.assign(LocationSelectorRow, {
   Icon: LocationSelectorRowIcon,
   Label: StyledLocationSelectorRowLabel,
+  Content: StyledLocationSelectorRowContent,
 });
 
 export { LocationSelectorRowNamespace as LocationSelectorRow };
