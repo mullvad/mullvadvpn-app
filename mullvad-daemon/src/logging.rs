@@ -14,6 +14,8 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
+pub const MAX_LOG_FILE_SIZE: u64 = 2 * 1024 * 1024; // 2GB
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Unable to open log file for writing
@@ -62,9 +64,13 @@ impl LogFileWriter {
 
         // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
         rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-        let file_appender =
-            tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
-        let (file_writer, guard) = non_blocking(file_appender);
+        let log_writer = rolling_file::BasicRollingFileAppender::new(
+            log_location.directory.join(log_location.filename),
+            rolling_file::RollingConditionBasic::new().max_size(MAX_LOG_FILE_SIZE),
+            2, // max files.
+        )
+        .unwrap();
+        let (file_writer, guard) = non_blocking(log_writer);
 
         // When the guard is dropped, logs will no longer be written to the file, so we need to keep it
         // alive until the program exits.
