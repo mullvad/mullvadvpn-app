@@ -2,9 +2,23 @@ import { messages } from '../../../../../../shared/gettext';
 import { Icon } from '../../../../../lib/components';
 import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
 import { useVersionCurrent } from '../../../../../redux/hooks';
+import { isPlatform } from '../../../../../utils';
 import { useShowAlert, useShowFooter } from './hooks';
 
 export type VersionListItemProps = Omit<ListItemProps, 'children'>;
+
+function getOutOfSyncMessage() {
+  if (isPlatform('linux')) {
+    // TRANSLATORS: Description for version list item when app is out of sync.
+    return messages.pgettext(
+      'app-info-view',
+      'App is out of sync. Please quit and restart the app or daemon.',
+    );
+  }
+
+  // TRANSLATORS: Description for version list item when app is out of sync.
+  return messages.pgettext('app-info-view', 'App is out of sync. Please quit and restart.');
+}
 
 export function VersionListItem(props: VersionListItemProps) {
   const { current } = useVersionCurrent();
@@ -29,12 +43,7 @@ export function VersionListItem(props: VersionListItemProps) {
       </ListItem.Item>
       {showFooter && (
         <ListItem.Footer>
-          <ListItem.Footer.Text>
-            {
-              // TRANSLATORS: Description for version list item when app is out of sync.
-              messages.pgettext('app-info-view', 'App is out of sync. Please quit and restart.')
-            }
-          </ListItem.Footer.Text>
+          <ListItem.Footer.Text>{getOutOfSyncMessage()}</ListItem.Footer.Text>
         </ListItem.Footer>
       )}
     </ListItem>
