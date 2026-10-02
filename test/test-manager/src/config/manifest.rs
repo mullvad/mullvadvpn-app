@@ -19,9 +19,34 @@ pub struct Config {
     #[serde(skip)]
     pub runtime_opts: RuntimeOptions,
     pub vms: BTreeMap<String, VmConfig>,
-    /// Named API environments, e.g. prod or staging, with settings specific to each.
+    /// Settings specific to each [Environment].
     #[serde(default)]
-    pub environments: BTreeMap<String, EnvironmentConfig>,
+    pub environments: Environments,
+}
+
+/// An environment to test against, i.e. its API and relays.
+#[derive(clap::ValueEnum, Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Environment {
+    Prod,
+    Staging,
+}
+
+/// Settings for each [Environment].
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[serde(default, deny_unknown_fields)]
+pub struct Environments {
+    pub prod: EnvironmentConfig,
+    pub staging: EnvironmentConfig,
+}
+
+impl Environments {
+    fn get(&self, env: Environment) -> &EnvironmentConfig {
+        match env {
+            Environment::Prod => &self.prod,
+            Environment::Staging => &self.staging,
+        }
+    }
 }
 
 /// Default `mullvad_host`. This should match the production env.
@@ -31,8 +56,8 @@ const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
 /// override these field by field.
 const BUILTIN_ENVIRONMENTS: &str = include_str!("../../../environments.json");
 
-/// Settings for an environment. Unset fields fall back on the built-in environment of the same
-/// name, if any, and then on defaults.
+/// Settings for an environment. Unset fields fall back on the built-in environment, and then on
+/// defaults.
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct EnvironmentConfig {
@@ -67,7 +92,7 @@ impl EnvironmentConfig {
     }
 }
 
-fn builtin_environments() -> BTreeMap<String, EnvironmentConfig> {
+fn builtin_environments() -> Environments {
     serde_json::from_str(BUILTIN_ENVIRONMENTS).expect("built-in environments must be valid")
 }
 
@@ -90,15 +115,11 @@ impl Config {
         self.vms.get(name)
     }
 
-    /// Return the environment `name`, combining the built-in environment and the one in the
-    /// config file. Returns `None` if neither exists.
-    pub fn get_environment(&self, name: &str) -> Option<EnvironmentConfig> {
-        let builtin = builtin_environments().remove(name);
-        let configured = self.environments.get(name).cloned();
-        match (builtin, configured) {
-            (Some(builtin), Some(configured)) => Some(builtin.merge(configured)),
-            (builtin, configured) => builtin.or(configured),
-        }
+    /// Return the settings for `env`, combining the built-in environment and the one in the
+    /// config file.
+    pub fn get_environment(&self, env: Environment) -> EnvironmentConfig {
+        let builtin = builtin_environments().get(env).clone();
+        builtin.merge(self.environments.get(env).clone())
     }
 }
 
@@ -112,16 +133,15 @@ mod tests {
             {
                 "vms": {},
                 "environments": {
-                    "custom": {}
+                    "prod": {}
                 }
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        let custom = config.get_environment("custom").unwrap();
-        assert_eq!(custom.mullvad_host(), DEFAULT_MULLVAD_HOST);
-        assert!(custom.account.is_none());
-        assert!(custom.test_locations.is_none());
-        assert!(config.get_environment("nonexistent").is_none());
+        let prod = &config.environments.prod;
+        assert_eq!(prod.mullvad_host(), DEFAULT_MULLVAD_HOST);
+        assert!(prod.account.is_none());
+        assert!(prod.test_locations.is_none());
     }
 
     #[test]
@@ -142,7 +162,7 @@ mod tests {
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        let staging = config.get_environment("staging").unwrap();
+        let staging = config.get_environment(Environment::Staging);
         assert_eq!(staging.mullvad_host(), "stagemole.eu");
         assert_eq!(staging.account.as_deref(), Some("1234123412341234"));
         assert!(
@@ -188,8 +208,8 @@ mod tests {
     #[test]
     fn parse_builtin_environments() {
         let environments = builtin_environments();
-        assert!(environments.contains_key("prod"));
-        assert!(environments.contains_key("staging"));
+        assert!(environments.prod.test_locations.is_some());
+        assert!(environments.staging.test_locations.is_some());
     }
 
     #[test]
@@ -206,15 +226,15 @@ mod tests {
         let config: Config = serde_json::from_str(config).unwrap();
         let builtin = builtin_environments();
 
-        let staging = config.get_environment("staging").unwrap();
+        let staging = config.get_environment(Environment::Staging);
         assert_eq!(staging.account.as_deref(), Some("1234123412341234"));
-        assert_eq!(staging.mullvad_host(), builtin["staging"].mullvad_host());
+        assert_eq!(staging.mullvad_host(), builtin.staging.mullvad_host());
 
-        let prod = config.get_environment("prod").unwrap();
+        let prod = config.get_environment(Environment::Prod);
         assert_eq!(
             prod.test_locations("test_anything"),
             Some(&vec!["ch".to_string()])
         );
-        assert_eq!(prod.mullvad_host(), builtin["prod"].mullvad_host());
+        assert_eq!(prod.mullvad_host(), builtin.prod.mullvad_host());
     }
 }

@@ -10,7 +10,7 @@ The configuration is a JSON document with two values:
 {
     "vms": <document>,
     "environments": {
-        "<name>": {
+        "prod" | "staging": {
             "mullvad_host": <optional string>,
             "account": <optional string>,
             "test_locations": [ {"test_name": ["relay"] }, .. ]
@@ -30,16 +30,15 @@ The configuration is assumed to exist in `$XDG_CONFIG_HOME/mullvad-test/config.j
 
 ## Environments
 
-`environments` maps arbitrary names, e.g. `prod` or `staging`, to settings that differ between
-API environments. `test-manager run-tests --env <name>` selects which one to use. The named
-environment must be configured, either here or in the built-in environments (see below). If
-`--env` is omitted, the default settings are used.
+`environments` contains settings that differ between the environments `prod` and `staging`, which
+each have their own API and relays. Both are optional. `test-manager run-tests --env <prod|staging>`
+selects which one to use, and defaults to `staging`.
 
 `mullvad_host` is the domain used for the API and conncheck, e.g. `stagemole.eu`. It is prefixed
 with e.g. `api.` and `ipv4.am.i.`. Defaults to `mullvad.net`.
 
 `account` is the account number to use for testing. It can be overridden with `--account`, and
-one of the two must be given. `test-manager config account --env <name>` prints it.
+one of the two must be given. `test-manager config account --env <prod|staging>` prints it.
 
 ## Per-test relay selection
 
@@ -76,7 +75,7 @@ any test name. The configuration is read from top-to-bottom, and the first match
 [`test/environments.json`](../../environments.json). These are the settings used by the GitHub
 workflow for desktop end to end tests.
 
-An environment of the same name in the config overrides the built-in one field by field. For
+An environment in the config overrides the built-in one field by field. For
 example, `"staging": { "account": "..." }` only sets the account, and keeps the built-in
 `mullvad_host` and `test_locations`.
 
