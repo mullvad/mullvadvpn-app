@@ -238,8 +238,10 @@ pub mod builder {
 
     use mullvad_types::{
         constraints::Constraint,
+        custom_list::CustomListsSettings,
         relay_constraints::{
-            LwoSettings, ShadowsocksSettings, Udp2TcpObfuscationSettings, WireguardPortSettings,
+            LocationConstraint, LwoSettings, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+            WireguardPortSettings,
         },
         relay_selector::{
             EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
@@ -325,6 +327,17 @@ pub mod builder {
             self
         }
 
+        /// Configure the exit relay's location. (For singlehop/autohop, the exit is
+        /// the only relay; for multihop, the exit is the second hop.)
+        pub fn custom_list(
+            self,
+            location: Constraint<LocationConstraint>,
+            custom_lists: &CustomListsSettings,
+        ) {
+            let location = ResolvedLocationConstraint::from_constraint(location, custom_lists);
+            self.location(location);
+        }
+
         pub const fn ownership(mut self, ownership: Ownership) -> Self {
             self.exit.ownership = Constraint::Only(ownership);
             self
@@ -403,10 +416,22 @@ pub mod builder {
 
     // `.entry_*` only available after `.multihop()`.
     impl<Obfuscation> RelayQueryBuilder<bool, Obfuscation> {
-        pub fn entry(mut self, location: impl Into<ResolvedLocationConstraint>) -> Self {
-            self.multihop_entry.location = Constraint::Only(location.into());
+        pub fn entry(
+            mut self,
+            location: impl Into<Constraint<ResolvedLocationConstraint>>,
+        ) -> Self {
+            self.multihop_entry.location = location.into();
             self
         }
+        pub fn entry_custom_list(
+            self,
+            location: Constraint<LocationConstraint>,
+            custom_lists: &CustomListsSettings,
+        ) -> Self {
+            let location = ResolvedLocationConstraint::from_constraint(location, custom_lists);
+            self.entry(location)
+        }
+
         pub fn entry_providers(mut self, providers: Providers) -> Self {
             self.multihop_entry.providers = Constraint::Only(providers);
             self

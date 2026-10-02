@@ -1371,19 +1371,26 @@ pub fn into_settings(
         quantum_resistant: _,
     }: RelayQuery,
 ) -> (RelayConstraints, ObfuscationSettings) {
-    let location_constraint = |exit: &ExitConstraints| {
-        exit
-            .location
-            .clone()
-            // HACK: RelayQuery does not deal with custom lists so there is only one underlying
-            // location constraint. i.e. next().unwrap() is safe.
-            .map(|c| c.iter().next().unwrap().clone().into())
+    let location = |exit: &ExitConstraints, not: Option<&GeographicLocationConstraint>| {
+        let Constraint::Only(locations) = exit.location.as_ref() else {
+            return Constraint::Any;
+        };
+        let location = locations.iter()
+                .find(|location| Some(location) != not.as_ref())
+                // NOTE: This would indicate a bug in the test-manager config (too few relays to choose from). Unwrapping is thus fine.
+                .unwrap()
+                .clone();
+        Constraint::Only(location)
     };
+    let location_constraint =
+        |exit: &ExitConstraints, not: Option<&GeographicLocationConstraint>| {
+            location(exit, not).map(LocationConstraint::from)
+        };
 
     match hops {
         Hops::Single(entry) => {
             let constraints = RelayConstraints {
-                location: location_constraint(&entry.general),
+                location: location_constraint(&entry.general, None),
                 providers: entry.general.providers,
                 ownership: entry.general.ownership,
                 wireguard_constraints: WireguardConstraints {
@@ -1400,7 +1407,7 @@ pub fn into_settings(
         }
         Hops::Auto(entry) => {
             let constraints = RelayConstraints {
-                location: location_constraint(&entry.general),
+                location: location_constraint(&entry.general, None),
                 providers: entry.general.providers,
                 ownership: entry.general.ownership,
                 wireguard_constraints: WireguardConstraints {
@@ -1416,15 +1423,16 @@ pub fn into_settings(
             (constraints, obfuscation)
         }
         Hops::Multi(MultihopConstraints { entry, exit }) => {
+            let entry_location = location(&entry.general, None);
             let constraints = RelayConstraints {
-                location: location_constraint(&exit),
+                location: location_constraint(&exit, entry_location.as_ref().option()),
                 providers: exit.providers,
                 ownership: exit.ownership,
                 wireguard_constraints: WireguardConstraints {
                     ip_version: entry.entry_specific.ip_version,
                     allowed_ips,
                     multihop: Multihop::Always,
-                    entry_location: location_constraint(&entry.general),
+                    entry_location: entry_location.map(LocationConstraint::from),
                     entry_providers: entry.general.providers,
                     entry_ownership: entry.general.ownership,
                 },
