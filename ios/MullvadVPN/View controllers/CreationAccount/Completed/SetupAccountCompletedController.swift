@@ -23,7 +23,7 @@ class SetupAccountCompletedController: UIViewController, RootContainment {
     }()
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        HeaderBarPresentation(style: .default, showsDivider: true)
+        HeaderBarPresentation(style: .default)
     }
 
     var prefersHeaderBarHidden: Bool {
