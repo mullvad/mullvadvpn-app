@@ -3,7 +3,7 @@ import { RelayLocationsFilterContext } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
 import { useMultihop } from '../../multihop/hooks';
 import { LocationType } from '../types';
-import { filterLocationsByRelayLocationsFiltered } from '../utils';
+import { filterCountriesByRelayLocationsFiltered } from '../utils';
 
 export function useFilterCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
@@ -12,7 +12,7 @@ export function useFilterCountryLocations(locationType: LocationType) {
   const context: RelayLocationsFilterContext =
     locationType === LocationType.entry ? 'entry' : 'exit';
 
-  return filterLocationsByRelayLocationsFiltered(
+  return filterCountriesByRelayLocationsFiltered(
     locations,
     relayLocationsFiltered,
     context,
