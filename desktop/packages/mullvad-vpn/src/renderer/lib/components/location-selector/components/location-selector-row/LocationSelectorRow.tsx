@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import styled, { css } from 'styled-components';
 
 import { colors, spacings } from '../../../../foundations';
@@ -14,13 +15,15 @@ export type LocationSelectorRowProps = React.PropsWithChildren<{
   position: LocationSelectorRowPropsPositions;
 }>;
 
-export const StyledFlexRow = styled(FlexRow)<{ $position: LocationSelectorRowPropsPositions }>`
-  ${({ $position }) => {
+export const StyledLocationSelectorRowContent = styled(FlexRow).attrs({
+  gap: 'small',
+  alignItems: 'center',
+  padding: { left: 'tiny' },
+})`
+  ${() => {
     return css`
       position: relative;
-      height: 100%;
-      padding-bottom: ${$position === 'top' ? spacings.tiny : 0};
-      padding-top: ${$position === 'bottom' ? spacings.tiny : 0};
+      min-height: 28px;
     `;
   }}
 `;
@@ -30,24 +33,18 @@ export const StyledLocationSelectorRowLabel = styled(BodySmall)`
   color: ${colors.whiteAlpha60};
 `;
 
-export const StyledLocationSelectorRow = styled(Expandable)``;
-
 function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
   const { expanded } = useLocationSelectorContext();
 
   return (
     <LocationSelectorRowProvider position={position}>
-      <StyledLocationSelectorRow expanded={expanded}>
-        <Expandable.Content>
-          <StyledFlexRow
-            gap="small"
-            alignItems="center"
-            padding={{ left: 'tiny' }}
-            $position={position}>
+      <motion.div layout="position" transition={{ duration: 0.25, ease: 'easeOut' }}>
+        <Expandable expanded={expanded} initial={false}>
+          <Expandable.Content transition={{ duration: 0.25, ease: 'easeOut' }}>
             {children}
-          </StyledFlexRow>
-        </Expandable.Content>
-      </StyledLocationSelectorRow>
+          </Expandable.Content>
+        </Expandable>
+      </motion.div>
     </LocationSelectorRowProvider>
   );
 }
@@ -55,6 +52,7 @@ function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
 const LocationSelectorRowNamespace = Object.assign(LocationSelectorRow, {
   Icon: LocationSelectorRowIcon,
   Label: StyledLocationSelectorRowLabel,
+  Content: StyledLocationSelectorRowContent,
 });
 
 export { LocationSelectorRowNamespace as LocationSelectorRow };

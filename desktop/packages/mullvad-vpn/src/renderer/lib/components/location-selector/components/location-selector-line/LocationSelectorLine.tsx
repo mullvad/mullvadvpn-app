@@ -1,8 +1,9 @@
+import { motion } from 'motion/react';
 import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../foundations';
 
-export const LocationSelectorLine = styled.div<{ $visible?: boolean }>`
+export const LocationSelectorLine = styled(motion.div)<{ $visible?: boolean }>`
   ${({ $visible }) => css`
     position: absolute;
     left: 20px;
