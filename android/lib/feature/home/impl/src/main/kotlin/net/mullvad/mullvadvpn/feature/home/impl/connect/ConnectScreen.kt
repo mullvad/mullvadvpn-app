@@ -95,6 +95,7 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
+import net.mullvad.mullvadvpn.feature.personalvpn.api.PersonalVpnNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
@@ -929,4 +930,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
 
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
+
+        FeatureIndicator.PERSONAL_VPN,
+        FeatureIndicator.PERSONAL_VPN_ACTIVE -> PersonalVpnNavKey(isModal = true)
     }

@@ -482,6 +482,8 @@ dependencies {
     implementation(projects.lib.feature.multihopmigration.api)
     implementation(projects.lib.feature.multihopmigration.impl)
     implementation(projects.lib.feature.notification.impl)
+    implementation(projects.lib.feature.personalvpn.api)
+    implementation(projects.lib.feature.personalvpn.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.serveripoverride.impl)

@@ -2,6 +2,8 @@
 
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
+import java.net.Inet6Address
+import java.net.InetSocketAddress
 import mullvad_daemon.management_interface.AccessMethod
 import mullvad_daemon.management_interface.AccessMethodSetting
 import mullvad_daemon.management_interface.CustomDnsOptions
@@ -18,6 +20,7 @@ import mullvad_daemon.management_interface.NewAccessMethodSetting
 import mullvad_daemon.management_interface.NormalRelaySettings
 import mullvad_daemon.management_interface.ObfuscationSettings
 import mullvad_daemon.management_interface.Ownership
+import mullvad_daemon.management_interface.PersonalVpnConfig
 import mullvad_daemon.management_interface.PlayPurchase
 import mullvad_daemon.management_interface.PlayPurchasePaymentToken
 import mullvad_daemon.management_interface.QuantumResistantState
@@ -56,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting as ModelNewAccess
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode as ModelObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase as ModelPlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken as ModelPlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -68,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings as ModelS
 import net.mullvad.mullvadvpn.lib.model.SocksAuth as ModelSocksAuth
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
+import okio.ByteString.Companion.decodeBase64
 
 internal fun Constraint<RelayItemId>.fromDomain(): LocationConstraint =
     when (this) {
@@ -341,3 +346,26 @@ internal fun RelayItemId.fromDomain(): LocationConstraint =
     }
 
 internal fun ModelCipher.fromDomain(): Shadowsocks.Cipher = Shadowsocks.Cipher(name = value)
+
+@Suppress("UnsafeCallOnNullableType")
+internal fun ModelPersonalVpnConfig.fromDomain(): PersonalVpnConfig =
+    PersonalVpnConfig(
+        tunnel =
+            PersonalVpnConfig.TunnelConfig(
+                private_key = tunnelConfig.privateKey.value.decodeBase64()!!,
+                ips = tunnelConfig.tunnelIps.map { it.hostAddress!! },
+            ),
+        peer =
+            PersonalVpnConfig.PeerConfig(
+                public_key = peerConfig.publicKey.value.decodeBase64()!!,
+                allowed_ip = peerConfig.allowedIps,
+                endpoint = peerConfig.endpoint.toEndpointString(),
+            ),
+    )
+
+/** Format as `<ip>:<port>`, with brackets around IPv6 addresses. */
+private fun InetSocketAddress.toEndpointString(): String =
+    when (val ip = address) {
+        is Inet6Address -> "[${ip.hostAddress}]:$port"
+        else -> "${ip.hostAddress}:$port"
+    }
