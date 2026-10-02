@@ -10,16 +10,16 @@
 
 import Foundation
 
-/// Protocol describing file cache that's able to read and write serializable content.
+/// File cache able to read and write serializable content.
 public protocol FileCacheProtocol<Content> {
-    associatedtype Content: Codable
+    associatedtype Content: Codable & Sendable
 
     func read() throws -> Content
     func write(_ content: Content) throws
     func clear() throws
 }
 
-/// File cache implementation that can read and write any `Codable` content.
+/// File cache actor that can read and write any `Codable` content.
 ///
 /// Cross-process coordination relies on atomic whole-file replacement instead of file locks:
 /// writes go to a uniquely named temporary file that is then `rename(2)`d into place. A reader
@@ -27,79 +27,109 @@ public protocol FileCacheProtocol<Content> {
 /// in-memory cache keyed by file modification time guarantees that content replaced by another
 /// process is picked up on the next read.
 ///
+/// The actor's custom `DispatchSerialQueue` executor means all blocking file I/O and JSON
+/// decode/encode happen on a single dedicated thread. Isolated methods never suspend, so the
+/// synchronous shims never depend on the cooperative thread pool.
+///
 /// Multiple `FileCache` instances backed by the same file are safe — writes are atomic and each
 /// instance detects external changes through the file modification time. But we should use a shared
 /// instance instead. There is no reason for a single file to be backed by multiple file caches in the same process.
-public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Sendable {
-    public let fileURL: URL
+public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
+    private enum State {
+        case fresh(content: Content, date: Date?)
+        case stale
+    }
 
-    /// Lock protecting `cachedContent` and `contentModified` against data races.
-    private let cacheLock = NSLock()
-    private var cachedContent: Content?
-    private var contentModified: Date?
+    public nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    private var cacheState: State = .stale
+    private let queue: DispatchSerialQueue
+    private let fileURL: URL
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
+        self.queue = DispatchSerialQueue(label: "FileCache")
     }
 
-    public func read() throws -> Content {
-        try cacheLock.withLock {
-            // Stat before reading, so that a concurrent replacement between the stat and the read can
-            // only mark the cache as stale and cause an extra re-read, never serve stale content.
-            let modificationTime = fileModificationTime(at: fileURL)
-            if let cachedContent, let contentModified, modificationTime != nil,
-                contentModified == modificationTime
-            {
-                return cachedContent
+    // MARK: - Asynchronous functions
+
+    public func read() async throws -> Content {
+        switch cacheState {
+        case let .fresh(cache, lastModified):
+            if lastModified == Self.fileLastModified(at: fileURL) {
+                cache
+            } else {
+                try refresh()
             }
-
-            let data = try Data(contentsOf: fileURL)
-            let content = try JSONDecoder().decode(Content.self, from: data)
-
-            cachedContent = content
-            contentModified = modificationTime
-
-            return content
+        case .stale:
+            try refresh()
         }
     }
 
-    public func write(_ content: Content) throws {
-        try cacheLock.withLock {
+    public func write(_ content: Content) async throws {
+        let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
+
+        do {
             let data = try JSONEncoder().encode(content)
-
-            // Write to a uniquely named temporary file, then atomically rename into place. The unique
-            // name prevents concurrent writers in this or another process from clobbering each other's
-            // in-progress writes.
-            let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
             try data.write(to: tempURL)
-
-            // Capture the modification time before the rename, which preserves it. If another process
-            // replaces the file afterwards, the stored time no longer matches and the next read
-            // re-reads from disk.
-            let writtenModificationTime = fileModificationTime(at: tempURL)
+            let lastModified = Self.fileLastModified(at: tempURL)
 
             if rename(tempURL.path, fileURL.path) != 0 {
                 try? FileManager.default.removeItem(at: tempURL)
                 throw FileCacheError.renameFailed(errno)
             }
 
-            cachedContent = content
-            contentModified = writtenModificationTime
+            cacheState = .fresh(content: content, date: lastModified)
+        } catch {
+            cacheState = .stale
+            throw error
         }
     }
 
-    public func clear() throws {
-        try cacheLock.withLock {
-            try FileManager.default.removeItem(at: fileURL)
+    public func clear() async throws {
+        cacheState = .stale
+        try FileManager.default.removeItem(at: fileURL)
+    }
 
-            cachedContent = nil
-            contentModified = nil
+    // MARK: - Synchronous shims
+    // Will be removed once all call sites have been migrated.
+
+    public nonisolated func read() throws -> Content {
+        try BridgeExecutor.shared.run {
+            try await self.read()
+        }
+    }
+
+    public nonisolated func write(_ content: Content) throws {
+        try BridgeExecutor.shared.run {
+            try await self.write(content)
+        }
+    }
+
+    public nonisolated func clear() throws {
+        try BridgeExecutor.shared.run {
+            try await self.clear()
         }
     }
 
     // MARK: - Private
 
-    private func fileModificationTime(at url: URL) -> Date? {
+    private func refresh() throws -> Content {
+        do {
+            let lastModified = Self.fileLastModified(at: fileURL)
+            let data = try Data(contentsOf: fileURL)
+            let cache = try JSONDecoder().decode(Content.self, from: data)
+            cacheState = .fresh(content: cache, date: lastModified)
+            return cache
+        } catch {
+            cacheState = .stale
+            throw error
+        }
+    }
+
+    private static func fileLastModified(at url: URL) -> Date? {
         (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
     }
 }

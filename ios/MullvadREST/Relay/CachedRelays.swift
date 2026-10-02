@@ -11,7 +11,7 @@
 import Foundation
 
 /// A struct that represents the relay cache in memory
-public struct CachedRelays: Codable, Equatable {
+public struct CachedRelays: Codable, Equatable, Sendable {
     /// The sigsum digest returned by the server
     public let digest: String?
     /// The sigsum timestamp returned by the server
@@ -49,5 +49,4 @@ public struct CachedRelays: Codable, Equatable {
             updatedAt: Date(timeIntervalSince1970: 0)
         )
     }
-
 }

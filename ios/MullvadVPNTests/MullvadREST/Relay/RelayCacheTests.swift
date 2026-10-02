@@ -15,21 +15,22 @@ import XCTest
 @testable import MullvadREST
 
 final class RelayCacheTests: XCTestCase {
-    func testReadCache() throws {
+    func testReadCache() async throws {
         let fileCache = MockFileCache(
             initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
 
-        if case let .exists(storedRelays) = fileCache.getState() {
+        let state = await fileCache.getState()
+        if case let .exists(storedRelays) = state {
             XCTAssertEqual(try storedRelays.cachedRelays, relays)
         } else {
-            XCTFail("Expected existing state, got \(fileCache.getState())")
+            XCTFail("Expected existing state, got \(state)")
         }
     }
 
-    func testWriteCache() throws {
+    func testWriteCache() async throws {
         let fileCache = MockFileCache(
             initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
@@ -37,7 +38,8 @@ final class RelayCacheTests: XCTestCase {
         let newCachedRelays = try StoredRelays(rawData: try .mock(), updatedAt: Date())
 
         try cache.write(record: newCachedRelays)
-        XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
+        let state = await fileCache.getState()
+        XCTAssertEqual(state, .exists(newCachedRelays))
     }
 
     func testReadPrebundledRelaysWhenNoCacheIsStored() throws {
