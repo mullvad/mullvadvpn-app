@@ -26,7 +26,7 @@ use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::wireguard::PersonalVpnConfig;
+use talpid_types::net::wireguard::CustomVpnConfig;
 
 mod merge;
 mod nat;
@@ -57,21 +57,21 @@ type OuterIpRecv = MergingIpRecv<SplitIpRecv, TunChannelRx>;
 /// device, or the custom VPN in front of it.
 pub enum TunTx {
     Tun(GotaTunDevice),
-    PersonalVpn(Box<OuterIpSend>),
+    CustomVpn(Box<OuterIpSend>),
 }
 
 /// What the outer device (the singlehop device, or the multihop exit device) reads from: the TUN
 /// device, or the custom VPN in front of it.
 pub enum TunRx {
     Tun(SourceFilter<GotaTunDevice>),
-    PersonalVpn(OuterIpRecv),
+    CustomVpn(OuterIpRecv),
 }
 
 impl IpSend for TunTx {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
         match self {
             TunTx::Tun(tun) => tun.send(packet).await,
-            TunTx::PersonalVpn(router) => router.send(packet).await,
+            TunTx::CustomVpn(router) => router.send(packet).await,
         }
     }
 }
@@ -83,14 +83,14 @@ impl IpRecv for TunRx {
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
         match self {
             TunRx::Tun(tun) => tun.recv(pool).await.map(Either::Left),
-            TunRx::PersonalVpn(merged) => merged.recv(pool).await.map(Either::Right),
+            TunRx::CustomVpn(merged) => merged.recv(pool).await.map(Either::Right),
         }
     }
 
     fn mtu(&self) -> MtuWatcher {
         match self {
             TunRx::Tun(tun) => tun.mtu(),
-            TunRx::PersonalVpn(merged) => merged.mtu(),
+            TunRx::CustomVpn(merged) => merged.mtu(),
         }
     }
 }
@@ -102,7 +102,7 @@ pub struct CustomVpn {
     router_task: AbortOnDrop,
 }
 
-impl PersonalVpn {
+impl CustomVpn {
     pub async fn stop(self) {
         self.inner_device.stop().await;
         drop(self.router_task);
@@ -121,7 +121,7 @@ impl Drop for AbortOnDrop {
 /// The IO that the outer device (the singlehop device, or the multihop exit device) uses instead
 /// of the TUN device when there is a custom VPN.
 pub struct Frontend {
-    pub personal_vpn: PersonalVpn,
+    pub custom_vpn: CustomVpn,
     pub tun_tx: TunTx,
     pub tun_rx: TunRx,
     /// Per-packet overhead added by the custom VPN WireGuard encapsulation.
@@ -136,15 +136,15 @@ pub struct Frontend {
 /// sent to the inner device if they come from the custom VPN endpoint, and to the TUN device
 /// otherwise.
 pub async fn build(
-    personal_vpn: &PersonalVpnConfig,
+    custom_vpn: &CustomVpnConfig,
     config: &Config,
     tun_dev: &GotaTunDevice,
 ) -> Result<Frontend, TunnelError> {
     let outer_v4 = config.tunnel_ipv4();
     let outer_v6 = config.tunnel_ipv6();
     let (bridge_mtu, overhead) =
-        calculate_mtu_and_overhead(personal_vpn.peer.endpoint.ip(), tun_dev)?;
-    let nat_mappings = resolve_nat_mappings(personal_vpn, outer_v4, outer_v6)?;
+        calculate_mtu_and_overhead(custom_vpn.peer.endpoint.ip(), tun_dev)?;
+    let nat_mappings = resolve_nat_mappings(custom_vpn, outer_v4, outer_v6)?;
 
     // Reads from the system TUN are routed either to the custom VPN or the default outer VPN.
     let mut router = {
@@ -166,7 +166,7 @@ pub async fn build(
 
     let default_output = router.add_routes(&default_routes, CHANNEL_CAPACITY);
 
-    let pvpn_output = router.add_routes(&personal_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
+    let pvpn_output = router.add_routes(&custom_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
     let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
 
     // Channel bridge (inner device UDP <-> outer device TUN). The source addresses must be the
@@ -187,8 +187,8 @@ pub async fn build(
     let outer_ip_send = TunTxRouter::new(
         bridge_tun_tx,
         tun_dev.clone(),
-        personal_vpn.peer.endpoint,
-        &personal_vpn.peer.allowed_ip,
+        custom_vpn.peer.endpoint,
+        &custom_vpn.peer.allowed_ip,
         config.ipv4_gateway,
         config.ipv6_gateway,
     );
@@ -211,21 +211,21 @@ pub async fn build(
         .with_ip_pair(tun_send, pvpn_recv)
         .with_private_key(StaticSecret::from(custom_vpn.tunnel.private_key.to_bytes()))
         .with_peer(
-            Peer::new((*personal_vpn.peer.public_key.as_bytes()).into())
-                .with_endpoint(personal_vpn.peer.endpoint)
-                .with_allowed_ips(personal_vpn.peer.allowed_ip.iter().cloned()),
+            Peer::new((*custom_vpn.peer.public_key.as_bytes()).into())
+                .with_endpoint(custom_vpn.peer.endpoint)
+                .with_allowed_ips(custom_vpn.peer.allowed_ip.iter().cloned()),
         )
         .build()
         .await
         .map_err(TunnelError::GotaTunDevice)?;
 
     Ok(Frontend {
-        personal_vpn: PersonalVpn {
+        custom_vpn: CustomVpn {
             inner_device,
             router_task,
         },
-        tun_tx: TunTx::PersonalVpn(Box::new(outer_ip_send)),
-        tun_rx: TunRx::PersonalVpn(outer_ip_recv),
+        tun_tx: TunTx::CustomVpn(Box::new(outer_ip_send)),
+        tun_rx: TunRx::CustomVpn(outer_ip_recv),
         overhead,
     })
 }
@@ -237,15 +237,15 @@ struct NatMappings {
 
 /// Resolves and validates the address mappings needed for NAT rewriting
 fn resolve_nat_mappings(
-    personal_vpn: &PersonalVpnConfig,
+    custom_vpn: &CustomVpnConfig,
     outer_v4: Option<Ipv4Addr>,
     outer_v6: Option<Ipv6Addr>,
 ) -> Result<NatMappings, TunnelError> {
-    let inner_v4 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+    let inner_v4 = custom_vpn.tunnel.ips.iter().find_map(|ip| match ip {
         &IpAddr::V4(ip) => Some(ip),
         IpAddr::V6(_) => None,
     });
-    let inner_v6 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+    let inner_v6 = custom_vpn.tunnel.ips.iter().find_map(|ip| match ip {
         &IpAddr::V6(ip) => Some(ip),
         IpAddr::V4(_) => None,
     });
@@ -273,7 +273,7 @@ fn resolve_nat_mappings(
     };
 
     if v4.is_none() && v6.is_none() {
-        return Err(TunnelError::InvalidPersonalVpnConfig(
+        return Err(TunnelError::InvalidCustomVpnConfig(
             "no usable tunnel address family",
         ));
     }
@@ -294,7 +294,7 @@ fn calculate_mtu_and_overhead(
     let bridge_mtu = tun_dev
         .mtu()
         .increase(overhead)
-        .ok_or(TunnelError::InvalidPersonalVpnConfig("MTU overflow"))?;
+        .ok_or(TunnelError::InvalidCustomVpnConfig("MTU overflow"))?;
 
     Ok((bridge_mtu, overhead))
 }

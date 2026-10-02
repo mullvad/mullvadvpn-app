@@ -9,7 +9,7 @@ pub async fn get_stats(tunnel: Weak<Mutex<Option<TunnelType>>>) -> Option<talpid
     let stats = {
         let lock = tunnel.lock().await;
         let tunnel = lock.as_ref()?;
-        tunnel.get_personal_vpn_stats().await
+        tunnel.get_custom_vpn_stats().await
     };
     match stats {
         Ok(stats) => Some(talpid_types::Stats {
