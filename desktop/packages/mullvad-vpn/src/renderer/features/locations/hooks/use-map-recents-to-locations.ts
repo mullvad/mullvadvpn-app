@@ -55,7 +55,12 @@ function getRecentLocations(
 
   const { entries, exits } = recents;
   const recentEntryLocations = entries
-    .map((entry) => findMatchingLocation(entry))
+    .map((entry) => {
+      if (entry === 'automatic') {
+        return 'automatic';
+      }
+      return findMatchingLocation(entry);
+    })
     .filter((location) => location !== undefined);
   const recentExitLocations = exits
     .map((exit) => findMatchingLocation(exit))
