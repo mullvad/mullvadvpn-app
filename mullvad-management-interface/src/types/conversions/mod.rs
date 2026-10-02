@@ -9,6 +9,8 @@ mod features;
 mod location;
 mod logging;
 mod net;
+#[cfg(feature = "custom-vpn")]
+mod personal_vpn;
 pub mod relay_constraints;
 mod relay_list;
 mod relay_selector;

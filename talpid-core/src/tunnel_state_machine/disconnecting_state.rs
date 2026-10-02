@@ -5,11 +5,10 @@ use super::{
     SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition, connecting_state::TunnelCloseEvent,
 };
-use futures::{
-    StreamExt,
-    channel::{mpsc::TryRecvError, oneshot},
-    future::FusedFuture,
-};
+use crate::mpsc::Sender;
+use futures::channel::mpsc;
+use futures::{StreamExt, channel::mpsc::TryRecvError, future::FusedFuture};
+use talpid_tunnel::TunnelMonitorCommand;
 use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause};
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -22,11 +21,11 @@ pub struct DisconnectingState {
 impl DisconnectingState {
     pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
-        tunnel_close_tx: oneshot::Sender<()>,
+        command_tx: mpsc::UnboundedSender<TunnelMonitorCommand>,
         tunnel_close_event: TunnelCloseEvent,
         after_disconnect: AfterDisconnect,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
-        let _ = tunnel_close_tx.send(());
+        let _ = command_tx.send(TunnelMonitorCommand::Close);
         let action_after_disconnect = after_disconnect.action();
 
         Self::set_firewall_policy(shared_values);
@@ -129,6 +128,8 @@ impl DisconnectingState {
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
             }
+            #[cfg(feature = "custom-vpn")]
+            Some(TunnelCommand::PersonalVpnStats(_)) => (),
         };
 
         EventConsequence::SameState(self)

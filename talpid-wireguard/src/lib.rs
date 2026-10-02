@@ -9,10 +9,12 @@ use crate::wireguard_kernel::nm_tunnel;
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
+use futures::channel::mpsc::UnboundedReceiver;
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 #[cfg(windows)]
 use std::io;
+use std::sync::mpsc::Sender;
 use std::{
     convert::Infallible,
     net::IpAddr,
@@ -25,7 +27,7 @@ use talpid_routing::RouteManagerHandle;
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{
     EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, TunnelArgs, TunnelEvent, TunnelMetadata,
-    WIREGUARD_HEADER_SIZE, tun_provider,
+    TunnelMonitorCommand, WIREGUARD_HEADER_SIZE, tun_provider,
 };
 
 use talpid_error::{BoxedError, ErrorExt};
@@ -34,6 +36,10 @@ use talpid_net::bypass::SocketBypass;
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex as AsyncMutex;
+use tokio::task::JoinHandle;
+
+#[cfg(feature = "custom-vpn")]
+use {std::sync::Weak, tokio::sync::Mutex};
 
 mod gotatun;
 
@@ -43,6 +49,8 @@ mod connectivity;
 mod ephemeral;
 mod logging;
 mod obfuscation;
+#[cfg(feature = "custom-vpn")]
+mod personal_vpn_stats;
 mod stats;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
@@ -237,6 +245,7 @@ impl WireguardMonitor {
         let moved_tunnel = monitor.tunnel.clone();
         let runtime = args.runtime.clone();
         let tun_provider = args.tun_provider.clone();
+
         #[cfg(target_os = "windows")]
         let resource_dir = args.resource_dir.to_owned();
         let log_path = _log_path.map(Path::to_owned);
@@ -337,10 +346,26 @@ impl WireguardMonitor {
                         return;
                     }
 
+                    // With a personal VPN, pings reach the outer gateway directly (bypassing
+                    // the inner personal VPN tunnel), so the detected MTU only accounts for
+                    // the outer encapsulation. Inner-routed traffic needs an extra wireguard
+                    // layer of headroom, so subtract that overhead when applying the result.
+                    let extra_overhead = cfg_select! {
+                        feature = "custom-vpn" => {
+                            config
+                                .personal_vpn
+                                .as_ref()
+                                .map(|c| wireguard_overhead(c.peer.endpoint.ip()))
+                                .unwrap_or(0)
+                        }
+                        _ => 0u16,
+                    };
+
                     if let Err(e) = mtu_detection::automatic_mtu_correction(
                         gateway,
                         iface_name,
                         config.mtu,
+                        extra_overhead,
                         #[cfg(windows)]
                         config.ipv6_gateway.is_some(),
                     )
@@ -432,12 +457,13 @@ impl WireguardMonitor {
             let _ = close_sender.send(close_msg);
         });
 
-        tokio::spawn(async move {
-            if args.tunnel_close_rx.await.is_ok() {
-                monitor_handle.abort();
-                let _ = close_obfs_sender.send(CloseMsg::Stop);
-            }
-        });
+        tokio::spawn(Self::handle_commands(
+            args.command_rx,
+            monitor_handle,
+            close_obfs_sender,
+            #[cfg(feature = "custom-vpn")]
+            Arc::downgrade(&monitor.tunnel),
+        ));
 
         Ok(monitor)
     }
@@ -505,6 +531,7 @@ impl WireguardMonitor {
         let tun_provider = Arc::clone(&args.tun_provider);
 
         let tunnel = Arc::new(AsyncMutex::new(None));
+        let tunnel_weak = Arc::downgrade(&tunnel);
         let mut event_hook = args.event_hook;
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
@@ -630,14 +657,37 @@ impl WireguardMonitor {
             let _ = close_sender.send(close_msg);
         });
 
-        tokio::spawn(async move {
-            if args.tunnel_close_rx.await.is_ok() {
-                monitor_handle.abort();
-                let _ = close_obfs_sender.send(CloseMsg::Stop);
-            }
-        });
+        tokio::spawn(Self::handle_commands(
+            args.command_rx,
+            monitor_handle,
+            close_obfs_sender,
+            #[cfg(feature = "custom-vpn")]
+            tunnel_weak,
+        ));
 
         Ok(monitor)
+    }
+
+    async fn handle_commands(
+        mut rx: UnboundedReceiver<TunnelMonitorCommand>,
+        monitor_handle: JoinHandle<()>,
+        close_obfs_sender: Sender<CloseMsg>,
+        #[cfg(feature = "custom-vpn")] tunnel_weak: Weak<Mutex<Option<TunnelType>>>,
+    ) {
+        while let Ok(command) = rx.recv().await {
+            match command {
+                TunnelMonitorCommand::Close => {
+                    monitor_handle.abort();
+                    let _ = close_obfs_sender.send(CloseMsg::Stop);
+                }
+                #[cfg(feature = "custom-vpn")]
+                TunnelMonitorCommand::PersonalVpnStats(tx) => {
+                    if let Some(stats) = personal_vpn_stats::get_stats(tunnel_weak.clone()).await {
+                        let _ = tx.send(stats);
+                    }
+                }
+            }
+        }
     }
 
     /// Wait for the tunnel device to be configured, including its IP addresses, by
@@ -936,10 +986,10 @@ impl WireguardMonitor {
             ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
             gateway_node.clone(),
         ))
-        // same but ipv6
-        .chain(config.ipv6_gateway.map(|gateway| {
-            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
-        }));
+            // same but ipv6
+            .chain(config.ipv6_gateway.map(|gateway| {
+                RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
+            }));
 
         // e.g. utun4 and utun4
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
@@ -1120,6 +1170,10 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    #[cfg(feature = "custom-vpn")]
+    async fn get_personal_vpn_stats(&self) -> std::result::Result<stats::Stats, TunnelError> {
+        Ok(stats::Stats::default())
+    }
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
@@ -1193,6 +1247,11 @@ pub enum TunnelError {
     #[error("GotaTun: {0:?}")]
     GotaTunDevice(::gotatun::device::Error),
 
+    /// The personal VPN cannot be set up with the given configuration
+    #[cfg(feature = "custom-vpn")]
+    #[error("Invalid personal VPN configuration: {0}")]
+    InvalidPersonalVpnConfig(&'static str),
+
     /// NetworkManager error
     #[cfg(target_os = "linux")]
     #[error("NetworkManager: {0:?}")]
@@ -1262,6 +1321,11 @@ fn calculate_tunnel_mtu(
     // so the MTU on that link must be larger to account for multihop overhead
     if userspace_multihop && let Some(exit_peer) = &params.connection.exit_peer {
         overhead += wireguard_overhead(exit_peer.endpoint.ip());
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    if let Some(personal) = &params.personal_vpn {
+        overhead += wireguard_overhead(personal.peer.endpoint.ip());
     }
 
     clamp_tunnel_mtu(params, link_mtu_for_peer.saturating_sub(overhead))

@@ -337,15 +337,37 @@ impl VpnServiceConfig {
                 .collect();
         }
 
-        let required_ipv4_routes = vec![
+        // Private IP ranges reachable via the personal VPN must stay in the tun device,
+        // otherwise LAN sharing would route them outside the tunnel and break the personal
+        // VPN's connectivity to those networks.
+        let personal_vpn_allowed_ips: &[IpNetwork] = cfg_select! {
+            feature = "custom-vpn" => &config.personal_vpn_allowed_ips,
+            _ => &[],
+        };
+
+        let required_ipv4_routes = [
             IpNetwork::from(IpAddr::from(config.ipv4_gateway)),
             // We want to keep the socks proxies subnet so that users can use those to multihop when lan sharing is active
             SOCKS_PROXIES,
-        ];
+        ]
+        .into_iter()
+        .chain(
+            personal_vpn_allowed_ips
+                .iter()
+                .copied()
+                .filter(IpNetwork::is_ipv4),
+        )
+        .collect::<Vec<IpNetwork>>();
         let required_ipv6_routes = config
             .ipv6_gateway
             .map(|addr| IpNetwork::from(IpAddr::from(addr)))
             .into_iter()
+            .chain(
+                personal_vpn_allowed_ips
+                    .iter()
+                    .copied()
+                    .filter(|n| n.is_ipv6()),
+            )
             .collect::<Vec<IpNetwork>>();
 
         let (original_lan_ipv4_networks, original_lan_ipv6_networks) = Self::allowed_lan_networks()

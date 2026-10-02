@@ -1,16 +1,12 @@
 use futures::StreamExt;
+use futures::channel::mpsc::UnboundedSender;
 use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 
 use talpid_error::{BoxedError, ErrorExt};
-use talpid_tunnel::{TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{TunnelEvent, TunnelMetadata, TunnelMonitorCommand};
 use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
-
-use crate::firewall::FirewallPolicy;
-#[cfg(target_os = "macos")]
-use crate::resolver::LOCAL_DNS_RESOLVER;
-use talpid_dns::ResolvedDnsConfig;
 
 use super::connecting_state::TunnelCloseEvent;
 use super::{
@@ -18,6 +14,12 @@ use super::{
     EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition,
 };
+use crate::firewall::FirewallPolicy;
+#[cfg(feature = "custom-vpn")]
+use crate::mpsc::Sender;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
+use talpid_dns::ResolvedDnsConfig;
 
 pub(crate) type TunnelEventsReceiver =
     Fuse<mpsc::UnboundedReceiver<(TunnelEvent, oneshot::Sender<()>)>>;
@@ -28,7 +30,7 @@ pub struct ConnectedState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: TunnelCloseEvent,
-    tunnel_close_tx: oneshot::Sender<()>,
+    command_tx: UnboundedSender<TunnelMonitorCommand>,
 }
 
 impl ConnectedState {
@@ -38,14 +40,14 @@ impl ConnectedState {
         tunnel_events: TunnelEventsReceiver,
         tunnel_parameters: TunnelParameters,
         tunnel_close_event: TunnelCloseEvent,
-        tunnel_close_tx: oneshot::Sender<()>,
+        command_tx: UnboundedSender<TunnelMonitorCommand>,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         let connected_state = ConnectedState {
             metadata,
             tunnel_events,
             tunnel_parameters,
             tunnel_close_event,
-            tunnel_close_tx,
+            command_tx,
         };
 
         let tunnel_interface = Some(connected_state.metadata.interface.clone());
@@ -57,7 +59,7 @@ impl ConnectedState {
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
             DisconnectingState::enter(
                 shared_values,
-                connected_state.tunnel_close_tx,
+                connected_state.command_tx,
                 connected_state.tunnel_close_event,
                 AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
             )
@@ -65,7 +67,7 @@ impl ConnectedState {
             log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
             DisconnectingState::enter(
                 shared_values,
-                connected_state.tunnel_close_tx,
+                connected_state.command_tx,
                 connected_state.tunnel_close_event,
                 AfterDisconnect::Block(ErrorStateCause::SetDnsError),
             )
@@ -246,7 +248,7 @@ impl ConnectedState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            self.tunnel_close_tx,
+            self.command_tx,
             self.tunnel_close_event,
             after_disconnect,
         ))
@@ -396,6 +398,17 @@ impl ConnectedState {
                         let _ = result_tx.send(Err(error));
                         return self.disconnect(shared_values, AfterDisconnect::Block(cause));
                     }
+                }
+                SameState(self)
+            }
+            #[cfg(feature = "custom-vpn")]
+            Some(TunnelCommand::PersonalVpnStats(tx)) => {
+                if self
+                    .command_tx
+                    .send(TunnelMonitorCommand::PersonalVpnStats(tx))
+                    .is_err()
+                {
+                    log::error!("Failed to send custom VPN stats command");
                 }
                 SameState(self)
             }

@@ -242,6 +242,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    #[cfg(feature = "custom-vpn")]
+    /// Get the stats for how much data has been sent/received over the custom VPN.
+    PersonalVpnStats(oneshot::Sender<talpid_types::Stats>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -340,7 +343,7 @@ struct TunnelStateMachine {
     shared_values: SharedTunnelStateValues,
 }
 
-/// Tunnel state machine initialization arguments arguments
+/// Tunnel state machine initialization arguments
 struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     settings: InitialTunnelState,
     command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,

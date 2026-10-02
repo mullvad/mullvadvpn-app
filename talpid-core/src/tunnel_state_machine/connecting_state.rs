@@ -9,7 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_tunnel::{EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{
+    EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, TunnelMonitorCommand,
+};
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::{
     AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
@@ -47,7 +49,7 @@ pub struct ConnectingState {
     tunnel_metadata: Option<TunnelMetadata>,
     allowed_tunnel_traffic: AllowedTunnelTraffic,
     tunnel_close_event: TunnelCloseEvent,
-    tunnel_close_tx: oneshot::Sender<()>,
+    command_tx: mpsc::UnboundedSender<TunnelMonitorCommand>,
     retry_attempt: u32,
 }
 
@@ -242,7 +244,7 @@ impl ConnectingState {
         let log_dir = log_dir.clone();
         let resource_dir = resource_dir.to_path_buf();
 
-        let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
+        let (command_tx, command_rx) = mpsc::unbounded();
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         let tunnel_parameters = parameters.clone();
@@ -257,7 +259,7 @@ impl ConnectingState {
                 runtime,
                 resource_dir: &resource_dir,
                 event_hook,
-                tunnel_close_rx,
+                command_rx,
                 tun_provider,
                 retry_attempt,
                 route_manager,
@@ -324,7 +326,7 @@ impl ConnectingState {
             tunnel_metadata: None,
             allowed_tunnel_traffic: INITIAL_ALLOWED_TUNNEL_TRAFFIC,
             tunnel_close_event: tunnel_close_event_rx.fuse(),
-            tunnel_close_tx,
+            command_tx,
             retry_attempt,
         }
     }
@@ -388,7 +390,7 @@ impl ConnectingState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            self.tunnel_close_tx,
+            self.command_tx,
             self.tunnel_close_event,
             after_disconnect,
         ))
@@ -546,6 +548,8 @@ impl ConnectingState {
                 }
                 SameState(self)
             }
+            #[cfg(feature = "custom-vpn")]
+            Some(TunnelCommand::PersonalVpnStats(_)) => SameState(self),
         }
     }
 
@@ -628,7 +632,7 @@ impl ConnectingState {
                     self.tunnel_events,
                     tunnel_parameters,
                     self.tunnel_close_event,
-                    self.tunnel_close_tx,
+                    self.command_tx,
                 ))
             }
             Some((TunnelEvent::Down, _)) => {

@@ -9,6 +9,7 @@ use std::{
 pub mod network_interface;
 
 pub mod tun_provider;
+use futures::channel::mpsc;
 use futures::{
     SinkExt,
     channel::{
@@ -17,6 +18,8 @@ use futures::{
     },
 };
 use talpid_routing::RouteManagerHandle;
+#[cfg(feature = "custom-vpn")]
+use talpid_types::Stats;
 use talpid_types::net::{AllowedTunnelTraffic, obfuscation::ObfuscatorConfig};
 use tun_provider::TunProvider;
 
@@ -41,14 +44,22 @@ pub struct TunnelArgs<'a> {
     pub resource_dir: &'a Path,
     /// Callback function called when an event happens.
     pub event_hook: EventHook,
-    /// Receiver oneshot channel for closing the tunnel.
-    pub tunnel_close_rx: oneshot::Receiver<()>,
+    /// Receiver channel for commands such as closing the tunnel.
+    pub command_rx: mpsc::UnboundedReceiver<TunnelMonitorCommand>,
     /// Mutex to tunnel provider.
     pub tun_provider: Arc<Mutex<TunProvider>>,
     /// Connection retry attempts.
     pub retry_attempt: u32,
     /// Route manager handle.
     pub route_manager: RouteManagerHandle,
+}
+
+pub enum TunnelMonitorCommand {
+    /// Shut down tunnel monitor
+    Close,
+    /// Get personal VPN stats
+    #[cfg(feature = "custom-vpn")]
+    PersonalVpnStats(oneshot::Sender<Stats>),
 }
 
 #[derive(Clone)]
