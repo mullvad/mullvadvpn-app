@@ -111,6 +111,7 @@ regex = "1"
 reqwest = { version = "0.12.23", default-features = false, features = [
   "rustls-tls-webpki-roots-no-provider"
 ] }
+rolling-file = "0.2.0"
 rtnetlink = "0.23.0"
 # `prefer-post-quantum` is a rustls default that `default-features = false`
 # would otherwise drop. It puts X25519MLKEM768 first among the key exchange
