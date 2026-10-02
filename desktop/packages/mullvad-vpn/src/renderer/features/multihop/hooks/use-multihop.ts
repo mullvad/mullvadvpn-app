@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  MultihopMode,
+  type LiftedConstraint,
   type RelayLocation,
   wrapConstraint,
 } from '../../../../shared/daemon-rpc-types';
@@ -9,30 +9,56 @@ import log from '../../../../shared/logging';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 
+type SetMultihopParams = NeverMultihopParams | WhenNeededMultihopParams | AlwaysMultihopParams;
+
+type NeverMultihopParams = {
+  multihop: 'never';
+  exit?: LiftedConstraint<RelayLocation>;
+};
+
+type WhenNeededMultihopParams = {
+  multihop: 'when-needed';
+  exit?: LiftedConstraint<RelayLocation>;
+};
+
+type AlwaysMultihopParams = {
+  multihop: 'always';
+  entry?: LiftedConstraint<RelayLocation>;
+  exit?: LiftedConstraint<RelayLocation>;
+};
+
 export function useMultihop() {
   const normalRelaySettings = useNormalRelaySettings();
   const multihop = normalRelaySettings?.wireguard.multihop ?? 'when-needed';
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const setMultihop = React.useCallback(
-    async ({
-      multihop,
-      entryLocation,
-      exitLocation,
-    }: {
-      multihop: MultihopMode;
-      entryLocation?: RelayLocation;
-      exitLocation?: RelayLocation;
-    }) => {
+    async (params: SetMultihopParams) => {
       try {
         await relaySettingsUpdater((settings) => {
-          if (entryLocation) {
-            settings.wireguardConstraints.entryLocation = wrapConstraint(entryLocation);
+          switch (params.multihop) {
+            case 'never':
+              if (params.exit) {
+                settings.location = wrapConstraint(params.exit);
+              }
+              settings.wireguardConstraints.multihop = params.multihop;
+              break;
+            case 'when-needed':
+              if (params.exit) {
+                settings.location = wrapConstraint(params.exit);
+              }
+              settings.wireguardConstraints.multihop = params.multihop;
+              break;
+            case 'always':
+              if (params.entry) {
+                settings.wireguardConstraints.entryLocation = wrapConstraint(params.entry);
+              }
+              if (params.exit) {
+                settings.location = wrapConstraint(params.exit);
+              }
+              break;
           }
-          if (exitLocation) {
-            settings.location = wrapConstraint(exitLocation);
-          }
-          settings.wireguardConstraints.multihop = multihop;
+          settings.wireguardConstraints.multihop = params.multihop;
           return settings;
         });
       } catch (error) {

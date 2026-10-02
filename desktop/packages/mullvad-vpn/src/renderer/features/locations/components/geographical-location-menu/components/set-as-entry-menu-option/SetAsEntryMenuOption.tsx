@@ -18,13 +18,13 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   const { selectEntryRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
   const { entry, exit } = useSelectedLocations();
-  const isExitSingleRelay = exit && 'hostname' in exit;
+  const isExitSingleRelay = exit !== 'any' && 'hostname' in exit;
   const isExitSelected = isLocationSelected(location.details, exit);
 
   const handleClick = React.useCallback(async () => {
     if (isExitSingleRelay && isExitSelected) {
       // Swap entry and exit location
-      await setMultihop({ multihop, entryLocation: location.details, exitLocation: entry });
+      await setMultihop({ multihop, entry: location.details, exit: entry });
     } else {
       await selectEntryRelayLocation(location.details);
     }

@@ -1,5 +1,8 @@
-import type { AnyLocation } from '../types';
+import type { RecentEntryLocation, RecentExitLocation } from '../types';
 
-export function getUniqueLocations(locations: AnyLocation[], limit = 3): AnyLocation[] {
+export function getUniqueLocations<T extends RecentEntryLocation | RecentExitLocation>(
+  locations: T[],
+  limit: number,
+): T[] {
   return [...new Set(locations)].slice(0, limit);
 }

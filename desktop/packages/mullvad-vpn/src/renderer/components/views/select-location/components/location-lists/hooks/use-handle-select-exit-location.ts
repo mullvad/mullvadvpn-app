@@ -12,11 +12,11 @@ export function useHandleSelectExitLocation() {
   const { connectTunnel } = useAppContext();
 
   const handleSelectExitLocation = React.useCallback(
-    async (location: AnyLocation) => {
+    async (location: AnyLocation | 'any') => {
       history.push(RoutePath.main, {
         transition: TransitionType.dismiss,
       });
-      await selectExitRelayLocation(location.details);
+      await selectExitRelayLocation(location === 'any' ? 'any' : location.details);
       await connectTunnel();
     },
     [connectTunnel, history, selectExitRelayLocation],
