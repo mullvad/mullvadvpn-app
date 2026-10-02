@@ -718,7 +718,13 @@ impl MullvadProxyClient {
     /// Import a custom VPN configuration from the contents of a wg-quick file.
     #[cfg(feature = "custom-vpn")]
     pub async fn import_custom_vpn_config(&mut self, body: String) -> Result<String> {
-        let response = self.0.import_custom_vpn_config(body).await?;
+        let response = self
+            .0
+            .import_custom_vpn_config(types::CustomVpnRawImport {
+                name: "custom-vpn".to_string(),
+                wireguard_config: body,
+            })
+            .await?;
         Ok(response.into_inner().error)
     }
 }
@@ -826,7 +832,7 @@ mod test {
         let settings = CustomVpnSettings {
             configs: vec![CustomVpnConfig {
                 enabled: true,
-                name: Some("test".to_string()),
+                name: "test".to_string(),
                 tunnel: CustomVpnTunnelConfig {
                     private_key: PrivateKey::from([7; 32]),
                     ips: vec!["10.0.0.2".parse().unwrap()],
@@ -851,7 +857,7 @@ mod test {
 
         let config = &configs[0];
         assert!(config.enabled);
-        assert_eq!(config.name.as_deref(), Some("test"));
+        assert_eq!(config.name, "test");
         assert_eq!(
             config.tunnel.ips,
             vec!["10.0.0.2".parse::<std::net::IpAddr>().unwrap()]

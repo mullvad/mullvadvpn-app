@@ -94,7 +94,7 @@ fun InfoListItem(
             if (onInfoClicked != null) {
                 Box(
                     modifier =
-                        Modifier.width(ListItemComponentTokens.infoIconContainerWidth)
+                        Modifier.width(ListItemComponentTokens.iconContainerWidth)
                             .padding(end = Dimens.smallPadding)
                             .fillMaxHeight(),
                     contentAlignment = Alignment.Center,

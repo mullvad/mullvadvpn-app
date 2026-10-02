@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Det går inte att få återbetalningar.</string>
     <string name="delete_account_unable_to_verify">Det går inte att verifiera kontonumret, kontakta supporten</string>
     <string name="delete_account_warning"><b>Varning:</b></string>
-    <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
     <string name="delete_list">Ta bort lista</string>
     <string name="delete_method">Radera metod</string>
     <string name="delete_method_question">Radera metod?</string>
+    <string name="delete_x">Ta bort \"%1$s\"?</string>
     <string name="device_inactive_description">Du har tagit bort den här enheten. Du måste logga in igen för att återansluta.</string>
     <string name="device_inactive_title">Enheten är inaktiv</string>
     <string name="device_inactive_unblock_warning">Om du loggar in tas blockering av internet bort på den här enheten.</string>

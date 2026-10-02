@@ -79,7 +79,7 @@ impl Status {
                     #[derive(Debug, Serialize)]
                     struct CustomVpnConfigSummary {
                         enabled: bool,
-                        name: Option<String>,
+                        name: String,
                         tunnel_ips: Vec<String>,
                         peers: Vec<CustomVpnPeerSummary>,
                     }

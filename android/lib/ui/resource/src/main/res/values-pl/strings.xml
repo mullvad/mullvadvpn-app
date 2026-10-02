@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Zwroty kosztów nie będą możliwe.</string>
     <string name="delete_account_unable_to_verify">Nie można zweryfikować numeru konta, skontaktuj się z pomocą techniczną</string>
     <string name="delete_account_warning"><b>Ostrzeżenie:</b></string>
-    <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
     <string name="delete_list">Usuń listę</string>
     <string name="delete_method">Usuń metodę</string>
     <string name="delete_method_question">Usunąć metodę?</string>
+    <string name="delete_x">Usunąć „%1$s”?</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
     <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>

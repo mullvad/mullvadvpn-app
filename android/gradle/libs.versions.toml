@@ -44,6 +44,8 @@ androidx-uiautomator = "2.4.1"
 androidx-work = "2.12.0"
 arrow = "2.3.0.1"
 baselineprofile = "1.5.0"
+biometric = "1.4.0-rc01"
+biometric-compose = "1.4.0-rc01"
 benchmark-macro-junit4 = "1.5.0"
 commonsvalidator = "1.11.0"
 compose = "1.13.0"
@@ -97,6 +99,8 @@ androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jv
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptive" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+androidx-biometric-compose = { module = "androidx.biometric:biometric-compose", version.ref = "biometric-compose" }
 androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }

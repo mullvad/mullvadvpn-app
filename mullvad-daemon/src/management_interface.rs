@@ -1419,13 +1419,16 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(feature = "custom-vpn")]
     async fn import_custom_vpn_config(
         &self,
-        request: Request<String>,
+        request: Request<types::CustomVpnRawImport>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("import_custom_vpn_config");
-        let body = request.into_inner();
-        let config =
-            <talpid_types::net::wireguard::CustomVpnConfig as std::str::FromStr>::from_str(&body)
-                .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        let import = request.into_inner();
+        let mut config =
+            <talpid_types::net::wireguard::CustomVpnConfig as std::str::FromStr>::from_str(
+                &import.wireguard_config,
+            )
+            .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        config.name = import.name;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::CustomVpn(
             custom_vpn::CustomVpnCommand::SetConfig(tx, Some(config.into())),
@@ -1493,7 +1496,7 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(not(feature = "custom-vpn"))]
     async fn import_custom_vpn_config(
         &self,
-        _request: Request<String>,
+        _request: Request<types::CustomVpnRawImport>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("import_custom_vpn_config");
         Ok(Response::new(types::CustomVpnConfigError {

@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Вы не сможете получить возмещение средств.</string>
     <string name="delete_account_unable_to_verify">Не удалось проверить номер учетной записи, обратитесь в службу поддержки</string>
     <string name="delete_account_warning"><b>Предупреждение:</b></string>
-    <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
     <string name="delete_list">Удалить список</string>
     <string name="delete_method">Удалить метод</string>
     <string name="delete_method_question">Удалить метод?</string>
+    <string name="delete_x">Удалить список «%1$s»?</string>
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>

@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.feature.appicon.impl.navigation.appIconEntry
 import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.changelogEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
 import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
+import net.mullvad.mullvadvpn.feature.customvpn.impl.navigation.customVpnEntry
 import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
 import net.mullvad.mullvadvpn.feature.dns.impl.navigation.dnsSettingsEntry
@@ -71,6 +72,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.discardChangesEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
@@ -140,6 +142,7 @@ fun MullvadApp() {
         multihopMigrationEntry(nav3)
         noDaemonEntry(nav3)
         notificationEntry(nav3)
+        customVpnEntry(nav3)
         problemReportEntry(nav3)
         redeemVoucherEntry(nav3)
         removeDeviceConfirmationDialogEntry(nav3)
@@ -150,6 +153,7 @@ fun MullvadApp() {
         splitTunnelingEntry(nav3)
         vpnSettingsEntry(nav3)
         dnsSettingsEntry(nav3)
+        discardChangesEntry(nav3)
     }
 
     SharedTransitionLayout {

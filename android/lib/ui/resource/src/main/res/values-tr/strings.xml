@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Geri ödeme mümkün olmayacaktır.</string>
     <string name="delete_account_unable_to_verify">Hesap numaranız doğrulanamıyor, lütfen destek ekibiyle iletişime geçin</string>
     <string name="delete_account_warning"><b>Uyarı:</b></string>
-    <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
     <string name="delete_list">Listeyi sil</string>
     <string name="delete_method">Yöntemi sil</string>
     <string name="delete_method_question">Yöntem silinsin mi?</string>
+    <string name="delete_x">\"%1$s\" silinsin mi\"?</string>
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>

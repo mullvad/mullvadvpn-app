@@ -59,7 +59,7 @@ fun DeleteCustomListConfirmationDialog(
         onBack = onBack,
         message =
             stringResource(
-                id = R.string.delete_custom_list_confirmation_description,
+                id = R.string.delete_x,
                 state.name.value,
             ),
         errorMessage =

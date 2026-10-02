@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">ไม่สามารถขอคืนเงินได้</string>
     <string name="delete_account_unable_to_verify">ไม่สามารถยืนยันหมายเลขบัญชีได้ โปรดติดต่อฝ่ายสนับสนุน</string>
     <string name="delete_account_warning"><b>คำเตือน:</b></string>
-    <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
     <string name="delete_list">ลบรายการ</string>
     <string name="delete_method">ลบวิธีการ</string>
     <string name="delete_method_question">ลบวิธีการหรือไม่</string>
+    <string name="delete_x">ลบ \"%1$s\" หรือไม่</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
