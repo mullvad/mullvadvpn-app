@@ -2,7 +2,7 @@ use std::{io, net::IpAddr, time::Duration};
 
 use futures::{Future, TryStreamExt, future, stream::FuturesUnordered};
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
-use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU};
+use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE};
 use tokio_stream::StreamExt;
 
 #[derive(thiserror::Error, Debug)]
@@ -57,12 +57,15 @@ pub async fn automatic_mtu_correction(
     .await?;
 
     if verified_mtu != current_tunnel_mtu {
-        log::warn!("Lowering MTU from {} to {verified_mtu}", current_tunnel_mtu);
-
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        talpid_net::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
-        #[cfg(windows)]
-        set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
+        cfg_select! {
+            any(target_os = "linux", target_os = "macos") => {
+                talpid_net::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
+            }
+            windows => {
+                set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
+            }
+            _ => {}
+        }
     } else {
         log::debug!("MTU {verified_mtu} verified to not drop packets");
     };
@@ -99,7 +102,7 @@ async fn detect_mtu(
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     current_mtu: u16,
 ) -> Result<u16, Error> {
-    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, MTU_STEP_SIZE);
+    let linspace = mtu_spacing(talpid_tunnel::MIN_IPV4_MTU, current_mtu, MTU_STEP_SIZE);
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]

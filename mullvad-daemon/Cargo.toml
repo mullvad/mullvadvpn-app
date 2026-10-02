@@ -185,6 +185,16 @@ default = ["default-allocator"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
+# Custom (user-provided) WireGuard VPN, tunneled through the Mullvad tunnel.
+# FIXME: WARNING: The settings exposed over the management interface include the private key for the
+# custom VPN. This is fine on Android, where only the app can access the gRPC socket, but not on
+# desktop platforms. Do not enable this on desktop without addressing that.
+custom-vpn = [
+  "mullvad-management-interface/custom-vpn",
+  "mullvad-types/custom-vpn",
+  "talpid-core/custom-vpn",
+  "talpid-types/custom-vpn"
+]
 # Use jemalloc as the global allocator. Only takes effect on Linux.
 default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
