@@ -9,33 +9,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Routing
+import SwiftUI
 import UIKit
-
-enum HeaderBarStyle: Sendable {
-    case transparent, `default`, unsecured, secured
-
-    fileprivate func backgroundColor() -> UIColor {
-        switch self {
-        case .transparent:
-            return UIColor.clear
-        case .default:
-            return UIColor.HeaderBar.defaultBackgroundColor
-        case .secured:
-            return UIColor.HeaderBar.securedBackgroundColor
-        case .unsecured:
-            return UIColor.HeaderBar.unsecuredBackgroundColor
-        }
-    }
-}
-
-struct HeaderBarPresentation: Sendable {
-    let style: HeaderBarStyle
-    let showsDivider: Bool
-
-    static var `default`: HeaderBarPresentation {
-        HeaderBarPresentation(style: .default, showsDivider: false)
-    }
-}
 
 /// A protocol that defines the relationship between the root container and its child controllers
 @MainActor
@@ -86,13 +61,13 @@ protocol RootContainerViewControllerDelegate: AnyObject, Sendable {
 class RootContainerViewController: UIViewController {
     typealias CompletionHandler = () -> Void
 
-    private let headerBarView = HeaderBarView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+    private var headerBarViewModel: HeaderBarViewModel?
+    private var headerBarView: UIView?
     let transitionContainer = UIView(frame: UIScreen.main.bounds)
     private var presentationContainerAccountButton: UIButton?
     private var presentationContainerSettingsButton: UIButton?
     private var configuration = RootConfiguration(showsAccountButton: false)
 
-    private(set) var headerBarPresentation = HeaderBarPresentation.default
     private(set) var headerBarHidden = false
     private(set) var overrideHeaderBarHidden: Bool?
 
@@ -120,7 +95,7 @@ class RootContainerViewController: UIViewController {
 
     var breadcrumbs: Set<Breadcrumb> = [] {
         didSet {
-            headerBarView.breadcrumb = breadcrumbs.mostSevere
+            headerBarViewModel?.breadcrumb = breadcrumbs.mostSevere
         }
     }
 
@@ -157,7 +132,6 @@ class RootContainerViewController: UIViewController {
 
         addTransitionView()
         addHeaderBarView()
-        updateHeaderBarBackground()
     }
 
     override func viewDidLayoutSubviews() {
@@ -328,11 +302,6 @@ class RootContainerViewController: UIViewController {
         }
     }
 
-    func enableHeaderBarButtons(_ enabled: Bool) {
-        headerBarView.accountButton.isEnabled = enabled
-        headerBarView.settingsButton.isEnabled = enabled
-    }
-
     // MARK: - Accessibility
 
     override func accessibilityPerformMagicTap() -> Bool {
@@ -358,10 +327,23 @@ class RootContainerViewController: UIViewController {
     }
 
     private func addHeaderBarView() {
+        let headerBarViewModel = HeaderBarViewModel(
+            rootConfiguration: configuration,
+            headerBarPresentation: .default,
+            breadcrumb: nil
+        )
+
+        let hostingController = UIHostingController(rootView: HeaderBarView(viewModel: headerBarViewModel))
+        let headerBarView = hostingController.view!
+
+        self.headerBarViewModel = headerBarViewModel
+        self.headerBarView = headerBarView
+
         let constraints = [
             headerBarView.topAnchor.constraint(equalTo: view.topAnchor),
             headerBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             headerBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            headerBarView.heightAnchor.constraint(equalToConstant: 100),
         ]
 
         headerBarView.translatesAutoresizingMaskIntoConstraints = false
@@ -369,61 +351,11 @@ class RootContainerViewController: UIViewController {
         // Prevent automatic layout margins adjustment as we manually control them.
         headerBarView.insetsLayoutMarginsFromSafeArea = false
 
-        headerBarView.accountButton.addTarget(
-            self,
-            action: #selector(handleAccountButtonTap),
-            for: .touchUpInside
-        )
-
-        headerBarView.settingsButton.addTarget(
-            self,
-            action: #selector(handleSettingsButtonTap),
-            for: .touchUpInside
-        )
+        headerBarViewModel.onAccountTap = handleAccountButtonTap
+        headerBarViewModel.onSettingsTap = handleSettingsButtonTap
 
         view.addSubview(headerBarView)
-
         NSLayoutConstraint.activate(constraints)
-    }
-
-    private func getPresentationContainerAccountButton() -> UIButton {
-        let button: UIButton
-
-        if let transitionViewButton = presentationContainerAccountButton {
-            transitionViewButton.removeFromSuperview()
-            button = transitionViewButton
-        } else {
-            button = HeaderBarView.makeHeaderBarButton(with: UIImage.Buttons.account)
-            button.addTarget(
-                self,
-                action: #selector(handleAccountButtonTap),
-                for: .touchUpInside
-            )
-        }
-
-        button.isEnabled = headerBarView.accountButton.isEnabled
-        button.isHidden = !configuration.showsAccountButton
-
-        return button
-    }
-
-    private func getPresentationContainerSettingsButton() -> UIButton {
-        let button: UIButton
-
-        if let transitionViewButton = presentationContainerSettingsButton {
-            transitionViewButton.removeFromSuperview()
-            button = transitionViewButton
-        } else {
-            button = HeaderBarView.makeHeaderBarButton(with: UIImage.Buttons.settings)
-            button.isEnabled = headerBarView.settingsButton.isEnabled
-            button.addTarget(
-                self,
-                action: #selector(handleSettingsButtonTap),
-                for: .touchUpInside
-            )
-        }
-
-        return button
     }
 
     @objc private func handleAccountButtonTap() {
@@ -672,13 +604,15 @@ class RootContainerViewController: UIViewController {
     private func updateHeaderBarLayoutMarginsIfNeeded() {
         let offsetTop = view.safeAreaInsets.top - additionalSafeAreaInsets.top
 
-        if headerBarView.layoutMargins.top != offsetTop {
-            headerBarView.layoutMargins.top = offsetTop
+        if headerBarView?.layoutMargins.top != offsetTop {
+            headerBarView?.layoutMargins.top = offsetTop
         }
     }
 
     /// Updates additional safe area insets to push the child views below the header bar
     private func updateAdditionalSafeAreaInsetsIfNeeded() {
+        guard let headerBarView else { return }
+
         let offsetTop = view.safeAreaInsets.top - additionalSafeAreaInsets.top
         let insetTop = headerBarHidden ? 0 : headerBarView.frame.height - offsetTop
 
@@ -688,14 +622,14 @@ class RootContainerViewController: UIViewController {
     }
 
     private func setHeaderBarPresentation(_ presentation: HeaderBarPresentation, animated: Bool) {
-        headerBarPresentation = presentation
-
         let action = {
-            self.updateHeaderBarBackground()
+            self.headerBarViewModel?.headerBarPresentation = presentation
         }
 
         if animated {
-            UIView.animate(withDuration: 0.25, animations: action)
+            UIView.animate(withDuration: 0.25) {
+                action()
+            }
         } else {
             action()
         }
@@ -705,19 +639,16 @@ class RootContainerViewController: UIViewController {
         headerBarHidden = hidden
 
         let action = {
-            self.headerBarView.alpha = hidden ? 0 : 1
+            self.headerBarView?.alpha = hidden ? 0 : 1
         }
 
         if animated {
-            UIView.animate(withDuration: 0.25, animations: action)
+            UIView.animate(withDuration: 0.25) {
+                action()
+            }
         } else {
             action()
         }
-    }
-
-    private func updateHeaderBarBackground() {
-        headerBarView.backgroundColor = headerBarPresentation.style.backgroundColor()
-        headerBarView.showsDivider = headerBarPresentation.showsDivider
     }
 
     private func updateHeaderBarStyleFromChildPreferences(animated: Bool) {
@@ -728,7 +659,7 @@ class RootContainerViewController: UIViewController {
 
     private func updateDeviceInfoBarHiddenFromChildPreferences() {
         if let conforming = topViewController as? RootContainment {
-            headerBarView.isDeviceInfoHidden = conforming.prefersDeviceInfoBarHidden
+            headerBarViewModel?.showDeviceInfo = !conforming.prefersDeviceInfoBarHidden
         }
     }
 
@@ -885,6 +816,6 @@ extension RootContainerViewController {
     func update(configuration: RootConfiguration) {
         self.configuration = configuration
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
-        headerBarView.update(configuration: configuration)
+        headerBarViewModel?.rootConfiguration = configuration
     }
 }

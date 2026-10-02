@@ -48,11 +48,10 @@ class TunnelViewController: UIViewController, RootContainment {
         switch interactor.deviceState {
         case .loggedIn, .revoked:
             return HeaderBarPresentation(
-                style: tunnelState.isSecured ? .secured : .unsecured,
-                showsDivider: false
+                style: tunnelState.isSecured ? .secured : .unsecured
             )
         case .loggedOut:
-            return HeaderBarPresentation(style: .default, showsDivider: true)
+            return HeaderBarPresentation(style: .default)
         }
     }
 

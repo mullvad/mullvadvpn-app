@@ -29,7 +29,7 @@ class WelcomeViewController: UIViewController, RootContainment {
     weak var delegate: WelcomeViewControllerDelegate?
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        HeaderBarPresentation(style: .default, showsDivider: true)
+        HeaderBarPresentation(style: .default)
     }
 
     var prefersHeaderBarHidden: Bool {
