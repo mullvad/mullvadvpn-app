@@ -10,6 +10,7 @@
 
 import Foundation
 import MullvadTypes
+import NetworkExtension
 import PacketTunnelCore
 
 actor SendTunnelMessageService {
@@ -63,6 +64,17 @@ actor SendTunnelMessageService {
         return AnyCancellable {
             task.cancel()
             cancelHandler?()
+        }
+    }
+}
+
+enum SendTunnelProviderMessageError: LocalizedError {
+    /// Tunnel process is either down or about to go down.
+    case tunnelDown(NEVPNStatus)
+    var errorDescription: String? {
+        switch self {
+        case let .tunnelDown(status):
+            return "Tunnel is either down or about to go down (status: \(status))."
         }
     }
 }
