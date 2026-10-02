@@ -85,6 +85,9 @@ pub enum FeatureIndicator {
     ServerIpOverride,
     CustomMtu,
     Daita,
+
+    CustomVpn,
+    CustomVpnActive,
 }
 
 impl FeatureIndicator {
@@ -106,6 +109,8 @@ impl FeatureIndicator {
             FeatureIndicator::ServerIpOverride => "Server Ip Override",
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::Daita => "DAITA",
+            FeatureIndicator::CustomVpn => "Custom VPN",
+            FeatureIndicator::CustomVpnActive => "Custom VPN: Active",
         }
     }
 }
@@ -128,6 +133,7 @@ pub fn compute_feature_indicators(
     settings: &Settings,
     endpoint: &TunnelEndpoint,
     server_ip_override: bool,
+    #[cfg(feature = "custom-vpn")] custom_vpn_handshake: Option<std::time::SystemTime>,
 ) -> FeatureIndicators {
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     let split_tunneling = settings.split_tunnel.enable_exclusions;
@@ -163,6 +169,24 @@ pub fn compute_feature_indicators(
     let lwo = has_obfuscation(ObfuscationType::Lwo);
 
     let mtu = settings.tunnel_options.wireguard.mtu.is_some();
+    #[cfg(feature = "custom-vpn")]
+    let custom_vpn = settings.custom_vpn_enabled && settings.custom_vpn_config.is_some();
+
+    // How long before the custom VPN session is considered idle.
+    #[cfg(feature = "custom-vpn")]
+    const CUSTOM_VPN_ACTIVE_HANDSHAKE_WINDOW: std::time::Duration =
+        std::time::Duration::from_secs(150);
+
+    #[cfg(feature = "custom-vpn")]
+    let custom_vpn_active = if custom_vpn {
+        custom_vpn_handshake.is_some_and(|time| {
+            time.elapsed()
+                .map(|t| t < CUSTOM_VPN_ACTIVE_HANDSHAKE_WINDOW)
+                .unwrap_or(false)
+        })
+    } else {
+        false
+    };
 
     let daita = endpoint.daita;
 
@@ -196,6 +220,13 @@ pub fn compute_feature_indicators(
         (lwo, FeatureIndicator::Lwo),
         (mtu, FeatureIndicator::CustomMtu),
         (daita, FeatureIndicator::Daita),
+        #[cfg(feature = "custom-vpn")]
+        (
+            custom_vpn && !custom_vpn_active,
+            FeatureIndicator::CustomVpn,
+        ),
+        #[cfg(feature = "custom-vpn")]
+        (custom_vpn_active, FeatureIndicator::CustomVpnActive),
     ];
 
     // use the booleans to filter into a list of only the active features
@@ -215,6 +246,17 @@ mod tests {
 
     use super::*;
 
+    /// Compute the feature indicators without a server IP override or custom VPN handshake.
+    fn compute(settings: &Settings, endpoint: &TunnelEndpoint) -> FeatureIndicators {
+        compute_feature_indicators(
+            settings,
+            endpoint,
+            false,
+            #[cfg(feature = "custom-vpn")]
+            None,
+        )
+    }
+
     #[test]
     fn test_one_indicator_at_a_time() {
         let mut settings = Settings::default();
@@ -233,7 +275,7 @@ mod tests {
         let mut expected_indicators: FeatureIndicators = [].into_iter().collect();
 
         assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
+            compute(&settings, &endpoint),
             expected_indicators,
             "The default settings and TunnelEndpoint should not have any feature indicators. \
             If this is not true anymore, please update this test."
@@ -242,10 +284,7 @@ mod tests {
         settings.lockdown_mode = true;
         expected_indicators.0.insert(FeatureIndicator::LockdownMode);
 
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         settings
             .tunnel_options
@@ -257,28 +296,19 @@ mod tests {
             .0
             .insert(FeatureIndicator::DnsContentBlockers);
 
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         settings.allow_lan = true;
 
         expected_indicators.0.insert(FeatureIndicator::LanSharing);
 
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         endpoint.quantum_resistant = true;
         expected_indicators
             .0
             .insert(FeatureIndicator::QuantumResistance);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         endpoint.entry_endpoint = Some(Endpoint {
             address: SocketAddr::from(([1, 2, 3, 4], 443)),
@@ -288,10 +318,7 @@ mod tests {
             constraints.wireguard_constraints.multihop = Multihop::Always;
         };
         expected_indicators.0.insert(FeatureIndicator::Multihop);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         endpoint.obfuscation = Some(ObfuscationInfo::Single(ObfuscationEndpoint {
             endpoint: Endpoint {
@@ -301,20 +328,14 @@ mod tests {
             obfuscation_type: ObfuscationType::Udp2Tcp,
         }));
         expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
         let Some(ObfuscationInfo::Single(ref mut obfs)) = endpoint.obfuscation else {
             unreachable!()
         };
         obfs.obfuscation_type = ObfuscationType::Shadowsocks;
         expected_indicators.0.remove(&FeatureIndicator::Udp2Tcp);
         expected_indicators.0.insert(FeatureIndicator::Shadowsocks);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
         // Check that custom Port triggers a feature indicator.
         {
             // Stash the currently selected obfuscation method and reset it after checking for the
@@ -325,10 +346,7 @@ mod tests {
             expected_indicators
                 .0
                 .insert(FeatureIndicator::WireguardPort);
-            assert_eq!(
-                compute_feature_indicators(&settings, &endpoint, false),
-                expected_indicators
-            );
+            assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
             settings.obfuscation_settings.selected_obfuscation = prev;
             expected_indicators
@@ -338,17 +356,11 @@ mod tests {
 
         settings.tunnel_options.wireguard.mtu = Some(1300);
         expected_indicators.0.insert(FeatureIndicator::CustomMtu);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         endpoint.daita = true;
         expected_indicators.0.insert(FeatureIndicator::Daita);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
         // Here we mock that multihop was automatically enabled by necessity.
         // We enable Multihop::Auto setting while keeping the entry relay.
@@ -358,20 +370,14 @@ mod tests {
             expected_indicators.0.insert(FeatureIndicator::MultihopAuto);
             expected_indicators.0.remove(&FeatureIndicator::Multihop);
         };
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators,
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators,);
 
         // If we also remove the entry relay, we should not get a multihop indicator
         endpoint.entry_endpoint = None;
         expected_indicators
             .0
             .remove(&FeatureIndicator::MultihopAuto);
-        assert_eq!(
-            compute_feature_indicators(&settings, &endpoint, false),
-            expected_indicators,
-        );
+        assert_eq!(compute(&settings, &endpoint), expected_indicators,);
 
         // NOTE: If this match statement fails to compile, it means that a new feature indicator has
         // been added. Please update this test to include the new feature indicator.
@@ -392,6 +398,8 @@ mod tests {
             FeatureIndicator::ServerIpOverride => {}
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::Daita => {}
+            FeatureIndicator::CustomVpn => {}
+            FeatureIndicator::CustomVpnActive => {}
         }
     }
 }
