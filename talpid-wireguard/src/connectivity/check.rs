@@ -1,12 +1,14 @@
 use std::{
-    net::Ipv4Addr,
+    net::{Ipv4Addr, SocketAddr},
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
     time::Duration,
 };
-use tokio::{sync::broadcast, time::Instant};
+use talpid_tunnel_config_client::CONFIG_SERVICE_PORT;
+use tokio::{net::TcpStream, sync::broadcast, time::Instant};
+use tokio_util::task::AbortOnDropHandle;
 
 use super::{constants::*, error::Error, pinger};
 
@@ -36,6 +38,7 @@ use pinger::Pinger;
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct Check {
+    gateway: Ipv4Addr,
     conn_state: ConnState,
     ping_state: PingState,
     cancel_receiver: CancelReceiver,
@@ -109,6 +112,7 @@ impl Check {
         cancel_receiver: CancelReceiver,
     ) -> Result<Check, Error> {
         Ok(Check {
+            gateway: addr,
             conn_state: ConnState::new(Instant::now(), Default::default()),
             ping_state: PingState::new(
                 addr,
@@ -126,6 +130,7 @@ impl Check {
         let (cancel_token, cancel_receiver) = CancelToken::new();
         (
             Check {
+                gateway: Ipv4Addr::UNSPECIFIED,
                 conn_state,
                 ping_state,
                 retry_attempt: 0,
@@ -147,6 +152,11 @@ impl Check {
         if let Err(err) = self.ping_state.ping().await {
             log::error!("{err}");
         }
+        // Also try to connect to the config service, in case ICMP is blocked. We only care about
+        // getting a response through the tunnel, so the connection is never awaited.
+        // Hack: This always worked previously but it was never intended.
+        let config_service = SocketAddr::from((self.gateway, CONFIG_SERVICE_PORT));
+        let _tcp_ping = AbortOnDropHandle::new(tokio::spawn(TcpStream::connect(config_service)));
         self.establish_connectivity_inner(
             self.retry_attempt,
             ESTABLISH_TIMEOUT,

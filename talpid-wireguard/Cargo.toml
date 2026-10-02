@@ -28,6 +28,7 @@ talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
+tokio-util = { workspace = true, features = ["rt"] }
 tun = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation", features = ["gotatun"] }
 
