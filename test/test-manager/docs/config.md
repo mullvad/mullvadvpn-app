@@ -32,7 +32,8 @@ The configuration is assumed to exist in `$XDG_CONFIG_HOME/mullvad-test/config.j
 
 `environments` maps arbitrary names, e.g. `prod` or `staging`, to settings that differ between
 API environments. `test-manager run-tests --env <name>` selects which one to use. The named
-environment must be configured. If `--env` is omitted, the default settings are used.
+environment must be configured, either here or in the built-in environments (see below). If
+`--env` is omitted, the default settings are used.
 
 `mullvad_host` is the domain used for the API and conncheck, e.g. `stagemole.eu`. It is prefixed
 with e.g. `api.` and `ipv4.am.i.`. Defaults to `mullvad.net`.
@@ -69,29 +70,15 @@ The above example will set the locations for the test `test_daita` to a custom l
 containing `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match
 any test name. The configuration is read from top-to-bottom, and the first match will be used.
 
-### Test location currently used by the GitHub end to end-test workflow
+### Built-in environments
 
-Below is a copy of the prod test location setting currently used by the machines that
-run the GitHub workflow for desktop end to end tests. Make sure to keep it updated!
+`test-manager` has built-in `prod` and `staging` environments, defined in
+[`test/environments.json`](../../environments.json). These are the settings used by the GitHub
+workflow for desktop end to end tests.
 
-```json
-{
-  "environments": {
-    "prod": {
-      "test_locations": [
-        { "test_wireguard_over_shadowsocks": ["se-got"] },
-        { "test_multihop": ["se-got"] },
-        { "test_quantum_resistant_tunnel": ["se-got"] },
-        { "test_quantum_resistant_multihop_udp2tcp_tunnel": ["se-got"] },
-        { "test_quantum_resistant_multihop_shadowsocks_tunnel": ["se-got"] },
-        { "test_quantum_resistant_multihop_quic_tunnel": ["se-sto", "ca-tor"] },
-        { "test_ui_tunnel_settings": ["se-got"] },
-        { "*": ["se", "no", "fi", "dk"] }
-      ]
-    }
-  }
-}
-```
+An environment of the same name in the config overrides the built-in one field by field. For
+example, `"staging": { "account": "..." }` only sets the account, and keeps the built-in
+`mullvad_host` and `test_locations`.
 
 ## Example configurations
 

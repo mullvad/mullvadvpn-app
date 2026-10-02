@@ -1,0 +1,21 @@
+{
+  "prod": {
+    "test_locations": [
+      { "test_wireguard_over_shadowsocks": ["se-got"] },
+      { "test_multihop": ["se-got"] },
+      { "test_quantum_resistant_tunnel": ["se-got"] },
+      { "test_quantum_resistant_multihop_udp2tcp_tunnel": ["se-got"] },
+      { "test_quantum_resistant_multihop_shadowsocks_tunnel": ["se-got"] },
+      { "test_quantum_resistant_multihop_quic_tunnel": ["se-sto", "ca-tor"] },
+      { "test_ui_tunnel_settings": ["se-got"] },
+      { "test_daita*": ["se"] },
+      { "*": ["se", "no", "fi", "dk"] }
+    ]
+  },
+  "staging": {
+    "mullvad_host": "stagemole.eu",
+    "test_locations": [
+      { "*": ["se-got-wg-001", "se-sto-wg-001", "de-fra-wg-001"] }
+    ]
+  }
+}

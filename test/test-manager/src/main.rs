@@ -339,7 +339,7 @@ async fn inner_main() -> Result<()> {
 
             let env_config = get_environment(&config, env.as_deref())?;
             let account = get_account(account, &env_config)?;
-            let mullvad_host = env_config.mullvad_host;
+            let mullvad_host = env_config.mullvad_host().to_owned();
             log::info!(
                 "Environment: {} ({mullvad_host})",
                 env.as_deref().unwrap_or("default")
@@ -395,7 +395,7 @@ async fn inner_main() -> Result<()> {
 
             let mut tests = get_filtered_tests(&test_filters, &skip)?;
             for test in tests.iter_mut() {
-                test.location = env_config.test_locations.lookup(test.name).cloned();
+                test.location = env_config.test_locations(test.name).cloned();
             }
 
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
@@ -459,7 +459,6 @@ fn get_environment(
     };
     config
         .get_environment(env)
-        .cloned()
         .with_context(|| format!("Environment '{env}' is not configured"))
 }
 
