@@ -75,7 +75,7 @@ use windows::create_dir;
 mod cache;
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
 
-pub mod logs;
+mod logs;
 pub use crate::logs::{frontend_log_dir, get_default_log_dir, get_log_dir, log_dir};
 
 pub mod resources;
