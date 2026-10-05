@@ -13,6 +13,7 @@ import SwiftUI
 extension ProblemReportView {
     struct ModalOverlay: View {
         let state: ProblemReportViewModel.ModalState
+        let doPostFailureAction: ((ProblemReportViewModel.PostFailureAction) -> Void)
 
         let supportEmail = "support@mullvadvpn.net"
 
@@ -23,7 +24,10 @@ extension ProblemReportView {
                     MullvadNoticeView(
                         viewModel: .init(
                             style: .loading,
-                            title: .init(text: "Sending...", style: .headline(.bold, alignment: .leading)),
+                            title: .init(
+                                text: NSLocalizedString("Sending...", comment: ""),
+                                style: .headline(.bold, alignment: .leading)
+                            ),
                             verticalAlignment: .top,
                             details: [],
                             actions: [
@@ -33,12 +37,15 @@ extension ProblemReportView {
                     MullvadNoticeView(
                         viewModel: .init(
                             style: .success,
-                            title: .init(text: "Sent", style: .headline(.bold, alignment: .leading)),
+                            title: .init(
+                                text: NSLocalizedString("Sent", comment: ""),
+                                style: .headline(.bold, alignment: .leading)
+                            ),
                             verticalAlignment: .top,
                             details: [
                                 .init(
-                                    text: "Thanks! We will look into this.",
-                                    style: .primary(.none, alignment: .leading))
+                                    text: NSLocalizedString("Thanks! We will look into this.", comment: ""),
+                                    style: .secondary(.none, alignment: .leading))
                             ],
                             actions: [])
                     )
@@ -46,40 +53,71 @@ extension ProblemReportView {
                     MullvadNoticeView(
                         viewModel: .init(
                             style: .fail,
-                            title: .init(text: "Failed to send", style: .headline(.bold, alignment: .leading)),
+                            title: .init(
+                                text: NSLocalizedString("Failed to send", comment: ""),
+                                style: .headline(.bold, alignment: .leading)
+                            ),
+                            verticalAlignment: .top,
                             details: [
                                 .init(
                                     text:
-                                        "If you exit the form and try again later, the information you already entered will still be here.",
-                                    style: .primary(.none, alignment: .leading)
+                                        NSLocalizedString(
+                                            "If you exit the form and try again later, the information you already entered will still be here.",
+                                            comment: ""),
+                                    style: .secondary(.none, alignment: .leading)
                                 ),
                                 .init(
                                     text:
-                                        "If you still experience issues you can email our support directly at **\(supportEmail)**. Please attach your app log to your email.",
-                                    style: .primary(.none, alignment: .leading)
+                                        NSLocalizedString(
+                                            """
+                                            If you still experience issues you can email our support directly at **\(supportEmail)**. \
+                                            Please attach your app log to your email.
+                                            """,
+                                            comment: ""),
+                                    style: .secondary(.none, alignment: .leading),
+                                    isMarkdown: true
                                 ),
                             ],
                             actions: [
-                                .init(style: .primary, state: .init(kind: .idle, message: "Edit message")),
-                                .init(style: .primary, state: .init(kind: .idle, message: "View app logs")),
-                                .init(style: .success, state: .init(kind: .idle, message: "Try again")),
+                                .init(
+                                    style: .primary,
+                                    state: .init(kind: .idle, message: NSLocalizedString("Edit message", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.edit)
+                                    }
+                                ),
+                                .init(
+                                    style: .primary,
+                                    state: .init(kind: .idle, message: NSLocalizedString("View app logs", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.viewLogs)
+                                    }
+                                ),
+                                .init(
+                                    style: .success,
+                                    state: .init(kind: .idle, message: NSLocalizedString("Try again", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.retry)
+                                    }
+                                ),
                             ])
                     )
                 }
-            }.background(Color.mullvadBackground)
-
+            }
+            .padding([.top], 36)
+            .background(Color.mullvadBackground)
         }
     }
 }
 
 #Preview("sending") {
-    ProblemReportView.ModalOverlay(state: .sending)
+    ProblemReportView.ModalOverlay(state: .sending, doPostFailureAction: { _ in })
 }
 
 #Preview("sent") {
-    ProblemReportView.ModalOverlay(state: .success)
+    ProblemReportView.ModalOverlay(state: .success, doPostFailureAction: { _ in })
 }
 
 #Preview("error") {
-    ProblemReportView.ModalOverlay(state: .failure)
+    ProblemReportView.ModalOverlay(state: .failure, doPostFailureAction: { _ in })
 }

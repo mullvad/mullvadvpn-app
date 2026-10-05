@@ -41,7 +41,7 @@ struct ProblemReportView: View {
     var body: some View {
         Group {
             if let modalState = viewModel.modalState {
-                ModalOverlay(state: modalState)
+                ModalOverlay(state: modalState, doPostFailureAction: viewModel.doPostFailureAction)
                     .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
                 mainForm
@@ -60,10 +60,20 @@ struct ProblemReportView: View {
                 }
             }
         }
-        .popover(isPresented: viewModel.showLogs) {
+        .sheet(isPresented: viewModel.showLogs) {
             LogView(viewModel: viewModel)
         }
         .navigationTitle("Report a problem")
+        .navigationBarTitleDisplayMode((viewModel.modalState == nil) ? .automatic : .inline)
+    }
+
+    var privacyPolicyLink: AttributedString {
+        var result = AttributedString(localized: "privacy policy")
+        result.link = .init(string: ApplicationConfiguration.privacyPolicyLink())
+        result.foregroundColor = .white
+        result.font = Font.mullvadTinySemiBold
+        result.underlineStyle = .single
+        return result
     }
 
     var mainForm: some View {
@@ -78,15 +88,17 @@ struct ProblemReportView: View {
                 isFocused: $emailIsFocused,
                 borderStyle: .constant(.normal))
             messageEditInlinePlaceholder
-            ActionBox(
-                isChecked: $viewModel.includeAccountTokenInLogs,
-                toggleTitle: accountTokenInclusionPrompt,
-                additionalInfo: .init(
-                    warningTitle: "This impacts your anonymity",
-                    warningMessage:
-                        "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our **privacy policy**"
+            if viewModel.showAccountTokenNotice {
+                ActionBox(
+                    isChecked: $viewModel.includeAccountTokenInLogs,
+                    toggleTitle: accountTokenInclusionPrompt,
+                    additionalInfo: .init(
+                        warningTitle: "This impacts your anonymity",
+                        warningMessage:
+                            "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our \(privacyPolicyLink)"
+                    )
                 )
-            )
+            }
             MullvadButton(
                 text: "View app logs",
                 style: .primary,
