@@ -1,5 +1,6 @@
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 pub(crate) mod ffi;
+mod monitor;
 mod obfuscation;
 pub(crate) mod params;
 mod pinger;
@@ -42,9 +43,10 @@ use tokio::sync::{
 };
 use tunnel_obfuscation::gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation};
 
+use self::monitor::{Action, ConnMonitor};
 use self::obfuscation::{ObfuscatingTransports, create_obfuscation};
 use self::pinger::SmoltcpPinger;
-use self::tun_device::IosTunDevice;
+use self::tun_device::{IosTunDevice, TxPacketCounter};
 
 pub use self::obfuscation::ObfuscationProxyError;
 pub use self::params::{PeerParameters, TunnelParameters};
@@ -139,9 +141,7 @@ type PqResult = (Option<(StaticSecret, Peer)>, StaticSecret, Peer);
 // Connectivity timeouts
 const PING_INTERVAL: Duration = Duration::from_secs(3);
 const CONNECTIVITY_CHECK_INTERVAL: Duration = Duration::from_millis(200);
-/// After this long without any rx, consider the connection lost.
-/// WireGuard keepalives are typically every ~25s, so 2 minutes gives plenty of margin.
-const MONITOR_TIMEOUT: Duration = Duration::from_secs(120);
+const MONITOR_INTERVAL: Duration = Duration::from_millis(500);
 /// After a suspension at least this long, restart the obfuscator on wake rather than trust it
 /// still holds a healthy connection.
 const SLEEP_CYCLE_RESET_THRESHOLD: Duration = Duration::from_secs(120);
@@ -336,6 +336,7 @@ impl IosTunnelAdapter {
         // 1. Create the TUN device from the fd handed over by iOS.
         let tun_dev =
             IosTunDevice::new(params.tun_fd, params.mtu).map_err(TunnelError::TunnelDevice)?;
+        let user_tx = tun_dev.tx_packets();
         let obfuscation = create_obfuscation(&params)
             .await
             .map_err(TunnelError::ObfuscationProxyError)?;
@@ -395,16 +396,28 @@ impl IosTunnelAdapter {
         }
 
         // 5. Establish connectivity, then monitor it until it drops or we stop.
-        let connected =
-            match Self::establish_connectivity(&mut connection, &smoltcp_handle, &mut rx, stopped)
-                .await
-            {
-                Ok(connected) => connected,
+        let mut pinger =
+            match Self::create_pinger(&smoltcp_handle, connection.params.ipv4_gateway).await {
+                Ok(pinger) => pinger,
                 Err(e) => {
                     connection.devices.stop().await;
                     return Err(e);
                 }
             };
+        let connected = match Self::establish_connectivity(
+            &mut connection,
+            &mut pinger,
+            &mut rx,
+            stopped,
+        )
+        .await
+        {
+            Ok(connected) => connected,
+            Err(e) => {
+                connection.devices.stop().await;
+                return Err(e);
+            }
+        };
         if !connected {
             connection.devices.stop().await;
             return Err(TunnelError::Timeout);
@@ -412,7 +425,9 @@ impl IosTunnelAdapter {
 
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
-        let result = Self::monitor_connectivity(&mut connection, &mut rx, stopped).await;
+        let result =
+            Self::monitor_connectivity(&mut connection, &mut pinger, &user_tx, &mut rx, stopped)
+                .await;
         connection.devices.stop().await;
         result?;
         Err(TunnelError::Timeout)
@@ -586,23 +601,27 @@ impl IosTunnelAdapter {
         })
     }
 
-    /// Ping until the device sees inbound traffic, the establish timeout fires,
-    /// or we are stopped. Returns whether the tunnel became connected.
-    async fn establish_connectivity(
-        connection: &mut ActiveConnection,
+    async fn create_pinger(
         smoltcp_handle: &SmoltcpHandle,
-        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
-        stopped: &AtomicBool,
-    ) -> Result<bool, TunnelError> {
+        gateway: std::net::Ipv4Addr,
+    ) -> Result<SmoltcpPinger, TunnelError> {
         // Bind the socket to the pinger's ident so echo replies reach it.
         let ping_ident: u16 = rand::random();
         let icmp_socket = smoltcp_handle
             .icmp_socket(ping_ident)
             .await
             .map_err(TunnelError::ICMPSocketError)?;
-        let mut pinger =
-            SmoltcpPinger::new(icmp_socket, connection.params.ipv4_gateway, ping_ident);
+        Ok(SmoltcpPinger::new(icmp_socket, gateway, ping_ident))
+    }
 
+    /// Ping until the device sees inbound traffic, the establish timeout fires,
+    /// or we are stopped. Returns whether the tunnel became connected.
+    async fn establish_connectivity(
+        connection: &mut ActiveConnection,
+        pinger: &mut SmoltcpPinger,
+        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
+        stopped: &AtomicBool,
+    ) -> Result<bool, TunnelError> {
         let establish_timeout = connection.params.establish_timeout();
         log::info!("Establishing connectivity (timeout: {establish_timeout:?})");
 
@@ -611,7 +630,7 @@ impl IosTunnelAdapter {
         }
 
         tokio::select! {
-            result = Self::wait_for_connectivity(connection, &mut pinger, rx, stopped) => result,
+            result = Self::wait_for_connectivity(connection, pinger, rx, stopped) => result,
             _ = tokio::time::sleep(establish_timeout) => Ok(false),
         }
     }
@@ -663,21 +682,22 @@ impl IosTunnelAdapter {
         }
     }
 
-    /// Monitor an established connection. Returns when connectivity is lost or stopped.
-    /// Watch the tunnel until it stops, loses connectivity, or is told to sleep or move sockets.
+    /// Monitor an established connection, probing it when user traffic goes unanswered.
+    /// Returns when connectivity is lost or the tunnel is stopped.
     async fn monitor_connectivity(
         connection: &mut ActiveConnection,
+        pinger: &mut SmoltcpPinger,
+        user_tx: &TxPacketCounter,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<(), TunnelError> {
-        let mut last_rx_bytes: usize = 0;
-        let mut last_rx_time = Instant::now();
-        // A suspended tunnel receives nothing, so the RX deadline must not run while it sleeps.
+        let mut monitor = ConnMonitor::new(user_tx.get(), connection.devices.liveness_rx().await);
+        // A suspended tunnel receives nothing, so the monitor must not run while it sleeps.
         let mut suspended = false;
 
         loop {
             tokio::select! {
-                _ = tokio::time::sleep(Duration::from_secs(1)) => {}
+                _ = tokio::time::sleep(MONITOR_INTERVAL) => {}
                 command = rx.recv() => {
                     // The channel only closes when the adapter is dropped, which stops us.
                     let Some(command) = command else { return Ok(()) };
@@ -687,7 +707,7 @@ impl IosTunnelAdapter {
                         CommandOutcome::Awake => suspended = false,
                     }
                     // Do not hold a sleep, or the sockets it spanned, against the tunnel.
-                    last_rx_time = Instant::now();
+                    monitor.reset();
                     continue;
                 }
             }
@@ -699,14 +719,21 @@ impl IosTunnelAdapter {
                 continue;
             }
 
-            let total_rx = connection.devices.total_rx().await;
-
-            if total_rx > last_rx_bytes {
-                last_rx_bytes = total_rx;
-                last_rx_time = Instant::now();
-            } else if last_rx_time.elapsed() > MONITOR_TIMEOUT {
-                log::warn!("No RX for {:?} - connection lost", last_rx_time.elapsed());
-                return Ok(());
+            let rx_bytes = connection.devices.liveness_rx().await;
+            match monitor.tick(Instant::now(), user_tx.get(), rx_bytes) {
+                Action::None => {}
+                Action::Ping(count) => {
+                    log::debug!("User traffic unanswered - sending {count} ping(s)");
+                    for _ in 0..count {
+                        if let Err(e) = pinger.send_icmp().await {
+                            log::warn!("Ping failed: {e}");
+                        }
+                    }
+                }
+                Action::Dead => {
+                    log::warn!("No RX after user traffic and pings - connection lost");
+                    return Ok(());
+                }
             }
         }
     }
@@ -834,12 +861,14 @@ impl Devices {
             .any(|p| p.stats.rx_bytes > 0)
     }
 
-    async fn total_rx(&self) -> usize {
-        self.ingress_peers()
-            .await
-            .iter()
-            .map(|p| p.stats.rx_bytes)
-            .sum()
+    /// Bytes received by the innermost device - the exit device in multihop, the only device in
+    /// singlehop - so that a dead exit relay is not masked by a live entry relay.
+    async fn liveness_rx(&self) -> usize {
+        let peers = match self {
+            Devices::Singlehop(dev) => dev.read(async |d| d.peers().await).await,
+            Devices::Multihop { exit, .. } => exit.read(async |d| d.peers().await).await,
+        };
+        peers.iter().map(|p| p.stats.rx_bytes).sum()
     }
 }
 
