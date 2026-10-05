@@ -1,8 +1,6 @@
 use crate::Result;
 use std::{
-    env,
-    ffi::OsStr,
-    fs, io,
+    env, fs, io,
     path::{Path, PathBuf},
 };
 
