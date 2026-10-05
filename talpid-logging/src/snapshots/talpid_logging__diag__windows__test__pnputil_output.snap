@@ -1,7 +1,7 @@
 ---
-source: talpid-core/src/logging/diag.rs
+source: talpid-logging/src/diag.rs
+assertion_line: 311
 expression: formatted_logs
-snapshot_kind: text
 ---
 pnputil.exe "/enum-devices" "/class" "{4d36e972-e325-11ce-bfc1-08002be10318}" "/format" "csv" (filtered)
 --------

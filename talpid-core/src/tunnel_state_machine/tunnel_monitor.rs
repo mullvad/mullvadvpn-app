@@ -26,7 +26,7 @@ pub enum Error {
 
     /// Failed to rotate tunnel log file
     #[error("Failed to rotate tunnel log file")]
-    RotateLogError(#[from] crate::logging::RotateLogError),
+    RotateLogError(#[from] talpid_logging::RotateLogError),
 
     /// There was an error listening for events from the Wireguard tunnel
     #[error("Failed while listening for events from the Wireguard tunnel")]
@@ -157,7 +157,7 @@ impl TunnelMonitor {
         if let Some(log_dir) = log_dir {
             let filename = WIREGUARD_LOG_FILENAME;
             let tunnel_log = log_dir.join(filename);
-            crate::logging::rotate_log(&tunnel_log)?;
+            talpid_logging::rotate_log(&tunnel_log)?;
             Ok(Some(tunnel_log))
         } else {
             Ok(None)
