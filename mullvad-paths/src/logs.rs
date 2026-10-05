@@ -29,11 +29,6 @@ impl LogFile {
         )
     }
 
-    pub fn with_extension(&mut self, extension: impl AsRef<OsStr>) {
-        self.basename
-            .push_str(&extension.as_ref().to_string_lossy());
-    }
-
     pub fn rename(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
         let file = Self::from_file_path(from);
         let mut result = Ok(());
