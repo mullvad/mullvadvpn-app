@@ -6129,11 +6129,16 @@ dependencies = [
 name = "talpid-logging"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "chrono",
  "csv",
  "insta",
  "log",
+ "serde",
+ "talpid-windows",
  "thiserror 2.0.19",
+ "tokio",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

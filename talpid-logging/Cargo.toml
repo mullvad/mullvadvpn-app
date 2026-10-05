@@ -11,12 +11,23 @@ license.workspace = true
 log.workspace = true
 thiserror.workspace = true
 
-[dev-dependencies]
-insta = { workspace = true, features = ["yaml"] }
-
 [target."cfg(windows)".dependencies]
+anyhow.workspace = true
 chrono = { workspace = true, features = ["clock"] }
 csv.workspace = true
+serde = { workspace = true, features = ["derive"] }
+talpid-windows = { path = "../talpid-windows" }
+tokio = { workspace = true, features = ["fs", "io-util", "process", "rt-multi-thread"] }
+
+[target."cfg(windows)".dependencies.windows-sys]
+workspace = true
+features = ["Win32_Globalization"]
+
+[target."cfg(windows)".dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
 
 [lints]
 workspace = true
