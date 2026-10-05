@@ -3500,6 +3500,7 @@ dependencies = [
  "talpid-time",
  "talpid-types",
  "talpid-windows",
+ "tempfile",
  "thiserror 2.0.19",
  "tikv-jemallocator",
  "tokio",

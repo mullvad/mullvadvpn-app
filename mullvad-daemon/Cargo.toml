@@ -117,6 +117,7 @@ tracing-subscriber = { workspace = true, features = ["chrono"] }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }
+tempfile = { workspace = true }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
 
