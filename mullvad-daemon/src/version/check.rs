@@ -145,7 +145,7 @@ impl VersionUpdaterInner {
     ) {
         #[cfg(not(target_os = "android"))]
         {
-            new_version_info = self.ignore_cache_if_same_version(new_version_info);
+            new_version_info = self.select_version_cache(new_version_info);
         }
 
         if let Err(err) = update(new_version_info.clone()).await {
@@ -155,7 +155,17 @@ impl VersionUpdaterInner {
     }
 
     #[cfg(not(target_os = "android"))]
-    fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
+    fn select_version_cache(&self, mut new_version_info: VersionCache) -> VersionCache {
+        // Foreground and background checks verify against their own cache snapshots.
+        // A delayed response (including a 304) must not undo a newer completion.
+        if let Some(current_cache) = self.last_app_version_info.as_ref()
+            && new_version_info.metadata_version < current_cache.metadata_version
+        {
+            log::trace!("Ignoring version info with older metadata version");
+            // Still pass the current cache to `update` so waiting callers get a response.
+            return current_cache.clone();
+        }
+
         if let Some(current_cache) = self.last_app_version_info.as_ref()
             && current_cache.metadata_version == new_version_info.metadata_version
         {
@@ -777,6 +787,121 @@ mod test {
             .await;
         let updated_cache = checker.last_app_version_info.as_ref().unwrap();
         assert_eq!(updated_cache, &new_cache, "cache should be fully updated");
+    }
+
+    /// Both checks can verify against the same snapshot and complete in either order.
+    #[tokio::test(start_paused = true)]
+    #[cfg(not(target_os = "android"))]
+    async fn test_overlapping_checks_preserve_newer_metadata() {
+        for newer_is_foreground in [false, true] {
+            check_delayed_version_response(newer_is_foreground, false).await;
+        }
+    }
+
+    /// A 304 also returns the request's old cache, which may have been superseded meanwhile.
+    #[tokio::test(start_paused = true)]
+    #[cfg(not(target_os = "android"))]
+    async fn test_delayed_not_modified_preserves_newer_metadata() {
+        for newer_is_foreground in [false, true] {
+            check_delayed_version_response(newer_is_foreground, true).await;
+        }
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn check_delayed_version_response(newer_is_foreground: bool, not_modified: bool) {
+        let initial = VersionCache {
+            metadata_version: MIN_VERIFY_METADATA_VERSION + 10,
+            etag: Some("initial-etag".to_owned()),
+            last_platform_header_check: SystemTime::now() - PLATFORM_HEADER_INTERVAL,
+            ..version_cache(mullvad_version::VERSION, "2025.5", None)
+        };
+        let newer = VersionCache {
+            metadata_version: initial.metadata_version + 2,
+            etag: Some("newer-etag".to_owned()),
+            current_version_supported: true,
+            ..version_cache(mullvad_version::VERSION, "2025.7", Some("2025.8-beta1"))
+        };
+        let delayed = if not_modified {
+            // This is what version_check_inner returns for a 304 against the old ETag.
+            VersionCache {
+                last_platform_header_check: SystemTime::now() + Duration::from_secs(1),
+                ..initial.clone()
+            }
+        } else {
+            VersionCache {
+                metadata_version: initial.metadata_version + 1,
+                etag: Some("delayed-etag".to_owned()),
+                ..initial.clone()
+            }
+        };
+
+        let (fg_started_tx, mut fg_started_rx) = mpsc::unbounded();
+        let (bg_started_tx, mut bg_started_rx) = mpsc::unbounded();
+        let controlled_check = |started_tx: mpsc::UnboundedSender<_>| {
+            move |cache| -> BoxFuture<'static, Result<VersionCache, Error>> {
+                let (response_tx, response_rx) = futures::channel::oneshot::channel();
+                started_tx.unbounded_send((cache, response_tx)).unwrap();
+                Box::pin(async move { Ok(response_rx.await.unwrap()) })
+            }
+        };
+        // Capture the full value passed to the publication/persistence callback.
+        let (updates_tx, mut updates_rx) = mpsc::unbounded();
+        let update = move |cache| -> BoxFuture<'static, Result<(), Error>> {
+            updates_tx.unbounded_send(cache).unwrap();
+            Box::pin(async { Ok(()) })
+        };
+        let (mut refresh_tx, refresh_rx) = mpsc::unbounded();
+        let task = tokio::spawn(
+            VersionUpdaterInner {
+                last_app_version_info: Some(initial.clone()),
+            }
+            .run_inner(
+                refresh_rx,
+                update,
+                controlled_check(fg_started_tx),
+                controlled_check(bg_started_tx),
+            ),
+        );
+
+        send_version_request(&mut refresh_tx).await.unwrap();
+        let (fg_cache, fg_response_tx) = receive_check_event(&mut fg_started_rx).await;
+        tokio::time::advance(FIRST_CHECK_INTERVAL).await;
+        let (bg_cache, bg_response_tx) = receive_check_event(&mut bg_started_rx).await;
+        assert_eq!(fg_cache, Some(initial.clone()));
+        assert_eq!(bg_cache, Some(initial));
+
+        let (newer_response_tx, delayed_response_tx) = if newer_is_foreground {
+            (fg_response_tx, bg_response_tx)
+        } else {
+            (bg_response_tx, fg_response_tx)
+        };
+        newer_response_tx.send(newer.clone()).unwrap();
+        assert_eq!(receive_check_event(&mut updates_rx).await, newer);
+
+        delayed_response_tx.send(delayed).unwrap();
+        // An ignored completion must still notify waiting foreground callers.
+        assert_eq!(receive_check_event(&mut updates_rx).await, newer);
+
+        // The next request must use the highest accepted counter and its associated ETag.
+        send_version_request(&mut refresh_tx).await.unwrap();
+        let (next_cache, next_response_tx) = receive_check_event(&mut fg_started_rx).await;
+        assert_eq!(next_cache, Some(newer.clone()));
+        next_response_tx.send(newer.clone()).unwrap();
+        assert_eq!(receive_check_event(&mut updates_rx).await, newer);
+
+        drop(refresh_tx);
+        tokio::time::timeout(Duration::from_secs(1), task)
+            .await
+            .expect("version updater must stop when the request channel closes")
+            .unwrap();
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn receive_check_event<T>(receiver: &mut mpsc::UnboundedReceiver<T>) -> T {
+        tokio::time::timeout(Duration::from_secs(1), receiver.next())
+            .await
+            .expect("version check must produce a response")
+            .expect("version check channel must stay open")
     }
 
     /// Test whether check actually runs first after `FIRST_CHECK_INTERVAL` and then every `UPDATE_INTERVAL`

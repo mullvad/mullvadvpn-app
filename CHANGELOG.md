@@ -74,6 +74,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+- Prevent delayed update checks from replacing newer metadata with an older response.
 - Do not reset metadata version counter when the app has been upgraded. This addresses the advisory
   `GHSA-fh82-c53h-gfvf`. Note that the app never accepted downgrades even in the event of a
   compromised API.
