@@ -1203,7 +1203,7 @@ open class ApiContext: ApiContextProtocol, @unchecked Sendable {
     public func uniffiCloneHandle() -> UInt64 {
         return try! rustCall { uniffi_mullvad_ios_fn_clone_apicontext(self.handle, $0) }
     }
-public convenience init(host: String, address: String, amIMullvadHostIpv4: String, amIMullvadHostIpv6: String, domain: String, domainFronting: DomainFrontingConfig, disableTls: Bool, bridgeProvider: ShadowsocksBridgeProvider, settingsProvider: SwiftAccessMethodSettingsContext, accessMethodChangeListeners: [AccessMethodChangeCallback]) {
+public convenience init(host: String, address: String, amIMullvadHostIpv4: String, amIMullvadHostIpv6: String, domain: String, domainFronting: DomainFrontingConfig, disableTls: Bool, sigsumTrustedKeys: String?, bridgeProvider: ShadowsocksBridgeProvider, settingsProvider: SwiftAccessMethodSettingsContext, accessMethodChangeListeners: [AccessMethodChangeCallback]) {
     let handle =
         try! rustCall() {
     uniffi_mullvad_ios_fn_constructor_apicontext_new(
@@ -1214,6 +1214,7 @@ public convenience init(host: String, address: String, amIMullvadHostIpv4: Strin
         FfiConverterString.lower(domain),
         FfiConverterTypeDomainFrontingConfig_lower(domainFronting),
         FfiConverterBool.lower(disableTls),
+        FfiConverterOptionString.lower(sigsumTrustedKeys),
         FfiConverterTypeShadowsocksBridgeProvider_lower(bridgeProvider),
         FfiConverterTypeSwiftAccessMethodSettingsContext_lower(settingsProvider),
         FfiConverterSequenceTypeAccessMethodChangeCallback.lower(accessMethodChangeListeners),$0
@@ -4170,7 +4171,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake() != 47696) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_constructor_apicontext_new() != 27860) {
+    if (uniffi_mullvad_ios_checksum_constructor_apicontext_new() != 23691) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_retrystrategy_constant() != 61653) {

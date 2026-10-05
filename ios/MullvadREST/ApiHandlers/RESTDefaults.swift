@@ -38,4 +38,13 @@ extension REST {
 
     /// am.i.mullvad.net hostname.
     public static let amIMullvadHostname = infoDictionary["AmIMullvad"] as! String
+
+    public static let sigsumTrustedKeys: String? = {
+        guard let keys = infoDictionary["SigsumTrustedKeys"] as? String,
+            !keys.isEmpty
+        else {
+            return nil
+        }
+        return keys
+    }()
 }

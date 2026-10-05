@@ -6354,7 +6354,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh mullvad-ios api-override\n";
+			shellScript = "API_OVERRIDE=\nif [ \"$CONFIGURATION\" != \"Release\" ]; then\n    API_OVERRIDE=\"api-override\"\nfi\n\nCARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh mullvad-ios $API_OVERRIDE\n";
 		};
 		F05F39962B21C704006E60A7 /* Check relays */ = {
 			isa = PBXShellScriptBuildPhase;

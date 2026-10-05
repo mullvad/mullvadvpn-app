@@ -77,11 +77,33 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
             return .empty
         }
 
+        // The mullvad-api/relay-list tool embeds the digest/timestamp as a field of the relay list,
+        // and this extracts it out
+        let (digest, timestamp) = try extractTimestamp(data)
+
         return try StoredRelays(
+            digest: digest,
+            timestamp: timestamp,
             rawData: data,
             updatedAt: Date(
                 timeIntervalSince1970: 0)
         ).cachedRelays
-
     }
+}
+
+private func extractTimestamp(_ data: Data) throws -> (String, Int64) {
+    struct Digest: Codable {
+        let digest: DigestInner
+    }
+    struct DigestInner: Codable {
+        let digest: String
+        let timestamp: Date
+    }
+
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .iso8601
+    let digest = try decoder.decode(Digest.self, from: data)
+    let timestamp = Duration.milliseconds(digest.digest.timestamp.timeIntervalSince1970).milliseconds
+
+    return (digest.digest.digest, Int64(timestamp))
 }

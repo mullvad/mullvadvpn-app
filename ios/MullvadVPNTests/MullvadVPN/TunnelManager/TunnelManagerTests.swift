@@ -51,6 +51,7 @@ class TunnelManagerTests: XCTestCase {
             domain: REST.encryptedDNSHostname,
             domainFronting: REST.domainFronting,
             disableTls: false,
+            sigsumTrustedKeys: nil,
             bridgeProvider: shadowsocksLoader,
             settingsProvider: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: []
