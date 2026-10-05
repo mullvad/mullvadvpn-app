@@ -4,15 +4,14 @@
 # as designated by the *-container-image.txt files. Uses podman unless overridden using the
 # environment variable `CONTAINER_RUNNER`. Note that this script uses named
 # docker volumes that can be overridden using environment variables (see the
-# beginning of the script).
+# beginning of the script). The cargo volumes default to separate names for the
+# Linux and Android containers, so their caches don't clash.
 #
 # Usage: $ container-run.sh <linux/android> [command ...]
 
 set -eu
 
 REPO_MOUNT_TARGET="/build"
-CARGO_TARGET_VOLUME_NAME=${CARGO_TARGET_VOLUME_NAME:-"cargo-target"}
-CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
@@ -27,10 +26,14 @@ source "$REPO_DIR/scripts/utils/log"
 case ${1-:""} in
     linux)
         container_image_name=$(cat "$SCRIPT_DIR/linux-container-image.txt")
+        CARGO_TARGET_VOLUME_NAME=${CARGO_TARGET_VOLUME_NAME:-"cargo-target"}
+        CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
         shift 1
     ;;
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
+        CARGO_TARGET_VOLUME_NAME=${CARGO_TARGET_VOLUME_NAME:-"cargo-target-android"}
+        CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry-android"}
         optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
 
         if [ -n "$PLAY_CREDENTIALS_PATH" ]; then
