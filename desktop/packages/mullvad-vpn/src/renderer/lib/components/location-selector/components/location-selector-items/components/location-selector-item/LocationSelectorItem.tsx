@@ -6,10 +6,11 @@ import { spacings } from '../../../../../../foundations';
 export type LocationSelectorItemProps = HTMLMotionProps<'div'>;
 
 const StyledLocationSelectorItem = styled(motion.div)`
-  z-index: var(--line-z-index);
+  z-index: var(--location-selector-item-z-index);
   overflow: hidden;
   display: flex;
   width: 100%;
+  overflow: hidden;
 
   margin-bottom: ${spacings.tiny};
 `;
