@@ -1,4 +1,6 @@
+use chrono::{DateTime, Local, TimeDelta};
 use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
+use rolling_file::{RollingCondition, RollingFileAppender};
 use std::{
     io,
     path::PathBuf,
@@ -14,7 +16,8 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-pub const MAX_LOG_FILE_SIZE: u64 = 2 * 1024 * 1024; // 2GB
+pub const LOG_FILE_SIZE_MAX: usize = 2 * 1024 * 1024; // 2GB
+pub const LOG_ROTATION_INTERVAL: TimeDelta = TimeDelta::weeks(1);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -64,10 +67,11 @@ impl LogFileWriter {
 
         // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
         rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-        let log_writer = rolling_file::BasicRollingFileAppender::new(
+        let log_writer = RollingFileAppender::new(
             log_location.directory.join(log_location.filename),
-            rolling_file::RollingConditionBasic::new().max_size(MAX_LOG_FILE_SIZE),
-            2, // max files.
+            // Rotate logs weekly.
+            LogRotation::new(LOG_ROTATION_INTERVAL, LOG_FILE_SIZE_MAX),
+            6, // Keep at most 6 rotated log files. The base log file does not count here.
         )
         .unwrap();
         let (file_writer, guard) = non_blocking(log_writer);
@@ -298,4 +302,37 @@ pub fn init_logger(
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
     Ok(reload_handle)
+}
+
+struct LogRotation {
+    time_before_rotation: TimeDelta,
+    max_size: usize,
+    last_rotation: Option<DateTime<Local>>,
+}
+
+impl LogRotation {
+    pub fn new(time_before_rotation: TimeDelta, max_size: usize) -> Self {
+        Self {
+            time_before_rotation,
+            max_size,
+            last_rotation: None,
+        }
+    }
+}
+
+impl RollingCondition for LogRotation {
+    fn should_rollover(&mut self, now: &DateTime<Local>, current_filesize: u64) -> bool {
+        let mut rollover = false;
+        if let Some(last_rotation) = self.last_rotation {
+            let now = Local::now();
+            if now.signed_duration_since(last_rotation) >= self.time_before_rotation {
+                rollover = true;
+            }
+        }
+        if current_filesize >= self.max_size.try_into().unwrap() {
+            rollover = true;
+        }
+        self.last_rotation = Some(*now);
+        rollover
+    }
 }
