@@ -15,7 +15,7 @@
   "staging": {
     "mullvad_host": "stagemole.eu",
     "test_locations": [
-      { "*": ["se-got-wg-001", "se-sto-wg-001", "de-fra-wg-001"] }
+      { "*": ["se-sto-wg-001", "se-got-wg-001", "se-got-wg-005"] }
     ]
   }
 }
