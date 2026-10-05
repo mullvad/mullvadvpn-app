@@ -15,15 +15,15 @@ struct SettingsRow {
     let route: SettingsNavigationRoute
     let title: String
     var subtitle: String?
-    var detail = ""
+    var detail: String?
     var isExternal = false
     var breadcrumb: Breadcrumb?
     let accessibilityIdentifier: AccessibilityIdentifier
 }
 
 struct SettingsSection {
+    let kind: SettingsSectionKind
     let rows: [SettingsRow]
-    var footer: String?
 }
 
 @MainActor
@@ -37,13 +37,14 @@ protocol SettingsViewModelProtocol: AnyObject, Observable {
 }
 
 @MainActor
+@Observable
 final class SettingsViewModel: SettingsViewModelProtocol {
     private(set) var tunnelSettings: LatestTunnelSettings
     private(set) var isLoggedIn: Bool
     private(set) var breadcrumbs: Set<Breadcrumb>
     private(set) var showsMigratedSettings: Bool
 
-    @ObservationIgnored private let appPreferences: AppPreferencesDataSource
+    private let appPreferences: AppPreferencesDataSource
     @ObservationIgnored private var tunnelObserver: TunnelObserver?
     @ObservationIgnored private var breadcrumbsObserver: BreadcrumbsBlockObserver?
 
@@ -83,112 +84,134 @@ final class SettingsViewModel: SettingsViewModelProtocol {
     }
 }
 
+enum SettingsSectionKind: CaseIterable {
+    case vpn, apiAccess, general, support
+
+    var footer: String? {
+        switch self {
+        case .vpn:
+            NSLocalizedString(
+                "Forces all apps on the device to use the VPN tunnel, preventing data leaks",
+                comment: ""
+            )
+        case .support:
+            NSLocalizedString(
+                "Changing language will disconnect you from the VPN and restart the app",
+                comment: ""
+            )
+        case .apiAccess, .general:
+            nil
+        }
+    }
+}
+
 extension SettingsViewModelProtocol {
     var sections: [SettingsSection] {
-        var vpnRows: [SettingsRow] = []
-        if isLoggedIn {
-            vpnRows += [
-                row(
-                    .daita,
-                    title: NSLocalizedString("DAITA", comment: ""),
-                    detail: onOff(tunnelSettings.daita.isEnabled),
-                    accessibilityIdentifier: .daitaCell
-                ),
-                row(
-                    .multihop,
-                    title: NSLocalizedString("Multihop", comment: ""),
-                    detail: tunnelSettings.tunnelMultihopState.description,
-                    accessibilityIdentifier: .multihopCell
-                ),
-                row(
-                    .vpnSettings,
-                    title: NSLocalizedString("VPN settings", comment: ""),
-                    accessibilityIdentifier: .vpnSettingsCell
-                ),
-            ]
+        SettingsSectionKind.allCases.compactMap { kind in
+            let routes = routes(in: kind)
+            guard !routes.isEmpty else { return nil }
+            return SettingsSection(kind: kind, rows: routes.map(row(for:)))
         }
-        vpnRows.append(
+    }
+
+    private func routes(in section: SettingsSectionKind) -> [SettingsNavigationRoute] {
+        switch section {
+        case .vpn:
+            (isLoggedIn ? [.daita, .multihop, .vpnSettings] : []) + [.includeAllNetworks]
+        case .apiAccess:
+            [.apiAccess]
+        case .general:
+            [.notificationSettings, .changelog] + (isLoggedIn && showsMigratedSettings ? [.migratedSettings] : [])
+        case .support:
+            [.problemReport, .faq, .language]
+        }
+    }
+
+    private func row(for route: SettingsNavigationRoute) -> SettingsRow {
+        switch route {
+        case .daita:
             row(
-                .includeAllNetworks,
+                route,
+                title: NSLocalizedString("DAITA", comment: ""),
+                detail: onOff(tunnelSettings.daita.isEnabled),
+                accessibilityIdentifier: .daitaCell
+            )
+        case .multihop:
+            row(
+                route,
+                title: NSLocalizedString("Multihop", comment: ""),
+                detail: tunnelSettings.tunnelMultihopState.description,
+                accessibilityIdentifier: .multihopCell
+            )
+        case .vpnSettings:
+            row(
+                route,
+                title: NSLocalizedString("VPN settings", comment: ""),
+                accessibilityIdentifier: .vpnSettingsCell
+            )
+        case .includeAllNetworks:
+            row(
+                route,
                 title: NSLocalizedString("Force all apps", comment: ""),
                 detail: onOff(tunnelSettings.includeAllNetworks.includeAllNetworksState.isEnabled),
                 accessibilityIdentifier: .includeAllNetworksCell
             )
-        )
-
-        var generalRows = [
+        case .apiAccess:
             row(
-                .notificationSettings,
+                route,
+                title: NSLocalizedString("API access", comment: ""),
+                accessibilityIdentifier: .apiAccessCell
+            )
+        case .notificationSettings:
+            row(
+                route,
                 title: NSLocalizedString("Notifications", comment: ""),
                 accessibilityIdentifier: .notificationSettingsCell
-            ),
+            )
+        case .changelog:
             row(
-                .changelog,
+                route,
                 title: NSLocalizedString("What’s new", comment: ""),
                 subtitle: Bundle.main.productVersion,
                 accessibilityIdentifier: .versionCell
-            ),
-        ]
-        if isLoggedIn, showsMigratedSettings {
-            generalRows.append(
-                row(
-                    .migratedSettings,
-                    title: NSLocalizedString("Migrated settings", comment: ""),
-                    accessibilityIdentifier: .migratedSettingsCell
-                )
             )
+        case .migratedSettings:
+            row(
+                route,
+                title: NSLocalizedString("Migrated settings", comment: ""),
+                accessibilityIdentifier: .migratedSettingsCell
+            )
+        case .problemReport:
+            row(
+                route,
+                title: NSLocalizedString("Report a problem", comment: ""),
+                accessibilityIdentifier: .problemReportCell
+            )
+        case .faq:
+            row(
+                route,
+                title: NSLocalizedString("FAQs & Guides", comment: ""),
+                isExternal: true,
+                accessibilityIdentifier: .faqCell
+            )
+        case .language:
+            row(
+                route,
+                title: NSLocalizedString("Language", comment: ""),
+                detail: ApplicationLanguage.currentLanguage.displayName,
+                isExternal: true,
+                accessibilityIdentifier: .languageCell
+            )
+        case .root:
+            preconditionFailure("The root route has no settings row")
         }
-
-        return [
-            SettingsSection(
-                rows: vpnRows,
-                footer: NSLocalizedString(
-                    "Forces all apps on the device to use the VPN tunnel, preventing data leaks",
-                    comment: ""
-                )
-            ),
-            SettingsSection(rows: [
-                row(
-                    .apiAccess,
-                    title: NSLocalizedString("API access", comment: ""),
-                    accessibilityIdentifier: .apiAccessCell
-                )
-            ]),
-            SettingsSection(rows: generalRows),
-            SettingsSection(
-                rows: [
-                    row(
-                        .problemReport,
-                        title: NSLocalizedString("Report a problem", comment: ""),
-                        accessibilityIdentifier: .problemReportCell
-                    ),
-                    row(
-                        .faq,
-                        title: NSLocalizedString("FAQs & Guides", comment: ""),
-                        isExternal: true,
-                        accessibilityIdentifier: .faqCell
-                    ),
-                    row(
-                        .language,
-                        title: NSLocalizedString("Language", comment: ""),
-                        detail: ApplicationLanguage.currentLanguage.displayName,
-                        isExternal: true,
-                        accessibilityIdentifier: .languageCell
-                    ),
-                ],
-                footer: NSLocalizedString(
-                    "Changing language will disconnect you from the VPN and restart the app",
-                    comment: ""
-                )
-            ),
-        ]
     }
 
     private func row(
         _ route: SettingsNavigationRoute,
         title: String,
         subtitle: String? = nil,
-        detail: String = "",
+        detail: String? = nil,
         isExternal: Bool = false,
         accessibilityIdentifier: AccessibilityIdentifier
     ) -> SettingsRow {
@@ -208,6 +231,8 @@ extension SettingsViewModelProtocol {
     }
 }
 
+#if DEBUG
+@Observable
 final class MockRootSettingsViewModel: SettingsViewModelProtocol {
     var tunnelSettings = LatestTunnelSettings()
     var isLoggedIn = true
@@ -216,3 +241,4 @@ final class MockRootSettingsViewModel: SettingsViewModelProtocol {
 
     func refresh() {}
 }
+#endif

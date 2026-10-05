@@ -306,8 +306,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
         }
 
         let host = UIHostingController(rootView: view)
-        let doneButton = UIBarButtonItem(
-            systemItem: .done,
+        let doneButton = UIBarButtonItem.mullvadDoneButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self else { return }
                 didFinish?(self)

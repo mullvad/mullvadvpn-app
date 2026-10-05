@@ -19,7 +19,7 @@ struct SettingsView: View {
     var body: some View {
         SettingsInfoContainerView {
             VStack(spacing: UIMetrics.TableView.sectionSpacing) {
-                ForEach(Array(viewModel.sections.enumerated()), id: \.offset) { _, section in
+                ForEach(viewModel.sections, id: \.kind) { section in
                     sectionView(section)
                 }
             }
@@ -44,7 +44,7 @@ struct SettingsView: View {
                         }
                     }
                 }
-                if let footer = section.footer {
+                if let footer = section.kind.footer {
                     SettingsRowViewFooter(text: footer)
                 }
             }
@@ -61,6 +61,7 @@ struct SettingsView: View {
         SegmentedListItem(
             isLastInList: isLastInList,
             accessibilityIdentifier: row.accessibilityIdentifier,
+            accessibilityLabel: [row.title, row.subtitle, row.detail].compactMap { $0 }.joined(separator: ", "),
             leading: {
                 itemFactory.leading(for: .generic(title: row.title, subtitle: row.subtitle))
             },
@@ -80,8 +81,8 @@ struct SettingsView: View {
             if let breadcrumb = row.breadcrumb {
                 itemFactory.trailing(for: .custom(items: [.breadcrumb(breadcrumb)]))
             }
-            if !row.detail.isEmpty {
-                Text(row.detail)
+            if let detail = row.detail {
+                Text(detail)
                     .font(.mullvadTiny)
                     .foregroundStyle(Color.mullvadTextSecondary)
                     .multilineTextAlignment(.trailing)
@@ -91,6 +92,7 @@ struct SettingsView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         SettingsView(viewModel: MockRootSettingsViewModel()) { _ in }
@@ -103,3 +105,4 @@ struct SettingsView: View {
     }
     .environment(\.dynamicTypeSize, .accessibility3)
 }
+#endif
