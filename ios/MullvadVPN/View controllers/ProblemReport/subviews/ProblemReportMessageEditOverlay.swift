@@ -33,7 +33,8 @@ extension ProblemReportView {
                         Spacer()
                     }
                 }
-                .padding(16)
+                .padding(.horizontal, 8.0)
+                .padding(.vertical, 12.0)
                 .foregroundStyle(.white)
                 .background(Color.mullvadBackground)
                 ConfigurableTextView(
