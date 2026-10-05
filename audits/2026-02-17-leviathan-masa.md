@@ -66,8 +66,8 @@ subsequently released as [2026.3] on March 23.
 ## Certificate and reports
 
 Official results hosted by App Defense Alliance:
-* [2026-04-10 App Directory entry](https://appdefensealliance.dev/directory?app=net.mullvad.mullvadvpn)
-* [2026-04-10 Direct certificate link](https://appdefensealliance.dev/reports/net.mullvad.mullvadvpn_1775779200000000.pdf) (pending publication)
+* [2026-06-03 Direct certificate link](https://cert.appdefensealliance.org/certifications/10238)
+* [2026-06-03 Android Compliance Report](https://cert.appdefensealliance.org/certifications/10238/report/download)
 
 We also host the test reports (original and re-test of fixed findings) as well as the final compliance
 report in our repository:
