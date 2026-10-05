@@ -51,29 +51,33 @@ final class GotaTunActorTests: XCTestCase {
     @discardableResult
     private func collectStates(
         from actor: GotaTunActor,
-        timeout: TimeInterval = 2.0,
         stoppingWhen stop: @Sendable @escaping ([ObservedState]) -> Bool,
-        while action: () async -> Void = {}
+        while action: () async -> Void = {},
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) async -> [ObservedState] {
-        let collector = StateCollector()
-        let reached = expectation(description: "Wait for state")
         let states = await actor.observedStates
 
-        let task = Task {
+        async let collected: (states: [ObservedState], stopped: Bool) = {
+            var collected: [ObservedState] = []
             for await state in states {
-                await collector.append(state)
-                if stop(await collector.collected) {
-                    reached.fulfill()
-                    return
+                collected.append(state)
+                if stop(collected) {
+                    return (collected, true)
                 }
             }
-        }
+            return (collected, false)
+        }()
 
         await action()
-        await fulfillment(of: [reached], timeout: timeout)
-        task.cancel()
 
-        return await collector.collected
+        let result = await collected
+        if !result.stopped {
+            XCTFail(
+                "Observation ended before reaching the expected state, saw \(result.states.map(\.name))",
+                file: file, line: line)
+        }
+        return result.states
     }
 
     /// Observe until a state matches `predicate`.
@@ -81,14 +85,16 @@ final class GotaTunActorTests: XCTestCase {
     private func collectStates(
         from actor: GotaTunActor,
         until predicate: @Sendable @escaping (ObservedState) -> Bool,
-        timeout: TimeInterval = 2.0,
-        while action: () async -> Void = {}
+        while action: () async -> Void = {},
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) async -> [ObservedState] {
         await collectStates(
             from: actor,
-            timeout: timeout,
             stoppingWhen: { $0.last.map(predicate) ?? false },
-            while: action
+            while: action,
+            file: file,
+            line: line
         )
     }
 
@@ -97,14 +103,16 @@ final class GotaTunActorTests: XCTestCase {
     private func collectStates(
         from actor: GotaTunActor,
         count: Int,
-        timeout: TimeInterval = 2.0,
-        while action: () async -> Void = {}
+        while action: () async -> Void = {},
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) async -> [ObservedState] {
         await collectStates(
             from: actor,
-            timeout: timeout,
             stoppingWhen: { $0.count >= count },
-            while: action
+            while: action,
+            file: file,
+            line: line
         )
     }
 
@@ -112,14 +120,13 @@ final class GotaTunActorTests: XCTestCase {
     private func waitFor(
         _ actor: GotaTunActor,
         until predicate: @Sendable @escaping (ObservedState) -> Bool,
-        timeout: TimeInterval = 2.0,
-        while action: () async -> Void = {}
+        while action: () async -> Void = {},
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) async {
-        await collectStates(from: actor, until: predicate, timeout: timeout, while: action)
+        await collectStates(from: actor, until: predicate, while: action, file: file, line: line)
     }
 
-    /// Reach `.reconnecting` on a second adapter, leaving `adaptersCreated[0]` replaced but still
-    /// able to report, the way a Rust device can when its callback is already in flight.
     private func makeActorWithReplacedAdapter() async -> (GotaTunActor, GotaTunAdapterFactoryStub) {
         let factory = GotaTunAdapterFactoryStub(outcomes: [.connected(), .never])
         let actor = makeActor(adapterFactory: factory)
@@ -562,11 +569,8 @@ final class GotaTunActorTests: XCTestCase {
 
         await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
 
-        let recycled = expectation(description: "Sockets recycled")
-        factory.adaptersCreated[0].onRecycleUdpSockets = { recycled.fulfill() }
-
         await pathObserver.updatePath(.satisfied)
-        await fulfillment(of: [recycled], timeout: 2.0)
+        await actor.drainEvents()
 
         XCTAssertEqual(factory.adaptersCreated[0].recycleUdpSocketsCount, 1)
         XCTAssertEqual(factory.adaptersCreated.count, 1)
@@ -597,23 +601,18 @@ final class GotaTunActorTests: XCTestCase {
 
         await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
 
-        let offlineExpectation = expectation(description: "Offline error emitted exactly once")
-        offlineExpectation.assertForOverFulfill = true
+        // Stopping ends observation, so every state emitted by the updates has been collected.
+        let states = await collectStates(
+            from: actor, until: { $0.isDisconnected },
+            while: {
+                await pathObserver.updatePath(.unsatisfied)
+                await pathObserver.updatePath(.unsatisfied)
+                await pathObserver.updatePath(.unsatisfied)
+                await actor.drainEvents()
+                actor.stop()
+            })
 
-        let states = await actor.observedStates
-        let task = Task {
-            for await state in states where state.blockedReason == .offline {
-                offlineExpectation.fulfill()
-            }
-        }
-
-        await pathObserver.updatePath(.unsatisfied)
-        await pathObserver.updatePath(.unsatisfied)
-        await pathObserver.updatePath(.unsatisfied)
-        await fulfillment(of: [offlineExpectation], timeout: 2.0)
-        await actor.drainEvents()
-        task.cancel()
-
+        XCTAssertEqual(states.filter { $0.blockedReason == .offline }.count, 1, "Offline error emitted exactly once")
         XCTAssertEqual(factory.adaptersCreated.count, 1)
     }
 

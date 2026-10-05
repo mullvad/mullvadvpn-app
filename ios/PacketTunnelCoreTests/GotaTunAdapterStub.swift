@@ -44,7 +44,6 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
         var callbackTask: Task<Void, Never>?
         var isStopped = false
         var recycleUdpSocketsCount = 0
-        var onRecycleUdpSockets: (@Sendable () -> Void)?
     }
 
     let outcome: Outcome
@@ -56,11 +55,6 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
     var callbackHandler: GotaTunCallbackHandler? { state.withLock { $0.callbackHandler } }
     var isStopped: Bool { state.withLock { $0.isStopped } }
     var recycleUdpSocketsCount: Int { state.withLock { $0.recycleUdpSocketsCount } }
-
-    var onRecycleUdpSockets: (@Sendable () -> Void)? {
-        get { state.withLock { $0.onRecycleUdpSockets } }
-        set { state.withLock { $0.onRecycleUdpSockets = newValue } }
-    }
 
     init(outcome: Outcome = .connected()) {
         self.outcome = outcome
@@ -92,11 +86,7 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
     }
 
     func recycleUdpSockets() {
-        let onRecycle = state.withLock {
-            $0.recycleUdpSocketsCount += 1
-            return $0.onRecycleUdpSockets
-        }
-        onRecycle?()
+        state.withLock { $0.recycleUdpSocketsCount += 1 }
     }
 
     func suspendTunnel() {}
