@@ -27,9 +27,6 @@ pub enum Error {
     #[error("Response is missing a valid stable version")]
     MissingStable,
 
-    #[error("Clearing version check cache due to old version")]
-    OutdatedVersion,
-
     #[error("Version updater is down")]
     VersionUpdaterDown,
 
