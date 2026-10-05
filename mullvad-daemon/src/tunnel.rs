@@ -6,7 +6,7 @@ use talpid_error::ErrorExt;
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
-use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
+use mullvad_daemon_relay_selector::relay_selector::{ObfuscationRound, RelaySelectorIO};
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
@@ -48,6 +48,7 @@ struct InnerParametersGenerator {
     account_manager: AccountManagerHandle,
 
     last_generated_relays: Option<LastSelectedRelays>,
+    obfuscation_round: Option<ObfuscationRound>,
 }
 
 impl ParametersGenerator {
@@ -64,12 +65,15 @@ impl ParametersGenerator {
             relay_settings,
             account_manager,
             last_generated_relays: None,
+            obfuscation_round: None,
         })))
     }
 
     /// Sets the tunnel options to use when generating new tunnel parameters.
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
-        self.0.lock().await.tunnel_options = tunnel_options.clone();
+        let mut inner = self.0.lock().await;
+        inner.tunnel_options = tunnel_options.clone();
+        inner.obfuscation_round = None; // Reset round
     }
 
     /// Updates generator state from full settings and keeps relay-selector config in sync.
@@ -77,6 +81,7 @@ impl ParametersGenerator {
         let mut inner = self.0.lock().await;
         inner.relay_settings = settings.relay_settings.clone();
         inner.relay_selector.set_config(settings);
+        inner.obfuscation_round = None; // Reset round
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
@@ -186,15 +191,32 @@ impl InnerParametersGenerator {
         }
 
         let data = self.device().await?;
-        let selected_relay = self
-            .relay_selector
-            .get_relay(retry_attempt as usize, ip_availability)?;
+        let mut user_query = self.relay_selector.query().clone();
+        user_query.apply_ip_availability(ip_availability)?;
+
+        // Select a relay without consulting the obfuscation multiplexer, of appropriate
+        let direct_relay = self.relay_selector.get_user_relay(
+            retry_attempt as usize,
+            user_query.clone(),
+            &self.tunnel_options.wireguard,
+        );
+        let selected_relay = direct_relay.unwrap_or_else(|| {
+            log::debug!("Using multiplexed obfuscation");
+            // Create an automatic obfuscation selection round
+            // Note: It is created from a clone of the query. If the query is updated
+            // mid connection, it will clear and reset the round.
+            let obfuscation_round = self
+                .obfuscation_round
+                .get_or_insert_with(|| ObfuscationRound::new(user_query.clone()));
+            self.relay_selector
+                .multiplexed_obfuscation_relay(user_query.clone(), obfuscation_round)
+        });
 
         let GetRelay {
             endpoint,
             obfuscator,
             inner,
-        } = selected_relay;
+        } = selected_relay?;
 
         let server_override = {
             let first_relay = match &inner {

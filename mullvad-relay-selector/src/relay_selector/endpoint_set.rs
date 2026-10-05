@@ -275,6 +275,8 @@ impl RelayEndpointSet {
         ip_version: Constraint<IpVersion>,
     ) -> Option<Obfuscators> {
         let configs: Vec<ObfuscatorConfig> = [
+            // TODO: why is the same IP version not used for all configs here?..
+            // I guess the first two use the wg endpoint, the last two don't.
             self.lwo_config(direct_endpoint.ip(), Constraint::Any),
             self.udp2tcp_config(direct_endpoint.ip(), Constraint::Any),
             self.shadowsocks_config(ip_version, Constraint::Any),
@@ -284,6 +286,8 @@ impl RelayEndpointSet {
         .flatten()
         .collect();
 
+        // TODO: It's a little weird that the wg endpoint is attached to the multiplexer type here
+        // when it is also returned by `get_wireguard_obfuscator`
         Obfuscators::multiplexer(Some(direct_endpoint), &configs)
     }
 
