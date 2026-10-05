@@ -444,7 +444,7 @@ impl ProblemReport {
             .join("");
 
         let redacted_path = self.redact(&expanded_path.to_string_lossy());
-        self.append_logs(redacted_path.to_string(), content);
+        self.append_logs(redacted_path, content);
         log::info!("Adding {}", expanded_path.display());
     }
 
