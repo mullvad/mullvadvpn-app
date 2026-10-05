@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
-const { execFileSync } = require('child_process');
+const { execFileSync, spawnSync } = require('child_process');
 
 const { author } = require('../package.json');
 const { signWindows } = require('./sign-windows.cjs');
@@ -354,6 +354,8 @@ async function packMac() {
     // them with @electron/universal. Both sub-packs run beforeBuild/beforePack with a concrete
     // arch (x64/arm64).
     const isUniversal = arch === 'universal';
+    // Different archs have different cdhashes.
+    const pkgScriptsDir = buildAssets(`pkg-scripts-${arch ?? 'host'}`);
     return {
       ...config,
       mac: {
@@ -363,6 +365,10 @@ async function packMac() {
           arch,
         },
         artifactName,
+      },
+      pkg: {
+        ...config.pkg,
+        scripts: pkgScriptsDir,
       },
       asarUnpack: ['**/*.node'],
       beforeBuild: async (options) => {
@@ -400,6 +406,13 @@ async function packMac() {
           await removeNseventforwarderNativeModules();
         }
         config.beforePack?.(context);
+
+        fs.rmSync(pkgScriptsDir, { recursive: true, force: true });
+
+        if (process.env.CSC_IDENTITY_AUTO_DISCOVERY !== 'true') {
+          // afterSign is never called if signing is disabled.
+          writePkgScripts(pkgScriptsDir, '');
+        }
       },
       afterPack: (context) => {
         config.afterPack?.(context);
@@ -412,6 +425,11 @@ async function packMac() {
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (_buildResult) => {
+        const postinstall = fs.readFileSync(path.join(pkgScriptsDir, 'postinstall'), 'utf8');
+        if (postinstall.includes(DAEMON_SPAWN_CONSTRAINT_PLACEHOLDER)) {
+          throw new Error('Daemon spawn constraint was not added to postinstall');
+        }
+
         // Remove the folder that contains the unpacked app. Electron builder cleans up some of
         // these directories and it's changed between versions without a mention in the changelog.
         for (const dir of appOutDirs) {
@@ -425,6 +443,18 @@ async function packMac() {
       afterSign: (context) => {
         const appOutDir = context.appOutDir;
         appOutDirs.push(appOutDir);
+
+        // Only merged app is included in pkg.
+        if (isUniversal && context.arch !== Arch.universal) {
+          return;
+        }
+
+        const daemonPath = path.join(
+          appOutDir,
+          `${context.packager.appInfo.productFilename}.app`,
+          'Contents/Resources/mullvad-daemon',
+        );
+        writePkgScripts(pkgScriptsDir, daemonSpawnConstraint(daemonPath));
       },
     };
   }
@@ -446,6 +476,49 @@ async function packMac() {
     targets: builder.Platform.MAC.createTarget(),
     config: prepareMacConfig(getMacArch(), 'MullvadVPN-${version}.${ext}'),
   });
+}
+
+const DAEMON_SPAWN_CONSTRAINT_PLACEHOLDER = '@DAEMON_SPAWN_CONSTRAINT@';
+
+// Copy the pkg scripts to `outDir`, replacing the spawn constraint placeholder in postinstall with
+// `spawnConstraint`. If `spawnConstraint` is null, the placeholder is kept.
+function writePkgScripts(outDir, spawnConstraint) {
+  fs.rmSync(outDir, { recursive: true, force: true });
+  fs.cpSync(distAssets('pkg-scripts'), outDir, { recursive: true });
+
+  const postinstallPath = path.join(outDir, 'postinstall');
+  const postinstall = fs.readFileSync(postinstallPath, 'utf8');
+  fs.writeFileSync(
+    postinstallPath,
+    postinstall.replace(DAEMON_SPAWN_CONSTRAINT_PLACEHOLDER, () => spawnConstraint),
+  );
+}
+
+// Return a launchd spawn constraint that only allows the daemon at `daemonPath` to be launched,
+// identified by its cdhash. A universal binary has one cdhash per architecture.
+function daemonSpawnConstraint(daemonPath) {
+  const archs = execFileSync('lipo', ['-archs', daemonPath], { encoding: 'utf8' })
+    .trim()
+    .split(/\s+/);
+
+  const cdhashes = archs.map((arch) => {
+    // codesign prints the signature info to stderr
+    const { stderr } = spawnSync('codesign', ['--display', '-vvv', '--arch', arch, daemonPath], {
+      encoding: 'utf8',
+    });
+    const match = stderr.match(/^CDHash=([0-9a-f]+)$/m);
+    if (!match) {
+      throw new Error(`Failed to get cdhash of ${daemonPath} (${arch})`);
+    }
+    return Buffer.from(match[1], 'hex').toString('base64');
+  });
+
+  const value =
+    cdhashes.length === 1
+      ? `<data>${cdhashes[0]}</data>`
+      : `<dict><key>\\$in</key><array>${cdhashes.map((cdhash) => `<data>${cdhash}</data>`).join('')}</array></dict>`;
+
+  return `<key>SpawnConstraint</key><dict><key>cdhash</key>${value}</dict>`;
 }
 
 function packLinux() {
