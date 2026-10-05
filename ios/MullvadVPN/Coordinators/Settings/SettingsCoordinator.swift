@@ -306,6 +306,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
         }
 
         let host = UIHostingController(rootView: view)
+        host.navigationItem.title = NSLocalizedString("Settings", comment: "")
         let doneButton = UIBarButtonItem.mullvadDoneButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self else { return }
