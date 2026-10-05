@@ -16,9 +16,6 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-pub const LOG_FILE_SIZE_MAX: u64 = 2 * 1024 * 1024; // 2GB
-pub const LOG_ROTATION_INTERVAL: TimeDelta = TimeDelta::weeks(1);
-
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Unable to open log file for writing
@@ -69,9 +66,8 @@ impl LogFileWriter {
         rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
         let log_writer = RollingFileAppender::new(
             log_location.directory.join(log_location.filename),
-            // Rotate logs weekly.
-            LogRotation::new(LOG_ROTATION_INTERVAL, LOG_FILE_SIZE_MAX),
-            6, // Keep at most 6 rotated log files. The base log file does not count here.
+            LogRotation::default(),
+            1, // Keep at most 1 rotated log file. The base log file does not count here.
         )
         .unwrap();
         let (file_writer, guard) = non_blocking(log_writer);
@@ -317,6 +313,16 @@ impl LogRotation {
             max_size,
             last_rotation: None,
         }
+    }
+}
+
+impl Default for LogRotation {
+    fn default() -> Self {
+        // Rotate logs if they grower larger than 2GB.
+        pub const LOG_FILE_SIZE_MAX: u64 = 2 * 1024 * 1024;
+        // Rotate logs weekly.
+        pub const LOG_ROTATION_INTERVAL: TimeDelta = TimeDelta::weeks(1);
+        Self::new(LOG_ROTATION_INTERVAL, LOG_FILE_SIZE_MAX)
     }
 }
 
