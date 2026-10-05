@@ -84,6 +84,32 @@ struct VersionUpdaterInner {
     last_app_version_info: Option<VersionCache>,
 }
 
+/// Initial update state recovered from a cache written by any app version.
+struct VersionCheckState {
+    last_app_version_info: Option<VersionCache>,
+    #[cfg(not(target_os = "android"))]
+    min_metadata_version: usize,
+}
+
+impl VersionCheckState {
+    fn from_cache(cache: Option<VersionCache>) -> Self {
+        #[cfg(not(target_os = "android"))]
+        let min_metadata_version = min_metadata_version(cache.as_ref());
+        let last_app_version_info = cache.filter(|cache| {
+            let stale = cache_is_stale(cache, &APP_VERSION);
+            if stale {
+                log::trace!("Ignoring outdated version cache");
+            }
+            !stale
+        });
+        Self {
+            last_app_version_info,
+            #[cfg(not(target_os = "android"))]
+            min_metadata_version,
+        }
+    }
+}
+
 impl VersionUpdater {
     pub(super) async fn spawn(
         mut api_handle: MullvadRestHandle,
@@ -95,16 +121,11 @@ impl VersionUpdater {
     ) {
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         // load the last known AppVersionInfo from cache
-        let cache = load_cache(&cache_path).await;
-        #[cfg(not(target_os = "android"))]
-        let min_metadata_version = min_metadata_version(cache.as_ref());
-        let last_app_version_info = cache.filter(|cache| {
-            let stale = cache_is_stale(cache, &APP_VERSION);
-            if stale {
-                log::trace!("Ignoring outdated version cache");
-            }
-            !stale
-        });
+        let VersionCheckState {
+            last_app_version_info,
+            #[cfg(not(target_os = "android"))]
+            min_metadata_version,
+        } = VersionCheckState::from_cache(load_cache(&cache_path).await);
 
         api_handle.set_default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
@@ -386,6 +407,37 @@ async fn version_check_inner(
         }
     };
 
+    version_check_with(
+        cache,
+        api.min_metadata_version,
+        api.platform_version,
+        move |minimum, platform_version, etag| {
+            api.version_proxy.version_check(
+                PLATFORM,
+                architecture,
+                minimum,
+                platform_version,
+                api.rollout,
+                etag,
+            )
+        },
+    )
+    .await
+}
+
+/// Apply cache and platform-header policy around a version API request.
+#[cfg(not(target_os = "android"))]
+async fn version_check_with<F>(
+    cache: Option<VersionCache>,
+    min_metadata_version: usize,
+    platform_version: String,
+    version_check: impl FnOnce(usize, Option<String>, Option<String>) -> F,
+) -> Result<VersionCache, Error>
+where
+    F: Future<
+        Output = Result<Option<mullvad_api::version::AppVersionResponse>, mullvad_api::rest::Error>,
+    >,
+{
     let (response, last_platform_header_check) = match cache {
         // Cache available
         Some(prev_cache) => {
@@ -399,18 +451,13 @@ async fn version_check_inner(
                 }
             };
 
-            let Some(response) = api
-                .version_proxy
-                .version_check(
-                    PLATFORM,
-                    architecture,
-                    prev_cache.metadata_version,
-                    add_platform_headers.then(|| api.platform_version.clone()),
-                    api.rollout,
-                    prev_cache.etag.clone(),
-                )
-                .await
-                .map_err(Error::Download)?
+            let Some(response) = version_check(
+                prev_cache.metadata_version,
+                add_platform_headers.then_some(platform_version),
+                prev_cache.etag.clone(),
+            )
+            .await
+            .map_err(Error::Download)?
             else {
                 // ETag is up to date
                 log::trace!("Version data unchanged");
@@ -423,16 +470,7 @@ async fn version_check_inner(
         }
         // No cache available
         None => {
-            let response = api
-                .version_proxy
-                .version_check(
-                    PLATFORM,
-                    architecture,
-                    api.min_metadata_version,
-                    Some(api.platform_version),
-                    api.rollout,
-                    None,
-                )
+            let response = version_check(min_metadata_version, Some(platform_version), None)
                 .await
                 .map_err(Error::Download)?
                 .expect("function must return body if no etag was set");
@@ -512,6 +550,10 @@ async fn version_check_inner(
 /// Returns the [VersionCache], or `None` on any error. The cache may have been written by
 /// another app version, see [cache_is_stale].
 async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
+    if !*CHECK_ENABLED {
+        return Some(dev_version_cache());
+    }
+
     try_load_cache(cache_path)
         .await
         .inspect_err(|error| {
@@ -524,10 +566,6 @@ async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
 }
 
 async fn try_load_cache(cache_path: &PathBuf) -> Result<VersionCache, Error> {
-    if !*CHECK_ENABLED {
-        return Ok(dev_version_cache());
-    }
-
     log::debug!("Loading version check cache from {}", cache_path.display());
 
     let content = tokio::fs::read_to_string(&cache_path)
@@ -634,6 +672,148 @@ mod test {
             MIN_VERIFY_METADATA_VERSION
         );
         assert_eq!(min_metadata_version(None), MIN_VERIFY_METADATA_VERSION);
+    }
+
+    /// An upgrade retains the metadata floor, but a response at that floor must
+    /// replace all app-specific information and survive a daemon restart.
+    /// The API response is mocked at the request boundary; signature verification
+    /// is covered by `mullvad-update`'s tests.
+    #[tokio::test]
+    #[cfg(not(target_os = "android"))]
+    async fn test_equal_counter_response_after_app_upgrade() {
+        use mullvad_api::version::AppVersionResponse;
+
+        let dir = tempfile::tempdir().unwrap();
+        let cache_path = dir.path().join(VERSION_INFO_FILENAME);
+        let counter = MIN_VERIFY_METADATA_VERSION + 10;
+        let previous = VersionCache {
+            current_version_supported: true,
+            metadata_version: counter,
+            etag: Some("previous-app-etag".to_owned()),
+            ..version_cache("2025.5", "2025.6", None)
+        };
+        assert_ne!(previous.cache_version, *APP_VERSION);
+        tokio::fs::write(&cache_path, serde_json::to_vec(&previous).unwrap())
+            .await
+            .unwrap();
+
+        // Read the real on-disk cache even when update checks are disabled in a
+        // development build, then use the same startup policy as `spawn`.
+        let state = VersionCheckState::from_cache(Some(try_load_cache(&cache_path).await.unwrap()));
+        assert!(state.last_app_version_info.is_none());
+        assert_eq!(state.min_metadata_version, counter);
+        let mut checker = VersionUpdaterInner {
+            last_app_version_info: state.last_app_version_info,
+        };
+
+        let expected_info =
+            version_cache(mullvad_version::VERSION, "2025.7", Some("2025.8-beta1")).version_info;
+        let response = AppVersionResponse {
+            metadata_version: counter,
+            current_version_supported: false,
+            version_info: expected_info.clone(),
+            etag: Some("current-app-etag".to_owned()),
+        };
+        let fresh_cache = version_check_with(
+            checker.last_app_version_info.clone(),
+            state.min_metadata_version,
+            "test-platform".to_owned(),
+            |minimum, platform_version, etag| {
+                assert_eq!(minimum, counter, "forward the recovered floor to the API");
+                assert_eq!(platform_version.as_deref(), Some("test-platform"));
+                assert!(etag.is_none(), "do not reuse the previous app's ETag");
+                async { Ok(Some(response)) }
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(fresh_cache.cache_version, *APP_VERSION);
+        assert_eq!(fresh_cache.metadata_version, counter);
+        assert_eq!(fresh_cache.version_info, expected_info);
+        assert!(!fresh_cache.current_version_supported);
+        assert_eq!(fresh_cache.etag.as_deref(), Some("current-app-etag"));
+
+        let (update_sender, mut update_rx) = mpsc::unbounded();
+        let update = UpdateContext {
+            cache_path: cache_path.clone(),
+            update_sender,
+        };
+        checker
+            .handle_version_response(
+                &|cache| Box::pin(update.update(cache)),
+                Ok(fresh_cache.clone()),
+            )
+            .await;
+        assert_eq!(checker.last_app_version_info.as_ref(), Some(&fresh_cache));
+        assert_eq!(update_rx.try_recv().unwrap(), fresh_cache);
+
+        let persisted = try_load_cache(&cache_path).await.unwrap();
+        assert_eq!(persisted, fresh_cache);
+        let restarted = VersionCheckState::from_cache(Some(persisted));
+        assert_eq!(restarted.last_app_version_info, Some(fresh_cache));
+        assert_eq!(restarted.min_metadata_version, counter);
+    }
+
+    /// Missing caches and stale caches below the compiled minimum must still
+    /// forward that minimum to the API without a conditional request.
+    #[tokio::test]
+    #[cfg(not(target_os = "android"))]
+    async fn test_uncached_request_uses_compiled_metadata_minimum() {
+        for cache in [
+            None,
+            Some(VersionCache {
+                metadata_version: 0,
+                etag: Some("stale-etag".to_owned()),
+                ..version_cache("2025.5", "2025.6", None)
+            }),
+        ] {
+            let state = VersionCheckState::from_cache(cache);
+            assert!(state.last_app_version_info.is_none());
+            let result = version_check_with(
+                state.last_app_version_info,
+                state.min_metadata_version,
+                "test-platform".to_owned(),
+                |minimum, _, etag| {
+                    assert_eq!(minimum, MIN_VERIFY_METADATA_VERSION);
+                    assert!(etag.is_none());
+                    async { Err(mullvad_api::rest::Error::Aborted) }
+                },
+            )
+            .await;
+            assert!(matches!(
+                result,
+                Err(Error::Download(mullvad_api::rest::Error::Aborted))
+            ));
+        }
+    }
+
+    /// A cache for the installed app still supplies the counter and ETag, and a
+    /// not-modified response keeps its complete version information.
+    #[tokio::test]
+    #[cfg(not(target_os = "android"))]
+    async fn test_current_cache_handles_not_modified_response() {
+        let current = VersionCache {
+            metadata_version: MIN_VERIFY_METADATA_VERSION + 10,
+            etag: Some("current-etag".to_owned()),
+            ..version_cache(mullvad_version::VERSION, "2025.7", None)
+        };
+        let state = VersionCheckState::from_cache(Some(current.clone()));
+        assert_eq!(state.last_app_version_info, Some(current.clone()));
+
+        let updated = version_check_with(
+            state.last_app_version_info,
+            MIN_VERIFY_METADATA_VERSION,
+            "test-platform".to_owned(),
+            |minimum, platform_version, etag| {
+                assert_eq!(minimum, current.metadata_version);
+                assert!(platform_version.is_none());
+                assert_eq!(etag, current.etag);
+                async { Ok(None) }
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(updated, current);
     }
 
     #[cfg_attr(target_os = "android", expect(unused_variables))]

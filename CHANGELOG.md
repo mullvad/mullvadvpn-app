@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
 - Perform the ephemeral peer exchange using smoltcp.
+- Add regression coverage for update metadata cache handling after app upgrades.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
