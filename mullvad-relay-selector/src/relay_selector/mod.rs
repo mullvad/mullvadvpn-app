@@ -130,15 +130,25 @@ impl RelaySelector {
 
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
-    ///
-    /// When the query leaves obfuscation on "auto", the returned relay multiplexes every
-    /// obfuscation method it supports.
     pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
+        self.get_relay_for_pending_obfuscation(query.clone(), query)
+    }
+
+    /// Like [`get_relay_by_query`], but relay is selected using `selection_query`, while
+    /// the endpoint and obfuscator are built from `connection_query`.
+    ///
+    /// When the connection query leaves obfuscation on "auto", the returned relay
+    /// multiplexes every obfuscation method it supports.
+    pub fn get_relay_for_pending_obfuscation(
+        &self,
+        selection_query: RelayQuery,
+        connection_query: RelayQuery,
+    ) -> Result<GetRelay, Error> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
         let annotated = self.relays.read().unwrap();
 
-        let inner = select_wireguard_relay(&annotated, &query)?;
+        let inner = select_wireguard_relay(&annotated, &selection_query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -147,14 +157,14 @@ impl RelaySelector {
 
         let endpoint_set = annotated
             .endpoint_set_for(entry)
-            .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
+            .ok_or_else(|| Error::NoRelay(Box::new(selection_query.clone())))?;
 
-        let entry_specific = query.entry_specific();
+        let entry_specific = connection_query.entry_specific();
         let (wg_addr, obfuscator) = endpoint_set
             .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version)?;
 
         let endpoint = wireguard_endpoint(
-            query.allowed_ips.as_ref(),
+            connection_query.allowed_ips.as_ref(),
             &annotated.inner.wireguard,
             &inner,
             wg_addr,
