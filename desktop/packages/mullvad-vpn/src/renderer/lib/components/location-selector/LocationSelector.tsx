@@ -19,9 +19,12 @@ export type LocationSelectorProps = React.PropsWithChildren<{
 }>;
 
 export const StyledLocationSelector = styled(FlexColumn)`
-  --line-z-index: 5;
-  --above-line-z-index: 6;
+  --location-selector-z-index: 10;
+  --location-selector-line-z-index: var(--location-selector-z-index);
+  --location-selector-above-line-z-index: 11;
+
   position: relative;
+  z-index: var(--location-selector-z-index);
 `;
 
 function LocationSelector({

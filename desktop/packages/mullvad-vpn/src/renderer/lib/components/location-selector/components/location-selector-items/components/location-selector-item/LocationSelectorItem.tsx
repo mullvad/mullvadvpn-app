@@ -4,10 +4,11 @@ import styled from 'styled-components';
 export type LocationSelectorItemProps = HTMLMotionProps<'div'>;
 
 export const StyledLocationSelectorItem = styled(motion.div)`
-  z-index: var(--line-z-index);
+  z-index: var(--location-selector-item-z-index);
   overflow: hidden;
   display: flex;
   width: 100%;
+  overflow: hidden;
 `;
 
 export function LocationSelectorItem({ children, ...props }: LocationSelectorItemProps) {
