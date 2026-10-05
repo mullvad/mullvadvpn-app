@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class MultihopMigrationNotificationUseCase(
     private val multihopMigrationRepository: MultihopMigrationRepository,

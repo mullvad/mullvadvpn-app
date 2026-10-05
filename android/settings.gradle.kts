@@ -104,6 +104,7 @@ include(
     ":lib:ui:theme",
     ":lib:ui:util",
     ":lib:usecase",
+    ":lib:user-preferences",
 )
 
 include(

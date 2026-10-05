@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class TunnelStateNotificationProvider(
     context: Context,

@@ -35,6 +35,7 @@ dependencies {
     implementation(projects.lib.ui.util)
     implementation(projects.lib.ui.icon)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.userPreferences)
 
     implementation(libs.androidx.animation)
     implementation(libs.androidx.navigation3.ui)

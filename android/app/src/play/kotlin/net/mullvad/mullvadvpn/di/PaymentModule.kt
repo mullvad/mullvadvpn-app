@@ -9,6 +9,14 @@ import org.koin.dsl.module
 
 val paymentModule = module {
     single { BillingRepository(androidContext()) }
-    single { PaymentProvider(BillingPaymentRepository(get(), get())) }
+    single {
+        PaymentProvider(
+            BillingPaymentRepository(
+                billingRepository = get(),
+                playPurchaseRepository = get(),
+                userPreferenceRepository = get(),
+            )
+        )
+    }
     single { PlayPurchaseRepository(get()) }
 }

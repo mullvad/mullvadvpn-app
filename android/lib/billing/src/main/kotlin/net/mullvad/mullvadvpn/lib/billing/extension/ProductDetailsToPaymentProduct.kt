@@ -10,7 +10,7 @@ fun ProductDetails.toPaymentProduct(productIdToStatus: Map<String, PaymentStatus
     PaymentProduct(
         productId = ProductId(this.productId),
         price = ProductPrice(this.oneTimePurchaseOfferDetails?.formattedPrice.orEmpty()),
-        productIdToStatus[this.productId],
+        status = productIdToStatus[this.productId],
     )
 
 fun List<ProductDetails>.toPaymentProducts(productIdToStatus: Map<String, PaymentStatus?>) =
