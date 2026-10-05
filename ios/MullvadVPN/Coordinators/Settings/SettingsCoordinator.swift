@@ -30,6 +30,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var viewControllerFactory: SettingsViewControllerFactory?
+    private let problemReportViewModel: ProblemReportViewModel
     private var alertPresenter: AlertPresenter?
 
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)? {
@@ -81,6 +82,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         ipOverrideRepository: IPOverrideRepository,
         appPreferences: AppPreferencesDataSource,
         relaySelectorWrapper: RelaySelectorWrapper,
+        problemReportViewModel: ProblemReportViewModel,
         breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.navigationController = navigationController
@@ -88,6 +90,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         self.accessMethodRepository = accessMethodRepository
         self.relaySelectorWrapper = relaySelectorWrapper
         self.appPreferences = appPreferences
+        self.problemReportViewModel = problemReportViewModel
         self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init()
@@ -103,7 +106,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             navigationController: navigationController,
             alertPresenter: AlertPresenter(context: self),
             relaySelectorWrapper: relaySelectorWrapper,
-            appPreferences: appPreferences
+            appPreferences: appPreferences,
+            problemReportViewModel: problemReportViewModel
         )
     }
 
