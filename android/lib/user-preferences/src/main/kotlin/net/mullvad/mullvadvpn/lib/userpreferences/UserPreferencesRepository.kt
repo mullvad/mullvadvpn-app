@@ -90,4 +90,19 @@ class UserPreferencesRepository(
 
     fun lastShownChangelogVersionCode(): Flow<Int> =
         preferencesFlow().map { it.lastShownChangelogVersionCode }
+
+    suspend fun latestSuccessfulPurchase(): String? =
+        preferences().map { it.latestSuccessfulPurchase.ifEmpty { null } }.first()
+
+    suspend fun clearLatestSuccessfulPurchase() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setLatestSuccessfulPurchase("").build()
+        }
+    }
+
+    suspend fun setLatestSuccessfulPurchase(purchaseToken: String) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setLatestSuccessfulPurchase(purchaseToken).build()
+        }
+    }
 }
