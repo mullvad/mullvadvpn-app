@@ -25,7 +25,7 @@ LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app Linux build container"
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
-# === Common setup ===
+# === Configure snapshot ===
 
 # Install packages from a fixed point in time on snapshot.debian.org, so that every build of
 # this image installs the exact same package versions. This helps make the image reproducible.
@@ -36,11 +36,7 @@ ARG DEBIAN_SNAPSHOT=20260901T000000Z
 COPY building/setup-debian-snapshot.sh /tmp/
 RUN /tmp/setup-debian-snapshot.sh && rm /tmp/setup-debian-snapshot.sh
 
-COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
-RUN /tmp/rust/install-rust.sh linux && rm -r /tmp/rust
-ENV PATH=/root/.cargo/bin:$PATH
-
-# === Install/set up the image ===
+# === Install base packages ===
 
 RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     git \
@@ -57,6 +53,11 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     # For building Arch Linux packages
     libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
+
+# === Install rust ===
+COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
+RUN /tmp/rust/install-rust.sh linux && rm -r /tmp/rust
+ENV PATH=/root/.cargo/bin:$PATH
 
 # Rust cross-compilation for: aarch64
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \

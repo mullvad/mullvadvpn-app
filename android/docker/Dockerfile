@@ -18,15 +18,11 @@ LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app Android build container"
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
-# === Common setup ===
+# === Configure snapshot ===
 
 ARG DEBIAN_SNAPSHOT=20260927T000000Z
 COPY building/setup-debian-snapshot.sh /tmp/
 RUN /tmp/setup-debian-snapshot.sh && rm /tmp/setup-debian-snapshot.sh
-
-COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
-RUN /tmp/rust/install-rust.sh android && rm -r /tmp/rust
-ENV PATH=/root/.cargo/bin:$PATH
 
 # === Define toolchain versions ===
 
@@ -85,7 +81,7 @@ ${JAVA_HOME}/bin\
 :${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin\
 :${PATH}"
 
-# === Install/set up the image ===
+# === Install base packages ===
 
 RUN apt-get update -y && apt-get install -y \
     file \
@@ -108,6 +104,14 @@ RUN apt-get update -y && apt-get install -y \
     && apt-get install -y --no-install-recommends fdroidserver \
     && rm -rf /var/lib/apt/lists/*
 
+# === Install rust ===
+
+COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
+RUN /tmp/rust/install-rust.sh android && rm -r /tmp/rust
+ENV PATH=/root/.cargo/bin:$PATH
+
+# === Install Android packages ===
+
 # Install Android command line tools
 RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip && \
     echo "$COMMAND_LINE_TOOLS_SHA256_CHECKSUM /tmp/cmdline-tools.zip" | sha256sum -c && \
@@ -129,6 +133,8 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
     unzip -q /tmp/ndk.zip -d /tmp && \
     mv /tmp/android-ndk-${NDK_VERSION_NAME} ${ANDROID_NDK_HOME} && \
     rm /tmp/ndk.zip
+
+# === Configure for signing ===
 
 COPY android/docker/pkcs11_java.cfg /usr/local/etc/pkcs11_java.cfg
 # Keep ykcs11 at the path used by pkcs11_java.cfg and existing override configs
