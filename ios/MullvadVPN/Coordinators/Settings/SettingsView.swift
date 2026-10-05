@@ -30,65 +30,61 @@ struct SettingsView: View {
         .navigationTitle("Settings")
     }
 
-    @ViewBuilder
     private func sectionView(_ section: SettingsSection) -> some View {
-        if let first = section.rows.first {
-            let rest = Array(section.rows.dropFirst())
-            VStack(alignment: .leading, spacing: 1) {
-                if rest.isEmpty {
-                    rowView(first, isLastInList: true)
-                } else {
-                    rowView(first, isLastInList: false) {
-                        ForEach(Array(rest.enumerated()), id: \.element.route) { index, row in
-                            rowView(row, isLastInList: index == rest.count - 1)
-                        }
-                    }
-                }
-                if let footer = section.kind.footer {
-                    SettingsRowViewFooter(text: footer)
-                }
+        VStack(alignment: .leading, spacing: 1) {
+            ForEach(Array(section.rows.enumerated()), id: \.element.route) { index, row in
+                rowView(row, isLastInList: index == section.rows.count - 1)
+                    .environment(\.isNestedInSegmentedListItem, index > 0)
             }
-            .padding(.leading, UIMetrics.contentInsets.left)
-            .padding(.trailing, UIMetrics.contentInsets.right)
+            if let footer = section.kind.footer {
+                SettingsRowViewFooter(text: footer)
+            }
+        }
+        .padding(.leading, UIMetrics.contentInsets.left)
+        .padding(.trailing, UIMetrics.contentInsets.right)
+    }
+
+    /// Shows the detail beside the title when the row fits on one line, otherwise below it.
+    @ViewBuilder
+    private func rowView(_ row: SettingsRow, isLastInList: Bool) -> some View {
+        if let detail = row.detail {
+            ViewThatFits(in: .horizontal) {
+                rowItem(row, isLastInList: isLastInList, subtitle: row.subtitle, trailingDetail: detail)
+                rowItem(row, isLastInList: isLastInList, subtitle: row.subtitle ?? detail)
+            }
+        } else {
+            rowItem(row, isLastInList: isLastInList, subtitle: row.subtitle)
         }
     }
 
-    private func rowView<GroupedContent: View>(
+    private func rowItem(
         _ row: SettingsRow,
         isLastInList: Bool,
-        @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() }
+        subtitle: String?,
+        trailingDetail: String? = nil
     ) -> some View {
         SegmentedListItem(
             isLastInList: isLastInList,
             accessibilityIdentifier: row.accessibilityIdentifier,
             accessibilityLabel: [row.title, row.subtitle, row.detail].compactMap { $0 }.joined(separator: ", "),
             leading: {
-                itemFactory.leading(for: .generic(title: row.title, subtitle: row.subtitle))
+                itemFactory.leading(for: .generic(title: row.title, subtitle: subtitle))
             },
             trailing: {
-                trailingView(row)
+                itemFactory.trailing(
+                    for: .custom(
+                        items: [
+                            row.breadcrumb.map { .breadcrumb($0) },
+                            trailingDetail.map { .string($0) },
+                            .icon(row.isExternal ? .external : .chevron, sizing: .button),
+                        ].compactMap { $0 }
+                    )
+                )
             },
-            groupedContent: groupedContent,
             onSelect: {
                 onSelect(row.route)
             }
         )
-    }
-
-    /// Unlike the factory's fixed-size string, the detail wraps so it shares the row width with the title.
-    private func trailingView(_ row: SettingsRow) -> some View {
-        HStack(spacing: 0) {
-            if let breadcrumb = row.breadcrumb {
-                itemFactory.trailing(for: .custom(items: [.breadcrumb(breadcrumb)]))
-            }
-            if let detail = row.detail {
-                Text(detail)
-                    .font(.mullvadTiny)
-                    .foregroundStyle(Color.mullvadTextSecondary)
-                    .multilineTextAlignment(.trailing)
-            }
-            itemFactory.trailing(for: .custom(items: [.icon(row.isExternal ? .external : .chevron, sizing: .button)]))
-        }
     }
 }
 
