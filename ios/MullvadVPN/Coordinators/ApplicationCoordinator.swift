@@ -62,6 +62,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let logRedactor: LogRedacting?
     private let migratedSettingsListener: MigratedSettingsListener
 
+    // ProblemReportViewModel (and SettingsInteractorFactory) are initialised
+    // here, to satisfy the requirement of problem report text being
+    // persistent, allowing the user to navigate away from the view
+    // and return to it without losing progress.
+    private let settingsInteractorFactory: SettingsInteractorFactory
+    private let problemReportViewModel: ProblemReportViewModel
+
     private var outOfTimeTimer: Timer?
 
     var rootViewController: UIViewController {
@@ -100,6 +107,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.logRedactor = logRedactor
         self.settingsManager = settingsManager
         self.migratedSettingsListener = migratedSettingsListener
+        self.settingsInteractorFactory = SettingsInteractorFactory(
+            tunnelManager: tunnelManager,
+            apiProxy: apiProxy,
+            relayCacheTracker: relayCacheTracker,
+            ipOverrideRepository: ipOverrideRepository,
+            redactor: logRedactor
+        )
+        self.problemReportViewModel = ProblemReportViewModel(
+            interactor: settingsInteractorFactory.makeProblemReportInteractor()
+        )
 
         super.init()
 
@@ -717,14 +734,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         animated: Bool,
         completion: @escaping @Sendable (Coordinator) -> Void
     ) {
-        let interactorFactory = SettingsInteractorFactory(
-            tunnelManager: tunnelManager,
-            apiProxy: apiProxy,
-            relayCacheTracker: relayCacheTracker,
-            ipOverrideRepository: ipOverrideRepository,
-            redactor: logRedactor
-        )
-
         let navigationController = CustomNavigationController()
         navigationController.view.setAccessibilityIdentifier(.settingsContainerView)
 
@@ -734,12 +743,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         let coordinator = SettingsCoordinator(
             navigationController: navigationController,
-            interactorFactory: interactorFactory,
+            interactorFactory: settingsInteractorFactory,
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: configurationTester,
             ipOverrideRepository: ipOverrideRepository,
             appPreferences: appPreferences,
             relaySelectorWrapper: relaySelectorWrapper,
+            problemReportViewModel: problemReportViewModel,
             breadcrumbsProvider: breadcrumbsProvider
         )
 
@@ -793,7 +803,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
         let coordinator = VPNSettingsCoordinator(
             navigationController: CustomNavigationController(),
-            interactorFactory: interactorFactory,
+            interactorFactory: settingsInteractorFactory,
             ipOverrideRepository: ipOverrideRepository,
             route: .vpnSettings(section)
         )
