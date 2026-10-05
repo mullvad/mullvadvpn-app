@@ -4,11 +4,7 @@ import { useFilterChipContext } from '../../../FilterChipContext';
 export function useColor(): Colors {
   const { disabled, inactive } = useFilterChipContext();
 
-  if (disabled) {
-    return 'whiteAlpha40';
-  }
-
-  if (inactive) {
+  if (disabled || inactive) {
     return 'whiteAlpha20';
   }
 
