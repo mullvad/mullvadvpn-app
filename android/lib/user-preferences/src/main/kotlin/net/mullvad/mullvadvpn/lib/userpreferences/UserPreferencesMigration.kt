@@ -1,10 +1,9 @@
-package net.mullvad.mullvadvpn.lib.repository
+package net.mullvad.mullvadvpn.lib.userpreferences
 
 import android.content.Context
 import androidx.datastore.core.DataMigration
 import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.migrations.SharedPreferencesView
-import net.mullvad.mullvadvpn.repository.UserPreferences
 
 private const val IS_PRIVACY_DISCLOSURE_ACCEPTED_KEY_SHARED_PREF_KEY =
     "is_privacy_disclosure_accepted"

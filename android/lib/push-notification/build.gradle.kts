@@ -10,6 +10,7 @@ dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.model)
     implementation(projects.lib.repository)
+    implementation(projects.lib.userPreferences)
     implementation(projects.lib.ui.resource)
 
     implementation(libs.androidx.core)
