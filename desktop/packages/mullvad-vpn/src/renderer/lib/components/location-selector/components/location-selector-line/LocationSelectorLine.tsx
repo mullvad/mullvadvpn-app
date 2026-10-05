@@ -11,7 +11,7 @@ export const LocationSelectorLine = styled(motion.div)<{ $visible?: boolean }>`
     height: 100%;
     width: 2px;
     background-color: ${colors.whiteAlpha60};
-    z-index: var(--line-z-index);
+    z-index: var(--location-selector-time-line-z-index);
     opacity: ${$visible ? 1 : 0};
     transition: opacity 0.15s ease-in-out;
   `}
