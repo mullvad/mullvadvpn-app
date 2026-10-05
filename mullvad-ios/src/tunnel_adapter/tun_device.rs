@@ -16,7 +16,10 @@ use std::{
     io::{self, IoSlice},
     iter,
     os::fd::{AsRawFd, BorrowedFd, OwnedFd, RawFd},
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
 };
 use talpid_netstack::{
     ip_mux::{IpMuxRecv, IpMuxSend},
@@ -32,12 +35,23 @@ pub type IosTunIpRecv = IpMuxRecv<IosTunDevice, SmoltcpIpRecv>;
 /// 4-byte utun header: protocol family as uint32 in host byte order.
 const UTUN_HEADER_LEN: usize = size_of::<u32>();
 
+/// Packets read from the TUN device: user traffic entering the tunnel, excluding smoltcp's own.
+#[derive(Clone, Default)]
+pub struct TxPacketCounter(Arc<AtomicU64>);
+
+impl TxPacketCounter {
+    pub fn get(&self) -> u64 {
+        self.0.load(Ordering::Relaxed)
+    }
+}
+
 /// The original fd (owned by iOS) is never modified or closed.
 /// We `dup()` it and own the copy as an [`OwnedFd`], which is closed when the
 /// last clone of the wrapping `Arc<AsyncFd<_>>` is dropped.
 pub struct IosTunDevice {
     async_fd: Arc<AsyncFd<OwnedFd>>,
     mtu: MtuWatcher,
+    tx_packets: TxPacketCounter,
 }
 
 impl IosTunDevice {
@@ -66,7 +80,12 @@ impl IosTunDevice {
         Ok(Self {
             async_fd: Arc::new(async_fd),
             mtu: MtuWatcher::new(mtu),
+            tx_packets: TxPacketCounter::default(),
         })
+    }
+
+    pub fn tx_packets(&self) -> TxPacketCounter {
+        self.tx_packets.clone()
     }
 }
 
@@ -75,6 +94,7 @@ impl Clone for IosTunDevice {
         Self {
             async_fd: self.async_fd.clone(),
             mtu: self.mtu.clone(),
+            tx_packets: self.tx_packets.clone(),
         }
     }
 }
@@ -138,7 +158,10 @@ impl IpRecv for IosTunDevice {
         buf.buf_mut().advance(UTUN_HEADER_LEN);
 
         match buf.try_into_ip() {
-            Ok(packet) => Ok(iter::once(packet)),
+            Ok(packet) => {
+                self.tx_packets.0.fetch_add(1, Ordering::Relaxed);
+                Ok(iter::once(packet))
+            }
             Err(e) => Err(io::Error::other(e.to_string())),
         }
     }
