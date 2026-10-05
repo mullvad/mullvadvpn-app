@@ -14,6 +14,7 @@ extension ProblemReportView {
     struct MessageEditOverlay: View {
         @State var viewModel: ProblemReportViewModel
         @FocusState var isFocused: Bool
+        @ScaledMetric var backButtonWidth: CGFloat = 24
 
         var body: some View {
             VStack(spacing: 0) {
@@ -21,9 +22,10 @@ extension ProblemReportView {
                     HStack {
                         Spacer()
                         Text("Problem description")
+                            .lineLimit(1)
                             .font(.mullvadSmallSemiBold)
                         Spacer()
-                    }
+                    }.padding(.horizontal, backButtonWidth)
                     HStack {
                         Button {
                             viewModel.isEditingMessage = false
