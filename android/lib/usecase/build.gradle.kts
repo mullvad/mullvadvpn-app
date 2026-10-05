@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.lib.grpc)
     implementation(projects.lib.model)
     implementation(projects.lib.repository)
+    implementation(projects.lib.userPreferences)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)

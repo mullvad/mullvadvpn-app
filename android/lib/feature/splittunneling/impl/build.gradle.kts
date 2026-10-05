@@ -10,6 +10,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.splittunneling.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
+    implementation(projects.lib.userPreferences)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

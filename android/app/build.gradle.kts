@@ -502,6 +502,7 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.userPreferences)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.navigation3.ui)
 
