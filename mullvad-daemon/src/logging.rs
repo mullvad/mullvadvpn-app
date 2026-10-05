@@ -16,7 +16,7 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-pub const LOG_FILE_SIZE_MAX: usize = 2 * 1024 * 1024; // 2GB
+pub const LOG_FILE_SIZE_MAX: u64 = 2 * 1024 * 1024; // 2GB
 pub const LOG_ROTATION_INTERVAL: TimeDelta = TimeDelta::weeks(1);
 
 #[derive(thiserror::Error, Debug)]
@@ -306,12 +306,12 @@ pub fn init_logger(
 
 struct LogRotation {
     time_before_rotation: TimeDelta,
-    max_size: usize,
+    max_size: u64,
     last_rotation: Option<DateTime<Local>>,
 }
 
 impl LogRotation {
-    pub fn new(time_before_rotation: TimeDelta, max_size: usize) -> Self {
+    pub fn new(time_before_rotation: TimeDelta, max_size: u64) -> Self {
         Self {
             time_before_rotation,
             max_size,
@@ -329,7 +329,7 @@ impl RollingCondition for LogRotation {
                 rollover = true;
             }
         }
-        if current_filesize >= self.max_size.try_into().unwrap() {
+        if current_filesize >= self.max_size {
             rollover = true;
         }
         self.last_rotation = Some(*now);
