@@ -60,7 +60,7 @@ struct ProblemReportView: View {
                 }
             }
         }
-        .popover(isPresented: viewModel.showLogs) {
+        .sheet(isPresented: viewModel.showLogs) {
             LogView(viewModel: viewModel)
         }
         .navigationTitle("Report a problem")

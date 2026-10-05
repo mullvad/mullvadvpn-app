@@ -14,6 +14,7 @@ extension ProblemReportView {
     struct LogView: View {
 
         @State var viewModel: ProblemReportViewModel
+        @ScaledMetric var doneButtonWidth: CGFloat = 48
 
         var body: some View {
             VStack {
@@ -21,9 +22,10 @@ extension ProblemReportView {
                     HStack {
                         Spacer()
                         Text("App Logs")
+                            .lineLimit(1)
                             .font(.mullvadSmallSemiBold)
                         Spacer()
-                    }
+                    }.padding(.horizontal, doneButtonWidth)
                     HStack {
                         Spacer()
                         Button(
