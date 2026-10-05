@@ -145,7 +145,7 @@ impl VersionUpdaterInner {
     ) {
         #[cfg(not(target_os = "android"))]
         {
-            new_version_info = self.ignore_cache_if_same_version(new_version_info);
+            new_version_info = self.select_version_cache(new_version_info);
         }
 
         if let Err(err) = update(new_version_info.clone()).await {
@@ -155,7 +155,17 @@ impl VersionUpdaterInner {
     }
 
     #[cfg(not(target_os = "android"))]
-    fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
+    fn select_version_cache(&self, mut new_version_info: VersionCache) -> VersionCache {
+        // Foreground and background checks verify against their own cache snapshots.
+        // A delayed response (including a 304) must not undo a newer completion.
+        if let Some(current_cache) = self.last_app_version_info.as_ref()
+            && new_version_info.metadata_version < current_cache.metadata_version
+        {
+            log::trace!("Ignoring version info with older metadata version");
+            // Still pass the current cache to `update` so waiting callers get a response.
+            return current_cache.clone();
+        }
+
         if let Some(current_cache) = self.last_app_version_info.as_ref()
             && current_cache.metadata_version == new_version_info.metadata_version
         {
