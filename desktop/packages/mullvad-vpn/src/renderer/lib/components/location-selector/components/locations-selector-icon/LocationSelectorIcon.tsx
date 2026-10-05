@@ -17,6 +17,7 @@ export const StyledLocationSelectorIcon = styled(Flex)`
   position: absolute;
   height: 100%;
   top: 0;
+  z-index: var(--location-selector-above-line-z-index);
 `;
 
 export const StyledIconContainer = styled.div<{ $horizontalOffset: number }>`
@@ -27,7 +28,7 @@ export const StyledIconContainer = styled.div<{ $horizontalOffset: number }>`
       top: 50%;
       left: ${$horizontalOffset}px;
       transform: translateY(-50%);
-      z-index: var(--above-line-z-index);
+      z-index: inherit;
     `;
   }}
 `;
@@ -40,7 +41,7 @@ export const StyledIconBackground = styled.div<{ $color: string }>`
       position: absolute;
       top: 40%;
       left: 0px;
-      z-index: var(--above-line-z-index);
+      z-index: inherit;
       background-color: ${$color};
       transform: rotate(45deg) translateY(-50%);
 
@@ -57,7 +58,7 @@ export const StyledIcon = styled(Icon)`
   top: 50%;
   left: ${spacings.small};
   transform: translateY(-50%);
-  z-index: var(--above-line-z-index);
+  z-index: inherit;
 `;
 
 export const StyledLine = styled(LocationSelectorLine)<{
@@ -68,7 +69,7 @@ export const StyledLine = styled(LocationSelectorLine)<{
 
     return css`
       left: 16px;
-      z-index: var(--above-line-z-index);
+      z-index: var(--location-selector-z-index);
       top: ${verticalOffset}px;
       ${() => {
         if (verticalOffset !== 0) {
