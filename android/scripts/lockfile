@@ -75,8 +75,7 @@ function cleanup {
 }
 
 function setup_gradle {
-    # regardless if stopped.
-    GRADLE_OPTS="-Dorg.gradle.daemon=false"
+    GRADLE_OPTS="${GRADLE_OPTS:-} -Dorg.gradle.daemon=false"
     # We must provide a template for mktemp to work properly on macOS.
     GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
     TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
