@@ -27,7 +27,7 @@ pub enum Error {
     },
 
     #[error("Unable to rotate daemon log file")]
-    RotateLog(#[from] talpid_core::logging::RotateLogError),
+    RotateLog(#[from] talpid_logging::RotateLogError),
 }
 
 #[derive(thiserror::Error, Debug)]

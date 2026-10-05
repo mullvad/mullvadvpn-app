@@ -26,7 +26,7 @@ pub enum Error {
 
     /// Failed to rotate tunnel log file
     #[error("Failed to rotate tunnel log file")]
-    RotateLogError(#[from] crate::logging::RotateLogError),
+    RotateLogError(#[from] talpid_logging::RotateLogError),
 
     /// There was an error listening for events from the Wireguard tunnel
     #[error("Failed while listening for events from the Wireguard tunnel")]
