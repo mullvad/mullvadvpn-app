@@ -1,4 +1,5 @@
 use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
+use mullvad_paths::logs::LogFile;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -256,30 +257,21 @@ impl<W: Write> From<(W, String)> for WriteSource<W> {
 fn list_logs(
     log_dir: impl AsRef<Path>,
 ) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    fs::read_dir(log_dir.as_ref())
-        .map_err(|source| LogError::ListLogDir {
+    let dir_entries = fs::read_dir(log_dir.as_ref()).map_err(|source| LogError::ListLogDir {
+        path: log_dir.as_ref().display().to_string(),
+        source,
+    })?;
+    let logs = dir_entries.filter_map(move |dir_entry| match dir_entry {
+        Ok(dir_entry) => {
+            let path = dir_entry.path();
+            (path.extension() == Some(OsStr::new(".log"))).then_some(Ok(path))
+        }
+        Err(source) => Some(Err(LogError::ListLogDir {
             path: log_dir.as_ref().display().to_string(),
             source,
-        })
-        .map(|dir_entries| {
-            let log_extension = Some(OsStr::new("log"));
-
-            dir_entries.filter_map(move |dir_entry_result| match dir_entry_result {
-                Ok(dir_entry) => {
-                    let path = dir_entry.path();
-
-                    if path.extension() == log_extension {
-                        Some(Ok(path))
-                    } else {
-                        None
-                    }
-                }
-                Err(source) => Some(Err(LogError::ListLogDir {
-                    path: log_dir.as_ref().display().to_string(),
-                    source,
-                })),
-            })
-        })
+        })),
+    });
+    Ok(logs)
 }
 
 #[cfg(target_os = "android")]
@@ -431,25 +423,46 @@ impl ProblemReport {
     /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
         let expanded_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
-        if self.log_paths.insert(expanded_path.clone()) {
-            let redacted_path = self.redact(&expanded_path.to_string_lossy());
-            let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES).unwrap_or_else(
-                |error| {
+        if !self.log_paths.insert(expanded_path.clone()) {
+            return;
+        }
+        // Iterate over all files stemming from `path`: basename, basename.1, .., basename.N.
+        // Concat content from all files into one buffer. Since basename.N begins where basename.N-1
+        // ends, we need to concat them in reverse order to get the correct chronology.
+        // Content: [
+        //   <basename.N>   // <- Eldest logs.
+        //   <basename.N-1>
+        //   ..
+        //   <basename>     // <- Most recent logs.
+        // ]
+        let mut content = LogFile::from_file_path(path)
+            .paths()
+            .map(|path| {
+                read_file_lossy(&path, LOG_MAX_READ_BYTES).unwrap_or_else(|error| {
                     error.display_chain_with_msg(&format!(
                         "Error reading the contents of log file: {}",
                         expanded_path.display()
                     ))
-                },
-            ));
-            self.logs.push((redacted_path, content));
-            log::info!("Adding {}", expanded_path.display());
-        }
+                })
+            })
+            .map(|content| self.redact(&content))
+            .collect::<Vec<String>>();
+        content.reverse();
+        let content = content.join("");
+
+        let redacted_path = self.redact(&expanded_path.to_string_lossy());
+        self.append_logs(redacted_path.to_string(), content);
+        log::info!("Adding {}", expanded_path.display());
+    }
+
+    fn append_logs(&mut self, to: String, content: String) {
+        self.logs.push((to, content));
     }
 
     /// Attach an error to the report.
     pub fn add_error(&mut self, message: &'static str, error: &impl ErrorExt) {
         let redacted_error = self.redact(&error.display_chain());
-        self.logs.push((message.to_string(), redacted_error));
+        self.append_logs(message.to_string(), redacted_error);
     }
 
     fn redact(&self, input: &str) -> String {
