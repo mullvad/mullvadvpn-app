@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
     implementation(projects.lib.ui.icon)
+    implementation(projects.lib.userPreferences)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

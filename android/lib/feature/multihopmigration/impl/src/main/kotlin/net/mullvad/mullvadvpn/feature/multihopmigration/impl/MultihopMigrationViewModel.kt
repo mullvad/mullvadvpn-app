@@ -21,8 +21,8 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class MultihopMigrationViewModel(
     navArgs: MultihopMigrationNavKey,

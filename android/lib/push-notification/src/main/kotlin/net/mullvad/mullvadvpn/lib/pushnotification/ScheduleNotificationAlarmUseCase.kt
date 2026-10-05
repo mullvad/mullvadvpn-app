@@ -9,7 +9,7 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.lib.common.util.accountExpiryNotificationTriggerAt
 import net.mullvad.mullvadvpn.lib.pushnotification.receiver.NotificationAlarmReceiver
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class ScheduleNotificationAlarmUseCase(
     private val applicationContext: Context,
