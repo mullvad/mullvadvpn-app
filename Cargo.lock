@@ -3489,7 +3489,6 @@ dependencies = [
  "objc2-service-management",
  "paranoid-android",
  "rand 0.9.4",
- "regex",
  "rolling-file",
  "serde",
  "serde_json",
