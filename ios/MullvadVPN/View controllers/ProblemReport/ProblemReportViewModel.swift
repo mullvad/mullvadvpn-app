@@ -38,6 +38,10 @@ import SwiftUI
             get: { self.logText != nil },
             set: { if !$0 { self.logText = nil } }
         )
+    }    
+
+    func prepareForReuse() {
+        modalState = nil
     }
 
     func doShowLog() {
@@ -93,6 +97,7 @@ import SwiftUI
                     includeAccountTokenInLogs: includeAccountTokenInLogs
                 )
                 modalState = .success
+                message = ""
             } catch {
                 modalState = .failure
             }
