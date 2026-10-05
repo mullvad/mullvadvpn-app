@@ -78,6 +78,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
+- Only run launch daemon if binary `cdhash` matches the expected one for `mullvad-daemon`. This
+  prevents possible privilege escalation from admin to root (GHSA-f33p-7hj4-mvwj).
 
 #### Windows
 - Apply gRPC pipe ownership check correctly on Windows. This fixes the advisory
