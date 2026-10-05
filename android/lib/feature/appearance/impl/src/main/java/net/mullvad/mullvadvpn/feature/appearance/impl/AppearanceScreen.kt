@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.feature.appearance.impl
 
+import android.app.StatusBarManager
+import android.content.ComponentName
+import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,9 +10,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appicon.api.AppIconNavKey
 import net.mullvad.mullvadvpn.feature.language.api.LanguageNavKey
@@ -58,6 +64,10 @@ fun AppearanceScreen(
         },
     ) { modifier ->
         val lazyListState: LazyListState = rememberLazyListState()
+
+        val context = LocalContext.current
+        val statusBarManager = context.getSystemService<StatusBarManager>()
+
         LazyColumn(
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             state = lazyListState,
@@ -76,6 +86,36 @@ fun AppearanceScreen(
                         onClick = onLanguageClick,
                         position = Position.Bottom,
                     )
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    item {
+                        NavigationListItem(
+                            title = "Add tile",
+                            onClick = {
+                                statusBarManager!!.requestAddTileService(
+                                    ComponentName(context, "net.mullvad.mullvadvpn.app.tile.MullvadTileService"),
+                                    "sequence",
+                                    Icon.createWithResource(context, R.drawable.small_logo_white),
+                                    context.mainExecutor,
+                                ) {
+                                    Logger.d { "Add tile result: $it" }
+                                    when (it) {
+                                        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED,
+                                        StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> {}
+                                        StatusBarManager.TILE_ADD_REQUEST_ERROR_MISMATCHED_PACKAGE,
+                                        StatusBarManager.TILE_ADD_REQUEST_ERROR_REQUEST_IN_PROGRESS,
+                                        StatusBarManager.TILE_ADD_REQUEST_ERROR_BAD_COMPONENT,
+                                        StatusBarManager.TILE_ADD_REQUEST_ERROR_NOT_CURRENT_USER,
+                                        StatusBarManager
+                                            .TILE_ADD_REQUEST_ERROR_APP_NOT_IN_FOREGROUND,
+                                        StatusBarManager
+                                            .TILE_ADD_REQUEST_ERROR_NO_STATUS_BAR_SERVICE -> {}
+                                    }
+                                }
+                            },
+                            position = Position.Bottom,
+                        )
+                    }
                 }
             }
         }
