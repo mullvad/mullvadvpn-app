@@ -6032,6 +6032,7 @@ dependencies = [
  "log",
  "memoffset 0.6.5",
  "mnl",
+ "mullvad-paths",
  "nftnl",
  "nix 0.31.3",
  "parking_lot",
