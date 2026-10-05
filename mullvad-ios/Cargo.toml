@@ -56,7 +56,7 @@ mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-logging = { path = "../mullvad-logging" }
 mullvad-types = { path = "../mullvad-types" }
-regex = "1"
+regex.workspace = true
 shadowsocks = { workspace = true }
 talpid-future = { path = "../talpid-future" }
 tracing = "0.1"
