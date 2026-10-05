@@ -23,11 +23,11 @@ class VpnSettingsPage internal constructor() : Page() {
     }
 
     fun assertPostQuantumState(enabled: Boolean) {
-        val postQuantumCell =
-            uiDevice.findObjectWithTimeout(By.res(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
-        val postQuantumSwitch = postQuantumCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
-
-        assert(postQuantumSwitch.isChecked == enabled)
+        uiDevice.findObjectWithTimeout(
+            By.hasAncestor(By.res(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+                .res(SWITCH_TEST_TAG)
+                .checked(enabled)
+        )
     }
 
     fun clickLocalNetworkSharing() {
