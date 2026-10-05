@@ -34,8 +34,8 @@ ARG SDK_VERSION=android-37.0 \
     BUILD_TOOLS_VERSION=37.0.0
 
 # Command line tools and checksum from: https://developer.android.com/studio#command-line-tools-only
-ARG COMMAND_LINE_TOOLS_VERSION=14742923 \
-    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=04453066b540409d975c676d781da1477479dde3761310f1a7eb92a1dfb15af7
+ARG COMMAND_LINE_TOOLS_VERSION=15859902 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583
 
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
 ARG NDK_VERSION_NAME=r27d \
