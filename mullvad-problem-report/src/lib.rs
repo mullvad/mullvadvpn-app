@@ -263,9 +263,7 @@ fn list_logs(
         Ok(dir_entry) => {
             let path = dir_entry.path();
             // Some logfiles are rolled-over when certain conditions are met.
-            // These rolled-over files follow the Debian convention for naming files:
-            // basename, basename.1, basename.2, .., basename.N.
-            let is_log = path.components().any(|c| c.as_os_str() == ".log");
+            let is_log = debian_log_basename(&path.to_string_lossy()) == Some(".log");
             is_log.then_some(Ok(path))
         }
         Err(source) => Some(Err(LogError::ListLogDir {
