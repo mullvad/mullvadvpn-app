@@ -64,7 +64,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
             try hotfixRelaysThatDoNotHaveFeatures()
 
             #if NEVER_IN_PRODUCTION
-                // If relay list is empty with no etag, fetch on next run loop (non-production builds only)
+                // If relay list is empty with no digest, fetch on next run loop (non-production builds only)
                 // Deferred to avoid circular initialization issues with API client
                 if let cachedRelays, cachedRelays.relays.isEmpty, cachedRelays.digest == nil {
                     DispatchQueue.main.async { [weak self] in
