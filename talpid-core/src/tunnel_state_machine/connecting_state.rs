@@ -266,7 +266,7 @@ impl ConnectingState {
                     && let Some(log_dir) = log_dir
                 {
                     log::debug!("Logging device info");
-                    if let Err(err) = crate::logging::diag::windows::log_device_info(log_dir).await
+                    if let Err(err) = talpid_logging::diag::windows::log_device_info(log_dir).await
                     {
                         log::error!("Failed to dump device logs: {err}");
                     }

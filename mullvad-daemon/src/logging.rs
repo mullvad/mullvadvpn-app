@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
-use talpid_core::logging::rotate_log;
+use talpid_logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
     Registry,
@@ -27,7 +27,7 @@ pub enum Error {
     },
 
     #[error("Unable to rotate daemon log file")]
-    RotateLog(#[from] talpid_core::logging::RotateLogError),
+    RotateLog(#[from] talpid_logging::RotateLogError),
 }
 
 #[derive(thiserror::Error, Debug)]
