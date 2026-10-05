@@ -1,5 +1,4 @@
 use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
-use mullvad_paths::logs::LogFile;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -12,6 +11,7 @@ use std::{
     sync::LazyLock,
 };
 use talpid_error::ErrorExt;
+use talpid_logging::LogFile;
 
 pub mod metadata;
 

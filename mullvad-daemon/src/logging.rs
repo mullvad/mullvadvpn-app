@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
-use talpid_core::logging::rotate_log;
+use talpid_logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
     Registry,

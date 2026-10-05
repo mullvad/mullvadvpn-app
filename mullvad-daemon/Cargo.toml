@@ -99,6 +99,7 @@ talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-error.workspace = true
 talpid-future = { path = "../talpid-future" }
+talpid-logging.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-time = { path = "../talpid-time" }

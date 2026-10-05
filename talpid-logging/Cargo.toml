@@ -1,0 +1,22 @@
+[package]
+name = "talpid-logging"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "Utilities and functions for logging"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+log.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
+
+[target."cfg(windows)".dependencies]
+chrono = { workspace = true, features = ["clock"] }
+csv.workspace = true
+
+[lints]
+workspace = true

@@ -13,7 +13,7 @@ mod offline;
 pub mod split_tunnel;
 
 /// Helper function to preserve previous log files.
-pub mod logging;
+pub use talpid_logging as logging;
 
 /// Abstractions and extra features on `std::mpsc`
 pub mod mpsc;
