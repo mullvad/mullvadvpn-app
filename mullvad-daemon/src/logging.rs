@@ -331,10 +331,11 @@ impl RollingCondition for LogRotation {
         let mut rollover = false;
         if now.signed_duration_since(self.last_rollover) >= self.time_before_rotation {
             rollover = true;
-            self.last_rollover = *now;
         }
         if current_filesize >= self.max_size {
             rollover = true;
+        }
+        if rollover {
             self.last_rollover = *now;
         }
         rollover
