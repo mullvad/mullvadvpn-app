@@ -1,5 +1,7 @@
 use std::{fs, io, path::Path};
 
+use mullvad_paths::logs::LogFile;
+
 pub mod diag;
 
 /// Unable to create new log file
@@ -13,7 +15,7 @@ pub struct RotateLogError(#[from] io::Error);
 /// it is backed up with the extension changed to `.old.log`.
 pub fn rotate_log(file: &Path) -> Result<(), RotateLogError> {
     let backup = file.with_extension("old.log");
-    if let Err(error) = fs::rename(file, &backup)
+    if let Err(error) = LogFile::rename(file, &backup)
         && error.kind() != io::ErrorKind::NotFound
     {
         log::warn!(
