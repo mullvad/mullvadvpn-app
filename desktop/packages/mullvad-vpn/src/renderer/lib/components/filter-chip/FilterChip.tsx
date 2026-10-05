@@ -13,8 +13,10 @@ const variables = {
   background: colors.blue,
   hover: colors.blue60,
   active: colors.blue40,
-  inactive: colors.blue20,
   disabled: colors.blue20,
+  inactive: colors.blue20,
+  inactiveHover: colors.blue40,
+  inactiveActive: colors.blue60,
 } as const;
 
 export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean; $inactive?: boolean }>`
@@ -23,8 +25,10 @@ export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean; $inacti
       --background: ${variables.background};
       --hover: ${variables.hover};
       --active: ${variables.active};
-      --inactive: ${variables.inactive};
       --disabled: ${variables.disabled};
+      --inactive: ${variables.inactive};
+      --inactive-hover: ${variables.inactiveHover};
+      --inactive-active: ${variables.inactiveActive};
 
       display: flex;
       align-items: center;
@@ -66,6 +70,21 @@ export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean; $inacti
         if ($inactive) {
           return css`
             background-color: var(--inactive);
+
+            &:not(:disabled) {
+              &:hover {
+                background-color: var(--inactive-hover);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.white};
+                }
+              }
+              &:active {
+                background-color: var(--inactive-active);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.white};
+                }
+              }
+            }
           `;
         }
 
