@@ -6,6 +6,7 @@ mod pinger;
 pub(crate) mod tun_device;
 
 use std::{
+    future::poll_fn,
     io,
     net::{IpAddr, SocketAddr},
     pin::pin,
@@ -13,6 +14,7 @@ use std::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
+    task::{Context, Poll},
     time::{Duration, Instant},
 };
 
@@ -36,9 +38,12 @@ use talpid_tunnel_config_client::negotiation::{
     Negotiables, NegotiationConfig, NegotiationError, Relay, Relays, negotiate_ephemeral_peers,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::sync::{
-    Mutex,
-    mpsc::{self, UnboundedReceiver, UnboundedSender},
+use tokio::{
+    io::ReadBuf,
+    sync::{
+        Mutex,
+        mpsc::{UnboundedReceiver, UnboundedSender},
+    },
 };
 use tunnel_obfuscation::gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation};
 
@@ -54,40 +59,51 @@ pub use self::params::{PeerParameters, TunnelParameters};
 /// Listens to all sockets for messages.
 #[derive(Clone)]
 pub struct Multiplex {
-    sockets: Vec<UdpSocket>,
-    rx: Arc<Mutex<mpsc::UnboundedReceiver<(Packet, SocketAddr)>>>,
+    sockets: Vec<Arc<UdpSocket>>,
 }
 impl Multiplex {
     pub async fn new(count: u64, udp: BoundUdpTransports) -> io::Result<Self> {
-        let mut sockets = vec![udp.socket.lock().await.clone()];
+        let mut sockets = vec![Arc::new(udp.socket.lock().await.clone())];
         for _ in 0..count {
-            sockets.push(
+            sockets.push(Arc::new(
                 BoundUdpTransports::bind()
                     .await?
                     .socket
                     .lock()
                     .await
                     .clone(),
-            );
+            ));
         }
-        let (tx, rx) = mpsc::unbounded_channel();
 
-        for socket in &sockets {
-            let mut socket = socket.clone();
-            let tx = tx.clone();
-            tokio::spawn(async move {
-                let mut pool = PacketBufPool::new(4);
-                while let Ok(vr) = socket.recv_from(&mut pool).await {
-                    if tx.send(vr).is_err() {
-                        break;
-                    }
-                }
-            });
+        Ok(Self { sockets })
+    }
+
+    /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
+    /// whilst the socket is rebound.
+    pub async fn rebind(&mut self) -> io::Result<()> {
+        for socket in &mut self.sockets {
+            let (new_socket, _recv) = UdpSocketFactory::default()
+                .bind(&BoundUdpTransports::params())
+                .await?;
+            *socket = Arc::new(new_socket);
         }
-        Ok(Self {
-            sockets,
-            rx: Arc::new(Mutex::new(rx)),
-        })
+        Ok(())
+    }
+
+    fn poll(
+        &self,
+        cx: &mut Context<'_>,
+        read_buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<SocketAddr>> {
+        for socket in &self.sockets {
+            let socket = socket.socket(); //self.sockets[i].socket();
+
+            let poll = socket.poll_recv_from(cx, read_buf);
+            if poll.is_ready() {
+                return poll;
+            }
+        }
+        Poll::Pending
     }
 }
 impl UdpTransportFactory for Multiplex {
@@ -113,13 +129,17 @@ impl UdpSend for Multiplex {
 impl UdpRecv for Multiplex {
     type RecvManyBuf = <UdpSocket as UdpRecv>::RecvManyBuf;
 
-    async fn recv_from(&mut self, _pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
-        self.rx
-            .lock()
-            .await
-            .recv()
-            .await
-            .ok_or(io::Error::new(io::ErrorKind::BrokenPipe, "task dead"))
+    async fn recv_from(&mut self, pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
+        let mut packet = pool.get();
+        let mut read_buf = ReadBuf::new(&mut packet);
+        match poll_fn(|cx| self.poll(cx, &mut read_buf)).await {
+            Ok(addr) => {
+                let len = read_buf.filled().len();
+                packet.truncate(len);
+                Ok((packet, addr))
+            }
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -249,7 +269,7 @@ enum CommandOutcome {
 /// fresh sockets while it runs.
 struct ActiveConnection {
     devices: Devices,
-    transport_provider: BoundUdpTransports,
+    transport_provider: Multiplex,
     /// When the tunnel was last suspended, to decide whether to restart the obfuscator on wake.
     last_suspended_at: Option<talpid_time::Instant>,
     obfuscation: ObfuscatingTransports,
@@ -437,14 +457,14 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
-        let multiplex = Multiplex::new(params.multiplex_count, udp.clone())
+        let multiplex = Multiplex::new(params.multiplex_count, udp)
             .await
             .map_err(TunnelError::TunnelDevice)?;
 
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at it.
         let ingress_public_key = Self::ingress_public_key(&pq);
         let obfuscation = ObfuscatingTransports::new(
-            multiplex,
+            multiplex.clone(),
             obfuscation
                 .map(|obfuscation| obfuscation.with_client_public_key(ingress_public_key.clone())),
             params.ingress_peer().endpoint,
@@ -461,7 +481,7 @@ impl IosTunnelAdapter {
         // one piece for the rest of its life.
         let mut connection = ActiveConnection {
             devices,
-            transport_provider: udp,
+            transport_provider: multiplex,
             last_suspended_at: None,
             obfuscation,
             params,
