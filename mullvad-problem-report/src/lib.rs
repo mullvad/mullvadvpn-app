@@ -3,8 +3,7 @@ use regex::Regex;
 use std::{
     borrow::Cow,
     cmp::min,
-    collections::{BTreeMap, HashSet},
-    ffi::OsStr,
+    collections::{BTreeMap, HashMap, HashSet, hash_map::Entry},
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
@@ -256,30 +255,25 @@ impl<W: Write> From<(W, String)> for WriteSource<W> {
 fn list_logs(
     log_dir: impl AsRef<Path>,
 ) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    fs::read_dir(log_dir.as_ref())
-        .map_err(|source| LogError::ListLogDir {
+    let dir_entries = fs::read_dir(log_dir.as_ref()).map_err(|source| LogError::ListLogDir {
+        path: log_dir.as_ref().display().to_string(),
+        source,
+    })?;
+    let logs = dir_entries.filter_map(move |dir_entry| match dir_entry {
+        Ok(dir_entry) => {
+            let path = dir_entry.path();
+            // Some logfiles are rolled-over when certain conditions are met.
+            // These rolled-over files follow the Debian convention for naming files:
+            // basename, basename.1, basename.2, .., basename.N.
+            let is_log = path.components().any(|c| c.as_os_str() == ".log");
+            is_log.then_some(Ok(path))
+        }
+        Err(source) => Some(Err(LogError::ListLogDir {
             path: log_dir.as_ref().display().to_string(),
             source,
-        })
-        .map(|dir_entries| {
-            let log_extension = Some(OsStr::new("log"));
-
-            dir_entries.filter_map(move |dir_entry_result| match dir_entry_result {
-                Ok(dir_entry) => {
-                    let path = dir_entry.path();
-
-                    if path.extension() == log_extension {
-                        Some(Ok(path))
-                    } else {
-                        None
-                    }
-                }
-                Err(source) => Some(Err(LogError::ListLogDir {
-                    path: log_dir.as_ref().display().to_string(),
-                    source,
-                })),
-            })
-        })
+        })),
+    });
+    Ok(logs)
 }
 
 #[cfg(target_os = "android")]
@@ -389,10 +383,14 @@ async fn send_problem_report_inner(
 #[derive(Debug)]
 struct ProblemReport {
     metadata: BTreeMap<String, String>,
-    logs: Vec<(String, String)>,
+    /// We need to collect all logfiles with the same basename and
+    /// treat them as one file. See [debian_log_basename].
+    logs: HashMap<String, Vec<Content>>,
     log_paths: HashSet<PathBuf>,
     redact_custom_strings: Vec<String>,
 }
+
+type Content = String;
 
 impl ProblemReport {
     /// Creates a new problem report with system information. Logs can be added with `add_log`.
@@ -402,7 +400,7 @@ impl ProblemReport {
 
         ProblemReport {
             metadata: metadata::collect(),
-            logs: Vec::new(),
+            logs: Default::default(),
             log_paths: HashSet::new(),
             redact_custom_strings,
         }
@@ -431,25 +429,42 @@ impl ProblemReport {
     /// contents if an error occurs while reading the log file.
     pub fn add_log(&mut self, path: &Path) {
         let expanded_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
-        if self.log_paths.insert(expanded_path.clone()) {
-            let redacted_path = self.redact(&expanded_path.to_string_lossy());
-            let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES).unwrap_or_else(
-                |error| {
-                    error.display_chain_with_msg(&format!(
-                        "Error reading the contents of log file: {}",
-                        expanded_path.display()
-                    ))
-                },
-            ));
-            self.logs.push((redacted_path, content));
-            log::info!("Adding {}", expanded_path.display());
+        if !self.log_paths.insert(expanded_path.clone()) {
+            return;
         }
+
+        let content = self.redact(&read_file_lossy(path, LOG_MAX_READ_BYTES).unwrap_or_else(
+            |error| {
+                error.display_chain_with_msg(&format!(
+                    "Error reading the contents of log file: {}",
+                    expanded_path.display()
+                ))
+            },
+        ));
+        let redacted_path = self.redact(&expanded_path.to_string_lossy());
+        let Some(redacted_base_path) = debian_log_basename(&redacted_path) else {
+            return;
+        };
+        match self.logs.entry(redacted_base_path.to_string()) {
+            Entry::Occupied(mut occupied_entry) => {
+                let existing_content = occupied_entry.get_mut();
+                existing_content.push(content);
+            }
+            Entry::Vacant(vacant_entry) => {
+                vacant_entry.insert(vec![content]);
+            }
+        }
+
+        log::info!("Adding {}", expanded_path.display());
     }
 
     /// Attach an error to the report.
     pub fn add_error(&mut self, message: &'static str, error: &impl ErrorExt) {
         let redacted_error = self.redact(&error.display_chain());
-        self.logs.push((message.to_string(), redacted_error));
+        self.logs
+            .entry(message.to_string())
+            .and_modify(|content| content.push(redacted_error.clone()))
+            .or_insert_with(|| vec![redacted_error]);
     }
 
     fn redact(&self, input: &str) -> String {
@@ -517,7 +532,9 @@ impl ProblemReport {
             write_line!(output, "{}", LOG_DELIMITER)?;
             write_line!(output, "Log: {}", label)?;
             write_line!(output, "{}", LOG_DELIMITER)?;
-            output.write_all(content.as_bytes())?;
+            for buf in content.iter().map(|content| content.as_bytes()) {
+                output.write_all(buf)?;
+            }
             write_line!(output)?;
         }
         Ok(())
@@ -594,6 +611,18 @@ fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> String {
 
         out
     }
+}
+
+/// Some logfiles are rolled-over when certain conditions are met.
+/// These rolled-over files follow the Debian convention for naming files:
+/// basename, basename.1, basename.2, .., basename.N.
+/// This function plucks out `basename` from a series of rollver-over logs.
+fn debian_log_basename(path: &str) -> Option<&str> {
+    static ROLLED_OVER_LOGS: &str = r"^.*/(?P<basename>.+?)(?:\.\d+)?$";
+    Regex::new(ROLLED_OVER_LOGS)
+        .unwrap()
+        .captures(path)
+        .and_then(|c| c.name("basename").map(|m| m.as_str()))
 }
 
 fn build_mac_regex() -> String {
@@ -826,5 +855,21 @@ mod tests {
                 assert_eq!(parsed_value, value, "value for key '{key}' does not match");
             }
         }
+    }
+
+    #[test]
+    fn test_debian_style_basename() {
+        assert_eq!(
+            debian_log_basename("/var/log/mullvad-vpn/daemon.log"),
+            Some("daemon.log")
+        );
+        assert_eq!(
+            debian_log_basename("/var/log/mullvad-vpn/daemon.log.1"),
+            Some("daemon.log")
+        );
+        assert_eq!(
+            debian_log_basename("/var/log/mullvad-vpn/daemon.log.log"),
+            Some("daemon.log.log")
+        );
     }
 }
