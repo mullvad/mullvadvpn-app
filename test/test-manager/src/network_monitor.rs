@@ -1,11 +1,12 @@
 use std::{
+    fmt::Display,
     future::poll_fn,
     net::{IpAddr, SocketAddr},
     time::Duration,
 };
 
 use anyhow::{Context, Result};
-use futures::{StreamExt, channel::oneshot, pin_mut};
+use futures::{Stream, StreamExt, channel::oneshot, future, pin_mut};
 pub use pcap::Direction;
 use pcap::PacketCodec;
 use pnet_packet::{
@@ -15,11 +16,9 @@ use pnet_packet::{
 
 pub use pnet_packet::ip::IpNextHeaderProtocols as IpHeaderProtocols;
 
-use crate::{tests::config::TEST_CONFIG, vm::network::wireguard::CUSTOM_TUN_INTERFACE_NAME};
+use crate::tests::config::TEST_CONFIG;
 
-struct Codec {
-    no_frame: bool,
-}
+struct Codec;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParsedPacket {
@@ -33,32 +32,14 @@ impl PacketCodec for Codec {
     type Item = Option<ParsedPacket>;
 
     fn decode(&mut self, packet: pcap::Packet<'_>) -> Self::Item {
-        if self.no_frame {
-            // skip utun header specifying an address family
-            #[cfg(target_os = "macos")]
-            let data = &packet.data[4..];
-            #[cfg(not(target_os = "macos"))]
-            let data = packet.data;
-            let ip_version = (data[0] & 0xf0) >> 4;
-
-            return match ip_version {
-                4 => Self::parse_ipv4(data),
-                6 => Self::parse_ipv6(data),
-                version => {
-                    log::debug!("Ignoring unknown IP version: {version}");
-                    None
-                }
-            };
-        }
-
         let frame = pnet_packet::ethernet::EthernetPacket::new(packet.data).or_else(|| {
             log::error!("Received invalid ethernet frame");
             None
         })?;
 
         match frame.get_ethertype() {
-            EtherTypes::Ipv4 => Self::parse_ipv4(frame.payload()),
-            EtherTypes::Ipv6 => Self::parse_ipv6(frame.payload()),
+            EtherTypes::Ipv4 => parse_ipv4_packet(frame.payload()),
+            EtherTypes::Ipv6 => parse_ipv6_packet(frame.payload()),
             ethertype => {
                 log::trace!("Ignoring unknown ethertype: {ethertype}");
                 None
@@ -67,90 +48,105 @@ impl PacketCodec for Codec {
     }
 }
 
-impl Codec {
-    fn parse_ipv4(payload: &[u8]) -> Option<ParsedPacket> {
-        let packet = Ipv4Packet::new(payload).or_else(|| {
-            log::error!("invalid v4 packet");
+/// Parse a raw IP packet, e.g. one decrypted from the tunnel.
+pub(crate) fn parse_ip_packet(data: &[u8]) -> Option<ParsedPacket> {
+    let Some(&first_byte) = data.first() else {
+        log::error!("Received empty packet");
+        return None;
+    };
+
+    match (first_byte & 0xf0) >> 4 {
+        4 => parse_ipv4_packet(data),
+        6 => parse_ipv6_packet(data),
+        version => {
+            log::debug!("Ignoring unknown IP version: {version}");
             None
-        })?;
-
-        let mut source = SocketAddr::new(IpAddr::V4(packet.get_source()), 0);
-        let mut destination = SocketAddr::new(IpAddr::V4(packet.get_destination()), 0);
-        let mut payload = vec![];
-
-        let protocol = packet.get_next_level_protocol();
-        match protocol {
-            IpHeaderProtocols::Tcp => {
-                let seg = TcpPacket::new(packet.payload()).or_else(|| {
-                    log::error!("invalid TCP segment");
-                    None
-                })?;
-                source.set_port(seg.get_source());
-                destination.set_port(seg.get_destination());
-                payload = seg.payload().to_vec();
-            }
-            IpHeaderProtocols::Udp => {
-                let seg = UdpPacket::new(packet.payload()).or_else(|| {
-                    log::error!("invalid UDP fragment");
-                    None
-                })?;
-                source.set_port(seg.get_source());
-                destination.set_port(seg.get_destination());
-                payload = seg.payload().to_vec();
-            }
-            IpHeaderProtocols::Icmp => {}
-            proto => log::warn!("ignoring v4 packet, transport/protocol type {proto}"),
         }
+    }
+}
 
-        Some(ParsedPacket {
-            source,
-            destination,
-            protocol,
-            payload,
-        })
+fn parse_ipv4_packet(payload: &[u8]) -> Option<ParsedPacket> {
+    let packet = Ipv4Packet::new(payload).or_else(|| {
+        log::error!("invalid v4 packet");
+        None
+    })?;
+
+    let mut source = SocketAddr::new(IpAddr::V4(packet.get_source()), 0);
+    let mut destination = SocketAddr::new(IpAddr::V4(packet.get_destination()), 0);
+    let mut payload = vec![];
+
+    let protocol = packet.get_next_level_protocol();
+    match protocol {
+        IpHeaderProtocols::Tcp => {
+            let seg = TcpPacket::new(packet.payload()).or_else(|| {
+                log::error!("invalid TCP segment");
+                None
+            })?;
+            source.set_port(seg.get_source());
+            destination.set_port(seg.get_destination());
+            payload = seg.payload().to_vec();
+        }
+        IpHeaderProtocols::Udp => {
+            let seg = UdpPacket::new(packet.payload()).or_else(|| {
+                log::error!("invalid UDP fragment");
+                None
+            })?;
+            source.set_port(seg.get_source());
+            destination.set_port(seg.get_destination());
+            payload = seg.payload().to_vec();
+        }
+        IpHeaderProtocols::Icmp => {}
+        proto => log::warn!("ignoring v4 packet, transport/protocol type {proto}"),
     }
 
-    fn parse_ipv6(payload: &[u8]) -> Option<ParsedPacket> {
-        let packet = Ipv6Packet::new(payload).or_else(|| {
-            log::error!("invalid v6 packet");
-            None
-        })?;
+    Some(ParsedPacket {
+        source,
+        destination,
+        protocol,
+        payload,
+    })
+}
 
-        let mut source = SocketAddr::new(IpAddr::V6(packet.get_source()), 0);
-        let mut destination = SocketAddr::new(IpAddr::V6(packet.get_destination()), 0);
-        let mut payload = vec![];
+fn parse_ipv6_packet(payload: &[u8]) -> Option<ParsedPacket> {
+    let packet = Ipv6Packet::new(payload).or_else(|| {
+        log::error!("invalid v6 packet");
+        None
+    })?;
 
-        let protocol = packet.get_next_header();
-        match protocol {
-            IpHeaderProtocols::Tcp => {
-                let seg = TcpPacket::new(packet.payload()).or_else(|| {
-                    log::error!("invalid TCP segment");
-                    None
-                })?;
-                source.set_port(seg.get_source());
-                destination.set_port(seg.get_destination());
-                payload = seg.payload().to_vec();
-            }
-            IpHeaderProtocols::Udp => {
-                let seg = UdpPacket::new(packet.payload()).or_else(|| {
-                    log::error!("invalid UDP fragment");
-                    None
-                })?;
-                source.set_port(seg.get_source());
-                destination.set_port(seg.get_destination());
-                payload = seg.payload().to_vec();
-            }
-            IpHeaderProtocols::Icmpv6 => {}
-            proto => log::warn!("ignoring v6 packet, transport/protocol type {proto}"),
+    let mut source = SocketAddr::new(IpAddr::V6(packet.get_source()), 0);
+    let mut destination = SocketAddr::new(IpAddr::V6(packet.get_destination()), 0);
+    let mut payload = vec![];
+
+    let protocol = packet.get_next_header();
+    match protocol {
+        IpHeaderProtocols::Tcp => {
+            let seg = TcpPacket::new(packet.payload()).or_else(|| {
+                log::error!("invalid TCP segment");
+                None
+            })?;
+            source.set_port(seg.get_source());
+            destination.set_port(seg.get_destination());
+            payload = seg.payload().to_vec();
         }
-
-        Some(ParsedPacket {
-            source,
-            destination,
-            protocol,
-            payload,
-        })
+        IpHeaderProtocols::Udp => {
+            let seg = UdpPacket::new(packet.payload()).or_else(|| {
+                log::error!("invalid UDP fragment");
+                None
+            })?;
+            source.set_port(seg.get_source());
+            destination.set_port(seg.get_destination());
+            payload = seg.payload().to_vec();
+        }
+        IpHeaderProtocols::Icmpv6 => {}
+        proto => log::warn!("ignoring v6 packet, transport/protocol type {proto}"),
     }
+
+    Some(ParsedPacket {
+        source,
+        destination,
+        protocol,
+        payload,
+    })
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -184,7 +180,6 @@ impl PacketMonitor {
 pub struct MonitorOptions {
     pub timeout: Option<Duration>,
     pub direction: Option<Direction>,
-    pub no_frame: bool,
 }
 
 pub async fn start_packet_monitor(
@@ -208,25 +203,10 @@ pub async fn start_packet_monitor_until(
     .await
 }
 
-pub async fn start_tunnel_packet_monitor_until(
-    filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
-    should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
-    mut monitor_options: MonitorOptions,
-) -> Result<PacketMonitor> {
-    monitor_options.no_frame = true;
-    start_packet_monitor_for_interface(
-        CUSTOM_TUN_INTERFACE_NAME,
-        filter_fn,
-        should_continue_fn,
-        monitor_options,
-    )
-    .await
-}
-
 async fn start_packet_monitor_for_interface(
     interface: &str,
     filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
-    mut should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
+    should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
     monitor_options: MonitorOptions,
 ) -> Result<PacketMonitor> {
     let dev = pcap::Capture::from_device(interface)
@@ -241,26 +221,49 @@ async fn start_packet_monitor_for_interface(
 
     let dev = dev.setnonblock().unwrap();
 
+    // End the stream on the first capture error, and skip frames that could not be parsed.
+    let packets = dev
+        .stream(Codec)
+        .unwrap()
+        .take_while(|packet| future::ready(packet.is_ok()))
+        .filter_map(|packet| future::ready(packet.ok().flatten()));
+
+    Ok(spawn_monitor(
+        interface.to_owned(),
+        packets,
+        filter_fn,
+        should_continue_fn,
+        monitor_options.timeout,
+    )
+    .await)
+}
+
+/// Collect packets from `packets` in the background until `should_continue_fn` returns `false`
+/// for a packet, or `timeout` elapses.
+///
+/// Packets that do not match `filter_fn` are only counted. `label` identifies the source of the
+/// packets in logs. The monitor is considered unexpectedly stopped if `packets` ends.
+///
+/// This returns once the stream has been polled for the first time.
+pub(crate) async fn spawn_monitor(
+    label: impl Display + Send + 'static,
+    packets: impl Stream<Item = ParsedPacket> + Send + 'static,
+    filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
+    mut should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
+    timeout: Option<Duration>,
+) -> PacketMonitor {
     let (is_receiving_tx, is_receiving_rx) = oneshot::channel();
-
-    let packet_stream = dev
-        .stream(Codec {
-            no_frame: monitor_options.no_frame,
-        })
-        .unwrap();
     let (stop_tx, mut stop_rx) = oneshot::channel();
-
-    let interface = interface.to_owned();
 
     let handle = tokio::spawn(async move {
         let mut monitor_result = MonitorResult {
             packets: vec![],
             discarded_packets: 0,
         };
-        let mut packet_stream = packet_stream.fuse();
+        let mut packets = std::pin::pin!(packets);
 
         let timeout = async move {
-            if let Some(timeout) = monitor_options.timeout {
+            if let Some(timeout) = timeout {
                 tokio::time::sleep(timeout).await
             } else {
                 futures::future::pending().await
@@ -271,7 +274,7 @@ async fn start_packet_monitor_for_interface(
         let mut is_receiving_tx = Some(is_receiving_tx);
 
         loop {
-            let mut next_packet_fut = packet_stream.next();
+            let mut next_packet_fut = packets.next();
             let next_packet =
                 poll_fn(|ctx| poll_and_notify(ctx, &mut next_packet_fut, &mut is_receiving_tx));
 
@@ -285,19 +288,17 @@ async fn start_packet_monitor_for_interface(
                      break Ok(monitor_result);
                 }
                 maybe_next_packet = next_packet => {
-                    let Some(Ok(packet)) = maybe_next_packet else {
+                    let Some(packet) = maybe_next_packet else {
                         log::error!("lost packet stream");
                         break Err(MonitorUnexpectedlyStopped);
                     };
 
-                    let Some(packet) = packet else { continue };
-
                     if !filter_fn(&packet) {
-                        log::trace!("{interface} \"{packet:?}\" does not match closure conditions");
+                        log::trace!("{label} \"{packet:?}\" does not match closure conditions");
                         monitor_result.discarded_packets =
                             monitor_result.discarded_packets.saturating_add(1);
                     } else {
-                        log::trace!("{interface} \"{packet:?}\" matches closure conditions");
+                        log::trace!("{label} \"{packet:?}\" matches closure conditions");
 
                         let should_continue = should_continue_fn(&packet);
 
@@ -315,7 +316,7 @@ async fn start_packet_monitor_for_interface(
     // Wait for the loop to start receiving its first packet
     let _ = is_receiving_rx.await;
 
-    Ok(PacketMonitor { stop_tx, handle })
+    PacketMonitor { stop_tx, handle }
 }
 
 /// Poll the future once and notify `tx` that it has been polled. Then return

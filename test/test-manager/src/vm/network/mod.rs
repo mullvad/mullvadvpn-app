@@ -1,7 +1,5 @@
 use std::net::Ipv4Addr;
 
-pub mod wireguard;
-
 #[cfg(target_os = "linux")]
 pub mod linux;
 #[cfg(target_os = "linux")]
