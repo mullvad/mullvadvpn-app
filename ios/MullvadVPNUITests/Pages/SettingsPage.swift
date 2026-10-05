@@ -42,13 +42,13 @@ class SettingsPage: Page {
     }
 
     @discardableResult func verifyDAITAOn() -> Self {
-        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.contains("On"))
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.hasSuffix(", On"))
 
         return self
     }
 
     @discardableResult func verifyDAITAOff() -> Self {
-        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.contains("Off"))
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.hasSuffix(", Off"))
 
         return self
     }
@@ -61,7 +61,7 @@ class SettingsPage: Page {
     }
 
     @discardableResult func verifyMultihop(state: MultihopState) -> Self {
-        XCTAssertTrue(app.buttons[AccessibilityIdentifier.multihopCell].label.contains(state.description))
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.multihopCell].label.hasSuffix(", \(state.description)"))
 
         return self
     }
