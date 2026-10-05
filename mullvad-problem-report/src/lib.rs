@@ -445,7 +445,12 @@ impl ProblemReport {
         let Some(redacted_base_path) = debian_log_basename(&redacted_path) else {
             return;
         };
-        match self.logs.entry(redacted_base_path.to_string()) {
+        self.append_logs(redacted_base_path.to_string(), content);
+        log::info!("Adding {}", expanded_path.display());
+    }
+
+    fn append_logs(&mut self, to: String, content: String) {
+        match self.logs.entry(to) {
             Entry::Occupied(mut occupied_entry) => {
                 let existing_content = occupied_entry.get_mut();
                 existing_content.push(content);
@@ -454,17 +459,12 @@ impl ProblemReport {
                 vacant_entry.insert(vec![content]);
             }
         }
-
-        log::info!("Adding {}", expanded_path.display());
     }
 
     /// Attach an error to the report.
     pub fn add_error(&mut self, message: &'static str, error: &impl ErrorExt) {
         let redacted_error = self.redact(&error.display_chain());
-        self.logs
-            .entry(message.to_string())
-            .and_modify(|content| content.push(redacted_error.clone()))
-            .or_insert_with(|| vec![redacted_error]);
+        self.append_logs(message.to_string(), redacted_error);
     }
 
     fn redact(&self, input: &str) -> String {
