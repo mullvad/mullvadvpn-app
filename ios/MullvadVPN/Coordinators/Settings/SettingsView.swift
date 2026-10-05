@@ -27,7 +27,6 @@ struct SettingsView: View {
         .onAppear {
             viewModel.refresh()
         }
-        .navigationTitle("Settings")
     }
 
     private func sectionView(_ section: SettingsSection) -> some View {
