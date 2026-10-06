@@ -2,13 +2,8 @@ sdk_path: $ANDROID_HOME
 repo_url: https://fdroid.devmole.eu/fdroid/repo
 repo_name: Mullvad VPN F-Droid repository (development)
 repo_description: >-
-   This is the official Mullvad VPN F-Droid repository. It hosts
-   reproducible binaries with faster updates than the main F-Droid
-   repository. NOTE: The apps in this repository are signed with a
-   different key than the main F-Droid repository (signed by F-Droid
-   rather than us), so switching repositories requires reinstalling
-   apps. We do however use the same signing key across this
-   repository, GitHub Releases and our website.
+   This is an experimental repo and therefore it may be wiped, moved
+   or re-keyed at any time. Use at your own risk.
 archive_older: 0
 # awsbucket is used by rclone
 awsbucket: appteam-android-fdroid-development
