@@ -77,6 +77,7 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
         return MullvadRustRuntime.GotaTunConfig(
             privateKey: config.privateKey,
             ipv4Address: "\(config.ipv4Address)",
+            ips: config.ips,
             ipv6Address: "\(config.ipv6Address)",
             mtu: config.mtu,
             exitPeer: exitPeer,

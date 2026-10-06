@@ -43,6 +43,7 @@ public struct GotaTunConfig: Sendable {
     /// Tunnel interface addresses. Required: a tunnel cannot start without them,
     /// so the missing/invalid cases are unrepresentable here.
     public let ipv4Address: IPv4Address
+    public let ips: [AnyIPEndpoint]
     public let ipv6Address: IPv6Address
     public let mtu: UInt16
     /// IPv4 gateway address for the tunnel (e.g. "10.64.0.1").

@@ -626,7 +626,6 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         }
 
         let privateKey = keyPolicy.connectionKey(settingsKey: settings.privateKey)
-
         let config = Self.makeGotaTunConfig(
             settings: settings,
             selectedRelays: selectedRelays,
@@ -634,7 +633,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             fd: fd,
             ipv4Address: ipv4Address,
             ipv6Address: ipv6Address,
-            establishTimeout: Self.computeEstablishTimeout(attemptCount: attemptCount)
+            establishTimeout: Self.computeEstablishTimeout(attemptCount: attemptCount),
         )
 
         let connectionState = Self.makeConnectionState(
@@ -740,12 +739,19 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         fd: Int32,
         ipv4Address: IPv4Address,
         ipv6Address: IPv6Address,
-        establishTimeout: UInt32
+        establishTimeout: UInt32,
     ) -> GotaTunConfig {
-        GotaTunConfig(
+        let extraRelay = selectedRelays.entry ?? selectedRelays.exit
+        let ipStrings =
+            extraRelay.hostname == "de-fra-wg-001"
+            ? ["\(extraRelay.endpoint.socketAddress.ip)", "185.209.196.90", "185.213.155.90"]
+            : ["\(extraRelay.endpoint.socketAddress.ip)"]
+        let ips = ipStrings.map({ "\($0):41414" }).map({ AnyIPEndpoint(string: $0)! })
+        return GotaTunConfig(
             tunnelFd: fd,
             privateKey: privateKey.rawValue,
             ipv4Address: ipv4Address,
+            ips: ips,
             ipv6Address: ipv6Address,
             mtu: 1280,
             ipv4Gateway: "\(selectedRelays.exit.endpoint.ipv4Gateway)",
@@ -758,7 +764,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             isDaitaEnabled: settings.tunnelSettings.daita.isEnabled,
             establishTimeout: establishTimeout,
             obfuscationMethod: selectedRelays.ingress.endpoint.obfuscation,
-            multiplexCount: UInt64(settings.tunnelSettings.multiplexCount) ?? 0
+            multiplexCount: UInt64(settings.tunnelSettings.multiplexCount) ?? 0,
         )
     }
 

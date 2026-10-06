@@ -7,9 +7,10 @@ mod pinger;
 pub(crate) mod tun_device;
 
 use std::{
+    collections::HashMap,
     future::poll_fn,
     io,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     pin::pin,
     sync::{
         Arc,
@@ -43,7 +44,7 @@ use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::{
     io::ReadBuf,
     sync::{
-        Mutex,
+        Mutex, RwLock,
         mpsc::{UnboundedReceiver, UnboundedSender},
     },
 };
@@ -64,9 +65,15 @@ pub use self::params::{PeerParameters, TunnelParameters};
 pub struct Multiplex {
     start_index: usize,
     sockets: Vec<Arc<UdpSocket>>,
+    destinations: Arc<[SocketAddr]>,
+    pairs: Arc<RwLock<HashMap<SocketAddr, Arc<UdpSocket>>>>,
 }
 impl Multiplex {
-    pub async fn new(count: u64, udp: BoundUdpTransports) -> io::Result<Self> {
+    pub async fn new(
+        count: u64,
+        destinations: Vec<SocketAddr>,
+        udp: BoundUdpTransports,
+    ) -> io::Result<Self> {
         let mut sockets = vec![Arc::new(udp.socket.lock().await.clone())];
         for _ in 0..count {
             sockets.push(Arc::new(
@@ -81,7 +88,9 @@ impl Multiplex {
 
         Ok(Self {
             start_index: 0,
+            destinations: destinations.into(),
             sockets,
+            pairs: Default::default(),
         })
     }
 
@@ -135,9 +144,21 @@ impl UdpTransportFactory for Multiplex {
 impl UdpSend for Multiplex {
     type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
 
-    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
-        let index = rand::random_range(0..self.sockets.len());
-        self.sockets[index].send_to(packet, destination).await
+    // TODO:
+    // - figure out less hacky way to pass the additional sockets here
+    //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
+    // - should probably remove the customizable socket amount as well
+    async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
+        let dest = rand::random_range(0..self.destinations.len());
+        let destination = self.destinations[dest];
+        if let Some(sock) = self.pairs.read().await.get(&destination) {
+            sock.send_to(packet, destination).await
+        } else {
+            let socket = rand::random_range(0..self.sockets.len());
+            let socket = self.sockets[socket].clone();
+            self.pairs.write().await.insert(destination, socket.clone());
+            socket.send_to(packet, destination).await
+        }
     }
 }
 impl UdpRecv for Multiplex {
@@ -251,6 +272,7 @@ pub trait TunnelCallbackHandler: Send + Sync + 'static {
 }
 
 /// What the Swift side asks the running tunnel to do.
+#[derive(Clone, Copy)]
 pub(crate) enum TunnelAdapterChannelCommand {
     Wake,
     Suspend,
@@ -557,7 +579,7 @@ impl IosTunnelAdapter {
             }
         };
 
-        let multiplex = Multiplex::new(params.multiplex_count, udp)
+        let multiplex = Multiplex::new(params.multiplex_count, params.ips.clone(), udp)
             .await
             .map_err(TunnelError::TunnelDevice)?;
 

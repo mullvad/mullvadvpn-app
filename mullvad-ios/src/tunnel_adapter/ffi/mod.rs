@@ -11,6 +11,8 @@ use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
 
+use crate::type_bridges::UniSocketAddr;
+
 use super::{
     BoundUdpTransports, IosTunnelAdapter, ObfuscationProxyError, PeerParameters,
     TunnelCallbackHandler, TunnelError, TunnelParameters, params::ObfuscationParameters,
@@ -32,6 +34,7 @@ pub struct GotaTunConfig {
     pub private_key: Vec<u8>,
     /// Tunnel interface IPv4 address (e.g. "10.64.0.2").
     pub ipv4_address: String,
+    pub ips: Vec<UniSocketAddr>,
     /// Tunnel interface IPv6 address.
     pub ipv6_address: String,
     /// Tunnel MTU.
@@ -252,6 +255,7 @@ fn build_tunnel_parameters(
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
         ipv4_addr: parse::<Ipv4Addr>(&config.ipv4_address, "IPv4 address")?,
+        ips: config.ips.iter().map(|v| v.0).collect(),
         ipv6_addr: parse::<Ipv6Addr>(&config.ipv6_address, "IPv6 address")?,
         mtu: config.mtu,
         exit_peer,
