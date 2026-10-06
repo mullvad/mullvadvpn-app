@@ -10,7 +10,7 @@ import {
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
 } from '../shared/application-types';
-import { Url } from '../shared/constants';
+import { dimensions, Url } from '../shared/constants';
 import {
   AccessMethodSetting,
   AccountNumber,
@@ -815,7 +815,7 @@ export default class AppRenderer {
   // the one we have set.
   // https://github.com/electron/electron/issues/28777
   private checkContentHeight(resize: boolean): void {
-    const expectedContentHeight = 568;
+    const expectedContentHeight = dimensions.contentHeight;
     const contentHeight = window.innerHeight;
     if (contentHeight !== expectedContentHeight) {
       log.verbose(
