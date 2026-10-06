@@ -329,6 +329,9 @@ export default class WindowController {
         // See also:
         // https://github.com/electron/electron/pull/51179
         // https://github.com/electron/electron/pull/50706
+        //
+        // NOTE: If this value is changed, then update the calculation of the map's initial height in
+        // the `src/renderer/components/Map.tsx` file to reflect that change.
         return unpinnedWindow ? contentHeight : contentHeight + 8;
       default:
         return contentHeight;
