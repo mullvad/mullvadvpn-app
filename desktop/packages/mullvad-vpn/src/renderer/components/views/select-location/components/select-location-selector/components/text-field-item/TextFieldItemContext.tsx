@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type LocationSelectorSelectedItem } from '../../../../../../../lib/components/location-selector';
+import type { LocationSelectorItemType } from '../../../../../../../lib/components/location-selector/types';
 import {
   useTextField,
   type UseTextFieldState,
@@ -25,7 +25,7 @@ export const useTextFieldItemContext = (): TextFieldItemContextProps => {
 };
 
 type TextFieldItemProviderProps = React.PropsWithChildren<{
-  id: LocationSelectorSelectedItem;
+  id: LocationSelectorItemType;
   defaultValue?: string;
   triggerRef?: React.RefObject<HTMLDivElement | null>;
 }>;

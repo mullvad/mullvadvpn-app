@@ -5,16 +5,12 @@ import styled from 'styled-components';
 import { FlexColumn } from '../flex-column';
 import { LocationSelectorItems, LocationSelectorRow } from './components';
 import { LocationSelectorProvider } from './LocationSelectorContext';
-
-export type LocationSelectorPositions = 'top' | 'middle' | 'bottom';
-export type LocationSelectorVariant = 'primary' | 'secondary';
-
-export type LocationSelectorSelectedItem = 'entry' | 'exit' | 'automaticEntry';
+import type { LocationSelectorItemType, LocationSelectorVariant } from './types';
 
 export type LocationSelectorProps = React.PropsWithChildren<{
   expanded?: boolean;
-  selectedItem?: LocationSelectorSelectedItem;
-  onSelectedItemChange?: (itemId: LocationSelectorSelectedItem) => void;
+  selectedItem?: LocationSelectorItemType;
+  onSelectedItemChange?: (itemId: LocationSelectorItemType) => void;
   variant: LocationSelectorVariant;
 }>;
 
