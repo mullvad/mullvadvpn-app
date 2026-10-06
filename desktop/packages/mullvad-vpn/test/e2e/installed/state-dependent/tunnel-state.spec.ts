@@ -12,10 +12,7 @@ import { startInstalledApp } from '../installed-utils';
 const exec = promisify(execAsync);
 
 // This test expects the daemon to be logged into an account that has time left and to be
-// disconnected. Env parameters:
-// CONNECTION_CHECK_URL: Url to the connection check
-
-const { CONNECTION_CHECK_URL } = process.env;
+// disconnected.
 
 interface ConnectedRelay {
   hostname: string;
@@ -23,6 +20,7 @@ interface ConnectedRelay {
   inPort: number;
   inProtocol: string;
   obfuscationType?: string;
+  outIpv4?: string;
 }
 
 // Returns the relay that the daemon is connected to
@@ -44,7 +42,21 @@ async function getConnectedRelay(): Promise<ConnectedRelay> {
     inPort: Number(inPort),
     inProtocol: inEndpoint.protocol,
     obfuscationType: obfuscation?.obfuscation_type.toLowerCase(),
+    outIpv4: location.ipv4 ?? undefined,
   };
+}
+
+// Returns the public IPv4 address of the tunnel. The daemon looks this up after connecting, so this
+// waits for at most the `expect` timeout for it to become known.
+async function getOutIpv4(): Promise<string> {
+  let outIpv4: string | undefined;
+  await expect
+    .poll(async () => {
+      outIpv4 = (await getConnectedRelay()).outIpv4;
+      return outIpv4;
+    })
+    .toBeDefined();
+  return outIpv4!;
 }
 
 function formatInAddress(relay: ConnectedRelay) {
@@ -123,10 +135,7 @@ test.describe('Tunnel state and settings', () => {
 
     await expect(outIp).toBeVisible();
 
-    const ipResponse = await fetch(`${CONNECTION_CHECK_URL!}/ip`);
-    const ip = await ipResponse.text();
-
-    await expect(outIp).toHaveText(ip.trim());
+    await expect(outIp).toHaveText(await getOutIpv4());
   });
 
   test('App should show correct WireGuard port', async () => {
