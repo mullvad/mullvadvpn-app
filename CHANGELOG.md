@@ -39,7 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
 - Perform the ephemeral peer exchange using smoltcp.
-- Limit daemon log files to 2GB in size before they are evicted. This puts an upper limit to how
+- Limit daemon log files to 2GB in size before they are rotated. This puts an upper limit to how
   large the log files can become.
 - Automatically rotate daemom log files after 7 days.
 
