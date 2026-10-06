@@ -3,15 +3,11 @@ import {
   type LocationSelectorProps,
 } from '../../../../../lib/components/location-selector';
 import { useLocationSelectorItems, useShowFilterChips } from '../../hooks';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { FilterChips } from '../filter-chips';
 import { SelectLocationSelectorDeviceRow } from '../select-location-selector-device-row';
 import { SelectLocationSelectorInternetRow } from '../select-location-selector-internet-row';
-import {
-  useHandleSelectedItemChange,
-  useIsExpanded,
-  useLocationSelectorVariant,
-  useSelectedItem,
-} from './hooks';
+import { useIsExpanded, useLocationSelectorVariant } from './hooks';
 
 export type SelectLocationSelectorProps = {
   expanded?: LocationSelectorProps['expanded'];
@@ -22,8 +18,7 @@ export function SelectLocationSelector({
   expanded: expandedProp,
   showFilterChips: showFilterChipsProp,
 }: SelectLocationSelectorProps) {
-  const handleSelectedItemChange = useHandleSelectedItemChange();
-  const selectedItem = useSelectedItem();
+  const { locationType, setLocationType } = useSelectLocationViewContext();
   const variant = useLocationSelectorVariant();
   const items = useLocationSelectorItems();
 
@@ -32,8 +27,8 @@ export function SelectLocationSelector({
 
   return (
     <LocationSelector
-      selectedItem={selectedItem}
-      onSelectedItemChange={handleSelectedItemChange}
+      selectedItem={locationType}
+      onSelectedItemChange={setLocationType}
       expanded={expandedProp ?? expanded}
       variant={variant}>
       <SelectLocationSelectorDeviceRow />
