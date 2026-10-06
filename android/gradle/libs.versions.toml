@@ -74,7 +74,7 @@ turbine = "1.2.1"
 annotation-jvm = "1.11.0"
 junit-version = "4.13.2"
 material = "1.14.0"
-rust-android = "0.10.1"
+rust-android = "0.11.0"
 wire = "7.0.3"
 
 [libraries]
