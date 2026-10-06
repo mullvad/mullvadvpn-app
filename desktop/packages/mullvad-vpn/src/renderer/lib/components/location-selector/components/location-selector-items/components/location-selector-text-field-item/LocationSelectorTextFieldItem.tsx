@@ -2,8 +2,7 @@ import type { HTMLMotionProps } from 'motion/react';
 import React from 'react';
 import styled from 'styled-components';
 
-import { type LocationSelectorSelectedItem } from '../../../../LocationSelector';
-import type { LocationSelectorItemType } from '../../types';
+import type { LocationSelectorItemType } from '../../../../types';
 import { LocationSelectorItem } from '../location-selector-item';
 import { LocationSelectorTextField, LocationSelectorTrigger } from './components';
 import { LocationSelectorTextFieldItemProvider } from './LocationSelectorTextFieldItemContext';
@@ -13,7 +12,7 @@ export const StyledLocationSelectorTrigger = styled(LocationSelectorTrigger)`
 `;
 
 export type LocationSelectorTextFieldItemProps = Omit<HTMLMotionProps<'div'>, 'children'> & {
-  id: LocationSelectorSelectedItem;
+  id: LocationSelectorItemType;
   type: LocationSelectorItemType;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   triggerRef?: React.RefObject<HTMLDivElement | null>;
