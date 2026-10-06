@@ -20,7 +20,7 @@ export function useLocationSelectorItems(
   const itemKeyPrefix = keyPrefix ? `${keyPrefix}-` : '';
 
   if (showAutomaticEntryItem) {
-    items['entryAutomatic'] = <AutomaticEntryItem key={`${itemKeyPrefix}entryAutomatic`} />;
+    items['automaticEntry'] = <AutomaticEntryItem key={`${itemKeyPrefix}automaticEntry`} />;
   }
   if (showEntryItem) {
     items['entry'] = <EntryItem key={`${itemKeyPrefix}entry`} />;

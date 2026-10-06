@@ -11,7 +11,7 @@ export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof
   switch (type) {
     case 'entry':
       return 'location-add';
-    case 'entryAutomatic':
+    case 'automaticEntry':
       return 'magic-multihop';
     case 'exit':
       return 'location';
