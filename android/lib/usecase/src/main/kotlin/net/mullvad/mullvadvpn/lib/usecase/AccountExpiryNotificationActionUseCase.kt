@@ -5,7 +5,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
@@ -29,6 +28,12 @@ class AccountExpiryNotificationActionUseCase(
                 deviceState,
                 accountData ->
                 flow {
+                    // It makes no sense to show an account expiry notification if the user has
+                    // never added any time.
+                    if (accountData?.hasPayments == false) {
+                        return@flow
+                    }
+
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
                             // There are cases where the current device's account number isn't the
@@ -49,13 +54,12 @@ class AccountExpiryNotificationActionUseCase(
                 }
             }
             .flattenConcat()
-            .filter { !accountRepository.isNewAccount.value }
             .distinctUntilChanged()
 
     private fun shouldCancelExisting(expiry: ZonedDateTime): Boolean {
         val expiryTimeIsAfterThreshold =
             expiry.isAfter(ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD))
 
-        return expiryTimeIsAfterThreshold || accountRepository.isNewAccount.value
+        return expiryTimeIsAfterThreshold
     }
 }

@@ -9,4 +9,5 @@ fun AccountData.Companion.mock(expiry: ZonedDateTime): AccountData =
         id = mockk(relaxed = true),
         accountNumber = mockk(relaxed = true),
         expiryDate = expiry,
+        hasPayments = mockk(relaxed = true),
     )

@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -33,11 +32,7 @@ class AccountRepository(
 
     private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
-    private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
     private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
-
-    val isNewAccount: StateFlow<Boolean> = _isNewAccount
 
     val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
 
@@ -61,13 +56,12 @@ class AccountRepository(
             .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
-        managementService.createAccount().onRight { _isNewAccount.update { true } }
+        managementService.createAccount()
 
     suspend fun login(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
         managementService.loginAccount(accountNumber)
 
-    suspend fun logout() =
-        managementService.logoutAccount().onRight { _isNewAccount.update { false } }
+    suspend fun logout() = managementService.logoutAccount()
 
     suspend fun fetchAccountHistory(): AccountNumber? =
         managementService
@@ -114,10 +108,6 @@ class AccountRepository(
 
     internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
         accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
-    }
-
-    fun resetIsNewAccount() {
-        _isNewAccount.value = false
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
