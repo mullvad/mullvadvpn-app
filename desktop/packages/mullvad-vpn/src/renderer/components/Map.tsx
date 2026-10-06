@@ -13,6 +13,7 @@ import {
   useRerenderer,
 } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { isPlatform } from '../utils';
 
 // Default to Gothenburg when we don't know the actual location.
 const defaultLocation: Coordinate = { latitude: 57.70887, longitude: 11.97456 };
@@ -83,8 +84,12 @@ interface MapInnerProps extends MapParams {
   animate: boolean;
 }
 
+const MAP_HEIGHT = 493;
+const MAP_WIDTH = 320;
+
 function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
+  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   // When location or connection state changes it's stored here until passed to 3dmap
   const newParams = useRef<MapParams>(undefined);
@@ -96,7 +101,7 @@ function MapInner(props: MapInnerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
   // The constant is only used for the width for the first frame that is rendered.
-  const [width, setWidth] = useState(applyPixelRatio(320));
+  const [width, setWidth] = useState(applyPixelRatio(MAP_WIDTH));
   useEffect(() => {
     if (canvasRef.current?.clientWidth) {
       setWidth(applyPixelRatio(canvasRef.current?.clientWidth));
@@ -104,7 +109,15 @@ function MapInner(props: MapInnerProps) {
   }, [canvasRef]);
 
   // The constant is only used for the height for the first frame that is rendered.
-  const [height, setHeight] = useState(applyPixelRatio(493));
+  //
+  // NOTE: The extra 8px are added to compensate for the increased app window height
+  // used when the app is pinned on Windows. Keep the addition of extra px in sync with
+  // the window height set in `src/main/window-controller.ts`.
+  //
+  // It is important that the extra 8px are only added to the initial height, do not add
+  // them to the subsequent updates.
+  const initialHeight = isPlatform('win32') && !unpinnedWindow ? MAP_HEIGHT + 8 : MAP_HEIGHT;
+  const [height, setHeight] = useState(applyPixelRatio(initialHeight));
   useEffect(() => {
     if (canvasRef.current?.clientHeight) {
       setHeight(applyPixelRatio(canvasRef.current?.clientHeight));
