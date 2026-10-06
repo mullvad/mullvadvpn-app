@@ -15,11 +15,11 @@ export function useHandleFilterButtonClick() {
 
   // TODO: Remove this conversion logic when `LocationType` has been replaced with
   // a regular union type
-  const locationTypeAsEnum = (locationType: 'entry' | 'exit' | 'entryAutomatic') => {
+  const locationTypeAsEnum = (locationType: 'entry' | 'exit' | 'automaticEntry') => {
     switch (locationType) {
       case 'entry':
         return LocationType.entry;
-      case 'entryAutomatic':
+      case 'automaticEntry':
         return LocationType.entryAutomatic;
       case 'exit':
         return LocationType.exit;
@@ -29,7 +29,7 @@ export function useHandleFilterButtonClick() {
   };
 
   const handleFilterButtonClick = React.useCallback(() => {
-    const locationType = type === 'entryAutomatic' ? 'entry' : type;
+    const locationType = type === 'automaticEntry' ? 'entry' : type;
 
     setSelectLocationView(locationTypeAsEnum(type));
 

@@ -6,7 +6,7 @@ export function useSelectedItem() {
   if (locationType === LocationType.entry) {
     return 'entry';
   } else if (locationType === LocationType.entryAutomatic) {
-    return 'entryAutomatic';
+    return 'automaticEntry';
   } else {
     return 'exit';
   }
