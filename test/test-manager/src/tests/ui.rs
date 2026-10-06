@@ -1,6 +1,5 @@
 use super::{Error, TestContext, config::TEST_CONFIG, helpers};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -85,24 +84,13 @@ pub async fn run_test_env<
 pub async fn test_ui_tunnel_settings(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: MullvadProxyClient,
+    _: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    // tunnel-state.spec precondition: a single WireGuard relay should be selected
-    log::info!("Select WireGuard relay");
-    let entry =
-        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::new().build()).await?;
-
+    let connection_check_url = format!("https://am.i.{}", TEST_CONFIG.mullvad_host);
     let ui_result = run_test_env(
         &rpc,
         &["state-dependent/tunnel-state.spec"],
-        [
-            ("HOSTNAME", entry.hostname.as_str()),
-            ("IN_IP", &entry.ipv4_addr_in.to_string()),
-            (
-                "CONNECTION_CHECK_URL",
-                &format!("https://am.i.{}", TEST_CONFIG.mullvad_host),
-            ),
-        ],
+        [("CONNECTION_CHECK_URL", connection_check_url.as_str())],
     )
     .await
     .unwrap();
