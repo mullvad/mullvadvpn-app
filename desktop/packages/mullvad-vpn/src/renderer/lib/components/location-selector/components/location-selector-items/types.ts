@@ -1,1 +1,1 @@
-export type LocationSelectorItemType = 'entry' | 'entryAutomatic' | 'exit';
+export type LocationSelectorItemType = 'entry' | 'automaticEntry' | 'exit';

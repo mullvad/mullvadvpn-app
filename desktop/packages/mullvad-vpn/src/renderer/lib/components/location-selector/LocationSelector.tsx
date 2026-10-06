@@ -9,7 +9,7 @@ import { LocationSelectorProvider } from './LocationSelectorContext';
 export type LocationSelectorPositions = 'top' | 'middle' | 'bottom';
 export type LocationSelectorVariant = 'primary' | 'secondary';
 
-export type LocationSelectorSelectedItem = 'entry' | 'exit' | 'entryAutomatic';
+export type LocationSelectorSelectedItem = 'entry' | 'exit' | 'automaticEntry';
 
 export type LocationSelectorProps = React.PropsWithChildren<{
   expanded?: boolean;
