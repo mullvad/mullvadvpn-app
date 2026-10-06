@@ -1,5 +1,5 @@
 import { useMultihop } from '../../../../../../features/multihop/hooks';
-import { LocationSelectorVariant } from '../../../../../../lib/components/location-selector';
+import type { LocationSelectorVariant } from '../../../../../../lib/components/location-selector/types';
 import { useShowAutomaticEntryItem } from '../../../hooks';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 

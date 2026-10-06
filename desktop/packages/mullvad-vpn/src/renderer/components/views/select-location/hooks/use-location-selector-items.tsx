@@ -1,4 +1,4 @@
-import type { LocationSelectorItemType } from '../../../../lib/components/location-selector/components/location-selector-items/types';
+import type { LocationSelectorItemType } from '../../../../lib/components/location-selector';
 import {
   AutomaticEntryItem,
   EntryItem,
