@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+import { dimensions } from '../../../../shared/constants';
 import { Colors, colors } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
@@ -13,8 +14,8 @@ export type HeaderProps = React.PropsWithChildren<{
 }>;
 
 const sizes = {
-  '1': '68px',
-  '2': '80px',
+  '1': `${dimensions.headerHeightSmall}px`,
+  '2': `${dimensions.headerHeightLarge}px`,
 };
 
 const variants: Record<HeaderVariant, Colors> = {

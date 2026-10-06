@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { dimensions } from '../../shared/constants';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
@@ -84,8 +85,10 @@ interface MapInnerProps extends MapParams {
   animate: boolean;
 }
 
-const MAP_HEIGHT = 488; // 568px - 80px for header
-const MAP_WIDTH = 320;
+const MAP_HEIGHT = dimensions.contentHeight - dimensions.headerHeightLarge;
+const MAP_HEIGHT_WINDOWS_PINNED =
+  dimensions.contentHeightWindowsPinnedWindow - dimensions.headerHeightLarge;
+const MAP_WIDTH = dimensions.contentWidth;
 
 function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
@@ -116,7 +119,8 @@ function MapInner(props: MapInnerProps) {
   //
   // It is important that the extra 8px are only added to the initial height, do not add
   // them to the subsequent updates.
-  const initialHeight = isPlatform('win32') && !unpinnedWindow ? MAP_HEIGHT + 8 : MAP_HEIGHT;
+  const initialHeight =
+    isPlatform('win32') && !unpinnedWindow ? MAP_HEIGHT_WINDOWS_PINNED : MAP_HEIGHT;
   const [height, setHeight] = useState(applyPixelRatio(initialHeight));
   useEffect(() => {
     if (canvasRef.current?.clientHeight) {
