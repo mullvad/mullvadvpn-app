@@ -2,7 +2,7 @@ import React from 'react';
 
 import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
-import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
+import type { LocationSelectorItemType } from '../../../lib/components/location-selector/types';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -13,8 +13,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  isolatedItem: LocationSelectorSelectedItem | undefined;
-  setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
+  isolatedItem: LocationSelectorItemType | undefined;
+  setIsolatedItem: (value: LocationSelectorItemType | undefined) => void;
   isLocationSelectorExpanded: boolean;
   setIsLocationSelectorExpanded: (value: boolean) => void;
   transitionState: TransitionState;
@@ -41,10 +41,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
 
-  const [isolatedItem, stateSetIsolatedItem] = React.useState<
-    LocationSelectorSelectedItem | undefined
-  >(undefined);
-  const setIsolatedItem = React.useCallback((value: LocationSelectorSelectedItem | undefined) => {
+  const [isolatedItem, stateSetIsolatedItem] = React.useState<LocationSelectorItemType | undefined>(
+    undefined,
+  );
+  const setIsolatedItem = React.useCallback((value: LocationSelectorItemType | undefined) => {
     React.startTransition(() => {
       stateSetIsolatedItem(value);
     });

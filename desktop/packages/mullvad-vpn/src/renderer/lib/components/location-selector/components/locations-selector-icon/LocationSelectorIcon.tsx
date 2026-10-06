@@ -3,8 +3,8 @@ import styled, { css } from 'styled-components';
 import { type Colors, colors, spacings } from '../../../../foundations';
 import { Flex } from '../../../flex';
 import { Icon, type IconProps } from '../../../icon';
-import type { LocationSelectorPositions } from '../../LocationSelector';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
+import type { LocationSelectorPositions } from '../../types';
 import { LocationSelectorLine } from '../location-selector-line';
 
 export type LocationSelectorIconProps = IconProps & {

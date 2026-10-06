@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { spacings } from '../../../../../../../../foundations';
 import { TextField, type TextFieldProps } from '../../../../../../../text-field';
-import { type LocationSelectorSelectedItem } from '../../../../../../LocationSelector';
+import type { LocationSelectorItemType } from '../../../../../../types';
 import { useLocationSelectorTextFieldItemContext } from '../../LocationSelectorTextFieldItemContext';
 import {
   LocationSelectorClearButton,
@@ -13,7 +13,7 @@ import {
 } from './components';
 
 export type LocationSelectorTextFieldProps = Omit<TextFieldProps, 'onValueChange'> & {
-  onValueChange?: (id: LocationSelectorSelectedItem, value: string) => void;
+  onValueChange?: (id: LocationSelectorItemType, value: string) => void;
   onFocusExit?: () => void;
 };
 
