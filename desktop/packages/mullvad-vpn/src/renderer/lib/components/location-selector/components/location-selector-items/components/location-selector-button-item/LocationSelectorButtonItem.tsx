@@ -1,11 +1,10 @@
-import type { LocationSelectorSelectedItem } from '../../../../LocationSelector';
-import type { LocationSelectorItemType } from '../../types';
+import type { LocationSelectorItemType } from '../../../../types';
 import { LocationSelectorItem, type LocationSelectorItemProps } from '../location-selector-item';
 import { LocationSelectorButton } from './components';
 import { LocationSelectorButtonItemProvider } from './LocationSelectorButtonItemContext';
 
 export type LocationSelectorButtonItemProps = LocationSelectorItemProps & {
-  id: LocationSelectorSelectedItem;
+  id: LocationSelectorItemType;
   type: LocationSelectorItemType;
 };
 

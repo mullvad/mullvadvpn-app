@@ -1,6 +1,6 @@
 import {
   LocationSelector,
-  LocationSelectorSelectedItem,
+  LocationSelectorItemType,
 } from '../../../../../../../lib/components/location-selector';
 import { FilterTrailingButtonProvider } from './FilterTrailingButtonContext';
 import { useAriaLabel, useHandleFilterButtonClick, useIcon } from './hooks';
@@ -21,7 +21,7 @@ export function FilterTrailingButtonImpl() {
 }
 
 export type FilterTrailingButtonProps = {
-  type: LocationSelectorSelectedItem;
+  type: LocationSelectorItemType;
 };
 
 export function FilterTrailingButton({ type }: FilterTrailingButtonProps) {
