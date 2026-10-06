@@ -6,7 +6,6 @@ import {
   QuicFilterChip,
 } from '../../../../../features/locations/components';
 import { useActiveFilters } from '../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../features/locations/types';
 import { spacings } from '../../../../../lib/foundations';
 import { useFilterViewContext } from '../../FilterViewContext';
 
@@ -20,9 +19,8 @@ const StyledSettingsFilterChips = styled.ul`
 
 export function SettingsFilterChips() {
   const { locationType } = useFilterViewContext();
-  const { isDaitaFilterActive, isQuicFilterActive, isLwoFilterActive } = useActiveFilters(
-    locationType === 'exit' ? LocationType.exit : LocationType.entry,
-  );
+  const { isDaitaFilterActive, isQuicFilterActive, isLwoFilterActive } =
+    useActiveFilters(locationType);
 
   return (
     <StyledSettingsFilterChips>
