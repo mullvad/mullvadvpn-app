@@ -84,7 +84,7 @@ interface MapInnerProps extends MapParams {
   animate: boolean;
 }
 
-const MAP_HEIGHT = 493;
+const MAP_HEIGHT = 488; // 568px - 80px for header
 const MAP_WIDTH = 320;
 
 function MapInner(props: MapInnerProps) {
