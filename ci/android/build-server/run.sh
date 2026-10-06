@@ -72,6 +72,10 @@ function stage_for_publishing {
     # Metadata file check for backwards compat.
     if [[ -f "$BUILD_DIR/ci/android/build-server/fdroid/net.mullvad.mullvadvpn.yml" && $version != *"-dev-"* ]]; then
         "$SCRIPT_DIR/fdroid.sh" stage development "$version" "$artifact_dir" || return 1
+
+        if [[ $version != *"-alpha"* ]]; then
+            "$SCRIPT_DIR/fdroid.sh" stage production "$version" "$artifact_dir" || return 1
+        fi
     fi
 }
 
@@ -197,6 +201,10 @@ function build_sign_and_publish_ref {
     # Metadata file check for backwards compat.
     if [[  -f "$BUILD_DIR/ci/android/build-server/fdroid/net.mullvad.mullvadvpn.yml" && $version != *"-dev-"* ]]; then
         publish_fdroid_repo development
+
+        if [[ $version != *"-alpha"* ]]; then
+            publish_fdroid_repo production
+        fi
     fi
 
     # shellcheck disable=SC2216
