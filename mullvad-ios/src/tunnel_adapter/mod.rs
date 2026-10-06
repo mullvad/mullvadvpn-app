@@ -59,6 +59,7 @@ pub use self::params::{PeerParameters, TunnelParameters};
 /// Listens to all sockets for messages.
 #[derive(Clone)]
 pub struct Multiplex {
+    start_index: usize,
     sockets: Vec<Arc<UdpSocket>>,
 }
 impl Multiplex {
@@ -75,7 +76,10 @@ impl Multiplex {
             ));
         }
 
-        Ok(Self { sockets })
+        Ok(Self {
+            start_index: 0,
+            sockets,
+        })
     }
 
     /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
@@ -91,18 +95,25 @@ impl Multiplex {
     }
 
     fn poll(
-        &self,
+        &mut self,
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        for socket in &self.sockets {
-            let socket = socket.socket(); //self.sockets[i].socket();
+        let mut i = self.start_index;
+        loop {
+            let socket = self.sockets[i].socket();
 
             let poll = socket.poll_recv_from(cx, read_buf);
             if poll.is_ready() {
+                self.start_index = (self.start_index + 1) % self.sockets.len();
                 return poll;
             }
+            i = (i + 1) % self.sockets.len();
+            if i == self.start_index {
+                break;
+            }
         }
+        self.start_index = (self.start_index + 1) % self.sockets.len();
         Poll::Pending
     }
 }
