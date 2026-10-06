@@ -130,7 +130,9 @@ pub async fn test_wireguard_ipv6_in_ipvx(
     conn_checker_v4.assert_secure().await?;
     conn_checker_v6.assert_secure().await?;
 
-    // Test with in-tunnel IPv6 disabled
+    // Test with in-tunnel IPv6 disabled.
+    // disconnect to prevent `connect_and_wait` from observing the old tunnel state.
+    disconnect_and_wait(&mut mullvad_client).await?;
     mullvad_client.set_enable_ipv6(false).await?;
     let connection_result = connect_and_wait(&mut mullvad_client).await;
     assert!(connection_result.is_ok());
