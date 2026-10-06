@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
-import { type AnyLocation, LocationType } from '../../../../../../features/locations/types';
+import { type AnyLocation } from '../../../../../../features/locations/types';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
@@ -10,7 +10,7 @@ export function useHandleSelectEntryLocation() {
 
   const handleSelectEntryLocation = React.useCallback(
     async (entryLocation: AnyLocation | 'any') => {
-      setLocationType(LocationType.exit);
+      setLocationType('exit');
       await selectEntryRelayLocation(entryLocation === 'any' ? 'any' : entryLocation.details);
       setIsolatedItem(undefined);
       setSearchTerm('');

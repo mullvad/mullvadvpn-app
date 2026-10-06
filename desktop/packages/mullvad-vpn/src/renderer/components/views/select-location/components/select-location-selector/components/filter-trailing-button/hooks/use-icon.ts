@@ -2,13 +2,12 @@ import {
   useActiveFilters,
   useSelectedEntryOrExitLocation,
 } from '../../../../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../../../../features/locations/types';
 import { IconProps } from '../../../../../../../../lib/components';
 import { useFilterTrailingButtonContext } from '../FilterTrailingButtonContext';
 
 export function useIcon(): IconProps['icon'] {
   const { type } = useFilterTrailingButtonContext();
-  const locationType = type === 'exit' ? LocationType.exit : LocationType.entry;
+  const locationType = type === 'exit' ? 'exit' : 'entry';
 
   const { isAnyFilterActive } = useActiveFilters(locationType);
   const location = useSelectedEntryOrExitLocation(locationType);

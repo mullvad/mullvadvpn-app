@@ -72,8 +72,8 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     [setSelectLocationView],
   );
 
-  const invalidReasonEntry = useLocationInvalidReason(LocationType.entry);
-  const invalidReasonExit = useLocationInvalidReason(LocationType.exit);
+  const invalidReasonEntry = useLocationInvalidReason('entry');
+  const invalidReasonExit = useLocationInvalidReason('exit');
 
   const value = React.useMemo(
     () => ({
