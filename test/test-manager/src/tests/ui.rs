@@ -86,14 +86,9 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     _: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let connection_check_url = format!("https://am.i.{}", TEST_CONFIG.mullvad_host);
-    let ui_result = run_test_env(
-        &rpc,
-        &["state-dependent/tunnel-state.spec"],
-        [("CONNECTION_CHECK_URL", connection_check_url.as_str())],
-    )
-    .await
-    .unwrap();
+    let ui_result = run_test(&rpc, &["state-dependent/tunnel-state.spec"])
+        .await
+        .unwrap();
     assert!(ui_result.success());
 
     Ok(())
