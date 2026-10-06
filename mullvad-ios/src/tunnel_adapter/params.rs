@@ -10,10 +10,12 @@ use talpid_netstack::smoltcp_network::SmoltcpNetworkConfig;
 pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;
 
 /// Configuration for a single tunnel connection attempt.
+#[derive(Clone)]
 pub struct TunnelParameters {
     pub tun_fd: i32,
     pub private_key: [u8; 32],
     pub ipv4_addr: Ipv4Addr,
+    pub ips: Vec<SocketAddr>,
     pub ipv6_addr: Ipv6Addr,
     pub mtu: u16,
     pub exit_peer: PeerParameters,
@@ -51,6 +53,7 @@ impl TunnelParameters {
     }
 }
 
+#[derive(Clone)]
 pub struct PeerParameters {
     pub public_key: [u8; 32],
     pub endpoint: SocketAddr,
@@ -59,6 +62,7 @@ pub struct PeerParameters {
 
 /// Obfuscation configuration for the tunnel.
 #[cfg_attr(test, derive(Debug))]
+#[derive(Clone)]
 pub enum ObfuscationParameters {
     Off,
     UdpOverTcp,
@@ -84,6 +88,7 @@ pub(crate) mod tests {
             tun_fd: -1,
             private_key: [0u8; 32],
             ipv4_addr: Ipv4Addr::new(10, 0, 0, 2),
+            ips: Vec::new(),
             ipv6_addr: "fd00::2".parse().unwrap(),
             mtu: 1280,
             exit_peer: peer("1.2.3.4:51820"),
