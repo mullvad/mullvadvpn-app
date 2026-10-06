@@ -427,10 +427,16 @@ impl ProblemReport {
             return;
         }
         // Iterate over all files stemming from `path`: basename, basename.1, .., basename.N.
-        // Concat content from all files into one buffer.
-        let content = LogFile::from_file_path(path)
+        // Concat content from all files into one buffer. Since basename.N begins where basename.N-1
+        // ends, we need to concat them in reverse order to get the correct chronology.
+        // Content: [
+        //   <basename.N>   // <- Eldest logs.
+        //   <basename.N-1>
+        //   ..
+        //   <basename>     // <- Most recent logs.
+        // ]
+        let mut content = LogFile::from_file_path(path)
             .paths()
-            .inspect(|path| log::info!("Reading file {path:#?}"))
             .map(|path| {
                 read_file_lossy(&path, LOG_MAX_READ_BYTES).unwrap_or_else(|error| {
                     error.display_chain_with_msg(&format!(
@@ -440,8 +446,9 @@ impl ProblemReport {
                 })
             })
             .map(|content| self.redact(&content))
-            .collect::<Vec<String>>()
-            .join("");
+            .collect::<Vec<String>>();
+        content.reverse();
+        let content = content.join("");
 
         let redacted_path = self.redact(&expanded_path.to_string_lossy());
         self.append_logs(redacted_path, content);
