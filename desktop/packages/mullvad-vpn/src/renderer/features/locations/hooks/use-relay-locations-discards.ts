@@ -5,7 +5,7 @@ import { LocationType } from '../types';
 
 export function useRelayLocationsDiscardsHostnames(locationType: LocationType) {
   const relayLocationsDiscards = useSelector((state) => {
-    const context = locationType === LocationType.entry ? 'entry' : 'exit';
+    const context = locationType === 'entry' ? 'entry' : 'exit';
     const relayLocationsFiltered = state.settings.relayLocationsFiltered[context];
 
     return relayLocationsFiltered.discards.map((relayDiscard) => relayDiscard.relay.hostname);

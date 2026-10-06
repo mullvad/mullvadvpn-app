@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { LocationType } from '../../../../../../features/locations/types';
 import { useMultihop } from '../../../../../../features/multihop/hooks';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 import { useResetLocationSelector } from './use-reset-location-selector';
@@ -12,9 +11,9 @@ export function useSetMultihopWhenNeeded() {
 
   const setMultihopWhenNeeded = React.useCallback(async () => {
     await setMultihop({ multihop: 'when-needed' });
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
+    if (locationType === 'entry' || locationType === 'automaticEntry') {
       resetLocationSelector();
-      setLocationType(LocationType.exit);
+      setLocationType('exit');
     }
   }, [locationType, resetLocationSelector, setLocationType, setMultihop]);
 

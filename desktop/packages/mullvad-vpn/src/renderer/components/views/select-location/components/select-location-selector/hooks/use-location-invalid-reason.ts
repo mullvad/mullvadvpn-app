@@ -4,9 +4,9 @@ import { useSelectLocationViewContext } from '../../../SelectLocationViewContext
 export function useLocationInvalidReason(locationType: LocationType) {
   const { invalidReason } = useSelectLocationViewContext();
 
-  if (locationType === LocationType.entry && invalidReason.entry) {
+  if (locationType === 'entry' && invalidReason.entry) {
     return invalidReason.entry;
-  } else if (locationType === LocationType.exit && invalidReason.exit) {
+  } else if (locationType === 'exit' && invalidReason.exit) {
     return invalidReason.exit;
   }
 

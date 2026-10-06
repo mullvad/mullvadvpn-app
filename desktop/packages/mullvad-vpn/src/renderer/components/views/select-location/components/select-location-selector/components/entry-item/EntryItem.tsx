@@ -1,6 +1,5 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { useEntryLocation } from '../../../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../../../features/locations/types';
 import { useGetIsLocationValid, useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
 
@@ -12,7 +11,7 @@ export type EntryItemProps = Omit<
 export function EntryItem(props: EntryItemProps) {
   const { entryLocation } = useEntryLocation();
   const defaultValue = useLocationName(entryLocation);
-  const validate = useGetIsLocationValid(LocationType.entry);
+  const validate = useGetIsLocationValid('entry');
 
   return (
     <TextFieldItem
