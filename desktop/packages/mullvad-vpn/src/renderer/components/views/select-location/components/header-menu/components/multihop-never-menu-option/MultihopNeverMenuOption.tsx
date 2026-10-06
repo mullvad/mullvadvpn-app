@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { LocationType } from '../../../../../../../features/locations/types';
 import { useMultihop } from '../../../../../../../features/multihop/hooks';
 import { Menu } from '../../../../../../../lib/components/menu';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
@@ -17,9 +16,9 @@ export function MultihopNeverMenuOption() {
   const handleMultihopNever = React.useCallback(async () => {
     await setMultihop({ multihop: 'never' });
     onOpenChange?.(false);
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
+    if (locationType === 'entry' || locationType === 'automaticEntry') {
       resetLocationSelector();
-      setLocationType(LocationType.exit);
+      setLocationType('exit');
     }
   }, [locationType, onOpenChange, resetLocationSelector, setLocationType, setMultihop]);
 
