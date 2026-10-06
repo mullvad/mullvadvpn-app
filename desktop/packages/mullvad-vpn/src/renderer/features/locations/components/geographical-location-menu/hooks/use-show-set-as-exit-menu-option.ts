@@ -1,6 +1,6 @@
 import { useSelectLocationViewContext } from '../../../../../components/views/select-location/SelectLocationViewContext';
 import { useMultihop } from '../../../../multihop/hooks';
-import { DisabledReason, type GeographicalLocation, LocationType } from '../../../types';
+import { DisabledReason, type GeographicalLocation } from '../../../types';
 
 export function useShowSetAsExitMenuOption(location: GeographicalLocation) {
   const { multihop } = useMultihop();
@@ -8,7 +8,7 @@ export function useShowSetAsExitMenuOption(location: GeographicalLocation) {
 
   return (
     multihop !== 'never' &&
-    locationType === LocationType.entry &&
+    locationType === 'entry' &&
     location.disabledReason !== DisabledReason.exit
   );
 }

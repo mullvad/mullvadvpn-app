@@ -10,12 +10,12 @@ export function useDisabledLocation(locationType: LocationType) {
 
   return React.useMemo(() => {
     if (relaySettings?.wireguard.multihop !== 'never') {
-      if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
+      if (locationType === 'exit' && relaySettings?.wireguard.entryLocation !== 'any') {
         return {
           location: relaySettings?.wireguard.entryLocation,
           reason: DisabledReason.entry,
         };
-      } else if (locationType === LocationType.entry && relaySettings?.location !== 'any') {
+      } else if (locationType === 'entry' && relaySettings?.location !== 'any') {
         return {
           location: relaySettings?.location,
           reason: DisabledReason.exit,

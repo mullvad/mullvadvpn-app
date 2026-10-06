@@ -6,7 +6,6 @@ import { SettingsListbox } from '../../../../components/settings-listbox';
 import useActions from '../../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import userInterface from '../../../../redux/userinterface/actions';
-import { LocationType } from '../../../locations/types';
 import { useMultihop } from '../../hooks';
 
 export function MultihopSetting() {
@@ -19,7 +18,7 @@ export function MultihopSetting() {
   const handleValueChange = React.useCallback(
     async (multihop: MultihopMode) => {
       await setMultihop({ multihop });
-      setSelectLocationView(LocationType.exit);
+      setSelectLocationView('exit');
     },
     [setMultihop, setSelectLocationView],
   );

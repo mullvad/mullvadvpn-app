@@ -6,5 +6,5 @@ export function useSelectedEntryOrExitLocation(
   locationType: LocationType,
 ): LiftedConstraint<RelayLocation> {
   const selectedLocations = useSelectedLocations();
-  return locationType === LocationType.entry ? selectedLocations.entry : selectedLocations.exit;
+  return locationType === 'entry' ? selectedLocations.entry : selectedLocations.exit;
 }

@@ -6,8 +6,7 @@ export function isDaitaFilterActive(
   locationType: LocationType,
   multihop: MultihopMode,
 ) {
-  const isEntry =
-    multihop !== 'never' ? locationType === LocationType.entry : locationType === LocationType.exit;
+  const isEntry = multihop !== 'never' ? locationType === 'entry' : locationType === 'exit';
 
   return daita && isEntry;
 }

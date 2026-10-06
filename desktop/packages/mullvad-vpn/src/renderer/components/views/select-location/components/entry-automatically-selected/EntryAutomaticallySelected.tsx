@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
-import { LocationType } from '../../../../../features/locations/types';
 import { useMultihop } from '../../../../../features/multihop/hooks';
 import { BodySmall, Button, Icon } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
@@ -32,7 +31,7 @@ export function EntryAutomaticallySelected() {
   const { setLocationType } = useSelectLocationViewContext();
 
   const handleClickSetMultihopToAlways = React.useCallback(async () => {
-    setLocationType(LocationType.exit);
+    setLocationType('exit');
     await setMultihop({
       multihop: 'always',
     });

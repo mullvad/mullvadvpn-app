@@ -4,7 +4,6 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { DisableRecentsDialog } from '../../../../../features/locations/components';
 import { useRecents } from '../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../features/locations/types';
 import { useMultihop } from '../../../../../features/multihop/hooks';
 import { Menu, type MenuProps } from '../../../../../lib/components/menu';
 import { useHistory } from '../../../../../lib/history';
@@ -35,14 +34,14 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopAlways = useCallback(async () => {
     await setMultihop({ multihop: 'always' });
     onOpenChange?.(false);
-    setLocationType(LocationType.exit);
+    setLocationType('exit');
   }, [onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopNever = useCallback(async () => {
     await setMultihop({ multihop: 'never' });
     onOpenChange?.(false);
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
-      setLocationType(LocationType.exit);
+    if (locationType === 'entry' || locationType === 'automaticEntry') {
+      setLocationType('exit');
       setIsolatedItem(undefined);
       setSearchTerm('');
     }
@@ -51,8 +50,8 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopWhenNeeded = useCallback(async () => {
     await setMultihop({ multihop: 'when-needed' });
     onOpenChange?.(false);
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
-      setLocationType(LocationType.exit);
+    if (locationType === 'entry' || locationType === 'automaticEntry') {
+      setLocationType('exit');
       setIsolatedItem(undefined);
       setSearchTerm('');
     }
