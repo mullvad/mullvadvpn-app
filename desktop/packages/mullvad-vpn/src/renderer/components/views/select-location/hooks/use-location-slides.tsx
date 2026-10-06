@@ -1,4 +1,3 @@
-import { LocationType } from '../../../../features/locations/types';
 import { EntryAutomaticallySelected, LocationLists, LocationSlide } from '../components';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
@@ -6,19 +5,19 @@ export function useLocationSlides() {
   const { locationType } = useSelectLocationViewContext();
 
   switch (locationType) {
-    case LocationType.entryAutomatic:
+    case 'automaticEntry':
       return (
-        <LocationSlide key={'entry-automatic-location-lists'}>
+        <LocationSlide key={'automatic-entry-location-lists'}>
           <EntryAutomaticallySelected />
         </LocationSlide>
       );
-    case LocationType.entry:
+    case 'entry':
       return (
         <LocationSlide key={'entry-location-lists'}>
           <LocationLists type={locationType} />
         </LocationSlide>
       );
-    case LocationType.exit:
+    case 'exit':
       return (
         <LocationSlide key={'exit-location-lists'}>
           <LocationLists type={locationType} />

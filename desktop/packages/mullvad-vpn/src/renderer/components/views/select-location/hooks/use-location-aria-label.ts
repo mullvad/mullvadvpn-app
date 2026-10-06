@@ -1,7 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
-import { LocationType } from '../../../../features/locations/types';
 import { useMultihop } from '../../../../features/multihop/hooks';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
@@ -20,7 +19,7 @@ export function useLocationAriaLabel(location: string) {
       },
     );
   }
-  if (locationType === LocationType.entry) {
+  if (locationType === 'entry') {
     return sprintf(
       // TRANSLATORS: Accessibility label for button that sets an entry location.
       // TRANSLATORS: Available placeholders:
