@@ -1,5 +1,5 @@
 import type { icons } from '../../../../../../../../../../../../icon/types';
-import type { LocationSelectorItemType } from '../../../../../../../../../types';
+import type { LocationSelectorItemType } from '../../../../../../../../../../../types';
 import { useLocationSelectorTextFieldItemContext } from '../../../../../../../LocationSelectorTextFieldItemContext';
 
 export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof icons {
