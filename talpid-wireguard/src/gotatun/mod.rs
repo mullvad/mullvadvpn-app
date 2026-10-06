@@ -63,10 +63,7 @@ const PACKET_CHANNEL_CAPACITY: usize = 100;
 
 pub struct GotaTun {
     /// Device handles
-    /// INVARIANT: Must always be `Some`.
-    // TODO: Can we not store this in an option?
-    devices: Option<Devices>,
-
+    devices: Devices,
     /// Name of the tun interface.
     interface_name: String,
 }
@@ -92,7 +89,7 @@ impl GotaTun {
 
         Ok(Self {
             interface_name,
-            devices: Some(devices),
+            devices,
         })
     }
 }
@@ -340,13 +337,9 @@ impl Tunnel for GotaTun {
         self.interface_name.clone()
     }
 
-    fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
+    fn stop(self: Box<Self>) -> Result<(), TunnelError> {
         tokio::runtime::Handle::current().block_on(async {
-            // TODO: devices should never be None while this GotaTun instance is running.
-            debug_assert!(self.devices.is_some());
-            if let Some(devices) = self.devices.take() {
-                devices.stop().await;
-            }
+            self.devices.stop().await;
         });
         Ok(())
     }
@@ -366,18 +359,16 @@ impl Tunnel for GotaTun {
                 .collect()
         }
 
-        let stats = match self.devices.as_ref() {
-            Some(Devices::Singlehop(Singlehop { device })) => get_stats(device).await,
-            Some(Devices::Multihop(Multihop {
+        let stats = match &self.devices {
+            Devices::Singlehop(Singlehop { device }) => get_stats(device).await,
+            Devices::Multihop(Multihop {
                 entry_device,
                 exit_device,
-            })) => {
+            }) => {
                 let mut stats = get_stats(entry_device).await;
                 stats.extend(get_stats(exit_device).await);
                 stats
             }
-            None if cfg!(debug_assertions) => unreachable!("device must be Some"),
-            None => StatsMap::default(),
         };
 
         Ok(stats)
