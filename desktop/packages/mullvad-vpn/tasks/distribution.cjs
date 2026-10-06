@@ -407,10 +407,12 @@ async function packMac() {
         }
         config.beforePack?.(context);
 
-        // afterSign is never called if signing is disabled, in which case we want no spawn
-        // constraint ('').
-        const isSigned = process.env.CSC_IDENTITY_AUTO_DISCOVERY === 'true';
-        writePkgScripts(pkgScriptsDir, isSigned ? null : '');
+        fs.rmSync(pkgScriptsDir, { recursive: true, force: true });
+
+        if (process.env.CSC_IDENTITY_AUTO_DISCOVERY !== 'true') {
+          // afterSign is never called if signing is disabled.
+          writePkgScripts(pkgScriptsDir, '');
+        }
       },
       afterPack: (context) => {
         config.afterPack?.(context);
@@ -484,20 +486,16 @@ function writePkgScripts(outDir, spawnConstraint) {
   fs.rmSync(outDir, { recursive: true, force: true });
   fs.cpSync(distAssets('pkg-scripts'), outDir, { recursive: true });
 
-  if (spawnConstraint !== null) {
-    const postinstallPath = path.join(outDir, 'postinstall');
-    const postinstall = fs.readFileSync(postinstallPath, 'utf8');
-    fs.writeFileSync(
-      postinstallPath,
-      postinstall.replace(DAEMON_SPAWN_CONSTRAINT_PLACEHOLDER, () => spawnConstraint),
-    );
-  }
+  const postinstallPath = path.join(outDir, 'postinstall');
+  const postinstall = fs.readFileSync(postinstallPath, 'utf8');
+  fs.writeFileSync(
+    postinstallPath,
+    postinstall.replace(DAEMON_SPAWN_CONSTRAINT_PLACEHOLDER, () => spawnConstraint),
+  );
 }
 
 // Return a launchd spawn constraint that only allows the daemon at `daemonPath` to be launched,
 // identified by its cdhash. A universal binary has one cdhash per architecture.
-//
-// The result is inserted into a bash heredoc in postinstall, so `$` must be escaped.
 function daemonSpawnConstraint(daemonPath) {
   const archs = execFileSync('lipo', ['-archs', daemonPath], { encoding: 'utf8' })
     .trim()
