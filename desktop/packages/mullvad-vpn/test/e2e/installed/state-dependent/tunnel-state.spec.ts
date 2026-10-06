@@ -13,11 +13,36 @@ const exec = promisify(execAsync);
 
 // This test expects the daemon to be logged into an account that has time left and to be
 // disconnected. Env parameters:
-// HOSTNAME: hostname of the currently selected WireGuard relay
-// IN_IP: In ip of the relay passed in `HOSTNAME`
 // CONNECTION_CHECK_URL: Url to the connection check
 
-const { HOSTNAME, IN_IP, CONNECTION_CHECK_URL } = process.env;
+const { CONNECTION_CHECK_URL } = process.env;
+
+interface ConnectedRelay {
+  hostname: string;
+  inIp: string;
+}
+
+// Returns the relay that the daemon is currently connected to. The relay may change whenever the
+// tunnel reconnects, so this should be called after every reconnect.
+async function getConnectedRelay(): Promise<ConnectedRelay> {
+  let details;
+  await expect
+    .poll(async () => {
+      const { stdout } = await exec('mullvad status --json');
+      const tunnelState = JSON.parse(stdout);
+      details = tunnelState.details;
+      return tunnelState.state;
+    })
+    .toBe('connected');
+
+  const { endpoint, location } = details!;
+  // When obfuscation is used, the in address is that of the obfuscation endpoint
+  const inAddress: string = endpoint.obfuscation?.Single?.endpoint.address ?? endpoint.address;
+  // Strip the port, and the brackets surrounding IPv6 addresses
+  const inIp = inAddress.replace(/^\[?(.*?)\]?:\d+$/, '$1');
+
+  return { hostname: location.hostname, inIp };
+}
 
 let page: Page;
 let util: TestUtils;
@@ -53,12 +78,14 @@ test.describe('Tunnel state and settings', () => {
     // Selecting the first resolves to the IPv4 address regardless of the IP setting
     const outIp = routes.main.getOutIps().first();
 
-    await expect(relay).toHaveText(HOSTNAME!);
+    const { hostname, inIp: expectedInIp } = await getConnectedRelay();
+
+    await expect(relay).toHaveText(hostname);
     await expect(inIp).not.toBeVisible();
     await relay.click();
 
     await expect(inIp).toBeVisible();
-    await expect(inIp).toHaveText(new RegExp(`^${IN_IP!}`));
+    await expect(inIp).toHaveText(new RegExp(`^${escapeRegExp(expectedInIp)}`));
 
     await expect(outIp).toBeVisible();
 
@@ -127,8 +154,9 @@ test.describe('Tunnel state and settings', () => {
 
       await routes.main.expandConnectionPanel();
 
+      const { inIp: expectedInIp } = await getConnectedRelay();
       const inIp = routes.main.getInIp();
-      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(IN_IP!)}:(80|443|5001) TCP`));
+      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(expectedInIp)}:(80|443|5001) TCP`));
     });
 
     for (const port of [80, 443, 5001]) {
@@ -138,10 +166,12 @@ test.describe('Tunnel state and settings', () => {
 
         await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
 
+        await expectConnected(page);
         await routes.main.expandConnectionPanel();
 
+        const { inIp: expectedInIp } = await getConnectedRelay();
         const inIp = routes.main.getInIp();
-        await expect(inIp).toHaveText(`${IN_IP}:${port} TCP`);
+        await expect(inIp).toHaveText(`${expectedInIp}:${port} TCP`);
       });
     }
 
@@ -162,19 +192,12 @@ test.describe('Tunnel state and settings', () => {
     await expectConnected(page);
   });
 
-  test('App should enter blocked state', async () => {
-    await exec('mullvad debug block-connection');
-    await expectError(page);
-
-    await exec(`mullvad relay set location ${HOSTNAME}`);
-    await expectConnected(page);
-  });
-
   test('App should show multihop', async () => {
     await exec('mullvad relay set multihop always');
     await expectConnected(page);
+    const { hostname } = await getConnectedRelay();
     const relay = routes.main.getRelayHostname();
-    await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
+    await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${hostname} via`), 'i'));
     await exec('mullvad relay set multihop auto');
     await page.getByText('Disconnect').click();
   });
@@ -188,6 +211,16 @@ test.describe('Tunnel state and settings', () => {
     await expectDisconnected(page);
     await exec('mullvad connect');
     await expectConnected(page);
+
+    await exec('mullvad disconnect');
+    await expectDisconnected(page);
+  });
+
+  // This must run last, since `block-connection` overwrites the location constraint
+  test('App should enter blocked state', async () => {
+    await exec('mullvad debug block-connection');
+    await exec('mullvad connect');
+    await expectError(page);
 
     await exec('mullvad disconnect');
     await expectDisconnected(page);
