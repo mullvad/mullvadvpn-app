@@ -787,21 +787,32 @@ async fn get_single_relay_location_constraint(
     fn convert_to_relay_constraints(
         query: RelayQuery,
         selected_relay: GetRelay,
+        entry_location: Constraint<LocationConstraint>,
     ) -> anyhow::Result<(WireguardRelay, RelayConstraints)> {
         let WireguardConfig::Singlehop { exit } = selected_relay.inner else {
             bail!("Expected singlehop")
         };
-        let location = into_constraint(&exit);
         let (mut relay_constraints, ..) = into_settings(query);
-        relay_constraints.location = location;
+        relay_constraints.location = into_constraint(&exit);
+        // Keep the current multihop entry constraint, e.g. the test location custom list set by
+        // `set_test_location`. Resetting it to `Any` causes an arbitrary relay to be picked.
+        relay_constraints.wireguard_constraints.entry_location = entry_location;
         Ok((exit, relay_constraints))
     }
     let settings = mullvad_client.get_settings().await?;
+    let entry_location = match &settings.relay_settings {
+        RelaySettings::Normal(constraints) => {
+            constraints.wireguard_constraints.entry_location.clone()
+        }
+        RelaySettings::CustomTunnelEndpoint(_) => {
+            bail!("Cannot constrain to a relay with custom tunnel endpoint settings")
+        }
+    };
     let relay_list = mullvad_client.get_relay_locations().await?;
     let bridge_list = mullvad_client.get_bridges().await?;
     let relay_selector = get_daemon_relay_selector(settings, relay_list, bridge_list);
     let relay = relay_selector.get_relay_by_query(query.clone())?;
-    convert_to_relay_constraints(query, relay)
+    convert_to_relay_constraints(query, relay, entry_location)
 }
 
 /// Get a mirror of the relay selector used by the daemon.
