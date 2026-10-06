@@ -1,7 +1,7 @@
 ---
-source: talpid-core/src/logging/diag.rs
+source: talpid-logging/src/diag.rs
+assertion_line: 289
 expression: formatted_driverquery_log
-snapshot_kind: text
 ---
 driverquery.exe "/FO" "csv" "/V" (filtered)
 --------

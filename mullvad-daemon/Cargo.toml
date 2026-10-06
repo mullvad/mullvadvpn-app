@@ -92,12 +92,14 @@ mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 rand = { workspace = true }
+rolling-file.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-error.workspace = true
 talpid-future = { path = "../talpid-future" }
+talpid-logging.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-time = { path = "../talpid-time" }

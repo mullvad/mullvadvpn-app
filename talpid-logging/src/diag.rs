@@ -30,7 +30,7 @@ pub mod windows {
     ///
     /// Currently, this will log the output of `pnputil` and `driverquery`, with filtering.
     pub async fn log_device_info(log_dir: &Path) -> anyhow::Result<()> {
-        use crate::logging::rotate_log;
+        use crate::rotate_log;
         use tokio::{fs::File, io::BufWriter};
 
         const TIMESTAMP_FMT: &str = "%Y-%m-%d %H:%M:%S";
@@ -270,7 +270,7 @@ pub mod windows {
         #[tokio::test]
         async fn test_driverquery_output() {
             let test_output_path = Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
-                .join("src/logging/driverquery-out.testdata");
+                .join("src/driverquery-out.testdata");
 
             // Uncomment to generate new output
             //tokio::fs::write(
@@ -293,7 +293,7 @@ pub mod windows {
         #[tokio::test]
         async fn test_pnputil_output() {
             let test_output_path = Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
-                .join("src/logging/pnputil-out.testdata");
+                .join("src/pnputil-out.testdata");
 
             // Uncomment to generate new output
             //tokio::fs::write(
@@ -315,7 +315,7 @@ pub mod windows {
         #[tokio::test]
         async fn test_pnputil_problem_output() {
             let test_output_path = Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
-                .join("src/logging/pnputil-problem-out.testdata");
+                .join("src/pnputil-problem-out.testdata");
 
             // Uncomment to generate new output
             //tokio::fs::write(

@@ -1,10 +1,12 @@
+use chrono::{DateTime, Local, TimeDelta};
 use mullvad_logging::{EnvFilter, LevelFilter, silence_crates};
+use rolling_file::{RollingCondition, RollingFileAppender};
 use std::{
     io,
     path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
-use talpid_core::logging::rotate_log;
+use talpid_logging::rotate_log;
 use tracing_appender::non_blocking;
 use tracing_subscriber::{
     Registry,
@@ -25,7 +27,7 @@ pub enum Error {
     },
 
     #[error("Unable to rotate daemon log file")]
-    RotateLog(#[from] talpid_core::logging::RotateLogError),
+    RotateLog(#[from] talpid_logging::RotateLogError),
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -62,9 +64,13 @@ impl LogFileWriter {
 
         // NOTE: Make sure to rotate log file *before* initializing any kind of logger.
         rotate_log(&log_location.log_path()).map_err(Error::RotateLog)?;
-        let file_appender =
-            tracing_appender::rolling::never(&log_location.directory, &log_location.filename);
-        let (file_writer, guard) = non_blocking(file_appender);
+        let log_writer = RollingFileAppender::new(
+            log_location.directory.join(log_location.filename),
+            LogRotation::default(),
+            1, // Keep at most 1 rotated log file. The base log file does not count here.
+        )
+        .unwrap();
+        let (file_writer, guard) = non_blocking(log_writer);
 
         // When the guard is dropped, logs will no longer be written to the file, so we need to keep it
         // alive until the program exits.
@@ -292,4 +298,46 @@ pub fn init_logger(
     LOG_ENABLED.store(true, Ordering::SeqCst);
 
     Ok(reload_handle)
+}
+
+struct LogRotation {
+    time_before_rotation: TimeDelta,
+    max_size: u64,
+    last_rollover: DateTime<Local>,
+}
+
+impl LogRotation {
+    pub fn new(time_before_rotation: TimeDelta, max_size: u64) -> Self {
+        Self {
+            time_before_rotation,
+            max_size,
+            last_rollover: Local::now(),
+        }
+    }
+}
+
+impl Default for LogRotation {
+    fn default() -> Self {
+        // Rotate logs if they grower larger than 2GB.
+        pub const LOG_FILE_SIZE_MAX: u64 = 2 * 1024 * 1024;
+        // Rotate logs weekly.
+        pub const LOG_ROTATION_INTERVAL: TimeDelta = TimeDelta::weeks(1);
+        Self::new(LOG_ROTATION_INTERVAL, LOG_FILE_SIZE_MAX)
+    }
+}
+
+impl RollingCondition for LogRotation {
+    fn should_rollover(&mut self, now: &DateTime<Local>, current_filesize: u64) -> bool {
+        let mut rollover = false;
+        if now.signed_duration_since(self.last_rollover) >= self.time_before_rotation {
+            rollover = true;
+        }
+        if current_filesize >= self.max_size {
+            rollover = true;
+        }
+        if rollover {
+            self.last_rollover = *now;
+        }
+        rollover
+    }
 }
