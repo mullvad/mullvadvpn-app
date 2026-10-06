@@ -9,7 +9,7 @@ export function useAriaLabel() {
       // TRANSLATORS: Label provided to accessibility tools such as screenreaders to inform the user
       // TRANSLATORS: that they can click the button to configure filters for the entry location.
       return messages.pgettext('accessibility', 'Configure filters for entry location');
-    case 'entryAutomatic':
+    case 'automaticEntry':
       // TRANSLATORS: Label provided to accessibility tools such as screenreaders to inform the user
       // TRANSLATORS: that entry location filters are disabled due to the use of the Automatic entry location.
       return messages.pgettext(
