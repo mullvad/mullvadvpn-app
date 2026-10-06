@@ -221,6 +221,7 @@ message UUID { string value = 1; }
 message AccountData {
   string id = 1;
   google.protobuf.Timestamp expiry = 2;
+  bool has_payments = 3;
 }
 
 message AccountHistory { google.protobuf.StringValue number = 1; }

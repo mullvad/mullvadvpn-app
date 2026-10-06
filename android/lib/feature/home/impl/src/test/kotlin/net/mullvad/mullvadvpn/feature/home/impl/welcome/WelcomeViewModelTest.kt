@@ -9,7 +9,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -146,7 +145,7 @@ class WelcomeViewModelTest {
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() =
         runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
             // Arrange
-            accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusHours(24)))
+            accountExpiryStateFlow.emit(AccountData.mock(hasPayments = true))
 
             // Act, Assert
             viewModel.uiSideEffect.test {

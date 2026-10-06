@@ -46,6 +46,7 @@ impl From<AccountData> for types::AccountData {
                 seconds: data.expiry.timestamp(),
                 nanos: 0,
             }),
+            has_payments: data.has_payments,
         }
     }
 }
@@ -64,6 +65,7 @@ impl TryFrom<types::AccountData> for AccountData {
         Ok(AccountData {
             id: data.id,
             expiry,
+            has_payments: data.has_payments,
         })
     }
 }

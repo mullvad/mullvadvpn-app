@@ -658,6 +658,7 @@ internal fun AccountData.toDomain(accountNumber: ModelAccountNumber): ModelAccou
         id = AccountId(UUID.fromString(id)),
         accountNumber = accountNumber,
         expiryDate = expiry!!.atDefaultZone(),
+        hasPayments = has_payments,
     )
 
 @Suppress("UnsafeCallOnNullableType")
