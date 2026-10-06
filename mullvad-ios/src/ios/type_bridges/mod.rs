@@ -5,7 +5,7 @@ pub use error::AnyError;
 
 pub struct UniIpAddr(pub IpAddr);
 uniffi::custom_type!(UniIpAddr, String, {
-    lower: |time_interval| time_interval.0.to_string(),
+    lower: |ip_addr| ip_addr.0.to_string(),
     try_lift: |val| Ok(UniIpAddr(val.parse().unwrap()))
 });
 
