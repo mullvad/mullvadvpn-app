@@ -264,7 +264,7 @@ fn list_logs(
     let logs = dir_entries.filter_map(move |dir_entry| match dir_entry {
         Ok(dir_entry) => {
             let path = dir_entry.path();
-            (path.extension() == Some(OsStr::new(".log"))).then_some(Ok(path))
+            (path.extension() == Some(OsStr::new("log"))).then_some(Ok(path))
         }
         Err(source) => Some(Err(LogError::ListLogDir {
             path: log_dir.as_ref().display().to_string(),
