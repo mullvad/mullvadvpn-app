@@ -131,7 +131,8 @@ class BaseUITestCase: XCTestCase {
 
         let alertAllowButton = springboard.buttons["Allow"]
         if alertAllowButton.existsAfterWait(timeout: .short) {
-            alertAllowButton.tap()
+            alertAllowButton.tapWhenHittable()
+
             if !iOSDevicePinCode.isEmpty {
 
                 // Springboard sometimes has digit buttons, sometimes they are keys?
