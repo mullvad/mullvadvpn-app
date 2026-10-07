@@ -9,6 +9,8 @@ DIST_DIR="$REPO_ROOT/dist"
 CARGO_SBOM_NAME="rust-jni.cdx.json"
 CARGO_SBOM="$REPORTS_DIR/$CARGO_SBOM_NAME"
 
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 function main {
     trap cleanup EXIT
 
