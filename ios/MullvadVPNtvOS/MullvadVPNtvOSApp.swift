@@ -12,9 +12,51 @@ import SwiftUI
 
 @main
 struct MullvadVPNtvOSApp: App {
+    init() {
+        dependenciesTask = Task {
+            await DependencyManager().start()
+        }
+    }
+
+    // TODO: Async init of the dependencies in the splash screen
+    // Then make sure we're using the correct thing when the first screen is shown
+    // The dependencies have been loaded during the splash screen
+
+    @State private var navigation = Navigation()
+    @State private var loadedDepencencies = false
+    @State var dependenciesTask: Task<DependencyManager, Never>
+    @State var dependencies: DependencyManager?
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                switch navigation.state {
+                case .loggedIn:
+                    MapView()
+                case .loggedOut:
+                    loadRootView()
+                }
+            }
+            .task {
+                _dependencies.wrappedValue = await dependenciesTask.value
+                loadedDepencencies = true
+            }
+            .fullScreenCover(
+                isPresented: $navigation.isPresentingAccount,
+                content: {
+                    AccountView()
+                }
+            )
+            .environment(navigation)
+        }
+    }
+
+    @ViewBuilder
+    func loadRootView() -> some View {
+        if loadedDepencencies {
+            RootView(viewModel: dependencies!.makeLoginViewModel())
+        } else {
+            Text("Loading")
         }
     }
 }
