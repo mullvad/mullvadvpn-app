@@ -198,7 +198,6 @@ custom-vpn = [
 # Use jemalloc as the global allocator. Only takes effect on Linux.
 default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
-staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 
 [lints]
 workspace = true
