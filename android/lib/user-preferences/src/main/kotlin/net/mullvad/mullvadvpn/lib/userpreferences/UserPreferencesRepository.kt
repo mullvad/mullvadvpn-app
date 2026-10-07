@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.repository
+package net.mullvad.mullvadvpn.lib.userpreferences
 
 import androidx.datastore.core.DataStore
 import java.time.Instant
@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
-import net.mullvad.mullvadvpn.repository.UserPreferences
 
 @Suppress("TooManyFunctions")
 class UserPreferencesRepository(
@@ -88,4 +87,7 @@ class UserPreferencesRepository(
             prefs.toBuilder().setHasSeenMultihopMigrationGuide(true).build()
         }
     }
+
+    fun lastShownChangelogVersionCode(): Flow<Int> =
+        preferencesFlow().map { it.lastShownChangelogVersionCode }
 }

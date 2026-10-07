@@ -34,11 +34,11 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesMigration
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
-import net.mullvad.mullvadvpn.repository.UserPreferences
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferences
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesMigration
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesSerializer
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions

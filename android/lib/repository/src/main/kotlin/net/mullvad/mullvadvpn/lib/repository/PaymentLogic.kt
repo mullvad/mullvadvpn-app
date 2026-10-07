@@ -196,7 +196,7 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
 
     companion object {
         val EXTRA_LOADING_DELAY = 300.milliseconds
-        const val QUERY_PRODUCTS_TIMEOUT = 3000L
+        private val QUERY_PRODUCTS_TIMEOUT = 3.seconds
 
         const val VERIFICATION_MAX_ATTEMPTS = 4L
         val VERIFICATION_INITIAL_BACK_OFF_DURATION = 3.seconds

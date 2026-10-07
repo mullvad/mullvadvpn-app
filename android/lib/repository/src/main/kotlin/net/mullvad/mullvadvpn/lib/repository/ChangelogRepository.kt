@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.util.trimAll
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 private const val NEWLINE_CHAR = '\n'
 private const val BULLET_POINT_CHAR = '-'
@@ -22,10 +23,10 @@ class ChangelogRepository(
 ) {
     val hasUnreadChangelog: StateFlow<Boolean> =
         userPreferencesRepository
-            .preferencesFlow()
-            .map {
+            .lastShownChangelogVersionCode()
+            .map { lastShownChangelogVersionCode ->
                 getLastVersionChanges().isNotEmpty() &&
-                    buildVersion.code > it.lastShownChangelogVersionCode
+                    buildVersion.code > lastShownChangelogVersionCode
             }
             .stateIn(
                 CoroutineScope(dispatcher),

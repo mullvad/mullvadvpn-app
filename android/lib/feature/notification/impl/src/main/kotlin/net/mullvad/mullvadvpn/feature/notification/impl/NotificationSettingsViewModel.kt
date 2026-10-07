@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 sealed interface NotificationSettingsSideEffect {
     data object OpenSystemNotificationsSettings : NotificationSettingsSideEffect
@@ -36,7 +36,7 @@ class NotificationSettingsViewModel(
             }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.Companion.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
+                started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 initialValue = Lc.Loading(Unit),
             )
 

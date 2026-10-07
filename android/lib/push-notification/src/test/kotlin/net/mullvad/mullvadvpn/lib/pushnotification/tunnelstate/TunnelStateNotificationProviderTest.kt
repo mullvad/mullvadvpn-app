@@ -31,8 +31,8 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.repository.UserPreferences
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferences
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
