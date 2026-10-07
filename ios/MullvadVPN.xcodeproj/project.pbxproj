@@ -824,6 +824,16 @@
 		A91E26E02E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */; };
 		A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */; };
 		A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91EBED92C1337040004A84D /* RetryStrategyTests.swift */; };
+		A926A9B530753702005946C5 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9B430753702005946C5 /* LoginView.swift */; };
+		A926A9B63075374D005946C5 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
+		A926A9BA3075378B005946C5 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9B93075378B005946C5 /* LoginViewModel.swift */; };
+		A926A9BC30764316005946C5 /* MullvadTvOSRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9BB30764316005946C5 /* MullvadTvOSRootView.swift */; };
+		A926A9BE30764343005946C5 /* MullvadTVHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */; };
+		A926A9C030764365005946C5 /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9BF30764365005946C5 /* Navigation.swift */; };
+		A926A9C2307643AB005946C5 /* CreateAccountPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */; };
+		A926A9C630764610005946C5 /* MullvadTV+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C530764610005946C5 /* MullvadTV+Colors.swift */; };
+		A926A9C830764687005946C5 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C730764687005946C5 /* AccountView.swift */; };
+		A926A9CA30764A10005946C5 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C930764A10005946C5 /* MapView.swift */; };
 		A92721DC300A1FB30094B2DA /* VPNSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */; };
 		A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
@@ -1255,7 +1265,6 @@
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 		F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */; };
 		F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */; };
-		F9FF6096304E918900B0B36C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FF6093304E918900B0B36C /* ContentView.swift */; };
 		F9FF6097304E918900B0B36C /* MullvadVPNtvOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FF6094304E918900B0B36C /* MullvadVPNtvOSApp.swift */; };
 		F9FF6098304E918900B0B36C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9FF6092304E918900B0B36C /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -1610,6 +1619,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 58D223D4294C8E5E0029F5F8;
 			remoteInfo = MullvadTypes;
+		};
+		A926A9B730753754005946C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
+			remoteInfo = MullvadREST;
 		};
 		A959E23F2D75F37600F95DDB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2567,6 +2583,15 @@
 		A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleaner.swift; sourceTree = "<group>"; };
 		A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleanerTests.swift; sourceTree = "<group>"; };
 		A91EBED92C1337040004A84D /* RetryStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategyTests.swift; sourceTree = "<group>"; };
+		A926A9B430753702005946C5 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		A926A9B93075378B005946C5 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		A926A9BB30764316005946C5 /* MullvadTvOSRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadTvOSRootView.swift; sourceTree = "<group>"; };
+		A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadTVHeaderView.swift; sourceTree = "<group>"; };
+		A926A9BF30764365005946C5 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
+		A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountPromptView.swift; sourceTree = "<group>"; };
+		A926A9C530764610005946C5 /* MullvadTV+Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadTV+Colors.swift"; sourceTree = "<group>"; };
+		A926A9C730764687005946C5 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		A926A9C930764A10005946C5 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsView.swift; sourceTree = "<group>"; };
 		A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipView.swift; sourceTree = "<group>"; };
 		A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -2896,7 +2921,6 @@
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 		F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListInteractorTests.swift; sourceTree = "<group>"; };
 		F9FF6092304E918900B0B36C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F9FF6093304E918900B0B36C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F9FF6094304E918900B0B36C /* MullvadVPNtvOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadVPNtvOSApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3091,6 +3115,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A926A9B63075374D005946C5 /* MullvadREST.framework in Frameworks */,
 				F938CE1B3049926900E568EE /* MullvadRustRuntime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5438,8 +5463,16 @@
 			isa = PBXGroup;
 			children = (
 				F9FF6092304E918900B0B36C /* Assets.xcassets */,
-				F9FF6093304E918900B0B36C /* ContentView.swift */,
 				F9FF6094304E918900B0B36C /* MullvadVPNtvOSApp.swift */,
+				A926A9B430753702005946C5 /* LoginView.swift */,
+				A926A9B93075378B005946C5 /* LoginViewModel.swift */,
+				A926A9BB30764316005946C5 /* MullvadTvOSRootView.swift */,
+				A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */,
+				A926A9BF30764365005946C5 /* Navigation.swift */,
+				A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */,
+				A926A9C530764610005946C5 /* MullvadTV+Colors.swift */,
+				A926A9C730764687005946C5 /* AccountView.swift */,
+				A926A9C930764A10005946C5 /* MapView.swift */,
 			);
 			path = MullvadVPNtvOS;
 			sourceTree = "<group>";
@@ -5981,6 +6014,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A926A9B830753754005946C5 /* PBXTargetDependency */,
 				F938CE1E3049926900E568EE /* PBXTargetDependency */,
 			);
 			name = MullvadVPNtvOS;
@@ -7652,7 +7686,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F9FF6096304E918900B0B36C /* ContentView.swift in Sources */,
+				A926A9BC30764316005946C5 /* MullvadTvOSRootView.swift in Sources */,
+				A926A9BE30764343005946C5 /* MullvadTVHeaderView.swift in Sources */,
+				A926A9C630764610005946C5 /* MullvadTV+Colors.swift in Sources */,
+				A926A9CA30764A10005946C5 /* MapView.swift in Sources */,
+				A926A9C030764365005946C5 /* Navigation.swift in Sources */,
+				A926A9C830764687005946C5 /* AccountView.swift in Sources */,
+				A926A9BA3075378B005946C5 /* LoginViewModel.swift in Sources */,
+				A926A9B530753702005946C5 /* LoginView.swift in Sources */,
+				A926A9C2307643AB005946C5 /* CreateAccountPromptView.swift in Sources */,
 				F9FF6097304E918900B0B36C /* MullvadVPNtvOSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7916,6 +7958,11 @@
 			isa = PBXTargetDependency;
 			target = 58D223D4294C8E5E0029F5F8 /* MullvadTypes */;
 			targetProxy = A9173C332C36CCFB00F6A08C /* PBXContainerItemProxy */;
+		};
+		A926A9B830753754005946C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
+			targetProxy = A926A9B730753754005946C5 /* PBXContainerItemProxy */;
 		};
 		A959E2402D75F37600F95DDB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

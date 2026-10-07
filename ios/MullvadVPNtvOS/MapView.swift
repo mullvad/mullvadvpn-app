@@ -8,22 +8,23 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import MullvadRustRuntime
 import SwiftUI
 
-struct ContentView: View {
-
+struct MapView: View {
+    @Environment(Navigation.self) private var navigation: Navigation
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            HeaderBar()
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 100)
+                .background(Palette.dangerColor)
+                Spacer()
+            Text("Congratulations you are logged in !")
         }
-        .padding()
+        .background(Palette.primaryColor)
     }
 }
 
 #Preview {
-    ContentView()
+    MapView().environment(Navigation())
 }
+
