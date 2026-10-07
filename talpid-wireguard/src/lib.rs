@@ -175,12 +175,8 @@ impl WireguardMonitor {
             .block_on(get_route_mtu(params, &args.route_manager));
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
-        // Obfuscation is applied inline by GotaTun; all that is set up here is the room it
-        // needs in every packet, and a way to hear which endpoint a multiplexer commits to.
-        let obfuscation_mtu = route_mtu;
-        let mut config =
-            crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
-                .map_err(Error::WireguardConfigError)?;
+        let config = crate::config::Config::from_parameters(params, tunnel_mtu, route_mtu)
+            .map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
@@ -188,8 +184,6 @@ impl WireguardMonitor {
             #[cfg(target_os = "linux")]
             &config,
         );
-
-        config.mtu = mtu_with_obfuscation_overhead(params, &config);
 
         // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
         // precaution in case the interface gets broken in some way. Creating a new interface
@@ -223,15 +217,20 @@ impl WireguardMonitor {
         let resource_dir = args.resource_dir.to_owned();
         let log_path = _log_path.map(Path::to_owned);
         let detect_mtu = params.options.mtu.is_none();
+        let params = params.clone();
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
 
             let IngressConnection {
-                config,
+                mut config,
                 obfuscation,
                 selected_obfuscation,
                 daita,
             } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+
+            // Adjust MTU to make room for the selected obfuscation method.
+            // This will only make room for the actually-selected obfuscation method.
+            config.mtu = mtu_with_obfuscation_overhead(&params, &config);
 
             // Opening the tunnel blocks.
             let (opened_tunnel, metadata) = {
@@ -947,8 +946,8 @@ fn ingress_endpoint_addrs(config: &Config) -> Vec<IpAddr> {
 
 /// Return the tunnel MTU of `config`, adjusted to make room for its obfuscation.
 ///
-/// The MTU is decided before a multiplexer has selected a transport, so it makes room for the
-/// largest overhead of any of them.
+/// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
+/// transports, since it is not yet known which one will be selected.
 fn mtu_with_obfuscation_overhead(params: &TunnelParameters, config: &Config) -> u16 {
     match config.obfuscation_settings() {
         Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
