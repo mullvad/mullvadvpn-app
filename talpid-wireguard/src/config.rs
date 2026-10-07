@@ -162,18 +162,41 @@ impl Config {
         self.quantum_resistant || self.daita
     }
 
-    /// Use the ephemeral `private_key`, and the PSKs negotiated with the entry and exit relays.
-    pub fn set_ephemeral_keys(
-        &mut self,
+    /// Return this config, using the ephemeral `private_key` and the PSKs negotiated with the
+    /// entry and exit relays.
+    pub fn with_ephemeral_keys(
+        mut self,
         private_key: wireguard::PrivateKey,
         entry_psk: Option<wireguard::PresharedKey>,
         exit_psk: Option<wireguard::PresharedKey>,
-    ) {
+    ) -> Self {
         self.tunnel.private_key = private_key;
         self.entry_peer.psk = entry_psk;
         if let Some(exit_peer) = &mut self.exit_peer {
             exit_peer.psk = exit_psk;
         }
+        self
+    }
+
+    /// Return this config, reaching the entry relay only through `transport`.
+    ///
+    /// This is the single obfuscator of `transport`, or no obfuscation at all if it is direct.
+    pub fn with_transport(
+        mut self,
+        transport: &tunnel_obfuscation::multiplexer::Transport,
+    ) -> Self {
+        use tunnel_obfuscation::multiplexer::Transport;
+        match transport {
+            Transport::Direct(endpoint) => {
+                self.entry_peer.endpoint = *endpoint;
+                self.obfuscator_config = None;
+            }
+            Transport::Obfuscated(settings) => {
+                let obfuscator_config = crate::obfuscation::config_from_single_settings(settings);
+                self.obfuscator_config = Some(Obfuscators::Single(obfuscator_config));
+            }
+        }
+        self
     }
 
     /// Return the IPv4 address of the tunnel, if it has one.
