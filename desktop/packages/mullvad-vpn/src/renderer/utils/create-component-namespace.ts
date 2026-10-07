@@ -1,0 +1,26 @@
+import React from 'react';
+
+type ComponentNamespace<
+  Props extends React.PropsWithChildren,
+  NamespaceProperties,
+  NamespaceOverrides,
+> = React.FunctionComponent<Props> &
+  Omit<NamespaceProperties, keyof NamespaceOverrides | 'propTypes'> &
+  NamespaceOverrides;
+
+export function createComponentNamespace<
+  Props extends React.PropsWithChildren,
+  NamespaceProperties,
+  NamespaceOverrides,
+>(
+  component: React.ComponentType<Props> & NamespaceProperties,
+  overrides?: NamespaceOverrides,
+): ComponentNamespace<Props, NamespaceProperties, NamespaceOverrides> {
+  const componentNamespace = (props: Props) => React.createElement(component, props);
+
+  componentNamespace.displayName = component.displayName || component.name || 'ComponentNamespace';
+
+  const componentWithNamespace = Object.assign(componentNamespace, component, overrides);
+
+  return componentWithNamespace;
+}
