@@ -35,7 +35,7 @@ const USERSPACE_NET_MTU: u16 = 576;
 const MULTIHOP_CHANNEL_CAPACITY: usize = 100;
 
 /// How often to check whether a device has completed a handshake with its peer.
-const HANDSHAKE_POLL_INTERVAL: Duration = Duration::from_millis(50);
+const HANDSHAKE_POLL_INTERVAL: Duration = Duration::from_millis(10);
 
 /// ICMP identifier of the ping that [`IngressSession::handshake`] sends to initiate a handshake.
 const HANDSHAKE_PING_IDENT: u16 = 0x6d76;
