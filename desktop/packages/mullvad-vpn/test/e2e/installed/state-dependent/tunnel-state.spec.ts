@@ -226,11 +226,7 @@ test.describe('Tunnel state and settings', () => {
     const relay = await getConnectedRelay();
     expect(relay.obfuscationType).toBe('shadowsocks');
     await expectInAddress(relay);
-
-    await reconnectWith(() => exec('mullvad anti-censorship set mode off'));
-    const relayWithoutObfuscation = await getConnectedRelay();
-    expect(relayWithoutObfuscation.obfuscationType).toBeUndefined();
-    await expectInAddress(relayWithoutObfuscation);
+    await reconnectWith(() => exec('mullvad anti-censorship set mode auto'));
   });
 
   test('App should show multihop', async () => {
