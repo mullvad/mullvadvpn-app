@@ -7,7 +7,6 @@ import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 
 @Suppress("TooManyFunctions")
@@ -91,22 +90,4 @@ class UserPreferencesRepository(
 
     fun lastShownChangelogVersionCode(): Flow<Int> =
         preferencesFlow().map { it.lastShownChangelogVersionCode }
-
-    suspend fun latestSuccessfulPurchase(): String? =
-        userPreferencesStore.data
-            .take(1)
-            .map { it.latestSuccessfulPurchase.ifEmpty { null } }
-            .first()
-
-    suspend fun clearLatestSuccessfulPurchase() {
-        userPreferencesStore.updateData { prefs ->
-            prefs.toBuilder().setLatestSuccessfulPurchase("").build()
-        }
-    }
-
-    suspend fun setLatestSuccessfulPurchase(purchaseToken: String) {
-        userPreferencesStore.updateData { prefs ->
-            prefs.toBuilder().setLatestSuccessfulPurchase(purchaseToken).build()
-        }
-    }
 }
