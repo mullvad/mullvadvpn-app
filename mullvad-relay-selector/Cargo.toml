@@ -25,7 +25,6 @@ vec1 = { workspace = true }
 
 [features]
 default = []
-staggered-obfuscation = []
 
 [lints]
 workspace = true
