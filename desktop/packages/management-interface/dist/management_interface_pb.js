@@ -4309,7 +4309,8 @@ proto.mullvad_daemon.management_interface.AccountData.prototype.toObject = funct
 proto.mullvad_daemon.management_interface.AccountData.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    expiry: (f = msg.getExpiry()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
+    expiry: (f = msg.getExpiry()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    hasPayments: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
   };
 
   if (includeInstance) {
@@ -4355,6 +4356,10 @@ proto.mullvad_daemon.management_interface.AccountData.deserializeBinaryFromReade
       reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
       msg.setExpiry(value);
       break;
+    case 3:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setHasPayments(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -4397,6 +4402,13 @@ proto.mullvad_daemon.management_interface.AccountData.serializeBinaryToWriter = 
       2,
       f,
       google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+    );
+  }
+  f = message.getHasPayments();
+  if (f) {
+    writer.writeBool(
+      3,
+      f
     );
   }
 };
@@ -4454,6 +4466,24 @@ proto.mullvad_daemon.management_interface.AccountData.prototype.clearExpiry = fu
  */
 proto.mullvad_daemon.management_interface.AccountData.prototype.hasExpiry = function() {
   return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional bool has_payments = 3;
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.AccountData.prototype.getHasPayments = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.mullvad_daemon.management_interface.AccountData} returns this
+ */
+proto.mullvad_daemon.management_interface.AccountData.prototype.setHasPayments = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 3, value);
 };
 
 

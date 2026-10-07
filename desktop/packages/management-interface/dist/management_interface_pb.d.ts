@@ -288,6 +288,8 @@ export class AccountData extends jspb.Message {
     clearExpiry(): void;
     getExpiry(): google_protobuf_timestamp_pb.Timestamp | undefined;
     setExpiry(value?: google_protobuf_timestamp_pb.Timestamp): AccountData;
+    getHasPayments(): boolean;
+    setHasPayments(value: boolean): AccountData;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): AccountData.AsObject;
@@ -303,6 +305,7 @@ export namespace AccountData {
     export type AsObject = {
         id: string,
         expiry?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+        hasPayments: boolean,
     }
 }
 
