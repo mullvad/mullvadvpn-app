@@ -12,7 +12,7 @@ use std::{
     pin::pin,
     sync::{
         Arc,
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
     },
     time::{Duration, Instant},
 };
@@ -31,10 +31,11 @@ use gotatun::{
 use talpid_error::ErrorExt;
 use talpid_netstack::{
     ip_mux::ip_mux,
-    smoltcp_network::{SmoltcpHandle, smoltcp_network},
+    smoltcp_network::{SmoltcpHandle, SmoltcpNetworkGuard, smoltcp_network},
 };
 use talpid_tunnel_config_client::negotiation::{
-    Negotiables, NegotiationConfig, NegotiationError, Relay, Relays, negotiate_ephemeral_peers,
+    Negotiables, NegotiatedPeers, NegotiationConfig, NegotiationError, Relay, Relays,
+    negotiate_ephemeral_peers,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::{
@@ -43,10 +44,10 @@ use tokio::sync::{
 };
 use tunnel_obfuscation::gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation};
 
-use self::monitor::{Action, ConnMonitor};
+use self::monitor::{ConnectivityMonitor, TunnelStats, TunnelStatus};
 use self::obfuscation::{ObfuscatingTransports, create_obfuscation};
 use self::pinger::SmoltcpPinger;
-use self::tun_device::{IosTunDevice, TxPacketCounter};
+use self::tun_device::IosTunDevice;
 
 pub use self::obfuscation::ObfuscationProxyError;
 pub use self::params::{PeerParameters, TunnelParameters};
@@ -133,15 +134,6 @@ impl std::fmt::Display for TunnelError {
     }
 }
 
-/// Result of [`IosTunnelAdapter::negotiate_pq`]: the keys and peers to configure
-/// the final device(s) with `(entry, exit_key, exit_peer)`. `entry` is `Some`
-/// only for multihop PQ.
-type PqResult = (Option<(StaticSecret, Peer)>, StaticSecret, Peer);
-
-// Connectivity timeouts
-const PING_INTERVAL: Duration = Duration::from_secs(3);
-const CONNECTIVITY_CHECK_INTERVAL: Duration = Duration::from_millis(200);
-const MONITOR_INTERVAL: Duration = Duration::from_millis(500);
 /// After a suspension at least this long, restart the obfuscator on wake rather than trust it
 /// still holds a healthy connection.
 const SLEEP_CYCLE_RESET_THRESHOLD: Duration = Duration::from_secs(120);
@@ -161,18 +153,8 @@ pub(crate) enum TunnelAdapterChannelCommand {
     BumpSockets,
 }
 
-/// What applying a [`TunnelAdapterChannelCommand`] means for the caller's loop.
-enum CommandOutcome {
-    /// The tunnel is running normally.
-    Awake,
-    /// The tunnel is suspended.
-    Suspended,
-    /// The adapter was told to stop.
-    Stop,
-}
-
-/// All state of a connected tunnel, kept so that it can be suspended, woken, and moved onto
-/// fresh sockets while it runs.
+/// All state of a connected tunnel, kept so that it can be suspended, woken, and moved onto fresh
+/// sockets while it runs.
 struct ActiveConnection {
     devices: Devices,
     transport_provider: BoundUdpTransports,
@@ -182,6 +164,12 @@ struct ActiveConnection {
     params: TunnelParameters,
     /// Key the ingress device handshakes with, which LWO obfuscates for.
     ingress_public_key: PublicKey,
+    pinger: SmoltcpPinger,
+    user_tx: Arc<AtomicU64>,
+    /// The smoltcp stack the pinger sends through.
+    _smoltcp: SmoltcpNetworkGuard,
+    /// `None` while suspended.
+    monitor: Option<ConnectivityMonitor>,
 }
 
 impl ActiveConnection {
@@ -194,7 +182,7 @@ impl ActiveConnection {
             .await
             .map_err(TunnelError::RebindUdpSocket)?;
         self.restart_obfuscation().await?;
-        self.devices.wake().await;
+
         Ok(())
     }
 
@@ -213,37 +201,116 @@ impl ActiveConnection {
         Ok(())
     }
 
-    /// Apply a command from Swift.
+    async fn stats(&self) -> TunnelStats {
+        TunnelStats {
+            user_tx: self.user_tx.load(Ordering::Relaxed),
+            rx_bytes: self.devices.rx_bytes().await,
+        }
+    }
+
+    /// Establish connectivity, then monitor it until it is lost or the adapter stops. Returns
+    /// `Ok` when stopped, [`TunnelError::Timeout`] when the connection times out, and other errors
+    /// otherwise. Tunnel monitoring does not take place when the tunnel is suspended, awaking a
+    /// tunnel will reset the tunnel monitor.
+    async fn run(
+        &mut self,
+        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
+        callback: &dyn TunnelCallbackHandler,
+    ) -> Result<(), TunnelError> {
+        loop {
+            self.drive_connectivity_monitor(callback).await?;
+
+            tokio::select! {
+                _ = self.wait_for_connectivity_monitor() => {}
+                command = rx.recv() => {
+                    let Some(command) = command else { return Ok(()) };
+
+                    let should_shutdown = self.handle_command(command).await?;
+                    if should_shutdown {
+                        return Ok(());
+                    }
+                }
+            }
+        }
+    }
+
+    /// Samples the tunnel traffic stats and evaluates tunnel connection.
+    async fn drive_connectivity_monitor(
+        &mut self,
+        callback: &dyn TunnelCallbackHandler,
+    ) -> Result<(), TunnelError> {
+        let now = Instant::now();
+        let stats = self.stats().await;
+        let Some(monitor) = &mut self.monitor else {
+            return Ok(());
+        };
+        match monitor.evaluate_connectivity(now, stats) {
+            TunnelStatus::Healthy => {}
+            TunnelStatus::RequiresProbing(count) => {
+                log::trace!("Sending {count} ping(s)");
+                for _ in 0..count {
+                    if let Err(e) = self.pinger.send_icmp().await {
+                        log::warn!("Ping failed: {e}");
+                    }
+                }
+            }
+            TunnelStatus::Connected => {
+                callback.on_connected();
+            }
+            TunnelStatus::TimedOut => return Err(TunnelError::Timeout),
+        }
+        Ok(())
+    }
+
+    /// Sleeps until the connectivity monitor needs another sample.
+    async fn wait_for_connectivity_monitor(&self) {
+        match &self.monitor {
+            Some(monitor) => tokio::time::sleep(monitor.interval()).await,
+            None => std::future::pending().await,
+        }
+    }
+
+    /// Apply an adapter command. Returns true if connection should stop.
     async fn handle_command(
         &mut self,
         command: TunnelAdapterChannelCommand,
-    ) -> Result<CommandOutcome, TunnelError> {
+    ) -> Result<bool, TunnelError> {
         match command {
             TunnelAdapterChannelCommand::Suspend => {
                 self.last_suspended_at = Some(talpid_time::Instant::now());
                 self.devices.suspend().await;
-                Ok(CommandOutcome::Suspended)
+                self.monitor = None;
             }
             TunnelAdapterChannelCommand::Wake => {
-                let Some(last_suspended_at) = self.last_suspended_at else {
-                    log::error!(
-                        "Received a wakeup command without ever being suspended - nothing to do"
-                    );
-                    return Ok(CommandOutcome::Awake);
+                let Some(last_suspended_at) = self.last_suspended_at.take() else {
+                    log::error!("Wake without a Suspend before it - nothing to do");
+                    return Ok(false);
                 };
                 let elapsed = talpid_time::Instant::now().duration_since(last_suspended_at);
                 if elapsed >= SLEEP_CYCLE_RESET_THRESHOLD {
+                    log::info!("Restarting obfuscation after {elapsed:?} suspended");
                     self.restart_obfuscation().await?;
                 }
                 self.devices.wake().await;
-                Ok(CommandOutcome::Awake)
+
+                let now = Instant::now();
+                let stats = self.stats().await;
+                log::debug!(
+                    "Woke after {elapsed:?}; tx {} packets, rx {} bytes",
+                    stats.user_tx,
+                    stats.rx_bytes
+                );
+                self.monitor = Some(ConnectivityMonitor::new(now, stats, now));
             }
             TunnelAdapterChannelCommand::BumpSockets => {
                 self.bump_sockets().await?;
-                Ok(CommandOutcome::Awake)
+                if let Some(monitor) = &mut self.monitor {
+                    monitor.reset();
+                }
             }
-            TunnelAdapterChannelCommand::Stop => Ok(CommandOutcome::Stop),
+            TunnelAdapterChannelCommand::Stop => return Ok(true),
         }
+        Ok(false)
     }
 }
 
@@ -251,7 +318,8 @@ impl ActiveConnection {
 pub struct IosTunnelAdapter {
     stopped: Arc<AtomicBool>,
     tx: UnboundedSender<TunnelAdapterChannelCommand>,
-    task_handle: Option<tokio::task::JoinHandle<()>>,
+    runtime: tokio::runtime::Handle,
+    task_handle: std::sync::Mutex<Option<tokio::task::JoinHandle<()>>>,
 }
 
 impl IosTunnelAdapter {
@@ -269,18 +337,20 @@ impl IosTunnelAdapter {
         Self {
             stopped,
             tx,
-            task_handle: Some(task),
+            runtime,
+            task_handle: std::sync::Mutex::new(Some(task)),
         }
     }
 
+    /// Stop the tunnel and wait for its task to finish. Not to be called from the runtime.
     pub fn stop(&self) {
         if self.stopped.swap(true, Ordering::SeqCst) {
             return;
         }
         log::debug!("Stopping device");
         _ = self.tx.send(TunnelAdapterChannelCommand::Stop);
-        if let Some(handle) = &self.task_handle {
-            handle.abort();
+        if let Some(task) = self.task_handle.lock().unwrap().take() {
+            _ = self.runtime.block_on(task);
         }
     }
 
@@ -312,12 +382,12 @@ impl IosTunnelAdapter {
         params: TunnelParameters,
         udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
-        rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
+        mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: Arc<AtomicBool>,
     ) {
         // Every phase below returns a `Result`; the callback is fired exactly
         // once, here, based on the final outcome.
-        match Self::run_inner(params, udp, &callback, rx, &stopped).await {
+        match Self::run_inner(params, udp, &*callback, &mut rx).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(
                 TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiationError::Timeout),
@@ -329,10 +399,24 @@ impl IosTunnelAdapter {
     async fn run_inner(
         params: TunnelParameters,
         udp: BoundUdpTransports,
-        callback: &Arc<dyn TunnelCallbackHandler>,
-        mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
-        stopped: &AtomicBool,
+        callback: &dyn TunnelCallbackHandler,
+        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
     ) -> Result<(), TunnelError> {
+        let Some(mut connection) = Self::connect(params, udp, rx).await? else {
+            return Ok(());
+        };
+        let result = connection.run(rx, callback).await;
+        connection.devices.stop().await;
+        result
+    }
+
+    /// Build the tunnel: TUN device, obfuscation, peers, GotaTun device(s) and pinger.
+    /// Returns `None` if the adapter was stopped meanwhile.
+    async fn connect(
+        params: TunnelParameters,
+        udp: BoundUdpTransports,
+        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
+    ) -> Result<Option<ActiveConnection>, TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
         let tun_dev =
             IosTunDevice::new(params.tun_fd, params.mtu).map_err(TunnelError::TunnelDevice)?;
@@ -342,30 +426,30 @@ impl IosTunnelAdapter {
             .map_err(TunnelError::ObfuscationProxyError)?;
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
-        //    or fall back to the static device peer.
-        let pq = {
+        //    or fall back to the static device peer(s).
+        let negotiated = {
             let mut negotiate_pq = pin!(Self::negotiate_pq(&params, &udp, obfuscation.clone()));
             loop {
                 tokio::select! {
-                    pq = &mut negotiate_pq => break pq?,
+                    negotiated = &mut negotiate_pq => break negotiated?,
                     command = rx.recv() => match command {
                         Some(TunnelAdapterChannelCommand::Stop) | None => {
                             // NOTE: PQ devices are stopped when dropped
-                            return Err(TunnelError::Timeout);
+                            return Ok(None);
                         }
                         Some(_) => {}
                     },
                 }
             }
         };
-        if stopped.load(Ordering::SeqCst) {
-            // Cancelled externally; the outcome below is discarded since `run`
-            // no-ops when it sees the tunnel is already stopped.
-            return Err(TunnelError::Timeout);
-        }
 
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at it.
-        let ingress_public_key = Self::ingress_public_key(&pq);
+        let ingress_key = negotiated.as_ref().map_or_else(
+            || StaticSecret::from(params.private_key),
+            |negotiated| StaticSecret::from(negotiated.private_key.to_bytes()),
+        );
+        let ingress_public_key =
+            PublicKey::from(gotatun::x25519::PublicKey::from(&ingress_key).to_bytes());
         let obfuscation = ObfuscatingTransports::new(
             udp.clone(),
             obfuscation
@@ -374,78 +458,49 @@ impl IosTunnelAdapter {
         );
 
         // 4. Build the user-traffic device(s) behind an IpMuxRecv and IpMuxSend (TUN + smoltcp).
-        let (smoltcp_handle, ip_recv, ip_send, _smoltcp_guard) =
+        let (smoltcp_handle, ip_recv, ip_send, smoltcp_guard) =
             smoltcp_network(params.smoltcp_network_config());
+        let pinger = Self::create_pinger(&smoltcp_handle, params.ipv4_gateway).await?;
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
+        let devices = Self::build_devices(
+            &params,
+            &obfuscation,
+            negotiated,
+            ingress_key,
+            mux_recv,
+            mux_send,
+        )
+        .await?;
 
-        let devices = Self::build_devices(&params, &obfuscation, pq, mux_recv, mux_send).await?;
-
-        // The tunnel can be suspended or moved onto new sockets from here on, so it is held as
-        // one piece for the rest of its life.
-        let mut connection = ActiveConnection {
+        let establish_timeout = params.establish_timeout();
+        log::info!("Establishing connectivity (timeout: {establish_timeout:?})");
+        let now = Instant::now();
+        Ok(Some(ActiveConnection {
             devices,
             transport_provider: udp,
             last_suspended_at: None,
             obfuscation,
             params,
             ingress_public_key,
-        };
-        if stopped.load(Ordering::SeqCst) {
-            connection.devices.stop().await;
-            return Err(TunnelError::Timeout);
-        }
-
-        // 5. Establish connectivity, then monitor it until it drops or we stop.
-        let mut pinger =
-            match Self::create_pinger(&smoltcp_handle, connection.params.ipv4_gateway).await {
-                Ok(pinger) => pinger,
-                Err(e) => {
-                    connection.devices.stop().await;
-                    return Err(e);
-                }
-            };
-        let connected = match Self::establish_connectivity(
-            &mut connection,
-            &mut pinger,
-            &mut rx,
-            stopped,
-        )
-        .await
-        {
-            Ok(connected) => connected,
-            Err(e) => {
-                connection.devices.stop().await;
-                return Err(e);
-            }
-        };
-        if !connected {
-            connection.devices.stop().await;
-            return Err(TunnelError::Timeout);
-        }
-
-        callback.on_connected();
-        log::info!("Tunnel connected - starting ongoing monitoring");
-        let result =
-            Self::monitor_connectivity(&mut connection, &mut pinger, &user_tx, &mut rx, stopped)
-                .await;
-        connection.devices.stop().await;
-        result?;
-        Err(TunnelError::Timeout)
+            pinger,
+            user_tx,
+            _smoltcp: smoltcp_guard,
+            monitor: Some(ConnectivityMonitor::new(
+                now,
+                TunnelStats::default(),
+                now + establish_timeout,
+            )),
+        }))
     }
 
-    /// Negotiate the post-quantum / DAITA ephemeral peer(s).
-    ///
-    /// Returns the `(entry, exit_key, exit_peer)` triple to configure the final
-    /// device(s) with - `entry` is `Some` only for multihop PQ.
+    /// Negotiate the post-quantum / DAITA ephemeral peer(s), if either is enabled.
     async fn negotiate_pq(
         params: &TunnelParameters,
         udp: &BoundUdpTransports,
         obfuscation: Option<RunningObfuscation>,
-    ) -> Result<PqResult, TunnelError> {
-        // No PQ/DAITA: the device peer is just the static configured exit peer.
+    ) -> Result<Option<NegotiatedPeers>, TunnelError> {
         if !(params.enable_pq || params.enable_daita) {
-            let private_key = StaticSecret::from(params.private_key);
-            return Ok((None, private_key, Self::build_peer(&params.exit_peer)));
+            return Ok(None);
         }
 
         let relay = |peer: &PeerParameters| Relay {
@@ -484,65 +539,41 @@ impl IosTunnelAdapter {
                 .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
             MaybeObfuscatingTransportFactory::new(udp.clone(), obfuscation, ingress_endpoint)
         };
-        let negotiated =
-            negotiate_ephemeral_peers(&negotiation_config, negotiate, ingress_transport)
-                .await
-                .map_err(TunnelError::NegotiatePQError)?;
-
-        let ingress_key = StaticSecret::from(negotiated.private_key.to_bytes());
-        let exit_key = negotiated.exit_private_key.as_ref().map_or_else(
-            || ingress_key.clone(),
-            |exit_private_key| StaticSecret::from(exit_private_key.to_bytes()),
-        );
-        let exit_peer = Self::build_peer(&params.exit_peer);
-        Ok(match &params.entry_peer {
-            None => {
-                let mut ingress_peer = exit_peer;
-                if let Some(psk) = negotiated.ingress_psk.as_ref() {
-                    ingress_peer = ingress_peer.with_preshared_key(*psk.as_bytes());
-                }
-                if let Some(daita) = negotiated.daita.as_ref() {
-                    ingress_peer = ingress_peer.with_daita(daita.into());
-                }
-                (None, exit_key, ingress_peer)
-            }
-            Some(entry_peer) => {
-                let mut ingress_peer = Self::build_peer(entry_peer);
-                if let Some(psk) = negotiated.ingress_psk.as_ref() {
-                    ingress_peer = ingress_peer.with_preshared_key(*psk.as_bytes());
-                }
-                if let Some(daita) = negotiated.daita.as_ref() {
-                    ingress_peer = ingress_peer.with_daita(daita.into());
-                }
-
-                let mut exit_peer = exit_peer;
-                if let Some(psk) = negotiated.exit_psk.as_ref() {
-                    exit_peer = exit_peer.with_preshared_key(*psk.as_bytes());
-                }
-
-                (Some((ingress_key, ingress_peer)), exit_key, exit_peer)
-            }
-        })
+        negotiate_ephemeral_peers(&negotiation_config, negotiate, ingress_transport)
+            .await
+            .map(Some)
+            .map_err(TunnelError::NegotiatePQError)
     }
 
-    /// Build the final GotaTun device(s) carrying user traffic and configure
-    /// their peers.
+    /// Build the GotaTun device(s) carrying user traffic, with the keys and PSKs from
+    /// `negotiated` if any.
     async fn build_devices(
         params: &TunnelParameters,
         obfuscation: &ObfuscatingTransports,
-        pq: PqResult,
+        negotiated: Option<NegotiatedPeers>,
+        ingress_key: StaticSecret,
         mux_recv: tun_device::IosTunIpRecv,
         mux_send: tun_device::IosTunIpSend,
     ) -> Result<Devices, TunnelError> {
-        let (pq_entry, pq_exit_key, pq_exit_peer) = pq;
+        let negotiated = negotiated.as_ref();
+        let ingress_peer = |peer: &PeerParameters| {
+            let mut peer = Self::build_peer(peer);
+            if let Some(psk) = negotiated.and_then(|negotiated| negotiated.ingress_psk.as_ref()) {
+                peer = peer.with_preshared_key(*psk.as_bytes());
+            }
+            if let Some(daita) = negotiated.and_then(|negotiated| negotiated.daita.as_ref()) {
+                peer = peer.with_daita(daita.into());
+            }
+            peer
+        };
 
         let Some(entry_peer_config) = params.entry_peer.as_ref() else {
             // Singlehop: one device, mux'd IP pair, obfuscated UDP.
             let device = DeviceBuilder::new()
                 .with_udp(obfuscation.clone())
                 .with_ip_pair(mux_send, mux_recv)
-                .with_private_key(pq_exit_key)
-                .with_peer(pq_exit_peer.with_endpoint(params.exit_peer.endpoint))
+                .with_private_key(ingress_key)
+                .with_peer(ingress_peer(&params.exit_peer))
                 .build()
                 .await
                 .map_err(TunnelError::GotaTunDeviceError)?;
@@ -556,11 +587,22 @@ impl IosTunnelAdapter {
         let (tun_channel_tx, tun_channel_rx, udp_channels) =
             new_udp_tun_channel(100, params.ipv4_addr, params.ipv6_addr, entry_mtu);
 
+        // The exit's own key if negotiated, otherwise the ingress key.
+        let exit_key = negotiated
+            .and_then(|negotiated| negotiated.exit_private_key.as_ref())
+            .map_or_else(
+                || ingress_key.clone(),
+                |key| StaticSecret::from(key.to_bytes()),
+            );
+        let mut exit_peer = Self::build_peer(&params.exit_peer);
+        if let Some(psk) = negotiated.and_then(|negotiated| negotiated.exit_psk.as_ref()) {
+            exit_peer = exit_peer.with_preshared_key(*psk.as_bytes());
+        }
         let exit_device = DeviceBuilder::new()
             .with_udp(udp_channels)
             .with_ip_pair(mux_send, mux_recv)
-            .with_private_key(pq_exit_key)
-            .with_peer(pq_exit_peer)
+            .with_private_key(exit_key)
+            .with_peer(exit_peer)
             .build()
             .await
             .map_err(TunnelError::MultihopExitDeviceError)?;
@@ -571,20 +613,11 @@ impl IosTunnelAdapter {
             params.exit_peer.endpoint
         );
 
-        // Use the PQ entry key if negotiated, otherwise the device key.
-        let (entry_key, entry_peer) = pq_entry.unwrap_or_else(|| {
-            (
-                StaticSecret::from(params.private_key),
-                Self::build_peer(entry_peer_config),
-            )
-        });
-        let entry_peer = entry_peer.with_endpoint(entry_peer_config.endpoint);
-
         let entry_device = match DeviceBuilder::new()
             .with_udp(obfuscation.clone())
             .with_ip_pair(tun_channel_tx, tun_channel_rx)
-            .with_peer(entry_peer)
-            .with_private_key(entry_key)
+            .with_peer(ingress_peer(entry_peer_config))
+            .with_private_key(ingress_key)
             .build()
             .await
         {
@@ -612,130 +645,6 @@ impl IosTunnelAdapter {
             .await
             .map_err(TunnelError::ICMPSocketError)?;
         Ok(SmoltcpPinger::new(icmp_socket, gateway, ping_ident))
-    }
-
-    /// Ping until the device sees inbound traffic, the establish timeout fires,
-    /// or we are stopped. Returns whether the tunnel became connected.
-    async fn establish_connectivity(
-        connection: &mut ActiveConnection,
-        pinger: &mut SmoltcpPinger,
-        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
-        stopped: &AtomicBool,
-    ) -> Result<bool, TunnelError> {
-        let establish_timeout = connection.params.establish_timeout();
-        log::info!("Establishing connectivity (timeout: {establish_timeout:?})");
-
-        if let Err(e) = pinger.send_icmp().await {
-            log::warn!("Initial ping failed: {e}");
-        }
-
-        tokio::select! {
-            result = Self::wait_for_connectivity(connection, pinger, rx, stopped) => result,
-            _ = tokio::time::sleep(establish_timeout) => Ok(false),
-        }
-    }
-
-    /// Wait for the device to receive traffic (rx_bytes > 0 on any peer).
-    async fn wait_for_connectivity(
-        connection: &mut ActiveConnection,
-        pinger: &mut SmoltcpPinger,
-        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
-        stopped: &AtomicBool,
-    ) -> Result<bool, TunnelError> {
-        let mut last_ping = Instant::now();
-        // A suspended tunnel carries nothing, so there is no point pinging over it.
-        let mut suspended = false;
-
-        loop {
-            if stopped.load(Ordering::SeqCst) {
-                return Ok(false);
-            }
-
-            if !suspended {
-                if connection.devices.has_rx().await {
-                    log::debug!("Connectivity established - rx_bytes > 0");
-                    return Ok(true);
-                }
-
-                if last_ping.elapsed() >= PING_INTERVAL {
-                    if let Err(e) = pinger.send_icmp().await {
-                        log::warn!("Ping failed: {e}");
-                    }
-                    last_ping = Instant::now();
-                }
-            }
-
-            tokio::select! {
-                _ = tokio::time::sleep(CONNECTIVITY_CHECK_INTERVAL) => {}
-                command = rx.recv() => {
-                    // The channel only closes with the adapter, which stops us.
-                    let Some(command) = command else { return Ok(false) };
-                    match connection.handle_command(command).await? {
-                        CommandOutcome::Stop => return Ok(false),
-                        CommandOutcome::Suspended => suspended = true,
-                        CommandOutcome::Awake => suspended = false,
-                    }
-                    // Give the tunnel the full ping interval again after it moved sockets.
-                    last_ping = Instant::now() - PING_INTERVAL;
-                }
-            }
-        }
-    }
-
-    /// Monitor an established connection, probing it when user traffic goes unanswered.
-    /// Returns when connectivity is lost or the tunnel is stopped.
-    async fn monitor_connectivity(
-        connection: &mut ActiveConnection,
-        pinger: &mut SmoltcpPinger,
-        user_tx: &TxPacketCounter,
-        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
-        stopped: &AtomicBool,
-    ) -> Result<(), TunnelError> {
-        let mut monitor = ConnMonitor::new(user_tx.get(), connection.devices.liveness_rx().await);
-        // A suspended tunnel receives nothing, so the monitor must not run while it sleeps.
-        let mut suspended = false;
-
-        loop {
-            tokio::select! {
-                _ = tokio::time::sleep(MONITOR_INTERVAL) => {}
-                command = rx.recv() => {
-                    // The channel only closes when the adapter is dropped, which stops us.
-                    let Some(command) = command else { return Ok(()) };
-                    match connection.handle_command(command).await? {
-                        CommandOutcome::Stop => return Ok(()),
-                        CommandOutcome::Suspended => suspended = true,
-                        CommandOutcome::Awake => suspended = false,
-                    }
-                    // Do not hold a sleep, or the sockets it spanned, against the tunnel.
-                    monitor.reset();
-                    continue;
-                }
-            }
-
-            if stopped.load(Ordering::SeqCst) {
-                return Ok(());
-            }
-            if suspended {
-                continue;
-            }
-
-            let rx_bytes = connection.devices.liveness_rx().await;
-            match monitor.tick(Instant::now(), user_tx.get(), rx_bytes) {
-                Action::None => {}
-                Action::Ping(count) => {
-                    log::debug!("User traffic unanswered - sending {count} ping(s)");
-                    for _ in 0..count {
-                        if let Err(e) = pinger.send_icmp().await {
-                            log::warn!("Ping failed: {e}");
-                        }
-                    }
-                }
-                Action::Dead => {
-                    log::warn!("No RX after user traffic and pings - connection lost");
-                    return Ok(());
-                }
-            }
-        }
     }
 
     fn fire_error(
@@ -770,17 +679,6 @@ impl IosTunnelAdapter {
             IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
         };
         overhead as u16
-    }
-
-    /// The public key of the ingress device after PQ: the entry key in multihop, the exit key in
-    /// singlehop. LWO obfuscates the handshake with this key rather than the device key.
-    fn ingress_public_key(pq: &PqResult) -> PublicKey {
-        let (pq_entry, pq_exit_key, _) = pq;
-        let ingress_key = match pq_entry {
-            Some((entry_key, _)) => entry_key,
-            None => pq_exit_key,
-        };
-        PublicKey::from(gotatun::x25519::PublicKey::from(ingress_key).to_bytes())
     }
 }
 
@@ -845,25 +743,9 @@ impl Devices {
         };
     }
 
-    /// Peer stats of the ingress device - the one whose rx reflects tunnel
-    /// liveness (the entry device in multihop, the only device in singlehop).
-    async fn ingress_peers(&self) -> Vec<gotatun::device::configure::PeerStats> {
-        match self {
-            Devices::Singlehop(dev) => dev.read(async |d| d.peers().await).await,
-            Devices::Multihop { entry, .. } => entry.read(async |d| d.peers().await).await,
-        }
-    }
-
-    async fn has_rx(&self) -> bool {
-        self.ingress_peers()
-            .await
-            .iter()
-            .any(|p| p.stats.rx_bytes > 0)
-    }
-
     /// Bytes received by the innermost device - the exit device in multihop, the only device in
     /// singlehop - so that a dead exit relay is not masked by a live entry relay.
-    async fn liveness_rx(&self) -> usize {
+    async fn rx_bytes(&self) -> usize {
         let peers = match self {
             Devices::Singlehop(dev) => dev.read(async |d| d.peers().await).await,
             Devices::Multihop { exit, .. } => exit.read(async |d| d.peers().await).await,
@@ -874,10 +756,11 @@ impl Devices {
 
 #[cfg(test)]
 mod tests {
-    use super::params::tests::peer;
     use super::*;
+    use std::os::fd::AsRawFd;
     use std::sync::Mutex;
     use std::sync::atomic::AtomicUsize;
+    use std::time::Duration;
 
     /// Records callback invocations so tests can assert on terminal behaviour.
     #[derive(Default)]
@@ -929,6 +812,49 @@ mod tests {
         assert_eq!(concrete.timeout.load(Ordering::SeqCst), 0);
     }
 
+    /// Start a real adapter on a socket pair standing in for the TUN device, with a loopback
+    /// relay that never answers.
+    fn start_adapter(
+        runtime: &tokio::runtime::Runtime,
+        tun: &std::os::unix::net::UnixStream,
+        enable_pq: bool,
+    ) -> (IosTunnelAdapter, Arc<CountingCallback>) {
+        let mut params = super::params::tests::params();
+        params.tun_fd = tun.as_raw_fd();
+        params.exit_peer.endpoint = "127.0.0.1:1".parse().unwrap();
+        params.enable_pq = enable_pq;
+        let udp = runtime.block_on(BoundUdpTransports::bind()).unwrap();
+        let (concrete, dynamic) = callback();
+        let adapter = IosTunnelAdapter::start(runtime.handle().clone(), params, udp, dynamic);
+        (adapter, concrete)
+    }
+
+    #[test]
+    fn stop_waits_for_the_task_and_fires_no_callback() {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let (tun, _peer) = std::os::unix::net::UnixStream::pair().unwrap();
+
+        // Stopped at once, while establishing, and during PQ negotiation.
+        for (delay, enable_pq) in [
+            (Duration::ZERO, false),
+            (Duration::from_millis(300), false),
+            (Duration::from_millis(300), true),
+        ] {
+            let (adapter, callback) = start_adapter(&runtime, &tun, enable_pq);
+            std::thread::sleep(delay);
+            adapter.stop();
+
+            assert!(adapter.task_handle.lock().unwrap().is_none());
+            assert_eq!(callback.connected.load(Ordering::SeqCst), 0);
+            assert_eq!(callback.timeout.load(Ordering::SeqCst), 0);
+            assert!(
+                callback.errors.lock().unwrap().is_empty(),
+                "{:?}",
+                callback.errors.lock().unwrap().len()
+            );
+        }
+    }
+
     #[test]
     fn fire_timeout_fires_once() {
         let (concrete, dynamic) = callback();
@@ -949,38 +875,5 @@ mod tests {
             "IPv6 header is larger than IPv4 (v4={v4}, v6={v6})"
         );
         assert_eq!((v6 - v4) as usize, Ipv6Header::LEN - Ipv4Header::LEN);
-    }
-
-    #[test]
-    fn ingress_public_key_picks_entry_key_when_multihop() {
-        let entry_secret = StaticSecret::from([1u8; 32]);
-        let exit_secret = StaticSecret::from([2u8; 32]);
-        let entry_pub = gotatun::x25519::PublicKey::from(&entry_secret).to_bytes();
-        let exit_pub = gotatun::x25519::PublicKey::from(&exit_secret).to_bytes();
-
-        // Multihop PQ: the entry ephemeral key is used.
-        let pq_multihop: PqResult = (
-            Some((
-                entry_secret,
-                IosTunnelAdapter::build_peer(&peer("9.9.9.9:1")),
-            )),
-            StaticSecret::from([2u8; 32]),
-            IosTunnelAdapter::build_peer(&peer("1.2.3.4:1")),
-        );
-        assert_eq!(
-            IosTunnelAdapter::ingress_public_key(&pq_multihop).as_bytes(),
-            &entry_pub
-        );
-
-        // Singlehop PQ: the (only) exit key is used.
-        let pq_singlehop: PqResult = (
-            None,
-            exit_secret,
-            IosTunnelAdapter::build_peer(&peer("1.2.3.4:1")),
-        );
-        assert_eq!(
-            IosTunnelAdapter::ingress_public_key(&pq_singlehop).as_bytes(),
-            &exit_pub
-        );
     }
 }
