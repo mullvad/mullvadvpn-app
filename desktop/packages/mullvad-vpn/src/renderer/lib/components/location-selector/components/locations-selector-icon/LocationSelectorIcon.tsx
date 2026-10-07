@@ -16,17 +16,32 @@ export type LocationSelectorIconProps = IconProps & {
 export const StyledLocationSelectorIcon = styled(Flex)`
   position: absolute;
   height: 100%;
+  top: 0;
+  z-index: var(--location-selector-above-line-z-index);
 `;
 
-export const StyledIconBackground = styled.div<{ $color: string; $horizontalOffset: number }>`
-  ${({ $color, $horizontalOffset }) => {
+export const StyledIconContainer = styled.div<{ $horizontalOffset: number }>`
+  ${({ $horizontalOffset }) => {
+    return css`
+      position: relative;
+      display: inline-flex;
+      top: 50%;
+      left: ${$horizontalOffset}px;
+      transform: translateY(-50%);
+      z-index: inherit;
+    `;
+  }}
+`;
+
+export const StyledIconBackground = styled.div<{ $color: string }>`
+  ${({ $color }) => {
     return css`
       height: 20px;
       width: 20px;
       position: absolute;
       top: 40%;
-      left: calc(0px - ${$horizontalOffset}px);
-      z-index: var(--above-line-z-index);
+      left: 0px;
+      z-index: inherit;
       background-color: ${$color};
       transform: rotate(45deg) translateY(-50%);
 
@@ -38,28 +53,23 @@ export const StyledIconBackground = styled.div<{ $color: string; $horizontalOffs
   }}
 `;
 
-export const StyledIcon = styled(Icon)<{ $horizontalOffset: number }>`
-  ${({ $horizontalOffset }) => {
-    return css`
-      position: absolute;
-      top: 50%;
-      left: calc(${spacings.small} - ${$horizontalOffset}px);
-      transform: translateY(-50%);
-      z-index: var(--above-line-z-index);
-    `;
-  }}
+export const StyledIcon = styled(Icon)`
+  position: absolute;
+  top: 50%;
+  left: ${spacings.small};
+  transform: translateY(-50%);
+  z-index: inherit;
 `;
 
 export const StyledLine = styled(LocationSelectorLine)<{
   $position: LocationSelectorPositions;
-  $horizontalOffset: number;
 }>`
-  ${({ $horizontalOffset, $position }) => {
+  ${({ $position }) => {
     const verticalOffset = $position === 'top' ? 3 : $position === 'bottom' ? -3 : 0;
 
     return css`
-      left: calc(16px - ${$horizontalOffset}px);
-      z-index: var(--above-line-z-index);
+      left: 16px;
+      z-index: var(--location-selector-z-index);
       top: ${verticalOffset}px;
       ${() => {
         if (verticalOffset !== 0) {
@@ -84,9 +94,11 @@ export function LocationSelectorIcon({
 
   return (
     <StyledLocationSelectorIcon aria-hidden>
-      <StyledLine $position={position} $horizontalOffset={horizontalOffset} $visible={expanded} />
-      <StyledIconBackground $color={backgroundColor} $horizontalOffset={horizontalOffset} />
-      <StyledIcon size="small" $horizontalOffset={horizontalOffset} {...props} />
+      <StyledIconContainer $horizontalOffset={horizontalOffset}>
+        <StyledLine $position={position} $visible={expanded} />
+        <StyledIconBackground $color={backgroundColor} />
+        <StyledIcon size="small" {...props} />
+      </StyledIconContainer>
     </StyledLocationSelectorIcon>
   );
 }
