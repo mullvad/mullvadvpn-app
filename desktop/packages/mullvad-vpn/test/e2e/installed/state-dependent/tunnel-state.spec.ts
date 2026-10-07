@@ -221,9 +221,7 @@ test.describe('Tunnel state and settings', () => {
   test('App should connect with Shadowsocks', async () => {
     await reconnectWith(() => exec('mullvad anti-censorship set mode shadowsocks'));
     expect((await expectInAddress()).obfuscationType).toBe('shadowsocks');
-
-    await reconnectWith(() => exec('mullvad anti-censorship set mode off'));
-    expect((await expectInAddress()).obfuscationType).toBeUndefined();
+    await reconnectWith(() => exec('mullvad anti-censorship set mode auto'));
   });
 
   test('App should show multihop', async () => {
