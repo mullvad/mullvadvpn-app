@@ -449,15 +449,10 @@ class BillingPaymentRepositoryTest {
                 BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
             every { mockPurchasesResult.purchasesList } returns listOf(mockBillingPurchase)
             every { mockProductDetailsResult.productDetailsList } returns listOf(mockBillingProduct)
-            coEvery {
-                mockUserPreferencesRepository.latestSuccessfulPurchase()
-            } returns mockPurchaseToken
-            coEvery {
-                mockBillingRepository.queryPurchases()
-            } returns mockPurchasesResult
-            coEvery {
-                mockBillingRepository.queryProducts(any())
-            } returns mockProductDetailsResult
+            coEvery { mockUserPreferencesRepository.latestSuccessfulPurchase() } returns
+                mockPurchaseToken
+            coEvery { mockBillingRepository.queryPurchases() } returns mockPurchasesResult
+            coEvery { mockBillingRepository.queryProducts(any()) } returns mockProductDetailsResult
 
             paymentRepository.queryPaymentAvailability().test {
                 // Loading
@@ -481,12 +476,8 @@ class BillingPaymentRepositoryTest {
             every { mockPurchasesResult.billingResult } returns
                 BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
             every { mockPurchasesResult.purchasesList } returns emptyList()
-            coEvery {
-                mockBillingRepository.queryPurchases()
-            } returns mockPurchasesResult
-            coEvery {
-                mockBillingRepository.queryProducts(any())
-            } returns
+            coEvery { mockBillingRepository.queryPurchases() } returns mockPurchasesResult
+            coEvery { mockBillingRepository.queryProducts(any()) } returns
                 mockk<ProductDetailsResult>().also {
                     every { it.billingResult } returns
                         BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
