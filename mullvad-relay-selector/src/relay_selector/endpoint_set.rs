@@ -244,10 +244,8 @@ impl RelayEndpointSet {
 
         let mode = match query {
             Constraint::Any => {
-                let staggered_obfuscator = cfg_select! {
-                    not(feature = "staggered-obfuscation") => None,
-                    feature = "staggered-obfuscation" => self.staggered_obfuscator(wireguard_endpoint, ip_version),
-                };
+                let staggered_obfuscator =
+                    self.staggered_obfuscator(wireguard_endpoint, ip_version);
                 return Ok((wireguard_endpoint, staggered_obfuscator));
             }
             Constraint::Only(mode) => mode,
@@ -271,7 +269,6 @@ impl RelayEndpointSet {
 
     /// Build a multiplexer [`Obfuscators`] config that tries all available obfuscation methods
     /// in parallel alongside the plain `direct_endpoint`.
-    #[cfg(feature = "staggered-obfuscation")]
     fn staggered_obfuscator(
         &self,
         direct_endpoint: SocketAddr,
