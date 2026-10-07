@@ -151,7 +151,7 @@
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.26.0"/>
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.27.0"/>
          </trusted-key>
-         <trusted-key id="46F591A09B37505F53A29B8209650EB0D45F1C5E" group="net.mullvad" name="plugin" version="0.10.1"/>
+         <trusted-key id="46F591A09B37505F53A29B8209650EB0D45F1C5E" group="net.mullvad" name="plugin" version="0.11.0"/>
          <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
          <trusted-key id="47BF592261CD1A8A69B703B4E0CB7823CFD00FBF" group="com.jakewharton.android.repackaged" name="dalvik-dx" version="9.0.0_r3"/>
