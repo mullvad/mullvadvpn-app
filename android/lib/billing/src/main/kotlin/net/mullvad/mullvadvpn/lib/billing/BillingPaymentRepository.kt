@@ -36,18 +36,33 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationError
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,
     private val playPurchaseRepository: PlayPurchaseRepository,
+    private val userPreferenceRepository: UserPreferencesRepository,
 ) : PaymentRepository {
 
     override fun queryPaymentAvailability(): Flow<PaymentAvailability> = flow {
         emit(PaymentAvailability.Loading)
         val purchases = billingRepository.queryPurchases()
+
+        if (purchases.purchasesList.isEmpty()) {
+            // If we have no purchases we can assume that all purchases has been successfully
+            // verified, and we can clear the latest successful purchase from the user preferences.
+            userPreferenceRepository.clearLatestSuccessfulPurchase()
+        }
+
         val productIdToPaymentStatus =
             purchases.purchasesList
                 .filter { it.products.isNotEmpty() }
+                .filter {
+                    // Filter out purchases that are saved as successful. If they are returned from
+                    // the billing library, it means that the play services cache is not updated,
+                    // and we should trust the response from the api.
+                    it.purchaseToken != userPreferenceRepository.latestSuccessfulPurchase()
+                }
                 .associate { it.products.first() to it.purchaseState.toPaymentStatus() }
         emit(
             billingRepository
@@ -56,6 +71,7 @@ class BillingPaymentRepository(
         )
     }
 
+    @Suppress("LongMethod")
     override fun purchaseProduct(
         productId: ProductId,
         activityProvider: () -> Activity,
@@ -133,6 +149,14 @@ class BillingPaymentRepository(
                     emit(PurchaseResult.VerificationStarted)
                     emit(
                         verifyPurchase(purchase)
+                            .onRight {
+                                // Save the latest successful purchase to the user preferences.
+                                // This is used to filter out purchases that are returned from
+                                // the billing library, but have already been verified.
+                                userPreferenceRepository.setLatestSuccessfulPurchase(
+                                    purchase.purchaseToken
+                                )
+                            }
                             .fold(
                                 { error -> error.toPurchaseResultError() },
                                 { verifiedProductId ->
@@ -160,8 +184,19 @@ class BillingPaymentRepository(
             Logger.d("No purchases to verify")
             return@either VerificationResult.NothingToVerify
         }
-        verifyPurchase(purchases.first())
+        val purchase = purchases.first()
+        if (purchase.purchaseToken == userPreferenceRepository.latestSuccessfulPurchase()) {
+            Logger.d("Purchase already verified")
+            return@either VerificationResult.NothingToVerify
+        }
+        verifyPurchase(purchase)
             .mapLeft { it.toPurchaseVerificationError() }
+            .onRight {
+                // Save the latest successful purchase to the user preferences.
+                // This is used to filter out purchases that are returned from
+                // the billing library, but have already been verified.
+                userPreferenceRepository.setLatestSuccessfulPurchase(purchase.purchaseToken)
+            }
             .map { productId -> VerificationResult.Success(productId) }
             .bind()
     }

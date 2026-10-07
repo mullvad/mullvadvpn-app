@@ -9,8 +9,12 @@ import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesResult
+import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlin.test.assertEquals
@@ -25,8 +29,10 @@ import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,6 +42,7 @@ class BillingPaymentRepositoryTest {
 
     private val mockBillingRepository: BillingRepository = mockk()
     private val mockPlayPurchaseRepository: PlayPurchaseRepository = mockk()
+    private val mockUserPreferencesRepository: UserPreferencesRepository = mockk()
 
     private val purchaseEventFlow = MutableSharedFlow<PurchaseEvent>(extraBufferCapacity = 1)
 
@@ -46,11 +53,13 @@ class BillingPaymentRepositoryTest {
         mockkStatic(PRODUCT_DETAILS_TO_PAYMENT_PRODUCT_EXT)
 
         every { mockBillingRepository.purchaseEvents } returns purchaseEventFlow
+        coEvery { mockUserPreferencesRepository.clearLatestSuccessfulPurchase() } just Runs
 
         paymentRepository =
             BillingPaymentRepository(
                 billingRepository = mockBillingRepository,
                 playPurchaseRepository = mockPlayPurchaseRepository,
+                userPreferenceRepository = mockUserPreferencesRepository,
             )
     }
 
@@ -362,6 +371,9 @@ class BillingPaymentRepositoryTest {
         coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
             PlayExternalObfuscatedAccountId("MOCK").right()
         coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns Unit.right()
+        coEvery {
+            mockUserPreferencesRepository.setLatestSuccessfulPurchase(mockPurchaseToken)
+        } just Runs
 
         // Act, Assert
         paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -412,6 +424,75 @@ class BillingPaymentRepositoryTest {
                 purchaseEventFlow.tryEmit(PurchaseEvent.Completed(listOf(mockBillingPurchase)))
                 val result = awaitItem()
                 assertIs<PurchaseResult.Completed.Pending>(result)
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `when user preferences returns a successful purchase token should ignore any unverified purchase with the same token`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockPurchaseToken = "TOKEN"
+            val mockBillingPurchase: Purchase = mockk()
+            val mockPurchasesResult: PurchasesResult = mockk()
+            val mockProductDetailsResult: ProductDetailsResult = mockk()
+            val mockBillingProduct: ProductDetails = mockk()
+            every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
+            every { mockBillingPurchase.products } returns listOf(mockProductId.value)
+            every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
+            every { mockBillingProduct.productId } returns mockProductId.value
+            every { mockBillingProduct.oneTimePurchaseOfferDetails?.formattedPrice } returns "5.00€"
+            every { mockPurchasesResult.billingResult } returns
+                BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
+            every { mockProductDetailsResult.billingResult } returns
+                BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
+            every { mockPurchasesResult.purchasesList } returns listOf(mockBillingPurchase)
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockBillingProduct)
+            coEvery { mockUserPreferencesRepository.latestSuccessfulPurchase() } returns
+                mockPurchaseToken
+            coEvery { mockBillingRepository.queryPurchases() } returns mockPurchasesResult
+            coEvery { mockBillingRepository.queryProducts(any()) } returns mockProductDetailsResult
+
+            paymentRepository.queryPaymentAvailability().test {
+                // Loading
+                awaitItem()
+                val result = awaitItem()
+                assertIs<PaymentAvailability.ProductsAvailable>(result)
+                assertEquals(mockProductId.value, result.products.first().productId.value)
+                assertEquals(
+                    false,
+                    result.products.any { it.status == PaymentStatus.PURCHASED_UNVERIFIED },
+                )
+                awaitComplete()
+            }
+        }
+
+    @Test
+    fun `when query purchases returns empty list should clear latest successful purchase`() =
+        runTest {
+            // Arrange
+            val mockPurchasesResult: PurchasesResult = mockk()
+            every { mockPurchasesResult.billingResult } returns
+                BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
+            every { mockPurchasesResult.purchasesList } returns emptyList()
+            coEvery { mockBillingRepository.queryPurchases() } returns mockPurchasesResult
+            coEvery { mockBillingRepository.queryProducts(any()) } returns
+                mockk<ProductDetailsResult>().also {
+                    every { it.billingResult } returns
+                        BillingResult.newBuilder().setResponseCode(BillingResponseCode.OK).build()
+                    every { it.productDetailsList } returns emptyList()
+                }
+
+            // Act, Assert
+            paymentRepository.queryPaymentAvailability().test {
+                // Loading
+                awaitItem()
+                val result = awaitItem()
+                assertIs<PaymentAvailability.NoProductsFound>(result)
+                coVerify(exactly = 1) {
+                    mockUserPreferencesRepository.clearLatestSuccessfulPurchase()
+                }
                 awaitComplete()
             }
         }

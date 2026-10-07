@@ -42,6 +42,9 @@ dependencies {
     // Management service
     implementation(projects.lib.grpc)
 
+    // User preferences
+    implementation(projects.lib.userPreferences)
+
     // Logger
     implementation(libs.kermit)
 }
