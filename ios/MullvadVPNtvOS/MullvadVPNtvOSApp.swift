@@ -12,9 +12,22 @@ import SwiftUI
 
 @main
 struct MullvadVPNtvOSApp: App {
+    @State private var navigation = Navigation()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                switch navigation.state {
+                case .loggedIn:
+                    MapView()
+                case .loggedOut:
+                    RootView()
+                }
+            }
+            .fullScreenCover(isPresented: $navigation.isPresentingAccount, content: {
+                AccountView()
+            })
+            .environment(navigation)
         }
     }
 }
