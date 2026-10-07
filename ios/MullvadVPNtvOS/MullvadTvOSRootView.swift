@@ -21,11 +21,11 @@ struct RootView: View {
 
             LoginView()
             CreateAccountPromptView()
-                .background(Palette.secondaryColor)
+                .background(Color.mullvadBackground)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 150)
         }
         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-        .background(Palette.primaryColor)
+        .background(Color.mullvadBackground)
         .environment(navigation)
     }
 }

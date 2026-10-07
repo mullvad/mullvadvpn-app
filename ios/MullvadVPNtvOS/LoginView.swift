@@ -13,7 +13,7 @@ import SwiftUI
 struct LoginView: View {
 
     @State private var accountNumber: String = ""
-    @State private var accountTextColor = Palette.white60
+    @State private var accountTextColor: Color = .white
     @Environment(Navigation.self) private var navigation: Navigation
 
     var body: some View {
@@ -39,10 +39,10 @@ struct LoginView: View {
     func login() {
         print("Logging in with \(accountNumber)")
         if validateAccountNumber() {
-            accountTextColor = Palette.white60
+            accountTextColor = .white
             navigation.logIn()
         } else {
-            accountTextColor = Palette.dangerColor
+            accountTextColor = .mullvadDangerColor
         }
     }
 

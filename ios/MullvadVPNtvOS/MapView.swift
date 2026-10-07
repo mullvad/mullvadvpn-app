@@ -16,11 +16,11 @@ struct MapView: View {
         VStack {
             HeaderBar()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 100)
-                .background(Palette.dangerColor)
+                .background(Color.mullvadDangerColor)
                 Spacer()
             Text("Congratulations you are logged in !")
         }
-        .background(Palette.primaryColor)
+        .background(Color.mullvadBackground)
     }
 }
 

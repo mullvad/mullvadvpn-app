@@ -34,10 +34,6 @@ struct AccountView: View {
 
                 Spacer()
                 VStack(alignment: .leading) {
-                    Button("Redeem Voucher") {
-                        print("no redeem for you")
-                    }.buttonStyle(ConfirmedActionButton())
-
                     Button("Log out") {
                         print("LOG OUT")
                         navigation.logOut()
@@ -45,7 +41,7 @@ struct AccountView: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .leading)
-            .background(Palette.primaryColor)
+            .background(Color.mullvadBackground)
         }
     }
 }
@@ -61,7 +57,7 @@ struct ConfirmedActionButton: ButtonStyle {
         configuration.label
             .font(.title2)
             .padding()
-            .background(Palette.successColor)
+            .background(Color.mullvadSuccessColor)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .scaleEffect(focused ? 1.1: 1)
@@ -76,7 +72,7 @@ struct DestructiveActionButton: ButtonStyle {
         configuration.label
             .font(.title2)
             .padding()
-            .background(Palette.dangerColor)
+            .background(Color.mullvadDangerColor)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .scaleEffect(focused ? 1.1 : 1)
