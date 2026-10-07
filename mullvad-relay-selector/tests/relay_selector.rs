@@ -750,11 +750,9 @@ mod relay_selection {
     }
 
     /// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
-    /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
-    /// obfuscator config.
+    /// multihop is explicitly turned off.
     ///
-    /// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
-    #[cfg(not(feature = "staggered-obfuscation"))]
+    /// The relay selector returns a multiplexer config.
     #[test]
     fn test_selecting_endpoint_with_auto_obfuscation() {
         use mullvad_types::constraints::Constraint;
@@ -766,7 +764,13 @@ mod relay_selection {
 
         for _ in 0..100 {
             let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-            assert!(relay.obfuscator.is_none());
+            // The multiplexer config may be `None` for a relay that supports no obfuscation
+            // method at all, and `Multiplexer` otherwise. `Single` never appears for an
+            // auto-obfuscation query.
+            assert!(matches!(
+                relay.obfuscator,
+                None | Some(Obfuscators::Multiplexer { .. })
+            ));
         }
     }
 

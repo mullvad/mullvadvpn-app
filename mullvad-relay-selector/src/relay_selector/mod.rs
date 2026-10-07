@@ -130,6 +130,9 @@ impl RelaySelector {
 
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
+    ///
+    /// When the query leaves obfuscation on "auto", the returned relay multiplexes every
+    /// obfuscation method it supports.
     pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
