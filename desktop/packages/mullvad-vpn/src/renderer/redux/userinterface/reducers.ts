@@ -27,7 +27,7 @@ const initialState: IUserInterfaceReduxState = {
   daemonAllowed: undefined,
   changelog: [],
   isPerformingPostUpgrade: false,
-  selectLocationView: LocationType.exit,
+  selectLocationView: 'exit',
   isMacOs13OrNewer: true,
 };
 
