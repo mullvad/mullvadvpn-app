@@ -29,4 +29,4 @@
 -dontwarn com.squareup.okhttp.TlsVersion
 
 # datastore
--keep class net.mullvad.mullvadvpn.repository.UserPreferences { *; }
+-keep class net.mullvad.mullvadvpn.lib.userpreferences.UserPreferences { *; }
