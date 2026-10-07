@@ -8,12 +8,11 @@ use smoltcp::{
     phy::ChecksumCapabilities,
     wire::{Icmpv4Packet, Icmpv4Repr},
 };
-use std::{io, net::Ipv4Addr};
+use std::{io, net::Ipv4Addr, ops::RangeInclusive};
 use talpid_netstack::smoltcp_network::SmoltcpIcmpSocket;
 
-/// Random payload carried in each echo request, matching common `ping` implementations.
-const PAYLOAD_LEN: usize = 42;
-const PACKET_LEN: usize = 8 + PAYLOAD_LEN; // ICMPv4 echo header + payload
+/// Bytes of random payload in an echo request, drawn anew for each one.
+const PAYLOAD_LEN: RangeInclusive<usize> = 16..=64;
 
 pub struct SmoltcpPinger {
     socket: SmoltcpIcmpSocket,
@@ -35,8 +34,8 @@ impl SmoltcpPinger {
     }
 
     pub async fn send_icmp(&mut self) -> Result<(), io::Error> {
-        let mut data = [0u8; PAYLOAD_LEN];
-        rand::rng().fill(&mut data);
+        let mut data = vec![0u8; rand::random_range(PAYLOAD_LEN)];
+        rand::rng().fill(&mut data[..]);
 
         let repr = Icmpv4Repr::EchoRequest {
             ident: self.id,
@@ -45,7 +44,7 @@ impl SmoltcpPinger {
         };
         self.seq = self.seq.wrapping_add(1);
 
-        let mut buffer = [0u8; PACKET_LEN];
+        let mut buffer = vec![0u8; repr.buffer_len()];
         let mut packet = Icmpv4Packet::new_unchecked(&mut buffer[..]);
         repr.emit(&mut packet, &ChecksumCapabilities::default());
 
