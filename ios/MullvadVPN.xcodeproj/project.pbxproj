@@ -831,9 +831,12 @@
 		A926A9BE30764343005946C5 /* MullvadTVHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */; };
 		A926A9C030764365005946C5 /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9BF30764365005946C5 /* Navigation.swift */; };
 		A926A9C2307643AB005946C5 /* CreateAccountPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */; };
-		A926A9C630764610005946C5 /* MullvadTV+Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C530764610005946C5 /* MullvadTV+Colors.swift */; };
 		A926A9C830764687005946C5 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C730764687005946C5 /* AccountView.swift */; };
 		A926A9CA30764A10005946C5 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A926A9C930764A10005946C5 /* MapView.swift */; };
+		A926A9CB30764F4E005946C5 /* Color+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EEB2DBF56AA009595EA /* Color+Mullvad.swift */; };
+		A926A9CC30764F56005946C5 /* UIColor+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA0152242560B004F3011 /* UIColor+Palette.swift */; };
+		A926A9CD30764F6B005946C5 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
+		A926A9CE30766CF2005946C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00481562FE0081800D145AF /* Assets.xcassets */; };
 		A92721DC300A1FB30094B2DA /* VPNSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */; };
 		A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
@@ -2589,7 +2592,6 @@
 		A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadTVHeaderView.swift; sourceTree = "<group>"; };
 		A926A9BF30764365005946C5 /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccountPromptView.swift; sourceTree = "<group>"; };
-		A926A9C530764610005946C5 /* MullvadTV+Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadTV+Colors.swift"; sourceTree = "<group>"; };
 		A926A9C730764687005946C5 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		A926A9C930764A10005946C5 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsView.swift; sourceTree = "<group>"; };
@@ -5470,7 +5472,6 @@
 				A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */,
 				A926A9BF30764365005946C5 /* Navigation.swift */,
 				A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */,
-				A926A9C530764610005946C5 /* MullvadTV+Colors.swift */,
 				A926A9C730764687005946C5 /* AccountView.swift */,
 				A926A9C930764A10005946C5 /* MapView.swift */,
 			);
@@ -6321,6 +6322,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A926A9CE30766CF2005946C5 /* Assets.xcassets in Resources */,
 				F9FF6098304E918900B0B36C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7688,14 +7690,16 @@
 			files = (
 				A926A9BC30764316005946C5 /* MullvadTvOSRootView.swift in Sources */,
 				A926A9BE30764343005946C5 /* MullvadTVHeaderView.swift in Sources */,
-				A926A9C630764610005946C5 /* MullvadTV+Colors.swift in Sources */,
 				A926A9CA30764A10005946C5 /* MapView.swift in Sources */,
 				A926A9C030764365005946C5 /* Navigation.swift in Sources */,
 				A926A9C830764687005946C5 /* AccountView.swift in Sources */,
 				A926A9BA3075378B005946C5 /* LoginViewModel.swift in Sources */,
+				A926A9CC30764F56005946C5 /* UIColor+Palette.swift in Sources */,
+				A926A9CB30764F4E005946C5 /* Color+Mullvad.swift in Sources */,
 				A926A9B530753702005946C5 /* LoginView.swift in Sources */,
 				A926A9C2307643AB005946C5 /* CreateAccountPromptView.swift in Sources */,
 				F9FF6097304E918900B0B36C /* MullvadVPNtvOSApp.swift in Sources */,
+				A926A9CD30764F6B005946C5 /* UIColor+Helpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
