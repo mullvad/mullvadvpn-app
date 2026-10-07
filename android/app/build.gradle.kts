@@ -20,6 +20,7 @@ import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
 import utilities.registerReleaseTask
+import utilities.registerSbomTasks
 import utilities.registerVerifyArtifactsTask
 
 plugins {
@@ -424,6 +425,8 @@ registerReleaseTask(
 )
 
 registerVerifyArtifactsTask(appVersion.name)
+
+registerSbomTasks(appVersion.name)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }

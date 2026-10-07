@@ -3,6 +3,7 @@
   nixpkgs,
   android-nixpkgs,
   common-toolchain,
+  unstable-pkgs,
 }:
 let
   inherit
@@ -68,6 +69,9 @@ in
       rust-toolchain
       jdk
       pkgs.python314
+      unstable-pkgs.cargo-cyclonedx
+      unstable-pkgs.cyclonedx-cli
+      pkgs.jq
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
 }

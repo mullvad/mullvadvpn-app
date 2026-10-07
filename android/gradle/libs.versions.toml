@@ -45,6 +45,7 @@ compose = "1.12.1"
 compose-constraintlayout = "1.1.2"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
+cyclonedx-bom = "3.4.1"
 dependency-versions = "0.64.0"
 detekt = "2.0.0-alpha.6"
 accompanist = "0.37.3"
@@ -130,6 +131,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+cyclonedx-gradle-plugin = { module = "org.cyclonedx:cyclonedx-gradle-plugin", version.ref = "cyclonedx-bom" }
 detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 detekt-gradle-plugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }

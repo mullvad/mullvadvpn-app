@@ -113,12 +113,27 @@
         "type": "indirect"
       }
     },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1791336361,
+        "narHash": "sha256-7WQwlykef1x8n7aoyw4XP6882i2NRs5F6dVCXZ1NI1g=",
+        "rev": "7dd199b0e2993e37b4775ed66b1c291699608c9f",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1086972.7dd199b0e299/nixexprs.tar.zst"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixpkgs-unstable",
+        "type": "indirect"
+      }
+    },
     "root": {
       "inputs": {
         "android-nixpkgs": "android-nixpkgs",
         "devshell": "devshell_2",
         "flake-utils": "flake-utils_2",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-unstable": "nixpkgs-unstable",
         "rust-overlay": "rust-overlay"
       }
     },

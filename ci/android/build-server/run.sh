@@ -103,7 +103,9 @@ function build {
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
     ./building/containerized-build.sh android "$task" || return 1
 
-    mv dist/*.{aab,apk} "$artifact_dir" || return 1
+    ./building/container-run.sh android bash android/scripts/generate-sbom.sh || return 1
+
+    mv dist/*.{aab,apk,cdx.json} "$artifact_dir" || return 1
 
     cp android/src/main/play/release-notes/en-US/default.txt \
         "$artifact_dir/$(cat dist-assets/android-version-code.txt).txt" || return 1
