@@ -426,7 +426,7 @@ registerReleaseTask(
 
 registerVerifyArtifactsTask(appVersion.name)
 
-registerSbomTasks(appVersion.name)
+registerSbomTasks(appVersion.name.value)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
