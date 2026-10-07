@@ -11,7 +11,7 @@
 import Foundation
 import Network
 
-enum ApplicationConfiguration {
+public enum ApplicationConfiguration {
     static var hostName: String {
         Bundle.main.object(forInfoDictionaryKey: "HostName") as! String
     }
@@ -22,7 +22,7 @@ enum ApplicationConfiguration {
     }
 
     /// Container URL for security group.
-    static var containerURL: URL {
+    public static var containerURL: URL {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
     }
 
