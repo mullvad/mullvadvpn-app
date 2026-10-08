@@ -1,0 +1,8 @@
+name: Check code owner approvals
+inputs:
+  github-token:
+    required: true
+    description: GitHub token
+runs:
+  using: node24
+  main: dist/index.js
