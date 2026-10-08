@@ -110,6 +110,11 @@ COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
 RUN /tmp/rust/install-rust.sh android && rm -r /tmp/rust
 ENV PATH=/root/.cargo/bin:$PATH
 
+# === Install SBOM tools ===
+
+RUN --mount=type=bind,source=building/install-cyclonedx.sh,target=/tmp/install-cyclonedx.sh \
+    /tmp/install-cyclonedx.sh
+
 # === Install Android packages ===
 
 # Install Android command line tools
