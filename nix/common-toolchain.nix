@@ -10,5 +10,8 @@ in
     pkgs.gcc
     pkgs.gnumake
     pkgs.protobuf
+    pkgs.jq
+    unstable-pkgs.cargo-cyclonedx
+    unstable-pkgs.cyclonedx-cli
   ];
 }
