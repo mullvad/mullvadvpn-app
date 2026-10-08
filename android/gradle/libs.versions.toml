@@ -75,7 +75,7 @@ annotation-jvm = "1.11.0"
 junit-version = "4.13.2"
 material = "1.14.0"
 rust-android = "0.11.0"
-wire = "7.0.3"
+wire = "7.1.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
