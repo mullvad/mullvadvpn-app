@@ -76,7 +76,7 @@ function setup-repo {
     cp "$config_src" "$repo_dir/config.yml"
 
     local icon_src="$BUILD_DIR/android/src/main/play/listings/en-US/graphics/icon/icon.png"
-    cp "$icon_src" "$repo_dir/repo/icons/icon.png"
+    cp "$icon_src" "$repo_dir/icon.png"
     cp "$icon_src" "$repo_dir/metadata/net.mullvad.mullvadvpn/en-US/images/icon.png"
 
     local metadata_dest="$repo_dir/metadata/net.mullvad.mullvadvpn.yml"
