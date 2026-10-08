@@ -279,10 +279,10 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let endpoint_addrs = ingress_endpoint_addrs(&config);
+            let endpoint_addr = ingress_endpoint_addr(&config);
             let routes =
                 Self::get_pre_tunnel_routes(&metadata.interface, &config, userspace_wireguard)
-                    .chain(Self::get_endpoint_routes(&endpoint_addrs))
+                    .chain(Self::get_endpoint_route(endpoint_addr))
                     .collect();
 
             args.route_manager
@@ -763,24 +763,20 @@ impl WireguardMonitor {
         }
     }
 
-    /// Returns routes to the peer endpoints (through the physical interface).
+    /// Returns the route to the peer endpoint (through the physical interface), if one is needed.
     #[cfg_attr(target_os = "linux", expect(unused_variables))]
     #[cfg(not(target_os = "android"))]
-    fn get_endpoint_routes(
-        endpoints: &[std::net::IpAddr],
-    ) -> impl Iterator<Item = RequiredRoute> + '_ {
+    fn get_endpoint_route(endpoint: IpAddr) -> Option<RequiredRoute> {
         #[cfg(target_os = "linux")]
         {
             // No need due to policy based routing.
-            std::iter::empty::<RequiredRoute>()
+            None
         }
         #[cfg(not(target_os = "linux"))]
-        endpoints.iter().map(|ip| {
-            RequiredRoute::new(
-                ipnetwork::IpNetwork::from(*ip),
-                talpid_routing::NetNode::DefaultNode,
-            )
-        })
+        Some(RequiredRoute::new(
+            ipnetwork::IpNetwork::from(endpoint),
+            talpid_routing::NetNode::DefaultNode,
+        ))
     }
 
     #[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
@@ -931,16 +927,19 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
     }
 }
 
-/// The addresses that the tunnel reaches the ingress relay at.
+/// The address that the tunnel reaches the ingress relay at.
+///
+/// `config` must be the config returned by [connect_to_ingress], which has committed to a single
+/// transport.
 #[cfg(not(target_os = "android"))]
-fn ingress_endpoint_addrs(config: &Config) -> Vec<IpAddr> {
+fn ingress_endpoint_addr(config: &Config) -> IpAddr {
+    use talpid_types::net::obfuscation::Obfuscators;
     match &config.obfuscator_config {
-        Some(obfuscators) => obfuscators
-            .endpoints()
-            .iter()
-            .map(|endpoint| endpoint.address.ip())
-            .collect(),
-        None => vec![config.entry_peer.endpoint.ip()],
+        Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
+        Some(Obfuscators::Multiplexer { .. }) => {
+            unreachable!("connect_to_ingress commits to a single transport")
+        }
+        None => config.entry_peer.endpoint.ip(),
     }
 }
 
