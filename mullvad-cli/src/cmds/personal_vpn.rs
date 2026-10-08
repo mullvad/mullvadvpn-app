@@ -11,7 +11,7 @@ use std::{
 };
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::{
-    PersonalVpnTunnelConfig, UnresolvedPersonalVpnConfig, UnresolvedPersonalVpnPeerConfig,
+    PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig,
 };
 
 use super::BooleanOption;
@@ -116,15 +116,15 @@ impl PersonalVpn {
         allowed_ip: Vec<IpNetwork>,
         endpoint: String,
     ) -> Result<()> {
-        let config = UnresolvedPersonalVpnConfig {
+        let config = PersonalVpnConfig {
             tunnel: PersonalVpnTunnelConfig {
                 private_key,
                 ips: tunnel_ip,
             },
-            peer: UnresolvedPersonalVpnPeerConfig {
+            peer: PersonalVpnPeerConfig {
                 public_key: peer_pubkey,
                 allowed_ip,
-                endpoint,
+                endpoint: endpoint.parse()?,
             },
         };
         let mut rpc = MullvadProxyClient::new().await?;

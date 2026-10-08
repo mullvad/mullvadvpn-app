@@ -1379,7 +1379,7 @@ impl ManagementService for ManagementServiceImpl {
             None
         } else {
             Some(
-                talpid_types::net::wireguard::UnresolvedPersonalVpnConfig::try_from(request)
+                talpid_types::net::wireguard::PersonalVpnConfig::try_from(request)
                     .map_err(map_protobuf_type_err)?,
             )
         };
@@ -1406,8 +1406,11 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<types::PersonalVpnConfigError> {
         log::debug!("import_personal_vpn_config");
         let body = request.into_inner();
-        let config = <talpid_types::net::wireguard::UnresolvedPersonalVpnConfig as std::str::FromStr>::from_str(&body)
-            .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        let config =
+            <talpid_types::net::wireguard::PersonalVpnConfig as std::str::FromStr>::from_str(&body)
+                .map_err(|err| {
+                    Status::invalid_argument(format!("failed to parse config: {err}"))
+                })?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfig(tx, Some(config)))?;
         let error = self.wait_for_result(rx).await?;
