@@ -234,7 +234,7 @@ test.describe('Tunnel state and settings', () => {
     const { hostname } = await getConnectedRelay();
     const relay = routes.main.getRelayHostname();
     await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${hostname} via`), 'i'));
-    await exec('mullvad relay set multihop auto');
+    await reconnectWith(() => exec('mullvad relay set multihop auto'));
   });
 
   test('App should disconnect', async () => {
