@@ -139,12 +139,12 @@ test.describe('Tunnel state and settings', () => {
       await exec('mullvad anti-censorship set wireguard-port --port 53');
     });
     const connectedRelay = await getConnectedRelay();
-    expect(connectedRelay).toMatchObject({ inPort: 53 });
+    expect(connectedRelay.inPort).toBe(53);
     await expectInAddress(connectedRelay);
 
     await reconnectWith(() => exec('mullvad anti-censorship set wireguard-port --port 51820'));
     const newRelay = await getConnectedRelay();
-    expect(newRelay).toMatchObject({ inPort: 51820 });
+    expect(newRelay.inPort).toBe(51820);
     await expectInAddress(newRelay);
 
     await reconnectWith(async () => {
