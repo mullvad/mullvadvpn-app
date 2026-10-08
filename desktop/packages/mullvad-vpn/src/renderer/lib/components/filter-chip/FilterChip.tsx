@@ -16,7 +16,7 @@ const variables = {
   inactive: colors.blue20,
   inactiveHover: colors.blue40,
   inactiveActive: colors.blue60,
-  disabled: colors.blue50,
+  disabled: colors.blue20,
 } as const;
 
 export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean; $inactive?: boolean }>`
