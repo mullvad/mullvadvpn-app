@@ -71,8 +71,6 @@ OPT_CONFIG=(
     --config 'profile.dev.package.chacha20.overflow-checks=false'
     --config 'profile.dev.package.poly1305.opt-level=3'
     --config 'profile.dev.package.poly1305.overflow-checks=false'
-    --config 'profile.dev.package.mullvad-ios.debug-assertions=false'
-    --config 'profile.dev.package.mullvad-ios.overflow-checks=false'
     --config 'profile.dev.package.mullvad-ios.opt-level=2'
 )
 
