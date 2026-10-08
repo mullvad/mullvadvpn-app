@@ -15,7 +15,7 @@ in
     pkgs.protobuf
     pkgs.jq
     # The cyclonedx packages are not pinned to the same versions as our containers to avoid complexity
-    # and simplify maintenence. If it becomes an issue we should introduce exact version pinning.
+    # and simplify maintenance. If it becomes an issue we should introduce exact version pinning.
     unstable-pkgs.cargo-cyclonedx
     unstable-pkgs.cyclonedx-cli
   ];
