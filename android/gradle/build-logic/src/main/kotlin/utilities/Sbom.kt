@@ -14,8 +14,7 @@ fun Project.registerSbomTasks(versionName: String) {
         tasks.register<CyclonedxDirectTask>("generate${cap}Sbom") {
             includeConfigs.set(listOf("${variant}RuntimeClasspath"))
             schemaVersion.set(Version.VERSION_15)
-            componentName.set("mullvad-vpn-android")
-            componentVersion.set(versionName)
+            includeBuildSystem.set(false)
             jsonOutput.set(layout.buildDirectory.file("reports/$variant.jvm.cdx.json"))
         }
     }
