@@ -228,7 +228,7 @@ impl RouteManagerHandle {
         use tokio::time::timeout;
         /// Maximum time to wait for routes to come up. The expected mean time is low (~200 ms), but
         /// we add some additional margin to give some slack to slower hardware primarily.
-        const WAIT_FOR_ROUTES_TIMEOUT: Duration = Duration::from_secs(2);
+        const WAIT_FOR_ROUTES_TIMEOUT: Duration = Duration::from_secs(5);
 
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
