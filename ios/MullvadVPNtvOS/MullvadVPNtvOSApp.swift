@@ -12,7 +12,14 @@ import SwiftUI
 
 @main
 struct MullvadVPNtvOSApp: App {
+    init() {
+        dependencies = Task {
+            await DependencyManager().start()
+        }
+    }
+
     @State private var navigation = Navigation()
+    @State var dependencies: Task<DependencyManager, Never>
 
     var body: some Scene {
         WindowGroup {
