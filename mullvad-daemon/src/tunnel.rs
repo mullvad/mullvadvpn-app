@@ -1,4 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use mullvad_types::CustomTunnelEndpoint;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
@@ -43,7 +44,7 @@ pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 
 struct InnerParametersGenerator {
     relay_selector: RelaySelectorIO,
-    relay_settings: RelaySettings,
+    custom_endpoint: Option<CustomTunnelEndpoint>,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
 
@@ -62,7 +63,7 @@ impl ParametersGenerator {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
-            relay_settings,
+            custom_endpoint: relay_settings.as_custom_tunnel_endpoint().cloned(),
             account_manager,
             last_generated_relays: None,
             obfuscation_round: None,
@@ -79,7 +80,7 @@ impl ParametersGenerator {
     /// Updates generator state from full settings and keeps relay-selector config in sync.
     pub async fn set_settings(&self, settings: Settings) {
         let mut inner = self.0.lock().await;
-        inner.relay_settings = settings.relay_settings.clone();
+        inner.custom_endpoint = settings.relay_settings.as_custom_tunnel_endpoint().cloned();
         inner.relay_selector.set_config(settings);
         inner.obfuscation_round = None; // Reset round
     }
@@ -180,7 +181,7 @@ impl InnerParametersGenerator {
         ip_availability: IpAvailability,
     ) -> Result<TunnelParameters, Error> {
         // Custom tunnel endpoints bypass relay selection entirely.
-        if let RelaySettings::CustomTunnelEndpoint(ref endpoint) = self.relay_settings {
+        if let Some(endpoint) = self.custom_endpoint.as_ref() {
             self.last_generated_relays = None;
             return endpoint
                 .to_tunnel_parameters(self.tunnel_options.clone())
