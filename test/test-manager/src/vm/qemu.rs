@@ -102,8 +102,6 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> anyhow::Result<QemuIn
         &vcpus.to_string(),
         "-drive",
         &format!("file={}", vm_config.image_path),
-        "-device",
-        "virtio-serial-pci",
         "-serial",
         "pty",
         // attach to TAP interface
