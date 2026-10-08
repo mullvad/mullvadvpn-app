@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Devices
@@ -150,7 +152,8 @@ fun RedeemVoucherDialog(
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                // Required for By.res works in tests
+                modifier = Modifier.fillMaxWidth().semantics { testTagsAsResourceId = true },
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 TimeUnit.DAYS.toSeconds(1)

@@ -17,6 +17,10 @@ class WelcomePage internal constructor() : Page() {
     fun clickAccount() {
         uiDevice.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG)).click()
     }
+
+    fun clickAddTime() {
+        uiDevice.findObjectWithTimeout(By.text("Add time")).click()
+    }
 }
 
 fun UiDevice.dismissStorePasswordPromptIfShown() {

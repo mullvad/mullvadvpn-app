@@ -3,16 +3,24 @@ package net.mullvad.mullvadvpn.test.mockapi.util
 import java.time.ZonedDateTime
 import org.json.JSONObject
 
-fun accountInfoJson(id: String, expiry: ZonedDateTime) =
+fun accountInfoJson(id: String, hasPayments: Boolean, expiry: ZonedDateTime) =
     JSONObject().apply {
         put("id", id)
         put("expiry", expiry.formatStrictlyAccordingToIso8601AndRfc3339())
         put("max_devices", 5)
+        put("has_payments", hasPayments)
         put("can_add_devices", true)
     }
 
-fun accountCreationJson(id: String, accountNumber: String, expiry: ZonedDateTime) =
-    accountInfoJson(id, expiry).apply { put("number", accountNumber) }
+fun accountCreationJson(
+    id: String,
+    accountNumber: String,
+    expiry: ZonedDateTime,
+    hasPayments: Boolean,
+) =
+    accountInfoJson(id, hasPayments = hasPayments, expiry = expiry).apply {
+        put("number", accountNumber)
+    }
 
 fun deviceJson(id: String, name: String, publicKey: String, creationDate: ZonedDateTime) =
     JSONObject().apply {
@@ -35,4 +43,10 @@ fun tooManyDevicesJsonResponse() =
     JSONObject().apply {
         put("code", "MAX_DEVICES_REACHED")
         put("detail", "This account already has the maximum number of devices.")
+    }
+
+fun voucherRedeemedSuccessfullyJsonResponse(timeAdded: Int, expiry: ZonedDateTime) =
+    JSONObject().apply {
+        put("time_added", timeAdded)
+        put("new_expiry", expiry.formatStrictlyAccordingToIso8601AndRfc3339())
     }

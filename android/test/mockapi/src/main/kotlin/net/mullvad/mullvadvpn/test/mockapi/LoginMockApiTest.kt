@@ -22,6 +22,7 @@ class LoginMockApiTest : MockApiTest() {
         apiRouter.apply {
             expectedAccountNumber = null
             accountExpiry = ZonedDateTime.now().plusHours(24)
+            hasPayments = true
         }
 
         // Act login with invalid credentials
@@ -46,6 +47,7 @@ class LoginMockApiTest : MockApiTest() {
         apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusHours(24)
+            hasPayments = true
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }

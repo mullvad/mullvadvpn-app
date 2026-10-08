@@ -107,7 +107,9 @@ class AccountRepository(
         managementService.getWebsiteAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
-        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
+        accountData.value?.copy(expiryDate = newExpiry, hasPayments = true)?.let {
+            _mutableAccountDataCache.emit(it)
+        }
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
