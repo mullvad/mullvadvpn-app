@@ -47,7 +47,8 @@
     "ci/android/**",
     "scripts/check-apostrophe-style",
     "mullvad-jni/**",
-    ".github/workflows/android-*"
+    ".github/workflows/android-*",
+    "building/install-cyclonedx.sh"
   ],
   "appteam-lead": [
     ".github/pinact.yml",
