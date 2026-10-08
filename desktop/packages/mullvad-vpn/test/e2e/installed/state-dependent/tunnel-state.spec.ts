@@ -75,18 +75,14 @@ async function reconnectWith(changeSettings: () => Promise<unknown>) {
   await expectConnected(page);
 }
 
-// Expects the connection panel to show the in address of the relay that the daemon is connected
-// to, and returns that relay
-async function expectInAddress(): Promise<ConnectedRelay> {
-  const relay = await getConnectedRelay();
-
+// Expects the connection panel to show the in address (IP, port, protocol) of the relay that the
+// daemon is connected to.
+async function expectInAddress(relay: ConnectedRelay) {
   const inIp = routes.main.getInIp();
   if (!(await inIp.isVisible())) {
     await routes.main.expandConnectionPanel();
   }
   await expect(inIp).toHaveText(formatInAddress(relay));
-
-  return relay;
 }
 
 let page: Page;
@@ -142,10 +138,14 @@ test.describe('Tunnel state and settings', () => {
       await exec('mullvad anti-censorship set mode wireguard-port');
       await exec('mullvad anti-censorship set wireguard-port --port 53');
     });
-    expect((await expectInAddress()).inPort).toBe(53);
+    const connectedRelay = await getConnectedRelay();
+    expect(connectedRelay).toMatchObject({ inPort: 53 });
+    await expectInAddress(connectedRelay);
 
     await reconnectWith(() => exec('mullvad anti-censorship set wireguard-port --port 51820'));
-    expect((await expectInAddress()).inPort).toBe(51820);
+    const newRelay = await getConnectedRelay();
+    expect(newRelay).toMatchObject({ inPort: 51820 });
+    await expectInAddress(newRelay);
 
     await reconnectWith(async () => {
       await exec('mullvad anti-censorship set wireguard-port --port any');
@@ -170,7 +170,9 @@ test.describe('Tunnel state and settings', () => {
     });
 
     test('App should show UDP', async () => {
-      expect((await expectInAddress()).inProtocol).toBe('udp');
+      const connectedRelay = await getConnectedRelay();
+      await expectInAddress(connectedRelay);
+      expect(connectedRelay.inProtocol).toBe('udp');
     });
 
     test('App should enable UDP-over-TCP', async () => {
@@ -186,7 +188,8 @@ test.describe('Tunnel state and settings', () => {
         await routes.antiCensorship.goBackToRoute(RoutePath.main);
       });
 
-      const relay = await expectInAddress();
+      const relay = await getConnectedRelay();
+      await expectInAddress(relay);
       expect(relay.obfuscationType).toBe('udp2tcp');
       expect(relay.inProtocol).toBe('tcp');
       expect([80, 443, 5001]).toContain(relay.inPort);
@@ -201,7 +204,8 @@ test.describe('Tunnel state and settings', () => {
           await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
         });
 
-        const relay = await expectInAddress();
+        const relay = await getConnectedRelay();
+        await expectInAddress(relay);
         expect(relay.obfuscationType).toBe('udp2tcp');
         expect(relay.inPort).toBe(port);
       });
@@ -219,7 +223,9 @@ test.describe('Tunnel state and settings', () => {
 
   test('App should connect with Shadowsocks', async () => {
     await reconnectWith(() => exec('mullvad anti-censorship set mode shadowsocks'));
-    expect((await expectInAddress()).obfuscationType).toBe('shadowsocks');
+    const relay = await getConnectedRelay();
+    expect(relay.obfuscationType).toBe('shadowsocks');
+    await expectInAddress(relay);
     await reconnectWith(() => exec('mullvad anti-censorship set mode auto'));
   });
 
