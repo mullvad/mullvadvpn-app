@@ -1,0 +1,32 @@
+{
+  "name": "check-code-owner-approvals",
+  "type": "module",
+  "scripts": {
+    "build": "ncc build src/index.js -o dist",
+    "format": "eslint . --fix; prettier --write .",
+    "eslint": "eslint .",
+    "eslint-fix": "eslint --fix ."
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@actions/glob": "^0.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.6.4",
+    "@vercel/ncc": "^0.45.0",
+    "@vitest/coverage-v8": "^5.0.4",
+    "@vitest/ui": "^5.0.4",
+    "eslint": "^9.31.0",
+    "ts-jest": "^29.4.14",
+    "vitest": "^5.0.4",
+    "desktop": "../../../desktop/"
+   },
+   "overrides": {
+     "@istanbuljs/load-nyc-config": {
+       "js-yaml": "4.3.2"
+     }
+  }
+}
