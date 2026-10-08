@@ -65,10 +65,9 @@ function formatInAddress(relay: ConnectedRelay) {
   return `${inIp}:${relay.inPort} ${relay.inProtocol.toUpperCase()}`;
 }
 
-// Disconnects, applies `changeSettings` and connects again. Changing settings while connected
-// triggers a reconnect at some later point, so `expectConnected` could resolve for the old tunnel.
-// Going through the disconnected state ensures that the app shows the new tunnel.
+// Disconnects, applies `changeSettings` and connects again.
 async function reconnectWith(changeSettings: () => Promise<unknown>) {
+  // Disconnect first so `expectConnected` does not resolve for the old tunnel.
   await exec('mullvad disconnect --wait');
   await expectDisconnected(page);
   await changeSettings();
