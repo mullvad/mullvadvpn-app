@@ -104,7 +104,6 @@ impl TestHandler<'_> {
 pub async fn run(
     instance: &dyn vm::VmInstance,
     tests: Vec<TestMetadata>,
-    skip_wait: bool,
     print_failed_tests_only: bool,
     summary_logger: Option<SummaryLogger>,
 ) -> Result<TestResult> {
@@ -116,12 +115,8 @@ pub async fn run(
 
     let serial_stream =
         tokio_serial::SerialStream::open(&tokio_serial::new(pty_path, BAUD)).unwrap();
-    let (runner_transport, mullvad_daemon_transport, mut connection_handle, completion_handle) =
+    let (runner_transport, mullvad_daemon_transport, connection_handle, completion_handle) =
         test_rpc::transport::create_client_transports(serial_stream)?;
-
-    if !skip_wait {
-        connection_handle.wait_for_server().await?;
-    }
 
     log::info!("Running client");
 

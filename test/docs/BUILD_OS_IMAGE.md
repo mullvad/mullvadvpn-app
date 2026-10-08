@@ -151,10 +151,7 @@ do the following:
 
 ### Bootstrapping the test runner
 
-The test runner can either be deployed over SSH by `test-manager` (`--provisioner ssh`), or be
-started on boot from the test runner image mounted at `E:` (`--provisioner noop`).
-
-#### Deploying over SSH
+The test runner is deployed over SSH by `test-manager`.
 
 The SSH user must be an administrator and the same user that is logged on automatically (see
 autologon below), since the test runner runs as a scheduled task in that user's session.
@@ -170,34 +167,8 @@ autologon below), since the test runner runs as a scheduled task in that user's 
   The installer also adds a firewall rule allowing inbound connections on port 22.
 
 `test-manager` installs the runner in `C:\testing`, registers the scheduled task, and adds a
-Windows Defender exclusion for it. The steps under
-[Starting from the runner image](#starting-from-the-runner-image) can be skipped, but the remaining
-steps (time service, Windows Update, SmartScreen, autologon, etc.) still apply.
-
-#### Starting from the runner image
-
-The test runner needs to be started on boot, with the test runner image mounted at `E:`.
-This can be achieved as follows:
-
-* Restart the VM:
-
-    ```
-    qemu-system-x86_64 -cpu host -accel kvm -m 4096 -smp 2 -drive file="./os-images/windows10.qcow2"
-    ```
-
-* In the guest admin `cmd`, add the test runner as a scheduled task:
-
-    ```
-    schtasks /create /tn "Mullvad Test Runner" /sc onlogon /tr "\"E:\test-runner.exe\" \\.\COM1 serve" /rl highest
-    ```
-
-    Further changes might be required to prevent the task from stopping unexpectedly. In the
-    Task Scheduler (`taskschd.msc`), change the following settings for the runner task:
-
-    * Disable "Start the task only if the computer is on AC power".
-    * Disable "Stop task if it runs longer than ...".
-    * Enable "Run task as soon as possible after a scheduled start is missed".
-    * Enable "If the task fails, restart every: 1 minute".
+Windows Defender exclusion for it. The remaining steps (time service, Windows Update, SmartScreen,
+autologon, etc.) still apply:
 
 * In the guest, make sure that the time service is enabled and running
 
@@ -242,23 +213,10 @@ This can be achieved as follows:
 
 * Shut down.
 
-## Windows Security
-
-Windows Defender occasionally kills the `test-runner` because it believes it to be a trojan. This can be worked around by excluding `E:` and [the folder containing the standalone e2e GUI test executable](../../desktop/packages/mullvad-vpn/README.md) following this guide: https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26.
-
 ## Finishing setup
 
 Now you are done! If the VM was configured correctly, `test-manager` will be able to run the test suite using the new OS image.
 Now you should [add your new VM to the test-manager config](./test-manager/README.md#configuring-test-manager)
-
-## Notes on editing Windows VM images
-
-When editing the VM image, never shut it down with the test runner volume mounted (i.e. `E:`). When
-Windows is shut down with the disk mounted, it will be unable to remount it correctly when the image
-is replaced.
-
-To get around this behavior, remove the disk from your VM config before starting it with
-`--keep-changes`.
 
 # macOS 🚧
 

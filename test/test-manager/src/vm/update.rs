@@ -1,5 +1,5 @@
 use crate::{
-    config::{OsType, PackageType, Provisioner, VmConfig},
+    config::{OsType, PackageType, VmConfig},
     vm::ssh::SSHSession,
 };
 use anyhow::{Context, Result};
@@ -15,10 +15,6 @@ pub enum Update {
 ///
 /// Note that this function is blocking.
 pub fn packages(config: &VmConfig, guest_ip: std::net::IpAddr) -> Result<Update> {
-    match config.provisioner {
-        Provisioner::Noop => return Ok(Update::Nothing),
-        Provisioner::Ssh => (),
-    }
     // User SSH session to execute package manager update command.
     // This will of course be dependant on the target platform.
     let commands = match (config.os_type, config.package_type) {

@@ -122,8 +122,6 @@ A configuration containing one Debian 12 VM and one Windows 11 VM
       "provisioner": "ssh",
       "ssh_user": "test",
       "ssh_password": "test",
-      "disks": [],
-      "artifacts_dir": "/opt/testing",
       "tpm": false
     },
     "windows11": {
@@ -132,11 +130,9 @@ A configuration containing one Debian 12 VM and one Windows 11 VM
       "os_type": "windows",
       "package_type": null,
       "architecture": "x64",
-      "provisioner": "noop",
-      "ssh_user": null,
-      "ssh_password": null,
-      "disks": ["$TESTRUNNER_IMAGES/windows-test-runner.img"],
-      "artifacts_dir": "E:\\",
+      "provisioner": "ssh",
+      "ssh_user": "test",
+      "ssh_password": "test",
       "tpm": false
     }
   }

@@ -53,13 +53,6 @@ pub async fn provision(
             )
             .await
         }
-        Provisioner::Noop => {
-            let dir = config
-                .artifacts_dir
-                .as_ref()
-                .context("'artifacts_dir' must be set to a mountpoint")?;
-            Ok(dir.clone())
-        }
     }
 }
 
