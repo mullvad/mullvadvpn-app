@@ -6,7 +6,8 @@ use std::{
 };
 
 /// How often the tunnel is sampled while establishing.
-const ESTABLISH_INTERVAL: Duration = Duration::from_millis(200);
+const ESTABLISH_INTERVAL: Duration = Duration::from_millis(50);
+
 /// Interval between the echo requests sent while establishing.
 const ESTABLISH_PING_INTERVAL: Duration = Duration::from_secs(3);
 
