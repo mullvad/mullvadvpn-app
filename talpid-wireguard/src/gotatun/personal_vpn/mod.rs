@@ -139,17 +139,21 @@ pub async fn build(
     config: &Config,
     tun_dev: &GotaTunDevice,
 ) -> Result<Frontend, TunnelError> {
-    let overhead = match personal_vpn.peer.endpoint.ip() {
-        IpAddr::V4(..) => (Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
-        IpAddr::V6(..) => (Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
-    };
-    let bridge_mtu = tun_dev
-        .mtu()
-        .increase(overhead)
-        .ok_or(TunnelError::InvalidPersonalVpnConfig("MTU overflow"))?;
-
     let outer_v4 = config.tunnel_ipv4();
     let outer_v6 = config.tunnel_ipv6();
+    let (bridge_mtu, overhead) =
+        calculate_mtu_and_overhead(personal_vpn.peer.endpoint.ip(), tun_dev)?;
+    let nat_mappings = resolve_nat_mappings(personal_vpn, outer_v4, outer_v6)?;
+
+    // Reads from the system TUN are routed either to the personal VPN or the default outer VPN.
+    let mut router = {
+        let filtered_tun = SourceFilter::new(tun_dev.clone(), outer_v4, outer_v6);
+        TunRxRouter::new(filtered_tun)
+    };
+
+    let default_output = router.add_default_route(CHANNEL_CAPACITY);
+    let pvpn_output = router.add_routes(&personal_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
+    let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
 
     // Channel bridge (inner device UDP <-> outer device TUN). The source addresses must be the
     // outer tunnel addresses, so that packets emitted by the inner device land on the outer device
@@ -161,17 +165,11 @@ pub async fn build(
         bridge_mtu,
     );
 
-    // Split TUN reads by destination
-    let tun_rx = SourceFilter::new(tun_dev.clone(), outer_v4, outer_v6);
-    let mut router = TunRxRouter::new(tun_rx);
-    let default_output = router.add_default_route(CHANNEL_CAPACITY);
-    let alt_output = router.add_routes(&personal_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
-    let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
-
     // Outer device IpRecv: merge direct traffic and traffic encrypted by the inner device
     let outer_ip_recv = MergingIpRecv::new(default_output, bridge_tun_rx, PacketBufPool::new(100));
 
-    // Outer device IpSend: demux decrypted packets
+    // Outer device IpSend: Demux decrypted packets coming back from the outer device.
+    // Send to personal VPN if it's from the inner endpoint, otherwise to the standard TUN.
     let outer_ip_send = TunTxRouter::new(
         bridge_tun_tx,
         tun_dev.clone(),
@@ -179,61 +177,22 @@ pub async fn build(
         &personal_vpn.peer.allowed_ip,
     );
 
-    // NAT: rewrite addresses between the inner and outer tunnel addresses.
-    //
-    // The inner tunnel may carry one IPv4, one IPv6, or both. Each family is enabled only when both
-    // the inner tunnel and the outer Mullvad tunnel have an address for it. At least one family
-    // must be usable.
-    let inner_v4 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
-        &IpAddr::V4(ip) => Some(ip),
-        IpAddr::V6(_) => None,
-    });
-    let inner_v6 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
-        &IpAddr::V6(ip) => Some(ip),
-        IpAddr::V4(_) => None,
-    });
-
-    let nat_v4 = match (inner_v4, outer_v4) {
-        (Some(inner), Some(outer)) => Some((inner, outer)),
-        (Some(_), None) => {
-            log::warn!(
-                "Personal VPN inner tunnel has IPv4 but outer tunnel IPv4 is disabled; skipping IPv4"
-            );
-            None
-        }
-        _ => None,
-    };
-    let nat_v6 = match (inner_v6, outer_v6) {
-        (Some(inner), Some(outer)) => Some((inner, outer)),
-        (Some(_), None) => {
-            log::warn!(
-                "Personal VPN inner tunnel has IPv6 but outer tunnel IPv6 is disabled; skipping IPv6"
-            );
-            None
-        }
-        _ => None,
-    };
-
-    if nat_v4.is_none() && nat_v6.is_none() {
-        return Err(TunnelError::InvalidPersonalVpnConfig(
-            "no usable tunnel address family",
-        ));
-    }
-
+    // Rewrite IP addresses between the inner and outer tunnel environments.
     let mut tun_send = NatIpSend::new(tun_dev.clone());
-    let mut alt_recv = NatIpRecv::new(alt_output);
-    if let Some((inner_v4, outer_v4)) = nat_v4 {
-        tun_send = tun_send.with_v4(inner_v4, outer_v4);
-        alt_recv = alt_recv.with_v4(outer_v4, inner_v4);
+    let mut pvpn_recv = NatIpRecv::new(pvpn_output);
+
+    if let Some((inner, outer)) = nat_mappings.v4 {
+        tun_send = tun_send.with_v4(inner, outer);
+        pvpn_recv = pvpn_recv.with_v4(outer, inner);
     }
-    if let Some((inner_v6, outer_v6)) = nat_v6 {
-        tun_send = tun_send.with_v6(inner_v6, outer_v6);
-        alt_recv = alt_recv.with_v6(outer_v6, inner_v6);
+    if let Some((inner, outer)) = nat_mappings.v6 {
+        tun_send = tun_send.with_v6(inner, outer);
+        pvpn_recv = pvpn_recv.with_v6(outer, inner);
     }
 
     let inner_device = DeviceBuilder::new()
         .with_udp(inner_udp)
-        .with_ip_pair(tun_send, alt_recv)
+        .with_ip_pair(tun_send, pvpn_recv)
         .with_private_key(StaticSecret::from(
             personal_vpn.tunnel.private_key.to_bytes(),
         ))
@@ -255,4 +214,73 @@ pub async fn build(
         tun_rx: TunRx::PersonalVpn(outer_ip_recv),
         overhead,
     })
+}
+
+struct NatMappings {
+    v4: Option<(Ipv4Addr, Ipv4Addr)>,
+    v6: Option<(Ipv6Addr, Ipv6Addr)>,
+}
+
+/// Helper: Resolves and validates the address mappings needed for NAT rewriting
+fn resolve_nat_mappings(
+    personal_vpn: &PersonalVpnConfig,
+    outer_v4: Option<Ipv4Addr>,
+    outer_v6: Option<Ipv6Addr>,
+) -> Result<NatMappings, TunnelError> {
+    let inner_v4 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+        &IpAddr::V4(ip) => Some(ip),
+        IpAddr::V6(_) => None,
+    });
+    let inner_v6 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+        &IpAddr::V6(ip) => Some(ip),
+        IpAddr::V4(_) => None,
+    });
+
+    let v4 = match (inner_v4, outer_v4) {
+        (Some(inner), Some(outer)) => Some((inner, outer)),
+        (Some(_), None) => {
+            log::warn!(
+                "Personal VPN inner tunnel has IPv4 but outer tunnel IPv4 is disabled; skipping IPv4"
+            );
+            None
+        }
+        _ => None,
+    };
+
+    let v6 = match (inner_v6, outer_v6) {
+        (Some(inner), Some(outer)) => Some((inner, outer)),
+        (Some(_), None) => {
+            log::warn!(
+                "Personal VPN inner tunnel has IPv6 but outer tunnel IPv6 is disabled; skipping IPv6"
+            );
+            None
+        }
+        _ => None,
+    };
+
+    if v4.is_none() && v6.is_none() {
+        return Err(TunnelError::InvalidPersonalVpnConfig(
+            "no usable tunnel address family",
+        ));
+    }
+
+    Ok(NatMappings { v4, v6 })
+}
+
+/// Helper: Calculates MTU and Overhead based on the IP address type
+fn calculate_mtu_and_overhead(
+    endpoint_ip: IpAddr,
+    tun_dev: &GotaTunDevice,
+) -> Result<(MtuWatcher, u16), TunnelError> {
+    let overhead = match endpoint_ip {
+        IpAddr::V4(..) => (Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
+        IpAddr::V6(..) => (Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
+    };
+
+    let bridge_mtu = tun_dev
+        .mtu()
+        .increase(overhead)
+        .ok_or(TunnelError::InvalidPersonalVpnConfig("MTU overflow"))?;
+
+    Ok((bridge_mtu, overhead))
 }

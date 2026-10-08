@@ -190,9 +190,10 @@ impl<Inner: IpSend, Outer: IpSend> IpSend for TunTxRouter<Inner, Outer> {
         if let Some(udp) = UdpPacket::parse(&packet)
             && SocketAddr::new(udp.source, udp.source_port()) == self.inner_tun_endpoint
         {
-            return self.inner_tx.send(packet).await;
+            self.inner_tx.send(packet).await
+        } else {
+            self.outer_tx.send(packet).await
         }
-        self.outer_tx.send(packet).await
     }
 }
 

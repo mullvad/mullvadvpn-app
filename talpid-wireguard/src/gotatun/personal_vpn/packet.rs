@@ -7,6 +7,9 @@ use zerocopy::{FromBytes, IntoBytes, big_endian};
 /// Offset of the checksum in a TCP header.
 const TCP_CHECKSUM_OFFSET: usize = 16;
 
+/// The IHL value when no optional fields are present.
+const IPV4_NO_OPTIONAL_FIELDS_IHL: u8 = 5;
+
 /// A UDP datagram, or the first fragment of one.
 pub struct UdpPacket<'a> {
     pub source: IpAddr,
@@ -77,7 +80,7 @@ pub fn rewrite_address(
             let Ok(ipv4) = Ipv4::<[u8]>::mut_from_bytes(packet.as_mut_bytes()) else {
                 return false;
             };
-            if ipv4.header.ihl() != 5 {
+            if ipv4.header.ihl() != IPV4_NO_OPTIONAL_FIELDS_IHL {
                 return false;
             }
             let address = match direction {
