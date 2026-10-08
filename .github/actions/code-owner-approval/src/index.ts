@@ -1,5 +1,6 @@
-import { checkApprovals, setCommitStatus } from "./check";
-import { setFailed } from "@actions/core";
+import { setFailed } from '@actions/core';
+
+import { checkApprovals, setCommitStatus } from './check';
 
 async function run() {
   // Put all logic in a try-catch, so we can set the commit status
@@ -7,9 +8,9 @@ async function run() {
   try {
     await checkApprovals();
   } catch (err) {
-    await setCommitStatus("error", "Error checking code owner approvals");
+    await setCommitStatus('error', 'Error checking code owner approvals');
     setFailed(`Checking approvals failed with ${err}`);
   }
 }
 
-run();
+await run();
