@@ -28,6 +28,15 @@ fun String.getPubKey(): String? {
     }
 }
 
+fun String.getVoucherCode(): String? {
+    return try {
+        JSONObject(this).getString("voucher_code")
+    } catch (ex: JSONException) {
+        Logger.e("Unable to parse voucher code", ex)
+        null
+    }
+}
+
 suspend fun RoutingCall.respondOkJson(jsonObject: JSONObject) =
     respondText(
         text = jsonObject.toString(),

@@ -24,20 +24,25 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
 import net.mullvad.mullvadvpn.test.mockapi.constant.RELAY_LIST_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.SIGSUM_TIMESTAMPS_URL_PATH
+import net.mullvad.mullvadvpn.test.mockapi.constant.SUBMIT_VOUCHER_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
 import net.mullvad.mullvadvpn.test.mockapi.util.deviceJson
 import net.mullvad.mullvadvpn.test.mockapi.util.tooManyDevicesJsonResponse
+import net.mullvad.mullvadvpn.test.mockapi.util.voucherRedeemedSuccessfullyJsonResponse
 import org.json.JSONArray
 
 class MockApiRouter {
 
     var expectedAccountNumber: String? = null
     var accountExpiry: ZonedDateTime? = null
+    var hasPayments: Boolean = false
     var devices: MutableMap<String, String>? = null
     private val canAddDevices: Boolean
         get() = (devices?.size ?: 0) < 5
+
+    var expectedVoucherCode: String? = null
 
     var devicePendingToGetCreated: Pair<String, String>? = null
 
@@ -70,6 +75,7 @@ class MockApiRouter {
             get(RELAY_LIST_URL_PATH) { handleGetRelayListRequest(call) }
             get(DEVICES_ID_URL_PATH) { handleDeviceInfoRequest(call) }
             delete(DEVICES_ID_URL_PATH) { handleDeviceDeletionRequest(call) }
+            post(SUBMIT_VOUCHER_URL_PATH) { handleSubmitVoucherRequest(call) }
         }
     }
 
@@ -94,7 +100,9 @@ class MockApiRouter {
 
     private suspend fun handleAccountInfoRequest(call: RoutingCall) {
         return accountExpiry?.let { expiry ->
-            call.respondOkJson(accountInfoJson(id = DUMMY_ID_1, expiry = expiry))
+            call.respondOkJson(
+                accountInfoJson(id = DUMMY_ID_1, expiry = expiry, hasPayments = hasPayments)
+            )
         } ?: call.respondError()
     }
 
@@ -156,6 +164,7 @@ class MockApiRouter {
                 accountCreationJson(
                     id = DUMMY_ID_1,
                     expiry = ZonedDateTime.now(),
+                    hasPayments = hasPayments,
                     accountNumber = expectedAccountNumber,
                 )
             )
@@ -184,5 +193,19 @@ class MockApiRouter {
             devices.remove(deviceId)
             call.respond(HttpStatusCode.NoContent)
         } ?: call.respondError()
+    }
+
+    private suspend fun handleSubmitVoucherRequest(call: RoutingCall) {
+        val voucherCode = call.receiveText().getVoucherCode()
+        if (voucherCode == expectedVoucherCode && accountExpiry != null) {
+            call.respondCreatedJson(
+                voucherRedeemedSuccessfullyJsonResponse(
+                    timeAdded = 30,
+                    expiry = accountExpiry!!,
+                )
+            )
+        } else {
+            call.respondError()
+        }
     }
 }

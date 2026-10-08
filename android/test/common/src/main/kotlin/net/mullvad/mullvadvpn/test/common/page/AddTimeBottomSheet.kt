@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AddTimeBottomSheet internal constructor() : Page() {
     private val oneMonthSelector = By.textStartsWith("Add 30 days time")
+    private val redeemVoucherSelector = By.text("Redeem voucher")
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(By.res(ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG))
@@ -16,6 +17,10 @@ class AddTimeBottomSheet internal constructor() : Page() {
 
     fun click30days() {
         uiDevice.findObjectWithTimeout(oneMonthSelector).click()
+    }
+
+    fun clickRedeemVoucher() {
+        uiDevice.findObjectWithTimeout(redeemVoucherSelector).click()
     }
 }
 

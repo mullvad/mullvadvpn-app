@@ -18,6 +18,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         apiRouter.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = ZonedDateTime.now().plusMonths(1)
+            hasPayments = true
             devices = FULL_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_6 to DUMMY_DEVICE_NAME_6
         }
