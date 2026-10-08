@@ -158,7 +158,7 @@ impl ConnectivityMonitor {
         }
         self.last_ping = Some(now);
         self.pings_total += 1;
-        log::trace!(
+        log::debug!(
             "establish ping, {} ping(s) in total, at {}",
             self.pings_total,
             unix_millis()
@@ -190,7 +190,7 @@ impl ConnectivityMonitor {
             && self.probe_at.is_none()
             && now.duration_since(self.last_traffic) >= self.idle_timeout
         {
-            log::debug!("No traffic at all for a while, starting to probe");
+            log::info!("No traffic at all for a while, starting to probe");
             self.idle_probed = true;
             self.probe_at = Some(now);
         }
@@ -206,29 +206,23 @@ impl ConnectivityMonitor {
             return TunnelStatus::Healthy;
         };
         if probing_for >= PROBE_TIMEOUT {
-            log::warn!(
-                "No rx in {probing_for:?} after {} ping(s)",
-                self.pings_sent,
-            );
-            return Action::TimedOut;
+            log::trace!("No data received in {probing_for:?} after {} ping(s)", self.pings_sent,);
+            log::info!("Probe failed, tunnel has timed out");
+            return TunnelStatus::TimedOut;
         }
 
         let due = pings_due(probing_for);
         let to_send = due - self.pings_sent;
         if self.pings_sent == 0 && to_send > 0 {
             self.probes_total += 1;
-            log::trace!(
-                "probe #{} started at {}",
-                self.probes_total,
-                unix_millis()
-            );
+            log::debug!("probe #{} started at {}", self.probes_total, unix_millis());
         }
         self.pings_sent = due;
         if to_send == 0 {
             TunnelStatus::Healthy
         } else {
             self.pings_total += to_send;
-            log::trace!(
+            log::debug!(
                 "sending {to_send} ping(s), {} ping(s) and {} probe(s) in total, at {}",
                 self.pings_total,
                 self.probes_total,
