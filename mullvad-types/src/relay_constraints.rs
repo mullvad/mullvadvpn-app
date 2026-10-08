@@ -26,6 +26,16 @@ pub enum RelaySettings {
     Normal(RelayConstraints),
 }
 
+impl RelaySettings {
+    pub fn as_custom_tunnel_endpoint(&self) -> Option<&CustomTunnelEndpoint> {
+        if let Self::CustomTunnelEndpoint(v) = self {
+            Some(v)
+        } else {
+            None
+        }
+    }
+}
+
 impl From<CustomTunnelEndpoint> for RelaySettings {
     fn from(value: CustomTunnelEndpoint) -> Self {
         Self::CustomTunnelEndpoint(value)
