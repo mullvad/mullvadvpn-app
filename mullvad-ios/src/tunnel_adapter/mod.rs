@@ -303,6 +303,7 @@ impl ActiveConnection {
 
                 let now = Instant::now();
                 let stats = self.stats().await;
+
                 log::debug!(
                     "Woke after {elapsed:?}; tx {} packets, rx {} bytes",
                     stats.user_tx,
@@ -355,7 +356,7 @@ impl IosTunnelAdapter {
         if self.stopped.swap(true, Ordering::SeqCst) {
             return;
         }
-        log::debug!("Stopping device");
+        log::info!("Stopping device");
         _ = self.tx.send(TunnelAdapterChannelCommand::Stop);
         if let Some(task) = self.task_handle.lock().unwrap().take() {
             _ = self.runtime.block_on(task);
@@ -366,7 +367,7 @@ impl IosTunnelAdapter {
         if self.stopped.load(Ordering::SeqCst) {
             return;
         }
-        log::debug!("Recycling UDP sockets");
+        log::info!("Recycling UDP sockets");
         _ = self.tx.send(TunnelAdapterChannelCommand::BumpSockets);
     }
 
@@ -614,7 +615,7 @@ impl IosTunnelAdapter {
             .await
             .map_err(TunnelError::MultihopExitDeviceError)?;
 
-        log::info!(
+        log::trace!(
             "Multihop: entry={}, exit={}",
             entry_peer_config.endpoint,
             params.exit_peer.endpoint

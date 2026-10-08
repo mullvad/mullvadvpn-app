@@ -61,7 +61,7 @@ impl IosTunDevice {
         let flags = OFlag::from_bits_retain(fcntl(&owned_fd, FcntlArg::F_GETFL)?);
         fcntl(&owned_fd, FcntlArg::F_SETFL(flags | OFlag::O_NONBLOCK))?;
 
-        log::debug!(
+        log::trace!(
             "IosTunDevice: dup({fd}) = {}, registering with tokio (mtu={mtu})",
             owned_fd.as_raw_fd(),
         );
