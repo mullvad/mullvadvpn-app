@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-26.05";
+    nixpkgs-unstable.url = "nixpkgs/nixpkgs-unstable";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,6 +22,7 @@
   outputs =
     {
       nixpkgs,
+      nixpkgs-unstable,
       android-nixpkgs,
       rust-overlay,
       flake-utils,
@@ -38,8 +40,10 @@
           ];
         };
 
+        unstable-pkgs = nixpkgs-unstable.legacyPackages.${system};
+
         common-toolchain = import ./nix/common-toolchain.nix {
-          inherit pkgs;
+          inherit pkgs unstable-pkgs;
         };
 
         desktop-toolchain = import ./nix/desktop-toolchain.nix {
