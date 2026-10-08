@@ -3,6 +3,7 @@
   nixpkgs,
   android-nixpkgs,
   common-toolchain,
+  unstable-pkgs,
 }:
 let
   inherit
