@@ -11,11 +11,11 @@ REPO_ROOT=../../
 source ./repositories-env.sh
 source $REPO_ROOT/scripts/utils/log
 
-GH_ARGS=(--state open --limit 500)
+STATES=("triage")
 FORMAT_FN="format_href"
 
 function print_usage {
-    log_info "Usage: $0 [--help|-h] [--since <date parsed by \`date -d\`>]"
+    log_info "Usage: $0 [--help|-h] [--all|-a] [--plain|--markdown|--href]"
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -24,9 +24,8 @@ while [[ "$#" -gt 0 ]]; do
             print_usage
             exit 1
             ;;
-        --since)
-            GH_ARGS+=(--search "created:>=$(date -d "$2" +%F)")
-            shift
+        --all|-a)
+            STATES=()
             ;;
         --plain)
             FORMAT_FN="format_plain"
@@ -47,34 +46,34 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-
 function format_plain {
-    printf '[%s] %s (#%s)\n' "$1" "$3" "$2"
+    printf '%s [%s]: %s\n' "$1" "$2" "$4"
 }
 
 function format_href {
-    printf '[%s] %s (\e]8;;%s\e\\#%s\e]8;;\e\\)\n' "$1" "$3" "$4" "$2"
+    printf '\e]8;;%s\e\\%s\e]8;;\e\\ [%s]: %s\n' "$3" "$1" "$2" "$4"
 }
 
 function format_markdown {
-    printf '[%s] %s ([#%s](%s))\n' "$1" "$3" "$2" "$4"
+    printf '[%s](%s) [%s]: %s\n' "$1" "$3" "$2" "$4"
 }
 
 for repo in "${REPOSITORIES[@]}"; do
-    if ! issues=$(gh issue list --repo "mullvad/$repo" "${GH_ARGS[@]}" \
-        --json title,url,createdAt,comments,number \
-        --jq 'map(select(any(.comments[]; .authorAssociation == "MEMBER") | not)) | sort_by(.createdAt) | reverse' 2> /dev/null); then
-        continue
+    advisories=$(gh api "repos/mullvad/$repo/security-advisories")
+
+    if [[ ${#STATES[@]} != 0 ]]; then
+        advisories=$(echo -n "$advisories" | jq --args 'map(select(.state | IN($ARGS.positional[])))' \
+            "${STATES[@]}")
     fi
 
-    if [[ "$issues" == "[]" ]]; then
+    if [[ "$advisories" == "[]" ]]; then
         continue
     fi
 
     echo "# $repo"
-    echo "$issues" | jq -r '.[] | "\(.createdAt[:10])\t\(.number)\t\(.title[:58])\t\(.url)"' | \
-        while IFS=$'\t' read -r createdDate number title url; do
-          "$FORMAT_FN" "$createdDate" "$number" "$title" "$url"
+    echo "$advisories" | jq -r '.[] | "\(.ghsa_id)\t\(.state)\t\(.html_url)\t\(.summary)"' | \
+        while IFS=$'\t' read -r id state url summary; do
+            "$FORMAT_FN" "$id" "$state" "$url" "$summary"
         done
     echo ""
 done
