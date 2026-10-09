@@ -4,7 +4,12 @@ import { readFileSync } from 'node:fs';
 export type FilePattern = string;
 
 /**
- * The whole file: team name -> ordered list of glob patterns.
+ * The representation of one top-level entry in the JSON-file.
+ *
+ * This is one instance of TeamPatterns:
+ * {
+    "<team_name>": [ "**\/*.rust" ]
+ * }
  */
 export type TeamPatterns = Record<string, FilePattern[]>;
 
@@ -21,7 +26,10 @@ function isTeamPatterns(value: unknown): value is TeamPatterns {
   );
 }
 
-/** Parse the raw JSON *string*. Throws if malformed. */
+/** Parse the raw JSON *string*. Throws if malformed.
+ * @see TeamPatterns
+ * @throws TypeError if the pattern does not match Record<string, string[]>
+ */
 export function parseTeamPatterns(json: string): TeamPatterns {
   const data: unknown = JSON.parse(json);
   if (!isTeamPatterns(data)) {
