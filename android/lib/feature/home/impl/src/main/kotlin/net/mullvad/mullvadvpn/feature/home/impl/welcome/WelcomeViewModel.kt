@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -86,11 +85,8 @@ class WelcomeViewModel(
     private fun hasAddedTimeEffect() =
         accountRepository.accountData
             .filterNotNull()
-            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNowInstant() }
-            .onEach {
-                paymentUseCase.resetPurchaseResult()
-                accountRepository.resetIsNewAccount()
-            }
+            .filter { it.hasPayments }
+            .onEach { paymentUseCase.resetPurchaseResult() }
             .map { UiSideEffect.OpenConnectScreen }
 
     fun onSitePaymentClick() {
@@ -138,9 +134,5 @@ class WelcomeViewModel(
         data class StoreCredentialsRequest(val accountNumber: AccountNumber) : UiSideEffect
 
         data object GenericError : UiSideEffect
-    }
-
-    companion object {
-        private const val MIN_HOURS_PAST_ACCOUNT_EXPIRY: Long = 20
     }
 }

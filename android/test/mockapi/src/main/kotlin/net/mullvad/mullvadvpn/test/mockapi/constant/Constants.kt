@@ -9,6 +9,7 @@ const val ACCOUNT_URL_PATH = "/accounts/v1/accounts/me"
 const val CREATE_ACCOUNT_URL_PATH = "/accounts/v1/accounts"
 const val SIGSUM_TIMESTAMPS_URL_PATH = "/trl/v1/timestamps/latest"
 const val RELAY_LIST_URL_PATH = "/trl/v1/data/{digest}"
+const val SUBMIT_VOUCHER_URL_PATH = "/app/v1/submit-voucher"
 
 const val DUMMY_ID_1 = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 const val DUMMY_DEVICE_NAME_1 = "Mole Mole"

@@ -23,6 +23,7 @@ pub type PlayPurchasePaymentToken = String;
 pub struct AccountData {
     pub id: AccountId,
     pub expiry: DateTime<Utc>,
+    pub has_payments: bool,
 }
 
 impl AccountData {
