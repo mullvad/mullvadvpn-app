@@ -180,10 +180,15 @@ class MullvadTileService : TileService() {
                 is TunnelState.Connected ->
                     TileState.Active(subtitle = resources.getString(R.string.connected))
                 is TunnelState.Disconnecting -> {
-                    if (tunnelState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
-                        TileState.Active(subtitle = resources.getString(R.string.disconnecting))
-                    } else {
-                        TileState.Inactive(subtitle = resources.getString(R.string.disconnecting))
+                    when (tunnelState.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Nothing ->
+                            TileState.Inactive(
+                                subtitle = resources.getString(R.string.disconnecting)
+                            )
+                        ActionAfterDisconnect.Block ->
+                            TileState.Active(subtitle = resources.getString(R.string.blocking))
+                        ActionAfterDisconnect.Reconnect ->
+                            TileState.Active(subtitle = resources.getString(R.string.connecting))
                     }
                 }
 
