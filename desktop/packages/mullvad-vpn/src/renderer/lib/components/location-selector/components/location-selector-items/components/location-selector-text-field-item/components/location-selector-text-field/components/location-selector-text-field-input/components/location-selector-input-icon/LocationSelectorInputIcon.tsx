@@ -11,15 +11,6 @@ export function LocationSelectorInputIcon(props: LocationSelectorInputIconProps)
   const selected = useIsLocationSelected(id);
   const iconColor = useGetLocationIconColor(selected);
   const icon = useGetLocationIcon(type);
-  const backgroundColor = selected ? 'blue40' : 'darkerBlue10';
 
-  return (
-    <LocationSelectorIcon
-      icon={icon}
-      color={iconColor}
-      backgroundColor={backgroundColor}
-      horizontalOffset={-1}
-      {...props}
-    />
-  );
+  return <LocationSelectorIcon icon={icon} color={iconColor} horizontalOffset={-1} {...props} />;
 }
