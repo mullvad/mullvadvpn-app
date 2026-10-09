@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { type Colors, colors, spacings } from '../../../../foundations';
+import { spacings } from '../../../../foundations';
 import { Flex } from '../../../flex';
 import { Icon, type IconProps } from '../../../icon';
 import type { LocationSelectorPositions } from '../../LocationSelector';
@@ -8,47 +8,26 @@ import { useLocationSelectorContext } from '../../LocationSelectorContext';
 import { LocationSelectorLine } from '../location-selector-line';
 
 export type LocationSelectorIconProps = IconProps & {
-  backgroundColor?: Colors;
   position?: LocationSelectorPositions;
   horizontalOffset?: number;
 };
 
 export const StyledLocationSelectorIcon = styled(Flex)`
   position: absolute;
-  height: 100%;
   top: 0;
   z-index: var(--location-selector-above-line-z-index);
+  height: 100%;
 `;
 
 export const StyledIconContainer = styled.div<{ $horizontalOffset: number }>`
   ${({ $horizontalOffset }) => {
     return css`
       position: relative;
-      display: inline-flex;
       top: 50%;
+      z-index: inherit;
       left: ${$horizontalOffset}px;
       transform: translateY(-50%);
-      z-index: inherit;
-    `;
-  }}
-`;
-
-export const StyledIconBackground = styled.div<{ $color: string }>`
-  ${({ $color }) => {
-    return css`
-      height: 20px;
-      width: 20px;
-      position: absolute;
-      top: 40%;
-      left: 0px;
-      z-index: inherit;
-      background-color: ${$color};
-      transform: rotate(45deg) translateY(-50%);
-
-      // Creates illusion that lines have rounded ends by placing an element with concave corners
-      // and same color as background above the line
-      corner-shape: scoop;
-      border-radius: 3px;
+      height: 18px;
     `;
   }}
 `;
@@ -57,47 +36,42 @@ export const StyledIcon = styled(Icon)`
   position: absolute;
   top: 50%;
   left: ${spacings.small};
-  transform: translateY(-50%);
   z-index: inherit;
+  transform: translateY(-50%);
 `;
 
 export const StyledLine = styled(LocationSelectorLine)<{
   $position: LocationSelectorPositions;
 }>`
   ${({ $position }) => {
-    const verticalOffset = $position === 'top' ? 3 : $position === 'bottom' ? -3 : 0;
+    const top = $position === 'top' ? -10 : $position === 'bottom' ? 20 : 0;
 
     return css`
-      left: 16px;
+      left: 16.5px;
       z-index: var(--location-selector-z-index);
-      top: ${verticalOffset}px;
-      ${() => {
-        if (verticalOffset !== 0) {
-          return css`
-            height: calc(100% - 1px);
-          `;
-        }
-        return null;
-      }}
+      top: ${top}px;
+      height: 8px;
     `;
   }}
 `;
 
 export function LocationSelectorIcon({
   position = 'middle',
-  backgroundColor: backgroundColorProp = 'white',
   horizontalOffset = 0,
   ...props
 }: LocationSelectorIconProps) {
   const { expanded } = useLocationSelectorContext();
-  const backgroundColor = colors[backgroundColorProp];
 
   return (
     <StyledLocationSelectorIcon aria-hidden>
       <StyledIconContainer $horizontalOffset={horizontalOffset}>
-        <StyledLine $position={position} $visible={expanded} />
-        <StyledIconBackground $color={backgroundColor} />
+        {(position === 'bottom' || position === 'middle') && (
+          <StyledLine $position="top" $visible={expanded} />
+        )}
         <StyledIcon size="small" {...props} />
+        {(position === 'top' || position === 'middle') && (
+          <StyledLine $position="bottom" $visible={expanded} />
+        )}
       </StyledIconContainer>
     </StyledLocationSelectorIcon>
   );
