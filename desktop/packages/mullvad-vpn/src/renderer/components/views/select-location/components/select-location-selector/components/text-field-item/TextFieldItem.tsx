@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../../../shared/gettext';
 import { LocationSelector } from '../../../../../../../lib/components/location-selector';
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
+import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import {
   useHandleClearButtonClick,
   useHandleFocusExit,
@@ -30,9 +31,9 @@ function TextFieldItemImpl({
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
   const {
     triggerRef,
-    focused,
     textField: { inputRef, value, handleFocus },
   } = useTextFieldItemContext();
+  const { isolatedItem } = useSelectLocationViewContext();
 
   const handleClearButtonClick = useHandleClearButtonClick();
 
@@ -40,7 +41,7 @@ function TextFieldItemImpl({
   const handleFocusExit = useHandleFocusExit();
   const handleValueChange = useHandleValueChange();
 
-  const showClearButton = focused && value.length > 0;
+  const showClearButton = id === isolatedItem;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -57,12 +58,12 @@ function TextFieldItemImpl({
             placeholder={placeholder}
             onFocus={handleFocus}
             onKeyDown={handleKeyDown}
-            type="search"
+            type="text"
           />
           {showClearButton && (
             <LocationSelector.Items.TextFieldItem.TextField.ClearButton
               onClick={handleClearButtonClick}
-              aria-label={messages.gettext('Clear')}
+              aria-label={messages.pgettext('accessibility', 'Clear search')}
             />
           )}
         </LocationSelector.Items.TextFieldItem.TextField>
