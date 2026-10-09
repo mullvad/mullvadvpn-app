@@ -4,7 +4,8 @@
   "scripts": {
     "build": "ncc build src/index.ts -o dist",
     "eslint": "eslint .",
-    "eslint:fix": "eslint --fix ."
+    "eslint:fix": "eslint --fix .",
+    "test": "vitest"
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
@@ -15,7 +16,10 @@
     "@eslint/js": "^9.10.0",
     "@types/node": "^26.6.4",
     "@vercel/ncc": "^0.45.0",
+    "@vitest/coverage-v8": "^5.0.4",
+    "@vitest/ui": "^5.0.4",
     "eslint": "^9.31.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.4"
   }
 }
