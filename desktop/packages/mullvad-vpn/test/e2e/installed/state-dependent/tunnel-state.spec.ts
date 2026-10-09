@@ -4,20 +4,33 @@ import { Page } from 'playwright';
 import { promisify } from 'util';
 
 import { RoutePath } from '../../../../src/shared/routes';
+import { ConnectedRelay } from '../../lib/tunnel-helpers';
 import { RoutesObjectModel } from '../../route-object-models';
 import { expectConnected, expectDisconnected, expectError } from '../../shared/tunnel-state';
 import { escapeRegExp, TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
+import { getConnectedRelay, getOutIpv4, reconnectWith } from '../lib/tunnel-helpers';
 
 const exec = promisify(execAsync);
 
 // This test expects the daemon to be logged into an account that has time left and to be
-// disconnected. Env parameters:
-// HOSTNAME: hostname of the currently selected WireGuard relay
-// IN_IP: In ip of the relay passed in `HOSTNAME`
-// CONNECTION_CHECK_URL: Url to the connection check
+// disconnected.
 
-const { HOSTNAME, IN_IP, CONNECTION_CHECK_URL } = process.env;
+function formatInAddress(relay: ConnectedRelay) {
+  // The app shows IPv6 addresses in brackets
+  const inIp = relay.inIp.includes(':') ? `[${relay.inIp}]` : relay.inIp;
+  return `${inIp}:${relay.inPort} ${relay.inProtocol.toUpperCase()}`;
+}
+
+// Expects the connection panel to show the in address (IP, port, protocol) of the relay that the
+// daemon is connected to.
+async function expectInAddress(relay: ConnectedRelay) {
+  const inIp = routes.main.getInIp();
+  if (!(await inIp.isVisible())) {
+    await routes.main.expandConnectionPanel();
+  }
+  await expect(inIp).toHaveText(formatInAddress(relay));
+}
 
 let page: Page;
 let util: TestUtils;
@@ -53,40 +66,40 @@ test.describe('Tunnel state and settings', () => {
     // Selecting the first resolves to the IPv4 address regardless of the IP setting
     const outIp = routes.main.getOutIps().first();
 
-    await expect(relay).toHaveText(HOSTNAME!);
+    const connectedRelay = await getConnectedRelay();
+
+    await expect(relay).toHaveText(connectedRelay.hostname);
     await expect(inIp).not.toBeVisible();
     await relay.click();
 
     await expect(inIp).toBeVisible();
-    await expect(inIp).toHaveText(new RegExp(`^${IN_IP!}`));
+    await expect(inIp).toHaveText(formatInAddress(connectedRelay));
 
     await expect(outIp).toBeVisible();
 
-    const ipResponse = await fetch(`${CONNECTION_CHECK_URL!}/ip`);
-    const ip = await ipResponse.text();
-
-    await expect(outIp).toHaveText(ip.trim());
+    await expect(outIp).toHaveText(await getOutIpv4());
   });
 
   test('App should show correct WireGuard port', async () => {
-    const inIp = routes.main.getInIp();
-    await expect(inIp).toHaveText(new RegExp(':[0-9]+'));
+    await reconnectWith(page, async () => {
+      await exec('mullvad anti-censorship set mode wireguard-port');
+      await exec('mullvad anti-censorship set wireguard-port --port 53');
+    });
+    const connectedRelay = await getConnectedRelay();
+    expect(connectedRelay.inPort).toBe(53);
+    await expectInAddress(connectedRelay);
 
-    await exec('mullvad anti-censorship set mode wireguard-port');
-    await exec('mullvad anti-censorship set wireguard-port --port 53');
-    await expectConnected(page);
-    await routes.main.expandConnectionPanel();
+    await reconnectWith(page, () =>
+      exec('mullvad anti-censorship set wireguard-port --port 51820'),
+    );
+    const newRelay = await getConnectedRelay();
+    expect(newRelay.inPort).toBe(51820);
+    await expectInAddress(newRelay);
 
-    await expect(inIp).toHaveText(new RegExp(':53'));
-
-    await exec('mullvad anti-censorship set wireguard-port --port 51820');
-    await expectConnected(page);
-    await routes.main.expandConnectionPanel();
-
-    await expect(inIp).toHaveText(new RegExp(':51820'));
-
-    await exec('mullvad anti-censorship set wireguard-port --port any');
-    await exec('mullvad anti-censorship set mode auto');
+    await reconnectWith(page, async () => {
+      await exec('mullvad anti-censorship set wireguard-port --port any');
+      await exec('mullvad anti-censorship set mode auto');
+    });
   });
 
   test.describe('Wireguard UDP-over-TCP', () => {
@@ -106,42 +119,44 @@ test.describe('Tunnel state and settings', () => {
     });
 
     test('App should show UDP', async () => {
-      await expectConnected(page);
-      await routes.main.expandConnectionPanel();
-      const inIp = routes.main.getInIp();
-      await expect(inIp).toHaveText(new RegExp('UDP$'));
+      const connectedRelay = await getConnectedRelay();
+      await expectInAddress(connectedRelay);
+      expect(connectedRelay.inProtocol).toBe('udp');
     });
 
     test('App should enable UDP-over-TCP', async () => {
-      await gotoWireguardSettings();
+      await reconnectWith(page, async () => {
+        await gotoWireguardSettings();
 
-      const udpOverTcpOption = routes.antiCensorship.getUdpOverTcpOption();
-      await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
+        const udpOverTcpOption = routes.antiCensorship.getUdpOverTcpOption();
+        await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'false');
 
-      await routes.antiCensorship.selectUdpOverTcp();
-      await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
+        await routes.antiCensorship.selectUdpOverTcp();
+        await expect(udpOverTcpOption).toHaveAttribute('aria-selected', 'true');
 
-      await routes.antiCensorship.goBackToRoute(RoutePath.main);
+        await routes.antiCensorship.goBackToRoute(RoutePath.main);
+      });
 
-      await expectConnected(page);
-
-      await routes.main.expandConnectionPanel();
-
-      const inIp = routes.main.getInIp();
-      await expect(inIp).toHaveText(new RegExp(`${escapeRegExp(IN_IP!)}:(80|443|5001) TCP`));
+      const relay = await getConnectedRelay();
+      await expectInAddress(relay);
+      expect(relay.obfuscationType).toBe('udp2tcp');
+      expect(relay.inProtocol).toBe('tcp');
+      expect([80, 443, 5001]).toContain(relay.inPort);
     });
 
     for (const port of [80, 443, 5001]) {
       test(`App should show port ${port}`, async () => {
-        await gotoUdpOverTcpSettings();
-        await routes.udpOverTcpSettings.selectPort(port);
+        await reconnectWith(page, async () => {
+          await gotoUdpOverTcpSettings();
+          await routes.udpOverTcpSettings.selectPort(port);
 
-        await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
+          await routes.udpOverTcpSettings.goBackToRoute(RoutePath.main);
+        });
 
-        await routes.main.expandConnectionPanel();
-
-        const inIp = routes.main.getInIp();
-        await expect(inIp).toHaveText(`${IN_IP}:${port} TCP`);
+        const relay = await getConnectedRelay();
+        await expectInAddress(relay);
+        expect(relay.obfuscationType).toBe('udp2tcp');
+        expect(relay.inPort).toBe(port);
       });
     }
 
@@ -156,27 +171,19 @@ test.describe('Tunnel state and settings', () => {
   });
 
   test('App should connect with Shadowsocks', async () => {
-    await exec('mullvad anti-censorship set mode shadowsocks');
-    await expectConnected(page);
-    await exec('mullvad anti-censorship set mode off');
-    await expectConnected(page);
-  });
-
-  test('App should enter blocked state', async () => {
-    await exec('mullvad debug block-connection');
-    await expectError(page);
-
-    await exec(`mullvad relay set location ${HOSTNAME}`);
-    await expectConnected(page);
+    await reconnectWith(page, () => exec('mullvad anti-censorship set mode shadowsocks'));
+    const relay = await getConnectedRelay();
+    expect(relay.obfuscationType).toBe('shadowsocks');
+    await expectInAddress(relay);
+    await reconnectWith(page, () => exec('mullvad anti-censorship set mode auto'));
   });
 
   test('App should show multihop', async () => {
-    await exec('mullvad relay set multihop always');
-    await expectConnected(page);
+    await reconnectWith(page, () => exec('mullvad relay set multihop always'));
+    const { hostname } = await getConnectedRelay();
     const relay = routes.main.getRelayHostname();
-    await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
-    await exec('mullvad relay set multihop auto');
-    await page.getByText('Disconnect').click();
+    await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${hostname} via`), 'i'));
+    await reconnectWith(page, () => exec('mullvad relay set multihop auto'));
   });
 
   test('App should disconnect', async () => {
@@ -188,6 +195,16 @@ test.describe('Tunnel state and settings', () => {
     await expectDisconnected(page);
     await exec('mullvad connect');
     await expectConnected(page);
+
+    await exec('mullvad disconnect');
+    await expectDisconnected(page);
+  });
+
+  // This must run last, since `block-connection` overwrites the location constraint
+  test('App should enter blocked state', async () => {
+    await exec('mullvad debug block-connection');
+    await exec('mullvad connect');
+    await expectError(page);
 
     await exec('mullvad disconnect');
     await expectDisconnected(page);
