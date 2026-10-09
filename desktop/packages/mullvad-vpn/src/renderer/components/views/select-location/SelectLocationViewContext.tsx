@@ -69,6 +69,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
 
   const filteredCustomListLocations = useMapCustomListsToLocations(
     searchedCountryLocations,
+    filteredCountryLocations,
     searchTerm,
     selectedLocation,
   );
