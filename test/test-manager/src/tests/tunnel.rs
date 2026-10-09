@@ -640,7 +640,7 @@ pub async fn test_auto_obfuscation_when_udp_blocked_ipvx(
         connect_and_wait(&mut mullvad_client).await.is_err(),
         "UDP must be blocked"
     );
-    // TODO: Enable auto-obfuscation. Excersice the multiplexer / staggered obfuscation.
+    // TODO: Enable auto-obfuscation. Exercise the multiplexer / staggered obfuscation.
     // We should now be able to circumvent censorship.
     let query = RelayQueryBuilder::new()
         .udp2tcp() // TODO: Replace this with auto-obfuscation / multiplexer.
