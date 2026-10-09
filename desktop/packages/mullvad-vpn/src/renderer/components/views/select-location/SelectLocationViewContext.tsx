@@ -45,9 +45,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     LocationSelectorSelectedItem | undefined
   >(undefined);
   const setIsolatedItem = React.useCallback((value: LocationSelectorSelectedItem | undefined) => {
-    React.startTransition(() => {
-      stateSetIsolatedItem(value);
-    });
+    stateSetIsolatedItem(value);
   }, []);
 
   const [searchTerm, stateSetSearchTerm] = React.useState('');
