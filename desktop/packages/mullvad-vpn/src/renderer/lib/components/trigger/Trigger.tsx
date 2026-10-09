@@ -20,8 +20,27 @@ export function Trigger<T extends React.ElementType = 'button'>({ as, ...props }
     [onClick],
   );
 
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === ' ') {
+        event.preventDefault();
+        onClick?.(event);
+      }
+    },
+    [onClick],
+  );
+
   if (as == 'a') {
-    return <StyledTrigger as="a" tabIndex={0} href="" onClick={handleClick} {...anchorProps} />;
+    return (
+      <StyledTrigger
+        as="a"
+        tabIndex={0}
+        href=""
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        {...anchorProps}
+      />
+    );
   }
   return <StyledTrigger as={as} tabIndex={0} {...props} />;
 }
