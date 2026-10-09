@@ -2,9 +2,10 @@
   "name": "check-code-owner-approvals",
   "type": "module",
   "scripts": {
-     "build": "ncc build src/index.ts -o dist",
-     "eslint": "eslint .",
-     "eslint:fix": "eslint --fix ."
+    "build": "ncc build src/index.ts -o dist",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix .",
+    "test": "vitest"
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
@@ -17,9 +18,9 @@
     "@vercel/ncc": "^0.45.0",
     "@vitest/coverage-v8": "^5.0.4",
     "@vitest/ui": "^5.0.4",
+    "desktop": "../../../desktop/",
     "eslint": "^9.31.0",
     "ts-jest": "^29.4.14",
-    "vitest": "^5.0.4",
-    "desktop": "../../../desktop/"
-   }
+    "vitest": "^5.0.4"
+  }
 }
