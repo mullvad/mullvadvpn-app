@@ -9,7 +9,7 @@ use mullvad_api::{
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::rollout::Rollout;
 #[cfg(not(target_os = "android"))]
-use mullvad_update::version::{Metadata, VersionInfo};
+use mullvad_update::version::{MIN_VERIFY_METADATA_VERSION, Metadata, VersionInfo};
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -95,7 +95,16 @@ impl VersionUpdater {
     ) {
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         // load the last known AppVersionInfo from cache
-        let last_app_version_info = load_cache(&cache_path).await;
+        let cache = load_cache(&cache_path).await;
+        #[cfg(not(target_os = "android"))]
+        let min_metadata_version = min_metadata_version(cache.as_ref());
+        let last_app_version_info = cache.filter(|cache| {
+            let stale = cache_is_stale(cache, &APP_VERSION);
+            if stale {
+                log::trace!("Ignoring outdated version cache");
+            }
+            !stale
+        });
 
         api_handle.set_default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
@@ -117,6 +126,8 @@ impl VersionUpdater {
                     platform_version,
                     #[cfg(not(target_os = "android"))]
                     rollout,
+                    #[cfg(not(target_os = "android"))]
+                    min_metadata_version,
                 },
             ),
         );
@@ -134,7 +145,7 @@ impl VersionUpdaterInner {
     ) {
         #[cfg(not(target_os = "android"))]
         {
-            new_version_info = self.ignore_cache_if_same_version(new_version_info);
+            new_version_info = self.select_version_cache(new_version_info);
         }
 
         if let Err(err) = update(new_version_info.clone()).await {
@@ -144,7 +155,17 @@ impl VersionUpdaterInner {
     }
 
     #[cfg(not(target_os = "android"))]
-    fn ignore_cache_if_same_version(&self, mut new_version_info: VersionCache) -> VersionCache {
+    fn select_version_cache(&self, mut new_version_info: VersionCache) -> VersionCache {
+        // Foreground and background checks verify against their own cache snapshots.
+        // A delayed response (including a 304) must not undo a newer completion.
+        if let Some(current_cache) = self.last_app_version_info.as_ref()
+            && new_version_info.metadata_version < current_cache.metadata_version
+        {
+            log::trace!("Ignoring version info with older metadata version");
+            // Still pass the current cache to `update` so waiting callers get a response.
+            return current_cache.clone();
+        }
+
         if let Some(current_cache) = self.last_app_version_info.as_ref()
             && current_cache.metadata_version == new_version_info.metadata_version
         {
@@ -317,6 +338,9 @@ struct ApiContext {
     platform_version: String,
     #[cfg(not(target_os = "android"))]
     rollout: Rollout,
+    /// Lowest metadata version to accept when there is no cache for this app version
+    #[cfg(not(target_os = "android"))]
+    min_metadata_version: usize,
 }
 
 /// Immediately query the API for the latest [VersionCache].
@@ -414,7 +438,7 @@ async fn version_check_inner(
                 .version_check(
                     PLATFORM,
                     architecture,
-                    mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
+                    api.min_metadata_version,
                     Some(api.platform_version),
                     api.rollout,
                     None,
@@ -495,20 +519,16 @@ async fn version_check_inner(
 
 /// Read the app version cache from the provided directory.
 ///
-/// Returns the [VersionCache] along with the modification time of the cache file,
-/// or `None` on any error.
+/// Returns the [VersionCache], or `None` on any error. The cache may have been written by
+/// another app version, see [cache_is_stale].
 async fn load_cache(cache_path: &PathBuf) -> Option<VersionCache> {
     try_load_cache(cache_path)
         .await
         .inspect_err(|error| {
-            if matches!(error, Error::OutdatedVersion) {
-                log::trace!("Ignoring outdated version cache");
-            } else {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Unable to load cached version info")
-                );
-            }
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Unable to load cached version info")
+            );
         })
         .ok()
 }
@@ -524,18 +544,24 @@ async fn try_load_cache(cache_path: &PathBuf) -> Result<VersionCache, Error> {
         .map_err(Error::ReadVersionCache)
         .await?;
 
-    let cache: VersionCache = serde_json::from_str(&content).map_err(Error::Deserialize)?;
-
-    if cache_is_stale(&cache, &APP_VERSION) {
-        return Err(Error::OutdatedVersion);
-    }
-
-    Ok(cache)
+    serde_json::from_str(&content).map_err(Error::Deserialize)
 }
 
 /// Check if the cache is left over from another version of the app. If so, discard it.
 fn cache_is_stale(cache: &VersionCache, current_version: &Version) -> bool {
     &cache.cache_version != current_version
+}
+
+/// Return the lowest metadata version to accept, given a cache from any app version.
+///
+/// The metadata version is kept even if the rest of the cache is stale, since it is used
+/// as a floor to avoid accepting downgraded metadata.
+#[cfg(not(target_os = "android"))]
+fn min_metadata_version(cache: Option<&VersionCache>) -> usize {
+    cache
+        .map(|cache| cache.metadata_version)
+        .unwrap_or(0)
+        .max(MIN_VERIFY_METADATA_VERSION)
 }
 
 fn dev_version_cache() -> VersionCache {
@@ -592,6 +618,32 @@ mod test {
             &version_cache("2025.5-beta1", "2025.5", Some("2025.5-beta1")),
             &"2025.5-beta2".parse().unwrap()
         ));
+    }
+
+    /// The metadata version of a cache must be used as a floor, even if the cache is stale
+    #[test]
+    #[cfg(not(target_os = "android"))]
+    fn test_min_metadata_version() {
+        let stale_cache = VersionCache {
+            metadata_version: MIN_VERIFY_METADATA_VERSION + 10,
+            ..version_cache("2025.5", "2025.7", None)
+        };
+        assert!(cache_is_stale(&stale_cache, &APP_VERSION));
+        assert_eq!(
+            min_metadata_version(Some(&stale_cache)),
+            MIN_VERIFY_METADATA_VERSION + 10
+        );
+
+        // A metadata version lower than the minimum must be raised to the minimum
+        let old_cache = VersionCache {
+            metadata_version: 0,
+            ..version_cache("2025.5", "2025.7", None)
+        };
+        assert_eq!(
+            min_metadata_version(Some(&old_cache)),
+            MIN_VERIFY_METADATA_VERSION
+        );
+        assert_eq!(min_metadata_version(None), MIN_VERIFY_METADATA_VERSION);
     }
 
     #[cfg_attr(target_os = "android", expect(unused_variables))]
