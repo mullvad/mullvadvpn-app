@@ -13,7 +13,7 @@ use std::{
     pin::pin,
     sync::{
         Arc,
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
     },
     task::{Context, Poll},
     time::{Duration, Instant},
@@ -60,7 +60,8 @@ pub use self::params::{PeerParameters, TunnelParameters};
 /// Listens to all sockets for messages.
 #[derive(Clone)]
 pub struct Multiplex {
-    start_index: usize,
+    recv_index: usize,
+    send_index: Arc<AtomicU64>,
     sockets: Vec<Arc<UdpSocket>>,
     destinations: Arc<[SocketAddr]>,
     pairs: Arc<RwLock<HashMap<SocketAddr, Arc<UdpSocket>>>>,
@@ -84,7 +85,8 @@ impl Multiplex {
         }
 
         Ok(Self {
-            start_index: 0,
+            recv_index: 0,
+            send_index: Default::default(),
             destinations: destinations.into(),
             sockets,
             pairs: Default::default(),
@@ -108,21 +110,21 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut i = self.start_index;
+        let mut i = self.recv_index;
         loop {
             let socket = self.sockets[i].socket();
 
             let poll = socket.poll_recv_from(cx, read_buf);
             if poll.is_ready() {
-                self.start_index = (self.start_index + 1) % self.sockets.len();
+                self.recv_index = (self.recv_index + 1) % self.sockets.len();
                 return poll;
             }
             i = (i + 1) % self.sockets.len();
-            if i == self.start_index {
+            if i == self.recv_index {
                 break;
             }
         }
-        self.start_index = (self.start_index + 1) % self.sockets.len();
+        self.recv_index = (self.recv_index + 1) % self.sockets.len();
         Poll::Pending
     }
 }
@@ -144,10 +146,15 @@ impl UdpSend for Multiplex {
     // TODO:
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
-    // - should probably remove the customizable socket amount as well
+    // - should probably remove the customizable socket amount as well (or one-to-many dest -> socket?)
+    //   - most will not get used as it stands right now
+    // would love to remove rwlock. I could move that to the constructor as currently the destinations are already known
+    // by that point, but that feels inflexible.
     async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
-        let dest = rand::random_range(0..self.destinations.len());
-        let destination = self.destinations[dest];
+        let dest_index =
+            self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.destinations.len();
+        let destination = self.destinations[dest_index];
+
         if let Some(sock) = self.pairs.read().await.get(&destination) {
             sock.send_to(packet, destination).await
         } else {
