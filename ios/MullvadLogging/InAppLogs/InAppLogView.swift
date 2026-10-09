@@ -125,17 +125,17 @@ class InAppLogView: UIView {
 
     private func setUpButtons() {
         pauseButton.setTitle("[pause]", for: .normal)
-        pauseButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        pauseButton.titleLabel?.font = .mullvadMicro
         pauseButton.setTitleColor(.white, for: .normal)
         pauseButton.addTarget(self, action: #selector(handlePauseButton), for: .touchUpInside)
 
         exportButton.setTitle("[export]", for: .normal)
-        exportButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        exportButton.titleLabel?.font = .mullvadMicro
         pauseButton.setTitleColor(.white, for: .normal)
         exportButton.addTarget(self, action: #selector(handleExportButton), for: .touchUpInside)
 
         clearButton.setTitle("[clear]", for: .normal)
-        clearButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        clearButton.titleLabel?.font = .mullvadMicro
         pauseButton.setTitleColor(.white, for: .normal)
         clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
 
@@ -159,12 +159,12 @@ class InAppLogView: UIView {
         searchField.placeholder = placeholder
         searchField.attributedPlaceholder = NSAttributedString(
             string: placeholder,
-            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.4)]
+            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.5)]
         )
 
         searchField.font = .systemFont(ofSize: 11)
         searchField.textColor = .white
-        searchField.backgroundColor = .white.withAlphaComponent(0.1)
+        searchField.backgroundColor = .white.withAlphaComponent(0.2)
         searchField.layer.cornerRadius = 6
         searchField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
         searchField.leftViewMode = .always
@@ -176,7 +176,7 @@ class InAppLogView: UIView {
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 10))
         let clearButton = UIButton(type: .system)
         clearButton.setImage(clearImage, for: .normal)
-        clearButton.tintColor = .white.withAlphaComponent(0.5)
+        clearButton.tintColor = .white
         clearButton.addTarget(self, action: #selector(clearSearchField), for: .touchUpInside)
         clearButton.sizeToFit()
 
@@ -195,27 +195,27 @@ class InAppLogView: UIView {
         let processImage = UIImage(systemName: "app.connected.to.app.below.fill")?
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
         processButton.setImage(processImage, for: .normal)
-        processButton.tintColor = .white.withAlphaComponent(0.5)
+        processButton.tintColor = .white
         processButton.showsMenuAsPrimaryAction = true
         processButton.menu = buildProcessMenu()
 
         let includeImage = UIImage(systemName: "plus.circle")?
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
         includeButton.setImage(includeImage, for: .normal)
-        includeButton.tintColor = .white.withAlphaComponent(0.5)
+        includeButton.tintColor = .white
         includeButton.showsMenuAsPrimaryAction = true
         includeButton.menu = buildIncludeMenu()
 
         let excludeImage = UIImage(systemName: "minus.circle")?
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
         excludeButton.setImage(excludeImage, for: .normal)
-        excludeButton.tintColor = .white.withAlphaComponent(0.5)
+        excludeButton.tintColor = .white
         excludeButton.showsMenuAsPrimaryAction = true
         excludeButton.menu = buildExcludeMenu()
 
         addConstrainedSubviews([searchField, processButton, includeButton, excludeButton]) {
             searchField.pinEdgeToSuperview(.leading(8))
-            searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor)
+            searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor, constant: 4)
             searchField.heightAnchor.constraint(equalToConstant: 28)
 
             processButton.leadingAnchor.constraint(equalTo: searchField.trailingAnchor, constant: 4)
@@ -287,7 +287,7 @@ class InAppLogView: UIView {
         for entry in entries where matchesFilter(entry) {
             filteredEntries.append(entry)
 
-            // Print packet tunnel entries since they're not otherwise available from the
+            // Print packet tunnel entries to make them available in the debugger from the
             // the main app process.
             if entry.process == .packetTunnel {
                 print("\(entry.description)\n")
@@ -477,16 +477,9 @@ class InAppLogView: UIView {
 
         let entries = filteredEntries
         exportTask = Task.detached(priority: .userInitiated) {
-            var parts: [String] = []
-            parts.reserveCapacity(entries.count)
-
-            for entry in entries {
-                if Task.isCancelled { return }
-                parts.append(entry.description)
-            }
+            let result = entries.map { $0.description }.joinedParagraphs()
 
             guard !Task.isCancelled else { return }
-            let result = parts.joinedParagraphs()
 
             await MainActor.run {
                 self.removeExportOverlay()
@@ -595,6 +588,7 @@ extension InAppLogView: UITableViewDataSource {
 
         var config = cell.defaultContentConfiguration()
         config.attributedText = attributed
+        config.directionalLayoutMargins = .zero
 
         cell.contentConfiguration = config
         cell.backgroundColor = .clear

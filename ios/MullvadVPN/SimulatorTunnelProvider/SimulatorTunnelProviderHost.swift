@@ -185,6 +185,8 @@
                     completionHandler?(nil)
             #endif
 
+            }
+
             onHandleProviderMessage?(message)
         }
 

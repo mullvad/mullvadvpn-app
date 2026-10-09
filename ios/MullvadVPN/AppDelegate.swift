@@ -483,7 +483,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL),
             header: header
         )
-        #if DEBUG
+        #if NEVER_IN_PRODUCTION
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
             loggerBuilder.addInAppLogOutput(
                 process: .app,

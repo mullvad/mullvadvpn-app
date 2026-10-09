@@ -952,7 +952,7 @@ final class TunnelManager: @unchecked Sendable {
             }
         }
 
-        #if DEBUG
+        #if NEVER_IN_PRODUCTION
             _ = tunnel.getInAppLogs { [weak self] result in
                 if case let .success(entries) = result, !entries.isEmpty {
                     self?.onInAppLogEntries?(entries)

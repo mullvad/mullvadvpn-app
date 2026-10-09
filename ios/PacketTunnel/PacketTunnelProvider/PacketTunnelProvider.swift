@@ -340,12 +340,14 @@ extension PacketTunnelProvider {
             ),
             header: header
         )
-        #if DEBUG
+        #if NEVER_IN_PRODUCTION
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
             loggerBuilder.addInAppLogOutput(
                 process: .packetTunnel,
-                observer: InAppLogBlockObserver {
-                    inAppLogBuffer.append($0)
+                observer: InAppLogBlockObserver { log in
+                    Task {
+                        await inAppLogBuffer.append(log)
+                    }
                 }
             )
         #endif

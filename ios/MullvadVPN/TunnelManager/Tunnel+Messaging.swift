@@ -64,25 +64,7 @@ extension TunnelProtocol {
     func getInAppLogs(
         completionHandler: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void
     ) -> Cancellable {
-        let decoderHandler: (Data?) throws -> [InAppLogEntry] = { data in
-            if let data {
-                return try TunnelProviderReply<[InAppLogEntry]>(messageData: data).value
-            } else {
-                throw EmptyTunnelProviderResponseError()
-            }
-        }
-
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .getInAppLogs,
-            decoderHandler: decoderHandler,
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .getInAppLogs, completionHandler: completionHandler)
     }
 }

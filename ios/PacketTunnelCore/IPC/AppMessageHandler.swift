@@ -74,9 +74,9 @@ public final class AppMessageHandler {
             } else {
                 return encodeReply(ObservedState.disconnected)
             }
-            
+
         case .getInAppLogs:
-            let entries = inAppLogBuffer?.flush() ?? []
+            let entries = await inAppLogBuffer?.flush() ?? []
             return encodeReply(entries)
         }
     }
