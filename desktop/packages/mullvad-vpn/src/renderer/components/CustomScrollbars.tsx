@@ -20,7 +20,7 @@ const StyledCustomScrollbars = styled.div({
   height: '100%',
 });
 
-const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
+export const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
@@ -405,9 +405,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
       // calculate the thumb boundary to make sure that the visual appearance of
       // a thumb at the lowest point matches the bottom of scrollable view
-      const thumbBoundary = this.computeTrackHeight(scrollable.clientHeight) - thumb.clientHeight;
-      const thumbTop =
-        pointInScrollContainer.y - this.state.dragStart.y - (this.props.trackPadding?.y ?? 0);
+      const trackPaddingY = this.props.trackPadding?.y ?? 0;
+      const thumbBoundary =
+        this.computeTrackHeight(scrollable.offsetHeight, trackPaddingY) - thumb.clientHeight;
+      const thumbTop = pointInScrollContainer.y - this.state.dragStart.y - trackPaddingY;
       const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
 
       scrollable.scrollTop = newScrollTop;
@@ -454,9 +455,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     };
   }
 
-  private computeTrackHeight(clientHeight: number, trackPaddingY?: number) {
+  private computeTrackHeight(offsetHeight: number, trackPaddingY?: number) {
     // Compute the height of the track height, accounting for optional vertical padding.
-    return Math.max(0, clientHeight - (trackPaddingY ?? 0));
+    return Math.max(0, offsetHeight - (trackPaddingY ?? 0));
   }
 
   // Computes the position of child element within scrollable container
@@ -514,7 +515,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     // calculate the thumb boundary to make sure that the visual appearance of
     // a thumb at the lowest point matches the bottom of scrollable view
     const thumbBoundary =
-      this.computeTrackHeight(scrollable.clientHeight, this.props.trackPadding?.y) -
+      this.computeTrackHeight(scrollable.offsetHeight, this.props.trackPadding?.y) -
       thumb.clientHeight;
 
     // calculate thumb position based on scroll progress and thumb boundary
@@ -553,8 +554,8 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   ) {
     if (context.size) {
       const {
-        // Visible height of scrollable, excludes borders and margins.
-        clientHeight,
+        // Visible height of scrollable
+        offsetHeight,
         // Total height of scrollable, including content not currently
         // visible within the viewport.
         scrollHeight,
@@ -562,7 +563,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       const { trackPadding: { y: trackPaddingY } = {} } = this.props;
 
       // Compute and set height of track
-      const trackHeight = this.computeTrackHeight(clientHeight, trackPaddingY);
+      const trackHeight = this.computeTrackHeight(offsetHeight, trackPaddingY);
       track.style.setProperty('height', trackHeight + 'px');
       if (trackPaddingY !== undefined) {
         // Move the track down by the vertical padding amount.
@@ -574,7 +575,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
       // hide thumb when there is nothing to scroll. We've had issues with scrollHeight being
       // off-by-one, to ensure this doesn't happen we subtract 1 here.
-      const canScroll = scrollHeight > clientHeight + 1;
+      const canScroll = scrollHeight > offsetHeight + 1;
       if (this.state.canScroll !== canScroll) {
         this.setState({ canScroll });
 

@@ -1,91 +1,109 @@
-import { useCallback } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import React from 'react';
+import styled, { css } from 'styled-components';
 
-import { messages } from '../../../../shared/gettext';
-import { useActiveFilters } from '../../../features/locations/hooks';
-import { LocationType } from '../../../features/locations/types';
-import { useMultihop } from '../../../features/multihop/hooks';
 import { View } from '../../../lib/components/view';
+import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
-import { AppNavigationHeader } from '../../';
+import { type IScrollEvent, StyledScrollable } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  FilterChips,
-  HeaderMenuIconButton,
-  LocationLists,
-  LocationSearchField,
-  ScopeBarItem,
+  SelectLocationHeader,
+  SelectLocationSelector,
   SpacePreAllocationView,
+  StyledSelectLocationHeader,
 } from './components';
+import { useLocationSlides, useMeasureLocationSelector } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
-import { StyledScopeBar } from './SelectLocationStyles';
 import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
 } from './SelectLocationViewContext';
+import { shouldLocationSelectorExpand } from './utils';
+
+const StyledHeaderMaxHeightContainer = styled(motion.div)`
+  pointer-events: none;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  background-color: transparent;
+  margin-bottom: ${spacings.small};
+`;
+
+const StyledNavigationScrollbars = styled(NavigationScrollbars)<{ $headerHeight: number }>`
+  ${({ $headerHeight }) => css`
+    & ${StyledScrollable} {
+      height: 100vh;
+      scroll-padding-top: ${$headerHeight}px;
+    }
+    &:has(${StyledSelectLocationHeader}:focus-within) {
+      & ${StyledScrollable} {
+        scroll-padding-top: 0;
+      }
+    }
+  `}
+`;
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { saveScrollPosition, scrollViewRef, spacePreAllocationViewRef } =
-    useScrollPositionContext();
-  const { locationType, setLocationType } = useSelectLocationViewContext();
+  const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { setIsLocationSelectorExpanded, transitionState } = useSelectLocationViewContext();
 
-  const { multihop } = useMultihop();
-  const { isAnyFilterActive } = useActiveFilters(locationType);
+  const onClose = React.useCallback(() => history.pop(), [history]);
 
-  const onClose = useCallback(() => history.pop(), [history]);
-
-  const changeLocationType = useCallback(
-    (locationType: LocationType) => {
-      saveScrollPosition();
-      setLocationType(locationType);
+  const handleScroll = React.useCallback(
+    (event: IScrollEvent) => {
+      const shouldExpand = shouldLocationSelectorExpand(event.scrollTop);
+      setIsLocationSelectorExpanded(shouldExpand);
     },
-    [saveScrollPosition, setLocationType],
+    [setIsLocationSelectorExpanded],
   );
 
-  const showEntryExitBar = multihop === 'always';
+  const { measureElement, height } = useMeasureLocationSelector();
+
+  const locationSlide = useLocationSlides();
 
   return (
     <View backgroundColor="darkBlue">
+      {measureElement}
       <BackAction action={onClose}>
         <NavigationContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('select-location-nav', 'Select location')
+          <StyledNavigationScrollbars
+            ref={scrollViewRef}
+            onScroll={handleScroll}
+            trackPadding={{ x: 0, y: height }}
+            showScrollIndicators={
+              transitionState === 'transitioningOut' || transitionState === 'transitioningIn'
+                ? false
+                : undefined
             }
-            titleVisible>
-            <HeaderMenuIconButton />
-          </AppNavigationHeader>
-
-          <View.Container
-            flexDirection="column"
-            horizontalMargin="medium"
-            padding={{ bottom: 'small' }}>
-            {showEntryExitBar && (
-              <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-              </StyledScopeBar>
+            $headerHeight={height}>
+            {/* Height will be 0 on first render, and will then be measured.
+              Skip rendering when height is 0 to prevent transition. */}
+            {height !== 0 && (
+              <StyledHeaderMaxHeightContainer
+                animate={{ height }}
+                transition={{ height: { duration: 0.25, ease: 'easeOut' } }}>
+                <SelectLocationHeader>
+                  <SelectLocationSelector />
+                </SelectLocationHeader>
+              </StyledHeaderMaxHeightContainer>
             )}
-            {isAnyFilterActive && <FilterChips />}
-            <LocationSearchField />
-          </View.Container>
-
-          <NavigationScrollbars ref={scrollViewRef}>
-            <View.Content padding={{ top: 'small' }}>
+            <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                <View.Container horizontalMargin="medium" flexDirection="column">
-                  <LocationLists
-                    // Set key to reset list when switching between entry and exit
-                    key={locationType}
-                    type={locationType}
-                  />
+                <View.Container
+                  horizontalMargin="medium"
+                  flexDirection="column"
+                  flexGrow={1}
+                  padding={{ top: 'tiny' }}>
+                  <AnimatePresence mode="wait">{locationSlide}</AnimatePresence>
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
-          </NavigationScrollbars>
+          </StyledNavigationScrollbars>
         </NavigationContainer>
       </BackAction>
     </View>

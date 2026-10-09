@@ -7,33 +7,50 @@ import { createSelectors } from './selectors';
 export class SelectLocationRouteObjectModel {
   private readonly utils: TestUtils;
   private readonly selectors: ReturnType<typeof createSelectors>;
+  private readonly page: Page;
 
   constructor(page: Page, util: TestUtils) {
     this.utils = util;
+    this.page = page;
     this.selectors = createSelectors(page);
   }
 
-  async toggleAccordion(accordionName: string) {
-    const expandAccordion = this.selectors.expandAccordionButton(accordionName);
-    if ((await expandAccordion.count()) > 0) {
-      await expandAccordion.click();
+  async expandAccordion(accordionName: string) {
+    const accordionLocator = this.selectors.accordionButton(accordionName);
+    const label = await accordionLocator.getAttribute('aria-label');
+    if (label?.startsWith('Expand')) {
+      await accordionLocator.click();
     }
   }
 
-  getEntryButton() {
-    return this.selectors.entryButton();
+  async gotoEntryLocations() {
+    await this.getEntryInput().click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
   }
 
-  getExitButton() {
-    return this.selectors.exitButton();
+  async gotoExitLocations() {
+    await this.getExitInput().click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
   }
 
-  getSearchInput() {
-    return this.selectors.searchInput();
+  getEntryInput() {
+    return this.selectors.entryInput();
   }
 
-  getRelaysMatching(relayNames: string[]) {
-    return this.selectors.relaysMatching(relayNames);
+  getExitInput() {
+    return this.selectors.exitInput();
+  }
+
+  getLocationsMatching(relayNames: string[]) {
+    return this.selectors.locationsMatching(relayNames);
+  }
+
+  getAutomaticLocation() {
+    return this.selectors.automaticLocation();
   }
 
   getFilterChip(label: string) {

@@ -1,39 +1,28 @@
-import styled from 'styled-components';
-
 import { messages } from '../../../../../../../../shared/gettext';
 import { Text } from '../../../../../../../lib/components';
-import { AnimatedList } from '../../../../../../../lib/components/animated-list';
+import { FlexColumn } from '../../../../../../../lib/components/flex-column';
 import { getLocationListItemMapProps } from '../../../../utils';
+import { AutomaticLocation } from '../../../automatic-location';
 import { RecentCustomListLocation } from '../../../recent-custom-list-location';
 import { RecentGeographicalLocation } from '../../../recent-geographical-location';
 import { useRecentLocations } from './hooks';
-
-const StyledAnimatedList = styled(AnimatedList)`
-  display: flex;
-  flex-direction: column;
-`;
 
 export function RecentLocationList() {
   const recentLocations = useRecentLocations();
   const hasRecentLocations = recentLocations.length > 0;
 
   return (
-    <StyledAnimatedList>
+    <FlexColumn gap="tiny">
       {hasRecentLocations ? (
         recentLocations.map((location) => {
+          if (location === 'automatic') {
+            return <AutomaticLocation key="recent-automatic-location" position="solo" />;
+          }
           const { key } = getLocationListItemMapProps(location);
           if (location.type === 'customList') {
-            return (
-              <AnimatedList.Item key={key}>
-                <RecentCustomListLocation customList={location} />
-              </AnimatedList.Item>
-            );
+            return <RecentCustomListLocation key={key} customList={location} position="solo" />;
           } else {
-            return (
-              <AnimatedList.Item key={key}>
-                <RecentGeographicalLocation location={location} />
-              </AnimatedList.Item>
-            );
+            return <RecentGeographicalLocation key={key} location={location} position="solo" />;
           }
         })
       ) : (
@@ -44,6 +33,6 @@ export function RecentLocationList() {
           }
         </Text>
       )}
-    </StyledAnimatedList>
+    </FlexColumn>
   );
 }
