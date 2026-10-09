@@ -144,6 +144,23 @@ pub struct WireguardMonitor {
     pinger_stop_sender: connectivity::CancelToken,
 }
 
+#[cfg(not(target_os = "android"))]
+/// Overrides the preference for the kernel module for WireGuard.
+static FORCE_USERSPACE_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false)
+});
+
+#[cfg(not(target_os = "android"))]
+/// Force the use of the kernel module for WireGuard. Causes a panic if features that require
+/// userspace wireguard (i.e. GotaTun) are enabled, such as DAITA or any obfuscation.
+static FORCE_KERNEL_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("TALPID_FORCE_KERNEL_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false)
+});
+
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     #[cfg(not(target_os = "android"))]
@@ -153,7 +170,12 @@ impl WireguardMonitor {
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         // GotaTun applies every obfuscation method itself, so obfuscation requires it.
-        let userspace_wireguard = params.use_userspace_wg();
+        let userspace_wireguard =
+            params.use_userspace_wg() || params.obfuscation.is_some() || *FORCE_USERSPACE_WIREGUARD;
+        assert!(
+            !(*FORCE_KERNEL_WIREGUARD && userspace_wireguard),
+            "Cannot force kernel WireGuard when userspace is required (DAITA, obfuscation, etc.)"
+        );
 
         let route_mtu = args
             .runtime

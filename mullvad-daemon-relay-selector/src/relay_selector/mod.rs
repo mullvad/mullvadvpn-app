@@ -5,16 +5,14 @@ use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use mullvad_relay_selector::query::{Hops, RelayQuery, obfuscation_constraint_from_settings};
+use mullvad_relay_selector::query::{RelayQuery, obfuscation_constraint_from_settings};
 use mullvad_relay_selector::{EntrySpecificConstraints, Error, GetRelay, RelaySelector};
 use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
-use mullvad_types::wireguard::TunnelOptions;
 use talpid_types::net::obfuscation::ObfuscatorConfig;
 use talpid_types::net::obfuscation::Obfuscators;
-use talpid_types::net::wireguard::use_userspace_wg;
 
 use crate::relay_list;
 
