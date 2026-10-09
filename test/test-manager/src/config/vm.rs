@@ -26,25 +26,16 @@ pub struct VmConfig {
     pub architecture: Architecture,
 
     /// Tool to use for provisioning
-    #[arg(long, default_value = "noop")]
+    #[arg(skip = Provisioner::Ssh)]
     pub provisioner: Provisioner,
 
     /// Username to use for SSH
-    #[arg(long, required_if_eq("provisioner", "ssh"))]
+    #[arg(long, required = true)]
     pub ssh_user: Option<String>,
 
     /// Password to use for SSH
-    #[arg(long, required_if_eq("provisioner", "ssh"))]
+    #[arg(long, required = true)]
     pub ssh_password: Option<String>,
-
-    /// Additional disk images to mount/include
-    #[arg(long)]
-    pub disks: Vec<String>,
-
-    /// Where artifacts, such as app packages, are stored.
-    /// Usually /opt/testing on Linux.
-    #[arg(long)]
-    pub artifacts_dir: Option<String>,
 
     /// Emulate a TPM. This also enables UEFI implicitly
     #[serde(default)]
@@ -170,12 +161,9 @@ impl Architecture {
     }
 }
 
-#[derive(clap::ValueEnum, Default, Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum Provisioner {
-    /// Do nothing: The image already includes a test runner service
-    #[default]
-    Noop,
     /// Set up test runner over SSH.
     Ssh,
 }

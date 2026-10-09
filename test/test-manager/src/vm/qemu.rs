@@ -110,8 +110,6 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> anyhow::Result<QemuIn
             "tap,ifname={},script=no,downscript=no",
             network::linux::TAP_NAME
         ),
-        "-device",
-        "nec-usb-xhci,id=xhci",
     ]);
 
     if !config.runtime_opts.keep_changes {
@@ -127,15 +125,6 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> anyhow::Result<QemuIn
             log::debug!("Running VNC server on :1");
             qemu_cmd.args(["-display", "vnc=:1"]);
         }
-    }
-
-    for (i, disk) in vm_config.disks.iter().enumerate() {
-        qemu_cmd.args([
-            "-drive",
-            &format!("if=none,id=disk{i},file={disk}"),
-            "-device",
-            &format!("usb-storage,drive=disk{i},bus=xhci.0"),
-        ]);
     }
 
     // Configure OVMF. Currently, this is enabled implicitly if using a TPM

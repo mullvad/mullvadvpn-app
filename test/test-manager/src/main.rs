@@ -134,9 +134,9 @@ enum Commands {
 
     /// Update the system image
     ///
-    /// Note that in order for the updates to take place, the VM's config need
-    /// to have `provisioner` set to `ssh`, `ssh_user` & `ssh_password` set and
-    /// the `ssh_user` should be able to execute commands with sudo/ as root.
+    /// Note that in order for the updates to take place, the VM's config needs to have
+    /// `ssh_user` & `ssh_password` set, and the `ssh_user` should be able to execute commands
+    /// with sudo/ as root.
     Update {
         /// Name of the VM config
         name: String,
@@ -144,7 +144,6 @@ enum Commands {
 }
 
 #[derive(clap::Subcommand, Debug)]
-#[expect(clippy::large_enum_variant)]
 enum ConfigArg {
     /// Print the current config
     Get,
@@ -162,7 +161,6 @@ enum ConfigArg {
 }
 
 #[derive(clap::Subcommand, Debug)]
-#[expect(clippy::large_enum_variant)]
 enum VmConfig {
     /// Create or edit a VM config
     Set {
@@ -401,8 +399,6 @@ async fn inner_main() -> Result<()> {
             ))
             .await?;
 
-            let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
-
             let summary_logger = match test_report {
                 Some(path) => Some(
                     summary::SummaryLogger::new(
@@ -416,7 +412,7 @@ async fn inner_main() -> Result<()> {
                 None => None,
             };
 
-            let result = run_tests::run(&*instance, tests, skip_wait, !verbose, summary_logger)
+            let result = run_tests::run(&*instance, tests, !verbose, summary_logger)
                 .await
                 .context("Tests failed");
 

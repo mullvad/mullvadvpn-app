@@ -81,10 +81,9 @@ Here is an example of how to create a new OS configuration for Linux and macOS:
 
 ```bash
 # Create or edit configuration
-# The image is assumed to contain a test runner service set up as described in ./docs/BUILD_OS_IMAGE.md
 cargo run --bin test-manager set debian11 qemu ./os-images/debian11.qcow2 linux \
     --package-type deb --architecture x64 \
-    --provisioner ssh --ssh-user test --ssh-password test
+    --ssh-user test --ssh-password test
 
 # Try it out to see if it works - you should reach the VM's graphical desktop environment
 cargo run --bin test-manager run-vm debian11
@@ -98,10 +97,9 @@ cargo run --bin test-manager run-vm debian11
 tart clone ghcr.io/cirruslabs/macos-ventura-base:latest ventura-base
 
 # Create or edit configuration
-# Use SSH to deploy the test runner since the image doesn't contain a runner
 cargo run --bin test-manager set macos-ventura tart ventura-base macos \
     --architecture aarch64 \
-    --provisioner ssh --ssh-user admin --ssh-password admin
+    --ssh-user admin --ssh-password admin
 
 # Try it out to see if it works
 cargo run -p test-manager run-vm macos-ventura
@@ -111,11 +109,10 @@ cargo run -p test-manager run-vm macos-ventura
 
 ```bash
 # Create or edit configuration
-# Use SSH to deploy the test runner. This requires OpenSSH Server to be enabled in the image,
-# see ./docs/BUILD_OS_IMAGE.md
+# This requires OpenSSH Server to be enabled in the image, see ./docs/BUILD_OS_IMAGE.md
 cargo run --bin test-manager set windows11 qemu ./os-images/windows11.qcow2 windows \
     --architecture x64 --tpm \
-    --provisioner ssh --ssh-user test --ssh-password test
+    --ssh-user test --ssh-password test
 ```
 
 ## Testing the app

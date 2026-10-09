@@ -35,11 +35,6 @@ cargo build \
     --bin connection-checker \
     --release --target "${TARGET}"
 
-# Only build runner image for Windows
-if [[ $TARGET == x86_64-pc-windows-gnu ]]; then
-    TARGET="$TARGET" ./runner-image.sh
-fi
-
 popd
 
 while [[ "$#" -gt 0 ]]; do

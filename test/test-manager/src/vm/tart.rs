@@ -49,10 +49,6 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         log::error!("Failed to configure tart vm: {err}");
     }
 
-    if !vm_config.disks.is_empty() {
-        log::warn!("Mounting disks is not yet supported")
-    }
-
     // Start VM
     let mut tart_cmd = tart();
     tart_cmd.args(["run", &machine_copy.name, "--serial"]);
