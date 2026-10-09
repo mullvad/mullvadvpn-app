@@ -297,8 +297,9 @@ private fun RelayMetadataMap.addConnectedRelay(
     countries: List<RelayItem.Location.Country>,
 ): RelayMetadataMap {
     if (connectedHostName == null) return this
-    val connectedRelay = countries.findRelayByCode(connectedHostName)?.id ?: return this
-    return merge(mapOf(connectedRelay to RelayMetadata(connectedRelay = true)))
+    return countries.findRelayByCode(connectedHostName)?.id?.let { connectedRelay ->
+        merge(mapOf(connectedRelay to RelayMetadata(connectedRelay = true)))
+    } ?: this
 }
 
 sealed interface SearchLocationSideEffect {

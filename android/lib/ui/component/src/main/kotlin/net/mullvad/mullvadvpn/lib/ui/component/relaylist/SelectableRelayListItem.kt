@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -65,6 +66,7 @@ private fun PreviewSelectableRelayLocationItem(
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 fun SelectableRelayListItem(
     modifier: Modifier = Modifier,
@@ -122,16 +124,13 @@ fun SelectableRelayListItem(
             }
         },
         content = {
-            Column {
-                Name(
-                    name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
-                    state = relayListItem.state,
-                    colors.headlineColor(enabled = active, selected = selected),
-                )
-                if (relayListItem.connected) {
-                    Subtitle(text = stringResource(R.string.connected_server))
-                }
-            }
+            Content(
+                relayListItem = relayListItem,
+                annotatedTitle = annotatedTitle,
+                colors = colors,
+                selected = selected,
+                active = active,
+            )
         },
         trailingContent =
             when {
@@ -172,8 +171,30 @@ internal fun Name(name: AnnotatedString, state: RelayListItemState?, textColor: 
 }
 
 @Composable
-private fun Subtitle(text: String) {
-    val color = MaterialTheme.colorScheme.onSurfaceVariant
+private fun Content(
+    relayListItem: RelayListItem.SelectableItem,
+    annotatedTitle: AnnotatedString?,
+    colors: ListItemColors,
+    selected: Boolean,
+    active: Boolean,
+) {
+    Column {
+        Name(
+            name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
+            state = relayListItem.state,
+            colors.headlineColor(enabled = active, selected = selected),
+        )
+        if (relayListItem.connected) {
+            Subtitle(
+                text = stringResource(R.string.connected_server),
+                color = colors.subtitleColor(active),
+            )
+        }
+    }
+}
+
+@Composable
+private fun Subtitle(text: String, color: Color) {
     val style = MaterialTheme.typography.labelLarge
     Text(
         text = text,

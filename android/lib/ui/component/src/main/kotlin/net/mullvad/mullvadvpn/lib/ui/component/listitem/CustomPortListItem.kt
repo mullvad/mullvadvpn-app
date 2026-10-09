@@ -81,9 +81,7 @@ fun CustomPortListItem(
                 TitleAndSubtitle(
                     title = title,
                     subtitle = port?.let { stringResource(id = R.string.port_x, port.value) },
-                    subtitleColor =
-                        if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
-                        else ListItemDefaults.colors().disabledHeadlineColor,
+                    subtitleColor = ListItemDefaults.colors().subtitleColor(isEnabled),
                     singleLine = singeLine,
                 )
             }
