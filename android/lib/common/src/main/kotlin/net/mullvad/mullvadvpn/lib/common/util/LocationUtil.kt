@@ -25,7 +25,7 @@ fun Settings.isEntryBlocked() = multihopMode() == MultihopMode.WHEN_NEEDED
 
 // If entry is blocked, and we are on the exit list we should ignore any entry selection
 fun ignoreEntrySelection(settings: Settings?, relayListType: RelayListType) =
-    settings?.isEntryBlocked() == true && relayListType.isMultihopExit()
+    relayListType.isMultihopExit() && settings?.isEntryBlocked() == true
 
 private fun RelayListType.isMultihopExit() =
     this is RelayListType.Multihop && hopType == RelayHopType.EXIT

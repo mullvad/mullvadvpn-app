@@ -239,6 +239,7 @@ class ListItemColors(
     val trailingIconColor: Color,
     val selectedHeadlineColor: Color,
     val disabledHeadlineColor: Color,
+    val subtitleColor: Color,
 ) {
     @Stable
     fun headlineColor(enabled: Boolean, selected: Boolean): Color =
@@ -247,6 +248,9 @@ class ListItemColors(
             selected -> selectedHeadlineColor
             else -> headlineColor
         }
+
+    fun subtitleColor(enabled: Boolean): Color =
+        if (enabled) subtitleColor else disabledHeadlineColor
 
     internal fun containerColor(hierarchy: Hierarchy) =
         when (hierarchy) {
@@ -271,6 +275,7 @@ object ListItemDefaults {
         selectedHeadlineColor: Color = MaterialTheme.colorScheme.positive,
         disabledHeadlineColor: Color =
             headlineColor.copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+        subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     ): ListItemColors =
         ListItemColors(
             containerColorParent = containerColorParent,
@@ -281,6 +286,7 @@ object ListItemDefaults {
             trailingIconColor = trailingIconColor,
             selectedHeadlineColor = selectedHeadlineColor,
             disabledHeadlineColor = disabledHeadlineColor,
+            subtitleColor = subtitleColor,
         )
 }
 
