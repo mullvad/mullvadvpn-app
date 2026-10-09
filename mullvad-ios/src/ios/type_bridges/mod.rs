@@ -1,4 +1,4 @@
-use std::net::IpAddr;
+use std::net::{IpAddr, SocketAddr};
 
 mod error;
 pub use error::AnyError;
@@ -7,6 +7,12 @@ pub struct UniIpAddr(pub IpAddr);
 uniffi::custom_type!(UniIpAddr, String, {
     lower: |ip_addr| ip_addr.0.to_string(),
     try_lift: |val| Ok(UniIpAddr(val.parse().unwrap()))
+});
+
+pub struct UniSocketAddr(pub SocketAddr);
+uniffi::custom_type!(UniSocketAddr, String, {
+    lower: |sock| sock.0.to_string(),
+    try_lift: |val| Ok(UniSocketAddr(val.parse().unwrap()))
 });
 
 pub type AmIMullvad = mullvad_types::location::AmIMullvad;
