@@ -103,7 +103,13 @@ function build {
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
     ./building/containerized-build.sh android "$task" || return 1
 
-    mv dist/*.{aab,apk} "$artifact_dir" || return 1
+    # Used for backward compatibility. Can be removed once versions
+    # without SBOM generation no longer need to be supported.
+    if [[ -f "android/scripts/generate-sboms.sh" ]]; then
+        ./building/container-run.sh android bash android/scripts/generate-sboms.sh || return 1
+    fi
+
+    mv dist/*.{aab,apk,cdx.json} "$artifact_dir" || return 1
 
     cp android/src/main/play/release-notes/en-US/default.txt \
         "$artifact_dir/$(cat dist-assets/android-version-code.txt).txt" || return 1
@@ -171,8 +177,8 @@ function build_sign_and_publish_ref {
         # Will only match paths that include *-dev-* which means release builds will not be included
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
-        for original_file in MullvadVPN-*{.apk,.aab}; do
-            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-$version)(.*\.apk|.*\.aab)$/\1$version_suffix\2/p")
+        for original_file in MullvadVPN-*{.apk,.aab,.cdx.json}; do
+            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-$version)(.*\.apk|.*\.aab|.*\.cdx\.json)$/\1$version_suffix\2/p")
             mv "$original_file" "$new_file"
         done
         popd
