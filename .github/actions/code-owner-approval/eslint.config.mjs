@@ -79,17 +79,8 @@ export default defineConfig([
     files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.eslint.json',
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-  {
-    files: ['**/*.ts'],
-    languageOptions: {
-      parserOptions: {
         parser: '@typescript-eslint/parser',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
         ecmaVersion: '2018',
         sourceType: 'module',
         ecmaFeatures: {
