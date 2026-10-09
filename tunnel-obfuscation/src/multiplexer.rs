@@ -348,9 +348,12 @@ async fn run_discovery(
                     );
                     forward(incoming, &selected.buf[..n]).await?;
 
-                    // Announce the selected transport, so that the firewall can be restricted to
-                    // the endpoint it committed to.
-                    let _ = selected_transport_tx.send(selected.config);
+                    // Announce the selected transport, so that it can be used without the
+                    // multiplexer, and the firewall can be restricted to its endpoint.
+                    let _ = selected_transport_tx.send(Selected {
+                        config: selected.config,
+                        transport: Arc::clone(&selected.transport),
+                    });
 
                     return Ok(Some(selected.transport));
                 }
@@ -434,7 +437,24 @@ async fn forward(incoming: &mpsc::Sender<Box<[u8]>>, datagram: &[u8]) -> io::Res
 }
 
 /// Notifies interested parties about which transport the multiplexer has committed to.
-pub type SelectedTransportTx = oneshot::Sender<Transport>;
+pub type SelectedTransportTx = oneshot::Sender<Selected>;
+
+/// The transport that the multiplexer committed to.
+pub struct Selected {
+    /// The configuration that the transport was spawned from.
+    pub config: Transport,
+    /// The running transport, which has reached the relay. It can be used on its own, without
+    /// the multiplexer.
+    pub transport: Arc<dyn ObfuscatedTransport>,
+}
+
+impl std::fmt::Debug for Selected {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Selected")
+            .field("config", &self.config)
+            .finish_non_exhaustive()
+    }
+}
 
 /// Configuration settings for multiplexer obfuscation
 #[derive(Debug)]
@@ -575,7 +595,7 @@ mod tests {
         assert_eq!(&client_buf[..bytes_received], response_data);
 
         // The first server, and not the second, should have been announced as selected
-        let selected = selected_rx.await.unwrap();
+        let selected = selected_rx.await.unwrap().config;
         assert!(matches!(selected, Transport::Direct(addr) if addr == server_addr));
 
         // Packets from unselected transports should not be forwarded after the
@@ -664,7 +684,7 @@ mod tests {
         let (n, _) = wg_socket.recv_from(&mut buf).await.unwrap();
         assert_eq!(&buf[..n], &response[..]);
 
-        let selected = selected_rx.await.unwrap();
+        let selected = selected_rx.await.unwrap().config;
         assert_matches!(
             selected, Transport::Direct(addr) if addr == relay_addr,
             "the transport that answered the handshake should have been selected, got {selected:?}",
@@ -733,7 +753,7 @@ mod tests {
         assert_eq!(&wg_buf[..n], &response[..]);
 
         // The LWO transport should have been announced as selected
-        let selected = selected_rx.await.unwrap();
+        let selected = selected_rx.await.unwrap().config;
         assert!(matches!(
             selected,
             Transport::Obfuscated(crate::Settings::Lwo(_))

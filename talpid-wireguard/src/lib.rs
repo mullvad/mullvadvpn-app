@@ -2,15 +2,12 @@
 
 #![deny(missing_docs)]
 
-use crate::obfuscation::Obfuscator;
 #[cfg(target_os = "linux")]
 use crate::wireguard_kernel::nm_tunnel;
 
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
-#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-use std::collections::HashSet;
 #[cfg(windows)]
 use std::io;
 use std::{
@@ -19,8 +16,6 @@ use std::{
     path::Path,
     sync::{Arc, mpsc as sync_mpsc},
 };
-#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-use talpid_routing::RouteManagerHandle;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{
@@ -30,8 +25,6 @@ use talpid_tunnel::{
 
 use talpid_error::{BoxedError, ErrorExt};
 use talpid_net::bypass::SocketBypass;
-#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -182,18 +175,8 @@ impl WireguardMonitor {
             .block_on(get_route_mtu(params, &args.route_manager));
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
-        // Obfuscation is applied inline by GotaTun; all that is set up here is the room it
-        // needs in every packet, and a way to hear which endpoint a multiplexer commits to.
-        let obfuscation_mtu = route_mtu;
-        let mut config =
-            crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
-                .map_err(Error::WireguardConfigError)?;
-
-        let endpoint_addrs: Vec<IpAddr> = params
-            .get_next_hop_endpoints()
-            .iter()
-            .map(|ep| ep.address.ip())
-            .collect();
+        let config = crate::config::Config::from_parameters(params, tunnel_mtu, route_mtu)
+            .map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
@@ -201,11 +184,6 @@ impl WireguardMonitor {
             #[cfg(target_os = "linux")]
             &config,
         );
-
-        let obfuscator = args
-            .runtime
-            .block_on(get_obfuscator(params, &mut config, &bypass))?;
-        let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
         // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
         // precaution in case the interface gets broken in some way. Creating a new interface
@@ -217,8 +195,6 @@ impl WireguardMonitor {
             wireguard_nt::close_cached_adapter();
         }
 
-        // Ephemeral peers are negotiated before the tunnel is opened, through temporary GotaTun
-        // devices, so no routes or firewall exceptions are needed to reach the relays.
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
 
@@ -241,22 +217,20 @@ impl WireguardMonitor {
         let resource_dir = args.resource_dir.to_owned();
         let log_path = _log_path.map(Path::to_owned);
         let detect_mtu = params.options.mtu.is_none();
+        let params = params.clone();
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
 
-            let daita = if config.negotiates_ephemeral_peers() {
-                let peers = ephemeral::negotiate_ephemeral_peers(
-                    &config,
-                    args.retry_attempt,
-                    obfuscation.as_ref(),
-                    &bypass,
-                )
-                .await?;
-                config.set_ephemeral_keys(peers.private_key, peers.ingress_psk, peers.exit_psk);
-                peers.daita
-            } else {
-                None
-            };
+            let IngressConnection {
+                mut config,
+                obfuscation,
+                selected_obfuscation,
+                daita,
+            } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+
+            // Adjust MTU to make room for the selected obfuscation method.
+            // This will only make room for the actually-selected obfuscation method.
+            config.mtu = mtu_with_obfuscation_overhead(&params, &config);
 
             // Opening the tunnel blocks.
             let (opened_tunnel, metadata) = {
@@ -305,9 +279,10 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
+            let endpoint_addr = ingress_endpoint_addr(&config);
             let routes =
                 Self::get_pre_tunnel_routes(&metadata.interface, &config, userspace_wireguard)
-                    .chain(Self::get_endpoint_routes(&endpoint_addrs))
+                    .chain(Self::get_endpoint_route(endpoint_addr))
                     .collect();
 
             args.route_manager
@@ -387,24 +362,6 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
-                .await
-                .map_err(CloseMsg::SetupError)?;
-
-            #[cfg(not(target_os = "linux"))]
-            if let Some(selected_addr) = selected_obfuscation
-                .as_ref()
-                .and_then(|selected| selected_endpoint_addr(selected, &config))
-            {
-                // Remove routes for candidate endpoints (used by multiplexer)
-                // Not applicable on Linux since we use policy-based routing (via fwmark).
-                Self::remove_unused_endpoint_routes(
-                    &args.route_manager,
-                    &endpoint_addrs,
-                    selected_addr,
-                );
-            }
-
             event_hook
                 .on_event(TunnelEvent::Up {
                     metadata,
@@ -480,10 +437,7 @@ impl WireguardMonitor {
 
         // Android always uses GotaTun (userspace WireGuard), which applies the obfuscation
         // itself. See `MaybeObfuscatingTransportFactory`.
-        let obfuscator = args
-            .runtime
-            .block_on(get_obfuscator(params, &mut config, &bypass))?;
-        let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
+        config.mtu = mtu_with_obfuscation_overhead(params, &config);
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
         let mut connectivity_monitor = connectivity::Check::new(
@@ -511,19 +465,12 @@ impl WireguardMonitor {
         };
 
         let tunnel_fut = async move {
-            let daita = if config.negotiates_ephemeral_peers() {
-                let peers = ephemeral::negotiate_ephemeral_peers(
-                    &config,
-                    args.retry_attempt,
-                    obfuscation.as_ref(),
-                    &bypass,
-                )
-                .await?;
-                config.set_ephemeral_keys(peers.private_key, peers.ingress_psk, peers.exit_psk);
-                peers.daita
-            } else {
-                None
-            };
+            let IngressConnection {
+                config,
+                obfuscation,
+                selected_obfuscation,
+                daita,
+            } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
 
             let gotatun = gotatun::start_gotatun(
                 tun,
@@ -576,9 +523,6 @@ impl WireguardMonitor {
             }
 
             let metadata = tunnel_metadata(iface_name, &config);
-            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
-                .await
-                .map_err(CloseMsg::SetupError)?;
             event_hook
                 .on_event(TunnelEvent::Up {
                     metadata,
@@ -819,54 +763,20 @@ impl WireguardMonitor {
         }
     }
 
-    /// Returns routes to the peer endpoints (through the physical interface).
+    /// Returns the route to the peer endpoint (through the physical interface), if one is needed.
     #[cfg_attr(target_os = "linux", expect(unused_variables))]
     #[cfg(not(target_os = "android"))]
-    fn get_endpoint_routes(
-        endpoints: &[std::net::IpAddr],
-    ) -> impl Iterator<Item = RequiredRoute> + '_ {
+    fn get_endpoint_route(endpoint: IpAddr) -> Option<RequiredRoute> {
         #[cfg(target_os = "linux")]
         {
             // No need due to policy based routing.
-            std::iter::empty::<RequiredRoute>()
+            None
         }
         #[cfg(not(target_os = "linux"))]
-        endpoints.iter().map(|ip| {
-            RequiredRoute::new(
-                ipnetwork::IpNetwork::from(*ip),
-                talpid_routing::NetNode::DefaultNode,
-            )
-        })
-    }
-
-    /// Remove the routes for every endpoint but `selected_addr`.
-    ///
-    /// While connecting, the tunnel may reach out to any of the candidate endpoints, so all of
-    /// them need a route outside of the tunnel. Only the selected one is used from here on.
-    #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-    fn remove_unused_endpoint_routes(
-        route_manager: &RouteManagerHandle,
-        endpoint_addrs: &[IpAddr],
-        selected_addr: IpAddr,
-    ) {
-        let unused: HashSet<ipnetwork::IpNetwork> = endpoint_addrs
-            .iter()
-            .copied()
-            .filter(|addr| *addr != selected_addr)
-            .map(ipnetwork::IpNetwork::from)
-            .collect();
-
-        if unused.is_empty() {
-            return;
-        }
-
-        // Failing to remove these is not fatal. The firewall blocks them either way.
-        if let Err(error) = route_manager.remove_routes(unused) {
-            log::warn!(
-                "{}",
-                error.display_chain_with_msg("Failed to remove unused endpoint routes")
-            );
-        }
+        Some(RequiredRoute::new(
+            ipnetwork::IpNetwork::from(endpoint),
+            talpid_routing::NetNode::DefaultNode,
+        ))
     }
 
     #[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
@@ -1017,47 +927,123 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
     }
 }
 
-/// Return the address of the remote endpoint that `selected` connects to, if it is known.
+/// The address that the tunnel reaches the ingress relay at.
 ///
-/// [`talpid_tunnel::SelectedObfuscation::Direct`] carries no address of its own: it refers to the
-/// direct transport of the multiplexer, whose endpoint is the relay itself.
-#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-fn selected_endpoint_addr(
-    selected: &talpid_tunnel::SelectedObfuscation,
-    config: &Config,
-) -> Option<IpAddr> {
-    use talpid_tunnel::SelectedObfuscation;
-
-    match selected {
-        SelectedObfuscation::Obfuscated(obfuscator) => Some(obfuscator.endpoint().address.ip()),
-        SelectedObfuscation::Direct => match config.obfuscator_config.as_ref()? {
-            Obfuscators::Multiplexer { direct, .. } => Some(direct.as_ref()?.ip()),
-            Obfuscators::Single(_) => None,
-        },
+/// `config` must be the config returned by [connect_to_ingress], which has committed to a single
+/// transport.
+#[cfg(not(target_os = "android"))]
+fn ingress_endpoint_addr(config: &Config) -> IpAddr {
+    use talpid_types::net::obfuscation::Obfuscators;
+    match &config.obfuscator_config {
+        Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
+        Some(Obfuscators::Multiplexer { .. }) => {
+            unreachable!("connect_to_ingress commits to a single transport")
+        }
+        None => config.entry_peer.endpoint.ip(),
     }
 }
 
-/// Set up the obfuscation, and make room for it in every packet.
-async fn get_obfuscator(
-    params: &TunnelParameters,
-    config: &mut Config,
-    bypass: &Arc<dyn SocketBypass>,
-) -> Result<Option<Obfuscator>> {
-    let Some(settings) = config.obfuscation_settings() else {
-        return Ok(None);
-    };
-
-    // The obfuscation adds this to every packet, so make room for it.
-    if params.options.mtu.is_none() {
-        config.mtu = clamp_tunnel_mtu(
+/// Return the tunnel MTU of `config`, adjusted to make room for its obfuscation.
+///
+/// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
+/// transports, since it is not yet known which one will be selected.
+fn mtu_with_obfuscation_overhead(params: &TunnelParameters, config: &Config) -> u16 {
+    match config.obfuscation_settings() {
+        Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
             params,
             config.mtu.saturating_sub(settings.packet_overhead()),
-        );
+        ),
+        _ => config.mtu,
     }
+}
 
-    obfuscation::create_obfuscation(&settings, Arc::clone(bypass))
-        .await
-        .map(Some)
+/// How the tunnel reaches the ingress relay, as established by [`connect_to_ingress`].
+struct IngressConnection {
+    /// The config to set up the tunnel with, which uses the selected transport and any ephemeral
+    /// keys.
+    config: Config,
+    /// The obfuscation to reach the ingress relay through.
+    obfuscation: Option<obfuscation::RunningObfuscation>,
+    /// The transport that the multiplexer selected, if one was used.
+    selected_obfuscation: Option<talpid_tunnel::SelectedObfuscation>,
+    /// The DAITA settings negotiated with the ingress relay.
+    daita: Option<talpid_tunnel_config_client::DaitaSettings>,
+}
+
+/// Establish a way to reach the ingress relay, and then negotiate ephemeral peers through it.
+///
+/// Sequence:
+/// 1. Multiplexer discovers a working transport through a WireGuard session with the ingress relay
+///    (i.e. the first obfuscation method that manages to establish a WireGuard session/handshake).
+///    The returned config uses only that transport.
+/// 2. Ephemeral peers are negotiated with the same session. The returned config uses the ephemeral
+///    keys (if the ephemeral peer exchange happens).
+async fn connect_to_ingress(
+    config: Config,
+    retry_attempt: u32,
+    bypass: &Arc<dyn SocketBypass>,
+) -> std::result::Result<IngressConnection, CloseMsg> {
+    let (config, obfuscation, selected_obfuscation, session) = match config.obfuscation_settings() {
+        None => (config, None, None, None),
+        // A specific obfuscation method was selected
+        Some(obfuscation::ObfuscationSettings::Single(settings)) => {
+            let obfuscation = obfuscation::create_single(&settings, Arc::clone(bypass))
+                .await
+                .map_err(CloseMsg::SetupError)?;
+            (config, Some(obfuscation), None, None)
+        }
+        // Multiplex over multiple obfuscation methods
+        Some(obfuscation::ObfuscationSettings::Multiplexer {
+            transports,
+            client_public_key,
+        }) => {
+            let (selected, session) = obfuscation::run_multiplexer(
+                &config,
+                retry_attempt,
+                transports,
+                client_public_key,
+                bypass,
+            )
+            .await?;
+            let config = config.with_transport(&selected.config);
+            let (obfuscation, selected) = obfuscation::commit_to(selected);
+            (config, obfuscation, Some(selected), Some(session))
+        }
+    };
+
+    let (config, daita) = if config.negotiates_ephemeral_peers() {
+        let session = match session {
+            Some(session) => session,
+            // No obfuscation: Establish session to ingress relay.
+            None => {
+                ephemeral::open_ingress_session(&config, retry_attempt, obfuscation.clone(), bypass)
+                    .await?
+            }
+        };
+        let peers = ephemeral::negotiate_ephemeral_peers(
+            &config,
+            retry_attempt,
+            session,
+            obfuscation.as_ref(),
+            bypass,
+        )
+        .await?;
+        let config =
+            config.with_ephemeral_keys(peers.private_key, peers.ingress_psk, peers.exit_psk);
+        (config, peers.daita)
+    } else {
+        if let Some(session) = session {
+            session.stop().await;
+        }
+        (config, None)
+    };
+
+    Ok(IngressConnection {
+        config,
+        obfuscation,
+        selected_obfuscation,
+        daita,
+    })
 }
 
 async fn log_daita_overhead(tunnel: &TunnelType) {
