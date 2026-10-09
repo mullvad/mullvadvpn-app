@@ -6,10 +6,11 @@ import { colors } from '../../../../foundations';
 export const LocationSelectorLine = styled(motion.div)<{ $visible?: boolean }>`
   ${({ $visible }) => css`
     position: absolute;
-    left: 20px;
+    left: 20.5px;
     top: 0;
     height: 100%;
-    width: 2px;
+    width: 1px;
+    border-radius: 999px;
     background-color: ${colors.whiteAlpha60};
     z-index: var(--location-selector-time-line-z-index);
     opacity: ${$visible ? 1 : 0};
