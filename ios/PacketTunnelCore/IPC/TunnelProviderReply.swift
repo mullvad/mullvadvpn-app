@@ -10,6 +10,11 @@
 
 import Foundation
 
+// Placeholder to acknowledge a tunnel message that doesn't need to return data
+public enum TunnelReply: Codable, Sendable {
+    case ok
+}
+
 /// Container type for tunnel provider reply.
 public struct TunnelProviderReply<T: Codable>: Codable {
     public var value: T
