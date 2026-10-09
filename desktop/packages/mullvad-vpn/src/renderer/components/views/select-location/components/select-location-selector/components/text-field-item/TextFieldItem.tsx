@@ -25,6 +25,7 @@ const StyledInput = styled(LocationSelector.Items.TextFieldItem.TextField.Input)
 function TextFieldItemImpl({
   id,
   placeholder,
+  'aria-label': ariaLabel,
   ...props
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
   const {
@@ -47,23 +48,25 @@ function TextFieldItemImpl({
       inputRef={inputRef}
       triggerRef={triggerRef}
       {...props}>
-      <LocationSelector.Items.TextFieldItem.TextField
-        value={value}
-        onFocusExit={handleFocusExit}
-        onValueChange={handleValueChange}>
-        <StyledInput
-          placeholder={placeholder}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          type="search"
-        />
-        {showClearButton && (
-          <LocationSelector.Items.TextFieldItem.TextField.ClearButton
-            onClick={handleClearButtonClick}
-            aria-label={messages.gettext('Clear')}
+      <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel}>
+        <LocationSelector.Items.TextFieldItem.TextField
+          value={value}
+          onFocusExit={handleFocusExit}
+          onValueChange={handleValueChange}>
+          <StyledInput
+            placeholder={placeholder}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            type="search"
           />
-        )}
-      </LocationSelector.Items.TextFieldItem.TextField>
+          {showClearButton && (
+            <LocationSelector.Items.TextFieldItem.TextField.ClearButton
+              onClick={handleClearButtonClick}
+              aria-label={messages.gettext('Clear')}
+            />
+          )}
+        </LocationSelector.Items.TextFieldItem.TextField>
+      </LocationSelector.Items.TextFieldItem.Trigger>
     </LocationSelector.Items.TextFieldItem>
   );
 }
