@@ -112,7 +112,7 @@ ENV PATH=/root/.cargo/bin:$PATH
 
 # === Install SBOM tools ===
 
-RUN --mount=type=bind,source=building/install-cyclonedx.sh,target=/tmp/install-cyclonedx.sh \
+RUN --mount=type=bind,source=building/install-cyclonedx.sh,target=/tmp/install-cyclonedx.sh,z \
     /tmp/install-cyclonedx.sh
 
 # === Install Android packages ===
