@@ -12,14 +12,21 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(Navigation.self) private var navigation: Navigation
+    private var viewModel: any LoggingIn
 
+    init(viewModel: any LoggingIn) {
+        self.viewModel = viewModel
+    }
+
+    // Need to create an account
+    // Need to login into an account
     var body: some View {
         VStack {
             HeaderBar()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 200)
                 Spacer()
 
-            LoginView()
+            LoginView(viewModel: viewModel)
             CreateAccountPromptView()
                 .background(Color.mullvadBackground)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 150)
@@ -31,5 +38,5 @@ struct RootView: View {
 }
 
 #Preview("Root View") {
-    RootView().environment(Navigation())
+    RootView(viewModel: LoginViewModelStub()).environment(Navigation())
 }
