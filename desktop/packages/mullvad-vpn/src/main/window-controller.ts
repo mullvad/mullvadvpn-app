@@ -1,5 +1,6 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 
+import { dimensions } from '../shared/constants';
 import { IWindowShapeParameters } from '../shared/ipc-types';
 import { Scheduler } from '../shared/scheduler';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -217,7 +218,7 @@ export default class WindowController {
 
   public static getContentSize(unpinnedWindow: boolean): { width: number; height: number } {
     return {
-      width: 320,
+      width: dimensions.contentWidth,
       height: WindowController.getContentHeight(unpinnedWindow),
     };
   }
@@ -319,7 +320,7 @@ export default class WindowController {
   // https://github.com/electron/electron/issues/28777
   private static getContentHeight(unpinnedWindow: boolean): number {
     // The height we want to achieve.
-    const contentHeight = 568;
+    const contentHeight = dimensions.contentHeight;
 
     switch (process.platform) {
       case 'win32':
@@ -332,7 +333,7 @@ export default class WindowController {
         //
         // NOTE: If this value is changed, then update the calculation of the map's initial height in
         // the `src/renderer/components/Map.tsx` file to reflect that change.
-        return unpinnedWindow ? contentHeight : contentHeight + 8;
+        return unpinnedWindow ? contentHeight : dimensions.contentHeightWindowsPinnedWindow;
       default:
         return contentHeight;
     }
