@@ -13,7 +13,7 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-final class IPOverrideInteractor {
+final class IPOverrideInteractor: @unchecked Sendable {
     private let logger = Logger(label: "IPOverrideInteractor")
     private let repository: IPOverrideRepositoryProtocol
     private let tunnelManager: TunnelManager
@@ -39,24 +39,24 @@ final class IPOverrideInteractor {
         resetToDefaultStatus()
     }
 
-    func `import`(url: URL) {
+    func `import`(url: URL) async {
         let data = (try? Data(contentsOf: url)) ?? Data()
-        handleImport(of: data, context: .file(fileName: url.lastPathComponent))
+        await handleImport(of: data, context: .file(fileName: url.lastPathComponent))
     }
 
-    func `import`(text: String) {
+    func `import`(text: String) async {
         let data = text.data(using: .utf8) ?? Data()
-        handleImport(of: data, context: .text)
+        await handleImport(of: data, context: .text)
     }
 
-    func deleteAllOverrides() {
+    func deleteAllOverrides() async {
         repository.deleteAll()
 
         updateTunnel()
         resetToDefaultStatus()
     }
 
-    private func handleImport(of data: Data, context: IPOverrideStatus.Context) {
+    private func handleImport(of data: Data, context: IPOverrideStatus.Context) async {
         do {
             let overrides = try repository.parse(data: data)
 
@@ -75,17 +75,10 @@ final class IPOverrideInteractor {
     }
 
     private func updateTunnel() {
-        do {
-            try tunnelManager.refreshRelayCacheTracker()
-        } catch {
-            logger.error(error: error, message: "Could not refresh relay cache tracker.")
-        }
-
-        switch tunnelManager.tunnelStatus.observedState {
-        case .connecting, .connected, .reconnecting:
-            tunnelManager.reconnectTunnel(selectNewRelay: true)
-        default:
-            break
+        tunnelManager.refreshRelayCacheAndReconnectIfNeeded { [weak self] error in
+            if let error {
+                self?.logger.error(error: error, message: "Could not refresh relay cache tracker.")
+            }
         }
     }
 

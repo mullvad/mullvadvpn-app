@@ -79,7 +79,8 @@ class TunnelManagerTests: XCTestCase {
         )
 
         _ = try await tunnelManager.setNewAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, true)
+        let isRotatingAfterLogin = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogin, true)
     }
 
     func testLogOutStopsKeyRotations() async throws {
@@ -97,7 +98,8 @@ class TunnelManagerTests: XCTestCase {
         )
         _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, false)
+        let isRotatingAfterLogout = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogout, false)
     }
 
     /// This test verifies tunnel gets out of `blockedState` after constraints are satisfied.
@@ -305,7 +307,7 @@ class TunnelManagerTests: XCTestCase {
 
         tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
-        tunnelManager.reapplyTunnelConfiguration()
+        await tunnelManager.reapplyTunnelConfiguration()
         connectedExpectation = expectation(description: "Connected!")
         await fulfillment(
             of: [disconnectedExpectation, connectedExpectation],
