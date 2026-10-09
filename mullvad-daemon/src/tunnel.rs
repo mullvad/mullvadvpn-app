@@ -190,17 +190,16 @@ impl InnerParametersGenerator {
                     Error::ResolveCustomHostname
                 });
         }
+        if retry_attempt == 0 {
+            self.obfuscation_round = None; // Reset round on first attempt
+        }
 
         let data = self.device().await?;
         let mut user_query = self.relay_selector.query().clone();
         user_query.apply_ip_availability(ip_availability)?;
 
         // Select a relay without consulting the obfuscation multiplexer, of appropriate
-        let direct_relay = self.relay_selector.get_user_relay(
-            retry_attempt as usize,
-            user_query.clone(),
-            &self.tunnel_options.wireguard,
-        );
+        let direct_relay = self.relay_selector.get_user_relay(user_query.clone());
         let selected_relay = direct_relay.unwrap_or_else(|| {
             log::debug!("Using multiplexed obfuscation");
             // Create an automatic obfuscation selection round

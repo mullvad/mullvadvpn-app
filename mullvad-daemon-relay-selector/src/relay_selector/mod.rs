@@ -187,32 +187,14 @@ impl RelaySelectorIO {
 
     /// Get a relay from the user's query, or return `None` if the multiplexed obfuscation retry
     /// strategy should be used instead.
-    pub fn get_user_relay(
-        &self,
-        retry_attempt: usize,
-        user_query: RelayQuery,
-        tunnel_options: &TunnelOptions,
-    ) -> Option<Result<GetRelay, Error>> {
+    pub fn get_user_relay(&self, user_query: RelayQuery) -> Option<Result<GetRelay, Error>> {
         // Do not use the obfuscation multiplexer if the user has explicitly requested a single
         // anti-censorship method, or disabled anti-censorship.
         if user_query.entry_specific().obfuscation.is_only() {
-            return Some(self.get_relay_by_query(user_query));
+            Some(self.get_relay_by_query(user_query))
+        } else {
+            None
         }
-
-        // The multiplexed obfuscator requires userspace WireGuard, so the first attempt connects
-        // without obfuscation whenever kernel WG is available — merging `Off` into the query.
-        // A user who pinned obfuscation cannot reach this point, so the merge always succeeds;
-        // fall back to the plain user query anyway, just in case that ever changes.
-        let kernel_wg_available = !use_userspace_wg(
-            tunnel_options.userspace,
-            tunnel_options.daita,
-            matches!(user_query.hops, Hops::Multi(..)),
-            false, // Obfuscation is set to Any, per the above check, which is compatible with "Off"
-        );
-        if retry_attempt == 0 && kernel_wg_available {
-            return Some(self.get_relay_by_query(user_query));
-        }
-        None
     }
 
     pub fn multiplexed_obfuscation_relay(
