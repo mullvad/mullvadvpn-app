@@ -23,6 +23,7 @@ export const StyledLocationTextFieldTrigger = styled.div`
 
 export function LocationSelectorTrigger({ children, ...props }: LocationSelectorTriggerProps) {
   const { inputRef, triggerRef } = useLocationSelectorTextFieldItemContext();
+  const [tabIndex, setTabIndex] = React.useState(-1);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
@@ -32,6 +33,7 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         inputRef.current?.focus();
+        setTabIndex(-1);
       }
     },
     [inputRef, triggerRef],
@@ -45,15 +47,19 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       if (document.activeElement !== inputRef.current) {
         event.preventDefault();
         inputRef.current?.focus();
+        setTabIndex(-1);
       }
     },
     [inputRef],
   );
 
-  const [tabIndex, setTabIndex] = React.useState(-1);
   React.useEffect(() => {
     setTabIndex(inputRef.current === document.activeElement ? -1 : 0);
   }, [inputRef]);
+
+  const handleOnBlur = React.useCallback(() => {
+    setTabIndex(0);
+  }, []);
 
   return (
     <StyledLocationTextFieldTrigger
@@ -61,6 +67,7 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       tabIndex={tabIndex}
       onKeyDown={handleKeyDown}
       onMouseDown={handleMouseDown}
+      onBlur={handleOnBlur}
       role="button"
       {...props}>
       {children}
