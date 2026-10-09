@@ -43,7 +43,7 @@
       "postcss": "8.5.23"
     },
     "grpc_tools_node_protoc_ts": {
-      "handlebars": "^4.7.9"
+      "handlebars": "^4.7.10"
     }
   }
 }
