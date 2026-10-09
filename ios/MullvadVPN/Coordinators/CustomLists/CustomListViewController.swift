@@ -148,9 +148,9 @@ class CustomListViewController: UIViewController {
         }
     }
 
-    private func onSave() async {
+    private func onSave() {
         do {
-            try await interactor.save(list: subject.value.customList)
+            try interactor.save(list: subject.value.customList)
             delegate?.customListDidSave(subject.value.customList)
         } catch {
             if let error = error as? CustomRelayListError {
@@ -179,11 +179,8 @@ class CustomListViewController: UIViewController {
                     style: .destructive,
                     accessibilityId: .confirmDeleteCustomListButton,
                     handler: {
-                        Task {
-                            await self.interactor
-                                .delete(customList: self.subject.value.customList)
-                            self.delegate?.customListDidDelete(self.subject.value.customList)
-                        }
+                        self.interactor.delete(customList: self.subject.value.customList)
+                        self.delegate?.customListDidDelete(self.subject.value.customList)
                     }
                 ),
                 AlertAction(

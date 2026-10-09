@@ -14,15 +14,6 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-protocol AccountManagerTunnelInteractor: Sendable {
-    var deviceState: DeviceState { get }
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool)
-    func setLastUsedAccount(_ accountNumber: String)
-    func unsetTunnelConfiguration()
-    func removeLastUsedAccount()
-    func handleRestError(_ error: Error)
-}
-
 struct AccountManager: Sendable {
     let operationQueue: AsyncOperationQueue
     let internalQueue: DispatchQueue

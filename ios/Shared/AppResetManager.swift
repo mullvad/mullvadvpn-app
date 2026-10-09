@@ -170,9 +170,7 @@ final class AppResetManagerNoOp {
         settingsManager: SettingsManager
     ) {}
 
-    func start() {
-
-    }
+    func start() {}
 }
 
 extension UITestSettingsKey {
