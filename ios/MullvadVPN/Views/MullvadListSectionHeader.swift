@@ -28,7 +28,7 @@ struct MullvadListSectionHeader: View {
         HStack {
             Text(title)
                 .font(.mullvadTinySemiBold)
-                .foregroundStyle(Color.mullvadTextPrimary)
+                .foregroundStyle(Color.mullvadTextSecondary)
                 .layoutPriority(1)
             Rectangle()
                 .frame(height: 1)
@@ -41,6 +41,7 @@ struct MullvadListSectionHeader: View {
             }
             ForEach(accessories) { accessory in
                 accessoryView(accessory)
+                    .foregroundStyle(Color.mullvadTextSecondary)
             }
         }
         .frame(minHeight: 44, alignment: .center)
@@ -64,14 +65,12 @@ struct MullvadListSectionHeader: View {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Color.mullvadTextPrimary)
                 .frame(height: 24)
                 .typeErase()
         case .text(let text):
             Text(text)
                 .font(.mullvadTinySemiBold)
                 .underline()
-                .foregroundStyle(Color.mullvadTextPrimary)
                 .typeErase()
         }
     }

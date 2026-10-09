@@ -218,6 +218,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         privacyOverlayWindow?.rootViewController = launchViewController
         privacyOverlayWindow?.windowLevel = .alert + 1
 
+        // Forces all navigation bar titles to be white. This is needed since SwiftUI does not provide a way to change the title color.
+        UINavigationBar
+            .appearance().titleTextAttributes = [.foregroundColor: UIColor.primaryTextColor]
+
         window?.makeKeyAndVisible()
         addTunnelObserver()
     }
