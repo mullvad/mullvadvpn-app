@@ -291,8 +291,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
     }
 
-    func addLocationToCustomList(location: LocationNode, customListName: String) async {
-        try? await customListInteractor
+    func addLocationToCustomList(location: LocationNode, customListName: String) {
+        try? customListInteractor
             .addLocationToCustomList(
                 relayLocations: location.locations,
                 customListName: customListName
@@ -303,8 +303,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     func removeLocationFromCustomList(
         location: LocationNode,
         customListName: String
-    ) async {
-        try? await customListInteractor
+    ) {
+        try? customListInteractor
             .removeLocationFromCustomList(
                 relayLocations: location.locations,
                 customListName: customListName
@@ -321,27 +321,27 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         customListInteractor.fetchAll()
     }
 
-    func save(list: CustomList) async throws {
-        try await customListInteractor.save(list: list)
+    func save(list: CustomList) throws {
+        try customListInteractor.save(list: list)
         customListsChanged()
     }
 
-    func delete(customList: CustomList) async {
-        await customListInteractor.delete(customList: customList)
+    func delete(customList: CustomList) {
+        customListInteractor.delete(customList: customList)
         recentsInteractor.cleanup(customList.id)
         customListsChanged()
     }
 
-    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws {
-        try await customListInteractor.addLocationToCustomList(
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.addLocationToCustomList(
             relayLocations: relayLocations,
             customListName: customListName
         )
         customListsChanged()
     }
 
-    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) async throws {
-        try await customListInteractor.removeLocationFromCustomList(
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.removeLocationFromCustomList(
             relayLocations: relayLocations, customListName: customListName)
         customListsChanged()
     }
