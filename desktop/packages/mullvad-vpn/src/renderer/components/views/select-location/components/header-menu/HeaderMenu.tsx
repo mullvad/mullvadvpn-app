@@ -35,8 +35,12 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopAlways = useCallback(async () => {
     await setMultihop({ multihop: 'always' });
     onOpenChange?.(false);
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setLocationType, setMultihop]);
+    if (locationType === LocationType.entryAutomatic) {
+      setLocationType(LocationType.entry);
+    } else {
+      setLocationType(LocationType.exit);
+    }
+  }, [locationType, onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopNever = useCallback(async () => {
     await setMultihop({ multihop: 'never' });
