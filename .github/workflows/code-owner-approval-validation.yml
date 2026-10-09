@@ -20,5 +20,7 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Execute unit tests
+        run: npm test
       - name: Lint
         run: npm run eslint
