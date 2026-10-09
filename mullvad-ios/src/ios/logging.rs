@@ -31,8 +31,12 @@ pub type LogCallback = extern "C" fn(
     message: *const libc::c_char,
 );
 
-/// Default log level
-const DEFAULT_LOG_LEVEL: LevelFilter = LevelFilter::DEBUG;
+/// Default log level. Debug only in debug builds.
+const DEFAULT_LOG_LEVEL: LevelFilter = if cfg!(debug_assertions) {
+    LevelFilter::DEBUG
+} else {
+    LevelFilter::INFO
+};
 
 /// Visitor that extracts the message and module path from a tracing event.
 ///

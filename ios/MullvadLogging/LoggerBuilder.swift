@@ -34,7 +34,11 @@ public final class LoggerBuilder: @unchecked Sendable {
     private var logRotationErrors: [Error] = []
     private var outputs: [LoggerOutput] = []
     private let metadata: Logger.Metadata
-    private var logLevel: Logger.Level = .debug
+    #if DEBUG
+        private var logLevel: Logger.Level = .trace
+    #else
+        private var logLevel: Logger.Level = .debug
+    #endif
 
     public func addFileOutput(fileURL: URL, header: String) {
         Self.lock.withLock {
