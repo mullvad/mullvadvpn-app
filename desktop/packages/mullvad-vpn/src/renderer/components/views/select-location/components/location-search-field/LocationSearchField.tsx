@@ -27,15 +27,17 @@ export function LocationSearchField() {
 
   return (
     <SearchTextField variant="secondary" value={searchValue} onValueChange={handleInputValueChange}>
-      <SearchTextField.Icon icon="search" />
-      <SearchTextField.Input
-        autoFocus
-        placeholder={
-          // TRANSLATORS: Placeholder text for search field in select location view
-          messages.gettext('Search locations or servers')
-        }
-      />
-      <SearchTextField.ClearButton />
+      <SearchTextField.InputGroup>
+        <SearchTextField.InputGroup.Icon icon="search" />
+        <SearchTextField.InputGroup.Input
+          autoFocus
+          placeholder={
+            // TRANSLATORS: Placeholder text for search field in select location view
+            messages.gettext('Search locations or servers')
+          }
+        />
+        <SearchTextField.InputGroup.ClearButton />
+      </SearchTextField.InputGroup>
     </SearchTextField>
   );
 }
