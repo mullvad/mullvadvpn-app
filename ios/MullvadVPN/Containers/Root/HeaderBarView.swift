@@ -8,251 +8,114 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import UIKit
+import SwiftUI
 
-class HeaderBarView: UIView {
-    private let brandNameImage = UIImage(named: "LogoText")?
-        .withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
+struct HeaderBarView: View {
+    private let barButtonTappableAreaSize = UIMetrics.Button.minimumTappableAreaSize
+    @State private var logoTrailingPoint: CGFloat = 0
+    @State private var showBrandName: Bool = true
 
-    private let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
+    let viewModel: HeaderBarViewModel
 
-    private lazy var brandNameImageView: UIImageView = {
-        let imageView = UIImageView(image: brandNameImage)
-        imageView.contentMode = .scaleAspectFill
-        return imageView
-    }()
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                ResizableImageView(image: .mullvadLogoImage, dimension: .height(UIMetrics.headerBarLogoSize))
+                    .background(calculateLogoTrailingPoint())
 
-    private let deviceInfoHolder: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 8.0
-        return stackView
-    }()
+                ResizableImageView(image: .mullvadLogoText, dimension: .height(18), tint: .mullvadTextPrimary)
+                    .showIf(showBrandName)
+                    .background(determineBrandNameOverlap())
 
-    private lazy var deviceNameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .mullvadMiniSemiBold
-        label.adjustsFontForContentSizeCategory = true
-        label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)  // Resist growing
-        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        label.setAccessibilityIdentifier(.headerDeviceNameLabel)
-        return label
-    }()
+                Spacer()
 
-    private lazy var timeLeftLabel: UILabel = {
-        let label = UILabel()
-        label.font = .mullvadMiniSemiBold
-        label.adjustsFontForContentSizeCategory = true
-        label.textColor = UIColor(white: 1.0, alpha: 0.8)
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)  // Allow growing
-        label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        return label
-    }()
+                Button {
+                    viewModel.onAccountTap?()
+                } label: {
+                    ResizableImageView(
+                        image: .mullvadIconAccount,
+                        dimension: .height(UIMetrics.Button.barButtonSize)
+                    )
+                }
+                .frame(width: barButtonTappableAreaSize.width, height: barButtonTappableAreaSize.height)
+                .accessibilityIdentifier(.accountButton)
+                .accessibilityLabel(NSLocalizedString("Account", comment: ""))
+                .showIf(viewModel.showAccountButton)
 
-    private lazy var buttonContainer: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
-        stackView.spacing = 12
-        return stackView
-    }()
-
-    private let borderLayer: CALayer = {
-        let layer = CALayer()
-        layer.backgroundColor = UIColor.HeaderBar.dividerColor.cgColor
-        return layer
-    }()
-
-    private let breadcrumbImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.widthAnchor.constraint(equalToConstant: 18).isActive = true
-        imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
-        return imageView
-    }()
-
-    let accountButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage.Buttons.account)
-        button.setAccessibilityIdentifier(.accountButton)
-        button.accessibilityLabel = NSLocalizedString("Account", comment: "")
-        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
-        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
-        return button
-    }()
-
-    let settingsButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
-        button.setAccessibilityIdentifier(.settingsButton)
-        button.accessibilityLabel = NSLocalizedString("Settings", comment: "")
-        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.barButtonSize).isActive = true
-        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
-        return button
-    }()
-
-    class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
-        let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
-        let barButton = IncreasedHitButton(type: .system)
-        barButton.setBackgroundImage(buttonImage, for: .normal)
-        barButton.configureForAutoLayout()
-
-        return barButton
-    }
-
-    var showsDivider = false {
-        didSet {
-            if showsDivider {
-                layer.addSublayer(borderLayer)
-            } else {
-                borderLayer.removeFromSuperlayer()
+                Button {
+                    viewModel.onSettingsTap?()
+                } label: {
+                    if let breadcrumb = viewModel.breadcrumb {
+                        ZStack {
+                            breadcrumb.image
+                            ResizableImageView(
+                                image: .mullvadIconSettings,
+                                dimension: .height(UIMetrics.Button.barButtonSize)
+                            )
+                        }
+                    } else {
+                        ResizableImageView(
+                            image: .mullvadIconSettings,
+                            dimension: .height(UIMetrics.Button.barButtonSize)
+                        )
+                    }
+                }
+                .frame(width: barButtonTappableAreaSize.width, height: barButtonTappableAreaSize.height)
+                .accessibilityIdentifier(.settingsButton)
+                .accessibilityLabel(NSLocalizedString("Settings", comment: ""))
             }
+
+            HStack(spacing: 16) {
+                Text(viewModel.deviceName)
+                    .accessibilityIdentifier(.headerDeviceNameLabel)
+                Text(viewModel.timeLeft)
+            }
+            .showIf(viewModel.showDeviceInfo)
+            .foregroundStyle(Color.mullvadTextSecondary)
+            .font(.mullvadMiniSemiBold)
+        }
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 8, trailing: 10))
+        .accessibilityIdentifier(.headerBarView)
+        .accessibilityElement(children: .contain)
+        .background(Color(viewModel.backgroundColor))
+    }
+
+    private func calculateLogoTrailingPoint() -> GeometryReader<some View> {
+        GeometryReader { proxy in
+            let frame = proxy.frame(in: .global)
+            Color.clear
+                .onAppear {
+                    logoTrailingPoint = frame.origin.x + frame.width
+                }
         }
     }
 
-    var isDeviceInfoHidden = false {
-        didSet {
-            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = isDeviceInfoHidden }
-        }
-    }
-
-    var breadcrumb: Breadcrumb? {
-        didSet {
-            let iconColor = UIColor.HeaderBar.buttonColor
-
-            if let breadcrumb {
-                breadcrumbImageView.image = breadcrumb.icon
-                breadcrumbImageView.isHidden = false
-                settingsButton.setBackgroundImage(
-                    .Buttons.settingsPartial.withTintColor(iconColor, renderingMode: .alwaysOriginal),
-                    for: .normal
+    private func determineBrandNameOverlap() -> GeometryReader<some View> {
+        GeometryReader { proxy in
+            let frame = proxy.frame(in: .global)
+            Color.clear
+                .onChange(
+                    of: frame,
+                    { oldValue, newValue in
+                        showBrandName = newValue.origin.x >= logoTrailingPoint
+                    }
                 )
-            } else {
-                breadcrumbImageView.isHidden = true
-                settingsButton.setBackgroundImage(
-                    .Buttons.settings.withTintColor(iconColor, renderingMode: .alwaysOriginal),
-                    for: .normal
-                )
-            }
         }
     }
+}
 
-    private var isAccountButtonHidden = false {
-        didSet {
-            accountButton.isHidden = isAccountButtonHidden
-        }
-    }
-
-    private var timeLeft: Date? {
-        didSet {
-            if let timeLeft {
-                let formattedTimeLeft = NSLocalizedString("Time left: %@", comment: "")
-                timeLeftLabel.text = String(
-                    format: formattedTimeLeft,
-                    CustomDateComponentsFormatting.localizedString(
-                        from: Date(),
-                        to: timeLeft,
-                        unitsStyle: .full
-                    ) ?? ""
-                )
-            } else {
-                timeLeftLabel.text = ""
-            }
-        }
-    }
-
-    private var deviceName: String? {
-        didSet {
-            if let deviceName {
-                let formattedDeviceName = NSLocalizedString("Device name: %@", comment: "")
-                deviceNameLabel.text = String(format: formattedDeviceName, deviceName)
-            } else {
-                deviceNameLabel.text = ""
-            }
-        }
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        directionalLayoutMargins = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 16,
-            bottom: 0,
-            trailing: 16
+#Preview {
+    HeaderBarView(
+        viewModel: HeaderBarViewModel(
+            rootConfiguration: RootConfiguration(
+                deviceName: "Happy Cow",
+                expiry: Date().addingTimeInterval(60),
+                showsAccountButton: true
+            ),
+            headerBarPresentation: HeaderBarPresentation(
+                style: .default
+            ),
+            breadcrumb: Breadcrumb.error(.apiAccess)
         )
-
-        accessibilityContainerType = .semanticGroup
-        setAccessibilityIdentifier(.headerBarView)
-
-        let brandImageSize = brandNameImage?.size ?? .zero
-        let brandNameAspectRatio = brandImageSize.width / max(brandImageSize.height, 1)
-
-        var buttonContainerTrailingAdjustment: CGFloat = 0
-        if let buttonImageWidth = settingsButton.currentImage?.size.width {
-            buttonContainerTrailingAdjustment = max((UIMetrics.Button.barButtonSize - buttonImageWidth) / 2, 0)
-        }
-
-        settingsButton.addConstrainedSubviews([breadcrumbImageView]) {
-            breadcrumbImageView.pinEdgesToSuperview(.init([.top(-3), .trailing(-3)]))
-        }
-
-        [deviceNameLabel, timeLeftLabel].forEach { deviceInfoHolder.addArrangedSubview($0) }
-
-        addConstrainedSubviews([logoImageView, brandNameImageView, buttonContainer, deviceInfoHolder]) {
-            logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
-            logoImageView.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
-            logoImageView.widthAnchor.constraint(equalToConstant: UIMetrics.headerBarLogoSize)
-            logoImageView.heightAnchor.constraint(equalTo: logoImageView.widthAnchor, multiplier: 1)
-
-            brandNameImageView.leadingAnchor.constraint(
-                equalToSystemSpacingAfter: logoImageView.trailingAnchor,
-                multiplier: 1
-            )
-            brandNameImageView.topAnchor.constraint(
-                equalTo: layoutMarginsGuide.topAnchor,
-                constant: UIMetrics.headerBarLogoSize * 0.5
-            )
-            brandNameImageView.widthAnchor.constraint(
-                equalTo: brandNameImageView.heightAnchor,
-                multiplier: brandNameAspectRatio
-            )
-            brandNameImageView.heightAnchor.constraint(equalToConstant: UIMetrics.headerBarBrandNameHeight)
-
-            buttonContainer.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
-            buttonContainer.trailingAnchor.constraint(
-                equalTo: layoutMarginsGuide.trailingAnchor,
-                constant: buttonContainerTrailingAdjustment
-            )
-
-            deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
-            deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
-            deviceInfoHolder.topAnchor.constraint(equalToSystemSpacingBelow: logoImageView.bottomAnchor, multiplier: 1)
-            layoutMarginsGuide.bottomAnchor.constraint(
-                equalToSystemSpacingBelow: deviceInfoHolder.bottomAnchor,
-                multiplier: 1
-            )
-        }
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        borderLayer.frame = CGRect(x: 0, y: frame.maxY - 1, width: frame.width, height: 1)
-        brandNameImageView.isHidden = shouldHideBrandName()
-    }
-
-    /// Returns `true` if container holding buttons intersects brand name.
-    private func shouldHideBrandName() -> Bool {
-        let buttonContainerRect = buttonContainer.convert(buttonContainer.bounds, to: nil)
-        let brandNameRect = brandNameImageView.convert(brandNameImageView.bounds, to: nil)
-
-        return brandNameRect.intersects(buttonContainerRect)
-    }
-
-    func update(configuration: RootConfiguration) {
-        deviceName = configuration.deviceName
-        timeLeft = configuration.expiry
-        isAccountButtonHidden = !configuration.showsAccountButton
-    }
+    )
 }
