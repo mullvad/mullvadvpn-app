@@ -24,7 +24,7 @@ export function CustomListsSectionTitle({ id, ...props }: CustomListsSectionTitl
 
   return (
     <SectionTitle {...props}>
-      <SectionTitle.Title as="h3" id={id}>
+      <SectionTitle.Title as="h2" id={id}>
         {messages.pgettext('select-location-view', 'Custom lists')}
       </SectionTitle.Title>
       <SectionTitle.Divider />
