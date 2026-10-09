@@ -16,6 +16,7 @@ import MullvadTypes
 import NetworkExtension
 import Operations
 import PacketTunnelCore
+import UIKit
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
