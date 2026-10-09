@@ -352,6 +352,11 @@ function convertFromTunnelStateRelayInfo(
           state.tunnelEndpoint.entryEndpoint &&
           convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
       },
+      location: state.location && {
+        ...state.location,
+        hostname: state.location.location?.hostname,
+        entryHostname: state.location.entryLocation?.hostname,
+      },
     };
   }
   return undefined;

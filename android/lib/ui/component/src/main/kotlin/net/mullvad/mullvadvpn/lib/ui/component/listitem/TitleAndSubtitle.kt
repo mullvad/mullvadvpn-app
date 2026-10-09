@@ -9,13 +9,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.Int
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 
 @Composable
 internal fun TitleAndSubtitle(
     title: String,
     subtitle: String?,
     singleLine: Boolean,
-    subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    subtitleColor: Color = ListItemDefaults.colors().subtitleColor(true),
     subTitleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     subTitleTextDirection: TextDirection = TextDirection.Unspecified,
 ) {

@@ -75,7 +75,7 @@ private fun NotificationTunnelState.contentText(context: Context): CharSequence?
             R.string.country_comma_city_comma_relay,
             location.country,
             location.city,
-            location.hostname,
+            location.location?.code,
         )
     }
 }

@@ -170,10 +170,10 @@ class TunnelStateNotificationProviderTest {
                     ipv4 = null,
                     ipv6 = null,
                     city = null,
-                    hostname = null,
                     entryCountry = null,
                     entryCity = null,
-                    entryHostname = null,
+                    location = null,
+                    entryLocation = null,
                 )
 
             provider.notifications.test {

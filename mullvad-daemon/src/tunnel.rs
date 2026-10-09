@@ -11,7 +11,7 @@ use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
-    relay_constraints::RelaySettings,
+    relay_constraints::{GeographicLocationConstraint, RelaySettings},
     settings::{Settings, TunnelOptions},
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
@@ -105,12 +105,22 @@ impl ParametersGenerator {
             ipv4: None,
             ipv6: None,
             mullvad_exit_ip: true,
-            hostname: Some(exit.hostname.clone()),
             city: Some(location.city),
             country: location.country,
-            entry_hostname: entry.map(|relay| relay.hostname.clone()),
+            location: Some(GeographicLocationConstraint::Hostname(
+                location.country_code,
+                location.city_code,
+                exit.hostname.clone(),
+            )),
             entry_city: entry.map(|relay| relay.location.city.clone()),
             entry_country: entry.map(|relay| relay.location.country.clone()),
+            entry_location: entry.map(|relay| {
+                GeographicLocationConstraint::Hostname(
+                    relay.location.country_code.clone(),
+                    relay.location.city_code.clone(),
+                    relay.hostname.clone(),
+                )
+            }),
         })
     }
 }

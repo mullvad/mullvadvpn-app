@@ -216,7 +216,10 @@ fn format_relay_connection(
 ) -> String {
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
         format_endpoints(
-            location.and_then(|l| l.entry_hostname.as_deref()),
+            location
+                .and_then(|l| l.entry_location.as_ref())
+                .and_then(|g| g.get_hostname())
+                .map(|h| h.as_str()),
             // Check if we *actually* want to print an obfuscator endpoint ..
             match endpoint.obfuscation {
                 Some(ref info) => info.get_endpoints(),
@@ -227,7 +230,10 @@ fn format_relay_connection(
     });
 
     let exit_endpoint = format_endpoints(
-        location.and_then(|l| l.hostname.as_deref()),
+        location
+            .and_then(|l| l.location.as_ref())
+            .and_then(|g| g.get_hostname())
+            .map(|h| h.as_str()),
         // Check if we *actually* want to print an obfuscator endpoint ..
         // The obfuscator information should be printed for the exit relay if multihop is disabled
         match (&endpoint.obfuscation, &first_hop) {

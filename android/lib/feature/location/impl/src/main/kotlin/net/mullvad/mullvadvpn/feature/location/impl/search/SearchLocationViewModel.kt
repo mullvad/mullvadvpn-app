@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandMap
+import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
+import net.mullvad.mullvadvpn.feature.location.impl.withHighlights
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.merge
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -28,8 +28,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
@@ -59,6 +59,7 @@ class SearchLocationViewModel(
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    connectionProxy: ConnectionProxy,
 ) : ViewModel() {
 
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
@@ -73,6 +74,7 @@ class SearchLocationViewModel(
                 selectedLocationUseCase(),
                 filterChips(),
                 _expandOverrides,
+                connectionProxy.tunnelState,
             ) {
                 searchTerm,
                 filteredCountries,
@@ -80,7 +82,8 @@ class SearchLocationViewModel(
                 customLists,
                 selectedItem,
                 filterChips,
-                expandOverrides ->
+                expandOverrides,
+                tunnelState ->
                 if (filteredCountries.countries.isEmpty()) {
                     return@combine Lce.Error(Unit)
                 }
@@ -93,7 +96,11 @@ class SearchLocationViewModel(
                 val expandedItems = expandSet.with(expandOverrides)
                 val customListSearch = filteredCustomLists.filterOnSearchTerm(searchTerm)
                 val allHighlights = relaySearch.highlights + customListSearch.highlights
-                val metadata = filteredCountries.relayMetadata.addHighlights(allHighlights)
+                val connectedRelay = tunnelState.location()?.connectedLocationIn(relayListType)
+                val metadata =
+                    filteredCountries.relayMetadata
+                        .withHighlights(allHighlights)
+                        .withConnectedRelay(connectedRelay = connectedRelay)
                 val settings = settingsRepository.settingsUpdates.value
                 Lce.Content(
                     SearchLocationUiState(
@@ -268,15 +275,6 @@ class SearchLocationViewModel(
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
     }
-}
-
-private fun RelayMetadataMap.addHighlights(
-    highlights: Map<RelayItemId, SearchMatch>
-): RelayMetadataMap {
-    val highlightsMetadata = highlights.mapValues { (_, match) ->
-        RelayMetadata(titleHighlights = match.matchRange)
-    }
-    return merge(highlightsMetadata)
 }
 
 sealed interface SearchLocationSideEffect {

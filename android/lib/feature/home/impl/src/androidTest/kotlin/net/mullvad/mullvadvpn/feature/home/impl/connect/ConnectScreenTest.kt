@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -513,8 +514,9 @@ class ConnectScreenTest {
             val inHost = "Host"
             val inPort = 99
             val inProtocol = TransportProtocol.Udp
-            every { mockLocation.hostname } returns mockHostName
-            every { mockLocation.entryHostname } returns null
+            every { mockLocation.location } returns
+                mockk<GeoLocationId.Hostname> { every { code } returns mockHostName }
+            every { mockLocation.entryLocation } returns null
 
             // In
             every { mockTunnelEndpoint.obfuscation } returns null
@@ -744,8 +746,9 @@ class ConnectScreenTest {
             val inHost = "1.1.1.1"
             val inPort = 99
             val inProtocol = TransportProtocol.Tcp
-            every { mockLocation.hostname } returns mockHostName
-            every { mockLocation.entryHostname } returns null
+            every { mockLocation.location } returns
+                mockk<GeoLocationId.Hostname> { every { code } returns mockHostName }
+            every { mockLocation.entryLocation } returns null
 
             // In
             every {
@@ -805,8 +808,9 @@ class ConnectScreenTest {
             val inHost = "8.8.8.8"
             val inPort = 55
             val inProtocol = TransportProtocol.Udp
-            every { mockLocation.hostname } returns mockHostName
-            every { mockLocation.entryHostname } returns null
+            every { mockLocation.location } returns
+                mockk<GeoLocationId.Hostname> { every { code } returns mockHostName }
+            every { mockLocation.entryLocation } returns null
 
             // In
             every { mockTunnelEndpoint.obfuscation } returns null
@@ -862,8 +866,9 @@ class ConnectScreenTest {
             val mockLocation: GeoIpLocation = mockk(relaxed = true)
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
             val mockHostName = "Host-Name"
-            every { mockLocation.hostname } returns mockHostName
-            every { mockLocation.entryHostname } returns null
+            every { mockLocation.location } returns
+                mockk<GeoLocationId.Hostname> { every { code } returns mockHostName }
+            every { mockLocation.entryLocation } returns null
 
             // In
             every { mockTunnelEndpoint.obfuscation } returns null
