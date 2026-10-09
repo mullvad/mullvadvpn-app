@@ -36,7 +36,7 @@ export function CountryLocations() {
       tabIndex={-1}
       data-focusable-heading>
       <SectionTitle>
-        <SectionTitle.Title as="h3" id={titleId} tabIndex={-1}>
+        <SectionTitle.Title as="h2" id={titleId} tabIndex={-1}>
           {messages.pgettext('select-location-view', 'All locations')}
         </SectionTitle.Title>
         <SectionTitle.Divider />
