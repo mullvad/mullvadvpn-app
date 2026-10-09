@@ -16,7 +16,7 @@ export function RecentLocations() {
       tabIndex={-1}
       data-focusable-heading>
       <SectionTitle>
-        <SectionTitle.Title as="h3" id={titleId}>
+        <SectionTitle.Title as="h2" id={titleId}>
           {
             // TRANSLATORS: Title for section showing recently used locations.
             messages.pgettext('select-location-view', 'Recents')
