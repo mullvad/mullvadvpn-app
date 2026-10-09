@@ -32,10 +32,10 @@ export function EntryAutomaticallySelected() {
   const { setLocationType } = useSelectLocationViewContext();
 
   const handleClickSetMultihopToAlways = React.useCallback(async () => {
-    setLocationType(LocationType.exit);
     await setMultihop({
       multihop: 'always',
     });
+    setLocationType(LocationType.entry);
   }, [setLocationType, setMultihop]);
 
   return (
