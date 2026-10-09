@@ -3274,6 +3274,9 @@ msgstr ""
 msgid "Connect to a different network"
 msgstr ""
 
+msgid "Connected server"
+msgstr ""
+
 msgid "Connecting..."
 msgstr ""
 
