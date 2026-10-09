@@ -2819,6 +2819,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
      * Tunnel interface IPv4 address (e.g. "10.64.0.2").
      */
     public let ipv4Address: String
+    public let ips: [UniSocketAddr]
     /**
      * Tunnel interface IPv6 address.
      */
@@ -2865,7 +2866,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
          */privateKey: Data, 
         /**
          * Tunnel interface IPv4 address (e.g. "10.64.0.2").
-         */ipv4Address: String, 
+         */ipv4Address: String, ips: [UniSocketAddr], 
         /**
          * Tunnel interface IPv6 address.
          */ipv6Address: String, 
@@ -2895,6 +2896,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
          */obfuscation: GotaTunObfuscation, multiplexCount: UInt64) {
         self.privateKey = privateKey
         self.ipv4Address = ipv4Address
+        self.ips = ips
         self.ipv6Address = ipv6Address
         self.mtu = mtu
         self.exitPeer = exitPeer
@@ -2925,6 +2927,7 @@ public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
             try GotaTunConfig(
                 privateKey: FfiConverterData.read(from: &buf), 
                 ipv4Address: FfiConverterString.read(from: &buf), 
+                ips: FfiConverterSequenceTypeUniSocketAddr.read(from: &buf), 
                 ipv6Address: FfiConverterString.read(from: &buf), 
                 mtu: FfiConverterUInt16.read(from: &buf), 
                 exitPeer: FfiConverterTypeGotaTunPeer.read(from: &buf), 
@@ -2941,6 +2944,7 @@ public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
     public static func write(_ value: GotaTunConfig, into buf: inout [UInt8]) {
         FfiConverterData.write(value.privateKey, into: &buf)
         FfiConverterString.write(value.ipv4Address, into: &buf)
+        FfiConverterSequenceTypeUniSocketAddr.write(value.ips, into: &buf)
         FfiConverterString.write(value.ipv6Address, into: &buf)
         FfiConverterUInt16.write(value.mtu, into: &buf)
         FfiConverterTypeGotaTunPeer.write(value.exitPeer, into: &buf)
@@ -3880,6 +3884,31 @@ fileprivate struct FfiConverterSequenceTypeAccessMethodSettingWrapper: FfiConver
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterSequenceTypeUniSocketAddr: FfiConverterRustBuffer {
+    typealias SwiftType = [UniSocketAddr]
+
+    public static func write(_ value: [UniSocketAddr], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeUniSocketAddr.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [UniSocketAddr] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [UniSocketAddr]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeUniSocketAddr.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     public static func write(_ value: [String: String], into buf: inout [UInt8]) {
         let len = Int32(value.count)
@@ -3952,6 +3981,58 @@ public func FfiConverterTypeUniIpAddr_lift(_ value: RustBuffer) throws -> UniIpA
 #endif
 public func FfiConverterTypeUniIpAddr_lower(_ value: UniIpAddr) -> RustBuffer {
     return FfiConverterTypeUniIpAddr.lower(value)
+}
+
+
+
+
+
+/**
+ * Typealias from the type name used in the UDL file to the custom type.  This
+ * is needed because the UDL type name is used in function/method signatures.
+ */
+public typealias UniSocketAddr = AnyIPEndpoint
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeUniSocketAddr: FfiConverter {
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UniSocketAddr {
+        let builtinValue = try FfiConverterString.read(from: &buf)
+        return AnyIPEndpoint(string: builtinValue)!
+    }
+
+    public static func write(_ value: UniSocketAddr, into buf: inout [UInt8]) {
+        let builtinValue = value.description
+        return FfiConverterString.write(builtinValue, into: &buf)
+    }
+
+    public static func lift(_ value: RustBuffer) throws -> UniSocketAddr {
+        let builtinValue = try FfiConverterString.lift(value)
+        return AnyIPEndpoint(string: builtinValue)!
+    }
+
+    public static func lower(_ value: UniSocketAddr) -> RustBuffer {
+        let builtinValue = value.description
+        return FfiConverterString.lower(builtinValue)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeUniSocketAddr_lift(_ value: RustBuffer) throws -> UniSocketAddr {
+    return try FfiConverterTypeUniSocketAddr.lift(value)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeUniSocketAddr_lower(_ value: UniSocketAddr) -> RustBuffer {
+    return FfiConverterTypeUniSocketAddr.lower(value)
 }
 
 private let UNIFFI_RUST_FUTURE_POLL_READY: Int8 = 0
