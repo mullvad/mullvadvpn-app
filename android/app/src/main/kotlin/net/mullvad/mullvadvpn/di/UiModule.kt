@@ -467,29 +467,31 @@ val uiModule = module {
     viewModel { params ->
         SearchLocationViewModel(
             relayListType = params.get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
+            customListActionUseCase = get(),
+            relayListFilterRepository = get(),
+            filterChipUseCase = get(),
+            selectSinglehopUseCase = get(),
+            modifyMultihopUseCase = get(),
+            settingsRepository = get(),
+            filteredRelayListUseCase = get(),
+            filteredCustomListRelayItemsUseCase = get(),
+            selectedLocationUseCase = get(),
+            customListsRelayItemUseCase = get(),
+            connectionProxy = get(),
         )
     }
     viewModel { (relayListType: RelayListType) ->
         SelectLocationListViewModel(
-            relayListType,
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
+            relayListType = relayListType,
+            filteredRelayListUseCase = get(),
+            filteredCustomListRelayItemsUseCase = get(),
+            selectedLocationUseCase = get(),
+            wireguardConstraintsRepository = get(),
+            relayListRepository = get(),
+            recentsUseCase = get(),
+            settingsRepository = get(),
+            connectionProxy = get(),
+            relayListScrollConnection = get(),
         )
     }
     viewModel { params -> DaitaViewModel(isModal = params.get(), get()) }

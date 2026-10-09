@@ -73,6 +73,7 @@ fun RelayMetadataMap.merge(other: RelayMetadataMap): RelayMetadataMap {
 data class RelayMetadata(
     val needsOtherEntry: Boolean? = null,
     val titleHighlights: List<IntRange>? = null,
+    val connectedRelay: Boolean? = null,
 ) {
     /// Merges two metadata objects into a new one. Keys in other (if set) will overwrite keys
     /// in this.
@@ -80,6 +81,7 @@ data class RelayMetadata(
         RelayMetadata(
             needsOtherEntry = other.needsOtherEntry ?: this.needsOtherEntry,
             titleHighlights = other.titleHighlights ?: this.titleHighlights,
+            connectedRelay = other.connectedRelay ?: this.connectedRelay,
         )
 }
 
@@ -165,6 +167,11 @@ fun List<RelayItem.Location.Country>.findRelay(
     ?.find { city -> city.id == geoLocationId.city }
     ?.relays
     ?.find { relay -> relay.id == geoLocationId }
+
+fun List<RelayItem.Location>.findRelayByCode(code: String): RelayItem.Location.Relay? =
+    withDescendants().filterIsInstance<RelayItem.Location.Relay>().firstOrNull {
+        it.id.code == code
+    }
 
 /**
  * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are

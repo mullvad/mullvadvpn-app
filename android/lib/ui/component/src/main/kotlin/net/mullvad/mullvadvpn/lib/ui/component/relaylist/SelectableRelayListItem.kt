@@ -122,11 +122,16 @@ fun SelectableRelayListItem(
             }
         },
         content = {
-            Name(
-                name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
-                state = relayListItem.state,
-                colors.headlineColor(enabled = active, selected = selected),
-            )
+            Column {
+                Name(
+                    name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
+                    state = relayListItem.state,
+                    colors.headlineColor(enabled = active, selected = selected),
+                )
+                if (relayListItem.connected) {
+                    Subtitle(text = stringResource(R.string.connected_server))
+                }
+            }
         },
         trailingContent =
             when {
@@ -163,6 +168,19 @@ internal fun Name(name: AnnotatedString, state: RelayListItemState?, textColor: 
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         color = textColor,
+    )
+}
+
+@Composable
+private fun Subtitle(text: String) {
+    val color = MaterialTheme.colorScheme.onSurfaceVariant
+    val style = MaterialTheme.typography.labelLarge
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 
