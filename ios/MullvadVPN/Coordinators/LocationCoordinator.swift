@@ -135,15 +135,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
             switch action {
             case .didDelete(let list):
-                Task {
-                    await self.selectLocationViewModel.delete(customList: list)
-                }
+                selectLocationViewModel.delete(customList: list)
             case .didSave(let list):
-                Task {
-                    try? await self.selectLocationViewModel.save(list: list)
-                }
+                try? selectLocationViewModel.save(list: list)
             case .noAction:
-                self.selectLocationViewModel.customListsChanged()
+                selectLocationViewModel.customListsChanged()
             }
         }
 

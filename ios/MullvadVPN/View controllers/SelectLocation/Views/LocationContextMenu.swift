@@ -28,7 +28,7 @@ extension ExitLocationView {
                                     type: .destructivePrimary,
                                     title: "Delete list",
                                     handler: {
-                                        await viewModel.delete(customList: location.customList)
+                                        viewModel.delete(customList: location.customList)
                                         alert = nil
                                     }
                                 ),

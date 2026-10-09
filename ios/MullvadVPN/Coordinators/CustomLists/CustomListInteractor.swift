@@ -15,10 +15,10 @@ import MullvadTypes
 protocol CustomListInteractorProtocol {
     func fetch(by id: UUID) -> CustomList?
     func fetchAll() -> [CustomList]
-    func save(list: CustomList) async throws
-    func delete(customList: CustomList) async
-    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws
-    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) async throws
+    func save(list: CustomList) throws
+    func delete(customList: CustomList)
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws
 }
 
 struct CustomListInteractor: CustomListInteractorProtocol {
@@ -45,17 +45,17 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         repository.fetchAll()
     }
 
-    func save(list: CustomList) async throws {
+    func save(list: CustomList) throws {
         try repository.save(list: list)
         updateCustomListRelayConstraints(list: list, action: .save)
     }
 
-    func delete(customList: CustomList) async {
+    func delete(customList: CustomList) {
         repository.delete(id: customList.id)
         updateCustomListRelayConstraints(list: customList, action: .delete)
     }
 
-    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws {
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
         let customList =
             fetchAll().first { $0.name == customListName }
             ?? CustomList(
@@ -81,13 +81,13 @@ struct CustomListInteractor: CustomListInteractorProtocol {
             name: customList.name,
             locations: locations
         )
-        try await save(list: newCustomList)
+        try save(list: newCustomList)
     }
 
     func removeLocationFromCustomList(
         relayLocations: [RelayLocation],
         customListName: String
-    ) async throws {
+    ) throws {
         let customList = fetchAll().first { $0.name == customListName }
         guard let customList else {
             return
@@ -100,7 +100,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
             name: customList.name,
             locations: allLocations
         )
-        try await save(list: newCustomList)
+        try save(list: newCustomList)
     }
 
     private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) {
