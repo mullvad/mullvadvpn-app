@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -180,7 +181,6 @@ class ConnectViewModelTest {
         val location: GeoIpLocation = mockk()
         val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location, emptyList())
         every { location.ipv4?.hostAddress } returns "1.1.1.1"
-        every { location.hostname } returns "hostname"
 
         // Act, Assert
         viewModel.uiState.test {
@@ -211,12 +211,28 @@ class ConnectViewModelTest {
                 ipv6 = mockk(relaxed = true),
                 country = "Sweden",
                 city = "Gothenburg",
-                hostname = "Host",
-                entryHostname = "EntryHost",
+                location =
+                    GeoLocationId.Hostname(
+                        city =
+                            GeoLocationId.City(
+                                country = GeoLocationId.Country("se"),
+                                code = "got",
+                            ),
+                        code = "Host",
+                    ),
                 latitude = 57.7065,
                 longitude = 11.967,
                 entryCountry = "Sweden",
                 entryCity = "Gothenburg",
+                entryLocation =
+                    GeoLocationId.Hostname(
+                        city =
+                            GeoLocationId.City(
+                                country = GeoLocationId.Country("se"),
+                                code = "got",
+                            ),
+                        code = "EntryHost",
+                    ),
             )
 
         // Act, Assert

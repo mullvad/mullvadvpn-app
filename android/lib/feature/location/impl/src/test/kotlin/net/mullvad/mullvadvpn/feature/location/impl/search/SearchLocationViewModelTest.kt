@@ -17,7 +17,9 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -50,6 +52,7 @@ class SearchLocationViewModelTest {
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private val filteredRelayList = MutableStateFlow(FilteredCountries())
     private val selectedLocation =
@@ -60,6 +63,7 @@ class SearchLocationViewModelTest {
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val settingsFlow = MutableStateFlow(mockk<Settings>(relaxed = true))
+    private val tunnelStateFlow = MutableStateFlow(TunnelState.Disconnected(null))
 
     private lateinit var viewModel: SearchLocationViewModel
 
@@ -74,6 +78,7 @@ class SearchLocationViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockSettingsRepository.settingsUpdates } returns settingsFlow
+        every { mockConnectionProxy.tunnelState } returns tunnelStateFlow
 
         viewModel =
             SearchLocationViewModel(
@@ -88,6 +93,7 @@ class SearchLocationViewModelTest {
                 selectSinglehopUseCase = mockSelectSinglehopUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 settingsRepository = mockSettingsRepository,
+                connectionProxy = mockConnectionProxy,
             )
     }
 

@@ -1,3 +1,4 @@
+use crate::relay_constraints::GeographicLocationConstraint;
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
@@ -162,24 +163,20 @@ pub struct GeoIpLocation {
     pub ipv6: Option<Ipv6Addr>,
     /// If public IP address(es) are Mullvad IPs.
     pub mullvad_exit_ip: bool,
-    /// Hostname of the exit relay. e.g. `se-got-wg-101`.
-    pub hostname: Option<String>,
-    /// City code of the exit relay. e.g. `got` for "Gothenburg".
+    /// City name of the exit relay. e.g. "Gothenburg".
     pub city: Option<String>,
-    /// Country code of the exit relay. e.g. `se` for "Sweden".
+    /// Country name of the exit relay. e.g. "Sweden".
     pub country: String,
-    /// Hostname of the entry relay. e.g. `se-got-wg-101`.
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
-    pub entry_hostname: Option<String>,
-    /// City code of the entry relay. e.g. `got` for "Gothenburg".
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
+    /// These fields are `Some` when tunnel state is connecting or connected.
+    /// Country, city and hostname code of the exit relay. e.g. `se`, `got`, `se-got-wg-001`
+    pub location: Option<GeographicLocationConstraint>,
+    /// These fields are `Some` when traffic is routed through an entry relay.
+    /// City name of the entry relay. e.g. "Gothenburg"
     pub entry_city: Option<String>,
-    ///  Country code of the entry relay. e.g. `se` for "Sweden".
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
+    ///  Country name of the entry relay. e.g. "Sweden".
     pub entry_country: Option<String>,
+    /// Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`
+    pub entry_location: Option<GeographicLocationConstraint>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -195,12 +192,12 @@ impl From<AmIMullvad> for GeoIpLocation {
             ipv4,
             ipv6,
             mullvad_exit_ip: location.mullvad_exit_ip,
-            hostname: None,
             city: location.city,
             country: location.country,
-            entry_hostname: None,
             entry_city: None,
             entry_country: None,
+            location: None,
+            entry_location: None,
         }
     }
 }
