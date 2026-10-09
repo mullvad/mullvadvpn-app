@@ -15,6 +15,11 @@ struct LoginView: View {
     @State private var accountNumber: String = ""
     @State private var accountTextColor: Color = .white
     @Environment(Navigation.self) private var navigation: Navigation
+    private var viewModel: LoggingIn
+
+    init(viewModel: any LoggingIn) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -31,16 +36,18 @@ struct LoginView: View {
                 )
             }
             .onSubmit {
-                login()
+                Task {
+                    await login()
+                }
             }
         }
     }
 
-    func login() {
+    func login() async {
         print("Logging in with \(accountNumber)")
         if validateAccountNumber() {
             accountTextColor = .white
-            navigation.logIn()
+            await viewModel.loginWithNumber(accountNumber)
         } else {
             accountTextColor = .mullvadDangerColor
         }
@@ -52,5 +59,6 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView().environment(Navigation())
+    LoginView(viewModel: LoginViewModelStub())
+    .environment(Navigation())
 }

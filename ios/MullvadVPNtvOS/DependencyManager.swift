@@ -9,14 +9,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
-import MullvadLogging
 
-actor DependencyManager {
-
+@MainActor
+class DependencyManager {
     init() {}
 
     // TODO: Cut this into proper dependencies, it shouldn't be part of 2 different frameworks
@@ -83,7 +83,6 @@ actor DependencyManager {
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
 
-
         let apiRequestFactory = MullvadApiRequestFactory(
             apiContext: apiContext,
             encoder: REST.Coding.makeJSONEncoder()
@@ -92,5 +91,9 @@ actor DependencyManager {
         proxyFactory = REST.ProxyFactory.makeProxyFactory(apiTransportProvider: apiTransportProvider)
 
         return self
+    }
+
+    public func makeLoginViewModel() -> any LoggingIn {
+        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy())
     }
 }
