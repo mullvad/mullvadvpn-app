@@ -61,6 +61,7 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       tabIndex={tabIndex}
       onKeyDown={handleKeyDown}
       onMouseDown={handleMouseDown}
+      role="button"
       {...props}>
       {children}
     </StyledLocationTextFieldTrigger>

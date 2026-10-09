@@ -34,11 +34,7 @@ function LocationSelectorTextFieldItemImpl({
   children,
   ...props
 }: Omit<LocationSelectorTextFieldItemProps, 'id' | 'type'>) {
-  return (
-    <LocationSelectorItem {...props}>
-      <StyledLocationSelectorTrigger>{children}</StyledLocationSelectorTrigger>
-    </LocationSelectorItem>
-  );
+  return <LocationSelectorItem {...props}>{children}</LocationSelectorItem>;
 }
 
 function LocationSelectorTextFieldItem({
@@ -62,6 +58,7 @@ function LocationSelectorTextFieldItem({
 const LocationSelectorTextFieldItemNamespace = Object.assign(LocationSelectorTextFieldItem, {
   TextField: LocationSelectorTextField,
   TrailingButton: LocationSelectorTrailingButton,
+  Trigger: StyledLocationSelectorTrigger,
 });
 
 export { LocationSelectorTextFieldItemNamespace as LocationSelectorTextFieldItem };
