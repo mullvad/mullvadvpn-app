@@ -12,7 +12,6 @@ import MullvadLogging
 import SwiftUI
 
 struct LoginView: View {
-
     @State private var accountNumber: String = ""
     @State private var accountTextColor: Color = .white
     @Environment(Navigation.self) private var navigation: Navigation
@@ -80,7 +79,7 @@ struct LoginView: View {
         print("Logging in with \(accountNumber)")
         if validateAccountNumber() {
             accountTextColor = .white
-            await viewModel.loginWithNumber(accountNumber)
+            await viewModel.loginWith(accountNumber)
         } else {
             accountTextColor = .mullvadDangerColor
         }

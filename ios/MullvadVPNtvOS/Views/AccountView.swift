@@ -14,35 +14,37 @@ struct AccountView: View {
     @Environment(Navigation.self) private var navigation: Navigation
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .leading) {
-                Group {
-                    Text("Account")
-                        .font(.largeTitle)
-                    Text("Device name")
-                        .padding([.bottom])
-                        .font(.title2)
-                    Text("account.deviceName")
-                        .padding([.bottom])
-                    Text("Account number")
-                        .font(.title2)
-                    Text("account.accountNumber")
-                        .padding([.bottom])
-                    Text("Paid until")
-                    Text("account.paidUntil.formatted()")
-                }
-
-                Spacer()
-                VStack(alignment: .leading) {
-                    Button("Log out") {
-                        print("LOG OUT")
-                        navigation.logOut()
-                    }.buttonStyle(DestructiveActionButton())
-                }
+        VStack(alignment: .leading) {
+            Group {
+                Text("Account")
+                    .font(.largeTitle)
+                Text("Device name")
+                    .padding([.bottom])
+                    .font(.title2)
+                Text("account.deviceName")
+                    .padding([.bottom])
+                Text("Account number")
+                    .font(.title2)
+                Text("account.accountNumber")
+                    .padding([.bottom])
+                Text("Paid until")
+                Text("account.paidUntil.formatted()")
             }
-            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .leading)
-            .background(Color.mullvadBackground)
+
+            Spacer()
+            VStack(alignment: .leading) {
+                Button("Log out") {
+                    print("LOG OUT")
+                    navigation.logOut()
+                }.buttonStyle(DestructiveActionButton())
+            }
         }
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .leading
+        )
+        .background(Color.mullvadBackground)
     }
 }
 

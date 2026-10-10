@@ -16,21 +16,44 @@ import MullvadSettings
 import MullvadTypes
 
 @MainActor
+@Observable
 class DependencyManager {
-    init() {}
-
     // TODO: Cut this into proper dependencies, it shouldn't be part of 2 different frameworks
-    private let containerURL = MullvadSettings.ApplicationConfiguration.containerURL
-    private let settingsManager = SettingsManager()
-    private(set) var shadowsocksLoader: ShadowsocksLoader!
-    var accessMethodReceiver: MullvadAccessMethodReceiver!
-    private(set) var accessMethodRepository: AccessMethodRepository!
-    private var apiContext: ApiContext!
-    private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
-    private lazy var ipOverrideRepository = IPOverrideRepository(settingsStore: settingsManager.store)
-    private var proxyFactory: ProxyFactoryProtocol!
+    private let settingsManager: SettingsManager
+    private let shadowsocksLoader: ShadowsocksLoader
+    private let accessMethodReceiver: MullvadAccessMethodReceiver
+    private let accessMethodRepository: AccessMethodRepository
+    private let apiContext: ApiContext
+    private let shadowsocksCacheCleaner: ShadowsocksCacheCleaner
+    private let ipOverrideRepository: IPOverrideRepository
+    private let proxyFactory: ProxyFactoryProtocol
 
-    func start() async -> Self {
+    private init(
+        settingsManager: SettingsManager,
+        shadowsocksLoader: ShadowsocksLoader,
+        accessMethodReceiver: MullvadAccessMethodReceiver,
+        accessMethodRepository: AccessMethodRepository,
+        apiContext: ApiContext,
+        shadowsocksCacheCleaner: ShadowsocksCacheCleaner,
+        ipOverrideRepository: IPOverrideRepository,
+        proxyFactory: ProxyFactoryProtocol
+    ) {
+        self.settingsManager = settingsManager
+        self.shadowsocksLoader = shadowsocksLoader
+        self.accessMethodReceiver = accessMethodReceiver
+        self.accessMethodRepository = accessMethodRepository
+        self.apiContext = apiContext
+        self.shadowsocksCacheCleaner = shadowsocksCacheCleaner
+        self.ipOverrideRepository = ipOverrideRepository
+        self.proxyFactory = proxyFactory
+    }
+
+    static func live() async -> DependencyManager {
+        let settingsManager = SettingsManager()
+        let containerURL = MullvadSettings.ApplicationConfiguration.containerURL
+        let ipOverrideRepository = IPOverrideRepository(
+            settingsStore: settingsManager.store
+        )
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: ipOverrideRepository
@@ -46,16 +69,16 @@ class DependencyManager {
 
         let tunnelSettings = (try? settingsManager.readSettings()) ?? LatestTunnelSettings()
 
-        shadowsocksLoader = ShadowsocksLoader(
+        let shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
             relaySelector: shadowsocksRelaySelector,
             tunnelSettings: tunnelSettings,
             settingsUpdater: tunnelSettingsUpdater
         )
 
-        shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
+        let shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
-        accessMethodRepository = AccessMethodRepository(
+        let accessMethodRepository = AccessMethodRepository(
             shadowsocksCiphers: ShadowsocksCipherService().getCiphers(),
             settingsStore: settingsManager.store
         )
@@ -63,7 +86,7 @@ class DependencyManager {
             methods: accessMethodRepository.fetchAll()
         )
 
-        apiContext = ApiContext(
+        let apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
@@ -76,7 +99,7 @@ class DependencyManager {
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 
-        accessMethodReceiver = MullvadAccessMethodReceiver(
+        let accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
             validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
@@ -88,12 +111,21 @@ class DependencyManager {
             encoder: REST.Coding.makeJSONEncoder()
         )
         let apiTransportProvider = APITransportProvider(requestFactory: apiRequestFactory)
-        proxyFactory = REST.ProxyFactory.makeProxyFactory(apiTransportProvider: apiTransportProvider)
+        let proxyFactory = REST.ProxyFactory.makeProxyFactory(apiTransportProvider: apiTransportProvider)
 
-        return self
+        return DependencyManager(
+            settingsManager: settingsManager,
+            shadowsocksLoader: shadowsocksLoader,
+            accessMethodReceiver: accessMethodReceiver,
+            accessMethodRepository: accessMethodRepository,
+            apiContext: apiContext,
+            shadowsocksCacheCleaner: shadowsocksCacheCleaner,
+            ipOverrideRepository: ipOverrideRepository,
+            proxyFactory: proxyFactory
+        )
     }
 
     public func makeLoginViewModel() -> any LoggingIn {
-        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy())
+        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy(), deviceProxy: proxyFactory.createDevicesProxy())
     }
 }
