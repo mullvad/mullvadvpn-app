@@ -41,9 +41,12 @@ struct MullvadVPNtvOSApp: App {
                 _dependencies.wrappedValue = await dependenciesTask.value
                 loadedDepencencies = true
             }
-            .fullScreenCover(isPresented: $navigation.isPresentingAccount, content: {
-                AccountView()
-            })
+            .fullScreenCover(
+                isPresented: $navigation.isPresentingAccount,
+                content: {
+                    AccountView()
+                }
+            )
             .environment(navigation)
         }
     }

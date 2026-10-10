@@ -48,7 +48,7 @@ struct AccountView: View {
 
 #Preview {
     AccountView()
-    .environment(Navigation())
+        .environment(Navigation())
 }
 
 struct ConfirmedActionButton: ButtonStyle {
@@ -60,7 +60,7 @@ struct ConfirmedActionButton: ButtonStyle {
             .background(Color.mullvadSuccessColor)
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
-            .scaleEffect(focused ? 1.1: 1)
+            .scaleEffect(focused ? 1.1 : 1)
             .animation(.spring(), value: focused)
     }
 }
