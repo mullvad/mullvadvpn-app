@@ -23,6 +23,7 @@ use crate::{
     DatagramFragmentor, MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
     ProxyTaskError, Stopped, TaskError, TaskResult, Tasks, compute_udp_payload_size,
     fragment::{DefragReceived, Fragments},
+    outgrew_path_mtu,
     stats::Stats,
 };
 
@@ -358,7 +359,7 @@ impl Client {
         tasks.spawn_task(client_socket_rx_task(
             Arc::clone(&client_socket),
             DatagramFragmentor::new(
-                self.quinn_conn,
+                self.quinn_conn.clone(),
                 stream_id,
                 self.max_udp_payload_size,
                 Arc::clone(&self.stats),
@@ -376,6 +377,7 @@ impl Client {
 
         tasks.spawn_task(server_socket_task(
             stream_id,
+            self.quinn_conn,
             self.connection,
             incoming_datagram_tx,
             outgoing_datagram_rx,
@@ -409,7 +411,7 @@ impl Client {
         tasks.spawn_task(inline_rx_task(
             outgoing_packet_rx,
             DatagramFragmentor::new(
-                self.quinn_conn,
+                self.quinn_conn.clone(),
                 stream_id,
                 self.max_udp_payload_size,
                 Arc::clone(&self.stats),
@@ -425,6 +427,7 @@ impl Client {
 
         tasks.spawn_task(server_socket_task(
             stream_id,
+            self.quinn_conn,
             self.connection,
             incoming_datagram_tx,
             outgoing_datagram_rx,
@@ -449,6 +452,7 @@ impl RunningClient {
 /// Forward datagrams between the QUIC connection and the task pipeline.
 async fn server_socket_task(
     stream_id: StreamId,
+    quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     // Channel to which we send packets from the server
     incoming_datagram_tx: mpsc::Sender<Datagram>,
@@ -474,12 +478,15 @@ async fn server_socket_task(
                 }
             }
             datagram = outgoing_datagram_rx.recv() => {
-                if let Some(datagram) = datagram {
-                    connection
-                        .send_datagram(stream_id, datagram)
-                        .map_err(ProxyTaskError::SendDatagram)?;
-                } else {
+                let Some(datagram) = datagram else {
                     break;
+                };
+                let datagram_len = datagram.len();
+                if let Err(err) = connection.send_datagram(stream_id, datagram) {
+                    if !outgrew_path_mtu(&quinn_conn, stream_id, datagram_len) {
+                        return Err(ProxyTaskError::SendDatagram(err));
+                    }
+                    log::trace!("Dropping a datagram that no longer fits in the path MTU");
                 }
             },
         };
@@ -846,9 +853,90 @@ impl rustls::client::danger::ServerCertVerifier for AcceptAnyServerCertificate {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+    use crate::server::{AllowedIps, Server, ServerParams};
+    use rustls_pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject};
+    use tokio::time::timeout;
+
     #[test]
     fn test_zero_stream_id() {
         h3::quic::StreamId::try_from(0).expect("need to be able to create stream IDs with 0, no?");
+    }
+
+    /// Datagrams are fragmented to fit the path MTU and then queued. If the path MTU has shrunk
+    /// by the time a datagram is sent, the datagram must be dropped without stopping the proxy.
+    #[tokio::test]
+    async fn test_datagram_that_outgrew_path_mtu_is_dropped() -> anyhow::Result<()> {
+        let any_localhost_addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+
+        let destination = UdpSocket::bind(any_localhost_addr).await?;
+
+        let server_params = ServerParams::builder()
+            .allowed_hosts(AllowedIps::default())
+            .build();
+        let server = Server::bind(any_localhost_addr, server_tls_config()?, server_params)?;
+        let server_addr = server.local_addr()?;
+        tokio::spawn(server.run());
+
+        let client_config = ClientConfig::builder()
+            .quinn_socket(UdpSocket::bind(any_localhost_addr).await?)
+            .server_addr(server_addr)
+            .server_host("test.test".to_owned())
+            .target_addr(destination.local_addr()?)
+            .build();
+        let client = Client::connect(client_config).await?;
+
+        let stream_id = client.request_stream.id();
+        let max_datagram_size = client
+            .quinn_conn
+            .max_datagram_size()
+            .context("Expected datagrams to be supported")?;
+
+        let (outgoing_datagram_tx, outgoing_datagram_rx) = mpsc::channel(2);
+        let (incoming_datagram_tx, _incoming_datagram_rx) = mpsc::channel(1);
+        let task = tokio::spawn(server_socket_task(
+            stream_id,
+            client.quinn_conn.clone(),
+            client.connection,
+            incoming_datagram_tx,
+            outgoing_datagram_rx,
+        ));
+
+        // A datagram that was fragmented to fit a larger path MTU than the current one
+        let outgrown_datagram = Bytes::from(vec![0u8; max_datagram_size + 1]);
+        outgoing_datagram_tx.send(outgrown_datagram).await?;
+
+        // A datagram that does fit
+        let mut datagram = BytesMut::new();
+        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut datagram);
+        datagram.extend_from_slice(b"abc");
+        outgoing_datagram_tx.send(datagram.freeze()).await?;
+
+        let mut rx_buf = [0u8; 16];
+        let bytes_received = tokio::select! {
+            received = timeout(Duration::from_secs(5), destination.recv(&mut rx_buf)) => {
+                received.context("Expected to receive the datagram that fits")??
+            }
+            result = task => panic!("Expected the proxy to keep running: {result:?}"),
+        };
+        assert_eq!(&rx_buf[..bytes_received], b"abc");
+
+        Ok(())
+    }
+
+    fn server_tls_config() -> anyhow::Result<Arc<rustls::ServerConfig>> {
+        let key = PrivateKeyDer::from_pem_file("tests/test.key")?;
+        let cert_chain = CertificateDer::from_pem_file("tests/test.crt")?;
+
+        let mut tls_config = rustls::ServerConfig::builder_with_provider(Arc::new(
+            rustls::crypto::aws_lc_rs::default_provider(),
+        ))
+        .with_protocol_versions(&[&rustls::version::TLS13])?
+        .with_no_client_auth()
+        .with_single_cert(vec![cert_chain], key)?;
+        tls_config.alpn_protocols = vec![b"h3".into()];
+
+        Ok(Arc::new(tls_config))
     }
 }
 
