@@ -140,6 +140,23 @@ impl Tasks {
     }
 }
 
+/// Whether a datagram that QUIC refused to send was refused for no longer fitting in the path MTU.
+///
+/// [`DatagramFragmentor`] sizes datagrams for the path MTU at that moment. They are then queued,
+/// and the path MTU may shrink before they are sent. Such a datagram is lost, like any datagram
+/// that the network drops, but nothing is wrong with the connection.
+pub(crate) fn outgrew_path_mtu(
+    quinn_conn: &quinn::Connection,
+    stream_id: StreamId,
+    datagram_len: usize,
+) -> bool {
+    let stream_id_size = VarInt::from(stream_id).size();
+    quinn_conn.close_reason().is_none()
+        && quinn_conn
+            .max_datagram_size()
+            .is_some_and(|max_datagram_size| datagram_len + stream_id_size > max_datagram_size)
+}
+
 /// Buffers outgoing packets and fragments them to fit the QUIC datagram size limit.
 pub(crate) struct DatagramFragmentor {
     quinn_conn: quinn::Connection,

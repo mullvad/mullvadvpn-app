@@ -66,6 +66,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix LWO not working with with multihop, DAITA on, and PQ off.
+- Fix QUIC obfuscation losing the connection when the path MTU shrinks during a transfer.
 
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives

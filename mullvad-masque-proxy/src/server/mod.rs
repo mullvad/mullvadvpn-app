@@ -22,6 +22,7 @@ use crate::{
     DatagramFragmentor, MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
     ProxyTaskError, Stopped, TaskError, TaskResult, Tasks, compute_udp_payload_size,
     fragment::{DefragReceived, Fragments},
+    outgrew_path_mtu,
     stats::Stats,
 };
 
@@ -243,7 +244,13 @@ impl Server {
         let (send_tx, send_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
 
         let mut tasks = Tasks::default();
-        tasks.spawn_task(connection_task(stream_id, http_conn, send_rx, client_tx));
+        tasks.spawn_task(connection_task(
+            stream_id,
+            quic_conn.clone(),
+            http_conn,
+            send_rx,
+            client_tx,
+        ));
 
         let max_udp_payload_size =
             compute_udp_payload_size(server_params.mtu, proxy_uri.target_addr);
@@ -269,6 +276,7 @@ impl Server {
 /// Forward packets from `send_rx` to `connection`, and from `connection` to `client_tx`.
 async fn connection_task(
     stream_id: StreamId,
+    quinn_conn: quinn::Connection,
     mut connection: Connection<h3_quinn::Connection, Bytes>,
     mut outgoing_datagram_rx: mpsc::Receiver<Bytes>,
     incoming_datagram_tx: mpsc::Sender<Datagram>,
@@ -295,8 +303,13 @@ async fn connection_task(
                     break; // sender is gone
                 };
 
-                connection.send_datagram(stream_id, outgoing_packet)
-                    .map_err(ProxyTaskError::SendDatagram)?;
+                let datagram_len = outgoing_packet.len();
+                if let Err(err) = connection.send_datagram(stream_id, outgoing_packet) {
+                    if !outgrew_path_mtu(&quinn_conn, stream_id, datagram_len) {
+                        return Err(ProxyTaskError::SendDatagram(err));
+                    }
+                    log::trace!("Dropping a datagram that no longer fits in the path MTU");
+                }
             }
         }
     }
