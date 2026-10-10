@@ -16,37 +16,35 @@ enum NavigationState {
     case loggedOut
 }
 
+enum FullScreenCover: Identifiable {
+    var id: Self { self }
+    case settings
+    case account
+}
+
 @Observable
 final class Navigation {
-    let uniqueIdentifier = UUID().uuidString
-
     var state: NavigationState = .loggedOut
-    var isPresentingSettings = false
-    var isPresentingAccount = false
+    var fullScreenCover: FullScreenCover?
 
     func logIn() {
         state = .loggedIn
     }
 
     func logOut() {
-        closeAccount()
-        closeSettings()
+        dismissFullScreenCover()
         state = .loggedOut
     }
 
     func openAccount() {
-        isPresentingAccount = true
-    }
-
-    func closeAccount() {
-        isPresentingAccount = false
+        fullScreenCover = .account
     }
 
     func openSettings() {
-        isPresentingSettings = true
+        fullScreenCover = .settings
     }
 
-    func closeSettings() {
-        isPresentingSettings = false
+    func dismissFullScreenCover() {
+        fullScreenCover = nil
     }
 }
