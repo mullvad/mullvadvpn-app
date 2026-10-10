@@ -94,6 +94,6 @@ class DependencyManager {
     }
 
     public func makeLoginViewModel() -> any LoggingIn {
-        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy())
+        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy(), deviceProxy: proxyFactory.createDevicesProxy())
     }
 }

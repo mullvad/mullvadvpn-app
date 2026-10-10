@@ -12,6 +12,8 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadTypes
+import MullvadRustRuntime
+import MullvadSettings
 
 enum LoggingInState: Sendable, Equatable {
     static func == (lhs: LoggingInState, rhs: LoggingInState) -> Bool {
@@ -39,18 +41,35 @@ protocol LoggingIn {
 @Observable
 class LoginViewModel: LoggingIn {
     var accountProxy: RESTAccountHandling!
+    var deviceProxy: DeviceHandling!
     var state: LoggingInState = .`initial`
 
-    init(accountProxy: RESTAccountHandling) {
+    init(accountProxy: RESTAccountHandling, deviceProxy: DeviceHandling) {
         self.accountProxy = accountProxy
+        self.deviceProxy = deviceProxy
     }
 
     func loginWithNumber(_ accountNumber: String) async {
         state = .authenticating
 
+        // FIXME: Harmonize the flow to login, all the APIs used should look the same (either with a Result type or throwing flow)
         switch await accountProxy.getAccountData(accountNumber: accountNumber, retryStrategy: .apiRequest) {
-        case .success:
-            state = .success
+        case let .success(account):
+            let privateKey = WireGuard.PrivateKey()
+            let request = CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
+            do {
+                // FIXME: Handle retry strategy errors and delays when the public key we just created is already in use
+                let device = try await deviceProxy.createDevice(accountNumber: accountNumber, request: request, retryStrategy: .apiRequest)
+                // FIXME: Should this be responsible for storing the device data, or should another service do that ?
+                let storedAccountData = StoredAccountData(identifier: account.id, number: accountNumber, expiry: account.expiry)
+                let storedDeviceData = StoredDeviceData(with: device, privateKey: privateKey)
+                let loggedInState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
+                let data = try JSONEncoder().encode(loggedInState)
+                try SettingsManager().store.write(data, for: .deviceState)
+                state = .success
+            } catch {
+                state = .failure(error)
+            }
 
         case let .failure(error):
             state = .failure(error)
