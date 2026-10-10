@@ -56,6 +56,16 @@ public struct StoredDeviceData: Codable, Equatable, Sendable {
         self.wgKeyData = wgKeyData
     }
 
+    public init(with device: Device, privateKey: WireGuard.PrivateKey) {
+        self.creationDate = device.created
+        self.identifier = device.id
+        self.name = device.name
+        self.hijackDNS = device.hijackDNS
+        self.ipv4Address = device.ipv4Address
+        self.ipv6Address = device.ipv6Address
+        self.wgKeyData = StoredWgKeyData(creationDate: Date(), privateKey: privateKey)
+    }
+
     /// Fill in part of the structure that contains device related properties from `Device` struct.
     public mutating func update(from device: Device) {
         identifier = device.id
