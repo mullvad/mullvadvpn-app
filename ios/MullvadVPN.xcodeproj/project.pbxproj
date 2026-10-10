@@ -1659,6 +1659,13 @@
 			remoteGlobalIDString = 58D223F2294C8FF00029F5F8;
 			remoteInfo = MullvadLogging;
 		};
+		A942FDFA307A407400CFAD89 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F0ACE3072BE4E478006D5333;
+			remoteInfo = MullvadMockData;
+		};
 		A959E23F2D75F37600F95DDB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -6064,6 +6071,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A942FDFB307A407400CFAD89 /* PBXTargetDependency */,
 				A926A9B830753754005946C5 /* PBXTargetDependency */,
 				F938CE1E3049926900E568EE /* PBXTargetDependency */,
 				A942FDE73077B6B500CFAD89 /* PBXTargetDependency */,
@@ -8039,6 +8047,11 @@
 			isa = PBXTargetDependency;
 			target = 58D223F2294C8FF00029F5F8 /* MullvadLogging */;
 			targetProxy = A942FDEE3077B6BE00CFAD89 /* PBXContainerItemProxy */;
+		};
+		A942FDFB307A407400CFAD89 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0ACE3072BE4E478006D5333 /* MullvadMockData */;
+			targetProxy = A942FDFA307A407400CFAD89 /* PBXContainerItemProxy */;
 		};
 		A959E2402D75F37600F95DDB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

@@ -9,11 +9,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadTypes
 
-enum LoggingInState: Sendable {
-    case `default`
+enum LoggingInState: Sendable, Equatable {
+    static func == (lhs: LoggingInState, rhs: LoggingInState) -> Bool {
+        switch (lhs, rhs) {
+        case (.initial, .initial): true
+        case (.authenticating, .authenticating): true
+        case (.success, .success): true
+        case (let .failure(lhsError), let .failure(rhsError)): lhsError.description == rhsError.description
+        default: false
+        }
+    }
+
+    case initial
     case authenticating
     case success
     case failure(Error)
@@ -28,7 +39,7 @@ protocol LoggingIn {
 @Observable
 class LoginViewModel: LoggingIn {
     var accountProxy: RESTAccountHandling!
-    var state: LoggingInState = .default
+    var state: LoggingInState = .`initial`
 
     init(accountProxy: RESTAccountHandling) {
         self.accountProxy = accountProxy
@@ -53,14 +64,14 @@ class LoginViewModel: LoggingIn {
 
 @Observable
 final class LoginViewModelStub: LoggingIn {
-    var state: LoggingInState = .default
+    var state: LoggingInState = .`initial`
 
     func loginWithNumber(_: String) async {
         state = .authenticating
         try? await Task.sleep(for: .milliseconds(200))
         state = .success
     }
-    
+
     func createAccount() async {
         state = .authenticating
         try? await Task.sleep(for: .milliseconds(200))

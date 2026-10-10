@@ -17,7 +17,7 @@ struct MapView: View {
             HeaderBar()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 100)
                 .background(Color.mullvadDangerColor)
-                Spacer()
+            Spacer()
             Text("Congratulations you are logged in !")
         }
         .background(Color.mullvadBackground)
@@ -27,4 +27,3 @@ struct MapView: View {
 #Preview {
     MapView().environment(Navigation())
 }
-

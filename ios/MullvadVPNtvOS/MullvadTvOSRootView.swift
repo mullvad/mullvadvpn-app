@@ -24,7 +24,7 @@ struct RootView: View {
         VStack {
             HeaderBar()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 200)
-                Spacer()
+            Spacer()
 
             LoginView(viewModel: viewModel)
             CreateAccountPromptView()
@@ -37,6 +37,7 @@ struct RootView: View {
     }
 }
 
+// FIXME: Use MockProxyFactory.makeProxyFactory here instead ?
 #Preview("Root View") {
     RootView(viewModel: LoginViewModelStub()).environment(Navigation())
 }
