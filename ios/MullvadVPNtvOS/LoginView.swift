@@ -8,6 +8,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import MullvadLogging
 import SwiftUI
 
 struct LoginView: View {
@@ -22,6 +23,15 @@ struct LoginView: View {
     }
 
     var body: some View {
+        if case .authenticating = viewModel.state {
+            Text("Authenticating")
+        } else {
+            mainContent()
+        }
+    }
+
+    @ViewBuilder
+    func mainContent() -> some View {
         VStack(alignment: .leading) {
             Text("Login")
                 .bold()
@@ -30,16 +40,39 @@ struct LoginView: View {
                 .font(.headline)
                 .foregroundStyle(accountTextColor)
             Form {
-                TextField("Account", text: $accountNumber,
-                          prompt: Text("0000 0000 0000 0000")
-                    .foregroundStyle(.gray)
+                TextField(
+                    "Account", text: $accountNumber,
+                    prompt: Text("0000 0000 0000 0000")
+                        .foregroundStyle(.gray)
                 )
+                successLabel()
+                    .task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        navigation.logIn()
+                    }
+                loginErrorLabel()
             }
             .onSubmit {
                 Task {
                     await login()
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    func successLabel() -> some View {
+        if case .success = viewModel.state {
+            Text("Login successful")
+                .foregroundStyle(Color.mullvadSuccessColor)
+        }
+    }
+
+    @ViewBuilder
+    func loginErrorLabel() -> some View {
+        if case let .failure(error) = viewModel.state {
+            Text("\(error.description)")
+                .foregroundStyle(Color.mullvadDangerColor)
         }
     }
 
@@ -54,11 +87,39 @@ struct LoginView: View {
     }
 
     func validateAccountNumber() -> Bool {
-        accountNumber.allSatisfy( { $0.isNumber })
+        accountNumber.allSatisfy({ $0.isNumber })
     }
 }
 
-#Preview {
-    LoginView(viewModel: LoginViewModelStub())
-    .environment(Navigation())
+#Preview("Initial state") {
+    let stub = LoginViewModelStub()
+    LoginView(viewModel: stub)
+        .environment(Navigation())
+}
+
+#Preview("Success state") {
+    let stub = LoginViewModelStub()
+    LoginView(viewModel: stub)
+        .environment(Navigation())
+        .task {
+            stub.state = .success
+        }
+}
+
+#Preview("Authenticating state") {
+    let stub = LoginViewModelStub()
+    LoginView(viewModel: stub)
+        .environment(Navigation())
+        .task {
+            stub.state = .authenticating
+        }
+}
+
+#Preview("Error state") {
+    let stub = LoginViewModelStub()
+    LoginView(viewModel: stub)
+        .environment(Navigation())
+        .task {
+            stub.state = .failure(POSIXError(.ENOSR))
+        }
 }

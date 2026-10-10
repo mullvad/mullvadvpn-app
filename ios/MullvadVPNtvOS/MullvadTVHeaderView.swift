@@ -49,4 +49,3 @@ struct HeaderBar: View {
     HeaderBar()
         .environment(Navigation())
 }
-
