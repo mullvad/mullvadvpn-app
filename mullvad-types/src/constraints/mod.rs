@@ -119,6 +119,17 @@ pub trait Intersection: Sized {
     fn intersection(self, other: Self) -> Option<Self>;
 }
 
+// TODO: Remove this? It just feels silly
+impl<T> Intersection for Option<T> {
+    fn intersection(self, _other: Self) -> Option<Self> {
+        match (self, _other) {
+            (Some(inner), Some(_)) => Some(Some(inner)),
+            (None, None) => Some(None),
+            _ => None,
+        }
+    }
+}
+
 // Note that deriving `Intersection` for using `impl_intersection_partialeq`
 // may not do what you expect for data structures that represent/wrap sets, such as
 // `Vec<T>` or `HashSet<T>`. `Constraint::Only` will only match if the

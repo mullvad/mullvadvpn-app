@@ -11,11 +11,11 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
-    fmt,
+    fmt, iter,
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{IpVersion, TransportProtocol};
+use talpid_types::net::{IpVersion, TransportProtocol, obfuscation::Obfuscators};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -743,6 +743,62 @@ pub struct ObfuscationSettings {
     pub lwo: LwoSettings,
 }
 
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct ObfuscationConstraint {
+    pub direct: Option<WireguardPortSettings>,
+    pub quic: bool,
+    pub udp2tcp: Option<Udp2TcpObfuscationSettings>,
+    pub shadowsocks: Option<ShadowsocksSettings>,
+    pub lwo: Option<LwoSettings>,
+}
+
+// TODO: Maybe we should retire the Intersection trait now that the retry logic doesn't depend on it?
+// I don't think that this implementation is meaningful.
+impl Intersection for ObfuscationConstraint {
+    fn intersection(self, other: Self) -> Option<Self> {
+        Some(Self {
+            direct: self.direct.intersection(other.direct)?,
+            udp2tcp: self.udp2tcp.intersection(other.udp2tcp)?,
+            shadowsocks: self.shadowsocks.intersection(other.shadowsocks)?,
+            lwo: self.lwo.intersection(other.lwo)?,
+            quic: (self.quic && other.quic).then_some(true)?,
+        })
+    }
+}
+
+impl From<Obfuscators> for ObfuscationConstraint {
+    fn from(value: Obfuscators) -> Self {
+        match value {
+            Obfuscators::Single(_) => todo!(),
+            Obfuscators::Multiplexer { direct, configs } => {
+                let mut obf_constraint = ObfuscationConstraint::default();
+                for config in iter::once(configs.0).chain(configs.1) {
+                    match config {
+                        talpid_types::net::obfuscation::ObfuscatorConfig::Udp2Tcp { endpoint } => {
+                            obf_constraint.udp2tcp = Some(Udp2TcpObfuscationSettings {
+                                port: Constraint::Only(endpoint.port()),
+                            })
+                        }
+                        talpid_types::net::obfuscation::ObfuscatorConfig::Shadowsocks {
+                            endpoint,
+                        } => todo!(),
+                        talpid_types::net::obfuscation::ObfuscatorConfig::Quic {
+                            hostname,
+                            endpoint,
+                            auth_token,
+                        } => todo!(),
+                        talpid_types::net::obfuscation::ObfuscatorConfig::Lwo {
+                            endpoint,
+                            version,
+                        } => todo!(),
+                    }
+                }
+                obf_constraint
+            }
+        }
+    }
+}
+
 /// Represents a specific obfuscation method (or explicit "off").
 ///
 /// This enum does *not* have an `Auto` variant — that role is played by
@@ -816,16 +872,42 @@ pub fn obfuscation_to_settings(constraint: Constraint<ObfuscationMode>) -> Obfus
 /// when the selected obfuscation type is auto.
 pub fn obfuscation_constraint_from_settings(
     obfuscation: ObfuscationSettings,
-) -> Constraint<ObfuscationMode> {
+) -> ObfuscationConstraint {
     use SelectedObfuscation::*;
     match obfuscation.selected_obfuscation {
-        Auto => Constraint::Any,
-        Off => Constraint::Only(ObfuscationMode::Off),
-        WireguardPort => Constraint::Only(ObfuscationMode::Port(obfuscation.wireguard_port)),
-        Udp2Tcp => Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation.udp2tcp)),
-        Shadowsocks => Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation.shadowsocks)),
-        Quic => Constraint::Only(ObfuscationMode::Quic),
-        Lwo => Constraint::Only(ObfuscationMode::Lwo(obfuscation.lwo)),
+        Auto => ObfuscationConstraint {
+            direct: Some(obfuscation.wireguard_port),
+            udp2tcp: Some(obfuscation.udp2tcp),
+            shadowsocks: Some(obfuscation.shadowsocks),
+            lwo: Some(obfuscation.lwo),
+            quic: false,
+        },
+        Off => ObfuscationConstraint {
+            direct: Some(WireguardPortSettings {
+                port: Constraint::Any,
+            }),
+            ..Default::default()
+        },
+        WireguardPort => ObfuscationConstraint {
+            direct: Some(obfuscation.wireguard_port),
+            ..Default::default()
+        },
+        Udp2Tcp => ObfuscationConstraint {
+            udp2tcp: Some(obfuscation.udp2tcp),
+            ..Default::default()
+        },
+        Shadowsocks => ObfuscationConstraint {
+            shadowsocks: Some(obfuscation.shadowsocks),
+            ..Default::default()
+        },
+        Quic => ObfuscationConstraint {
+            quic: true,
+            ..Default::default()
+        },
+        Lwo => ObfuscationConstraint {
+            lwo: Some(obfuscation.lwo),
+            ..Default::default()
+        },
     }
 }
 
