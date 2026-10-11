@@ -25,6 +25,7 @@ use rand::{
 
 use mullvad_types::{
     constraints::Constraint,
+    relay_constraints::ObfuscationConstraint,
     relay_list::{EndpointData, Quic, WireguardRelay},
     relay_selector::{EntrySpecificConstraints, Reason},
 };
@@ -150,28 +151,31 @@ impl RelayEndpointSet {
     pub(crate) fn obfuscation_verdict(
         &self,
         EntrySpecificConstraints {
-            obfuscation,
+            obfuscation:
+                ObfuscationConstraint {
+                    direct,
+                    quic,
+                    udp2tcp,
+                    shadowsocks,
+                    lwo,
+                },
             ip_version,
             ..
         }: &EntrySpecificConstraints,
     ) -> Verdict {
-        match obfuscation {
-            // Constraint::Any means "auto" — we can always fallback to routing traffic through the plain WireGuard endpoint.
-            Constraint::Any | Constraint::Only(ObfuscationMode::Off) => self
-                .wireguard
-                .supports_ip_version(*ip_version)
-                .if_false(Reason::IpVersion),
-
-            Constraint::Only(ObfuscationMode::Port(port)) => Verdict::all([
-                self.wireguard
-                    .supports_port(port.get())
-                    .if_false(Reason::Port),
+        let mut verdicts = Vec::new();
+        if let Some(port) = direct {
+            verdicts.push(Verdict::all([
                 self.wireguard
                     .supports_ip_version(*ip_version)
                     .if_false(Reason::IpVersion),
-            ]),
-
-            Constraint::Only(ObfuscationMode::Udp2tcp(settings)) => match &self.udp2tcp_ports {
+                self.wireguard
+                    .supports_port(port.get())
+                    .if_false(Reason::Port),
+            ]))
+        }
+        if let Some(settings) = udp2tcp {
+            verdicts.push(match &self.udp2tcp_ports {
                 None => Verdict::reject(Reason::Obfuscation),
                 Some(ports) => Verdict::all([
                     settings
@@ -182,27 +186,16 @@ impl RelayEndpointSet {
                         .supports_ip_version(*ip_version)
                         .if_false(Reason::IpVersion),
                 ]),
-            },
-
-            Constraint::Only(ObfuscationMode::Shadowsocks(settings)) => match &self.shadowsocks {
+            });
+        }
+        if let Some(settings) = shadowsocks {
+            verdicts.push(match &self.shadowsocks {
                 None => Verdict::reject(Reason::Obfuscation),
                 Some(ss) => ss.verdict(&self.wireguard, *ip_version, settings.port),
-            },
-
-            Constraint::Only(ObfuscationMode::Quic) => match &self.quic {
-                None => Verdict::reject(Reason::Obfuscation),
-                // QuicEndpoints is only Some when the relay has at least one QUIC
-                // address, so the "no addresses at all" case is impossible. We only
-                // need to distinguish: IPs match the version vs. IPs exist but are
-                // the wrong version.
-                Some(quic) => quic
-                    .supports_ip_version(*ip_version)
-                    .if_false(Reason::IpVersion),
-            },
-
-            // LWO reuses the WireGuard endpoint, so IP version and port availability are the same
-            // as for plain WireGuard.
-            Constraint::Only(ObfuscationMode::Lwo(settings)) => Verdict::all([
+            });
+        }
+        if let Some(settings) = lwo {
+            verdicts.push(Verdict::all([
                 self.lwo.is_some().if_false(Reason::Obfuscation),
                 self.wireguard
                     .supports_port(settings.port)
@@ -210,85 +203,75 @@ impl RelayEndpointSet {
                 self.wireguard
                     .supports_ip_version(*ip_version)
                     .if_false(Reason::IpVersion),
-            ]),
+            ]));
         }
+        if *quic {
+            verdicts.push(match &self.quic {
+                None => Verdict::reject(Reason::Obfuscation),
+                Some(quic) => quic
+                    .supports_ip_version(*ip_version)
+                    .if_false(Reason::IpVersion),
+            });
+        }
+
+        Verdict::all(verdicts)
     }
 
     pub fn get_wireguard_obfuscator(
         &self,
-        query: &Constraint<ObfuscationMode>,
+        ObfuscationConstraint {
+            direct,
+            quic,
+            udp2tcp,
+            shadowsocks,
+            lwo,
+        }: &ObfuscationConstraint,
         ip_version: Constraint<IpVersion>,
     ) -> Result<(SocketAddr, Option<Obfuscators>), Error> {
-        let port = if let Constraint::Only(ObfuscationMode::Port(port)) = query {
-            port.get()
-        } else {
-            Constraint::Any
-        };
-        // QUIC and Shadowsocks do not use the selected WireGuard endpoint, so it does not
-        // need to match the requested IP version. Use the same family when possible so IP
-        // overrides are derived correctly; otherwise, loosen the constraint.
-        let wireguard_ip_version = match query {
-            Constraint::Only(ObfuscationMode::Shadowsocks(_) | ObfuscationMode::Quic) => {
-                if self.wireguard.supports_ip_version(ip_version) {
-                    ip_version
-                } else {
-                    Constraint::Any
-                }
-            }
-            _ => ip_version,
-        };
-        let wireguard_endpoint = self
-            .wireguard
-            .random_endpoint(wireguard_ip_version, port)
-            .ok_or(Error::NoMatchingAddresses)?;
+        // TODO: are we reintroducing this regression? https://github.com/mullvad/mullvadvpn-app/pull/10711
+        let wireguard_ip = self.wireguard.select_ip(ip_version);
 
-        let mode = match query {
-            Constraint::Any => {
-                let staggered_obfuscator =
-                    self.staggered_obfuscator(wireguard_endpoint, ip_version);
-                return Ok((wireguard_endpoint, staggered_obfuscator));
-            }
-            Constraint::Only(mode) => mode,
+        let wireguard_endpoint = match *direct {
+            Some(port) => Some(SocketAddr::new(
+                wireguard_ip.ok_or(Error::NoMatchingAddresses)?,
+                random_port_in_ranges(&self.wireguard.port_ranges, port.get())
+                    .ok_or(Error::NoMatchingPort)?,
+            )),
+            None => None,
         };
-
-        let obfuscator_config = match mode {
-            ObfuscationMode::Off | ObfuscationMode::Port(_) => None,
-            ObfuscationMode::Udp2tcp(settings) => Some(Obfuscators::Single(
-                self.udp2tcp_config(wireguard_endpoint.ip(), settings.port)?,
-            )),
-            ObfuscationMode::Shadowsocks(settings) => Some(Obfuscators::Single(
-                self.shadowsocks_config(ip_version, settings.port)?,
-            )),
-            ObfuscationMode::Quic => Some(Obfuscators::Single(self.quic_config(ip_version)?)),
-            ObfuscationMode::Lwo(settings) => Some(Obfuscators::Single(
-                self.lwo_config(wireguard_endpoint.ip(), settings.port)?,
-            )),
-        };
-        Ok((wireguard_endpoint, obfuscator_config))
-    }
-
-    /// Build a multiplexer [`Obfuscators`] config that tries all available obfuscation methods
-    /// in parallel alongside the plain `direct_endpoint`.
-    fn staggered_obfuscator(
-        &self,
-        direct_endpoint: SocketAddr,
-        ip_version: Constraint<IpVersion>,
-    ) -> Option<Obfuscators> {
+        // TODO: Add back the IPv6-preferred retries
         let configs: Vec<ObfuscatorConfig> = [
-            // TODO: why is the same IP version not used for all configs here?..
-            // I guess the first two use the wg endpoint, the last two don't.
-            self.lwo_config(direct_endpoint.ip(), Constraint::Any),
-            self.udp2tcp_config(direct_endpoint.ip(), Constraint::Any),
-            self.shadowsocks_config(ip_version, Constraint::Any),
-            self.quic_config(ip_version),
+            lwo.zip(wireguard_ip)
+                .and_then(|(conf, ip)| self.lwo_config(ip, conf.port).ok()),
+            udp2tcp
+                .as_ref()
+                .zip(wireguard_ip)
+                .and_then(|(conf, ip)| self.udp2tcp_config(ip, conf.port).ok()),
+            shadowsocks
+                .as_ref()
+                .and_then(|conf| self.shadowsocks_config(ip_version, conf.port).ok()),
+            match *quic {
+                true => self.quic_config(ip_version).ok(),
+                false => None,
+            },
         ]
         .into_iter()
         .flatten()
         .collect();
 
-        // TODO: It's a little weird that the wg endpoint is attached to the multiplexer type here
-        // when it is also returned by `get_wireguard_obfuscator`
-        Obfuscators::multiplexer(Some(direct_endpoint), &configs)
+        let obfuscator_config = match &configs[..] {
+            [] => None,
+            [single_conf] => Some(Obfuscators::Single(single_conf.clone())),
+            [first, remaining @ ..] => Some(Obfuscators::Multiplexer {
+                direct: wireguard_endpoint,
+                configs: (first.clone(), remaining.to_vec()),
+            }),
+        };
+
+        Ok((
+            wireguard_endpoint.expect("TODO: Support no wireguard"),
+            obfuscator_config,
+        ))
     }
 
     /// Build a Udp2Tcp obfuscator config, or return `None` if udp2tcp is unsupported or no

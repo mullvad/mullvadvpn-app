@@ -10,8 +10,8 @@ use crate::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, LwoSettings, ObfuscationMode, Ownership,
-        Providers, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationConstraint, Ownership,
+        Providers,
     },
     relay_list::WireguardRelay,
 };
@@ -88,7 +88,7 @@ pub struct EntryConstraints {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
 pub struct EntrySpecificConstraints {
-    pub obfuscation: Constraint<ObfuscationMode>,
+    pub obfuscation: ObfuscationConstraint,
     pub daita: Constraint<bool>,
     pub ip_version: Constraint<IpVersion>,
 }
@@ -162,10 +162,10 @@ impl EntryConstraints {
         self
     }
 
-    pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
-        self.entry_specific.obfuscation = Constraint::Only(mode);
-        self
-    }
+    // pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
+    //     self.entry_specific.obfuscation = Constraint::Only(mode);
+    //     self
+    // }
 
     pub fn ip_version(mut self, ip_version: IpVersion) -> Self {
         self.entry_specific.ip_version = Constraint::Only(ip_version);
@@ -187,45 +187,6 @@ impl EntryConstraints {
             },
             exit: self.general,
         }
-    }
-}
-
-impl EntrySpecificConstraints {
-    pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
-        self.obfuscation = Constraint::Only(mode);
-        self
-    }
-
-    pub const fn ip_version(mut self, ip_version: IpVersion) -> Self {
-        self.ip_version = Constraint::Only(ip_version);
-        self
-    }
-
-    pub const fn daita(mut self, enabled: bool) -> Self {
-        self.daita = Constraint::Only(enabled);
-        self
-    }
-
-    /// Convenience constructor for the default Shadowsocks obfuscation.
-    pub fn shadowsocks() -> Self {
-        Self::default().obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings::default()))
-    }
-
-    /// Convenience constructor for QUIC obfuscation.
-    pub fn quic() -> Self {
-        Self::default().obfuscation(ObfuscationMode::Quic)
-    }
-
-    /// Convenience constructor for the default udp2tcp obfuscation.
-    pub fn udp2tcp() -> Self {
-        Self::default().obfuscation(ObfuscationMode::Udp2tcp(
-            Udp2TcpObfuscationSettings::default(),
-        ))
-    }
-
-    /// Convenience constructor for the default LWO obfuscation.
-    pub fn lwo() -> Self {
-        Self::default().obfuscation(ObfuscationMode::Lwo(LwoSettings::default()))
     }
 }
 
