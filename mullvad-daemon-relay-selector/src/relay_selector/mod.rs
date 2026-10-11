@@ -1,5 +1,6 @@
 pub mod grpc_service;
 
+use std::default;
 use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
@@ -7,7 +8,11 @@ use std::sync::Mutex;
 
 use mullvad_relay_selector::query::{RelayQuery, obfuscation_constraint_from_settings};
 use mullvad_relay_selector::{EntrySpecificConstraints, Error, GetRelay, RelaySelector};
+use mullvad_types::Intersection;
+use mullvad_types::constraints::Constraint;
 use mullvad_types::custom_list::CustomListsSettings;
+use mullvad_types::relay_constraints::ObfuscationConstraint;
+use mullvad_types::relay_constraints::WireguardPortSettings;
 use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
@@ -61,40 +66,17 @@ impl From<&ObfuscatorConfig> for ObfuscationMethodKind {
 /// methods, then removes every method that relay offers from the pending set. Once the set
 /// is empty, a new round starts. This guarantees that every method is attempted at least
 /// once per round, in a number of retries bounded by the number of methods.
-pub const RETRY_ORDER: &[ObfuscationMethodKind] = &[
-    ObfuscationMethodKind::Lwo,
-    ObfuscationMethodKind::Shadowsocks,
-    ObfuscationMethodKind::Quic,
-    ObfuscationMethodKind::Udp2Tcp,
-];
+// pub const RETRY_ORDER: &[ObfuscationMethodKind] = &[
+//     ObfuscationMethodKind::Lwo,
+//     ObfuscationMethodKind::Shadowsocks,
+//     ObfuscationMethodKind::Quic,
+//     ObfuscationMethodKind::Udp2Tcp,
+// ];
 
 /// The staggered obfuscation retry round, see [`RETRY_ORDER`].
 #[derive(Debug, Default)]
 pub struct ObfuscationRound {
-    /// Obfuscation methods not yet attempted in this round.
-    pending: Vec<(ObfuscationMethodKind, RelayQuery)>,
-}
-
-impl ObfuscationRound {
-    pub fn new(query: RelayQuery) -> Self {
-        Self {
-            pending: RETRY_ORDER
-                .iter()
-                .filter_map(|obf| {
-                    query
-                        .clone()
-                        .merge_retry(obf.to_constraint())
-                        .map(|obf_query| (*obf, obf_query))
-                })
-                .collect(),
-        }
-    }
-
-    /// Remove every method the selected relay's multiplexer offers from the pending set, since
-    /// they have all been attempted.
-    fn remove_offered(&mut self, offered: &std::collections::HashSet<ObfuscationMethodKind>) {
-        self.pending.retain(|pending| !offered.contains(&pending.0));
-    }
+    failed_methods: ObfuscationConstraint,
 }
 
 /// A [RelaySelector] instance backed by a relay list on-disk.
@@ -183,66 +165,54 @@ impl RelaySelectorIO {
         *config.custom_lists.lock().unwrap() = custom_lists;
     }
 
-    /// Get a relay from the user's query, or return `None` if the multiplexed obfuscation retry
-    /// strategy should be used instead.
-    pub fn get_user_relay(&self, user_query: RelayQuery) -> Option<Result<GetRelay, Error>> {
-        // Do not use the obfuscation multiplexer if the user has explicitly requested a single
-        // anti-censorship method, or disabled anti-censorship.
-        if user_query.entry_specific().obfuscation.is_only() {
-            Some(self.get_relay_by_query(user_query))
-        } else {
-            None
-        }
-    }
+    /// Return a list of next relays to connect to, in order. The list has multiple entries if
+    ///
+    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> Result<Vec<GetRelay>, Error> {
+        let mut relays = vec![];
 
-    pub fn multiplexed_obfuscation_relay(
-        &self,
-        user_query: RelayQuery,
-        obfuscation_strategy: &mut ObfuscationRound,
-    ) -> Result<GetRelay, Error> {
-        // Select a relay using the user's preferences and the first pending obfuscation method
-        // that yields a relay.
-        let relay = obfuscation_strategy
-            .pending
-            .iter()
-            .filter_map(|(_, selection_query)| {
-                // Select a relay that supports this pending method, but connect to it with the
-                // user's query, whose obfuscation is on "auto" — so the relay's multiplexer
-                // races every method it supports.
-                self.get_relay_for_pending_obfuscation(selection_query.clone(), user_query.clone())
-                    .inspect_err(|error| {
-                        log::debug!("No relay for pending obfuscation method: {error}")
-                    })
-                    .ok()
-            })
-            .next();
-
-        let Some(relay) = relay else {
-            // No relay supports any of the pending obfuscation methods. Start a new round
-            // and fall back to the user's query alone, which multiplexes every method the selected relay offers.
-            *obfuscation_strategy = ObfuscationRound::new(user_query.clone());
-            // No relay matches any pending obfuscation method. Fall back to the user's query
-            // alone, which multiplexes every method the selected relay offers.
-            return self.get_relay_by_query(user_query);
-        };
-
-        // Remove the methods the selected relay offers from the pending set. A relay selected
-        // for one pending method multiplexes every method it supports, so they have all been
-        // attempted and should not be retried within this round.
-        if let Some(obfuscator) = &relay.obfuscator
-            && let Obfuscators::Multiplexer {
-                configs: (first, rest),
-                ..
-            } = obfuscator
+        // First, we make a WireGuard-only attempt before using any obfuscations
+        if let Some(wg_query) = user_query.clone().direct_only()
+            && let Ok(wg_relay) = self.get_relay_by_query(wg_query)
         {
-            let offered: std::collections::HashSet<ObfuscationMethodKind> = std::iter::once(first)
-                .chain(rest.iter())
-                .map(ObfuscationMethodKind::from)
-                .collect();
-            obfuscation_strategy.remove_offered(&offered);
+            relays.push(wg_relay);
         }
+        loop {
+            // Get relay using query initial query
+            let relay = self.get_relay_by_query(user_query.clone())?;
 
-        Ok(relay)
+            // Remove the methods the selected relay offers from the pending set. A relay selected
+            // for one pending method multiplexes every method it supports, so they have all been
+            // attempted and should not be retried within this round.
+            if let Some(Obfuscators::Multiplexer {
+                direct,
+                configs: (first, rest),
+            }) = &relay.obfuscator
+            {
+                let obf_configs = std::iter::once(first).chain(rest.iter());
+                let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
+                // Note here that we don't e.g. check that the port matches.
+                // If we wanted to make the Obfuscation constraints support the same
+                // method specified multiple times with different settings/ports, then we
+                // should match on the chosen endpoint.
+                if let Some(addr) = direct {
+                    debug_assert_eq!(*addr, relay.endpoint.peer.endpoint);
+                    obfuscation.direct = None;
+                }
+                for config in obf_configs {
+                    match config {
+                        ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+                        ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+                        ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+                        ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+                    }
+                }
+                relays.push(relay);
+            } else {
+                relays.push(relay);
+                // Either no obfuscation or a single obfuscation
+                return Ok(relays);
+            }
+        }
     }
 }
 
