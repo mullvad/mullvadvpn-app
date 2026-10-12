@@ -12594,8 +12594,129 @@
         }
       }
     },
-    "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our **privacy policy**" : {
-
+    "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@" : {
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid. Du kan finde yderligere oplysninger i vores %@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durch Anhängen Ihres Konto-Tokens wird diese Meldung mit Ihrem Konto verknüpft, wodurch wir Ihr Problem schneller lösen können. Alle Meldungen werden nach einiger Zeit automatisch gelöscht. Weitere Details finden Sie in der %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al adjuntar el token de su cuenta, vincula este informe con su cuenta, lo que nos ayuda a resolver su problema más rápidamente. Todos los informes se eliminan automáticamente tras un periodo de tiempo. Para obtener más detalles, consulte nuestra %@"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä auttaa meitä ratkaisemaan ongelmasi nopeammin. Kaikki raportit poistetaan automaattisesti tietyn ajan kuluttua. Yksityiskohtaisemmat tiedot: katso %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joindre votre jeton de compte rattachera ce rapport à votre compte, ce qui nous aidera à résoudre votre problème plus vite. Tous les rapports sont automatiquement supprimés après une certaine période. Pour plus de détails, veuillez consulter notre %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se associ il token del tuo account, questa segnalazione verrà collegata al tuo account, aiutandoci a risolvere il problema più rapidamente. Tutte le segnalazioni vengono eliminate automaticamente dopo un certo periodo di tempo. Per i dettagli, consulta la nostra %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントトークンを添付するとこのレポートがアカウントに関連付けられ、より迅速に問題を解決することができます。すべてのレポートは一定期間が経過した後に自動で削除されます。詳しくは、こちらをご覧ください: %@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 토큰을 첨부하여 이 보고서를 계정에 연결하며, 이는 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다. 자세한 내용은 다음을 확인하세요. %@"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။ အသေးစိတ်ကို ဖော်ပြပါတွင် ကြည့်ပါ %@"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved å legge ved kontotokenet ditt, kobles denne rapporten til kontoen din. Det hjelper oss til å løse problemet raskere. Alle rapporter slettes automatisk etter en bestemt tid. For mer informasjon, gå til %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als u uw accounttoken bijvoegt, wordt dit rapport gekoppeld aan uw account. We kunnen het probleem dan sneller oplossen. Alle rapporten worden automatisch na een bepaalde tijd verwijderd. Meer details vindt u in ons %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dołączenie tokena konta powoduje połączenie raportu z kontem, co pomaga nam szybciej rozwiązać problem. Wszystkie raporty są automatycznie usuwane po pewnym czasie. Szczegółowe informacje znajdziesz w naszej %@"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao anexar o token da sua conta, este relatório é associado à sua conta, o que nos ajuda a resolver o problema mais rapidamente. Todos os relatórios são automaticamente eliminados após um determinado período. Para mais detalhes, consulte a nossa %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени. Подробнее смотрите здесь: %@"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du bifogar din kontotoken länkas den här rapporten till ditt konto, vilket hjälper oss att lösa problemet snabbare. Alla rapporter tas bort automatiskt efter ett tag. Mer information finns i vår %@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง หากต้องการดูรายละเอียด โปรดเข้าไปดู %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir. Detaylı bilgi için: %@"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо ви прикріпите токен свого облікового запису, цей звіт буде прив’язано до вашого облікового запису і ми зможемо швидше розв’язати вашу проблему. Усі звіти автоматично видаляються через деякий час. Більше інформації див. тут: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。有关详情，请参阅我们的 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "附加您的帳戶權杖後，此回報就會和您的帳戶相連，這能讓我們更快為您解決問題。所有回報都會在一段時間後自動刪除。如需詳細資訊，請參閱我們的 %@"
+          }
+        }
+      }
     },
     "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." : {
       "localizations" : {
