@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ANDROID_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+cd "$SCRIPT_DIR"
+
+# shellcheck disable=SC1091
+source ../../../scripts/utils/log
+
+# shellcheck disable=SC1091
+source ../../../scripts/utils/localization_utils
+
+# Identifier of the Crowdin bundle that exports relay locations as Android
+# XML. Relay locations are translated via the shared desktop source file
+# (relay-locations.pot).
+RELAY_BUNDLE_ID=2
+
+RESOURCES_DIR="lib/ui/resource/src/main/res"
+
+function main {
+    case ${1:-""} in
+        upload) upload_to_crowdin;;
+        download) download_from_crowdin;;
+        download-relay-locations) download_relay_locations;;
+        "")
+            echo "Available subcommands: upload, download and download-relay-locations"
+            ;;
+        *)
+            echo "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+}
+
+function upload_to_crowdin {
+    ensure_crowdin_api_key
+
+    log_header "Uploading translations to crowdin"
+
+    crowdin upload sources
+    # Should we ever upload translations?
+    # crowdin upload translations
+}
+
+function download_from_crowdin {
+    ensure_crowdin_api_key
+
+    log_header "Downloading translations from crowdin"
+    crowdin download
+
+    download_relay_locations
+
+    commit_changes "Update Android translations"
+}
+
+function download_relay_locations {
+    ensure_crowdin_api_key
+
+    log_header "Downloading relay locations from crowdin"
+    crowdin bundle download "$RELAY_BUNDLE_ID"
+
+    normalize_relay_locations
+}
+
+function normalize_relay_locations {
+    # Crowdin always places the source language export under its own language
+    # code directory, so move the English export to the default resource
+    # directory, which is what Android falls back to.
+    local en_export="$ANDROID_ROOT/en/$RESOURCES_DIR/xml/relay_locations.xml"
+    if [ -f "$en_export" ]; then
+        mv "$en_export" "$ANDROID_ROOT/$RESOURCES_DIR/xml/relay_locations.xml"
+        rm -rf "$ANDROID_ROOT/en"
+    fi
+
+    # Depending on how the project level language mapping resolves
+    # %two_letters_code% for Chinese, the exports may end up in xml-zh-CN and
+    # xml-zh-TW instead of the directories Android expects. Move them to the
+    # directories matching Android's locale codes.
+    normalize_relay_language "zh-CN" "zh-rCN"
+    normalize_relay_language "zh-TW" "zh-rTW"
+}
+
+# TODO We could remove this if we are allowed to change the language mappings
+# I don't think anyone are using them but we need to assert that is true before
+# changing them.
+function normalize_relay_language {
+    local exported_dir="$ANDROID_ROOT/$RESOURCES_DIR/xml-$1"
+    local resource_dir="$ANDROID_ROOT/$RESOURCES_DIR/xml-$2"
+    if [ -f "$exported_dir/relay_locations.xml" ]; then
+        mv "$exported_dir/relay_locations.xml" "$resource_dir/relay_locations.xml"
+        rm -rf "$exported_dir"
+    fi
+}
+
+main "$@"
