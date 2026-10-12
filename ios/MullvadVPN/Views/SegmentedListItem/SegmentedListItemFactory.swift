@@ -28,7 +28,11 @@ struct SegmentedListItemFactory {
         case external(title: String)
         case input(title: String, placeholder: String, text: Binding<String>)
         case text(title: String, breadcrumb: Breadcrumb? = nil)
-        case toggle(isOn: Binding<Bool>, isDisabled: Bool, accessibilityID: AccessibilityIdentifier? = nil)
+        case toggle(
+            isOn: Binding<Bool>,
+            isDisabled: Bool,
+            accessibilityID: AccessibilityIdentifier? = nil,
+            accessibilityRepresentation: (() -> AnyView)? = nil)
     }
 
     enum Segment {
@@ -67,7 +71,11 @@ struct SegmentedListItemFactory {
         case input(placeholder: String, text: Binding<String>)
         case padding(width: CGFloat = 16)
         case string(_ string: String)
-        case toggle(isOn: Binding<Bool>, isDisabled: Bool, accessibilityID: AccessibilityIdentifier? = nil)
+        case toggle(
+            isOn: Binding<Bool>,
+            isDisabled: Bool,
+            accessibilityID: AccessibilityIdentifier? = nil,
+            accessibilityRepresentation: (() -> AnyView)? = nil)
     }
 
     @ViewBuilder func leading(for leading: Leading) -> some View {
@@ -151,10 +159,14 @@ struct SegmentedListItemFactory {
                     .padding(),
                 ].compactMap { $0 }
             )
-        case .toggle(let isOn, let isDisabled, let accessibilityID):
+        case .toggle(let isOn, let isDisabled, let accessibilityID, let accessibilityRepresentation):
             trailingItemViews(
                 for: [
-                    .toggle(isOn: isOn, isDisabled: isDisabled, accessibilityID: accessibilityID),
+                    .toggle(
+                        isOn: isOn,
+                        isDisabled: isDisabled,
+                        accessibilityID: accessibilityID,
+                        accessibilityRepresentation: accessibilityRepresentation),
                     .padding(),
                 ]
             )
@@ -276,17 +288,31 @@ struct SegmentedListItemFactory {
                         .fixedSize(horizontal: true, vertical: true)
                         .font(.mullvadTiny)
                         .foregroundStyle(Color.mullvadTextSecondary)
-                case .toggle(let isOn, let isDisabled, let accessibilityID):
-                    Toggle("", isOn: isOn)
-                        .toggleStyle(
-                            CustomToggleStyle(
-                                disabled: isDisabled,
-                                accessibilityId: nil,
-                                infoButtonAction: nil
+                case .toggle(let isOn, let isDisabled, let accessibilityID, let accessibilityRepresentation):
+                    if let accessibilityRepresentation {
+                        Toggle("", isOn: isOn)
+                            .toggleStyle(
+                                CustomToggleStyle(
+                                    disabled: isDisabled,
+                                    accessibilityId: nil,
+                                    infoButtonAction: nil
+                                )
                             )
-                        )
-                        .accessibilityIdentifier(accessibilityID)
-                        .disabled(isDisabled)
+                            .accessibilityIdentifier(accessibilityID)
+                            .disabled(isDisabled)
+                            .accessibilityRepresentation(representation: accessibilityRepresentation)
+                    } else {
+                        Toggle("", isOn: isOn)
+                            .toggleStyle(
+                                CustomToggleStyle(
+                                    disabled: isDisabled,
+                                    accessibilityId: nil,
+                                    infoButtonAction: nil
+                                )
+                            )
+                            .accessibilityIdentifier(accessibilityID)
+                            .disabled(isDisabled)
+                    }
                 }
             }
         }
