@@ -18,7 +18,7 @@ use std::{
     sync::{
         Arc, Mutex, MutexGuard, RwLock, Weak,
         atomic::{AtomicBool, Ordering},
-        mpsc as sync_mpsc,
+        mpsc::{self as sync_mpsc, Receiver},
     },
     time::Duration,
 };
@@ -118,6 +118,7 @@ pub struct SplitTunnel {
 }
 
 enum SplitTunnelState {
+    Starting(StartingSplitTunnelState),
     Initialized(InitializedSplitTunnelState),
     Failed(FailedSplitTunnelState),
 }
@@ -134,14 +135,14 @@ impl SplitTunnel {
         route_manager: RouteManagerHandle,
         initial_paths: &[T],
     ) -> Self {
-        let state = InitializedSplitTunnelState::new(
+        let state = StartingSplitTunnelState::new(
             runtime,
             resource_dir,
             daemon_tx,
             volume_update_rx,
             route_manager,
         )
-        .map(SplitTunnelState::Initialized)
+        .map(SplitTunnelState::Starting)
         .unwrap_or_else(|err| {
             log::error!(
                 "{}",
@@ -172,6 +173,37 @@ impl SplitTunnel {
         split_tunnel
     }
 
+    /// Wait for split tunnel to finish initialization
+    ///
+    /// If the process fails, split tunneling will be disabled.
+    pub fn wait_for_init(&mut self) {
+        log::debug!("Finishing split tunnel initialization");
+        let current_state = std::mem::replace(
+            &mut self.state,
+            SplitTunnelState::Failed(FailedSplitTunnelState::new()),
+        );
+
+        let next_state = match current_state {
+            SplitTunnelState::Starting(starting_split_tunnel_state) => {
+                match InitializedSplitTunnelState::enter(starting_split_tunnel_state) {
+                    Ok(next_state) => SplitTunnelState::Initialized(next_state),
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to finish split tunnel initialization"
+                            )
+                        );
+                        SplitTunnelState::Failed(FailedSplitTunnelState::new())
+                    }
+                }
+            }
+            state => state,
+        };
+
+        let _ = std::mem::replace(&mut self.state, next_state);
+    }
+
     /// Set a list of applications to exclude from the tunnel.
     pub fn set_paths<T: AsRef<OsStr>>(
         &mut self,
@@ -179,6 +211,7 @@ impl SplitTunnel {
         result_tx: oneshot::Sender<Result<(), Error>>,
     ) {
         match &mut self.state {
+            SplitTunnelState::Starting(state) => state.set_paths(paths, result_tx),
             SplitTunnelState::Initialized(state) => state.set_paths(paths, result_tx),
             SplitTunnelState::Failed(state) => state.set_paths(paths, result_tx),
         }
@@ -187,6 +220,7 @@ impl SplitTunnel {
     /// Set a list of applications to exclude from the tunnel.
     fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
         match &mut self.state {
+            SplitTunnelState::Starting(state) => state.set_paths_sync(paths),
             SplitTunnelState::Initialized(state) => state.set_paths_sync(paths),
             SplitTunnelState::Failed(state) => state.set_paths_sync(paths),
         }
@@ -196,6 +230,7 @@ impl SplitTunnel {
     /// tunnel addresses (if any) to the default route.
     pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
         match &mut self.state {
+            SplitTunnelState::Starting(state) => state.set_tunnel_addresses(metadata),
             SplitTunnelState::Initialized(state) => state.set_tunnel_addresses(metadata),
             SplitTunnelState::Failed(state) => state.set_tunnel_addresses(metadata),
         }
@@ -204,6 +239,7 @@ impl SplitTunnel {
     /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         match &mut self.state {
+            SplitTunnelState::Starting(state) => state.clear_tunnel_addresses(),
             SplitTunnelState::Initialized(state) => state.clear_tunnel_addresses(),
             SplitTunnelState::Failed(state) => state.clear_tunnel_addresses(),
         }
@@ -212,6 +248,7 @@ impl SplitTunnel {
     /// Returns a handle used for interacting with the split tunnel module.
     pub fn handle(&self) -> SplitTunnelHandle {
         match &self.state {
+            SplitTunnelState::Starting(state) => state.handle(),
             SplitTunnelState::Initialized(state) => state.handle(),
             SplitTunnelState::Failed(state) => state.handle(),
         }
@@ -311,6 +348,17 @@ impl FailedSplitTunnelState {
     }
 }
 
+struct StartingSplitTunnelState {
+    paths: Vec<OsString>,
+    tunnel_addresses: Option<TunnelMetadata>,
+    init_rx: InitRx,
+    runtime: tokio::runtime::Handle,
+    request_tx: RequestTx,
+    excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+    route_manager: RouteManagerHandle,
+}
+
 /// Manages applications whose traffic to exclude from the tunnel.
 struct InitializedSplitTunnelState {
     runtime: tokio::runtime::Handle,
@@ -336,6 +384,7 @@ enum Request {
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
+type InitRx = sync_mpsc::Receiver<Result<Arc<driver::DeviceHandle>, Error>>;
 
 const START_TIMEOUT: Duration = service::WAIT_STATUS_TIMEOUT
     .checked_add(Duration::from_secs(5))
@@ -383,8 +432,7 @@ enum EventResult {
     Quit,
 }
 
-impl InitializedSplitTunnelState {
-    /// Initialize the split tunnel device.
+impl StartingSplitTunnelState {
     pub fn new(
         runtime: tokio::runtime::Handle,
         resource_dir: PathBuf,
@@ -393,24 +441,240 @@ impl InitializedSplitTunnelState {
         route_manager: RouteManagerHandle,
     ) -> Result<Self, Error> {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
-
-        let (request_tx, handle) =
+        let (init_rx, request_tx) =
             Self::spawn_request_thread(resource_dir, volume_update_rx, excluded_processes.clone())?;
+
+        Ok(StartingSplitTunnelState {
+            paths: vec![],
+            tunnel_addresses: None,
+            init_rx,
+            runtime,
+            request_tx,
+            excluded_processes,
+            daemon_tx,
+            route_manager,
+        })
+    }
+
+    fn spawn_request_thread(
+        resource_dir: PathBuf,
+        volume_update_rx: mpsc::UnboundedReceiver<()>,
+        excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
+    ) -> Result<(InitRx, RequestTx), Error> {
+        let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
+        let (init_tx, init_rx) = sync_mpsc::channel();
+
+        let monitored_paths = Arc::new(Mutex::new(vec![]));
+        let monitored_paths_copy = monitored_paths.clone();
+
+        let (monitor_tx, monitor_rx) = sync_mpsc::channel();
+
+        let path_monitor = path_monitor::PathMonitor::spawn(monitor_tx.clone())
+            .map_err(Error::StartPathMonitor)?;
+        let volume_monitor = volume_monitor::VolumeMonitor::spawn(
+            path_monitor.clone(),
+            monitor_tx,
+            monitored_paths.clone(),
+            volume_update_rx,
+        );
+
+        std::thread::spawn(move || {
+            let init_fn = || {
+                service::install_driver_if_required(&resource_dir).map_err(Error::ServiceError)?;
+                driver::DeviceHandle::new()
+                    .map(Arc::new)
+                    .map_err(Error::InitializationError)
+            };
+
+            let handle = match init_fn() {
+                Ok(handle) => {
+                    let _ = init_tx.send(Ok(handle.clone()));
+                    handle
+                }
+                Err(error) => {
+                    let _ = init_tx.send(Err(error));
+                    return;
+                }
+            };
+
+            let handle_copy = handle.clone();
+
+            std::thread::spawn(move || {
+                while let Ok(()) = monitor_rx.recv() {
+                    let paths = monitored_paths_copy.lock().unwrap();
+                    let result = if !paths.is_empty() {
+                        log::debug!("Re-resolving excluded paths");
+                        handle_copy.set_config(&paths)
+                    } else {
+                        continue;
+                    };
+                    if let Err(error) = result {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Failed to update excluded paths")
+                        );
+                    }
+                }
+            });
+
+            let mut previous_addresses = InterfaceAddresses::default();
+
+            while let Ok((request, response_tx)) = rx.recv() {
+                let response = match request {
+                    Request::SetPaths {
+                        paths,
+                        device_paths,
+                    } => {
+                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
+
+                        let result = handle
+                            .set_config_resolved(&device_paths)
+                            .map_err(Error::SetConfiguration);
+
+                        if result.is_ok() {
+                            if let Err(error) = path_monitor.set_paths(&paths) {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to update path monitor")
+                                );
+                            }
+                            *monitored_paths_guard = paths;
+                        }
+
+                        result
+                    }
+                    Request::RegisterIps(mut ips) => {
+                        if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
+                            ips.tunnel_ipv4 = None;
+                            ips.tunnel_ipv6 = None;
+                        }
+                        if previous_addresses == ips {
+                            Ok(())
+                        } else {
+                            let result = handle
+                                .register_ips(
+                                    ips.tunnel_ipv4,
+                                    ips.tunnel_ipv6,
+                                    ips.internet_ipv4,
+                                    ips.internet_ipv6,
+                                )
+                                .map_err(Error::RegisterIps);
+                            if result.is_ok() {
+                                previous_addresses = ips;
+                            }
+                            result
+                        }
+                    }
+                    // INVARIANT: This arm will always the terminate the request thread.
+                    Request::Stop => {
+                        // Start by attempting to reset the driver state. Do this first, since
+                        // we'd like to prevent the process monitor from updating `excluded_processes`.
+                        // If reset fails, the driver ends up in a "zombie" state. If that happens,
+                        // the best we can do is try to clean up as much as possible.
+                        let reset_result = handle.reset().map_err(Error::ResetError);
+
+                        monitored_paths.lock().unwrap().clear();
+                        excluded_processes.write().unwrap().clear();
+
+                        drop(volume_monitor);
+                        if let Err(error) = path_monitor.shutdown() {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Failed to shut down path monitor")
+                            );
+                        }
+
+                        // Device handles must be dropped before unloading the driver.
+                        // Otherwise, it will fail and time out.
+                        drop(handle);
+
+                        // If we failed to reset, make sure to NEVER unload the driver.
+                        // See the safety comment on `stop_driver_service`.
+                        // Unloading without a reset can trigger a BSOD!
+                        let unload_driver = reset_result.is_ok();
+
+                        if unload_driver {
+                            log::debug!("Stopping ST service");
+                            // SAFETY: We have reset the driver before calling this.
+                            if let Err(error) = unsafe { service::stop_driver_service() } {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to stop ST service")
+                                );
+                            }
+                        }
+
+                        let _ = response_tx.send(reset_result);
+                        break;
+                    }
+                };
+                if response_tx.send(response).is_err() {
+                    log::error!("A response could not be sent for a completed request");
+                }
+            }
+
+            log::info!("Stopping ST request thread");
+        });
+
+        Ok((init_rx, tx))
+    }
+
+    pub fn set_paths<T: AsRef<OsStr>>(
+        &mut self,
+        paths: &[T],
+        result_tx: oneshot::Sender<Result<(), Error>>,
+    ) {
+        let _ = result_tx.send(self.set_paths_sync(paths));
+    }
+
+    fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
+        self.paths = paths.iter().map(|p| p.as_ref().to_owned()).collect();
+        Ok(())
+    }
+
+    pub fn set_tunnel_addresses(&mut self, metadata: Option<&TunnelMetadata>) -> Result<(), Error> {
+        self.tunnel_addresses = metadata.cloned();
+        Ok(())
+    }
+
+    pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
+        self.tunnel_addresses = None;
+        Ok(())
+    }
+
+    pub fn handle(&self) -> SplitTunnelHandle {
+        SplitTunnelHandle {
+            loaded: false,
+            excluded_processes: None,
+        }
+    }
+}
+
+impl InitializedSplitTunnelState {
+    /// Initialize the split tunnel device.
+    pub fn enter(previous_state: StartingSplitTunnelState) -> Result<Self, Error> {
+        let excluded_processes = previous_state.excluded_processes;
+
+        let handle = Self::wait_for_init(previous_state.init_rx)?;
 
         let (event_thread, quit_event) =
             Self::spawn_event_listener(handle, excluded_processes.clone())?;
 
-        Ok(InitializedSplitTunnelState {
-            runtime,
-            request_tx,
+        let mut state = InitializedSplitTunnelState {
+            runtime: previous_state.runtime,
+            request_tx: previous_state.request_tx,
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
-            daemon_tx,
+            daemon_tx: previous_state.daemon_tx,
             async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
             excluded_processes,
-            route_manager,
-        })
+            route_manager: previous_state.route_manager,
+        };
+
+        state.set_paths_sync(&previous_state.paths)?;
+        state.set_tunnel_addresses(previous_state.tunnel_addresses.as_ref())?;
+        Ok(state)
     }
 
     /// Spawns an event loop thread that processes events from the driver service.
@@ -607,173 +871,16 @@ impl InitializedSplitTunnelState {
         }
     }
 
-    fn spawn_request_thread(
-        resource_dir: PathBuf,
-        volume_update_rx: mpsc::UnboundedReceiver<()>,
-        excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
-    ) -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
-        let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
-        let (init_tx, init_rx) = sync_mpsc::channel();
-
-        let monitored_paths = Arc::new(Mutex::new(vec![]));
-        let monitored_paths_copy = monitored_paths.clone();
-
-        let (monitor_tx, monitor_rx) = sync_mpsc::channel();
-
-        let path_monitor = path_monitor::PathMonitor::spawn(monitor_tx.clone())
-            .map_err(Error::StartPathMonitor)?;
-        let volume_monitor = volume_monitor::VolumeMonitor::spawn(
-            path_monitor.clone(),
-            monitor_tx,
-            monitored_paths.clone(),
-            volume_update_rx,
-        );
-
-        std::thread::spawn(move || {
-            let init_fn = || {
-                service::install_driver_if_required(&resource_dir).map_err(Error::ServiceError)?;
-                driver::DeviceHandle::new()
-                    .map(Arc::new)
-                    .map_err(Error::InitializationError)
-            };
-
-            let handle = match init_fn() {
-                Ok(handle) => {
-                    let _ = init_tx.send(Ok(handle.clone()));
-                    handle
-                }
-                Err(error) => {
-                    let _ = init_tx.send(Err(error));
-                    return;
-                }
-            };
-
-            let mut previous_addresses = InterfaceAddresses::default();
-
-            while let Ok((request, response_tx)) = rx.recv() {
-                let response = match request {
-                    Request::SetPaths {
-                        paths,
-                        device_paths,
-                    } => {
-                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
-
-                        let result = handle
-                            .set_config_resolved(&device_paths)
-                            .map_err(Error::SetConfiguration);
-
-                        if result.is_ok() {
-                            if let Err(error) = path_monitor.set_paths(&paths) {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to update path monitor")
-                                );
-                            }
-                            *monitored_paths_guard = paths;
-                        }
-
-                        result
-                    }
-                    Request::RegisterIps(mut ips) => {
-                        if ips.internet_ipv4.is_none() && ips.internet_ipv6.is_none() {
-                            ips.tunnel_ipv4 = None;
-                            ips.tunnel_ipv6 = None;
-                        }
-                        if previous_addresses == ips {
-                            Ok(())
-                        } else {
-                            let result = handle
-                                .register_ips(
-                                    ips.tunnel_ipv4,
-                                    ips.tunnel_ipv6,
-                                    ips.internet_ipv4,
-                                    ips.internet_ipv6,
-                                )
-                                .map_err(Error::RegisterIps);
-                            if result.is_ok() {
-                                previous_addresses = ips;
-                            }
-                            result
-                        }
-                    }
-                    // INVARIANT: This arm will always the terminate the request thread.
-                    Request::Stop => {
-                        // Start by attempting to reset the driver state. Do this first, since
-                        // we'd like to prevent the process monitor from updating `excluded_processes`.
-                        // If reset fails, the driver ends up in a "zombie" state. If that happens,
-                        // the best we can do is try to clean up as much as possible.
-                        let reset_result = handle.reset().map_err(Error::ResetError);
-
-                        monitored_paths.lock().unwrap().clear();
-                        excluded_processes.write().unwrap().clear();
-
-                        drop(volume_monitor);
-                        if let Err(error) = path_monitor.shutdown() {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Failed to shut down path monitor")
-                            );
-                        }
-
-                        // Device handles must be dropped before unloading the driver.
-                        // Otherwise, it will fail and time out.
-                        drop(handle);
-
-                        // If we failed to reset, make sure to NEVER unload the driver.
-                        // See the safety comment on `stop_driver_service`.
-                        // Unloading without a reset can trigger a BSOD!
-                        let unload_driver = reset_result.is_ok();
-
-                        if unload_driver {
-                            log::debug!("Stopping ST service");
-                            // SAFETY: We have reset the driver before calling this.
-                            if let Err(error) = unsafe { service::stop_driver_service() } {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to stop ST service")
-                                );
-                            }
-                        }
-
-                        let _ = response_tx.send(reset_result);
-                        break;
-                    }
-                };
-                if response_tx.send(response).is_err() {
-                    log::error!("A response could not be sent for a completed request");
-                }
-            }
-
-            log::info!("Stopping ST request thread");
-        });
-
+    fn wait_for_init(
+        init_rx: Receiver<Result<Arc<driver::DeviceHandle>, Error>>,
+    ) -> Result<Arc<driver::DeviceHandle>, Error> {
         let handle = init_rx
             // NOTE: The timeout is needed in case the ST device is unresponsive. This can
             // cause `DeviceHandle::new` to block forever on IOCTL calls.
             .recv_timeout(START_TIMEOUT)
             .map_err(|_| Error::RequestThreadStuck)??;
 
-        let handle_copy = handle.clone();
-
-        std::thread::spawn(move || {
-            while let Ok(()) = monitor_rx.recv() {
-                let paths = monitored_paths_copy.lock().unwrap();
-                let result = if !paths.is_empty() {
-                    log::debug!("Re-resolving excluded paths");
-                    handle_copy.set_config(&paths)
-                } else {
-                    continue;
-                };
-                if let Err(error) = result {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to update excluded paths")
-                    );
-                }
-            }
-        });
-
-        Ok((tx, handle))
+        Ok(handle)
     }
 
     fn send_request(&self, request: Request) -> Result<(), Error> {

@@ -56,6 +56,9 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        #[cfg(windows)]
+        shared_values.split_tunnel.wait_for_init();
+
         #[cfg(target_os = "macos")]
         if *LOCAL_DNS_RESOLVER {
             // Set system DNS to our local DNS resolver
