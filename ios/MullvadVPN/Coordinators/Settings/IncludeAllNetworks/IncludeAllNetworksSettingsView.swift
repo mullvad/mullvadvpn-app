@@ -19,7 +19,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
     private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
-        SettingsInfoContainerView {
+        SettingsContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView {
                     SettingsInfoPageView(

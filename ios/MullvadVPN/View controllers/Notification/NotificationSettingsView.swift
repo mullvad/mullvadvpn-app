@@ -17,7 +17,7 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
 
     var body: some View {
         GeometryReader { geo in
-            SettingsInfoContainerView {
+            SettingsContainerView {
                 VStack(alignment: .leading) {
                     GroupedRowView {
                         ForEach(NotificationKeys.allCases, id: \.self) { key in

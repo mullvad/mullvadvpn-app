@@ -45,7 +45,7 @@ struct VPNSettingsView: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            SettingsInfoContainerView {
+            SettingsContainerView {
                 DNSandIPSettingsView()
                 antiCensorshipView()
                 quantumResistanceView()

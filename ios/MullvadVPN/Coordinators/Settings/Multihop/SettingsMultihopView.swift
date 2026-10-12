@@ -45,7 +45,7 @@ struct SettingsMultihopView: View {
     ]
 
     var body: some View {
-        SettingsInfoContainerView {
+        SettingsContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 if viewModel.automaticRoutingIsActive {
                     AutomaticLocationNotice()
