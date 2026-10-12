@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TextField, useTextFieldContext } from '../../../../../../../../../text-field';
-import type { TextFieldIconButtonProps } from '../../../../../../../../../text-field/components';
+import type { TextFieldIconButtonProps } from '../../../../../../../../../text-field/components/text-field-input-group/components/text-field-icon-button';
 
 export type LocationSelectorClearButtonProps = TextFieldIconButtonProps;
 
@@ -13,8 +13,8 @@ export function LocationSelectorClearButton(props: LocationSelectorClearButtonPr
   }, [onValueChange]);
 
   return (
-    <TextField.IconButton onClick={handleClick} {...props}>
-      <TextField.IconButton.Icon icon="cross" />
-    </TextField.IconButton>
+    <TextField.InputGroup.IconButton onClick={handleClick} {...props}>
+      <TextField.InputGroup.IconButton.Icon icon="cross" />
+    </TextField.InputGroup.IconButton>
   );
 }

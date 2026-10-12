@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../../../shared/gettext';
 import { LocationSelector } from '../../../../../../../lib/components/location-selector';
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
+import { TextField } from '../../../../../../../lib/components/text-field';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import {
   useHandleClearButtonClick,
@@ -50,23 +51,25 @@ function TextFieldItemImpl({
       triggerRef={triggerRef}
       {...props}>
       <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel}>
-        <LocationSelector.Items.TextFieldItem.TextField
-          value={value}
-          onFocusExit={handleFocusExit}
-          onValueChange={handleValueChange}>
-          <StyledInput
-            placeholder={placeholder}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-            type="text"
-          />
-          {showClearButton && (
-            <LocationSelector.Items.TextFieldItem.TextField.ClearButton
-              onClick={handleClearButtonClick}
-              aria-label={messages.pgettext('accessibility', 'Clear search')}
+        <TextField.InputGroup>
+          <LocationSelector.Items.TextFieldItem.TextField
+            value={value}
+            onFocusExit={handleFocusExit}
+            onValueChange={handleValueChange}>
+            <StyledInput
+              placeholder={placeholder}
+              onFocus={handleFocus}
+              onKeyDown={handleKeyDown}
+              type="text"
             />
-          )}
-        </LocationSelector.Items.TextFieldItem.TextField>
+            {showClearButton && (
+              <LocationSelector.Items.TextFieldItem.TextField.ClearButton
+                onClick={handleClearButtonClick}
+                aria-label={messages.pgettext('accessibility', 'Clear search')}
+              />
+            )}
+          </LocationSelector.Items.TextFieldItem.TextField>
+        </TextField.InputGroup>
       </LocationSelector.Items.TextFieldItem.Trigger>
     </LocationSelector.Items.TextFieldItem>
   );
