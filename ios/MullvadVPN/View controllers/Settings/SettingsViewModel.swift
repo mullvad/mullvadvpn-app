@@ -232,13 +232,13 @@ extension SettingsViewModelProtocol {
 }
 
 #if DEBUG
-@Observable
-final class MockRootSettingsViewModel: SettingsViewModelProtocol {
-    var tunnelSettings = LatestTunnelSettings()
-    var isLoggedIn = true
-    var breadcrumbs: Set<Breadcrumb> = [.warning(.daita)]
-    var showsMigratedSettings = true
+    @Observable
+    final class MockRootSettingsViewModel: SettingsViewModelProtocol {
+        var tunnelSettings = LatestTunnelSettings()
+        var isLoggedIn = true
+        var breadcrumbs: Set<Breadcrumb> = [.warning(.daita)]
+        var showsMigratedSettings = true
 
-    func refresh() {}
-}
+        func refresh() {}
+    }
 #endif

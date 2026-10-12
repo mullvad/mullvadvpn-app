@@ -88,16 +88,16 @@ struct SettingsView: View {
 }
 
 #if DEBUG
-#Preview {
-    NavigationStack {
-        SettingsView(viewModel: MockRootSettingsViewModel()) { _ in }
+    #Preview {
+        NavigationStack {
+            SettingsView(viewModel: MockRootSettingsViewModel()) { _ in }
+        }
     }
-}
 
-#Preview("Accessibility size") {
-    NavigationStack {
-        SettingsView(viewModel: MockRootSettingsViewModel()) { _ in }
+    #Preview("Accessibility size") {
+        NavigationStack {
+            SettingsView(viewModel: MockRootSettingsViewModel()) { _ in }
+        }
+        .environment(\.dynamicTypeSize, .accessibility3)
     }
-    .environment(\.dynamicTypeSize, .accessibility3)
-}
 #endif
