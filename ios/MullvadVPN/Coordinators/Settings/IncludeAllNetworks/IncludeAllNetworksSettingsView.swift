@@ -22,80 +22,13 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView {
-                    SettingsInfoPageView(
-                        text: NSLocalizedString(
-                            "Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t "
-                                + "accidentally or maliciously leak data. Apple system apps and services necessary "
-                                + "for device functionality are not affected.",
-                            comment: ""
-                        ),
-                        image: .ianOnIllustration
-                    ) {
-                        Text(
-                            NSLocalizedString(
-                                "Please swipe through and read all information in order to activate this feature",
-                                comment: ""
-                            )
-                        )
-                        .font(.mullvadTinySemiBold)
-                    }
-                    SettingsInfoPageView(
-                        text: [
-                            NSLocalizedString(
-                                "If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.",
-                                comment: ""
-                            ),
-                            NSLocalizedString(
-                                "Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.",
-                                comment: ""
-                            ),
-                        ].joinedParagraphs(),
-                        image: .ianOffIllustration
-                    ) {
-                        let blogUrl = URL(
-                            string: "https://\(ApplicationConfiguration.hostName)"
-                                + "/blog/why-we-still-dont-use-includeallnetworks"
-                        )!
-                        ExternalLinkView(
-                            url: blogUrl,
-                            label: NSLocalizedString(
-                                "For details, please see our blog post",
-                                comment: ""
-                            ),
-                            font: .mullvadTiny
-                        )
-                    }
-                    SettingsInfoPageView(
-                        text: [
-                            NSLocalizedString(
-                                "Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is "
-                                    + "updated when this is enabled and you are connected to the VPN. Network connectivity "
-                                    + "can only be restored by rebooting the device.",
-                                comment: ""
-                            ),
-                            NSLocalizedString(
-                                "Be cautious when using automatic updates as this will trigger the network connectivity loss.",
-                                comment: ""
-                            ),
-                        ].joinedParagraphs(),
-                        image: .ianBugIllustration
-                    )
-                    SettingsInfoPageView(
-                        text: NSLocalizedString(
-                            "Currently there is no way to work around this behaviour, but you can avoid losing network "
-                                + "connectivity by disabling this feature or disconnecting before updating Mullvad VPN.",
-                            comment: ""
-                        ),
-                        image: .ianSolutionIllustration
-                    ) {
-                        ActionBox(
-                            isChecked: $viewModel.consent,
-                            toggleTitle: "I understand the benefits and risks of using this feature"
-                        )
-                        .disabled(viewModel.consent)
-                        .accessibilityIdentifier(.actionBox)
-                    }
+                    page1()
+                    page2()
+                    page3()
+                    page4()
                 }
+                // Make the page control the first accessible element on the page instead of the last
+                .accessibilitySortPriority(1)
 
                 VStack(spacing: 0) {
                     SegmentedListItem(
@@ -156,6 +89,13 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                         }
                     )
                 }
+                /// `SegmentedListItem` does not handle both a button and a toggle next to each other in voice over
+                .accessibilityRepresentation {
+                    Group {
+                        enableIanAccessibilityRepresentation()
+                        localNetworkSharingAccessibilityRepresentation()
+                    }
+                }
                 .padding(.leading, UIMetrics.contentInsets.left)
                 .padding(.trailing, UIMetrics.contentInsets.right)
             }
@@ -169,6 +109,112 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
             showReconsiderNotificationsAlert()
         }
         .mullvadAlert(item: $alert)
+    }
+
+    @ViewBuilder
+    func page1() -> SettingsInfoPageView {
+        SettingsInfoPageView(
+            text: NSLocalizedString(
+                "Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t "
+                    + "accidentally or maliciously leak data. Apple system apps and services necessary "
+                    + "for device functionality are not affected.",
+                comment: ""
+            ),
+            image: .ianOnIllustration
+        ) {
+            Text(
+                NSLocalizedString(
+                    "Please swipe through and read all information in order to activate this feature",
+                    comment: ""
+                )
+            )
+            .font(.mullvadTinySemiBold)
+        }
+    }
+
+    @ViewBuilder
+    func page2() -> SettingsInfoPageView {
+        SettingsInfoPageView(
+            text: [
+                NSLocalizedString(
+                    "If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.",
+                    comment: ""
+                ),
+                NSLocalizedString(
+                    "Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.",
+                    comment: ""
+                ),
+            ].joinedParagraphs(),
+            image: .ianOffIllustration
+        ) {
+            let blogUrl = URL(
+                string: "https://\(ApplicationConfiguration.hostName)"
+                    + "/blog/why-we-still-dont-use-includeallnetworks"
+            )!
+            ExternalLinkView(
+                url: blogUrl,
+                label: NSLocalizedString(
+                    "For details, please see our blog post",
+                    comment: ""
+                ),
+                font: .mullvadTiny
+            )
+        }
+    }
+
+    @ViewBuilder
+    func page3() -> SettingsInfoPageView {
+        SettingsInfoPageView(
+            text: [
+                NSLocalizedString(
+                    "Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is "
+                        + "updated when this is enabled and you are connected to the VPN. Network connectivity "
+                        + "can only be restored by rebooting the device.",
+                    comment: ""
+                ),
+                NSLocalizedString(
+                    "Be cautious when using automatic updates as this will trigger the network connectivity loss.",
+                    comment: ""
+                ),
+            ].joinedParagraphs(),
+            image: .ianBugIllustration
+        )
+    }
+
+    @ViewBuilder
+    func page4() -> SettingsInfoPageView {
+        SettingsInfoPageView(
+            text: NSLocalizedString(
+                "Currently there is no way to work around this behaviour, but you can avoid losing network "
+                    + "connectivity by disabling this feature or disconnecting before updating Mullvad VPN.",
+                comment: ""
+            ),
+            image: .ianSolutionIllustration
+        ) {
+            ActionBox(
+                isChecked: $viewModel.consent,
+                toggleTitle: "I understand the benefits and risks of using this feature"
+            )
+            .disabled(viewModel.consent)
+            .accessibilityIdentifier(.actionBox)
+        }
+    }
+
+    @ViewBuilder
+    func enableIanAccessibilityRepresentation() -> some View {
+        Toggle(NSLocalizedString("Force all apps", comment: ""), isOn: includeAllNetworksIsEnabled)
+    }
+
+    @ViewBuilder
+    func localNetworkSharingAccessibilityRepresentation() -> some View {
+        Button {
+            alert = viewModel.getLanSharingInfoAlert {
+                alert = nil
+            }
+        } label: {
+            Image(.iconInfo)
+        }
+        Toggle(NSLocalizedString("Local network sharing", comment: ""), isOn: localNetworkSharingIsEnabled)
     }
 }
 
