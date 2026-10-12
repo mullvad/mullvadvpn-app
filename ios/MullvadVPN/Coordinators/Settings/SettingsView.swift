@@ -17,7 +17,7 @@ struct SettingsView: View {
     private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
-        SettingsInfoContainerView {
+        SettingsContainerView {
             VStack(spacing: UIMetrics.TableView.sectionSpacing) {
                 ForEach(viewModel.sections, id: \.kind) { section in
                     sectionView(section)

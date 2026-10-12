@@ -16,7 +16,7 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
     private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
-        SettingsInfoContainerView {
+        SettingsContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView {
                     let daitafullTitle = "Defense against AI-guided Traffic Analysis"
