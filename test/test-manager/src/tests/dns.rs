@@ -138,7 +138,7 @@ async fn leak_test_dns(
         .get_default_interface()
         .await
         .expect("failed to find non-tun interface");
-    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client)
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
         .await
         .expect("failed to find tunnel interface");
 
@@ -576,7 +576,7 @@ async fn run_dns_config_test(
         .get_default_interface()
         .await
         .context("failed to find non-tun interface")?;
-    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client)
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
         .await
         .context("failed to find tunnel interface")?;
 
