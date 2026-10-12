@@ -30,6 +30,7 @@ struct ExternalLinkView: View {
                 .underline()
             Image(.iconExtlink)
                 .renderingMode(.original)
+                .accessibilityHidden(true)
         }
         .tint(.white)
     }
