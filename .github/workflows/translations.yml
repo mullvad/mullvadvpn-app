@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - .github/workflows/translations.yml
-      - android/translations-converter/**
       - android/**/res/values*/plurals.xml
       - android/**/res/values*/strings*.xml
       - android/**/res/xml*/relay_locations.xml
