@@ -5,12 +5,12 @@ import { TextField } from '../../../../../../../text-field';
 type ListItemItemTextFieldInputWidths = 'small' | 'medium';
 
 export type ListItemItemTextFieldInputProps = React.CustomComponentPropsWithRef<
-  typeof TextField.Input
+  typeof TextField.InputGroup.Input
 > & {
   width?: ListItemItemTextFieldInputWidths;
 };
 
-const StyledListItemItemTextFieldInput = styled(TextField.Input)<{
+const StyledListItemItemTextFieldInput = styled(TextField.InputGroup.Input)<{
   $width: ListItemItemTextFieldInputWidths;
 }>`
   ${({ $width }) => {

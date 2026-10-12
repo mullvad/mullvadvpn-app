@@ -16,7 +16,7 @@ function ListItemItemTextField({
   return (
     <form ref={formRef} onSubmit={onSubmit}>
       <TextField invalid={invalid} {...props}>
-        {children}
+        <TextField.InputGroup>{children}</TextField.InputGroup>
       </TextField>
     </form>
   );
