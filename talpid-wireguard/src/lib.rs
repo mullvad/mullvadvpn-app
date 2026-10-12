@@ -496,9 +496,9 @@ impl WireguardMonitor {
         // Nothing reads from the tunnel device until GotaTun is started, so traffic is held back in
         // it until ephemeral peers have been negotiated.
         let tun = gotatun::open_tun(&config, args.tun_provider.clone())?;
-        let is_new_tun = tun.is_new();
-        let route_manager = args.route_manager;
-        let tun_provider = Arc::clone(&args.tun_provider);
+        // let is_new_tun = tun.is_new();
+        // let route_manager = args.route_manager;
+        // let tun_provider = Arc::clone(&args.tun_provider);
 
         let tunnel = Arc::new(AsyncMutex::new(None));
         let mut event_hook = args.event_hook;
@@ -536,22 +536,6 @@ impl WireguardMonitor {
             .map_err(CloseMsg::SetupError)?;
             let iface_name = gotatun.get_interface_name();
             *tunnel.lock().await = Some(Box::new(gotatun) as TunnelType);
-
-            // Negotiating ephemeral peers does not depend on the routes, but the connectivity
-            // check does.
-            if is_new_tun {
-                let expected_routes = tun_provider.lock().unwrap().real_routes();
-                route_manager
-                    .wait_for_routes(expected_routes)
-                    .await
-                    .map_err(|error| {
-                        CloseMsg::SetupError(Error::TunnelError(
-                            TunnelError::RecoverableStartWireguardError(Box::new(
-                                Error::SetupRoutingError(error),
-                            )),
-                        ))
-                    })?;
-            }
 
             {
                 let lock = tunnel.lock().await;

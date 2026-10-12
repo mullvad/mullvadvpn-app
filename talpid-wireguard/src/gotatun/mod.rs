@@ -175,17 +175,9 @@ impl Devices {
 pub struct OpenedTun {
     device: AsyncDevice,
     interface_name: String,
-    #[cfg(target_os = "android")]
-    is_new: bool,
 }
 
 impl OpenedTun {
-    /// Whether the tunnel device was created, rather than reused. Android applies the routes of a
-    /// new tunnel device asynchronously.
-    #[cfg(target_os = "android")]
-    pub fn is_new(&self) -> bool {
-        self.is_new
-    }
 }
 
 /// Open the tunnel device for a GotaTun tunnel.
@@ -230,7 +222,6 @@ pub fn open_tun(
         Ok(OpenedTun {
             device,
             interface_name,
-            is_new: tun.is_new,
         })
     }
 }
