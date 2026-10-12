@@ -6,6 +6,7 @@ use std::{
     },
     time::Duration,
 };
+use talpid_error::ErrorExt;
 use talpid_tunnel_config_client::CONFIG_SERVICE_PORT;
 use tokio::{net::TcpStream, sync::broadcast, time::Instant};
 use tokio_util::task::AbortOnDropHandle;
@@ -110,18 +111,18 @@ impl Check {
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
         retry_attempt: u32,
         cancel_receiver: CancelReceiver,
-    ) -> Result<Check, Error> {
-        Ok(Check {
+    ) -> Check {
+        Check {
             gateway: addr,
             conn_state: ConnState::new(Instant::now(), Default::default()),
             ping_state: PingState::new(
                 addr,
                 #[cfg(any(target_os = "macos", target_os = "linux"))]
                 interface,
-            )?,
+            ),
             retry_attempt,
             cancel_receiver,
-        })
+        }
     }
 
     #[cfg(test)]
@@ -286,7 +287,8 @@ impl Check {
         // Only send out a ping if we haven't received a byte in a while or no traffic has flowed
         // in the last 2 minutes, but if a ping already has been sent out, only send one out every
         // 3 seconds.
-        if (conn_state.rx_timed_out() || conn_state.traffic_timed_out())
+        if ping_state.pinger.is_some()
+            && (conn_state.rx_timed_out() || conn_state.traffic_timed_out())
             && ping_state
                 .initial_ping_timestamp
                 .map(|initial_ping_timestamp| {
@@ -312,25 +314,29 @@ impl Check {
 pub(super) struct PingState {
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
-    pinger: Box<dyn Pinger>,
+    /// `None` if no pinger could be created, in which case no pings are sent.
+    pinger: Option<Box<dyn Pinger>>,
 }
 
 impl PingState {
     pub(super) fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-    ) -> Result<Self, Error> {
+    ) -> Self {
+        // Failing to ping is not fatal, since any traffic through the tunnel shows that it works.
         let pinger = pinger::new_pinger(
             addr,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             interface,
         )
-        .map_err(Error::PingError)?;
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to create pinger, not sending pings")
+            );
+        })
+        .ok();
 
-        Ok(Self::new_with(pinger))
-    }
-
-    pub(super) fn new_with(pinger: Box<dyn Pinger>) -> Self {
         Self {
             initial_ping_timestamp: None,
             num_pings_sent: 0,
@@ -338,9 +344,20 @@ impl PingState {
         }
     }
 
+    pub(super) fn new_with(pinger: Box<dyn Pinger>) -> Self {
+        Self {
+            initial_ping_timestamp: None,
+            num_pings_sent: 0,
+            pinger: Some(pinger),
+        }
+    }
+
     /// Send a ping.
     pub(super) async fn ping(&mut self) -> Result<(), Error> {
-        self.pinger.send_icmp().await.map_err(Error::PingError)
+        match &mut self.pinger {
+            Some(pinger) => pinger.send_icmp().await.map_err(Error::PingError),
+            None => Ok(()),
+        }
     }
 
     fn ping_timed_out(&self, timeout: Duration) -> bool {
@@ -353,7 +370,9 @@ impl PingState {
     async fn reset(&mut self) {
         self.initial_ping_timestamp = None;
         self.num_pings_sent = 0;
-        self.pinger.reset().await;
+        if let Some(pinger) = &mut self.pinger {
+            pinger.reset().await;
+        }
     }
 }
 

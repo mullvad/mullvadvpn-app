@@ -84,10 +84,6 @@ pub enum Error {
     #[error("Failed to determine the selected obfuscator")]
     UnknownSelectedObfuscator,
 
-    /// Failed to set up connectivity monitor
-    #[error("Connectivity monitor failed")]
-    ConnectivityMonitorError(#[source] connectivity::Error),
-
     /// Failed while negotiating ephemeral peer
     #[error("Failed while negotiating ephemeral peer")]
     EphemeralPeerNegotiationError(
@@ -322,9 +318,7 @@ impl WireguardMonitor {
                 metadata.interface.clone(),
                 args.retry_attempt,
                 cancel_receiver,
-            )
-            .map_err(Error::ConnectivityMonitorError)
-            .map_err(CloseMsg::SetupError)?;
+            );
 
             if detect_mtu {
                 let config = config.clone();
@@ -490,8 +484,7 @@ impl WireguardMonitor {
             config.ipv4_gateway,
             args.retry_attempt,
             cancel_receiver.clone(),
-        )
-        .map_err(Error::ConnectivityMonitorError)?;
+        );
 
         // Nothing reads from the tunnel device until GotaTun is started, so traffic is held back in
         // it until ephemeral peers have been negotiated.
