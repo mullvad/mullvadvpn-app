@@ -80,14 +80,16 @@ function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
                     }
                   </TextField.Label>
                   <FlexColumn gap="small">
-                    <TextField.Input
-                      ref={inputRef}
-                      width="medium"
-                      maxLength={30}
-                      autoFocus
-                      aria-describedby={descriptionId}
-                      aria-errormessage={invalidReason ? descriptionId : undefined}
-                    />
+                    <TextField.InputGroup>
+                      <TextField.InputGroup.Input
+                        ref={inputRef}
+                        width="medium"
+                        maxLength={30}
+                        autoFocus
+                        aria-describedby={descriptionId}
+                        aria-errormessage={invalidReason ? descriptionId : undefined}
+                      />
+                    </TextField.InputGroup>
                     <Dialog.Text id={descriptionId} role="status">
                       {invalidReason
                         ? invalidReason
