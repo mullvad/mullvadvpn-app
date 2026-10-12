@@ -493,6 +493,10 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
+        args.runtime
+            .block_on(args.route_manager.clear_route_cache())
+            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
         // Nothing reads from the tunnel device until GotaTun is started, so traffic is held back in
         // it until ephemeral peers have been negotiated.
         let tun = gotatun::open_tun(&config, args.tun_provider.clone())?;
