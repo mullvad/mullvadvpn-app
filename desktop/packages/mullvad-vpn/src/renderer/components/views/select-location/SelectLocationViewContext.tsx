@@ -41,12 +41,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
 
-  const [isolatedItem, stateSetIsolatedItem] = React.useState<LocationSelectorItemType | undefined>(
+  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorItemType | undefined>(
     undefined,
   );
-  const setIsolatedItem = React.useCallback((value: LocationSelectorItemType | undefined) => {
-    stateSetIsolatedItem(value);
-  }, []);
 
   const [searchTerm, stateSetSearchTerm] = React.useState('');
   const setSearchTerm = React.useCallback((value: string) => {
