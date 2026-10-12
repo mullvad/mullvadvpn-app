@@ -14,50 +14,21 @@ import MullvadTypes
 import Operations
 import PacketTunnelCore
 
-/// Shared operation queue used for IPC requests.
-private let operationQueue = AsyncOperationQueue()
-
-/// Shared queue used by IPC operations.
-private let dispatchQueue = DispatchQueue(label: "Tunnel.dispatchQueue")
-
-/// Timeout for proxy requests.
-private let proxyRequestTimeout = REST.defaultAPINetworkTimeout + 2
-
 extension TunnelProtocol {
     /// Request packet tunnel process to reconnect the tunnel with the given relays.
     func reconnectTunnel(
         to nextRelays: NextRelays,
         completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .reconnectTunnel(nextRelays),
-            decoderHandler: mapObservedState(data:),
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .reconnectTunnel(nextRelays), completionHandler: completionHandler)
     }
-
     /// Request status from packet tunnel process.
     func getTunnelStatus(
         completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .getTunnelStatus,
-            decoderHandler: mapObservedState(data:),
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .getTunnelStatus, completionHandler: completionHandler)
     }
 
     /// Send API request via packet tunnel process bypassing VPN.
@@ -65,67 +36,27 @@ extension TunnelProtocol {
         _ proxyRequest: ProxyAPIRequest,
         completionHandler: @escaping @Sendable (Result<ProxyAPIResponse, Error>) -> Void
     ) -> Cancellable {
-        let decoderHandler: (Data?) throws -> ProxyAPIResponse = { data in
-            if let data {
-                return try TunnelProviderReply<ProxyAPIResponse>(messageData: data).value
-            } else {
-                throw EmptyTunnelProviderResponseError()
+        let messageService = SendTunnelMessageService(tunnel: self)
+
+        let cancelHandler = { @Sendable in
+            _ = messageService.send(message: .cancelAPIRequest(proxyRequest.id)) {
+                (reply: Result<TunnelReply, Error>) -> Void in
+                // Do nothing with the answer
             }
         }
 
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
+        return messageService.send(
             message: .sendAPIRequest(proxyRequest),
-            timeout: proxyRequestTimeout,
-            decoderHandler: decoderHandler,
-            completionHandler: completionHandler
-        )
-
-        operation.onCancel { [weak self] _ in
-            guard let self else { return }
-
-            let cancelOperation = SendTunnelProviderMessageOperation(
-                dispatchQueue: dispatchQueue,
-                backgroundTaskProvider: backgroundTaskProvider,
-                tunnel: self,
-                message: .cancelAPIRequest(proxyRequest.id),
-                decoderHandler: decoderHandler,
-                completionHandler: nil
-            )
-
-            operationQueue.addOperation(cancelOperation)
-        }
-
-        operationQueue.addOperation(operation)
-
-        return operation
-    }
-
-    func mapObservedState(data: Data?) throws -> ObservedState {
-        if let data {
-            return try TunnelProviderReply<ObservedState>(messageData: data).value
-        } else {
-            throw EmptyTunnelProviderResponseError()
-        }
+            completionHandler: completionHandler,
+            cancelHandler: cancelHandler)
     }
 
     /// Notify tunnel about private key rotation.
     func notifyKeyRotation(
-        completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<TunnelReply, Error>) -> Void
     ) -> Cancellable {
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .privateKeyRotation,
-            decoderHandler: { _ in () },
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .privateKeyRotation, completionHandler: completionHandler)
     }
+
 }
