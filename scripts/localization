@@ -34,12 +34,6 @@ function sync_localizations {
     pushd ../desktop/packages/mullvad-vpn
     npm run update-translations
     popd
-
-    # Update android strings and add Android strings to messages.pot
-    log_header "Extracting localization strings from android app source code"
-    pushd ../android/translations-converter/
-    cargo run
-    popd
 }
 
 function update_relay_locations_pot {
@@ -80,9 +74,6 @@ function download_from_crowdin {
     crowdin download
     popd
 
-    # Add new translations to Android xml-files
-    log_header "Updating Android xml-files with new translations"
-    sync_localizations
     commit_changes "Update translations"
 }
 
