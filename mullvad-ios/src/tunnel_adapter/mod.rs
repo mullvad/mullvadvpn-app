@@ -7,14 +7,14 @@ mod pinger;
 pub(crate) mod tun_device;
 
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     future::poll_fn,
     io,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, SocketAddr},
     pin::pin,
     sync::{
         Arc,
-        atomic::{AtomicBool, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering},
     },
     task::{Context, Poll},
     time::{Duration, Instant},
@@ -63,47 +63,54 @@ pub use self::params::{PeerParameters, TunnelParameters};
 /// Listens to all sockets for messages.
 #[derive(Clone)]
 pub struct Multiplex {
-    recv_index: usize,
     send_index: Arc<AtomicU64>,
-    sockets: Vec<Arc<UdpSocket>>,
-    destinations: Arc<[SocketAddr]>,
-    pairs: Arc<RwLock<HashMap<SocketAddr, Arc<UdpSocket>>>>,
+    pairs: BTreeMap<SocketAddr, RelayState>,
+    base_socket: UdpSocket,
 }
+#[derive(Clone)]
+struct RelayState {
+    sockets: Vec<UdpSocket>,
+    recv: usize,
+    send: Arc<AtomicUsize>,
+}
+
 impl Multiplex {
-    pub async fn new(
-        count: u64,
-        destinations: Vec<SocketAddr>,
-        udp: BoundUdpTransports,
-    ) -> io::Result<Self> {
-        let mut sockets = vec![Arc::new(udp.socket.lock().await.clone())];
-        for _ in 0..count {
-            sockets.push(Arc::new(
-                BoundUdpTransports::bind()
-                    .await?
-                    .socket
-                    .lock()
-                    .await
-                    .clone(),
-            ));
+    pub async fn new(destinations: Vec<SocketAddr>, udp: BoundUdpTransports) -> io::Result<Self> {
+        let mut pairs = BTreeMap::new();
+
+        for target in destinations {
+            let mut sockets = Vec::new();
+            for _ in 0..3 {
+                let trans = BoundUdpTransports::bind().await?;
+                sockets.push(trans.socket.lock().await.clone());
+            }
+            pairs.insert(
+                target,
+                RelayState {
+                    sockets,
+                    recv: 0,
+                    send: Arc::new(AtomicUsize::new(0)),
+                },
+            );
         }
 
         Ok(Self {
-            recv_index: 0,
             send_index: Default::default(),
-            destinations: destinations.into(),
-            sockets,
-            pairs: Default::default(),
+            pairs,
+            base_socket: udp.socket.lock().await.clone(),
         })
     }
 
     /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
     /// whilst the socket is rebound.
     pub async fn rebind(&mut self) -> io::Result<()> {
-        for socket in &mut self.sockets {
-            let (new_socket, _recv) = UdpSocketFactory::default()
-                .bind(&BoundUdpTransports::params())
-                .await?;
-            *socket = Arc::new(new_socket);
+        for state in self.pairs.values_mut() {
+            for socket in &mut state.sockets {
+                let (new_socket, _recv) = UdpSocketFactory::default()
+                    .bind(&BoundUdpTransports::params())
+                    .await?;
+                *socket = new_socket;
+            }
         }
         Ok(())
     }
@@ -113,21 +120,27 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut i = self.recv_index;
-        loop {
-            let socket = self.sockets[i].socket();
+        if let poll @ Poll::Ready(..) = self.base_socket.socket().poll_recv_from(cx, read_buf) {
+            return poll;
+        }
+        for state in self.pairs.values_mut() {
+            let mut i = state.recv;
+            let poll = loop {
+                let socket = state.sockets[i].socket();
 
-            let poll = socket.poll_recv_from(cx, read_buf);
-            if poll.is_ready() {
-                self.recv_index = (self.recv_index + 1) % self.sockets.len();
-                return poll;
-            }
-            i = (i + 1) % self.sockets.len();
-            if i == self.recv_index {
-                break;
+                if let poll @ Poll::Ready(..) = socket.poll_recv_from(cx, read_buf) {
+                    break Some(poll);
+                }
+                i = (i + 1) % state.sockets.len();
+                if i == state.recv {
+                    break None;
+                }
+            };
+            state.recv = (state.recv + 1) % state.sockets.len();
+            if let Some(p) = poll {
+                return p;
             }
         }
-        self.recv_index = (self.recv_index + 1) % self.sockets.len();
         Poll::Pending
     }
 }
@@ -149,23 +162,14 @@ impl UdpSend for Multiplex {
     // TODO:
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
-    // - should probably remove the customizable socket amount as well (or one-to-many dest -> socket?)
-    //   - most will not get used as it stands right now
-    // - would love to remove rwlock. I could move that to the constructor as currently the destinations are already known
-    //   by that point, but that feels inflexible.
-    // - Rebinding is currently broken.
-    async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
-        let dest_index =
-            self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.destinations.len();
-        let destination = self.destinations[dest_index];
-
-        if let Some(sock) = self.pairs.read().await.get(&destination) {
-            sock.send_to(packet, destination).await
+    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+        let index = self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.pairs.len();
+        // stinky and slow!
+        if let Some((destination, state)) = self.pairs.iter().nth(index) {
+            let index = state.send.fetch_add(1, Ordering::SeqCst) % state.sockets.len();
+            state.sockets[index].send_to(packet, *destination).await
         } else {
-            let socket = rand::random_range(0..self.sockets.len());
-            let socket = self.sockets[socket].clone();
-            self.pairs.write().await.insert(destination, socket.clone());
-            socket.send_to(packet, destination).await
+            self.base_socket.send_to(packet, destination).await
         }
     }
 }
@@ -587,7 +591,7 @@ impl IosTunnelAdapter {
             }
         };
 
-        let multiplex = Multiplex::new(params.multiplex_count, params.ips.clone(), udp)
+        let multiplex = Multiplex::new(params.ips.clone(), udp)
             .await
             .map_err(TunnelError::TunnelDevice)?;
 
