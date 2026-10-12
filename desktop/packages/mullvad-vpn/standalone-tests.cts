@@ -36,7 +36,8 @@ function getTarBin() {
 function extract() {
   // Remove old directory if already existing and create new clean one
   removeTmpDir();
-  fs.mkdirSync(tmpDir);
+  // Use `recursive` so a leftover directory from a previous run does not cause it to fail.
+  fs.mkdirSync(tmpDir, { recursive: true });
 
   // Copy assets archive to temp dir
   const tarAssets = getRawAsset('assets.tar.gz') as ArrayBuffer;
@@ -120,7 +121,7 @@ function runTests(): Promise<number> {
 function removeTmpDir() {
   if (fs.existsSync(tmpDir)) {
     try {
-      fs.rmSync(tmpDir, { recursive: true });
+      fs.rmSync(tmpDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
     } catch (e) {
       const error = e as Error;
       console.error('Failed to remove tmp dir:', error.message);
