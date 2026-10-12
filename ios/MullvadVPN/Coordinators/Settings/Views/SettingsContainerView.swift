@@ -10,7 +10,7 @@
 
 import SwiftUI
 
-struct SettingsInfoContainerView<Content: View>: View {
+struct SettingsContainerView<Content: View>: View {
     let content: Content
 
     init(@ViewBuilder _ content: () -> Content) {
@@ -31,7 +31,7 @@ struct SettingsInfoContainerView<Content: View>: View {
 }
 
 #Preview {
-    SettingsInfoContainerView {
+    SettingsContainerView {
         SettingsDAITAView(tunnelViewModel: MockDAITATunnelSettingsViewModel())
     }
 }
