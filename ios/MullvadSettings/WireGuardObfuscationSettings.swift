@@ -226,6 +226,16 @@ public enum WireGuardObfuscationLwoPort: Codable, Equatable, CustomStringConvert
     }
 }
 
+public struct WireGuardObfuscationMultiplexSocketCount: Codable, Equatable, CustomStringConvertible, Sendable {
+    public var count: UInt8
+    public var description: String {
+        "\(count)"
+    }
+    public init(count: UInt8) {
+        self.count = count
+    }
+}
+
 // Can't deprecate the whole type since it'll yield a lint warning when decoding
 // port in `WireGuardObfuscationSettings`.
 private enum WireGuardObfuscationPort: UInt16, Codable, Sendable {
@@ -245,6 +255,7 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable, Custom
     public var udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
     public var shadowsocksPort: WireGuardObfuscationShadowsocksPort
     public var lwoPort: WireGuardObfuscationLwoPort
+    public var multiplexSocketCount: WireGuardObfuscationMultiplexSocketCount
 
     public var debugDescription: String {
         switch state {
@@ -271,12 +282,14 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable, Custom
         state: WireGuardObfuscationState = .automatic,
         udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort = .automatic,
         shadowsocksPort: WireGuardObfuscationShadowsocksPort = .automatic,
-        lwoPort: WireGuardObfuscationLwoPort = .automatic
+        lwoPort: WireGuardObfuscationLwoPort = .automatic,
+        multiplexSocketCount: WireGuardObfuscationMultiplexSocketCount = .init(count: 3)
     ) {
         self.state = state
         self.udpOverTcpPort = udpOverTcpPort
         self.shadowsocksPort = shadowsocksPort
         self.lwoPort = lwoPort
+        self.multiplexSocketCount = multiplexSocketCount
     }
 
     public init(from decoder: Decoder) throws {
@@ -310,5 +323,9 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable, Custom
         } else {
             udpOverTcpPort = .automatic
         }
+
+        multiplexSocketCount =
+            (try? container.decodeIfPresent(WireGuardObfuscationMultiplexSocketCount.self, forKey: .multiplexSocketCount))
+            ?? .init(count: 3)
     }
 }

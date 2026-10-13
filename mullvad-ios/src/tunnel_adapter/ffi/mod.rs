@@ -7,6 +7,7 @@
 //! stops it on drop.
 
 use std::net::{Ipv4Addr, Ipv6Addr};
+use std::num::NonZero;
 use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
@@ -54,6 +55,7 @@ pub struct GotaTunConfig {
     pub enable_daita: bool,
     /// Obfuscation method for the ingress relay.
     pub obfuscation: GotaTunObfuscation,
+    pub multiplex_count: u8,
 }
 
 /// Obfuscation method applied to the ingress relay connection.
@@ -256,6 +258,9 @@ fn build_tunnel_parameters(
         .as_ref()
         .map(|peer| build_peer(peer, vec![IpNetwork::from(exit_peer.endpoint.ip())]))
         .transpose()?;
+    let multiplex_count = NonZero::new(config.multiplex_count).ok_or(
+        GotaTunFfiError::InvalidConfig("multiplex count must be >= 1".to_string()),
+    )?;
 
     Ok(TunnelParameters {
         tun_fd,
@@ -271,5 +276,6 @@ fn build_tunnel_parameters(
         enable_pq: config.enable_pq,
         enable_daita: config.enable_daita,
         obfuscation: build_obfuscation(config.obfuscation)?,
+        multiplex_count,
     })
 }
