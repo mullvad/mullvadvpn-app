@@ -65,7 +65,7 @@ pub use self::params::{PeerParameters, TunnelParameters};
 #[derive(Clone)]
 pub struct Multiplex {
     send_index: Arc<AtomicU64>,
-    pairs: BTreeMap<SocketAddr, RelayState>,
+    pairs: Vec<(SocketAddr, RelayState)>,
     base_socket: UdpSocket,
 }
 #[derive(Clone)]
@@ -81,7 +81,7 @@ impl Multiplex {
         destinations: Vec<SocketAddr>,
         udp: BoundUdpTransports,
     ) -> io::Result<Self> {
-        let mut pairs = BTreeMap::new();
+        let mut pairs = Vec::new();
 
         for target in destinations {
             let mut sockets = Vec::new();
@@ -89,14 +89,14 @@ impl Multiplex {
                 let trans = BoundUdpTransports::bind().await?;
                 sockets.push(trans.socket.lock().await.clone());
             }
-            pairs.insert(
+            pairs.push((
                 target,
                 RelayState {
                     sockets,
                     recv: 0,
                     send: Arc::new(AtomicUsize::new(0)),
                 },
-            );
+            ));
         }
 
         Ok(Self {
@@ -109,7 +109,7 @@ impl Multiplex {
     /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
     /// whilst the socket is rebound.
     pub async fn rebind(&mut self) -> io::Result<()> {
-        for state in self.pairs.values_mut() {
+        for (_, state) in self.pairs.iter_mut() {
             for socket in &mut state.sockets {
                 let (new_socket, _recv) = UdpSocketFactory::default()
                     .bind(&BoundUdpTransports::params())
@@ -128,7 +128,7 @@ impl Multiplex {
         if let poll @ Poll::Ready(..) = self.base_socket.socket().poll_recv_from(cx, read_buf) {
             return poll;
         }
-        for state in self.pairs.values_mut() {
+        for (_, state) in self.pairs.iter_mut() {
             let mut i = state.recv;
             let poll = loop {
                 let socket = state.sockets[i].socket();
@@ -169,8 +169,7 @@ impl UdpSend for Multiplex {
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
     async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
         let index = self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.pairs.len();
-        // stinky and slow!
-        if let Some((destination, state)) = self.pairs.iter().nth(index) {
+        if let Some((destination, state)) = self.pairs.get(index) {
             let index = state.send.fetch_add(1, Ordering::SeqCst) % state.sockets.len();
             state.sockets[index].send_to(packet, *destination).await
         } else {
