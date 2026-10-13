@@ -548,12 +548,20 @@ impl WireguardMonitor {
                 route_manager
                     .wait_for_routes(expected_routes)
                     .await
-                    .map_err(|error| {
-                        CloseMsg::SetupError(Error::TunnelError(
-                            TunnelError::RecoverableStartWireguardError(Box::new(
-                                Error::SetupRoutingError(error),
-                            )),
-                        ))
+                    // If we get a timeout waiting for routes we want to continue since on some
+                    // android phones we will never get routes.
+                    .or_else(|error| {
+                        match error {
+                            talpid_routing::Error::PlatformError(_) => {
+                                log::warn!("Time out while waiting for routes: {:?}", error);
+                                Ok(())
+                            }
+                            _ => Err(CloseMsg::SetupError(Error::TunnelError(
+                                TunnelError::RecoverableStartWireguardError(Box::new(
+                                    Error::SetupRoutingError(error),
+                                )),
+                            )))
+                        }
                     })?;
             }
 
