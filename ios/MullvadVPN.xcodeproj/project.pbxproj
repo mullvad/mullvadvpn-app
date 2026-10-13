@@ -86,6 +86,8 @@
 		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
 		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
 		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		38CA4E7C307E2EA0004A212C /* MultiplexingObfuscationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CA4E7B307E2E93004A212C /* MultiplexingObfuscationView.swift */; };
+		38CA4E7E307E3157004A212C /* MultiplexingObfuscationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CA4E7D307E3141004A212C /* MultiplexingObfuscationViewModel.swift */; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
 		440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
 		440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
@@ -1882,6 +1884,8 @@
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		38693EC430458CF000BC154A /* mullvad_uniffi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = mullvad_uniffi.swift; path = generated/mullvad_uniffi.swift; sourceTree = "<group>"; };
 		38693EC630458CFD00BC154A /* mullvad_uniffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mullvad_uniffi.h; path = include/mullvad_uniffi.h; sourceTree = "<group>"; };
+		38CA4E7B307E2E93004A212C /* MultiplexingObfuscationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplexingObfuscationView.swift; sourceTree = "<group>"; };
+		38CA4E7D307E3141004A212C /* MultiplexingObfuscationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplexingObfuscationViewModel.swift; sourceTree = "<group>"; };
 		440866A5304AFED900EEDEFE /* ActionThrottle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionThrottle.swift; sourceTree = "<group>"; };
 		440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
@@ -3328,6 +3332,8 @@
 		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
+				38CA4E7B307E2E93004A212C /* MultiplexingObfuscationView.swift */,
+				38CA4E7D307E3141004A212C /* MultiplexingObfuscationViewModel.swift */,
 				7AA5644B2F30C779001D1FB9 /* LwoObfuscationSettingsView.swift */,
 				7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */,
 				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
@@ -7198,6 +7204,7 @@
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				F9DDD6F73045652E004D3A77 /* SettingsInfoPageView.swift in Sources */,
 				F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */,
+				38CA4E7C307E2EA0004A212C /* MultiplexingObfuscationView.swift in Sources */,
 				F0AC643D2F3B50860024427C /* NotificationSettingsObserver.swift in Sources */,
 				586C0D932B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift in Sources */,
 				58EFC7712AFB45E500E9F4CB /* SettingsChildCoordinator.swift in Sources */,
@@ -7264,6 +7271,7 @@
 				F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */,
 				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
+				38CA4E7E307E3157004A212C /* MultiplexingObfuscationViewModel.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
 				7A8A19122CEF1E68000BCB5B /* SettingsContainerView.swift in Sources */,

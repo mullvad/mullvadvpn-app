@@ -60,6 +60,7 @@ public struct GotaTunConfig: Sendable {
     public let establishTimeout: UInt32
     /// Obfuscation method for the ingress relay.
     public let obfuscationMethod: ObfuscationMethod
+    public let multiplexSocketCount: UInt8
 }
 
 /// Each instance represents a single tunnel connection attempt.

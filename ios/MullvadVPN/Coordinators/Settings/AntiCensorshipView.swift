@@ -189,6 +189,16 @@ struct AntiCensorshipView: View {
                     .onDisappear {
                         updateSettings()
                     }
+                case .multiplex:
+                    let viewModel = MultiplexImplObfuscationSettingsViewModel(
+                        socketCount: $settings.tunnelSettings.wireGuardObfuscation.multiplexSocketCount.count)
+                    MultiplexingObfuscationSettingsView(
+                        viewModel: viewModel
+                    )
+                    .navigationTitle("Multiplex")
+                    .onDisappear {
+                        updateSettings()
+                    }
                 default: EmptyView()
                 }
             } label: {
@@ -202,6 +212,9 @@ struct AntiCensorshipView: View {
                 case .lwo:
                     itemFactory.image(for: .chevron)
                         .accessibilityIdentifier(.wireGuardObfuscationLwoPort)
+                case .multiplex:
+                    itemFactory.image(for: .chevron)
+                        .accessibilityIdentifier(.wireGuardObfuscationMultiplex)
                 default: EmptyView()
                 }
             }

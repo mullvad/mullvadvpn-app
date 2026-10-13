@@ -62277,6 +62277,9 @@
         }
       }
     },
+    "Socket count" : {
+
+    },
     "Socks5" : {
       "localizations" : {
         "da" : {
@@ -76416,6 +76419,9 @@
           }
         }
       }
+    },
+    "Valid counts: >= 1" : {
+
     },
     "Valid range: %d - %d" : {
       "localizations" : {

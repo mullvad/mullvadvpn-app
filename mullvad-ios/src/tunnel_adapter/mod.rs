@@ -11,6 +11,7 @@ use std::{
     future::poll_fn,
     io,
     net::{IpAddr, SocketAddr},
+    num::NonZero,
     pin::pin,
     sync::{
         Arc,
@@ -44,7 +45,7 @@ use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::{
     io::ReadBuf,
     sync::{
-        Mutex, RwLock,
+        Mutex,
         mpsc::{UnboundedReceiver, UnboundedSender},
     },
 };
@@ -75,12 +76,16 @@ struct RelayState {
 }
 
 impl Multiplex {
-    pub async fn new(destinations: Vec<SocketAddr>, udp: BoundUdpTransports) -> io::Result<Self> {
+    pub async fn new(
+        socket_count: NonZero<u8>,
+        destinations: Vec<SocketAddr>,
+        udp: BoundUdpTransports,
+    ) -> io::Result<Self> {
         let mut pairs = BTreeMap::new();
 
         for target in destinations {
             let mut sockets = Vec::new();
-            for _ in 0..3 {
+            for _ in 0..socket_count.get() {
                 let trans = BoundUdpTransports::bind().await?;
                 sockets.push(trans.socket.lock().await.clone());
             }
@@ -591,7 +596,7 @@ impl IosTunnelAdapter {
             }
         };
 
-        let multiplex = Multiplex::new(params.ips.clone(), udp)
+        let multiplex = Multiplex::new(params.multiplex_count, params.ips.clone(), udp)
             .await
             .map_err(TunnelError::TunnelDevice)?;
 

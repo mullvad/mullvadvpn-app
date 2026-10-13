@@ -1,5 +1,6 @@
 use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    num::NonZero,
     time::Duration,
 };
 
@@ -25,6 +26,7 @@ pub struct TunnelParameters {
     pub enable_pq: bool,
     pub enable_daita: bool,
     pub obfuscation: ObfuscationParameters,
+    pub multiplex_count: NonZero<u8>,
 }
 
 impl TunnelParameters {
@@ -97,6 +99,7 @@ pub(crate) mod tests {
             enable_pq: false,
             enable_daita: false,
             obfuscation: ObfuscationParameters::Off,
+            multiplex_count: NonZero::new(1).unwrap(),
         }
     }
 
