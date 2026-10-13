@@ -1461,9 +1461,14 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr ""
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
+msgid "Entry filter"
+msgstr ""
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
 msgstr ""
 
 msgctxt "filter-view"
@@ -3672,16 +3677,10 @@ msgstr ""
 msgid "Enter an account number"
 msgstr ""
 
-msgid "Entry filter"
-msgstr ""
-
 msgid "Entry relay is the same as exit relay"
 msgstr ""
 
 msgid "Excluded applications"
-msgstr ""
-
-msgid "Exit filter"
 msgstr ""
 
 msgid "Expand"
@@ -3709,6 +3708,9 @@ msgid "Failed to set to current - Unknown reason"
 msgstr ""
 
 msgid "File"
+msgstr ""
+
+msgid "Filter"
 msgstr ""
 
 msgid "Filters are overridden when using an automatic location"
