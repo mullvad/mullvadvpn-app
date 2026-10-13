@@ -143,7 +143,7 @@ private extension WireGuardObfuscationState {
     /// This flag affects whether the "Setting: Obfuscation" pill is shown when selecting a location
     var affectsRelaySelection: Bool {
         switch self {
-        case .shadowsocks, .quic, .lwo:
+        case .shadowsocks, .quic, .lwo, .multiplex:
             true
         case .udpOverTcp, .automatic, .off, .on:
             false

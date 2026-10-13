@@ -114,7 +114,7 @@ struct ObfuscationFeature: ChipFeature {
         }
         return state.connectionState.map { connectionState -> WireGuardObfuscationState in
             switch connectionState.obfuscationMethod {
-            case .off:
+            case .off, .multiplex:
                 .off
             case .udpOverTcp:
                 .udpOverTcp
@@ -142,6 +142,8 @@ struct ObfuscationFeature: ChipFeature {
             NSLocalizedString("QUIC", comment: "")
         case .lwo:
             NSLocalizedString("LWO", comment: "")
+        case .multiplex:
+            NSLocalizedString("Multiplex", comment: "")
         case .automatic, .off, nil:
             ""
         }

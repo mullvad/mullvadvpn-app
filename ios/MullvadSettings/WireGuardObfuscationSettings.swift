@@ -23,6 +23,7 @@ public enum WireGuardObfuscationState: Codable, Sendable, CustomStringConvertibl
     case shadowsocks
     case quic
     case lwo
+    case multiplex
     case off
 
     public init(from decoder: Decoder) throws {
@@ -51,6 +52,8 @@ public enum WireGuardObfuscationState: Codable, Sendable, CustomStringConvertibl
             self = .quic
         case .lwo:
             self = .lwo
+        case .multiplex:
+            self = .multiplex
         case .off:
             self = .off
         }
@@ -72,6 +75,8 @@ public enum WireGuardObfuscationState: Codable, Sendable, CustomStringConvertibl
             NSLocalizedString("QUIC", comment: "")
         case .lwo:
             NSLocalizedString("LWO", comment: "")
+        case .multiplex:
+            NSLocalizedString("Multiplex", comment: "")
         case .off:
             NSLocalizedString("None", comment: "")
         }
@@ -253,6 +258,8 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable, Custom
             return "quic"
         case .lwo:
             return "lwo:\(lwoPort)"
+        case .multiplex:
+            return "multiplex"
         case .off:
             return "off"
         case .on:

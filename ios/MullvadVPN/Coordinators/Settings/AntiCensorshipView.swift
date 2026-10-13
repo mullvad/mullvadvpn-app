@@ -38,6 +38,7 @@ struct AntiCensorshipView: View {
             .init(state: .quic, accessibilityIdentifier: .wireGuardObfuscationQuic),
             .init(state: .shadowsocks, accessibilityIdentifier: .wireGuardObfuscationShadowsocks),
             .init(state: .udpOverTcp, accessibilityIdentifier: .wireGuardObfuscationUdpOverTcp),
+            .init(state: .multiplex, accessibilityIdentifier: .wireGuardObfuscationMultiplex),
             .init(state: .off, accessibilityIdentifier: .wireGuardObfuscationOff),
         ]
 
