@@ -24,6 +24,7 @@ import {
   EditApiAccessView,
   ExpiredAccountErrorView,
   FilterView,
+  KillSwitchView,
   LaunchView,
   LoginView,
   LwoSettingsView,
@@ -99,6 +100,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
           <Route exact path={RoutePath.lwo} component={LwoSettingsView} />
+          <Route exact path={RoutePath.killSwitch} component={KillSwitchView} />
         </Switch>
       </Focus>
     </>
