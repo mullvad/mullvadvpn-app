@@ -26,6 +26,18 @@
   <img src="src/main/play/listings/en-US/graphics/phone-screenshots/06.png" alt="Split tunneling settings" width="30%">
 </p>
 
+## Verifying the APK
+
+The APK on GitHub and our website is signed with a certificate that has the following SHA-256
+fingerprint:
+
+```
+7B:E2:19:30:C3:B4:D7:39:06:B0:89:30:45:0A:1D:3A:FB:D2:2C:98:D9:D8:E9:87:DF:8C:1F:BC:2D:0C:90:BB
+```
+
+To check it, run `apksigner verify --print-certs MullvadVPN-<version>.apk`. Each APK also has a
+detached GPG signature (`.asc`) made with our [code signing key](https://mullvad.net/en/open-source).
+
 ## Documentation
 
 This directory contains the Android project. Apart from the content of this directory, the Android
