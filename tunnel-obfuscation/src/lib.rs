@@ -8,6 +8,7 @@ pub mod direct;
 pub mod gotatun_transport;
 pub mod local_socket;
 pub mod lwo;
+pub mod multiplex;
 pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
@@ -67,6 +68,7 @@ pub enum Settings {
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
     Lwo(lwo::Settings),
+    Multiplex(multiplex::Settings),
 }
 
 impl Settings {
@@ -77,6 +79,7 @@ impl Settings {
             Settings::Shadowsocks(s) => s.packet_overhead(),
             Settings::Quic(s) => s.packet_overhead(),
             Settings::Lwo(s) => s.packet_overhead(),
+            Settings::Multiplex(s) => s.packet_overhead(),
         }
     }
 }
@@ -95,6 +98,7 @@ pub async fn create_transport(
         Settings::Lwo(s) => lwo::Lwo::new(bypass, s).await.map(arc_transport),
 
         Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(bypass, s).map(arc_transport),
+        Settings::Multiplex(settings) => multiplex::Multiplex::new(bypass, s).await(arc_transport),
     }
 }
 
