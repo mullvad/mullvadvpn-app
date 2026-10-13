@@ -119,6 +119,7 @@ fn obfuscation_type(settings: &tunnel_obfuscation::Settings) -> ObfuscationType 
         tunnel_obfuscation::Settings::Shadowsocks(_) => ObfuscationType::Shadowsocks,
         tunnel_obfuscation::Settings::Quic(_) => ObfuscationType::Quic,
         tunnel_obfuscation::Settings::Lwo(_) => ObfuscationType::Lwo,
+        tunnel_obfuscation::Settings::Multiplex(_) => ObfuscationType::Multiplex,
     }
 }
 
@@ -131,6 +132,11 @@ fn obfuscation_settings(
 
     let settings = match &params.obfuscation {
         ObfuscationParameters::Off => return Ok(None),
+        ObfuscationParameters::Multiplex => {
+            tunnel_obfuscation::Settings::Multiplex(tunnel_obfuscation::multiplex::Settings {
+                extra_addrs: params.addrs,
+            })
+        }
         ObfuscationParameters::UdpOverTcp => {
             tunnel_obfuscation::Settings::Udp2Tcp(tunnel_obfuscation::udp2tcp::Settings {
                 peer: ingress_endpoint,

@@ -67,6 +67,7 @@ pub enum ObfuscationParameters {
     Off,
     UdpOverTcp,
     Shadowsocks,
+    Multiplex,
     Quic { hostname: String, token: String },
     Lwo { server_public_key: [u8; 32] },
 }
