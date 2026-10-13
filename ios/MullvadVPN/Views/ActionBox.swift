@@ -56,6 +56,7 @@ struct ActionBox: View {
                             Text(additionalInfo.warningTitle)
                                 .font(Font.mullvadTinySemiBold)
                                 .foregroundStyle(Color.mullvadTextPrimary)
+                                .multilineTextAlignment(.leading)
                             Spacer()
                             Button {
                                 withAnimation {
@@ -107,6 +108,9 @@ struct ActionBox: View {
     var privacyPolicyLink: AttributedString = {
         var result = AttributedString(localized: "privacy policy")
         result.link = .init(string: "https://mullvad.net")
+        result.foregroundColor = .white
+        result.font = Font.mullvadTinySemiBold
+        result.underlineStyle = .single
         return result
     }()
     VStack {
