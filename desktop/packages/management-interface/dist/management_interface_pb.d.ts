@@ -1018,6 +1018,26 @@ export class GeoIpLocation extends jspb.Message {
     getEntryCountry(): string | undefined;
     setEntryCountry(value: string): GeoIpLocation;
 
+    hasEntryCountryCode(): boolean;
+    clearEntryCountryCode(): void;
+    getEntryCountryCode(): string | undefined;
+    setEntryCountryCode(value: string): GeoIpLocation;
+
+    hasEntryCityCode(): boolean;
+    clearEntryCityCode(): void;
+    getEntryCityCode(): string | undefined;
+    setEntryCityCode(value: string): GeoIpLocation;
+
+    hasCountryCode(): boolean;
+    clearCountryCode(): void;
+    getCountryCode(): string | undefined;
+    setCountryCode(value: string): GeoIpLocation;
+
+    hasCityCode(): boolean;
+    clearCityCode(): void;
+    getCityCode(): string | undefined;
+    setCityCode(value: string): GeoIpLocation;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GeoIpLocation.AsObject;
     static toObject(includeInstance: boolean, msg: GeoIpLocation): GeoIpLocation.AsObject;
@@ -1041,6 +1061,10 @@ export namespace GeoIpLocation {
         entryHostname?: string,
         entryCity?: string,
         entryCountry?: string,
+        entryCountryCode?: string,
+        entryCityCode?: string,
+        countryCode?: string,
+        cityCode?: string,
     }
 }
 
