@@ -6,8 +6,9 @@ import { useMenuContext } from '../../../../../../lib/components/menu/MenuContex
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
 import { useMultihop } from '../../../../../multihop/hooks';
 import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
-import type { GeographicalLocation } from '../../../../types';
+import { type GeographicalLocation } from '../../../../types';
 import { isLocationSelected } from '../../../../utils';
+import { useDisabled } from './hooks';
 
 export type SetAsExitMenuOptionProps = MenuOptionProps & {
   location: GeographicalLocation;
@@ -18,6 +19,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   const { onOpenChange } = useMenuContext();
   const { multihop, setMultihop } = useMultihop();
   const { entry, exit } = useSelectedLocations();
+  const disabled = useDisabled(location);
 
   const isEntrySingleRelay = entry !== 'any' && 'hostname' in entry;
   const isEntrySelected = isLocationSelected(location.details, entry);
@@ -46,7 +48,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   ]);
 
   return (
-    <Menu.Option {...props}>
+    <Menu.Option disabled={disabled} {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />
