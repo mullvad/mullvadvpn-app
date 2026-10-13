@@ -146,7 +146,8 @@ struct SegmentedListItem<Leading: View>: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityIdentifier(accessibilityIdentifier)
-        .if(onSelect != nil) {
+        // A segment button merges in as an extra action, so name the primary one to tell them apart.
+        .if(onSelect != nil && segment != nil) {
             $0.accessibilityAction(named: Text("Select \(accessibilityLabel)")) {
                 withAnimation(.easeInOut(duration: 0.15)) {
                     onSelect?()

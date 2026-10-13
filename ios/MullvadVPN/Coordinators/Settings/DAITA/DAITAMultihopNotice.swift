@@ -25,7 +25,7 @@ struct DAITAMultihopNotice: View {
 }
 
 #Preview {
-    SettingsInfoContainerView {
+    SettingsContainerView {
         DAITAMultihopNotice()
     }
 }
