@@ -20,6 +20,7 @@ export type TextFieldProps = React.ComponentPropsWithRef<'div'> & {
 export const StyledTextField = styled(FlexColumn)`
   position: relative;
   gap: ${spacings.tiny};
+  width: 100%;
 `;
 
 function TextField({
