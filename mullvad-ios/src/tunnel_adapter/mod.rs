@@ -65,14 +65,9 @@ pub use self::params::{PeerParameters, TunnelParameters};
 pub struct Multiplex {
     send_index: Arc<AtomicU64>,
     multiplexers: Vec<(SocketAddr, SocketMultiplexer)>,
-    base_socket: UdpSocket,
 }
 impl Multiplex {
-    pub async fn new(
-        socket_count: NonZero<u8>,
-        destinations: Vec<SocketAddr>,
-        udp: BoundUdpTransports,
-    ) -> io::Result<Self> {
+    pub async fn new(socket_count: NonZero<u8>, destinations: Vec<SocketAddr>) -> io::Result<Self> {
         let mut pairs = Vec::new();
 
         for target in destinations {
@@ -94,7 +89,6 @@ impl Multiplex {
         Ok(Self {
             send_index: Default::default(),
             multiplexers: pairs,
-            base_socket: udp.socket.lock().await.clone(),
         })
     }
 
@@ -117,9 +111,6 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        if let poll @ Poll::Ready(..) = self.base_socket.socket().poll_recv_from(cx, read_buf) {
-            return poll;
-        }
         for (_, state) in self.multiplexers.iter_mut() {
             if let poll @ Poll::Ready(..) = state.poll_recv(cx, read_buf) {
                 return poll;
@@ -146,14 +137,11 @@ impl UdpSend for Multiplex {
     // TODO:
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
-    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+    async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
         let index =
             self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.multiplexers.len();
-        if let Some((target, state)) = self.multiplexers.get(index) {
-            state.send_to(packet, *target).await
-        } else {
-            self.base_socket.send_to(packet, destination).await
-        }
+        let (target, state) = &self.multiplexers[index];
+        state.send_to(packet, *target).await
     }
 }
 impl UdpRecv for Multiplex {
@@ -627,9 +615,10 @@ impl IosTunnelAdapter {
             }
         };
 
-        let multiplex = Multiplex::new(params.multiplex_count, params.ips.clone(), udp)
+        let multiplex = Multiplex::new(params.multiplex_count, params.ips.clone())
             .await
             .map_err(TunnelError::TunnelDevice)?;
+        drop(udp);
 
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at it.
         let ingress_key = negotiated.as_ref().map_or_else(
