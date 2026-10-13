@@ -54,9 +54,11 @@ actor TunnelManager {
     private var networkMonitor: NWPathMonitor?
     private var pendingNetworkPathUpdate: DispatchWorkItem?
     private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(5)
-    /// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
+
     private static let FOREGROUND_POLL_INTERVAL: Duration = .milliseconds(500)
     private static let BACKGROUND_POLL_INTERVAL: Duration = .seconds(5)
+    /// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
+    private var tunnelStatusPollInterval: Duration = .milliseconds(500)
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
@@ -174,11 +176,15 @@ actor TunnelManager {
     }
 
     private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
-        try await withCheckedThrowingContinuation { continuation in
-            accountManager.setAccount(action: action) { [weak self] result in
-                Task {
-                    await self?.startOrStopPeriodicPrivateKeyRotation()
-                    continuation.resume(with: result)
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self else { return }
+
+            Task {
+                await self.accountManager.setAccount(action: action) { result in
+                    Task {
+                        await self.startOrStopPeriodicPrivateKeyRotation()
+                        continuation.resume(with: result)
+                    }
                 }
             }
         }
@@ -206,7 +212,12 @@ actor TunnelManager {
 
     private func notifyTunnelKeyRotated() async -> Error? {
         await withCheckedContinuation { continuation in
-            _ = _tunnel?.notifyKeyRotation { result in
+            guard let tunnel else {
+                continuation.resume(returning: nil)
+                return
+            }
+
+            _ = tunnel.notifyKeyRotation { result in
                 continuation.resume(returning: result.error)
             }
         }
@@ -392,7 +403,7 @@ actor TunnelManager {
         internalQueue.async { [weak self] in
             self?.assumeIsolatedHack { actor in
                 // Start polling the tunnel immediately when the user reconnects
-                actor.startPollingTunnelStatus(interval: tunnelStatusPollInterval)
+                actor.startPollingTunnelStatus(interval: actor.tunnelStatusPollInterval)
 
                 let operation = AsyncBlockOperation(dispatchQueue: actor.internalQueue) { [weak self] finish in
                     self?.assumeIsolatedHack { actor in
@@ -447,20 +458,6 @@ actor TunnelManager {
         guard let tunnel = _tunnel else { return }
 
         if _tunnelStatus.state.isSecured {
-            let observer = TunnelBlockObserver(
-                didUpdateTunnelStatus: { [weak self] _, status in
-                    Task { [weak self] in
-                        if case .disconnected = status.state {
-                            await self?.clearObserver()
-                            self?.startTunnel()
-                        }
-                    }
-                }
-            )
-
-            addObserver(observer)
-            self.observer = observer
-
             let configuration = TunnelConfiguration(
                 includeAllNetworks: _tunnelSettings.includeAllNetworks.includeAllNetworksIsEnabled,
                 excludeLocalNetworks: _tunnelSettings.includeAllNetworks.localNetworkSharingIsEnabled
@@ -468,7 +465,13 @@ actor TunnelManager {
 
             tunnel.setConfiguration(configuration)
             tunnel.saveToPreferences { [weak self] _ in
-                self?.stopTunnel(isOnDemandEnabled: true)
+                guard let self else { return }
+
+                self.stopTunnel(isOnDemandEnabled: true) { _ in
+                    if case .disconnected = tunnel.status {
+                        self.startTunnel()
+                    }
+                }
             }
         }
     }
@@ -726,23 +729,27 @@ actor TunnelManager {
 
     // MARK: - Private methods
 
-    @objc private func willEnterForeground() {
+    @objc nonisolated private func willEnterForeground() {
         internalQueue.async { [self] in
-            #if DEBUG
-                logger.debug("Refresh device state and tunnel status due to application becoming active.")
-            #endif
-            cancelPollingTunnelStatus()
-            tunnelStatusPollInterval = Self.FOREGROUND_POLL_INTERVAL
-            startPollingTunnelStatus(interval: tunnelStatusPollInterval)
-            refreshDeviceState()
+            self.assumeIsolatedHack { actor in
+                #if DEBUG
+                    logger.debug("Refresh device state and tunnel status due to application becoming active.")
+                #endif
+                actor.cancelPollingTunnelStatus()
+                actor.tunnelStatusPollInterval = Self.FOREGROUND_POLL_INTERVAL
+                actor.startPollingTunnelStatus(interval: actor.tunnelStatusPollInterval)
+                actor.refreshDeviceState()
+            }
         }
     }
 
-    @objc private func didEnterBackground() {
+    @objc nonisolated private func didEnterBackground() {
         internalQueue.async { [self] in
-            cancelPollingTunnelStatus()
-            tunnelStatusPollInterval = Self.BACKGROUND_POLL_INTERVAL
-            startPollingTunnelStatus(interval: tunnelStatusPollInterval)
+            self.assumeIsolatedHack { actor in
+                actor.cancelPollingTunnelStatus()
+                actor.tunnelStatusPollInterval = Self.BACKGROUND_POLL_INTERVAL
+                actor.startPollingTunnelStatus(interval: actor.tunnelStatusPollInterval)
+            }
         }
     }
 
@@ -970,20 +977,24 @@ actor TunnelManager {
             guard let self else { return }
 
             Task {
-                // Reject stale IPC updates if the tunnel is now dead
-                guard await isTunnelAlive else {
-                    logger.debug("Ignoring stale IPC response, tunnel is dead.")
-                    return
-                }
+                await updateTunnelState(with: result)
+            }
+        }
+    }
 
-                if case let .success(observedState) = result {
-                    let newState = await mapObservedStateToTunnelState(observedState)
-                    _ = await setTunnelStatus { tunnelStatus in
-                        tunnelStatus.observedState = observedState
-                        if let state = newState {
-                            tunnelStatus.state = state
-                        }
-                    }
+    private func updateTunnelState(with result: Result<ObservedState, Error>) {
+        // Reject stale IPC updates if the tunnel is now dead
+        guard isTunnelAlive else {
+            logger.debug("Ignoring stale IPC response, tunnel is dead.")
+            return
+        }
+
+        if case let .success(observedState) = result {
+            let newState = mapObservedStateToTunnelState(observedState)
+            _ = setTunnelStatus { tunnelStatus in
+                tunnelStatus.observedState = observedState
+                if let state = newState {
+                    tunnelStatus.state = state
                 }
             }
         }
