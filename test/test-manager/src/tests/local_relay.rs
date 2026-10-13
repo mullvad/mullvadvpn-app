@@ -40,8 +40,6 @@ data_encoding_macro::base64_array!(
     "const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
 );
 
-/// Port of the wireguard remote peer.
-const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
 /// Tunnel address of the wireguard local peer.
 const CUSTOM_TUN_LOCAL_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 2);
 
@@ -67,6 +65,8 @@ type RelayDevice = device::Device<(UdpSocketFactory, DecryptedPacketSink, GuestP
 pub struct LocalRelay {
     /// Kept for its `Drop` impl, shutting the device down when the relay is dropped.
     _device: RelayDevice,
+    /// UDP port that the relay listens on.
+    listen_port: u16,
     /// Packets decrypted by the relay, i.e. what the guest sent inside the tunnel.
     decrypted_packets: DecryptedPacketSink,
 }
@@ -95,23 +95,24 @@ impl LocalRelay {
             )
             .with_private_key(CUSTOM_TUN_REMOTE_PRIVKEY.into())
             .with_peer(peer)
-            .with_listen_port(CUSTOM_TUN_REMOTE_REAL_PORT)
+            .with_listen_port(0)
             .build()
             .await
             .context("Failed to create gotatun device")?;
 
+        let listen_port = device.read(async |device| device.listen_port()).await;
+        log::debug!("Local WireGuard relay listening on port {listen_port}");
+
         Ok(LocalRelay {
             _device: device,
+            listen_port,
             decrypted_packets,
         })
     }
 
     /// Endpoint which the daemon should use to connect to this relay.
     pub fn custom_tunnel_endpoint(&self) -> CustomTunnelEndpoint {
-        let peer_addr = SocketAddr::new(
-            IpAddr::V4(TEST_CONFIG.host_bridge_ip),
-            CUSTOM_TUN_REMOTE_REAL_PORT,
-        );
+        let peer_addr = SocketAddr::new(IpAddr::V4(TEST_CONFIG.host_bridge_ip), self.listen_port);
 
         CustomTunnelEndpoint {
             host: peer_addr.ip().to_string(),
