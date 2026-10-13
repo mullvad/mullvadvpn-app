@@ -24,6 +24,5 @@ export * from './use-exit-location';
 export * from './use-get-is-custom-list-in-relay-locations-for-hostnames';
 export * from './use-get-is-geographical-location-in-relay-locations-for-hostnames';
 export * from './use-get-is-relay-location-in-relay-locations-for-hostnames';
-export * from './use-is-relay-location-in-relay-locations-discards';
-export * from './use-is-relay-location-in-relay-locations-for-hostnames';
-export * from './use-is-relay-location-in-relay-locations-matches';
+export * from './use-relay-locations-discards';
+export * from './use-relay-locations-matches';
