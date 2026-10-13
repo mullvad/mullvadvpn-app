@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { spacings } from '../../../../foundations';
-import { IconButton, IconButtonProps } from '../../../icon-button';
+import { spacings } from '../../../../../../foundations';
+import { IconButton, IconButtonProps } from '../../../../../icon-button';
 
 export type TextFieldIconButtonProps = IconButtonProps;
 

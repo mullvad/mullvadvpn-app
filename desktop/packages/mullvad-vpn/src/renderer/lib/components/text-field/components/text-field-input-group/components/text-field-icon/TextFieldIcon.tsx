@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { spacings } from '../../../../foundations';
-import { Icon, IconProps } from '../../../icon';
+import { spacings } from '../../../../../../foundations';
+import { Icon, IconProps } from '../../../../../icon';
 
 export type TextFieldIconProps = IconProps;
 

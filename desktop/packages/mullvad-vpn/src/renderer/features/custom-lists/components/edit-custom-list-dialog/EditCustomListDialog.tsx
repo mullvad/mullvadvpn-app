@@ -81,12 +81,14 @@ function EditCustomListDialogImpl(props: EditListImplProps) {
                     {messages.pgettext('custom-list-feature', 'Edit list name')}
                   </TextField.Label>
                   <FlexColumn gap="small">
-                    <TextField.Input
-                      ref={inputRef}
-                      maxLength={30}
-                      autoFocus
-                      aria-describedby={descriptionId}
-                    />
+                    <TextField.InputGroup>
+                      <TextField.InputGroup.Input
+                        ref={inputRef}
+                        maxLength={30}
+                        autoFocus
+                        aria-describedby={descriptionId}
+                      />
+                    </TextField.InputGroup>
                     <Dialog.Text role="status" id={descriptionId}>
                       {textFieldDescription}
                     </Dialog.Text>
