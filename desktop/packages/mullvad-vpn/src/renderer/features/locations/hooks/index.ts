@@ -21,3 +21,8 @@ export * from './use-recents';
 export * from './use-map-recents-to-locations';
 export * from './use-entry-location';
 export * from './use-exit-location';
+export * from './use-get-is-custom-list-in-relay-locations-for-hostnames';
+export * from './use-get-is-geographical-location-in-relay-locations-for-hostnames';
+export * from './use-get-is-relay-location-in-relay-locations-for-hostnames';
+export * from './use-relay-locations-discards';
+export * from './use-relay-locations-matches';
