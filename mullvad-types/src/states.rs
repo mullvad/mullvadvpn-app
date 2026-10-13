@@ -100,6 +100,11 @@ impl TunnelState {
         matches!(self, TunnelState::Connected { .. })
     }
 
+    /// Returns true if the tunnel state is in the connecting state.
+    pub const fn is_connecting(&self) -> bool {
+        matches!(self, TunnelState::Connecting { .. })
+    }
+
     /// Returns true if the tunnel state is in the disconnected state.
     pub const fn is_disconnected(&self) -> bool {
         matches!(self, TunnelState::Disconnected { .. })
