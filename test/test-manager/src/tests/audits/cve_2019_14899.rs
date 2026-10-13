@@ -63,7 +63,7 @@ pub async fn test_cve_2019_14899_mitigation(
     helpers::connect_and_wait(&mut mullvad_client).await?;
 
     let host_interface = TAP_NAME;
-    let victim_tunnel_interface = helpers::get_tunnel_interface(&mut mullvad_client)
+    let victim_tunnel_interface = helpers::get_tunnel_interface(mullvad_client.clone())
         .await
         .context("Failed to find tunnel interface")?;
     let victim_gateway_ip = TEST_CONFIG.host_bridge_ip;

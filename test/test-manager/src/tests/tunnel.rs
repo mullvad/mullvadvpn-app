@@ -415,22 +415,18 @@ pub async fn test_quantum_resistant_tunnel(
 
     // PQ disabled: Find no "preshared key"
     //
-
     connect_and_wait(&mut mullvad_client).await?;
     check_tunnel_psk(&rpc, &mullvad_client, false).await;
+    mullvad_client.disconnect_tunnel("test-manager").await?;
 
+    // PQ enabled: Find "preshared key"
+    //
     let query = RelayQueryBuilder::new().build();
-
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
-
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .expect("Failed to enable PQ tunnels");
-
-    // PQ enabled: Find "preshared key"
-    //
-
     connect_and_wait(&mut mullvad_client).await?;
     check_tunnel_psk(&rpc, &mullvad_client, true).await;
 
@@ -449,7 +445,7 @@ async fn check_tunnel_psk(
 ) {
     match TEST_CONFIG.os {
         Os::Linux => {
-            let name = helpers::get_tunnel_interface(&mut mullvad_client.clone())
+            let name = helpers::get_tunnel_interface(mullvad_client.clone())
                 .await
                 .expect("failed to get tun name");
             let output = rpc
