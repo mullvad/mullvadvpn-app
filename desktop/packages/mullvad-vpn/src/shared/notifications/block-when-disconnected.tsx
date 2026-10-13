@@ -46,9 +46,12 @@ export class LockdownModeNotificationProvider
   public getInAppNotification(): InAppNotification {
     const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
     let subtitle = sprintf(
+      // TRANSLATORS: Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(lockdownModeSettingName)s - The name of the Lockdown mode setting
       messages.pgettext(
         'in-app-notifications',
-        '<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet.',
+        '<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode.',
       ),
       { lockdownModeSettingName },
     );
