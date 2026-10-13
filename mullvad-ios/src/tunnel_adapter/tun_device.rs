@@ -16,7 +16,10 @@ use std::{
     io::{self, IoSlice},
     iter,
     os::fd::{AsRawFd, BorrowedFd, OwnedFd, RawFd},
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+    },
 };
 use talpid_netstack::{
     ip_mux::{IpMuxRecv, IpMuxSend},
@@ -38,6 +41,8 @@ const UTUN_HEADER_LEN: usize = size_of::<u32>();
 pub struct IosTunDevice {
     async_fd: Arc<AsyncFd<OwnedFd>>,
     mtu: MtuWatcher,
+    /// Packets read from the TUN device: user traffic entering the tunnel, excluding smoltcp's own.
+    tx_packets: Arc<AtomicU64>,
 }
 
 impl IosTunDevice {
@@ -56,7 +61,7 @@ impl IosTunDevice {
         let flags = OFlag::from_bits_retain(fcntl(&owned_fd, FcntlArg::F_GETFL)?);
         fcntl(&owned_fd, FcntlArg::F_SETFL(flags | OFlag::O_NONBLOCK))?;
 
-        log::debug!(
+        log::trace!(
             "IosTunDevice: dup({fd}) = {}, registering with tokio (mtu={mtu})",
             owned_fd.as_raw_fd(),
         );
@@ -66,7 +71,12 @@ impl IosTunDevice {
         Ok(Self {
             async_fd: Arc::new(async_fd),
             mtu: MtuWatcher::new(mtu),
+            tx_packets: Arc::default(),
         })
+    }
+
+    pub fn tx_packets(&self) -> Arc<AtomicU64> {
+        self.tx_packets.clone()
     }
 }
 
@@ -75,6 +85,7 @@ impl Clone for IosTunDevice {
         Self {
             async_fd: self.async_fd.clone(),
             mtu: self.mtu.clone(),
+            tx_packets: self.tx_packets.clone(),
         }
     }
 }
@@ -138,7 +149,10 @@ impl IpRecv for IosTunDevice {
         buf.buf_mut().advance(UTUN_HEADER_LEN);
 
         match buf.try_into_ip() {
-            Ok(packet) => Ok(iter::once(packet)),
+            Ok(packet) => {
+                self.tx_packets.fetch_add(1, Ordering::Relaxed);
+                Ok(iter::once(packet))
+            }
             Err(e) => Err(io::Error::other(e.to_string())),
         }
     }
