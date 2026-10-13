@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { createComponentNamespace } from '../../../../../utils';
 import { spacings } from '../../../../foundations';
-import { FlexColumn } from '../../../flex-column';
+import { Flex } from '../../../flex';
 import {
   StyledTextFieldIcon,
   StyledTextFieldIconButton,
@@ -14,7 +14,7 @@ import {
 
 export type TextFieldInputGroupProps = React.PropsWithChildren;
 
-export const StyledTextFieldInputGroup = styled(FlexColumn)`
+export const StyledTextFieldInputGroup = styled(Flex)`
   position: relative;
   width: 100%;
 
