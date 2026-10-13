@@ -1,3 +1,5 @@
+import { sprintf } from 'sprintf-js';
+
 import { messages } from '../../../../../shared/gettext';
 import { Info } from '../../../../components/info';
 import { SettingsListItem } from '../../../../components/settings-list-item';
@@ -7,6 +9,8 @@ import { LockdownModeSwitch } from '../lockdown-mode-switch';
 export type LockdownModeSettingProps = Omit<ListItemProps, 'children'>;
 
 export function LockdownModeSetting(props: LockdownModeSettingProps) {
+  const lockdownModeSettingName = messages.gettext('Lockdown mode');
+
   return (
     <SettingsListItem anchorId="lockdown-mode-setting" {...props}>
       <SettingsListItem.Item>
@@ -19,15 +23,15 @@ export function LockdownModeSetting(props: LockdownModeSettingProps) {
               <Info.Button />
               <Info.Dialog>
                 <Info.Dialog.Text>
-                  {messages.pgettext(
-                    'vpn-settings-view',
-                    'The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents.',
-                  )}
-                </Info.Dialog.Text>
-                <Info.Dialog.Text>
-                  {messages.pgettext(
-                    'vpn-settings-view',
-                    'With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection.',
+                  {sprintf(
+                    // TRANSLATORS: Explanation shown in the info dialog for Lockdown mode.
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+                    messages.pgettext(
+                      'vpn-settings-view',
+                      'With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app.',
+                    ),
+                    { lockdownModeSettingName },
                   )}
                 </Info.Dialog.Text>
               </Info.Dialog>
