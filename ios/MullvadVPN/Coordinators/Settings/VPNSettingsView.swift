@@ -191,15 +191,6 @@ struct VPNSettingsView: View {
             ])
     }
 
-    func multiplexView() -> some View {
-        TextField("Multiplex count", text: $settings.projectedValue.tunnelSettings.multiplexCount)
-            .submitLabel(.done)
-            .onSubmit {
-                settingsInteractor.tunnelManager.updateSettings(
-                    [.multiplexCount(settings.tunnelSettings.multiplexCount)])
-            }
-    }
-
     // MARK: - Quantum Resistance
 
     func quantumResistanceView() -> some View {

@@ -25,7 +25,6 @@ pub struct TunnelParameters {
     pub enable_pq: bool,
     pub enable_daita: bool,
     pub obfuscation: ObfuscationParameters,
-    pub multiplex_count: u64,
 }
 
 impl TunnelParameters {
@@ -98,7 +97,6 @@ pub(crate) mod tests {
             enable_pq: false,
             enable_daita: false,
             obfuscation: ObfuscationParameters::Off,
-            multiplex_count: 0,
         }
     }
 
