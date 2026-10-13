@@ -59,9 +59,8 @@ use self::tun_device::IosTunDevice;
 pub use self::obfuscation::ObfuscationProxyError;
 pub use self::params::{PeerParameters, TunnelParameters};
 
-/// A variant of `BoundUdpTransports`` made for Multiplexing.
-/// Opens up several sockets and randomly picks one when sending messages.
-/// Listens to all sockets for messages.
+/// An abstraction over udp sockets that allows for using multiple IP addresses (and sockets) for the
+/// same relay.
 #[derive(Clone)]
 pub struct Multiplex {
     send_index: Arc<AtomicU64>,
@@ -162,6 +161,7 @@ impl UdpRecv for Multiplex {
     }
 }
 
+/// An abstraction over UDP sockets allowing to use multiple sockets to send to/recv from a destination.
 #[derive(Clone)]
 struct SocketMultiplexer {
     sockets: Vec<UdpSocket>,
