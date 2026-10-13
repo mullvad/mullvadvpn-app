@@ -8,6 +8,7 @@ import { useMultihop } from '../../../../../multihop/hooks';
 import { useEntryLocation, useExitLocation, useRelayLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
 import { isLocationSelected } from '../../../../utils';
+import { useDisabled } from './hooks';
 
 export type SetAsEntryMenuOptionProps = MenuOptionProps & {
   location: GeographicalLocation;
@@ -21,6 +22,7 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   const { exitLocation } = useExitLocation();
   const isExitSingleRelay = exitLocation !== 'any' && 'hostname' in exitLocation;
   const isExitSelected = isLocationSelected(location.details, exitLocation);
+  const disabled = useDisabled(location);
 
   const handleClick = React.useCallback(async () => {
     if (isExitSingleRelay && isExitSelected) {
@@ -42,7 +44,7 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   ]);
 
   return (
-    <Menu.Option {...props}>
+    <Menu.Option disabled={disabled} {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />
