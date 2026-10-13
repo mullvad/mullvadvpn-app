@@ -5,7 +5,11 @@ import { colors, Radius, spacings } from '../../../../foundations';
 import type { LocationSelectorVariant } from '../../LocationSelector';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
 import { LocationSelectorLine } from '../location-selector-line';
-import { LocationSelectorButtonItem, LocationSelectorTextFieldItem } from './components';
+import {
+  LocationSelectorButtonItem,
+  LocationSelectorTextFieldItem,
+  LocationSelectorTrailingButton,
+} from './components';
 
 export type LocationSelectorItemsProps = AnimatePresenceProps & React.PropsWithChildren;
 
@@ -48,6 +52,7 @@ function LocationSelectorItems({ children }: LocationSelectorItemsProps) {
 
 const LocationSelectorItemsNamespace = Object.assign(LocationSelectorItems, {
   TextFieldItem: LocationSelectorTextFieldItem,
+  TrailingButton: LocationSelectorTrailingButton,
   ButtonItem: LocationSelectorButtonItem,
 });
 
