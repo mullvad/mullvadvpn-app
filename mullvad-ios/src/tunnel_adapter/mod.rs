@@ -162,7 +162,6 @@ impl UdpSend for Multiplex {
     // TODO:
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
-    // - add way to disable
     async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
         let index = self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.pairs.len();
         // stinky and slow!

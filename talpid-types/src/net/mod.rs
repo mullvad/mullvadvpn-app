@@ -59,7 +59,6 @@ pub enum ObfuscationType {
     Shadowsocks,
     Quic,
     Lwo,
-    Multiplex,
 }
 
 impl fmt::Display for ObfuscationType {
@@ -69,7 +68,6 @@ impl fmt::Display for ObfuscationType {
             ObfuscationType::Shadowsocks => "Shadowsocks".fmt(f),
             ObfuscationType::Quic => "QUIC".fmt(f),
             ObfuscationType::Lwo => "LWO".fmt(f),
-            ObfuscationType::Multiplex => "Multiplex".fmt(f),
         }
     }
 }
