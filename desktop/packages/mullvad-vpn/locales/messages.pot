@@ -2428,6 +2428,11 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr ""
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr ""
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
@@ -2442,6 +2447,11 @@ msgstr ""
 #. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
 msgid "Obfuscation: %(obfuscation)s"
+msgstr ""
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
 msgstr ""
 
 msgctxt "select-location-view"
@@ -3954,9 +3964,6 @@ msgid "Please remove a device before continuing logging in"
 msgstr ""
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
-msgstr ""
-
-msgid "Please try changing your filters."
 msgstr ""
 
 msgid "Port is out of range"
