@@ -121,22 +121,26 @@ extension RelayPicking {
                 )
                 throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
+        case .multiplex:
+            .multiplex
         case .lwo:
             .lwo
         }
     }
 
+    // TODO this ought to return a list
     private func applyObfuscatedIpAddresses(match: RelaySelectorMatch, obfuscation: RelayObfuscation) -> IPv4Address {
         switch obfuscation.method {
         case .shadowsocks:
             applyShadowsocksIpAddress(in: match, portRanges: relays.wireguard.shadowsocksPortRanges)
         case .quic:
             applyQuicIpAddress(in: match)
-        case .off, .automatic, .on, .udpOverTcp, .lwo:
+        case .off, .automatic, .on, .udpOverTcp, .lwo, .multiplex:
             match.endpoint.ipv4Relay.ip
         }
     }
 
+    // TODO this ought to return a list
     private func applyObfuscatedIpV6Addresses(
         match: RelaySelectorMatch,
         obfuscation: RelayObfuscation?
@@ -146,7 +150,7 @@ extension RelayPicking {
             applyShadowsocksIpv6Address(in: match)
         case .quic:
             applyQuicIpv6Address(in: match)
-        case .off, .automatic, .on, .udpOverTcp, .lwo:
+        case .off, .automatic, .on, .udpOverTcp, .lwo, .multiplex:
             match.endpoint.ipv6Relay?.ip
         }
     }

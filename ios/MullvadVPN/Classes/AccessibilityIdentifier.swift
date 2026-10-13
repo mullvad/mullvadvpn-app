@@ -235,6 +235,7 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationPort
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
+    case wireGuardObfuscationMultiplex
     case wireGuardObfuscationShadowsocks
     case wireGuardObfuscationQuic
     case wireGuardObfuscationLwo

@@ -53,7 +53,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         // Extract obfuscation protocol from the bundled obfuscation method
         let obfuscationProtocol: TunnelObfuscationProtocol? =
             switch endpoint.obfuscation {
-            case .off:
+            case .off, .multiplex:
                 nil
             case .udpOverTcp:
                 .udpOverTcp

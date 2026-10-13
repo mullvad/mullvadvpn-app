@@ -93,7 +93,7 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
 
     private static func makeObfuscation(_ config: PacketTunnelCore.GotaTunConfig) -> GotaTunObfuscation {
         switch config.obfuscationMethod {
-        case .off:
+        case .off, .multiplex:
             return .off
         case .udpOverTcp:
             return .udpOverTcp
