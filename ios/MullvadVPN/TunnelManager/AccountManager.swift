@@ -26,52 +26,50 @@ struct AccountManager: Sendable {
     func setAccount(
         action: SetAccountAction,
         completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
-    ) {
-        Task {
-            let deviceState = await interactor.getDeviceState()
+    ) async {
+        let deviceState = await interactor.getDeviceState()
 
-            let operation = SetAccountOperation(
-                dispatchQueue: internalQueue,
-                accountsProxy: accountsProxy,
-                devicesProxy: devicesProxy,
-                action: action,
-                deviceState: { deviceState },
-                onUpdateAccount: { deviceState, completion in
-                    Task {
-                        if let accountNumber = deviceState.accountData?.number {
-                            await interactor.setLastUsedAccount(accountNumber)
-                        }
-                        await interactor.setDeviceState(deviceState, persist: true)
-                        completion?()
+        let operation = SetAccountOperation(
+            dispatchQueue: internalQueue,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
+            action: action,
+            deviceState: { deviceState },
+            onUpdateAccount: { deviceState, completion in
+                Task {
+                    if let accountNumber = deviceState.accountData?.number {
+                        await interactor.setLastUsedAccount(accountNumber)
                     }
+                    await interactor.setDeviceState(deviceState, persist: true)
+                    completion?()
                 }
-            )
-
-            operation.completionQueue = .main
-            operation.completionHandler = { result in
-                completionHandler(result)
             }
+        )
 
-            operation.addObserver(
-                BackgroundObserver(
-                    backgroundTaskProvider: backgroundTaskProvider,
-                    name: action.taskName,
-                    cancelUponExpiration: true
-                ))
-
-            operation.addCondition(MutuallyExclusive(category: category))
-
-            // Unsetting (ie. logging out) or deleting the account should cancel all other
-            // currently ongoing activity.
-            switch action {
-            case .unset, .delete:
-                operationQueue.cancelAllOperations()
-            default:
-                break
-            }
-
-            operationQueue.addOperation(operation)
+        operation.completionQueue = .main
+        operation.completionHandler = { result in
+            completionHandler(result)
         }
+
+        operation.addObserver(
+            BackgroundObserver(
+                backgroundTaskProvider: backgroundTaskProvider,
+                name: action.taskName,
+                cancelUponExpiration: true
+            ))
+
+        operation.addCondition(MutuallyExclusive(category: category))
+
+        // Unsetting (ie. logging out) or deleting the account should cancel all other
+        // currently ongoing activity.
+        switch action {
+        case .unset, .delete:
+            operationQueue.cancelAllOperations()
+        default:
+            break
+        }
+
+        operationQueue.addOperation(operation)
     }
 
     func rotatePrivateKey(completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void) async -> Cancellable {
