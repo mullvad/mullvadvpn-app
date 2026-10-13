@@ -9,6 +9,13 @@ export type LocationSelectorTrailingButtonProps = IconButtonProps & {
 };
 
 export const StyledLocationSelectorTrailingButton = styled(IconButton)`
+  // TODO: Figure out if there is another way to align the TrailingButton
+  // with the TextField.TextArea content
+  margin-top: ${spacings.tiny};
+
+  // TODO: Double check if we can just apply this left margin indiscriminately
+  margin-left: ${spacings.tiny};
+
   &:last-child {
     margin-right: ${spacings.tiny};
   }
