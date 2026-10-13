@@ -231,13 +231,17 @@ internal fun GeoIpLocation.toDomain(): ModelGeoIpLocation =
         ipv4 = ipv4?.let(InetAddress::getByName),
         ipv6 = ipv6?.let(InetAddress::getByName),
         country = country,
+        countryCode = country_code,
         city = city,
+        cityCode = city_code,
         latitude = latitude,
         longitude = longitude,
         hostname = hostname,
         entryHostname = entry_hostname,
         entryCountry = entry_country,
         entryCity = entry_city,
+        entryCountryCode = entry_country_code,
+        entryCityCode = entry_city_code,
     )
 
 internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
