@@ -1,6 +1,5 @@
 use std::iter;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Context;
@@ -10,9 +9,6 @@ use mullvad_masque_proxy::MIN_IPV4_MTU;
 use mullvad_masque_proxy::server::AllowedIps;
 use mullvad_masque_proxy::server::ServerParams;
 use rand::RngCore;
-use rustls_pki_types::CertificateDer;
-use rustls_pki_types::PrivateKeyDer;
-use rustls_pki_types::pem::PemObject;
 
 use mullvad_masque_proxy::client;
 use mullvad_masque_proxy::server;
@@ -148,7 +144,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .context("Retrieve dest UDP server addr")?;
 
     // Set up MASQUE server
-    let server_tls_config = load_server_test_cert()?;
+    let server_tls_config = server::server_tls_config()?;
 
     let params = ServerParams::builder()
         .allowed_hosts(AllowedIps::default())
@@ -156,7 +152,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .auth_header(Some("Bearer test".to_owned()))
         .build();
 
-    let server = server::Server::bind(any_localhost_addr, Arc::new(server_tls_config), params)
+    let server = server::Server::bind(any_localhost_addr, server_tls_config, params)
         .context("Failed to start MASQUE server")?;
 
     let masque_server_addr = server.local_addr()?;
@@ -204,21 +200,4 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
         .context("Failed to connect to local UDP server")?;
 
     Ok((proxy_client, destination_udp_server))
-}
-
-fn load_server_test_cert() -> anyhow::Result<rustls::ServerConfig> {
-    let key = PrivateKeyDer::from_pem_file("tests/test.key")?;
-    let cert_chain = CertificateDer::from_pem_file("tests/test.crt")?;
-
-    let mut tls_config = rustls::ServerConfig::builder_with_provider(Arc::new(
-        rustls::crypto::aws_lc_rs::default_provider(),
-    ))
-    .with_protocol_versions(&[&rustls::version::TLS13])?
-    .with_no_client_auth()
-    .with_single_cert(vec![cert_chain], key)?;
-
-    tls_config.max_early_data_size = u32::MAX;
-    tls_config.alpn_protocols = vec![b"h3".into()];
-
-    Ok(tls_config)
 }

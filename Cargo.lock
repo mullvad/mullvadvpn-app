@@ -3686,6 +3686,7 @@ dependencies = [
  "http",
  "libc",
  "log",
+ "mullvad-masque-proxy",
  "quinn",
  "rand 0.9.4",
  "rustls",
