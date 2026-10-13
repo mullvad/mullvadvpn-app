@@ -427,6 +427,22 @@ private let UNIFFI_CALLBACK_UNEXPECTED_ERROR: Int32 = 2
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterUInt8: FfiConverterPrimitive {
+    typealias FfiType = UInt8
+    typealias SwiftType = UInt8
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt8 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: UInt8, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterUInt16: FfiConverterPrimitive {
     typealias FfiType = UInt16
     typealias SwiftType = UInt16
@@ -2857,6 +2873,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
      * Obfuscation method for the ingress relay.
      */
     public let obfuscation: GotaTunObfuscation
+    public let multiplexCount: UInt8
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
@@ -2893,7 +2910,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
          */enableDaita: Bool, 
         /**
          * Obfuscation method for the ingress relay.
-         */obfuscation: GotaTunObfuscation) {
+         */obfuscation: GotaTunObfuscation, multiplexCount: UInt8) {
         self.privateKey = privateKey
         self.ipv4Address = ipv4Address
         self.ips = ips
@@ -2906,6 +2923,7 @@ public struct GotaTunConfig: Equatable, Hashable, Codable {
         self.enablePq = enablePq
         self.enableDaita = enableDaita
         self.obfuscation = obfuscation
+        self.multiplexCount = multiplexCount
     }
 
     
@@ -2935,7 +2953,8 @@ public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
                 establishTimeoutSecs: FfiConverterUInt32.read(from: &buf), 
                 enablePq: FfiConverterBool.read(from: &buf), 
                 enableDaita: FfiConverterBool.read(from: &buf), 
-                obfuscation: FfiConverterTypeGotaTunObfuscation.read(from: &buf)
+                obfuscation: FfiConverterTypeGotaTunObfuscation.read(from: &buf), 
+                multiplexCount: FfiConverterUInt8.read(from: &buf)
         )
     }
 
@@ -2952,6 +2971,7 @@ public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
         FfiConverterBool.write(value.enablePq, into: &buf)
         FfiConverterBool.write(value.enableDaita, into: &buf)
         FfiConverterTypeGotaTunObfuscation.write(value.obfuscation, into: &buf)
+        FfiConverterUInt8.write(value.multiplexCount, into: &buf)
     }
 }
 

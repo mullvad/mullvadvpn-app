@@ -64,17 +64,9 @@ pub use self::params::{PeerParameters, TunnelParameters};
 #[derive(Clone)]
 pub struct Multiplex {
     send_index: Arc<AtomicU64>,
-    pairs: Vec<RelayState>,
+    multiplexers: Vec<(SocketAddr, SocketMultiplexer)>,
     base_socket: UdpSocket,
 }
-#[derive(Clone)]
-struct RelayState {
-    target: SocketAddr,
-    sockets: Vec<UdpSocket>,
-    recv: usize,
-    send: Arc<AtomicUsize>,
-}
-
 impl Multiplex {
     pub async fn new(
         socket_count: NonZero<u8>,
@@ -89,17 +81,19 @@ impl Multiplex {
                 let trans = BoundUdpTransports::bind().await?;
                 sockets.push(trans.socket.lock().await.clone());
             }
-            pairs.push(RelayState {
+            pairs.push((
                 target,
-                sockets,
-                recv: 0,
-                send: Arc::new(AtomicUsize::new(0)),
-            });
+                SocketMultiplexer {
+                    sockets,
+                    recv: 0,
+                    send: Arc::new(AtomicUsize::new(0)),
+                },
+            ));
         }
 
         Ok(Self {
             send_index: Default::default(),
-            pairs,
+            multiplexers: pairs,
             base_socket: udp.socket.lock().await.clone(),
         })
     }
@@ -107,7 +101,7 @@ impl Multiplex {
     /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
     /// whilst the socket is rebound.
     pub async fn rebind(&mut self) -> io::Result<()> {
-        for state in self.pairs.iter_mut() {
+        for (_, state) in self.multiplexers.iter_mut() {
             for socket in &mut state.sockets {
                 let (new_socket, _recv) = UdpSocketFactory::default()
                     .bind(&BoundUdpTransports::params())
@@ -118,7 +112,7 @@ impl Multiplex {
         Ok(())
     }
 
-    fn poll(
+    fn poll_recv(
         &mut self,
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
@@ -126,22 +120,9 @@ impl Multiplex {
         if let poll @ Poll::Ready(..) = self.base_socket.socket().poll_recv_from(cx, read_buf) {
             return poll;
         }
-        for state in self.pairs.iter_mut() {
-            let mut i = state.recv;
-            let poll = loop {
-                let socket = state.sockets[i].socket();
-
-                if let poll @ Poll::Ready(..) = socket.poll_recv_from(cx, read_buf) {
-                    break Some(poll);
-                }
-                i = (i + 1) % state.sockets.len();
-                if i == state.recv {
-                    break None;
-                }
-            };
-            state.recv = (state.recv + 1) % state.sockets.len();
-            if let Some(p) = poll {
-                return p;
+        for (_, state) in self.multiplexers.iter_mut() {
+            if let poll @ Poll::Ready(..) = state.poll_recv(cx, read_buf) {
+                return poll;
             }
         }
         Poll::Pending
@@ -166,10 +147,10 @@ impl UdpSend for Multiplex {
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
     async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
-        let index = self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.pairs.len();
-        if let Some(state) = self.pairs.get(index) {
-            let index = state.send.fetch_add(1, Ordering::SeqCst) % state.sockets.len();
-            state.sockets[index].send_to(packet, state.target).await
+        let index =
+            self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.multiplexers.len();
+        if let Some((target, state)) = self.multiplexers.get(index) {
+            state.send_to(packet, *target).await
         } else {
             self.base_socket.send_to(packet, destination).await
         }
@@ -181,7 +162,60 @@ impl UdpRecv for Multiplex {
     async fn recv_from(&mut self, pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
         let mut packet = pool.get();
         let mut read_buf = ReadBuf::new(&mut packet);
-        match poll_fn(|cx| self.poll(cx, &mut read_buf)).await {
+        match poll_fn(|cx| self.poll_recv(cx, &mut read_buf)).await {
+            Ok(addr) => {
+                let len = read_buf.filled().len();
+                packet.truncate(len);
+                Ok((packet, addr))
+            }
+            Err(e) => Err(e),
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SocketMultiplexer {
+    sockets: Vec<UdpSocket>,
+    recv: usize,
+    send: Arc<AtomicUsize>,
+}
+impl UdpSend for SocketMultiplexer {
+    type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
+
+    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+        let index = self.send.fetch_add(1, Ordering::SeqCst) % self.sockets.len();
+        self.sockets[index].send_to(packet, destination).await
+    }
+}
+impl SocketMultiplexer {
+    fn poll_recv(
+        &mut self,
+        cx: &mut Context<'_>,
+        read_buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<SocketAddr>> {
+        let mut i = self.recv;
+        let poll = loop {
+            let socket = self.sockets[i].socket();
+
+            if let poll @ Poll::Ready(..) = socket.poll_recv_from(cx, read_buf) {
+                break Some(poll);
+            }
+            i = (i + 1) % self.sockets.len();
+            if i == self.recv {
+                break None;
+            }
+        };
+        self.recv = (self.recv + 1) % self.sockets.len();
+        if let Some(p) = poll { p } else { Poll::Pending }
+    }
+}
+impl UdpRecv for SocketMultiplexer {
+    type RecvManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
+
+    async fn recv_from(&mut self, pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
+        let mut packet = pool.get();
+        let mut read_buf = ReadBuf::new(&mut packet);
+        match poll_fn(|cx| self.poll_recv(cx, &mut read_buf)).await {
             Ok(addr) => {
                 let len = read_buf.filled().len();
                 packet.truncate(len);
