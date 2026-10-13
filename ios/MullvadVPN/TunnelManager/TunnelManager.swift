@@ -167,11 +167,15 @@ actor TunnelManager {
     }
 
     private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
-        try await withCheckedThrowingContinuation { continuation in
-            accountManager.setAccount(action: action) { [weak self] result in
-                Task {
-                    await self?.startOrStopPeriodicPrivateKeyRotation()
-                    continuation.resume(with: result)
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self else { return }
+
+            Task {
+                await self.accountManager.setAccount(action: action) { result in
+                    Task {
+                        await self.startOrStopPeriodicPrivateKeyRotation()
+                        continuation.resume(with: result)
+                    }
                 }
             }
         }
@@ -199,7 +203,12 @@ actor TunnelManager {
 
     private func notifyTunnelKeyRotated() async -> Error? {
         await withCheckedContinuation { continuation in
-            _ = _tunnel?.notifyKeyRotation { result in
+            guard let tunnel else {
+                continuation.resume(returning: nil)
+                return
+            }
+
+            _ = tunnel.notifyKeyRotation { result in
                 continuation.resume(returning: result.error)
             }
         }
@@ -313,7 +322,9 @@ actor TunnelManager {
                             let tunnelError = StartTunnelError(underlyingError: error)
 
                             actor.observerList.notify { observer in
-                                observer.tunnelManager(actor, didFailWithError: tunnelError)
+                                Task { @MainActor in
+                                    observer.tunnelManager(actor, didFailWithError: tunnelError)
+                                }
                             }
                         }
 
@@ -356,7 +367,9 @@ actor TunnelManager {
                         let tunnelError = StopTunnelError(underlyingError: error)
 
                         self.observerList.notify { observer in
-                            observer.tunnelManager(self, didFailWithError: tunnelError)
+                            Task { @MainActor in
+                                observer.tunnelManager(self, didFailWithError: tunnelError)
+                            }
                         }
                     }
 
@@ -436,20 +449,6 @@ actor TunnelManager {
         guard let tunnel = _tunnel else { return }
 
         if _tunnelStatus.state.isSecured {
-            let observer = TunnelBlockObserver(
-                didUpdateTunnelStatus: { [weak self] _, status in
-                    Task { [weak self] in
-                        if case .disconnected = status.state {
-                            await self?.clearObserver()
-                            self?.startTunnel()
-                        }
-                    }
-                }
-            )
-
-            addObserver(observer)
-            self.observer = observer
-
             let configuration = TunnelConfiguration(
                 includeAllNetworks: _tunnelSettings.includeAllNetworks.includeAllNetworksIsEnabled,
                 excludeLocalNetworks: _tunnelSettings.includeAllNetworks.localNetworkSharingIsEnabled
@@ -457,7 +456,13 @@ actor TunnelManager {
 
             tunnel.setConfiguration(configuration)
             tunnel.saveToPreferences { [weak self] _ in
-                self?.stopTunnel(isOnDemandEnabled: true)
+                guard let self else { return }
+
+                self.stopTunnel(isOnDemandEnabled: true) { _ in
+                    if case .disconnected = tunnel.status {
+                        self.startTunnel()
+                    }
+                }
             }
         }
     }
@@ -954,20 +959,24 @@ actor TunnelManager {
             guard let self else { return }
 
             Task {
-                // Reject stale IPC updates if the tunnel is now dead
-                guard await isTunnelAlive else {
-                    logger.debug("Ignoring stale IPC response, tunnel is dead.")
-                    return
-                }
+                await updateTunnelState(with: result)
+            }
+        }
+    }
 
-                if case let .success(observedState) = result {
-                    let newState = await mapObservedStateToTunnelState(observedState)
-                    _ = await setTunnelStatus { tunnelStatus in
-                        tunnelStatus.observedState = observedState
-                        if let state = newState {
-                            tunnelStatus.state = state
-                        }
-                    }
+    private func updateTunnelState(with result: Result<ObservedState, Error>) async {
+        // Reject stale IPC updates if the tunnel is now dead
+        guard isTunnelAlive else {
+            logger.debug("Ignoring stale IPC response, tunnel is dead.")
+            return
+        }
+
+        if case let .success(observedState) = result {
+            let newState = mapObservedStateToTunnelState(observedState)
+            _ = setTunnelStatus { tunnelStatus in
+                tunnelStatus.observedState = observedState
+                if let state = newState {
+                    tunnelStatus.state = state
                 }
             }
         }
