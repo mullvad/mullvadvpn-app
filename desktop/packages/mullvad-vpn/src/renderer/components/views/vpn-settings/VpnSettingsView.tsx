@@ -20,7 +20,7 @@ import {
   DnsBlockerSettings,
   IpOverrideSettings,
   IpVersionSetting,
-  KillSwitchSetting,
+  KillSwitchListItem,
   MtuSetting,
 } from './components';
 
@@ -58,7 +58,7 @@ export function VpnSettingsView() {
 
                   <EnableIpv6Setting />
                   <FlexColumn>
-                    <KillSwitchSetting />
+                    <KillSwitchListItem />
                     <LockdownModeSetting />
                   </FlexColumn>
                   <AntiCensorshipListItem position="solo" />
