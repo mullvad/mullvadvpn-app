@@ -2,7 +2,13 @@
 [
   {
     name = "PKG_CONFIG_PATH";
-    value = "${pkgs.dbus.dev}/lib/pkgconfig";
+    value = pkgs.lib.concatStringsSep ":" [
+      "${pkgs.dbus.dev}/lib/pkgconfig"
+
+      # Slint
+      "${pkgs.fontconfig.dev}/lib/pkgconfig"
+      "${pkgs.freetype.dev}/lib/pkgconfig"
+    ];
   }
   {
     name = "LD_LIBRARY_PATH";
@@ -31,6 +37,10 @@
         libxkbcommon
         alsa-lib
         libglvnd
+
+        # Slint
+        wayland
+        vulkan-loader
       ]
     );
   }
