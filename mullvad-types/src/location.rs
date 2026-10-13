@@ -168,17 +168,21 @@ pub struct GeoIpLocation {
     pub city: Option<String>,
     /// Country code of the exit relay. e.g. `se` for "Sweden".
     pub country: String,
+    /// These fields are `Some` when tunnel state is connecting or connected.
+    /// City code of the exit relay. e.g. `got` for "Gothenburg".
+    pub city_code: Option<String>,
+    ///  Country code of the exit relay. e.g. `se` for "Sweden".
+    pub country_code: Option<String>,
+    /// These fields are `Some` when traffic is routed through an entry relay.
     /// Hostname of the entry relay. e.g. `se-got-wg-101`.
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
     pub entry_hostname: Option<String>,
     /// City code of the entry relay. e.g. `got` for "Gothenburg".
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_city_code: Option<String>,
+    /// City name of the entry relay. e.g. "Gothenburg"
     pub entry_city: Option<String>,
     ///  Country code of the entry relay. e.g. `se` for "Sweden".
-    ///
-    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_country_code: Option<String>,
+    /// Country name of the entry relay. e.g. "Sweden"
     pub entry_country: Option<String>,
 }
 
@@ -197,10 +201,14 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
             city: location.city,
+            city_code: None,
             country: location.country,
+            country_code: None,
             entry_hostname: None,
             entry_city: None,
+            entry_city_code: None,
             entry_country: None,
+            entry_country_code: None,
         }
     }
 }

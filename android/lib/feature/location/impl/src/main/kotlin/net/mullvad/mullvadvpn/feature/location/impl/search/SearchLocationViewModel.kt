@@ -12,16 +12,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandMap
-import net.mullvad.mullvadvpn.feature.location.impl.toConnectedHostName
+import net.mullvad.mullvadvpn.feature.location.impl.toConnectedRelay
+import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
+import net.mullvad.mullvadvpn.feature.location.impl.withHighlights
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.findRelayByCode
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.merge
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -30,7 +28,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
@@ -99,14 +96,11 @@ class SearchLocationViewModel(
                 val expandedItems = expandSet.with(expandOverrides)
                 val customListSearch = filteredCustomLists.filterOnSearchTerm(searchTerm)
                 val allHighlights = relaySearch.highlights + customListSearch.highlights
-                val connectedRelay = tunnelState.location()?.toConnectedHostName(relayListType)
+                val connectedRelay = tunnelState.location()?.toConnectedRelay(relayListType)
                 val metadata =
                     filteredCountries.relayMetadata
-                        .addHighlights(allHighlights)
-                        .addConnectedRelay(
-                            connectedHostName = connectedRelay,
-                            countries = filteredCountries.countries,
-                        )
+                        .withHighlights(allHighlights)
+                        .withConnectedRelay(connectedRelay = connectedRelay)
                 val settings = settingsRepository.settingsUpdates.value
                 Lce.Content(
                     SearchLocationUiState(
@@ -281,25 +275,6 @@ class SearchLocationViewModel(
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
     }
-}
-
-private fun RelayMetadataMap.addHighlights(
-    highlights: Map<RelayItemId, SearchMatch>
-): RelayMetadataMap {
-    val highlightsMetadata = highlights.mapValues { (_, match) ->
-        RelayMetadata(titleHighlights = match.matchRange)
-    }
-    return merge(highlightsMetadata)
-}
-
-private fun RelayMetadataMap.addConnectedRelay(
-    connectedHostName: String?,
-    countries: List<RelayItem.Location.Country>,
-): RelayMetadataMap {
-    if (connectedHostName == null) return this
-    return countries.findRelayByCode(connectedHostName)?.id?.let { connectedRelay ->
-        merge(mapOf(connectedRelay to RelayMetadata(connectedRelay = true)))
-    } ?: this
 }
 
 sealed interface SearchLocationSideEffect {

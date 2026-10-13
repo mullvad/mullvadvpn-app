@@ -107,10 +107,14 @@ impl ParametersGenerator {
             mullvad_exit_ip: true,
             hostname: Some(exit.hostname.clone()),
             city: Some(location.city),
+            city_code: Some(location.city_code),
             country: location.country,
+            country_code: Some(location.country_code),
             entry_hostname: entry.map(|relay| relay.hostname.clone()),
             entry_city: entry.map(|relay| relay.location.city.clone()),
+            entry_city_code: entry.map(|relay| relay.location.city_code.clone()),
             entry_country: entry.map(|relay| relay.location.country.clone()),
+            entry_country_code: entry.map(|relay| relay.location.country_code.clone()),
         })
     }
 }

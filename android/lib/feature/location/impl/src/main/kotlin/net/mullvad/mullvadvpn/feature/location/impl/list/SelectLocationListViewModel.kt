@@ -19,18 +19,14 @@ import net.mullvad.mullvadvpn.feature.location.impl.search.emptyLocationsRelayLi
 import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByOtherEntryExitList
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByThisEntryExitList
-import net.mullvad.mullvadvpn.feature.location.impl.toConnectedHostName
+import net.mullvad.mullvadvpn.feature.location.impl.toConnectedRelay
+import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.findRelayByCode
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.merge
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
@@ -42,7 +38,6 @@ import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
-import net.mullvad.mullvadvpn.lib.usecase.FilteredCountries
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
@@ -121,9 +116,8 @@ class SelectLocationListViewModel(
                 relayListItems(
                     relayCountries = filteredCountries.countries,
                     relayMetadata =
-                        filteredCountries.metaDataWithConnectedRelay(
-                            location = tunnelState.location(),
-                            relayListType = relayListType,
+                        filteredCountries.relayMetadata.withConnectedRelay(
+                            connectedRelay = tunnelState.location()?.toConnectedRelay(relayListType)
                         ),
                     relayListType = relayListType,
                     customLists = customLists,
@@ -169,20 +163,6 @@ class SelectLocationListViewModel(
                     RelayHopType.EXIT -> relayListRepository.selectedLocation.value
                 }
         }?.getOrNull()
-
-    private fun FilteredCountries.metaDataWithConnectedRelay(
-        location: GeoIpLocation?,
-        relayListType: RelayListType,
-    ): RelayMetadataMap {
-        val connectedHostName =
-            location?.toConnectedHostName(relayListType) ?: return this.relayMetadata
-        val connectedRelay = countries.findRelayByCode(connectedHostName)
-        return if (connectedRelay != null) {
-            relayMetadata.merge(mapOf(connectedRelay.id to RelayMetadata(connectedRelay = true)))
-        } else {
-            this.relayMetadata
-        }
-    }
 }
 
 data class ScrollSideEffect(val relayItem: RelayItem)

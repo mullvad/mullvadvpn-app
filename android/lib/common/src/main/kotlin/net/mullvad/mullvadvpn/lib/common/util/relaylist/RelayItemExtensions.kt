@@ -168,11 +168,6 @@ fun List<RelayItem.Location.Country>.findRelay(
     ?.relays
     ?.find { relay -> relay.id == geoLocationId }
 
-fun List<RelayItem.Location>.findRelayByCode(code: String): RelayItem.Location.Relay? =
-    withDescendants().filterIsInstance<RelayItem.Location.Relay>().firstOrNull {
-        it.id.code == code
-    }
-
 /**
  * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are
  * considered the same, cities and countries are not. For the purpose of blocking selection, custom
