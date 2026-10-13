@@ -165,14 +165,18 @@ class TunnelStateNotificationProviderTest {
             val location =
                 GeoIpLocation(
                     country = "USA",
+                    countryCode = "US",
                     latitude = 40.7128,
                     longitude = -74.0060,
                     ipv4 = null,
                     ipv6 = null,
                     city = null,
+                    cityCode = null,
                     hostname = null,
                     entryCountry = null,
+                    entryCountryCode = null,
                     entryCity = null,
+                    entryCityCode = null,
                     entryHostname = null,
                 )
 
