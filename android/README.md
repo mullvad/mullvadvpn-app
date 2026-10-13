@@ -1,45 +1,48 @@
-# Mullvad VPN Android app
+<p align="center">
+  <img src="../graphics/icon.svg" alt="Mullvad VPN logo" width="128">
+</p>
 
-This directory contains the Android project as well as related files and information. Apart from the
-content of this directory, the Android project also relies on building the [mullvad-daemon](../mullvad-daemon/)
-(which includes the GotaTun WireGuard implementation) as a shared library bundled into the assembled APK.
+<h1 align="center">Mullvad VPN for Android</h1>
 
-The app is available for download on
-[our website](https://mullvad.net/download/android/),
-[GitHub Releases](https://github.com/mullvad/mullvadvpn-app/releases),
-[F-Droid](https://f-droid.org/packages/net.mullvad.mullvadvpn/) and
-[Google Play](https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn).
+<p align="center">
+  Native Android app built with Kotlin and Jetpack Compose. Under the hood it's powered by
+  <a href="https://github.com/mullvad/gotatun">GotaTun</a> and the
+  <a href="../mullvad-daemon/">Rust daemon</a> we share with our desktop apps.
+</p>
 
-## Quick start
+<p align="center">
+  <a href="https://f-droid.org/packages/net.mullvad.mullvadvpn/"><img src="docs/badges/fdroid.png" alt="Get it on F-Droid" width="24%"></a>
+  <a href="https://github.com/mullvad/mullvadvpn-app/releases?q=android%2F&expanded=true"><img src="docs/badges/github.png" alt="Get it on GitHub" width="24%"></a>
+  <a href="https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn"><img src="docs/badges/googleplay.png" alt="Get it on Google Play" width="24%"></a>
+</p>
 
-### Browsing the source code
+<p align="center">
+  Or get it on <a href="https://mullvad.net/download/android/">our website</a>.
+</p>
 
-The content in this directory (`<repository-root>/android`) follows a standard Android project
-structure and can therefore be opened in Android Studio or any other IDE or editor of your choice.
+<p align="center">
+  <img src="src/main/play/listings/en-US/graphics/phone-screenshots/01.png" alt="Connected to a VPN server in Gothenburg" width="30%">
+  <img src="src/main/play/listings/en-US/graphics/phone-screenshots/04.png" alt="Selecting a VPN server location" width="30%">
+  <img src="src/main/play/listings/en-US/graphics/phone-screenshots/06.png" alt="Split tunneling settings" width="30%">
+</p>
 
-### Building the app
+## Documentation
 
-The easiest and recommended way to build the Android project is to use the containerized build
-(which requires `podman`):
-```
-../building/containerized-build.sh android
-```
-See the [build instructions](./docs/BuildInstructions.md) for further information.
+This directory contains the Android project. Apart from the content of this directory, the Android
+project also relies on building the [mullvad-daemon](../mullvad-daemon/) (which includes the GotaTun
+WireGuard implementation) as a shared library bundled into the assembled APK.
 
-## Code style
+All releases have signed git tags on the format `android/<version>`. For changes between each
+release, see the [changelog](CHANGELOG.md).
 
-See the [code style](docs/CodeStyle.md) documentation for how to format Kotlin and XML files.
+To build the app, see the [build instructions](docs/BuildInstructions.md) or the
+[build instructions for macOS](docs/BuildInstructions.macos.md). The rest of the documentation,
+for example about code style, debugging and testing, can be found in the [docs](docs/) directory.
 
-## Translations and localization
+---
 
-See the [locale README][desktop-locales-readme] for how to easily update translations. It also
-includes documentation for which phrases and terms shouldn't be translated (Do Not Translate).
-Also see the [translations converter README][translations-converter-readme] for documentation about
-the tool used to sync translations between the Android and Desktop apps.
-
-[desktop-locales-readme]: ../desktop/packages/mullvad-vpn/locales/README.md
-[translations-converter-readme]: ./translations-converter/README.md
-
-## Icons and assets
-
-For a general overview of icons and graphics read [the graphics readme](../graphics/README.md).
+<sub>Google Play and the Google Play logo are trademarks of Google LLC, see the
+[badge guidelines](https://partnermarketinghub.withgoogle.com/brands/google-play/google-play/lockups-icons-badges/#badges).
+The [F-Droid badge](https://f-droid.org/docs/Badges/) and the
+[GitHub badge](https://github.com/Kunzisoft/Github-badge) are licensed under
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).</sub>
