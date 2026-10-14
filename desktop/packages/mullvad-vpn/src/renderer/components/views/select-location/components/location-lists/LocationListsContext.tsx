@@ -9,7 +9,7 @@ import {
   useSearchCustomListLocations,
   useSelectedEntryOrExitLocation,
 } from '../../../../../features/locations/hooks';
-import { type AnyLocation, LocationType } from '../../../../../features/locations/types';
+import { type AnyLocation } from '../../../../../features/locations/types';
 import {
   getRecentEntryLocations,
   getRecentExitLocations,
@@ -46,7 +46,7 @@ export function LocationListsProvider({ type, children }: LocationListsProviderP
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
 
   const handleSelect = React.useMemo(() => {
-    if (type === LocationType.entry) {
+    if (type === 'entry') {
       return handleSelectEntryLocation;
     }
     return handleSelectExitLocation;
