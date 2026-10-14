@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://f-droid.org/packages/net.mullvad.mullvadvpn/"><img src="docs/badges/fdroid.png" alt="Get it on F-Droid" width="24%"></a>
-  <a href="https://github.com/mullvad/mullvadvpn-app/releases?q=android%2F&expanded=true"><img src="docs/badges/github.png" alt="Get it on GitHub" width="24%"></a>
-  <a href="https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn"><img src="docs/badges/googleplay.png" alt="Get it on Google Play" width="24%"></a>
+  <a href="https://f-droid.org/packages/net.mullvad.mullvadvpn/"><img src="docs/badges/fdroid.png" alt="Get it on F-Droid" width="160"></a>
+  <a href="https://github.com/mullvad/mullvadvpn-app/releases?q=android%2F&expanded=true"><img src="docs/badges/github.png" alt="Get it on GitHub" width="160"></a>
+  <a href="https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn"><img src="docs/badges/googleplay.png" alt="Get it on Google Play" width="160"></a>
 </p>
 
 <p align="center">
