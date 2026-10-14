@@ -546,22 +546,22 @@ impl WireguardMonitor {
             // This means that traffic sent (e.g. from the connectivity_monitor) may go outside
             // the tunnel if sent too quickly. Here we await the android system to report that
             // the routes are up before proceeding and sending any data to avoid this leak.
-            // Negotiating ephemeral peers happens directly on the protected socket
-            // (but still inside the tunnel), and thus do not require routes to be up.
-            // We do it like this is to avoid reading from the tun device as it would make
-            // the system believe the tunnel is up while we still are setting it up. Waiting until
-            // after that step is usually enough, but it is important to keep this check if the
-            // routes are slow or if the user has disabled all functionality that uses
-            // ephemeral peer.
+            // Negotiating ephemeral peers happens on a protected socket (inside a temporary
+            // WireGuard tunnel, using an userspace network stack), and thus does not require
+            // routes to be up. We do it like this to avoid reading from the tun device,
+            // so user traffic is held back in it while we are still setting up the tunnel.
+            // Usually this negotiating is done after the routes have been updated, but it is
+            // important to keep this check if the routes are slow or if the user has
+            // disabled all functionality that uses ephemeral peer.
             if is_new_tun {
                 let expected_routes = tun_provider.lock().unwrap().real_routes();
                 route_manager
                     .wait_for_routes(expected_routes)
                     .await
-                    // On some phones (e.g. OnePlus 6T) the android system will sometimes
-                    // not report the new routes. Instead of throwing an error after timing out
-                    // we will continue as we can assume that the routes are up even though the
-                    // android system has not reported it.
+                    // On some phones (e.g. OnePlus 6T running Android 11) the android system will
+                    // sometimes not report the new routes. Instead of throwing an error after
+                    // timing out we will continue as we can assume that the routes are up even
+                    // though the android system has not reported it.
                     .or_else(|error| {
                         match error {
                             talpid_routing::Error::PlatformError(talpid_routing::imp::RoutesTimedOutError) => {
