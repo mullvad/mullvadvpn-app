@@ -11,9 +11,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
-import MullvadTypes
 import MullvadRustRuntime
 import MullvadSettings
+import MullvadTypes
 
 enum LoggingInState: Sendable, Equatable {
     static func == (lhs: LoggingInState, rhs: LoggingInState) -> Bool {
@@ -59,9 +59,11 @@ class LoginViewModel: LoggingIn {
             let request = CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
             do {
                 // FIXME: Handle retry strategy errors and delays when the public key we just created is already in use
-                let device = try await deviceProxy.createDevice(accountNumber: accountNumber, request: request, retryStrategy: .apiRequest)
+                let device = try await deviceProxy.createDevice(
+                    accountNumber: accountNumber, request: request, retryStrategy: .apiRequest)
                 // FIXME: Should this be responsible for storing the device data, or should another service do that ?
-                let storedAccountData = StoredAccountData(identifier: account.id, number: accountNumber, expiry: account.expiry)
+                let storedAccountData = StoredAccountData(
+                    identifier: account.id, number: accountNumber, expiry: account.expiry)
                 let storedDeviceData = StoredDeviceData(with: device, privateKey: privateKey)
                 let loggedInState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
                 let data = try JSONEncoder().encode(loggedInState)
