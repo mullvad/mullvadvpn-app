@@ -36,7 +36,6 @@ pub use watch::RoutingTable;
 
 pub use watch::Error as RouteError;
 
-/// Result type for route manager errors.
 pub type Result<T> = std::result::Result<T, Error>;
 
 const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);

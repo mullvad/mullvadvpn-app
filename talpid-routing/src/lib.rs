@@ -18,8 +18,7 @@ pub use imp::{CallbackHandle, EventType, InterfaceAndGateway, get_best_default_r
 
 #[cfg(not(target_os = "windows"))]
 #[path = "unix/mod.rs"]
-/// Platform-specific route manager implementation.
-pub mod imp;
+mod imp;
 
 #[cfg(target_os = "macos")]
 pub use imp::{
@@ -28,6 +27,9 @@ pub use imp::{
 };
 
 pub use imp::{Error, RouteManagerHandle};
+
+#[cfg(target_os = "android")]
+pub use imp::imp::Error::RoutesTimedOut as RoutesTimedOutError;
 
 /// Link-layer/MAC address
 #[cfg(target_os = "macos")]

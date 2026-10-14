@@ -28,7 +28,6 @@ use ipnetwork::IpNetwork;
 #[expect(clippy::module_inception)]
 #[cfg(target_os = "macos")]
 #[path = "macos/mod.rs"]
-/// MacOS-specific route manager implementation.
 pub mod imp;
 
 #[expect(clippy::module_inception)]
@@ -39,10 +38,7 @@ mod imp;
 #[expect(clippy::module_inception)]
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
-mod imp;
-
-#[cfg(target_os = "android")]
-pub use imp::Error::RoutesTimedOut as RoutesTimedOutError;
+pub mod imp;
 
 #[cfg(target_os = "android")]
 use crate::Route;
@@ -140,9 +136,7 @@ pub(crate) enum RouteManagerCommand {
 /// Event that is sent when interface details may have changed for some interface.
 #[cfg(target_os = "macos")]
 pub struct InterfaceEvent {
-    /// Index of the interface that changed.
     pub interface_index: u16,
-    /// New MTU of the interface.
     pub mtu: u16,
 }
 

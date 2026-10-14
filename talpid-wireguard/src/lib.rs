@@ -564,7 +564,7 @@ impl WireguardMonitor {
                     // though the android system has not reported it.
                     .or_else(|error| {
                         match error {
-                            talpid_routing::Error::PlatformError(talpid_routing::imp::RoutesTimedOutError) => {
+                            talpid_routing::Error::PlatformError(talpid_routing::RoutesTimedOutError) => {
                                 log::warn!("Timed out while waiting for routes: {:?}", error);
                                 Ok(())
                             }
