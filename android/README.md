@@ -5,6 +5,13 @@
 <h1 align="center">Mullvad VPN for Android</h1>
 
 <p align="center">
+  <a href="https://github.com/mullvad/mullvadvpn-app/releases?q=android%2F&expanded=true"><img src="https://img.shields.io/github/v/release/mullvad/mullvadvpn-app?filter=android/*&label=release&logo=github" alt="Latest release"></a>
+  <a href="https://f-droid.org/packages/net.mullvad.mullvadvpn/"><img src="https://img.shields.io/f-droid/v/net.mullvad.mullvadvpn?label=F-Droid&logo=fdroid" alt="F-Droid version"></a>
+  <a href="https://github.com/mullvad/mullvadvpn-app/actions/workflows/android-app.yml?query=branch%3Amain+event%3Aschedule"><img src="https://img.shields.io/github/actions/workflow/status/mullvad/mullvadvpn-app/android-app.yml?branch=main&event=schedule&label=nightly%20build%20%26%20test&logo=githubactions&logoColor=white" alt="Nightly build and test status"></a>
+  <a href="https://github.com/mullvad/mullvadvpn-app/actions/workflows/android-reproducible-builds.yml?query=branch%3Amain+event%3Aschedule"><img src="https://img.shields.io/github/actions/workflow/status/mullvad/mullvadvpn-app/android-reproducible-builds.yml?branch=main&event=schedule&label=weekly%20reproducible%20build&logo=githubactions&logoColor=white" alt="Weekly reproducible build status"></a>
+</p>
+
+<p align="center">
   Native Android app built with Kotlin and Jetpack Compose. Under the hood it's powered by
   <a href="https://github.com/mullvad/gotatun">GotaTun</a> and the
   <a href="../mullvad-daemon/">Rust daemon</a> we share with our desktop apps.
