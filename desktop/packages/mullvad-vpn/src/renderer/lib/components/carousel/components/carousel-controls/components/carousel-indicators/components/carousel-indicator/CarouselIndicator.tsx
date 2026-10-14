@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../../../shared/gettext';
-import { colors, Radius } from '../../../../../../../../foundations';
+import { colors, durations, Radius } from '../../../../../../../../foundations';
 import { useEffectEvent } from '../../../../../../../../utility-hooks';
 import { useSlides } from '../../../../../../hooks';
 import { useCarouselIndicatorRef } from './hooks';
@@ -20,7 +20,7 @@ const StyledSlideIndicator = styled.div`
 `;
 
 const StyledCarouselIndicator = styled.button`
-  --transition-duration: 0.15s;
+  --transition-duration: ${durations.fast};
 
   position: relative;
   display: flex;
@@ -33,12 +33,12 @@ const StyledCarouselIndicator = styled.button`
   }
 
   &&:not(:disabled):hover ${StyledSlideIndicator} {
-    --transition-duration: 0s;
+    --transition-duration: ${durations.instant};
     background-color: ${colors.whiteAlpha60};
   }
 
   &&:not(:disabled):active ${StyledSlideIndicator} {
-    --transition-duration: 0s;
+    --transition-duration: ${durations.instant};
     background-color: ${colors.whiteAlpha40};
   }
 

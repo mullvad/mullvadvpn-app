@@ -1,7 +1,7 @@
 import { AnimatePresence, type AnimatePresenceProps, motion } from 'motion/react';
 import styled from 'styled-components';
 
-import { colors, Radius, spacings } from '../../../../foundations';
+import { colors, durationTokens, Radius, spacings } from '../../../../foundations';
 import type { LocationSelectorVariant } from '../../LocationSelector';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
 import { LocationSelectorLine } from '../location-selector-line';
@@ -33,13 +33,13 @@ function LocationSelectorItems({ children }: LocationSelectorItemsProps) {
         backgroundColor: variant === 'primary' ? colors.darkBlue : colors.darkerBlue10,
       }}
       transition={{
-        layout: { duration: 0.25, ease: 'easeOut' },
-        backgroundColor: { duration: 0.15, ease: 'linear' },
+        layout: { duration: durationTokens.normal, ease: 'easeOut' },
+        backgroundColor: { duration: durationTokens.fast, ease: 'linear' },
       }}>
       <LocationSelectorLine
         $visible={expanded}
         layout
-        transition={{ duration: 0.25, ease: 'easeOut' }}
+        transition={{ duration: durationTokens.normal, ease: 'easeOut' }}
       />
       <AnimatePresence mode="popLayout">{children}</AnimatePresence>
     </StyledLocationSelectorItems>

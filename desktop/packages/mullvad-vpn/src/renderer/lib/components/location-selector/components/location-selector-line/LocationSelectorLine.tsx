@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import styled, { css } from 'styled-components';
 
-import { colors } from '../../../../foundations';
+import { colors, durations } from '../../../../foundations';
 
 export const LocationSelectorLine = styled(motion.div)<{ $visible?: boolean }>`
   ${({ $visible }) => css`
@@ -14,6 +14,6 @@ export const LocationSelectorLine = styled(motion.div)<{ $visible?: boolean }>`
     background-color: ${colors.whiteAlpha60};
     z-index: var(--location-selector-time-line-z-index);
     opacity: ${$visible ? 1 : 0};
-    transition: opacity 0.15s ease-in-out;
+    transition: opacity ${durations.fast} ease-in-out;
   `}
 `;
