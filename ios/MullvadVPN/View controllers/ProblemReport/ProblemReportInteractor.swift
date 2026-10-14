@@ -18,6 +18,8 @@ import Operations
 protocol ProblemReportInteractorProtocol: Sendable {
     func fetchReportString(completion: @escaping @Sendable (String) -> Void)
 
+    func isUserLoggedIn() -> Bool
+
     func sendReport(
         email: String,
         message: String,
@@ -147,6 +149,10 @@ struct MockProblemReportInteractor: ProblemReportInteractorProtocol {
             Something something something...
             """
         )
+    }
+
+    func isUserLoggedIn() -> Bool {
+        true
     }
 
     func sendReport(
