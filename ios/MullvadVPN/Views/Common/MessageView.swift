@@ -43,7 +43,7 @@ struct MessageView: View {
 
 extension MessageView {
     struct Message {
-        let text: String
+        let text: LocalizedStringKey
         let appearance: Appearance
 
         enum Icon: Equatable {
