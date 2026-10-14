@@ -28,3 +28,7 @@ SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Debug] = DEBUG NEVER_IN_PRODUCTION
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Staging] = DEBUG NEVER_IN_PRODUCTION
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=MockRelease] =
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Release] =
+
+// This must be set so that `xcrun` and `xcodebuild` do not create stray cache
+// directories in $(PROJECT_DIR)
+CCHROOT=$(CACHE_ROOT)/../..
