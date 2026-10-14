@@ -60,8 +60,7 @@ for example about code style, debugging and testing, can be found in the [docs](
 
 ---
 
-<sub>Google Play and the Google Play logo are trademarks of Google LLC, see the
-[badge guidelines](https://partnermarketinghub.withgoogle.com/brands/google-play/google-play/lockups-icons-badges/#badges).
+<sub>Google Play and the Google Play logo are trademarks of Google LLC.
 The [F-Droid badge](https://f-droid.org/docs/Badges/) and the
 [GitHub badge](https://github.com/Kunzisoft/Github-badge) are licensed under
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).</sub>
