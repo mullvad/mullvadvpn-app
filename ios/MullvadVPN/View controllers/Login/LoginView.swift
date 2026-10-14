@@ -162,14 +162,13 @@ extension LoginView {
 
 extension LoginView {
     private var createAccountAlert: MullvadAlert {
-        let message =
-            "You already have a saved account number, by creating a new account "
-            + "the saved account number will be removed from this device. This cannot be undone."
-
-        return MullvadAlert(
+        MullvadAlert(
             type: .warning,
             messages: [
-                LocalizedStringKey(NSLocalizedString(message, comment: "")),
+                """
+                You already have a saved account number, by creating a new account \
+                the saved account number will be removed from this device. This cannot be undone.
+                """,
                 "Do you want to create a new account?",
             ],
             actions: [

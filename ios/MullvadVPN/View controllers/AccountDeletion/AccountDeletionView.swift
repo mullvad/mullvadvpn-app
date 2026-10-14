@@ -76,7 +76,7 @@ struct AccountDeletionView: View {
             switch state {
             case .failure(let error):
                 borderStyle = .error
-                message = .init(text: error.localizedDescription, appearance: .error)
+                message = .init(text: LocalizedStringKey(error.localizedDescription), appearance: .error)
             case .working:
                 message = .init(text: "Deleting account...", appearance: .loading)
                 borderStyle = .normal
