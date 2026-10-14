@@ -18,7 +18,8 @@ pub use imp::{CallbackHandle, EventType, InterfaceAndGateway, get_best_default_r
 
 #[cfg(not(target_os = "windows"))]
 #[path = "unix/mod.rs"]
-mod imp;
+/// Platform-specific route manager implementation.
+pub mod imp;
 
 #[cfg(target_os = "macos")]
 pub use imp::{

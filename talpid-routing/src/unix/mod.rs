@@ -38,7 +38,8 @@ mod imp;
 #[expect(clippy::module_inception)]
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
-mod imp;
+/// Android-specific route manager implementation.
+pub mod imp;
 
 #[cfg(target_os = "android")]
 use crate::Route;
