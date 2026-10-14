@@ -36,16 +36,3 @@ extension ObservedState {
         blockedState?.reason
     }
 }
-
-/// Thread-safe sink for states observed from a `Task`, so a test can read them back afterwards.
-public actor StateCollector {
-    private var states: [ObservedState] = []
-
-    func append(_ state: ObservedState) {
-        states.append(state)
-    }
-
-    var collected: [ObservedState] {
-        states
-    }
-}

@@ -9,7 +9,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
-import XCTest
 import os
 
 /// A `Clock` whose time only moves when a test moves it.
@@ -43,7 +42,13 @@ final class TestClock: Clock {
     }
 
     private enum Disposition {
-        case cancelled, elapsed, suspended
+        case cancelled, elapsed
+        case suspended([SleeperWaiter])
+    }
+
+    private struct SleeperWaiter {
+        let count: Int
+        let continuation: CheckedContinuation<Void, Never>
     }
 
     private struct State {
@@ -51,6 +56,14 @@ final class TestClock: Clock {
         var sleepers: [Int: Sleeper] = [:]
         var cancelledIDs: Set<Int> = []
         var lastID = 0
+        var sleeperWaiters: [SleeperWaiter] = []
+
+        /// Removes and returns the waiters satisfied by the current number of sleepers.
+        mutating func takeSatisfiedWaiters() -> [SleeperWaiter] {
+            let satisfied = sleeperWaiters.filter { $0.count <= sleepers.count }
+            sleeperWaiters.removeAll { $0.count <= sleepers.count }
+            return satisfied
+        }
     }
 
     private let state = OSAllocatedUnfairLock(initialState: State())
@@ -82,13 +95,13 @@ final class TestClock: Clock {
                     guard state.cancelledIDs.remove(id) == nil else { return .cancelled }
                     guard state.currentInstant < deadline else { return .elapsed }
                     state.sleepers[id] = Sleeper(deadline: deadline, continuation: continuation)
-                    return .suspended
+                    return .suspended(state.takeSatisfiedWaiters())
                 }
 
                 switch disposition {
                 case .cancelled: continuation.resume(throwing: CancellationError())
                 case .elapsed: continuation.resume()
-                case .suspended: break
+                case let .suspended(waiters): waiters.forEach { $0.continuation.resume() }
                 }
             }
         } onCancel: {
@@ -123,20 +136,17 @@ final class TestClock: Clock {
     ///
     /// Code under test registers its next sleep asynchronously (a periodic timer only re-arms
     /// once the event it emitted has been handled), so `advance(by:)` needs the sleeper to exist
-    /// before it can wake it. Bounded by wall-clock time, as a yield count can elapse in microseconds.
-    func waitForSleepers(
-        _ count: Int = 1,
-        timeout: Duration = .seconds(5),
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) async {
-        let deadline = ContinuousClock.now + timeout
-        while sleeperCount < count {
-            guard ContinuousClock.now < deadline else {
-                XCTFail("Timed out waiting for \(count) sleeper(s), found \(sleeperCount)", file: file, line: line)
-                return
+    /// before it can wake it. Resumed by the `sleep` call that brings the count up to `count`.
+    func waitForSleepers(_ count: Int = 1) async {
+        await withCheckedContinuation { continuation in
+            let isSatisfied = state.withLock { state in
+                guard state.sleepers.count < count else { return true }
+                state.sleeperWaiters.append(SleeperWaiter(count: count, continuation: continuation))
+                return false
             }
-            await Task.yield()
+            if isSatisfied {
+                continuation.resume()
+            }
         }
     }
 
