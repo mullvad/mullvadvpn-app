@@ -69,6 +69,9 @@ struct ProblemReportView: View {
     var privacyPolicyLink: AttributedString {
         var result = AttributedString(localized: "privacy policy")
         result.link = .init(string: ApplicationConfiguration.privacyPolicyLink())
+        result.foregroundColor = .white
+        result.font = Font.mullvadTinySemiBold
+        result.underlineStyle = .single
         return result
     }
 

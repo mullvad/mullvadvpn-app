@@ -54,6 +54,10 @@ import SwiftUI
         !message.isEmpty
     }
 
+    var showAccountTokenNotice: Bool {
+        interactor?.isUserLoggedIn() ?? false
+    }
+
     func submitForm() {
         if email.isEmpty {
             alert = MullvadAlert(
