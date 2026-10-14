@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { colors } from '../../../../foundations';
+import { colors, durations } from '../../../../foundations';
 import { useSwitchContext } from '../../SwitchContext';
 import { useBackgroundColor, useBorderColor } from './hooks';
 
@@ -14,7 +14,7 @@ export const StyledSwitchInput = styled.input<{
 }>`
   ${({ $borderColor, $indicatorColor, $checked }) => {
     return css`
-      --transition-duration: 0.1s;
+      --transition-duration: ${durations.fast};
       --scale: 1;
 
       appearance: none;
@@ -35,7 +35,7 @@ export const StyledSwitchInput = styled.input<{
       height: 20px;
       border: 2px solid ${$borderColor};
       border-radius: 100px;
-      transition: border-color 200ms ease;
+      transition: border-color ${durations.fast} ease;
 
       &&:not(:disabled):hover {
         // Scale takes a unitless ratio, so we derive it from the 12px base: 14 / 12 = ~1.1667

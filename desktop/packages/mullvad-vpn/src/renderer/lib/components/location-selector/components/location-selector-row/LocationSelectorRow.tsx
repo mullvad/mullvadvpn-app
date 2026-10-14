@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import styled, { css } from 'styled-components';
 
-import { colors, spacings } from '../../../../foundations';
+import { colors, durationTokens, spacings } from '../../../../foundations';
 import { Expandable } from '../../../expandable';
 import { FlexRow } from '../../../flex-row';
 import { BodySmall } from '../../../text';
@@ -38,9 +38,11 @@ function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
 
   return (
     <LocationSelectorRowProvider position={position}>
-      <motion.div layout="position" transition={{ duration: 0.25, ease: 'easeOut' }}>
+      <motion.div
+        layout="position"
+        transition={{ duration: durationTokens.normal, ease: 'easeOut' }}>
         <Expandable expanded={expanded} initial={false}>
-          <Expandable.Content transition={{ duration: 0.25, ease: 'easeOut' }}>
+          <Expandable.Content transition={{ duration: durationTokens.normal, ease: 'easeOut' }}>
             {children}
           </Expandable.Content>
         </Expandable>

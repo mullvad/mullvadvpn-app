@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { spacings } from '../../foundations';
+import { durations, spacings } from '../../foundations';
 import { Flex } from '../flex';
 import { ListItem } from '../list-item';
 import { Text, type TextProps } from '../text';
@@ -19,7 +19,7 @@ export const StyledSelectableLabel = styled(Flex)`
 export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected: boolean }>`
   ${({ $selected }) => {
     return css`
-      --transition-duration: 0.25s;
+      --transition-duration: ${durations.normal};
 
       position: absolute;
       transition:
@@ -34,7 +34,7 @@ export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected:
 
 const StyledText = styled(Text)<{ $selected: boolean; $disabled: boolean }>`
   ${({ $selected, $disabled }) => css`
-    --transition-duration: 0.25s;
+    --transition-duration: ${durations.normal};
 
     transition: transform var(--transition-duration) ease-out;
     transform: translateX(${$selected ? 32 : 0}px);

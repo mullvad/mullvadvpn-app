@@ -1,6 +1,8 @@
 import { HTMLMotionProps, motion } from 'motion/react';
 import styled from 'styled-components';
 
+import { durationTokens } from '../../../../foundations';
+
 export type AnimatedListItemProps = HTMLMotionProps<'li'>;
 
 const StyledLi = styled(motion.li)`
@@ -13,7 +15,7 @@ export function AnimatedListItem({ children, ...props }: AnimatedListItemProps) 
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={{ duration: durationTokens.normal, ease: 'easeOut' }}
       {...props}>
       {children}
     </StyledLi>

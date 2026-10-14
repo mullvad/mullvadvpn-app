@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { colors } from '../../foundations';
+import { colors, durations } from '../../foundations';
 import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon, StyledIconButtonIcon } from './components';
 import { IconButtonProvider } from './IconButtonContext';
@@ -50,7 +50,7 @@ export const StyledIconButton = styled.button<{
       --hover: ${variant.hover};
       --pressed: ${variant.pressed};
       --disabled: ${variant.disabled};
-      --transition-duration: 0.15s;
+      --transition-duration: ${durations.fast};
 
       background: ${colors.transparent};
       height: var(--size);
@@ -70,12 +70,12 @@ export const StyledIconButton = styled.button<{
       }
 
       &&:not(:disabled):hover ${StyledIconButtonIcon} {
-        --transition-duration: 0s;
+        --transition-duration: ${durations.instant};
         background-color: var(--hover);
       }
 
       &&:not(:disabled):active ${StyledIconButtonIcon} {
-        --transition-duration: 0s;
+        --transition-duration: ${durations.instant};
         background-color: var(--pressed);
       }
 
