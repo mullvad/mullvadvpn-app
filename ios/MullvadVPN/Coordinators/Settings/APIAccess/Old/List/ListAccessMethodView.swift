@@ -40,11 +40,13 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
             MullvadList(
                 viewModel.items,
                 header: {
-                    MullvadInfoView(
-                        bodyText: "\(text) ",
-                        link: about,
-                        onTapLink: viewModel.showAbout
-                    )
+                    InlineLinkText(
+                        text: text,
+                        linkTitle: about
+                    ) {
+                        viewModel.showAbout()
+                    }
+                    .padding(.bottom, 16.0)
                 },
                 footer: {
                     MullvadButton(

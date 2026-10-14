@@ -177,6 +177,26 @@ extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewContr
     }
 
     func controller(shouldEditItem item: ListAccessMethodItem) {
-        edit(item: item)
+        guard let accessMethod = accessMethodRepository.fetch(by: item.id) else { return }
+        let viewModel = EditAccessMethodViewModel(
+            accessMethod: accessMethod,
+            proxyConfigurationTester: self.proxyConfigurationTester,
+            onChange: { [weak self] action in
+                guard let self else { return }
+                switch action {
+                case .delete(let item):
+                    popToList()
+                    accessMethodRepository.delete(id: item.id)
+                case .toggleEnabled(let item):
+                    accessMethodRepository.save(item, notifyingAPI: true)
+                case .edit:
+                    // FIXME: Update the code when it's fully in SwiftUI
+                    return
+                }
+            })
+        let controller = UIHostingController(rootView: EditAccessMethodView(viewModel: viewModel))
+        controller.title = NSLocalizedString(accessMethod.name, comment: "")
+        navigationController.pushViewController(controller, animated: true)
+
     }
 }

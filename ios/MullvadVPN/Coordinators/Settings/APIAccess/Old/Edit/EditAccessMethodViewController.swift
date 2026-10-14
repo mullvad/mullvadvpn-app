@@ -13,6 +13,7 @@ import MullvadSettings
 import UIKit
 
 /// The view controller providing the interface for editing the existing access method.
+@available(*, deprecated: 1.0, message: "Use the new `EditAccessMethodView`")
 class EditAccessMethodViewController: UIViewController {
     typealias EditAccessMethodDataSource = UITableViewDiffableDataSource<
         EditAccessMethodSectionIdentifier,

@@ -62,29 +62,30 @@ class EditAccessMethodCoordinator: Coordinator, Presenting {
 
 extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewControllerDelegate {
     func controllerShouldShowMethodSettings(_ controller: EditAccessMethodViewController) {
-        methodSettingsSubject = getViewModelSubjectFromStore()
 
-        let interactor = EditAccessMethodInteractor(
-            subject: methodSettingsSubject,
-            repository: accessMethodRepository,
-            proxyConfigurationTester: proxyConfigurationTester
-        )
-
-        let controller = MethodSettingsViewController(
-            subject: methodSettingsSubject,
-            interactor: interactor,
-            alertPresenter: AlertPresenter(context: self)
-        )
-
-        controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
-
-        controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
-
-        controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
-
-        controller.delegate = self
-
-        navigationController.pushViewController(controller, animated: true)
+        //        methodSettingsSubject = getViewModelSubjectFromStore()
+        //
+        //        let interactor = EditAccessMethodInteractor(
+        //            subject: methodSettingsSubject,
+        //            repository: accessMethodRepository,
+        //            proxyConfigurationTester: proxyConfigurationTester
+        //        )
+        //
+        //        let controller = MethodSettingsViewController(
+        //            subject: methodSettingsSubject,
+        //            interactor: interactor,
+        //            alertPresenter: AlertPresenter(context: self)
+        //        )
+        //
+        //        controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
+        //
+        //        controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
+        //
+        //        controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
+        //
+        //        controller.delegate = self
+        //
+        //        navigationController.pushViewController(controller, animated: true)
     }
 
     func controllerDidDeleteAccessMethod(_ controller: EditAccessMethodViewController) {

@@ -143,15 +143,11 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                                         ])
                                     )
                                 },
-                                footer: MullvadInfoView(
-                                    bodyText:
-                                        NSLocalizedString(
-                                            "Some iOS features are known to be affected when using Force all apps.",
-                                            comment: ""
-                                        ) + " ",
-                                    link: NSLocalizedString("About known issues...", comment: ""),
-                                    onTapLink: showIssuesInfo
-                                )
+                                footer:
+                                    InlineLinkText(
+                                        text: "Some iOS features are known to be affected when using Force all apps.",
+                                        linkTitle: "About known issues...",
+                                        onLinkTapped: showIssuesInfo)
                             )
                         }
                     )
