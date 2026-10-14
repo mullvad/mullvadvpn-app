@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { colors, Radius, spacings } from '../../../../foundations';
+import { colors, durations, Radius, spacings } from '../../../../foundations';
 import { Popup } from '../../../popup';
 import { useMenuContext } from '../../MenuContext';
 
@@ -15,7 +15,7 @@ export const StyledMenuPopup = styled(Popup).attrs<{ $popupId: string }>(({ $pop
 }))<{
   $popupId: string;
 }>`
-  --transition-duration: 0.1s;
+  --transition-duration: ${durations.faster};
   --initial-opacity: 0;
   --initial-scale: 0.9;
 

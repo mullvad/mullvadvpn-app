@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import styled from 'styled-components';
 
-import { spacings } from '../../../../../../../../foundations';
+import { durationTokens, spacings } from '../../../../../../../../foundations';
 import { IconButton, type IconButtonProps } from '../../../../../../../icon-button';
 
 export type LocationSelectorTrailingButtonProps = IconButtonProps & {
@@ -25,7 +25,7 @@ function LocationSelectorTrailingButton({
         animate={{ opacity: 1 }}
         initial={{ opacity: 0 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.1, ease: 'linear' }}>
+        transition={{ duration: durationTokens.faster, ease: 'linear' }}>
         <StyledLocationSelectorTrailingButton {...props} />
       </motion.div>
     </AnimatePresence>

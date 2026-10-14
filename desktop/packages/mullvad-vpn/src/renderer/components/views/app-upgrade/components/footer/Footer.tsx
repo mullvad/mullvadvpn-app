@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { useMeasure } from '../../../../../hooks';
+import { durations } from '../../../../../lib/foundations';
 import {
   DownloadFooter,
   ErrorFooter,
@@ -18,7 +19,7 @@ const TransitionHeight = styled.div<{ $height: string }>`
   overflow: hidden;
   height: ${({ $height }) => $height};
   @media (prefers-reduced-motion: no-preference) {
-    transition: height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: height ${durations.normal} cubic-bezier(0.16, 1, 0.3, 1);
   }
 `;
 

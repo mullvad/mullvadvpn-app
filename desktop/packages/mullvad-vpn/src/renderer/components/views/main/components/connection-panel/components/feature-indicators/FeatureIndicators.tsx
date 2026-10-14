@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import { FeatureIndicator, Text } from '../../../../../../../lib/components';
-import { colors } from '../../../../../../../lib/foundations';
+import { colors, durations } from '../../../../../../../lib/foundations';
 import { useStyledRef } from '../../../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
@@ -21,7 +21,7 @@ const StyledAccordion = styled(ConnectionPanelAccordion)({
 const StyledFeatureIndicatorsContainer = styled.div<{ $expanded: boolean }>((props) => ({
   marginTop: '0px',
   marginBottom: props.$expanded ? '8px' : 0,
-  transition: 'margin-bottom 300ms ease-out',
+  transition: `margin-bottom ${durations.normal} ease-out`,
 }));
 
 const StyledTitle = styled.h2(tinyText, {
