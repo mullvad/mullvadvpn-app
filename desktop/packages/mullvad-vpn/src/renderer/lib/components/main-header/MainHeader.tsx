@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { dimensions } from '../../../../shared/constants';
-import { Colors, colors } from '../../foundations';
+import { Colors, colors, durations } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
 import { MainHeaderIconButton } from './components';
@@ -32,7 +32,7 @@ const StyledHeader = styled.header<TransientProps<HeaderProps>>(
       minHeight: sizes[$size],
 
       backgroundColor,
-      transition: 'height 250ms ease-in-out, min-height 250ms ease-in-out',
+      transition: `height ${durations.normal} ease-in-out, min-height ${durations.normal} ease-in-out`,
     };
   },
 );
