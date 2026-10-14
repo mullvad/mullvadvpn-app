@@ -23,7 +23,7 @@ struct MullvadVPNtvOSApp: App {
     // The dependencies have been loaded during the splash screen
 
     @State private var navigation = Navigation()
-    @State private var loadedDepencencies = false
+    @State private var loadedDependencies = false
     @State var dependenciesTask: Task<DependencyManager, Never>
     @State var dependencies: DependencyManager?
 
@@ -39,7 +39,7 @@ struct MullvadVPNtvOSApp: App {
             }
             .task {
                 _dependencies.wrappedValue = await dependenciesTask.value
-                loadedDepencencies = true
+                loadedDependencies = true
             }
             .fullScreenCover(
                 isPresented: $navigation.isPresentingAccount,
@@ -53,7 +53,7 @@ struct MullvadVPNtvOSApp: App {
 
     @ViewBuilder
     func loadRootView() -> some View {
-        if loadedDepencencies {
+        if loadedDependencies {
             RootView(viewModel: dependencies!.makeLoginViewModel())
         } else {
             Text("Loading")
