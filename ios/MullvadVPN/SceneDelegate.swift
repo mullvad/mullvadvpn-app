@@ -123,7 +123,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         window?.rootViewController = appCoordinator?.rootViewController
         appCoordinator?.start()
 
-        setUpLogOverlay()
+        #if NEVER_IN_PRODUCTION
+            setUpLogOverlay()
+        #endif
     }
 
     private func disableAnimationsIfNeeded() {
