@@ -55,7 +55,6 @@ pub struct RouteManagerImpl {
 }
 
 impl RouteManagerImpl {
-    /// Constructs a new [RouteManagerImpl].
     #[expect(clippy::unused_async)]
     pub async fn new(android_context: AndroidContext) -> Result<Self, Error> {
         // Create a channel between the kotlin client and route manager

@@ -39,8 +39,10 @@ mod imp;
 #[expect(clippy::module_inception)]
 #[cfg(target_os = "android")]
 #[path = "android.rs"]
-/// Android-specific route manager implementation.
-pub mod imp;
+mod imp;
+
+#[cfg(target_os = "android")]
+pub use imp::Error::RoutesTimedOut as RoutesTimedOutError;
 
 #[cfg(target_os = "android")]
 use crate::Route;
