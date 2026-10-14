@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { parseTeamPatterns } from "../src/parse";
 
 describe("parseTeamPatterns", () => {
