@@ -28,6 +28,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var newAppVersionSystemNotificationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
     private var migrationManager: MigrationManager
+    private let inAppLogBuffer = InAppLogBuffer()
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
@@ -42,8 +43,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     override init() {
-        Self.configureLogging()
-
+        Self.configureLogging(inAppLogBuffer: inAppLogBuffer)
         providerLogger = Logger(label: "PacketTunnelProvider")
         providerLogger.info("Starting new packet tunnel")
 
@@ -141,7 +141,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: implementation.actor,
-            apiRequestProxy: apiRequestProxy
+            apiRequestProxy: apiRequestProxy,
+            inAppLogBuffer: inAppLogBuffer
         )
 
         newAppVersionSystemNotificationHandler = NewAppVersionSystemNotificationHandler(
@@ -328,7 +329,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 }
 
 extension PacketTunnelProvider {
-    private static func configureLogging() {
+    private static func configureLogging(inAppLogBuffer: InAppLogBuffer) {
         let loggerBuilder = LoggerBuilder.shared
         let header = "PacketTunnel version \(Bundle.main.productVersion)"
         let redactor = RustLogRedactor(containerPaths: [ApplicationConfiguration.containerURL.path])
@@ -339,8 +340,16 @@ extension PacketTunnelProvider {
             ),
             header: header
         )
-        #if DEBUG
+        #if NEVER_IN_PRODUCTION
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
+            loggerBuilder.addInAppLogOutput(
+                process: .packetTunnel,
+                observer: InAppLogBlockObserver { log in
+                    Task {
+                        await inAppLogBuffer.append(log)
+                    }
+                }
+            )
         #endif
         loggerBuilder.install(redactor)
 
