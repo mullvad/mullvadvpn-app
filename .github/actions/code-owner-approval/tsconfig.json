@@ -3,6 +3,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "module": "es2022",
+    "lib": ["es6", "dom.iterable"],
     "moduleResolution": "bundler",
     "noImplicitAny": true,
     "target": "es2022",
