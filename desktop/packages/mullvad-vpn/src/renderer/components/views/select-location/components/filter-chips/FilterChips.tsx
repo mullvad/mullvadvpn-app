@@ -42,7 +42,7 @@ export function FilterChips() {
       animate={{ opacity: 1 }}
       transition={{
         opacity: { duration: 0.15, ease: 'easeOut' },
-        layout: { duration: 0.25, ease: 'easeOut' },
+        layout: { duration: 0.15, ease: 'easeOut' },
       }}>
       {isOwnershipFilterActive && (
         <li>

@@ -14,11 +14,11 @@ export const StyledLocationSelectorItem = styled(motion.div)`
 export function LocationSelectorItem({ children, ...props }: LocationSelectorItemProps) {
   return (
     <StyledLocationSelectorItem
-      layout="preserve-aspect"
+      layout
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={{ duration: 0.15 }}
       {...props}>
       {children}
     </StyledLocationSelectorItem>
