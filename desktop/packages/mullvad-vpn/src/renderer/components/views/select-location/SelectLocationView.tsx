@@ -74,7 +74,7 @@ export function SelectLocationViewImpl() {
           <StyledNavigationScrollbars
             ref={scrollViewRef}
             onScroll={handleScroll}
-            trackPadding={{ x: 0, y: height }}
+            trackPadding={{ x: 2, y: height }}
             showScrollIndicators={
               transitionState === 'transitioningOut' || transitionState === 'transitioningIn'
                 ? false
