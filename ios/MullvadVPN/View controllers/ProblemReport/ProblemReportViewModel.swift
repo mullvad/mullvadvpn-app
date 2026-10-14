@@ -38,7 +38,7 @@ import SwiftUI
             get: { self.logText != nil },
             set: { if !$0 { self.logText = nil } }
         )
-    }    
+    }
 
     func prepareForReuse() {
         modalState = nil

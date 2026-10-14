@@ -71,7 +71,7 @@ struct ProblemReportView: View {
         result.link = .init(string: ApplicationConfiguration.privacyPolicyLink())
         return result
     }
-    
+
     var mainForm: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(subheadLabelText)
