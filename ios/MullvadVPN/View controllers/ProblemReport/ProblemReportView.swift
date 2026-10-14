@@ -69,9 +69,12 @@ struct ProblemReportView: View {
     var privacyPolicyLink: AttributedString {
         var result = AttributedString(localized: "privacy policy")
         result.link = .init(string: ApplicationConfiguration.privacyPolicyLink())
+        result.foregroundColor = .white
+        result.font = Font.mullvadTinySemiBold
+        result.underlineStyle = .single
         return result
     }
-    
+
     var mainForm: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(subheadLabelText)
@@ -84,15 +87,17 @@ struct ProblemReportView: View {
                 isFocused: $emailIsFocused,
                 borderStyle: .constant(.normal))
             messageEditInlinePlaceholder
-            ActionBox(
-                isChecked: $viewModel.includeAccountTokenInLogs,
-                toggleTitle: accountTokenInclusionPrompt,
-                additionalInfo: .init(
-                    warningTitle: "This impacts your anonymity",
-                    warningMessage:
-                        "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our \(privacyPolicyLink)"
+            if viewModel.showAccountTokenNotice {
+                ActionBox(
+                    isChecked: $viewModel.includeAccountTokenInLogs,
+                    toggleTitle: accountTokenInclusionPrompt,
+                    additionalInfo: .init(
+                        warningTitle: "This impacts your anonymity",
+                        warningMessage:
+                            "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our \(privacyPolicyLink)"
+                    )
                 )
-            )
+            }
             MullvadButton(
                 text: "View app logs",
                 style: .primary,
