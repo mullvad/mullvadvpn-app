@@ -1,6 +1,6 @@
 import { css, keyframes } from 'styled-components';
 
-import { colors } from '../../../foundations';
+import { colors, durations } from '../../../foundations';
 import { ListItemAnimation } from '../ListItem';
 
 const flash = keyframes`
@@ -27,7 +27,7 @@ export const useListItemAnimation = (animation?: ListItemAnimation | false) => {
   }
   if (animation === 'dim') {
     return css`
-      animation: ${dim} ${dimDuration}ms ease-in-out 0ms normal;
+      animation: ${dim} ${dimDuration}ms ease-in-out ${durations.instant} normal;
     `;
   }
   return undefined;

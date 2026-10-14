@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+import { durations } from '../../../../foundations';
 import { ListItem, ListItemProps } from '../../../list-item';
 import { StyledListItemTrailingAction } from '../../../list-item/components/list-item-trailing-actions/components';
 import { useAccordionContext } from '../../AccordionContext';
@@ -16,7 +17,7 @@ export const StyledAccordionHeaderRoot = styled(ListItem)``;
 
 export const StyledAccordionHeader = styled(StyledAccordionHeaderRoot)`
   ${StyledAccordionHeaderItem}, ${StyledListItemTrailingAction} {
-    transition: border-radius 0.15s ease-out;
+    transition: border-radius ${durations.fast} ease-out;
   }
 
   &:has(+ ${StyledAccordionContent}) {

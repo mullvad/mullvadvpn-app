@@ -1,6 +1,8 @@
 import { type HTMLMotionProps, motion } from 'motion/react';
 import styled from 'styled-components';
 
+import { durationTokens } from '../../../../../../foundations';
+
 export type LocationSelectorItemProps = HTMLMotionProps<'div'>;
 
 export const StyledLocationSelectorItem = styled(motion.div)`
@@ -18,7 +20,7 @@ export function LocationSelectorItem({ children, ...props }: LocationSelectorIte
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: durationTokens.fast }}
       {...props}>
       {children}
     </StyledLocationSelectorItem>

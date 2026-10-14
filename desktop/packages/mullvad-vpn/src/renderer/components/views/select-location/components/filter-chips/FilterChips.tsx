@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useActiveFilters } from '../../../../../features/locations/hooks/use-active-filters';
-import { spacings } from '../../../../../lib/foundations';
+import { durationTokens, spacings } from '../../../../../lib/foundations';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { DaitaFilterChip } from '../daita-filter-chip';
 import { LwoFilterChip } from '../lwo-filter-chip';
@@ -41,8 +41,8 @@ export function FilterChips() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{
-        opacity: { duration: 0.15, ease: 'easeOut' },
-        layout: { duration: 0.15, ease: 'easeOut' },
+        opacity: { duration: durationTokens.fast, ease: 'easeOut' },
+        layout: { duration: durationTokens.fast, ease: 'easeOut' },
       }}>
       {isOwnershipFilterActive && (
         <li>

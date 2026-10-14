@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
+import { durations } from '../../../../../../foundations';
 import { Gallery } from '../../../../../gallery';
 import { useCarouselContext } from '../../../../CarouselContext';
 
@@ -16,7 +17,7 @@ const StyledSlide = styled.div<{ $active: boolean }>`
 
     opacity: ${$active ? 1 : 0.25};
 
-    transition: opacity 0.25s ease-in-out;
+    transition: opacity ${durations.normal} ease-in-out;
   `}
 `;
 
