@@ -172,9 +172,6 @@ msgstr ""
 msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
-msgid "Filters"
-msgstr ""
-
 msgid "Go back"
 msgstr ""
 
@@ -397,6 +394,18 @@ msgctxt "accessibility"
 msgid "Clear search"
 msgstr ""
 
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Click button to configure filters for entry location"
+msgstr ""
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Click button to configure filters for exit location"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Close notification"
 msgstr ""
@@ -445,6 +454,12 @@ msgstr ""
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
+msgstr ""
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
 msgstr ""
 
 msgctxt "accessibility"
@@ -2461,6 +2476,18 @@ msgstr ""
 #. Title for section showing recently used locations.
 msgctxt "select-location-view"
 msgid "Recents"
+msgstr ""
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection does not match filter settings"
+msgstr ""
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
 msgstr ""
 
 #. Text for a button that sets multihop mode to "Always".
