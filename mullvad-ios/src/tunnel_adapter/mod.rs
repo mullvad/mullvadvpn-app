@@ -9,7 +9,7 @@ pub(crate) mod tun_device;
 use std::{
     future::poll_fn,
     io,
-    net::{IpAddr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     num::NonZero,
     pin::pin,
     sync::{
@@ -27,7 +27,7 @@ use gotatun::{
     udp::{
         UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams,
         channel::new_udp_tun_channel,
-        socket::{UdpSocket, UdpSocketFactory},
+        socket::{SockOpt, UdpSocket, UdpSocketFactory},
     },
     x25519::StaticSecret,
 };
@@ -84,6 +84,28 @@ impl Multiplex {
                 },
             ));
         }
+
+        Ok(Self {
+            send_index: Default::default(),
+            multiplexers: pairs,
+        })
+    }
+    pub fn listen_to(addr: Ipv4Addr, ports: &[u16]) -> io::Result<Self> {
+        let mut sockets = Vec::new();
+        for port in ports {
+            sockets.push(UdpSocket::bind(
+                SocketAddr::new(addr.into(), *port),
+                SockOpt::default(),
+            )?);
+        }
+        let pairs = vec![(
+            format!("{addr}:0").parse::<SocketAddr>().unwrap(),
+            SocketMultiplexer {
+                sockets,
+                recv: 0,
+                send: Default::default(),
+            },
+        )];
 
         Ok(Self {
             send_index: Default::default(),
@@ -231,7 +253,14 @@ impl BoundUdpTransports {
         })
     }
 
-    fn params() -> UdpTransportFactoryParams {
+    pub async fn custom_bind(params: UdpTransportFactoryParams) -> io::Result<Self> {
+        let (socket, _recv) = UdpSocketFactory::default().bind(&params).await?;
+        Ok(Self {
+            socket: Arc::new(Mutex::new(socket)),
+        })
+    }
+
+    pub fn params() -> UdpTransportFactoryParams {
         UdpTransportFactoryParams {
             addr: None,
             port: 0,

@@ -8,7 +8,7 @@ license.workspace = true
 
 [lib]
 bench = false
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "lib"]
 
 # Host-side binary that generates the uniffi Swift bindings for the uniffi FFI.
 # Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
@@ -16,6 +16,10 @@ crate-type = ["staticlib"]
 [[bin]]
 name = "uniffi-bindgen"
 path = "src/bin/uniffi-bindgen.rs"
+
+[[bin]]
+name = "multiplex-benchmark"
+path = "src/bin/multiplex-benchmark.rs"
 
 [target.'cfg(any(target_os = "ios", target_os = "macos", target_os = "tvos"))'.dependencies]
 bytes = { workspace = true }
@@ -67,6 +71,7 @@ uniffi = { workspace = true }
 # `uniffi-cli` feature. The library's own uniffi use is iOS/tvOS only.
 [target.'cfg(target_os = "macos")'.dependencies]
 uniffi = { workspace = true, optional = true }
+anyhow = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
