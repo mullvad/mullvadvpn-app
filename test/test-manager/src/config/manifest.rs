@@ -70,6 +70,9 @@ pub struct EnvironmentConfig {
     pub account: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_locations: Option<TestLocationList>,
+    /// Partner API token. Used to generate account numbers on the fly.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub partner_api_token: Option<String>,
 }
 
 impl EnvironmentConfig {
@@ -88,6 +91,7 @@ impl EnvironmentConfig {
             mullvad_host: overrides.mullvad_host.or(self.mullvad_host),
             account: overrides.account.or(self.account),
             test_locations: overrides.test_locations.or(self.test_locations),
+            partner_api_token: overrides.partner_api_token.or(self.partner_api_token),
         }
     }
 }
