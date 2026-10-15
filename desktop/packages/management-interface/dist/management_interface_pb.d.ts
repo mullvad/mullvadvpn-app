@@ -1018,25 +1018,15 @@ export class GeoIpLocation extends jspb.Message {
     getEntryCountry(): string | undefined;
     setEntryCountry(value: string): GeoIpLocation;
 
-    hasEntryCountryCode(): boolean;
-    clearEntryCountryCode(): void;
-    getEntryCountryCode(): string | undefined;
-    setEntryCountryCode(value: string): GeoIpLocation;
+    hasEntryLocation(): boolean;
+    clearEntryLocation(): void;
+    getEntryLocation(): GeographicLocationConstraint | undefined;
+    setEntryLocation(value?: GeographicLocationConstraint): GeoIpLocation;
 
-    hasEntryCityCode(): boolean;
-    clearEntryCityCode(): void;
-    getEntryCityCode(): string | undefined;
-    setEntryCityCode(value: string): GeoIpLocation;
-
-    hasCountryCode(): boolean;
-    clearCountryCode(): void;
-    getCountryCode(): string | undefined;
-    setCountryCode(value: string): GeoIpLocation;
-
-    hasCityCode(): boolean;
-    clearCityCode(): void;
-    getCityCode(): string | undefined;
-    setCityCode(value: string): GeoIpLocation;
+    hasLocation(): boolean;
+    clearLocation(): void;
+    getLocation(): GeographicLocationConstraint | undefined;
+    setLocation(value?: GeographicLocationConstraint): GeoIpLocation;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GeoIpLocation.AsObject;
@@ -1061,10 +1051,8 @@ export namespace GeoIpLocation {
         entryHostname?: string,
         entryCity?: string,
         entryCountry?: string,
-        entryCountryCode?: string,
-        entryCityCode?: string,
-        countryCode?: string,
-        cityCode?: string,
+        entryLocation?: GeographicLocationConstraint.AsObject,
+        location?: GeographicLocationConstraint.AsObject,
     }
 }
 
