@@ -5,7 +5,7 @@ import { Menu } from '../../../../../../lib/components/menu';
 import { useMenuContext } from '../../../../../../lib/components/menu/MenuContext';
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
 import { useMultihop } from '../../../../../multihop/hooks';
-import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
+import { useEntryLocation, useExitLocation, useRelayLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
 import { isLocationSelected } from '../../../../utils';
 
@@ -17,17 +17,18 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   const { selectExitRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
   const { multihop, setMultihop } = useMultihop();
-  const { entry, exit } = useSelectedLocations();
+  const { entryLocation } = useEntryLocation();
+  const { exitLocation } = useExitLocation();
 
-  const isEntrySingleRelay = entry !== 'any' && 'hostname' in entry;
-  const isEntrySelected = isLocationSelected(location.details, entry);
+  const isEntrySingleRelay = entryLocation !== 'any' && 'hostname' in entryLocation;
+  const isEntrySelected = isLocationSelected(location.details, entryLocation);
 
   const handleClick = React.useCallback(async () => {
     if (isEntrySingleRelay && isEntrySelected) {
       // Swap entry and exit location
       await setMultihop({
         multihop,
-        exit,
+        exit: exitLocation,
         entry: location.details,
       });
     } else {
@@ -35,7 +36,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
     }
     onOpenChange?.(false);
   }, [
-    exit,
+    exitLocation,
     isEntrySelected,
     isEntrySingleRelay,
     location.details,
