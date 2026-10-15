@@ -22,7 +22,6 @@ protocol CustomListInteractorProtocol {
 }
 
 struct CustomListInteractor: CustomListInteractorProtocol {
-
     private enum CustomListAction {
         case save, delete
     }
@@ -140,11 +139,8 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         {
             relayConstraints.exitLocations = newExitLocations
             relayConstraints.entryLocations = newEntryLocations
-            tunnelManager
-                .updateSettings(
-                    [.relayConstraints(relayConstraints)],
-                    completionHandler: nil
-                )
+
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completion: nil)
         }
     }
 
@@ -202,8 +198,8 @@ struct CustomListInteractor: CustomListInteractorProtocol {
     }
 }
 
-protocol SettingsUpdating {
-    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)?)
+protocol SettingsUpdating: Sendable {
+    func updateSettings(_ updates: [TunnelSettingsUpdate], completion: (@Sendable () -> Void)?)
     var settings: LatestTunnelSettings { get }
 }
 

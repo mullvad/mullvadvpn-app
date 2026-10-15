@@ -42,11 +42,7 @@ struct DeprecatedSettingsResolver: Sendable {
         self.currentVersion = currentVersion
     }
 
-    public func resolve(
-        store: SettingsStore,
-        migrationCompleted: @escaping @Sendable (DeprecatedSettingsResolverResult) -> Void
-    ) {
-
+    public func resolve(store: SettingsStore) async -> DeprecatedSettingsResolverResult {
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
         var error: NSError?
 
@@ -55,22 +51,20 @@ struct DeprecatedSettingsResolver: Sendable {
         // in a half written state.
         // The resulting effect is that only one process at a time can do settings migrations.
         // The other process will be blocked, and will have nothing to do as long as settings were successfully upgraded.
-        fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
-            do {
-                try migrateSettings(store: store, migrationCompleted: migrationCompleted)
-            } catch {
-                migrationCompleted(.failure(error))
+        return await withCheckedContinuation { continuation in
+            fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
+                do {
+                    continuation.resume(returning: try migrateSettings(store: store))
+                } catch {
+                    continuation.resume(returning: .failure(error))
+                }
             }
         }
     }
 
-    private func migrateSettings(
-        store: SettingsStore,
-        migrationCompleted: @escaping @Sendable (DeprecatedSettingsResolverResult) -> Void
-    ) throws {
+    private func migrateSettings(store: SettingsStore) throws -> DeprecatedSettingsResolverResult {
         guard currentVersion != MigratedVersion.current else {
-            migrationCompleted(.nothing)
-            return
+            return .nothing
         }
 
         let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
@@ -80,9 +74,9 @@ struct DeprecatedSettingsResolver: Sendable {
             let currentSettings = try parser.parsePayload(as: LatestTunnelSettings.self, from: settingsData)
             var copy = currentSettings
             let migrationOutput = try MultihopMigrationTrackerFactory.make(relaySelector).run(input: &copy)
-            migrationCompleted(.migrated(from: currentSettings, to: copy, changes: migrationOutput.changes))
+            return .migrated(from: currentSettings, to: copy, changes: migrationOutput.changes)
         } catch {
-            migrationCompleted(.failure(error))
+            return .failure(error)
         }
     }
 }
