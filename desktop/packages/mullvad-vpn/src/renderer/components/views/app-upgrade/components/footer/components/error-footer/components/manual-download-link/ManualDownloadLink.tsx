@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../../../../../shared/gettext';
-import { ExternalLink } from '../../../../../../../../../components/ExternalLink';
+import { ExternalLink } from '../../../../../../../../external-link';
 import { useDownloadUrl } from './hooks';
 
 export function ManualDownloadLink() {
