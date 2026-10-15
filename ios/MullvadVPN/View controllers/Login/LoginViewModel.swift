@@ -83,12 +83,10 @@ extension TunnelManager: LoginViewModelProviding {}
     }
 
     func login() {
-        Task { [weak self] in
-            guard let self else { return }
+        let accountNumber = nonTokenizedAccountNumber
+        loginState = .authenticating(.login(accountNumber))
 
-            let accountNumber = nonTokenizedAccountNumber
-            loginState = .authenticating(.login(accountNumber))
-
+        Task {
             do {
                 async let minimumDelay: Void = Task.sleep(for: .seconds(1.5))
                 async let login: Void = interactor.setAccount(accountNumber: accountNumber)
@@ -104,11 +102,9 @@ extension TunnelManager: LoginViewModelProviding {}
     }
 
     func createAccount() {
-        Task { [weak self] in
-            guard let self else { return }
+        loginState = .authenticating(.createAccount)
 
-            loginState = .authenticating(.createAccount)
-
+        Task {
             do {
                 async let minimumDelay: Void = Task.sleep(for: .seconds(1.5))
                 async let createAccount: String = interactor.createAccount()
