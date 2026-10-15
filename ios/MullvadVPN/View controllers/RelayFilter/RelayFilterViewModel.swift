@@ -18,7 +18,7 @@ protocol RelayFilterSettingsViewModelProtocol {
     var onFeatureChipTapped: ((SelectLocationFilter) -> Void)? { get }
 }
 
-protocol RelayFilterViewModelSettingsProviding {
+protocol RelayFilterViewModelSettingsProviding: Sendable {
     var settings: LatestTunnelSettings { get }
     func addObserver(_ observer: TunnelObserver)
     func removeObserver(_ observer: TunnelObserver)

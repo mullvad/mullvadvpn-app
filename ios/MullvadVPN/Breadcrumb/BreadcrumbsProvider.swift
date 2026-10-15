@@ -28,21 +28,26 @@ final class BreadcrumbsBlockObserver: BreadcrumbsObserver, @unchecked Sendable {
     }
 }
 
-final class BreadcrumbsProvider {
+final class BreadcrumbsProvider: Sendable {
     private let observerList = ObserverList<BreadcrumbsObserver>()
-    private(set) var breadcrumbs: Set<Breadcrumb> = []
+    private(set) nonisolated(unsafe) var breadcrumbs: Set<Breadcrumb> = []
+    private let breadcrumbLock = NSLock()
 
     func add(breadcrumb: Breadcrumb) {
-        breadcrumbs.insert(breadcrumb)
-        observerList.notify {
-            $0.didUpdateBreadcrumbs(breadcrumbs)
+        breadcrumbLock.withLock {
+            breadcrumbs.insert(breadcrumb)
+            observerList.notify {
+                $0.didUpdateBreadcrumbs(breadcrumbs)
+            }
         }
     }
 
     func remove(breadcrumb: Breadcrumb) {
-        breadcrumbs.remove(breadcrumb)
-        observerList.notify {
-            $0.didUpdateBreadcrumbs(breadcrumbs)
+        breadcrumbLock.withLock {
+            breadcrumbs.remove(breadcrumb)
+            observerList.notify {
+                $0.didUpdateBreadcrumbs(breadcrumbs)
+            }
         }
     }
 
