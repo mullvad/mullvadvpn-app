@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-15 07:52\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -742,6 +742,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "Ohjelmointirajapintaan ei saatu yhteyttä menetelmällä %(name)s."
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "Sovellus viestii Mullvad API:n palvelimen kanssa %(domainFronting)sin kautta."
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "Sovellus tarvitsee sen etäpalvelimen tiedot, jonne paikallinen SOCKS5-palvelin välittää liikennettäsi."
@@ -749,6 +757,12 @@ msgstr "Sovellus tarvitsee sen etäpalvelimen tiedot, jonne paikallinen SOCKS5-p
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "CDN käyttää Datapacketin CDN77:ää. CDN voi tarkkailla vain välityspalvelimen kautta kulkevaa TLS-liikennettä, ei sisältöä."
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -761,6 +775,12 @@ msgstr "TCP-portti, jota paikallinen SOCKS5-palvelin kuuntelee."
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "Tästä voi olla hyötyä, jos ohjelmointirajapinta on sensuroitu, mutta Mullvadin siltauspalvelimet eivät."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "Tämä voi olla hyödyllistä, kun sensuuri estää suoran pääsyn ja muut tavat."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -789,6 +809,14 @@ msgstr "Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautt
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Kun käytössä on Mullvadin siltausmenetelmä, sovellus kommunikoi Mullvadin ohjelmointirajapinnan palvelimen kanssa Mullvadin siltauspalvelimen kautta. Se tekee tämän lähettämällä liikenteen Shadowsocksin peittämänä."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "Kun pääsytapa on %(domainFronting)s, sovellus saavuttaa Mullvadin API:n CDN:n kautta. Tämä sekoittaa liikenteen suureen määrään muuta internetliikennettä, mikä vaikeuttaa sen sensurointia."
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2080,8 +2108,8 @@ msgstr "Aina"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "Lisää sijainti luetteloon napsauttamalla sen +-kuvaketta"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "Lisää sijainti luetteloon napsauttamalla sen ...-kuvaketta"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3064,6 +3092,9 @@ msgstr "Tilillesi lisättiin 90 päivää käyttöaikaa."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Tilin palauttaminen ei ole mahdollista.</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>Aina</b>\\nMultihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta."
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Huomio: uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</b>"
 
@@ -3079,6 +3110,9 @@ msgstr "<b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja ots
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNS-sisällönestotoiminnot</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>Ei koskaan</b>\\nMultihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden."
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b>"
 
@@ -3093,6 +3127,9 @@ msgstr "<b>Tämä saattaa vaikuttaa anonymiteettiisi.</b> Vältä asetuksen käy
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Varoitus:</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>Tarvittaessa</b>\\nKaikki sijaintimme ja palvelimemme eivät tue kaikkia sovelluksen ominaisuuksia. Jos valitsemasi sijainti tai palvelin ei tue ominaisuuksia, jotka olet ottanut käyttöön, sovellus käyttää automaattisesti multihopia yhteensopivan palvelimen kautta."
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>Menetät pääsyn tälle tilille kaikilla laitteilla.</b>"
@@ -3142,9 +3179,6 @@ msgstr "Lisätään menetelmää..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "Kun VPN-sovellus päivitetään Android 16:ssa, laitteen saattavat päätyä tilaan, jossa VPN-sovellukset eivät voi enää muodostaa yhteyttä internetiin."
 
-msgid "Agree and continue"
-msgstr "Hyväksy ja jatka"
-
 msgid "All"
 msgstr "Kaikki"
 
@@ -3159,6 +3193,9 @@ msgstr "%s on määritetty aina päällä olevan VPN:n asetukseksi"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Aina päällä oleva VPN on määritetty toiselle VPN:lle"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "Lisäpalvelinta käytetään sovittamaan asetuksesi valitsemaasi sijaintiin"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "Toimivan yhteyden varmistamiseksi tulopalvelin valitaan tällä hetkellä automaattisesti ja tarvittaessa. Jos haluat valita tulopalvelimen manuaalisesti, vaihda multihop-tilaksi \"aina\"."
@@ -3448,17 +3485,11 @@ msgstr "Kuvake ja otsikko"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "Jos kuvake ja otsikko eivät vaihdu sovelluksen sulkemisen jälkeenkään, kokeile käynnistää laite uudelleen."
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "Jos nämä vaiheet eivät toimi, lähetä sähköpostiviesti tuelle käyttämällä alla olevaa painiketta. Se liittää automaattisesti anonymisoidut lokit."
 
 msgid "If you have any issues"
 msgstr "Jos kohtaat ongelmia"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "Jos nykyinen sijaintisi ei tue asetuksiasi, kuten sensuurin vastaista menetelmää, suodattimia tai DAITAa, multihopia käytetään automaattisesti yhteyden muodostamiseen kyseiseen sijaintiin yhteensopivan palvelimen kautta. Tämä ilmaistaan ​​symbolilla %1$s."
 
 msgid "Import new overrides by"
 msgstr "Uusien ohitusten tuontitapa"
@@ -3546,6 +3577,9 @@ msgstr "Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen 
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "Multihop on nyt jaettu kolmeen tilaan: tarvittaessa, aina ja ei koskaan.\\nTämä tarjoaa enemmän joustavuutta yhteysasetuksiisi."
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "Multihop ohjaa liikenteesi yhteen WireGuard-palvelimeen ja ulos toisen kautta, jolloin sen jäljittäminen on vaikeampaa. Tämä lisää viivettä, mutta vahvistaa anonymiteettia verkossa. Multihopissa on valittavana kolme tilaa:\\ntarvittaessa, aina ja ei koskaan."
 
 msgid "Multihop when needed"
 msgstr "Multihop tarvittaessa"
@@ -3669,9 +3703,6 @@ msgstr "Portti on alueen ulkopuolella"
 
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin ja sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina."
-
-msgid "Privacy"
-msgstr "Tietosuoja"
 
 msgid "Privacy policy"
 msgstr "Tietosuojakäytäntö"
@@ -3826,6 +3857,9 @@ msgstr "Sovellus ei voinut luoda tiliä, koska se ei saanut yhteyttä Mullvad AP
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "Sovellus ei voinut kirjautua, koska se ei saanut yhteyttä Mullvad API:hin."
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "Sovellus käyttää multihopia vain, jos se ei voi muodostaa yhteyttä valitsemaasi sijaintiin. Näin voi tapahtua, jos tämän sijainnin palvelin ei tue valitsemiasi ominaisuuksia. Tässä tapauksessa sovellus ohjaa liikenteesi näitä ominaisuuksia tukevan palvelimen kautta ennen kuin se saavuttaa valitsemasi sijainnin."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamista käyttöön VPN-asetuksista."
 
@@ -3841,6 +3875,9 @@ msgstr "Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on este
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "Tämä varmistaa, ettei yhteyttäsi estetä yhteensopimattomien asetusten takia."
+
 msgid "This field is required"
 msgstr "Tämä kenttä on pakollinen"
 
@@ -3855,6 +3892,9 @@ msgstr "Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:"
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
 msgstr "Tämä tila sallii sovellukselle multihopin toteuttamisen automaattisesti lisäpalvelimen kautta tarvittaessa, jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa."
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "Tämä ilmaistaan symbolilla %1$s."
 
 msgid "Time added"
 msgstr "Käyttöaikaa lisätty"
@@ -3876,9 +3916,6 @@ msgstr "Poista Mullvad VPN -tilisi antamalla tilinumerosi alla."
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "Jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa eikä yhteyttä estettäisi, sovellus saattaa käyttää multihopia automaattisesti eri tulopalvelimen kautta.\\nTämä ilmaistaan ​​symbolilla %1$s."
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi."
 
 msgid "Toggle VPN"
 msgstr "Vaihda VPN:ää"
