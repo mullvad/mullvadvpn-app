@@ -198,7 +198,7 @@ extension REST {
         private func createNetworkOperation<Success: Any>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
+            completionHandler: @escaping ProxyCompletionHandler<Success>
         ) -> MullvadApiNetworkOperation<Success> {
             let networkOperation = MullvadApiNetworkOperation(
                 name: request.name,

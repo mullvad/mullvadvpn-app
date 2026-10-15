@@ -15,37 +15,37 @@ import Operations
 public protocol APIQuerying: Sendable {
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
+        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
     func getRelays(
         sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
     ) -> Cancellable
 
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable
 
     func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<UUID>
+        completionHandler: @escaping ProxyCompletionHandler<UUID>
     ) -> Cancellable
 
     func checkStoreKitPayment(
         transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable
 
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
         accessMethod: PersistentAccessMethod,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+        completion: @escaping ProxyCompletionHandler<Bool>
     ) -> Cancellable
 }
 
@@ -125,7 +125,7 @@ extension REST {
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
             accessMethod: PersistentAccessMethod,
-            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+            completion: @escaping ProxyCompletionHandler<Bool>
         ) -> Cancellable {
             let responseHandler = rustEmptyResponseHandler()
             return createNetworkOperation(
@@ -183,7 +183,7 @@ extension REST {
         private func createNetworkOperation<Success>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
+            completionHandler: @escaping ProxyCompletionHandler<Success>
         ) -> MullvadApiNetworkOperation<Success> {
             let networkOperation = MullvadApiNetworkOperation(
                 name: request.name,
