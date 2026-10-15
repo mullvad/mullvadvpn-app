@@ -8,8 +8,6 @@ on:
       - 'nix/desktop-*.nix'
       - 'nix/common-toolchain.nix'
   push:
-    branches:
-      - main
 
 permissions: {}
 
