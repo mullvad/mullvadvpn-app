@@ -16,10 +16,14 @@ use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use anyhow::{Context, Ok, Result};
 use clap::Parser;
 use config::ConfigFile;
+use mullvad_api::partner::{PartnerApiClient, PartnerApiToken};
+use mullvad_types::account::AccountNumber;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use tokio::time::Instant;
 use vm::provision;
+
+use crate::config::Environment;
 
 /// Test manager for Mullvad VPN app
 #[derive(Parser, Debug)]
@@ -64,7 +68,7 @@ enum Commands {
 
         /// Environment to use, e.g. for the API, conncheck and test locations.
         #[arg(long, value_enum, default_value_t = config::Environment::Staging)]
-        env: config::Environment,
+        env: Environment,
 
         /// Run VNC server on a specified port
         #[arg(long, group = "display_args")]
@@ -153,7 +157,7 @@ enum ConfigArg {
     Account {
         /// Environment to use.
         #[arg(long, value_enum, default_value_t = config::Environment::Staging)]
-        env: config::Environment,
+        env: Environment,
     },
     /// Manage VM-specific setting
     #[clap(subcommand)]
@@ -231,7 +235,7 @@ async fn inner_main() -> Result<()> {
             }
             ConfigArg::Account { env } => {
                 let env_config = config.get_environment(env);
-                println!("{}", get_account(None, &env_config)?);
+                println!("{}", get_account(None, &env_config).await?);
                 Ok(())
             }
             ConfigArg::Vm(vm_config) => match vm_config {
@@ -335,7 +339,7 @@ async fn inner_main() -> Result<()> {
             };
 
             let env_config = config.get_environment(env);
-            let account = get_account(account, &env_config)?;
+            let account = get_account(account, &env_config).await?;
             let mullvad_host = env_config.mullvad_host().to_owned();
             log::info!("Environment: {env:?} ({mullvad_host})");
 
@@ -442,8 +446,27 @@ async fn inner_main() -> Result<()> {
 }
 
 /// Return `account` if set, otherwise the account of `env_config`.
-fn get_account(account: Option<String>, env_config: &config::EnvironmentConfig) -> Result<String> {
-    account
-        .or_else(|| env_config.account.clone())
-        .context("No account number given, and none is configured for the environment")
+async fn get_account(
+    account: Option<String>,
+    env_config: &config::EnvironmentConfig,
+    env: Environment,
+) -> Result<String> {
+    match env {
+        Environment::Prod => account
+            .or_else(|| env_config.account.clone())
+            .context("No account number given, and none is configured for the environment"),
+        Some(Environment::Staging) if let Some(account) = account => Ok(account.clone()),
+        Some(Environment::Staging) => {
+            let api_token = env_config.partner_api_token.as_ref().context("No partner API token is configured for the environment. Can not generate account number for tests")?;
+            generate_stagemole_account(PartnerApiToken::from(api_token.to_owned())).await
+        }
+    }
+}
+
+/// Generate a stagemole account with a validity of 1 day.
+async fn generate_stagemole_account(partner_api_token: PartnerApiToken) -> Result<AccountNumber> {
+    let client = PartnerApiClient::stagemole(partner_api_token);
+    let account = client.create_account().await?;
+    client.add_time(&account, 1).await?;
+    Ok(account)
 }
