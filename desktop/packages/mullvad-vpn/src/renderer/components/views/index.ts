@@ -32,3 +32,4 @@ export * from './anti-censorship';
 export * from './wireguard-port';
 export * from './lwo-settings';
 export * from './kill-switch';
+export * from './migrated-settings';

@@ -228,6 +228,8 @@ export const ipcSchema = {
     setPreferredLocale: invoke<string, ITranslations>(),
     setUnpinnedWindow: send<boolean>(),
     setAnimateMap: send<boolean>(),
+    dismissedSettingsMigrationNotification: send<void>(),
+    completedSettingsMigration: send<string>(),
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),

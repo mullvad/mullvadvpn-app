@@ -371,8 +371,16 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     const response = await this.callEmpty<grpcTypes.SplitFilterMigration>(
       this.client.getMigrationEvent,
     );
+
     const migrations = convertFromMigrationEvent(response);
-    return migrations;
+
+    // The `one-a` split filter migration should not be displayed to the user.
+    // Remove the 'one-a' split filter migration from the list and return rest.
+    const filteredMigrations = migrations.filter(
+      (migration) => !(migration.type === 'split-filter' && migration.scenario === 'one-a'),
+    );
+
+    return filteredMigrations;
   }
 
   public async clearSettingsMigrations(): Promise<void> {
