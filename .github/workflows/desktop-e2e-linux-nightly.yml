@@ -1,0 +1,17 @@
+---
+name: Desktop - End-to-end nightly tests (Linux)
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+
+jobs:
+  run:
+    uses: ./.github/workflows/desktop-e2e.yml
+    with:
+      oses: "debian13 ubuntu2404 ubuntu2604 ubuntu2610 fedora43 fedora44 fedora45"
