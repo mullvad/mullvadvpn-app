@@ -5,7 +5,7 @@ import { InAppNotification, InAppNotificationSubtitle } from '../../shared/notif
 import { LabelTinySemiBold } from '../lib/components';
 import { Link } from '../lib/components/link';
 import { ExternalLink } from './ExternalLink';
-import { InternalLink } from './InternalLink';
+import { InternalLink } from './internal-link';
 
 export type NotificationSubtitleProps = Pick<InAppNotification, 'subtitle'>;
 
