@@ -131,7 +131,7 @@ function print_jni_crates {
 
     local cargo_tree_output
     cargo_tree_output="$(cargo tree --locked --manifest-path "$JNI_CRATE_DIR/Cargo.toml" \
-        "${target_args[@]}" --edges "$edges" --prefix none --format '{p}')"
+        "${target_args[@]}" --edges "$edges" --prefix none --format '{p}')" || return 1
 
     jq -Rn '[
         inputs
