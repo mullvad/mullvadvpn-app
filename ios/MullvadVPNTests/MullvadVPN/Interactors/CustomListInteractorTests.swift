@@ -44,7 +44,8 @@ struct CustomListInteractorTests {
         let location1 = RelayLocation.country("se")
         #expect(customListInteractor.fetch(by: customList.id)?.locations.isEmpty == true)
 
-        try customListInteractor.addLocationToCustomList(relayLocations: [location1], customListName: customList.name)
+        try customListInteractor.addLocationToCustomList(
+            relayLocations: [location1], customListName: customList.name)
 
         #expect(
             customListInteractor.fetch(by: customList.id)?.locations.first == location1
@@ -64,7 +65,8 @@ struct CustomListInteractorTests {
             customListInteractor.fetch(by: customList.id)?.locations.count == 1
         )
 
-        try customListInteractor.addLocationToCustomList(relayLocations: [location1], customListName: customList.name)
+        try customListInteractor.addLocationToCustomList(
+            relayLocations: [location1], customListName: customList.name)
 
         #expect(
             customListInteractor.fetch(by: customList.id)?.locations.count == 1
@@ -115,7 +117,7 @@ struct CustomListInteractorTests {
     @Test(
         "If a list is selected as exit location and the list gets modified, the constraints should update"
     )
-    func updateConstraintsIfRemovedFromList() async throws {
+    func updateConstraintsIfRemovedFromList() throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList = CustomList(name: "MyCustomList", locations: [location1])
@@ -130,11 +132,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        tunnelManager
-            .updateSettings(
-                [.relayConstraints(relayConstraints)],
-                completionHandler: nil
-            )
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
         )
@@ -158,7 +156,7 @@ struct CustomListInteractorTests {
     @Test(
         "The constraints should not update on custom list change if the list is not selected"
     )
-    func doNotUpdateConstraintsIfSelectionNotAffected() async throws {
+    func doNotUpdateConstraintsIfSelectionNotAffected() throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList1 = CustomList(name: "MyCustomList1", locations: [location1])
@@ -176,8 +174,7 @@ struct CustomListInteractorTests {
             selection
         )
         tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -200,7 +197,7 @@ struct CustomListInteractorTests {
     @Test(
         "Removes the constraint when a custom list is removed"
     )
-    func removeConstraintIfListRemoved() async throws {
+    func removeConstraintIfListRemoved() throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let customList1 = CustomList(name: "MyCustomList1", locations: [location1])
@@ -216,8 +213,7 @@ struct CustomListInteractorTests {
             selection
         )
         tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -238,7 +234,7 @@ struct CustomListInteractorTests {
     @Test(
         "Removes the constraint when a location inside a custom list is removed"
     )
-    func removeConstraintIfLocationRemoved() async throws {
+    func removeConstraintIfLocationRemoved() throws {
         let (customListInteractor, tunnelManager) = makeDependencies()
         let location1 = RelayLocation.country("se")
         let location2 = RelayLocation.country("es")
@@ -255,8 +251,7 @@ struct CustomListInteractorTests {
             selection
         )
         tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -275,12 +270,9 @@ struct CustomListInteractorTests {
     }
 }
 
-private class SettingsUpdatingMock: SettingsUpdating {
+private final class SettingsUpdatingMock: SettingsUpdating, @unchecked Sendable {
     var updateCalled = false
-    func updateSettings(
-        _ updates: [MullvadSettings.TunnelSettingsUpdate],
-        completionHandler: (@Sendable () -> Void)?
-    ) {
+    func updateSettings(_ updates: [MullvadSettings.TunnelSettingsUpdate], completion: (@Sendable () -> Void)? = nil) {
         for update in updates {
             update.apply(to: &settings)
         }
