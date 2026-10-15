@@ -1,3 +1,4 @@
+use crate::relay_constraints::GeographicLocationConstraint;
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
@@ -164,26 +165,22 @@ pub struct GeoIpLocation {
     pub mullvad_exit_ip: bool,
     /// Hostname of the exit relay. e.g. `se-got-wg-101`.
     pub hostname: Option<String>,
-    /// City code of the exit relay. e.g. `got` for "Gothenburg".
+    /// City name of the exit relay. e.g. "Gothenburg".
     pub city: Option<String>,
-    /// Country code of the exit relay. e.g. `se` for "Sweden".
+    /// Country name of the exit relay. e.g. "Sweden".
     pub country: String,
     /// These fields are `Some` when tunnel state is connecting or connected.
-    /// City code of the exit relay. e.g. `got` for "Gothenburg".
-    pub city_code: Option<String>,
-    ///  Country code of the exit relay. e.g. `se` for "Sweden".
-    pub country_code: Option<String>,
+    /// Country, city and hostname code of the exit relay. e.g. `se`, `got`, `se-got-wg-001`
+    pub location: Option<GeographicLocationConstraint>,
     /// These fields are `Some` when traffic is routed through an entry relay.
     /// Hostname of the entry relay. e.g. `se-got-wg-101`.
     pub entry_hostname: Option<String>,
-    /// City code of the entry relay. e.g. `got` for "Gothenburg".
-    pub entry_city_code: Option<String>,
     /// City name of the entry relay. e.g. "Gothenburg"
     pub entry_city: Option<String>,
-    ///  Country code of the entry relay. e.g. `se` for "Sweden".
-    pub entry_country_code: Option<String>,
-    /// Country name of the entry relay. e.g. "Sweden"
+    ///  Country name of the entry relay. e.g. "Sweden".
     pub entry_country: Option<String>,
+    /// Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`
+    pub entry_location: Option<GeographicLocationConstraint>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -201,14 +198,12 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
             city: location.city,
-            city_code: None,
             country: location.country,
-            country_code: None,
             entry_hostname: None,
             entry_city: None,
-            entry_city_code: None,
             entry_country: None,
-            entry_country_code: None,
+            location: None,
+            entry_location: None,
         }
     }
 }
