@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../../../shared/gettext';
-import { useSelectedLocations } from '../../../../../../../features/locations/hooks';
+import { useExitLocation } from '../../../../../../../features/locations/hooks';
 import { useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
 
@@ -9,8 +9,8 @@ export type ExitItemProps = Omit<
 >;
 
 export function ExitItem(props: ExitItemProps) {
-  const { exit } = useSelectedLocations();
-  const defaultValue = useLocationName(exit);
+  const { exitLocation } = useExitLocation();
+  const defaultValue = useLocationName(exitLocation);
 
   return (
     <TextFieldItem

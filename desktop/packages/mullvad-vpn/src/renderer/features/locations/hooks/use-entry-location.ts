@@ -1,30 +1,34 @@
 import React from 'react';
 
-import { type RelayLocation, wrapConstraint } from '../../../../shared/daemon-rpc-types';
+import {
+  type LiftedConstraint,
+  type RelayLocation,
+  wrapConstraint,
+} from '../../../../shared/daemon-rpc-types';
 import log from '../../../../shared/logging';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 
-export function useExitLocation() {
+export function useEntryLocation() {
   const normalRelaySettings = useNormalRelaySettings();
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
-  const setExitLocation = React.useCallback(
-    async (exitLocation: RelayLocation) => {
+  const setEntryLocation = React.useCallback(
+    async (entryLocation: LiftedConstraint<RelayLocation>) => {
       try {
         await relaySettingsUpdater((settings) => {
-          settings.location = wrapConstraint(exitLocation);
+          settings.wireguardConstraints.entryLocation = wrapConstraint(entryLocation);
           return settings;
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : '';
-        log.error('Could not set exit location', message);
+        log.error('Could not set entry location', message);
       }
     },
     [relaySettingsUpdater],
   );
 
-  const exitLocation = normalRelaySettings?.location;
+  const entryLocation = normalRelaySettings?.wireguard.entryLocation ?? 'any';
 
-  return { exitLocation, setExitLocation };
+  return { entryLocation, setEntryLocation };
 }

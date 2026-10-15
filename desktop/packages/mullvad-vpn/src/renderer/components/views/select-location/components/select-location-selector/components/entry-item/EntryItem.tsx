@@ -1,5 +1,5 @@
 import { messages } from '../../../../../../../../shared/gettext';
-import { useSelectedLocations } from '../../../../../../../features/locations/hooks';
+import { useEntryLocation } from '../../../../../../../features/locations/hooks';
 import { useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
 
@@ -9,8 +9,8 @@ export type EntryItemProps = Omit<
 >;
 
 export function EntryItem(props: EntryItemProps) {
-  const { entry } = useSelectedLocations();
-  const defaultValue = useLocationName(entry);
+  const { entryLocation } = useEntryLocation();
+  const defaultValue = useLocationName(entryLocation);
 
   return (
     <TextFieldItem

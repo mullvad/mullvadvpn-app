@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useEntryLocation } from '../../../../../features/multihop/hooks';
+import { useEntryLocation } from '../../../../../features/locations/hooks';
 import { Container } from '../../../../../lib/components';
 import { ProgressButton } from '../../../../../lib/components/progress-button';
 import { Wizard } from '../../../../../lib/components/wizard';
