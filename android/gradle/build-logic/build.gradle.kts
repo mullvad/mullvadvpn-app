@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.android.gradle.junit5)
     compileOnly(libs.detekt.gradle.plugin)
     implementation(libs.cyclonedx.gradle.plugin)
+    // Overrides the vulnerable Jackson version used by the CycloneDX plugin.
+    implementation(platform(libs.jackson.bom))
 }
 
 gradlePlugin {
