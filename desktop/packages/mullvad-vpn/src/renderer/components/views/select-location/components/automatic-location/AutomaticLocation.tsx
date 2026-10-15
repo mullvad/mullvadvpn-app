@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useSelectedLocations } from '../../../../../features/locations/hooks';
+import { useEntryLocation } from '../../../../../features/locations/hooks';
 import { Dialog } from '../../../../../lib/components/dialog';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { Location } from '../location-list-item';
@@ -13,7 +13,7 @@ export type AutomaticLocationProps = {
 
 export function AutomaticLocation({ position }: AutomaticLocationProps) {
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
-  const { entry } = useSelectedLocations();
+  const { entryLocation } = useEntryLocation();
 
   const handleClickAutomatic = React.useCallback(async () => {
     await handleSelectEntryLocation('any');
@@ -29,7 +29,7 @@ export function AutomaticLocation({ position }: AutomaticLocationProps) {
 
   return (
     <>
-      <Location selected={entry === 'any'}>
+      <Location selected={entryLocation === 'any'}>
         <Location.ListItem position={position}>
           <Location.ListItem.Trigger
             onClick={handleClickAutomatic}
