@@ -30,7 +30,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                 // Make the page control the first accessible element on the page instead of the last
                 .accessibilitySortPriority(1)
 
-                VStack(spacing: 0) {
+                VStack(spacing: 1) {
                     SegmentedListItem(
                         isLastInList: false,
                         userInteraction: .enabledWithoutHighlight,
