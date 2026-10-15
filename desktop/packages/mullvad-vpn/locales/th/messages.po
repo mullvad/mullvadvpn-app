@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-15 07:52\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -736,6 +736,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "ไม่สามารถเข้าถึง API โดยใช้วิธี %(name)s ได้"
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านทาง %(domainFronting)s"
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "แอปต้องการรายละเอียดเซิร์ฟเวอร์ทางไกล เพื่อให้ SOCKS5 ภายในของคุณส่งต่อการรับส่งข้อมูลของคุณ"
@@ -743,6 +751,12 @@ msgstr "แอปต้องการรายละเอียดเซิร
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "CDN ที่ใช้คือ CDN77 ของ Datapacket โดย CDN จะสามารถสังเกตเห็นได้เฉพาะการรับส่งข้อมูล TLS ที่ผ่านพร็อกซีเท่านั้น แต่ไม่สามารถดูเนื้อหาได้"
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -755,6 +769,12 @@ msgstr "พอร์ต TCP ที่เซิร์ฟเวอร์ SOCKS5 �
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "ตัวเลือกนี้อาจมีประโยชน์ในกรณีที่ API ถูกเซ็นเซอร์ แต่เซิร์ฟเวอร์ Bridge ของ Mullvad ไม่ถูกเซ็นเซอร์"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "สิ่งนี้มีประโยชน์เมื่อการเข้าถึงโดยตรง และวิธีการอื่นๆ ถูกบล็อกจากการเซ็นเซอร์"
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -783,6 +803,14 @@ msgstr "การใช้วิธี \"พร็อกซี DNS ที่เ�
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "การใช้วิธี \"Mullvad bridges\" จะทำให้แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านเซิร์ฟเวอร์ Mullvad bridge โดยการรับส่งข้อมูลที่ Shadowsocks ทำให้ข้อมูลยุ่งเหยิง"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "วิธีการเข้าถึงแบบ %(domainFronting)s จะช่วยให้แอปสามารถจะเข้าถึง Mullvad API ผ่าน CDN ซึ่งจะผสมการรับส่งข้อมูลเข้ากับการรับส่งข้อมูลอินเทอร์เน็ตอื่นๆ จำนวนมาก และทำให้ถูกเซ็นเซอร์ได้ยากขึ้น"
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2074,8 +2102,8 @@ msgstr "ตลอดเวลา"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "คลิก “+” บนตำแหน่งเพื่อเพิ่มลงในรายการ"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "คลิก “...” บนตำแหน่งเพื่อเพิ่มลงในรายการ"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3058,6 +3086,9 @@ msgstr "เพิ่ม 90 วันในบัญชีของคุณแ�
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>ไม่สามารถกู้คืนบัญชีได้</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>ตลอดเวลา</b>\\nมัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก"
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>โปรดทราบ: การตั้งค่า DNS อาจไม่ได้มีผลทันที</b>"
 
@@ -3073,6 +3104,9 @@ msgstr "<b>ข้อควรระวัง:</b> แอปจะปิดโด
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>ตัวบล็อกเนื้อหา DNS</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>ไม่เลย</b>\\nมัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ"
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b>"
 
@@ -3087,6 +3121,9 @@ msgstr "<b>รายการนี้อาจส่งผลกระทบต
 
 msgid "<b>Warning:</b>"
 msgstr "<b>คำเตือน:</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>เมื่อจำเป็น</b>\\nไม่ใช่ทุกตำแหน่งหรือเซิร์ฟเวอร์ของเราที่จะรองรับทุกฟีเจอร์ในแอป หากตำแหน่ง/เซิร์ฟเวอร์ที่คุณเลือกไม่รองรับฟีเจอร์ที่คุณเปิดใช้งานไว้ แอปจะเชื่อมต่อแบบมัลติฮอปผ่านเซิร์ฟเวอร์ที่รองรับโดยอัตโนมัติ"
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>คุณจะสูญเสียการเข้าถึงบัญชีนี้บนทุกอุปกรณ์</b>"
@@ -3136,9 +3173,6 @@ msgstr "กำลังเพิ่มวิธีการ..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป"
 
-msgid "Agree and continue"
-msgstr "ยอมรับและดำเนินการต่อ"
-
 msgid "All"
 msgstr "ทั้งหมด"
 
@@ -3153,6 +3187,9 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง VPN อื่นแล้ว"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "มีการใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้ตรงกับการตั้งค่าของคุณสำหรับตำแหน่งที่เลือก"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "ปัจจุบันเซิร์ฟเวอร์ขาเข้าจะถูกเลือกโดยอัตโนมัติเมื่อจำเป็น เพื่อให้แน่ใจว่าการเชื่อมต่อสามารถใช้งานได้ หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น \"ตลอดเวลา”"
@@ -3398,7 +3435,7 @@ msgid "Filters are overridden when using an automatic location"
 msgstr "ตัวกรองจะถูกยกเลิก เมื่อใช้ตำแหน่งแบบอัตโนมัติ"
 
 msgid "Filters can now be set separately for entry and exit locations."
-msgstr "ชสามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งขาเข้าและขาออกได้แล้วในขณะนี้"
+msgstr "สามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งขาเข้าและขาออกได้แล้วในขณะนี้"
 
 msgid "For details, please see our %s."
 msgstr "สำหรับรายละเอียดเพิ่มเติม โปรดดูที่ %s ของเรา"
@@ -3442,17 +3479,11 @@ msgstr "ไอคอนและชื่อ"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "หากไอคอนและชื่อยังไม่เปลี่ยนหลังจากปิดแอปแล้ว โปรดลองรีสตาร์ทอุปกรณ์"
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์"
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "หากขั้นตอนเหล่านี้ไม่ได้ผล โปรดส่งอีเมลถึงฝ่ายสนับสนุนโดยใช้ปุ่มด้านล่าง ระบบจะแนบบันทึกที่ถูกทำให้ไม่ระบุตัวตนโดยอัตโนมัติ"
 
 msgid "If you have any issues"
 msgstr "หากคุณมีปัญหาใดๆ"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "หากตำแหน่งปัจจุบันของคุณไม่รองรับการตั้งค่าที่คุณต้องการ เช่น วิธีการป้องกันการเซ็นเซอร์ ตัวกรอง และ/หรือ DAITA ระบบจะใช้มัลติฮอปโดยอัตโนมัติเพื่อเชื่อมต่อไปยังตำแหน่งดังกล่าวผ่านเซิร์ฟเวอร์ที่รองรับ ซึ่งจะแสดงด้วยสัญลักษณ์ %1$s"
 
 msgid "Import new overrides by"
 msgstr "นำเข้าโอเวอร์ไรด์ใหม่โดยใช้"
@@ -3540,6 +3571,9 @@ msgstr "มัลติฮอปเปิดใช้งานอยู่ ก�
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "ขณะนี้ มัลติฮอปถูกแบ่งออกเป็น 3 โหมด: เมื่อจำเป็น ตลอดเวลา และไม่เลย\\nสิ่งนี้จะช่วยให้คุณมีความยืดหยุ่นในการตั้งค่าการเชื่อมต่อของคุณมากขึ้น"
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณเข้าสู่เซิร์ฟเวอร์ WireGuard ตัวหนึ่งและออกไปอีกตัวหนึ่ง ซึ่งทำให้ยากต่อการติดตาม โดยจะส่งผลให้มีความหน่วงแฝงเพิ่มขึ้น แต่ช่วยเพิ่มการปกปิดตัวตนบนโลกออนไลน์ได้ โหมดมัลติฮอปมีสามโหมดให้เลือก ได้แก่:\\nเมื่อจำเป็น ตลอดเวลา และไม่เลย"
 
 msgid "Multihop when needed"
 msgstr "มัลติฮอป เมื่อจำเป็น"
@@ -3663,9 +3697,6 @@ msgstr "พอร์ตอยู่นอกระยะ"
 
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "ป้องกันไม่ให้อุปกรณ์ติดต่อกับโดเมนหรือเว็บไซต์บางแห่งที่ขึ้นชื่อเรื่องการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ"
-
-msgid "Privacy"
-msgstr "ความเป็นส่วนตัว"
 
 msgid "Privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"
@@ -3820,6 +3851,9 @@ msgstr "แอปไม่สามารถสร้างบัญชีได
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "แอปไม่สามารถเข้าสู่ระบบได้ เนื่องจากไม่สามารถเข้าถึง Mullvad API ได้"
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "แอปจะทำการมัลติฮอปก็ต่อเมื่อไม่สามารถเชื่อมต่อไปยังตำแหน่งที่ตั้งที่คุณเลือกได้ ซึ่งอาจเกิดขึ้นหากเซิร์ฟเวอร์ในตำแหน่งที่ตั้งนั้นไม่รองรับฟีเจอร์ที่คุณเปิดใช้งาน ในกรณีนี้ แอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณผ่านเซิร์ฟเวอร์ที่รองรับฟีเจอร์เหล่านั้นโดยอัตโนมัติก่อนที่จะไปถึงตำแหน่งที่ตั้งที่คุณเลือก"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN"
 
@@ -3835,6 +3869,9 @@ msgstr "วิธีการเหล่านี้อาจมีประโ
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "นี่จะช่วยให้มั่นใจได้ว่าการเชื่อมต่อของคุณจะไม่ถูกบล็อก เนื่องจากการตั้งค่าที่ไม่เข้ากัน"
+
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
 
@@ -3849,6 +3886,9 @@ msgstr "นี่อาจเกิดจากการเซ็นเซอร
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
 msgstr "โหมดนี้ช่วยให้แอปสามารถทำมัลติฮอปผ่านเซิร์ฟเวอร์เพิ่มเติมโดยอัตโนมัติ หากจำเป็น เพื่อให้มั่นใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่เลือกได้"
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "รายการนี้จะแสดงด้วยสัญลักษณ์ %1$s"
 
 msgid "Time added"
 msgstr "เพิ่มเวลาแล้ว"
@@ -3870,9 +3910,6 @@ msgstr "หากต้องการลบบัญชี Mullvad VPN โป�
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "แอปอาจทำมัลติฮอปอัตโนมัติผ่านเซิร์ฟเวอร์ขาเข้าอื่น เพื่อให้แน่ใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่คุณเลือกได้ และเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อของคุณ\\nนี่จะแสดงด้วยสัญลักษณ์ %1$s"
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้"
 
 msgid "Toggle VPN"
 msgstr "เปิด/ปิด VPN"

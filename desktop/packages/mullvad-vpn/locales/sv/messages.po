@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-19 06:47\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
@@ -742,6 +742,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "Det gick inte att nå API med %(name)s-metoden."
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "Appen kommunicerar direkt med en Mullvad API-server via %(domainFronting)s."
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "Appen behöver information om fjärrservern där din lokala SOCKS5-server vidarebefordrar din trafik."
@@ -749,6 +757,12 @@ msgstr "Appen behöver information om fjärrservern där din lokala SOCKS5-serve
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "Den CDN som används är Datapackets CDN77. Denna CDN kan endast observera TLS-trafiken via en proxy och inte själva innehållet."
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -761,6 +775,12 @@ msgstr "TCP-porten där din lokala SOCKS5-server lyssnar."
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "Detta kan vara användbart om API:n är censurerad men Mullvads broservrar inte är det."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "Det kan vara användbart när direktåtkomst och andra metoder blockeras på grund av censur."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -789,6 +809,14 @@ msgstr "Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Med metoden \"Mullvad-broar\" kommunicerar appen med en Mullvad API-server via en Mullvad-broserver. Den gör det genom att skicka trafiken som obfuskeras av Shadowsocks."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "Med åtkomstmetoden %(domainFronting)s når appen Mullvads API via en CDN och blandar trafiken med annan internettrafik, vilket gör att den blir svårare att censurera."
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2080,8 +2108,8 @@ msgstr "Alltid"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "Klicka på \"+\" på en plats för att lägga till den i en lista"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "Klicka på \"…\" på en plats för att lägga till den i en lista"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3064,6 +3092,9 @@ msgstr "90 dagar har lagts till i ditt konto."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Det går inte att återställa kontot.</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>Alltid</b>\\nMultihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen."
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Obs! DNS-inställningarna kanske inte börjar gälla direkt.</b>"
 
@@ -3079,6 +3110,9 @@ msgstr "<b>Obs!</b> Appen stängs automatiskt och måste öppnas igen manuellt e
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNS-innehållsblockerare</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>Aldrig</b>\\nMultihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning."
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen.</b>"
 
@@ -3093,6 +3127,9 @@ msgstr "<b>Det här kan påverka din anonymitet.</b> Undvik att aktivera det hä
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Varning:</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>Vid behov</b>\\nDet är inte alla våra platser/servrar som har stöd för varje funktion i appen. Om din valda plats/server inte har stöd för funktionerna du har aktiverat kommer appen automatiskt att multihoppa via en kompatibel server."
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>Du förlorar åtkomsten till kontot på alla enheter.</b>"
@@ -3142,9 +3179,6 @@ msgstr "Lägger till metod ..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "När en VPN-app har uppdaterats på Android 16 kan enheterna hamna i ett tillstånd där VPN-apparna inte längre har åtkomst till internet."
 
-msgid "Agree and continue"
-msgstr "Godkänn och fortsätt"
-
 msgid "All"
 msgstr "Alla"
 
@@ -3159,6 +3193,9 @@ msgstr "Alltid på-VPN har tilldelats %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Alltid på-VPN har tilldelats en annan VPN"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "En extra server används för att anpassa inställningarna till din valda plats"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "En ingångsserver väljs för närvarande automatiskt om det behövs för att säkerställa en fungerande anslutning. Byt multihoppläget till \"Alltid\" om du vill välja en ingångsserver manuellt."
@@ -3188,7 +3225,7 @@ msgid "Attention: If \"Block connections without VPN\" is enabled, split apps wi
 msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar."
 
 msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "Obs! I det här läget ignoreras filtren för extra server."
+msgstr "Obs! I det här läget ignoreras filtren för den extra servern."
 
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "Obs! Detta ignorerar filterinställningarna för servern som används som startpunkt."
@@ -3448,17 +3485,11 @@ msgstr "Ikon och titel"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "Om ikonen och titeln fortfarande inte ändras efter att appen har stängts, kan du prova att starta om enheten."
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten."
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats."
 
 msgid "If you have any issues"
 msgstr "Om du har några problem"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "Om den nuvarande platsen inte stöder dina inställningar – till exempel anti-censurfunktion, filter och/eller DAITA – används multihopp automatiskt för att ansluta till den platsen via en kompatibel server. Detta anges av symbolen %1$s."
 
 msgid "Import new overrides by"
 msgstr "Importera nya åsidosättningar med"
@@ -3542,10 +3573,13 @@ msgid "Multihop is enabled"
 msgstr "Multihopp är aktiverat"
 
 msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen."
+msgstr "Multihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen."
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "Multihopp är nu uppdelat i tre lägen: Vid behov, Alltid och Aldrig.\\nDetta ger dig mer flexibilitet i anslutningsinställningarna."
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "Multihopp leder din trafik in till en WireGuard-server och ut ur en annan, vilket gör det svårare att spåra den. Det leder till längre fördröjning men förbättrar anonymiteten på internet. Multihopp har tre olika valbara lägen:\\nVid behov, Alltid och Aldrig."
 
 msgid "Multihop when needed"
 msgstr "Multihopp vid behov"
@@ -3670,9 +3704,6 @@ msgstr "Porten är utanför intervallet"
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Förhindrar att enheten kontaktar vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera."
 
-msgid "Privacy"
-msgstr "Sekretess"
-
 msgid "Privacy policy"
 msgstr "Sekretesspolicy"
 
@@ -3788,7 +3819,7 @@ msgid "TCP"
 msgstr "TCP"
 
 msgid "Test method"
-msgstr "Testmetod"
+msgstr "Testa metod"
 
 msgid "Testing %s..."
 msgstr "Testar %s ..."
@@ -3803,7 +3834,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda."
 
 msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
-msgstr "Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika blockerade anslutningar. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen."
+msgstr "Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika att anslutningarna blockeras. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen."
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "IPv6 DNS-servern fungerar inte om du inte aktiverar \"IPv6\" under VPN-inställningar."
@@ -3826,6 +3857,9 @@ msgstr "Appen kunde inte skapa ett konto eftersom det inte gick att nå Mullvad 
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "Appen kunde inte logga in eftersom det inte gick att nå Mullvad API."
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "Appen använder bara multihopp om den inte kan ansluta till din valda plats. Det kan inträffa om servern på den platsen inte har stöd för funktionerna som du har aktiverat. I så fall leder appen automatiskt trafiken via en server som har stöd för dessa funktioner innan du når din valda plats."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under VPN-inställningar."
 
@@ -3841,6 +3875,9 @@ msgstr "Dessa metoder kan vara användbara i situationer där du blockeras från
 msgid "This address has already been entered."
 msgstr "Adressen har redan angetts."
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "Det säkerställer att din anslutning inte blockeras på grund av inkompatibla inställningar."
+
 msgid "This field is required"
 msgstr "Fältet är obligatoriskt"
 
@@ -3855,6 +3892,9 @@ msgstr "Det kan bero på censur- eller nätverksfel. Försök att:"
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
 msgstr "Det här läget ger appen möjlighet att vid behov automatiskt multihoppa via en extra server för att säkerställa att dina nuvarande inställningar fungerar med din valda plats."
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "Detta anges med symbolen %1$s."
 
 msgid "Time added"
 msgstr "Tid har lagts till"
@@ -3876,9 +3916,6 @@ msgstr "Ange kontonumret nedan om du vill ta bort ditt Mullvad VPN-konto."
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "Appen kanske multihoppar automatiskt via en annan ingångsserver för att garantera att dina nuvarande inställningar fungerar samt för att undvika att anslutningen blockeras.\\nDetta anges av symbolen %1$s."
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig."
 
 msgid "Toggle VPN"
 msgstr "Växla VPN"

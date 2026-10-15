@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Arabic\n"
 "Language: ar_SA\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-19 06:47\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d أكثر..."
@@ -766,6 +766,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "تعذَّر الوصول إلى واجهة API باستخدام طريقة %(name)s."
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "يتصل التطبيق بخادم Mullvad API عبر %(domainFronting)s."
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "يحتاج التطبيق إلى تفاصيل الخادم البعيد، حيث سيُعيد خادم SOCKS5 المحلي الخاص بك توجيه حركة بياناتك."
@@ -773,6 +781,12 @@ msgstr "يحتاج التطبيق إلى تفاصيل الخادم البعيد�
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "يحتاج التطبيق إلى التواصل مع خادم Mullvad API لتسجيل دخولك، وجلب قوائم الخوادم، وغيرها من العمليات المهمة."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "شبكة توصيل المحتوى (CDN) المستخدمة هي CDN77 التابعة لشركة Datapacket. وتقتصر قدرة الشبكة على رصد حركة بيانات TLS الموجهة عبر الوكيل، دون الاطلاع على المحتوى."
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -785,6 +799,12 @@ msgstr "منفذ TCP الذي يستمع عليه خادم SOCKS5 المحلي."
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "قد يكون هذا مفيدًا إذا كانت واجهة API خاضعة للرقابة، لكن خوادم جسر Mullvad ليست كذلك."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "قد يكون هذا مفيدًا في حالة حظر الوصول المباشر والأساليب الأخرى بسبب الرقابة."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -813,6 +833,14 @@ msgstr "باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيت
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "باستخدام طريقة \"جسور Mullvad\"، يتواصل التطبيق مع خادم Mullvad API عبر خادم جسر Mullvad. ويفعل ذلك من خلال إرسال حركة بيانات مموهة بواسطة بروتوكول Shadowsocks."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "باستخدام طريقة الوصول %(domainFronting)s، يصل التطبيق إلى واجهة برمجة تطبيقات Mullvad عبر شبكة توصيل المحتوى (CDN)، مما يدمج حركة البيانات مع حركة البيانات الأخرى العديدة على الإنترنت، ويجعل حجبها أكثر صعوبة."
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2095,11 +2123,17 @@ msgctxt "select-location-view"
 msgid "All locations"
 msgstr "جميع المواقع"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Always".
+msgctxt "select-location-view"
+msgid "Always"
+msgstr "دائمًا"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "انقر فوق \"+\" في الموقع لإضافته إلى قائمة"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "انقر فوق \"...\" بجوار موقع ما لإضافته إلى قائمة"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -2129,6 +2163,17 @@ msgstr "خروج"
 msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr "بعد التصفية:"
+
+#. Title for a menu with items for the Multihop mode setting options.
+msgctxt "select-location-view"
+msgid "Multihop mode"
+msgstr "الوضع متعدد القفزات"
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Never".
+msgctxt "select-location-view"
+msgid "Never"
+msgstr "أبدًا"
 
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
@@ -2162,6 +2207,12 @@ msgstr "الإعداد: %(settingName)s"
 msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "يجري عرض %(visibleRelays)s من %(totalRelays)s"
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "When needed".
+msgctxt "select-location-view"
+msgid "When needed"
+msgstr "عند الحاجة"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2234,6 +2285,12 @@ msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
 msgstr "للتغلب على هذه المشكلة، يمكنك استيراد ملف أو نص، تم توفيره من قِبل فريق الدعم لدينا، مع عناوين IP جديدة تتجاوز العناوين الافتراضية للخوادم في شاشة تحديد الموقع."
 
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Always" option is selected.
+msgctxt "settings-view"
+msgid "Always"
+msgstr "دائمًا"
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -2247,6 +2304,12 @@ msgstr "معلومات التطبيق"
 msgctxt "settings-view"
 msgid "Multihop"
 msgstr "القفز المتعدد"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Never" option is selected.
+msgctxt "settings-view"
+msgid "Never"
+msgstr "أبدًا"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2272,6 +2335,12 @@ msgstr "إعدادات واجهة المستخدم"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "إعدادات شبكة VPN"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "When needed" option is selected.
+msgctxt "settings-view"
+msgid "When needed"
+msgstr "عند الحاجة"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -2854,6 +2923,12 @@ msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
 msgstr "منفذ %(wireGuard)s"
 
+#. Label for the Multihop mode setting's option to always use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Always"
+msgstr "دائمًا"
+
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "تنبيه: يزيد ذلك من حركة بيانات الشبكة، ويؤثر سلبًا على السرعة وزمن الوصول واستهلاك البطارية. يُرجى توخي الحذر عند استخدام الباقات المحدودة."
@@ -2875,6 +2950,11 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr "يتم ذلك عبر إجراء تبادل مفاتيح إضافي باستخدام خوارزمية آمنة كموميًا، ودمج النتيجة ضمن التشفير القياسي لبروتوكول WireGuard."
 
+#. Title for Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "Mode"
+msgstr "الوضع"
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
@@ -2889,6 +2969,12 @@ msgstr "القفز المتعدد"
 msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr "يوجِّه القفز المتعدد حركة البيانات لديك من خادم WireGuard إلى آخر، مما يجعل من الصعب تتبُّعها. ويؤدي ذلك إلى زيادة زمن الوصول، لكنه يزيد من إخفاء الهوية على الإنترنت."
+
+#. Label for the Multihop mode setting's option to never use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Never"
+msgstr "أبدًا"
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
@@ -2953,6 +3039,12 @@ msgstr "النطاق الصالح: %(min)s - %(max)s"
 msgctxt "wireguard-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "النطاقات الصالحة: %(portRanges)s"
+
+#. Label for the Multihop mode setting's option to use the multihop
+#. feature when it is needed.
+msgctxt "wireguard-settings-view"
+msgid "When needed"
+msgstr "عند الحاجة"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
@@ -3024,6 +3116,9 @@ msgstr "تمت إضافة 90 يومًا إلى حسابك."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>لن يكون من الممكن استرداد الحساب.</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>دائمًا</b>\\nتم تمكين ميزة تعدد القفزات. ويجري توجيه اتصالك عبر خادم دخول قبل الخروج من الموقع المحدد."
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>تنبيه: قد لا يتم تطبيق إعدادات DNS على الفور.</b>"
 
@@ -3039,6 +3134,9 @@ msgstr "<b>تنبيه:</b> سيتم إيقاف التطبيق تلقائيًا �
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>أدوات حظر محتوى DNS</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>أبدًا</b>\\nتم تعطيل ميزة تعدد القفزات. يجب أن يدعم الموقع الذي اخترته جميع الإعدادات النشطة حتى يتمكن من إنشاء الاتصال."
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.</b>"
 
@@ -3053,6 +3151,9 @@ msgstr "<b>قد يؤثر ذلك على إخفاء هويتك.</b> تجنب تم�
 
 msgid "<b>Warning:</b>"
 msgstr "<b>تحذير:</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>عند الحاجة</b>\\nلا تدعم جميع مواقعنا أو خوادمنا كافة ميزات التطبيق. فإذا كان الموقع أو الخادم الذي اخترته لا يدعم الميزات التي قمت بتمكينها، فسيقوم التطبيق تلقائيًا بتوجيه الاتصال عبر خوادم متعددة القفزات باستخدام خادم متوافق."
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>سوف تفقد صلاحية الوصول إلى هذا الحساب على جميع الأجهزة.</b>"
@@ -3102,9 +3203,6 @@ msgstr "جارٍ إضافة الطريقة..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت."
 
-msgid "Agree and continue"
-msgstr "الموافقة والمتابعة"
-
 msgid "All"
 msgstr "الكل"
 
@@ -3119,6 +3217,9 @@ msgstr "تم تعيين \"تشغيل VPN دائمًا\" إلى %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "تم تعيين \"تشغيل VPN دائمًا\" إلى شبكة VPN أخرى"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "يتم استخدام خادم إضافي ليطابق إعداداتك الخاصة بموقعك المختار"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "يجري حاليًا تحديد خادم الدخول تلقائيًا عند الحاجة لضمان استقرار الاتصال. ولتحديد خادم الدخول يدويًا، يُرجى تغيير وضع القفزات المتعددة إلى \"دائمًا\"."
@@ -3146,6 +3247,9 @@ msgstr "يجب تفعيل طريقة واحدة على الأقل"
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "تنبيه: في حال تفعيل \"حظر الاتصالات دون VPN\"، لن تتمكن التطبيقات المُقسَّمة من الاتصال بالإنترنت. تذكَّر دائمًا أن الانقسام النفقي يُشكِّل خطرًا على الخصوصية."
+
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "تنبيه: في هذا الوضع، يتم تجاهل عوامل التصفية بالنسبة للخادم الإضافي."
 
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "تنبيه: سيؤدي هذا إلى تجاهل إعدادات التصفية الخاصة بالخادم المُستخدم كنقطة دخول."
@@ -3318,11 +3422,17 @@ msgstr "أدخل رقم الحساب بالأرقام"
 msgid "Enter an account number"
 msgstr "أدخل رقم حساب"
 
+msgid "Entry filter"
+msgstr "عوامل تصفية الدخول"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "الخادم الوسيط للدخول هو نفسه الخادم الوسيط للخروج"
 
 msgid "Excluded applications"
 msgstr "التطبيقات المستثناة"
+
+msgid "Exit filter"
+msgstr "عوامل تصفية الخروج"
 
 msgid "Expand"
 msgstr "توسيع"
@@ -3350,6 +3460,12 @@ msgstr "فشل التعيين إلى الطريقة الحالية - السبب 
 
 msgid "File"
 msgstr "ملف"
+
+msgid "Filters are overridden when using an automatic location"
+msgstr "يتم تجاوز عوامل التصفية عند استخدام موقع تلقائي"
+
+msgid "Filters can now be set separately for entry and exit locations."
+msgstr "يمكن الآن ضبط عوامل التصفية بشكل منفصل لمواقع الدخول والخروج."
 
 msgid "For details, please see our %s."
 msgstr "للحصول على التفاصيل، يُرجى الاطلاع على %s لدينا."
@@ -3393,17 +3509,11 @@ msgstr "الرمز والعنوان"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "إذا لم تتغير الأيقونة والعنوان بعد إغلاق التطبيق، فالرجاء محاولة إعادة تشغيل الجهاز."
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "في حال استخدام ميزة الانقسام النفقي، يستعلم التطبيق من نظامك للحصول على قائمة بجميع التطبيقات المُثبَّتة. يتم استدعاء هذه القائمة في شاشة الانقسام النفقي فقط. ولا يتم إرسال قائمة التطبيقات المُثبَّتة من الجهاز أبدًا."
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "إذا لم تنجح هذه الخطوات في حال المشكلة، يُرجى مراسلة فريق الدعم عبر البريد الإلكتروني باستخدام الزر أدناه. سيتم تلقائيًا إرفاق السجلات التي تم إخفاء هويتها."
 
 msgid "If you have any issues"
 msgstr "إذا كانت لديك أي مشكلات"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "إذا كان موقعك الحالي لا يدعم تفضيلاتك مثل طريقة مكافحة الرقابة، أو عوامل التصفية، أو تقنية DAITA، فسيتم استخدام القفزات المتعددة تلقائيًا للاتصال بهذا الموقع عبر خادم متوافق. وسيتم توضيح ذلك بالرمز %1$s."
 
 msgid "Import new overrides by"
 msgstr "استيراد تجاوزات جديدة بواسطة"
@@ -3465,20 +3575,35 @@ msgstr "تسجيل الدخول"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "يضمن هذا الخيار بقاء الجهاز متصلًا دائمًا بنفق VPN."
 
+msgid "Migrated settings"
+msgstr "الإعدادات المنقولة"
+
 msgid "More actions"
 msgstr "إجراءات إضافية"
 
 msgid "Mullvad services unavailable"
 msgstr "خدمات Mullvad غير متاحة"
 
+msgid "Multihop entry set to “Automatic”"
+msgstr "تم ضبط خادم الدخول متعدد القفزات على \"تلقائي\""
+
 msgid "Multihop is disabled"
 msgstr "تم تعطيل القفز المتعدد"
+
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "تم تعطيل ميزة تعدد القفزات. يجب أن يدعم الموقع الذي اخترته جميع الإعدادات النشطة حتى يتمكن من إنشاء الاتصال."
 
 msgid "Multihop is enabled"
 msgstr "تم تمكين القفز المتعدد"
 
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "تم تمكين تعدد القفزات. يتم توجيه اتصالك عبر خادم دخول قبل الخروج من الموقع المحدد."
+
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "ينقسم وضع القفزات المتعددة الآن إلى ثلاثة خيارات: \"عند الحاجة\"، و\"دائمًا\"، و\"مطلقًا\".\\nيمنحك هذا مرونة أكبر في إدارة تفضيلات الاتصال لديك."
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "توجّه ميزة تعدد القفزات حركة بياناتك عبر أحد خوادم WireGuard ثم خروجها عبر خادم آخر، مما يجعل تتبّعها أكثر صعوبة. يؤدي ذلك إلى زيادة زمن الاستجابة، لكنه يعزّز إخفاء هويتك على الإنترنت. تتوفر ثلاثة أوضاع للاختيار من بينها لميزة تعدد القفزات:\\nعند الحاجة، ودائمًا، وأبدًا."
 
 msgid "Multihop when needed"
 msgstr "القفزات المتعددة عند الحاجة"
@@ -3491,6 +3616,9 @@ msgstr "تم تغيير الاسم إلى %s"
 
 msgid "Navigate"
 msgstr "تنقل"
+
+msgid "New multihop modes"
+msgstr "الأوضاع الجديدة لتعدد القفزات"
 
 msgid "Next %1$s"
 msgstr "التالي %1$s"
@@ -3600,9 +3728,6 @@ msgstr "المنفذ خارج النطاق"
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها."
 
-msgid "Privacy"
-msgstr "الخصوصية"
-
 msgid "Privacy policy"
 msgstr "سياسة الخصوصية"
 
@@ -3648,6 +3773,9 @@ msgstr "بحث"
 msgid "Send email"
 msgstr "إرسال رسالة بريد إلكتروني"
 
+msgid "Separate filters"
+msgstr "عوامل تصفية منفصلة"
+
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "قم بتعيين قيمة WireGuard MTU. النطاق الصالح: %1$d - %2$d."
 
@@ -3690,11 +3818,23 @@ msgstr "يظهر حالة نفق VPN الحالية"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "يظهر تذكيرات عندما يكون وقت الحساب على وشك الانتهاء"
 
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "تم نقل بعض إعداداتك. يُرجى مراجعة التغييرات ومعالجة أي مشكلات."
+
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "تم نقل بعض إعداداتك. يُرجى مراجعة التغييرات."
+
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "حدث خطأ ما أثناء التحقق من الشراء. برجاء الاتصال بالدعم."
 
 msgid "Submit"
 msgstr "إرسال"
+
+msgid "Suggested action"
+msgstr "الإجراء المقترح"
+
+msgid "Suggested multihop entry"
+msgstr "المدخل متعدد القفزات المقترح"
 
 msgid "System network settings"
 msgstr "إعدادات شبكة النظام"
@@ -3717,6 +3857,9 @@ msgstr "نشكرك لكونك جزء من مجتمعنا.\\nالخصوصية ح�
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "يمكن العثور على إعدادات \"الاتصال التلقائي\" و\"وضع التأمين\" في إعدادات نظام Android. اتَّبع هذا الدليل لتفعيل أحدهما أو كليهما."
 
+msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
+msgstr "تمت إزالة الإعداد الفرعي \"مباشر فقط\" ضمن DAITA وتبسيطه لتجنّب حظر الاتصالات. بدلًا من ذلك، عند تفعيل DAITA، يمكنك ضبط هذا الخيار من خلال إعداد تعدد القفزات."
+
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "لن يعمل خادم IPv6 DNS ما لم يتم تفعيل \"IPv6\" ضمن إعدادات VPN."
 
@@ -3738,8 +3881,14 @@ msgstr "لم يتمكن التطبيق من إنشاء حساب لعدم قدر�
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "لم يتمكن التطبيق من تسجيل الدخول بسبب عدم قدرته على الوصول إلى Mullvad API."
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "لن تستخدم ميزة تعدد القفزات إلا إذا تعذّر على التطبيق الاتصال بالموقع الذي اخترته. قد يحدث ذلك إذا كان الخادم في هذا الموقع لا يدعم الميزات التي فعّلتها. في هذه الحالة، سيوجّه التطبيق حركة بياناتك تلقائيًا عبر خادم يدعم هذه الميزات قبل وصولها إلى الموقع الذي اخترته."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "لن يعمل خادم DNS المحلي ما لم يتم تفعيل خاصية \"مشاركة الشبكة المحلية\" ضمن إعدادات شبكة VPN."
+
+msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
+msgstr "يتضمن وضع تعدد القفزات \"دائمًا\" الآن خيار الموقع \"التلقائي\" لتحديد خادم الدخول."
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "المنفذ المُحدَّد %s غير مدعوم، يُرجى تغييره ضمن"
@@ -3749,6 +3898,9 @@ msgstr "قد تكون هذه الطرق مفيدة في حال تم حظر وص�
 
 msgid "This address has already been entered."
 msgstr "لقد تم إدخال هذا العنوان بالفعل."
+
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "هذا يضمن عدم حظر اتصالك بسبب الإعدادات غير المتوافقة."
 
 msgid "This field is required"
 msgstr "هذا الحقل مطلوب"
@@ -3761,6 +3913,12 @@ msgstr "تم بالفعل تعيين هذه الطريقة كالطريقة ال
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "قد يكون هذا بسبب الرقابة أو مشكلات في الشبكة. يُرجى تجربة ما يلي:"
+
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "يتيح هذا الوضع للتطبيق تنفيذ قفزات متعددة تلقائيًا عن طريق خادم إضافي عند الحاجة لضمان توافق إعداداتك الحالية مع الموقع الذي اخترته."
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "سيُشار إلى ذلك بالرمز %1$s."
 
 msgid "Time added"
 msgstr "تمت إضافة الوقت"
@@ -3782,9 +3940,6 @@ msgstr "لحذف حسابك على Mullvad VPN، يرجى إدخال رقم ال
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "لضمان عمل إعداداتك الحالية مع الموقع المحدد ولتجنب حظر اتصالك، قد يقوم التطبيق تلقائيًا بالاتصال عبر قفزات متعددة من خلال خادم دخول مختلف.\\nوسيتم توضيح ذلك بالرمز %1$s."
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "للتأكد من استخدامك للإصدار الأكثر أمانًا وإبلاغك بأي مشكلات في الإصدار الحالي قيد التشغيل، يُجري التطبيق عمليات فحص للإصدار تلقائيًا يتم خلالها إرسال إصدار التطبيق وإصدار نظام Android إلى خوادم Mullvad. تحتفظ Mullvad بعدادات لعدد إصدارات التطبيق وإصدارات Android المُستخدَمة. لا يتم تخزين البيانات أو استخدامها بأي طريقة يمكن من خلالها تحديد هويتك."
 
 msgid "Toggle VPN"
 msgstr "زر تبديل VPN"
@@ -3909,6 +4064,15 @@ msgstr "الطقس"
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "مرحبًا، يُسمَّى هذا الجهاز الآن <b>%s</b>."
 
+msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
+msgstr "عند ضبط وضع القفزات المتعددة على “دائمًا” أو “أبدًا”، فيجب أن تختار خادم DAITA يدويًا."
+
+msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "عند ضبط تعدد القفزات على \"عند الحاجة\"، قد يستخدم التطبيق خادمًا إضافيًا لضمان اتصالك بالموقع الذي اخترته باستخدام DAITA."
+
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "عند تحديده، يختار التطبيق تلقائيًا خادمًا عشوائيًا، مع إعطاء الأولوية للخوادم الأقرب إلى موقع الخروج لتحسين الأداء."
+
 msgid "WireGuard port"
 msgstr "منفذ WireGuard"
 
@@ -3932,6 +4096,9 @@ msgstr "سوف تفقد صلاحية الوصول إلى هذا الحساب ع�
 
 msgid "You will lose your remaining"
 msgstr "ستفقد المتبقي"
+
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "تم تطبيق عوامل التصفية الحالية على موقعي الدخول والخروج."
 
 msgid "Your device"
 msgstr "جهازك"
