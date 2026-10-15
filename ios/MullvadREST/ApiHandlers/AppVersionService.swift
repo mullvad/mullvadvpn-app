@@ -48,10 +48,9 @@ public final class AppVersionService: @unchecked Sendable {
     public func scheduleTimer(deadline: Deadline) {
         let newTimer = DispatchSource.makeTimerSource()
 
-        newTimer.setEventHandler {
-            Task { [weak self] in
-                guard let self else { return }
-
+        newTimer.setEventHandler { [weak self] in
+            guard let self else { return }
+            Task {
                 let newVersionExists = (try? await performVersionCheck()) ?? false
                 if newVersionExists {
                     onNewAppVersion?()
