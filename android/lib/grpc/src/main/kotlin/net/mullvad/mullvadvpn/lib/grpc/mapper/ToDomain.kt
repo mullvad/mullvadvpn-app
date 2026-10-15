@@ -238,8 +238,8 @@ internal fun GeoIpLocation.toDomain(): ModelGeoIpLocation =
         entryHostname = entry_hostname,
         entryCountry = entry_country,
         entryCity = entry_city,
-        location = location?.toDomain(),
-        entryLocation = entry_location?.toDomain(),
+        location = location?.toDomain() as? ModelGeoLocationId.Hostname,
+        entryLocation = entry_location?.toDomain() as? ModelGeoLocationId.Hostname,
     )
 
 internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
