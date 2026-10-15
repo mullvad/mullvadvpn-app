@@ -433,13 +433,6 @@
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */; };
-		58FF9FE02B075ABC00E4C97D /* EditAccessMethodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FDF2B075ABC00E4C97D /* EditAccessMethodViewController.swift */; };
-		58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE12B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift */; };
-		58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE32B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift */; };
-		58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE72B07650A00E4C97D /* ButtonCellContentConfiguration.swift */; };
-		58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */; };
-		58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */; };
-		58FF9FF42B07C61B00E4C97D /* AccessMethodValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */; };
 		64B03ECC45774A42A90A651D /* AsyncDeviceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F9FB7BBFDF4537A98ECFCF /* AsyncDeviceCheckerTests.swift */; };
 		759BA1EFA5474B68873188E0 /* AsyncDeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A68A81AE6B74944B095642B /* AsyncDeviceChecker.swift */; };
 		7A09C98129D99215000C2CAC /* String+Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+Search.swift */; };
@@ -1103,6 +1096,7 @@
 		F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */; };
 		F095809C2FADEEC200A55BD4 /* SettingsMigrationWizardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */; };
 		F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */; };
+		F09B828730811942005962DD /* AddEditApiAccessMethodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */; };
 		F09C97212D311D8800ADE747 /* ChangeLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97202D311D7A00ADE747 /* ChangeLogView.swift */; };
 		F09C97232D3122F300ADE747 /* ChangeLogReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97222D3122E400ADE747 /* ChangeLogReader.swift */; };
 		F09C97252D312ED000ADE747 /* BulletPointText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97242D312ECD00ADE747 /* BulletPointText.swift */; };
@@ -2763,6 +2757,7 @@
 		F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationWizardCoordinator.swift; sourceTree = "<group>"; };
 		F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationTrackerFactory.swift; sourceTree = "<group>"; };
+		F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditApiAccessMethodView.swift; sourceTree = "<group>"; };
 		F09C97202D311D7A00ADE747 /* ChangeLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogView.swift; sourceTree = "<group>"; };
 		F09C97222D3122E400ADE747 /* ChangeLogReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogReader.swift; sourceTree = "<group>"; };
 		F09C97242D312ECD00ADE747 /* BulletPointText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulletPointText.swift; sourceTree = "<group>"; };
@@ -4316,7 +4311,7 @@
 		58CEB2E72AFBB9F300E6E088 /* APIAccess */ = {
 			isa = PBXGroup;
 			children = (
-				F06C3F2230739ACF009429FD /* Direct */,
+				F06C3F2230739ACF009429FD /* New */,
 				F06C3EE530739A68009429FD /* Old */,
 			);
 			path = APIAccess;
@@ -5114,7 +5109,6 @@
 		F06C3EDC30739A68009429FD /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				F06C3ED530739A68009429FD /* AccessMethodValidationError.swift */,
 				F06C3ED630739A68009429FD /* AccessMethodViewModel.swift */,
 				F06C3ED730739A68009429FD /* AccessMethodViewModel+NavigationItem.swift */,
 				F06C3ED830739A68009429FD /* AccessMethodViewModel+Persistent.swift */,
@@ -5153,16 +5147,18 @@
 			path = Old;
 			sourceTree = "<group>";
 		};
-		F06C3F2230739ACF009429FD /* Direct */ = {
+		F06C3F2230739ACF009429FD /* New */ = {
 			isa = PBXGroup;
 			children = (
+				F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */,
+				F06C3ED530739A68009429FD /* AccessMethodValidationError.swift */,
 				F06C3F2D307E18B6009429FD /* ApiAccessMethodTestView.swift */,
 				F06C3F2B307D7494009429FD /* MethodTestingStatusView.swift */,
 				F06C3F29307D5FC5009429FD /* EditAccessMethodView+Preview.swift */,
 				F06C3F2330739AFB009429FD /* EditAccessMethodView.swift */,
 				F06C3F2530739B57009429FD /* EditAccessMethodViewModel.swift */,
 			);
-			path = Direct;
+			path = New;
 			sourceTree = "<group>";
 		};
 		F072D3D02C071A9100906F64 /* Shadowsocks */ = {
@@ -7085,6 +7081,7 @@
 				F09580982FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */,
 				F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */,
+				F09B828730811942005962DD /* AddEditApiAccessMethodView.swift in Sources */,
 				7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
