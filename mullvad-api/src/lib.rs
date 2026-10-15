@@ -29,6 +29,8 @@ pub use crate::https_client::SocketBypassRequest;
 mod access;
 mod address_cache;
 pub mod device;
+#[cfg(not(target_os = "android"))]
+pub mod partner;
 mod relay_list;
 
 pub mod relay_list_transparency;
@@ -60,7 +62,7 @@ pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
 
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
-const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
+pub(crate) const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
@@ -273,6 +275,38 @@ impl ApiEndpoint {
             #[cfg(feature = "api-override")]
             force_direct: false,
         }
+    }
+
+    /// Returns a new API endpoint pointing to the production environment.
+    pub fn mullvad() -> Self {
+        Self::new(
+            API_HOST_DEFAULT.to_owned(),
+            SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
+        )
+    }
+
+    /// Returns a new API endpoint pointing to the staging environment.
+    pub fn stagemole() -> Self {
+        Self::new(
+            API_HOST_STAGING.to_owned(),
+            SocketAddr::new(API_IP_STAGING, API_PORT_STAGING),
+        )
+    }
+
+    /// Returns a new partner API endpoint pointing to the production environment.
+    pub fn mullvad_partner() -> Self {
+        Self::new(
+            PARTNER_API_HOST_DEFAULT.to_owned(),
+            SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
+        )
+    }
+
+    /// Returns a new partner API endpoint pointing to the staging environment.
+    pub fn stagemole_partner() -> Self {
+        Self::new(
+            PARTNER_API_HOST_STAGING.to_owned(),
+            SocketAddr::new(API_IP_STAGING, API_PORT_STAGING),
+        )
     }
 
     #[cfg(feature = "api-override")]

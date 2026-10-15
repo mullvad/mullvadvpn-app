@@ -189,6 +189,7 @@ pub struct RequestServiceHandle {
     tx: Arc<mpsc::UnboundedSender<SendRequest>>,
     reset: Arc<Notify>,
     host: Arc<str>,
+    authorization: Option<Arc<str>>,
 }
 
 /// An actor message for `RequestService` to send `request`. Reply is sent on `response_tx`.
@@ -238,6 +239,7 @@ impl RequestService {
             host,
             tx: command_tx,
             reset,
+            authorization: Default::default(),
         };
         tokio::spawn(service.run());
         handle
@@ -669,7 +671,7 @@ struct NewErrorResponse {
     pub r#type: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RequestFactory {
     service: RequestServiceHandle,
     default_timeout: Duration,
@@ -726,7 +728,12 @@ impl RequestFactory {
         path: &str,
         body: Vec<u8>,
     ) -> Result<Request<Full<Bytes>>> {
-        let request = hyper_request_json_bytes(&self.service.host, path, method, body)?;
+        let auth = self
+            .service
+            .authorization
+            .as_ref()
+            .map(|auth| auth.as_ref());
+        let request = hyper_request_json_bytes(&self.service.host, path, method, body, auth)?;
         Ok(Request::new(request, self.service.clone()).timeout(self.default_timeout))
     }
 
@@ -741,7 +748,12 @@ impl RequestFactory {
     }
 
     fn hyper_request<B>(&self, path: &str, method: Method, body: B) -> Result<http::Request<B>> {
-        hyper_request(&self.service.host, path, method, body)
+        let auth = self
+            .service
+            .authorization
+            .as_ref()
+            .map(|auth| auth.as_ref());
+        hyper_request(&self.service.host, path, method, body, auth)
     }
 }
 
@@ -750,9 +762,10 @@ pub(crate) fn hyper_request<B>(
     path: &str,
     method: Method,
     body: B,
+    authorization: Option<&str>,
 ) -> Result<http::Request<B>> {
     let uri = Uri::builder().path_and_query(format!("/{path}")).build()?;
-    let request = http::request::Builder::new()
+    let mut builder = http::request::Builder::new()
         .method(method)
         .uri(uri)
         .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
@@ -760,8 +773,16 @@ pub(crate) fn hyper_request<B>(
         .header(
             header::HOST,
             HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
-        )
-        .body(body)?;
+        );
+
+    if let Some(auth) = authorization {
+        builder = builder.header(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(auth).map_err(|_| Error::InvalidHeaderError)?,
+        );
+    }
+
+    let request = builder.body(body)?;
     Ok(request)
 }
 
@@ -770,15 +791,22 @@ pub(crate) fn hyper_request_json_bytes(
     path: &str,
     method: Method,
     body: Vec<u8>,
+    auth: Option<&str>,
 ) -> Result<http::Request<Full<Bytes>>> {
     let body = Full::new(Bytes::from(body));
-    let mut request = hyper_request(host, path, method, body)?;
+    let mut request = hyper_request(host, path, method, body, None)?;
 
     let headers = request.headers_mut();
     headers.insert(
         header::CONTENT_TYPE,
         HeaderValue::from_static("application/json"),
     );
+    if let Some(auth) = auth {
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(auth).map_err(|_| Error::InvalidHeaderError)?,
+        );
+    }
 
     Ok(request)
 }
@@ -843,7 +871,7 @@ where
     Ok(res)
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub(crate) factory: RequestFactory,
@@ -868,6 +896,12 @@ impl MullvadRestHandle {
 
     pub fn service(&self) -> RequestServiceHandle {
         self.service.clone()
+    }
+
+    pub fn set_auth_header(&mut self, auth: &str) {
+        let auth = auth.into();
+        self.service.authorization = Some(Arc::clone(&auth));
+        self.factory.service.authorization = Some(auth);
     }
 }
 
