@@ -99,7 +99,7 @@ class RelayListCacheTests: XCTestCase {
         )
 
         // 7. Verify deserialization still works for known fields.
-        let cachedRelays = try readBack.cachedRelays
+        let cachedRelays = readBack.cachedRelays
         XCTAssertNotNil(cachedRelays)
     }
 
