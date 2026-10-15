@@ -54,8 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] _ in
-                guard let self, appDelegate.launchArguments.target != .uiTests else { return }
-                configureScene()
+                self?.configureScene()
             },
             didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.deviceStateDidChange(deviceState)
@@ -64,11 +63,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         self.tunnelObserver = tunnelObserver
         tunnelManager.addObserver(tunnelObserver)
-
-        // If configuration has already finished loading, let UI catch up manually.
-        if tunnelManager.isConfigurationLoaded, appDelegate.launchArguments.target != .uiTests {
-            configureScene()
-        }
     }
 
     private func configureScene() {
@@ -238,6 +232,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         window?.makeKeyAndVisible()
         addTunnelObserver()
+
+        configureScene()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}

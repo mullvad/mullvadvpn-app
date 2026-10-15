@@ -24,7 +24,7 @@ final class RelayCacheTests: XCTestCase {
 
         let state = await fileCache.getState()
         if case let .exists(storedRelays) = state {
-            XCTAssertEqual(try storedRelays.cachedRelays, relays)
+            XCTAssertEqual(storedRelays.cachedRelays, relays)
         } else {
             XCTFail("Expected existing state, got \(state)")
         }
@@ -110,8 +110,8 @@ final class RelayCacheTests: XCTestCase {
         let rawData: Data = try .mock()
         let stored = try StoredRelays(rawData: rawData, updatedAt: Date())
 
-        let first = try stored.cachedRelays
-        let second = try stored.cachedRelays
+        let first = stored.cachedRelays
+        let second = stored.cachedRelays
 
         // Both accesses return the same deserialized result.
         XCTAssertEqual(first, second)
