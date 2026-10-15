@@ -8,8 +8,13 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+SKIP_BASELINE="no"
+
 for argument in "$@"; do
     case "$argument" in
+        --skip-baseline)
+            SKIP_BASELINE="yes"
+            ;;
         -*)
             echo "Unknown option \"$argument\""
             exit 1
@@ -32,6 +37,21 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 ./check-changelog.sh "$PRODUCT_VERSION"
+
+if [[ $SKIP_BASELINE == "yes" ]]; then
+    echo "Skipping baseline file generation due to skip baseline argument"
+elif [[ $PRODUCT_VERSION == *"beta"* || $PRODUCT_VERSION == *"alpha"* ]]; then
+    echo "Skipping baseline file generation for beta/alpha release"
+else
+    echo "### Generating new baseline file ###"
+    ../gradlew -p ../ generatePlayProdReleaseBaselineProfile
+    if git diff --quiet ../app/src/main/baseline-prof.txt; then
+        echo "Info: Baseline file unchanged"
+    else
+        git commit -m "Update baseline file" \
+        ../app/src/main/baseline-prof.txt
+    fi
+fi
 
 ../../scripts/commit-relay-list "$PRODUCT_VERSION"
 echo ""
