@@ -2043,9 +2043,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "121650b305d0ee6d45b08bbec1d5781a43b915a0a89a2fd869028647eb475cc9"
+checksum = "e31e2d412ef328861e4e777b5c8e5e2dae0d241b0e76aec498f18522efb9ce6d"
 dependencies = [
  "aead 0.5.2",
  "aws-lc-rs",
@@ -2059,7 +2059,6 @@ dependencies = [
  "either",
  "eyre",
  "futures",
- "hex",
  "hmac 0.12.1",
  "ip_network",
  "ip_network_table",
@@ -2080,6 +2079,7 @@ dependencies = [
  "tun",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
+ "wintun-bindings",
  "x25519-dalek",
  "zerocopy",
 ]
@@ -5072,7 +5072,7 @@ dependencies = [
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
