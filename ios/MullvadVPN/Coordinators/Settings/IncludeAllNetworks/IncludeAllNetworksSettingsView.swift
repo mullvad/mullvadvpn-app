@@ -30,7 +30,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                 // Makes it so that the focus is back to the page indicator after each page is read
                 .accessibilityElement(children: .contain)
 
-                VStack(spacing: 0) {
+                VStack(spacing: 1) {
                     SegmentedListItem(
                         isLastInList: false,
                         userInteraction: .enabledWithoutHighlight,
