@@ -60,7 +60,7 @@ class InAppLogView: UIView {
         guard let insets = window?.safeAreaInsets else { return }
 
         safeTop = insets.top
-        safeBottom = insets.bottom
+        safeBottom = insets.bottom + 16
         maxPanelHeight = UIScreen.main.bounds.height - safeTop - safeBottom
 
         frame.origin.y = safeTop + 100
@@ -527,8 +527,7 @@ class InAppLogView: UIView {
     // MARK: - Dragging
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        let screenHeight = UIScreen.main.bounds.height
-        let maxY = screenHeight - safeBottom
+        let maxY = UIScreen.main.bounds.height - safeBottom
 
         switch gesture.state {
         case .began:

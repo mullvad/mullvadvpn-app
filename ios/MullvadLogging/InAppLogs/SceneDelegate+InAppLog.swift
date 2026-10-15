@@ -28,7 +28,7 @@
 
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(logOverlayTapSequenceActivated))
             tapGesture.delegate = self
-            tapGesture.numberOfTapsRequired = 2
+            tapGesture.numberOfTapsRequired = 4
             tapGesture.cancelsTouchesInView = false
             tapGesture.delaysTouchesEnded = false
 

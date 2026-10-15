@@ -14,6 +14,10 @@ class InAppLogOverlayViewController: UIViewController {
     private let logView: InAppLogView
     private let interactor: InAppLogViewInteractor
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+
     init(interactor: InAppLogViewInteractor) {
         self.interactor = interactor
         logView = InAppLogView(interactor: interactor)
