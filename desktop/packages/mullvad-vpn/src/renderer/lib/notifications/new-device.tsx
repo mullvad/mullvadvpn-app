@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
-import { InternalLink } from '../../components/InternalLink';
+import { InternalLink } from '../../components/internal-link';
 import { formatHtml } from '../html-formatter';
 import { formatDeviceName } from '../utils';
 
