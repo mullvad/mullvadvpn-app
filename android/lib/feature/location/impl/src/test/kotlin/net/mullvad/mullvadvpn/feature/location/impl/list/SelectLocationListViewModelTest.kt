@@ -261,8 +261,7 @@ class SelectLocationListViewModelTest {
             val connectedRelay = testCountries.first().cities.first().relays.first()
             val mockGeoIpLocation = mockk<GeoIpLocation>(relaxed = true)
             every { mockGeoIpLocation.hostname } returns connectedRelay.id.code
-            every { mockGeoIpLocation.cityCode } returns connectedRelay.id.city.code
-            every { mockGeoIpLocation.countryCode } returns connectedRelay.id.country.code
+            every { mockGeoIpLocation.location } returns connectedRelay.id
             tunnelState.value =
                 TunnelState.Connected(
                     endpoint = mockk(relaxed = true),

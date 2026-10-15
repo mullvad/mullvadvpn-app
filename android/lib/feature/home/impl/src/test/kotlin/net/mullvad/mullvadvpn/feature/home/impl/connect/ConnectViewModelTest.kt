@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -210,17 +211,31 @@ class ConnectViewModelTest {
                 ipv4 = mockk(relaxed = true),
                 ipv6 = mockk(relaxed = true),
                 country = "Sweden",
-                countryCode = "se",
                 city = "Gothenburg",
-                cityCode = "gbg",
                 hostname = "Host",
+                location =
+                    GeoLocationId.Hostname(
+                        city =
+                            GeoLocationId.City(
+                                country = GeoLocationId.Country("se"),
+                                code = "got",
+                            ),
+                        code = "Host",
+                    ),
                 entryHostname = "EntryHost",
                 latitude = 57.7065,
                 longitude = 11.967,
                 entryCountry = "Sweden",
-                entryCountryCode = "se",
                 entryCity = "Gothenburg",
-                entryCityCode = "gbg",
+                entryLocation =
+                    GeoLocationId.Hostname(
+                        city =
+                            GeoLocationId.City(
+                                country = GeoLocationId.Country("se"),
+                                code = "got",
+                            ),
+                        code = "EntryHost",
+                    ),
             )
 
         // Act, Assert
