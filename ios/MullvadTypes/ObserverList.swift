@@ -60,7 +60,7 @@ final public class ObserverList<T>: Sendable {
         }
     }
 
-    public func notify(_ body: (T) -> Void) {
+    public func notify(_ body: sending @Sendable (T) -> Void) {
         var indicesToRemove = [Int]()
         var observersToNotify = [T]()
 

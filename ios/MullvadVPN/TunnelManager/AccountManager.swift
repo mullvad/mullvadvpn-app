@@ -14,19 +14,10 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-protocol AccountManagerTunnelInteractor: Sendable {
-    var deviceState: DeviceState { get }
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool)
-    func setLastUsedAccount(_ accountNumber: String)
-    func unsetTunnelConfiguration()
-    func removeLastUsedAccount()
-    func handleRestError(_ error: Error)
-}
-
 struct AccountManager: Sendable {
     let operationQueue: AsyncOperationQueue
     let internalQueue: DispatchQueue
-    let interactor: AccountManagerTunnelInteractor
+    let interactor: TunnelInteractor
     let backgroundTaskProvider: BackgroundTaskProviding
     let accountsProxy: RESTAccountHandling
     let devicesProxy: DeviceHandling
@@ -35,20 +26,23 @@ struct AccountManager: Sendable {
     func setAccount(
         action: SetAccountAction,
         completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
-    ) {
+    ) async {
+        let deviceState = await interactor.getDeviceState()
+
         let operation = SetAccountOperation(
             dispatchQueue: internalQueue,
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
             action: action,
-            deviceState: {
-                interactor.deviceState
-            },
-            onUpdateAccount: { deviceState in
-                if let accountNumber = deviceState.accountData?.number {
-                    interactor.setLastUsedAccount(accountNumber)
+            deviceState: { deviceState },
+            onUpdateAccount: { deviceState, completion in
+                Task {
+                    if let accountNumber = deviceState.accountData?.number {
+                        await interactor.setLastUsedAccount(accountNumber)
+                    }
+                    await interactor.setDeviceState(deviceState, persist: true)
+                    completion?()
                 }
-                interactor.setDeviceState(deviceState, persist: true)
             }
         )
 
@@ -78,11 +72,18 @@ struct AccountManager: Sendable {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void) async -> Cancellable {
+        let deviceState = await interactor.getDeviceState()
+
         let operation = RotateKeyOperation(dispatchQueue: internalQueue, devicesProxy: devicesProxy) {
-            interactor.deviceState
-        } onUpdateAccount: { deviceState in
-            interactor.setDeviceState(deviceState, persist: true)
+            deviceState
+        } onUpdateAccount: { deviceState, completion in
+            Task {
+                if let deviceState {
+                    await interactor.setDeviceState(deviceState, persist: true)
+                }
+                completion?()
+            }
         }
 
         operation.completionQueue = .main
@@ -108,7 +109,7 @@ struct AccountManager: Sendable {
     }
 
     func updateAccountData() async throws {
-        let (accountData, _) = try ensureLoggedIn()
+        let (accountData, _) = try await ensureLoggedIn()
 
         let result = await accountsProxy.getAccountData(
             accountNumber: accountData.number,
@@ -117,7 +118,7 @@ struct AccountManager: Sendable {
 
         do {
             let accountData = try result.get()
-            switch interactor.deviceState {
+            switch await interactor.getDeviceState() {
             case .loggedIn(var storedAccountData, let storedDeviceData):
                 storedAccountData.expiry = accountData.expiry
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
@@ -126,41 +127,42 @@ struct AccountManager: Sendable {
                 if Task.isCancelled {
                     throw CancellationError()
                 } else {
-                    interactor.setDeviceState(newDeviceState, persist: true)
+                    await interactor.setDeviceState(newDeviceState, persist: true)
                 }
             default:
                 throw InvalidDeviceStateError()
             }
         } catch {
-            interactor.handleRestError(error)
+            await interactor.handleRestError(error)
             throw error
         }
     }
 
     func updateDeviceData() async throws {
-        let (accountData, deviceData) = try ensureLoggedIn()
+        let (accountData, deviceData) = try await ensureLoggedIn()
+
         do {
             let device = try await devicesProxy.getDevice(
                 accountNumber: accountData.number,
                 identifier: deviceData.identifier,
                 retryStrategy: .default
             )
-            switch interactor.deviceState {
+            switch await interactor.getDeviceState() {
             case .loggedIn(let storedAccount, var storedDevice):
                 storedDevice.update(from: device)
                 let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                interactor.setDeviceState(newDeviceState, persist: true)
+                await interactor.setDeviceState(newDeviceState, persist: true)
             default:
                 throw InvalidDeviceStateError()
             }
         } catch {
-            interactor.handleRestError(error)
+            await interactor.handleRestError(error)
             throw error
         }
     }
 
-    private func ensureLoggedIn() throws -> (StoredAccountData, StoredDeviceData) {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+    private func ensureLoggedIn() async throws -> (StoredAccountData, StoredDeviceData) {
+        guard case let .loggedIn(accountData, deviceData) = await interactor.getDeviceState() else {
             throw InvalidDeviceStateError()
         }
         return (accountData, deviceData)
@@ -169,15 +171,15 @@ struct AccountManager: Sendable {
     #if NEVER_IN_PRODUCTION
         /// Replaces the device key with one that was never published to the API, then reconnects the tunnel if it
         /// is up. This enables testing if the packet tunnel can recover a bad key.
-        func invalidateWireGuardKey() {
+        func invalidateWireGuardKey() async {
             // Debug menu is not accessible when user has logged out
             do {
-                var (accountData, deviceData) = try ensureLoggedIn()
+                var (accountData, deviceData) = try await ensureLoggedIn()
                 deviceData.wgKeyData = StoredWgKeyData(
                     creationDate: deviceData.wgKeyData.creationDate,
                     privateKey: WireGuard.PrivateKey()
                 )
-                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+                await interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
             } catch {}
 
         }
