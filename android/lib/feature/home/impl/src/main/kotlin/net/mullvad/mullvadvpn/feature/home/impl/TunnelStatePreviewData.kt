@@ -59,17 +59,15 @@ object TunnelStatePreviewData {
             ipv4 = null,
             ipv6 = null,
             country = "",
-            countryCode = "",
             city = "",
-            cityCode = "",
             hostname = "",
             entryHostname = "",
             entryCountry = "",
             entryCity = "",
-            entryCountryCode = "",
-            entryCityCode = "",
             latitude = 0.0,
             longitude = 0.0,
+            location = null,
+            entryLocation = null,
         )
 
     private fun generateFeatureIndicators(size: Int): List<FeatureIndicator> =

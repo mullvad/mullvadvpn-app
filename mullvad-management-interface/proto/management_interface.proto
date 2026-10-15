@@ -426,15 +426,11 @@ message GeoIpLocation {
   optional string entry_city = 11;
   // Country name of the entry relay. e.g. "Sweden".
   optional string entry_country = 12;
-  // Country code of the entry relay. e.g. `se` for "Sweden".
-  optional string entry_country_code = 13;
-  // City code of the entry relay. e.g. `got` for "Gothenburg".
-  optional string entry_city_code = 14;
+  // Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`.
+  optional GeographicLocationConstraint entry_location = 13;
   // These fields are non-null when tunnel state is connecting or connected.
-  // Country code of the exit relay. e.g. `se` for "Sweden".
-  optional string country_code = 15;
-  // City code of the exit relay. e.g. `got` for "Gothenburg".
-  optional string city_code = 16;
+  // Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`.
+  optional GeographicLocationConstraint location = 14;
 }
 
 message TunnelMetadata { string tunnel_interface = 1; }

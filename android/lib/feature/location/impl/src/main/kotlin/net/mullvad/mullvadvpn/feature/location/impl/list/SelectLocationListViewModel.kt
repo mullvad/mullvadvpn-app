@@ -14,12 +14,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
+import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandSet
 import net.mullvad.mullvadvpn.feature.location.impl.search.emptyLocationsRelayListItems
 import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByOtherEntryExitList
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByThisEntryExitList
-import net.mullvad.mullvadvpn.feature.location.impl.toConnectedRelay
 import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
@@ -117,7 +117,8 @@ class SelectLocationListViewModel(
                     relayCountries = filteredCountries.countries,
                     relayMetadata =
                         filteredCountries.relayMetadata.withConnectedRelay(
-                            connectedRelay = tunnelState.location()?.toConnectedRelay(relayListType)
+                            connectedRelay =
+                                tunnelState.location()?.connectedLocationIn(relayListType)
                         ),
                     relayListType = relayListType,
                     customLists = customLists,

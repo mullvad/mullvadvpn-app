@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandMap
-import net.mullvad.mullvadvpn.feature.location.impl.toConnectedRelay
 import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.feature.location.impl.withHighlights
 import net.mullvad.mullvadvpn.lib.common.Lce
@@ -96,7 +96,7 @@ class SearchLocationViewModel(
                 val expandedItems = expandSet.with(expandOverrides)
                 val customListSearch = filteredCustomLists.filterOnSearchTerm(searchTerm)
                 val allHighlights = relaySearch.highlights + customListSearch.highlights
-                val connectedRelay = tunnelState.location()?.toConnectedRelay(relayListType)
+                val connectedRelay = tunnelState.location()?.connectedLocationIn(relayListType)
                 val metadata =
                     filteredCountries.relayMetadata
                         .withHighlights(allHighlights)
