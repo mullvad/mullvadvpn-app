@@ -11,6 +11,7 @@
 import MullvadREST
 import MullvadSettings
 
+@MainActor
 class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     typealias TunnelSetting = DAITASettings
 
@@ -38,9 +39,11 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
         self.isAutomaticRoutingActive = isAutomaticRoutingActive
 
         let tunnelObserver = TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] _, _ in
-            if isAutomaticRoutingActive != self?.isAutomaticRoutingActive {
-                self?.isAutomaticRoutingActive = isAutomaticRoutingActive
-                self?.objectWillChange.send()
+            Task { @MainActor [weak self] in
+                if isAutomaticRoutingActive != self?.isAutomaticRoutingActive {
+                    self?.isAutomaticRoutingActive = isAutomaticRoutingActive
+                    self?.objectWillChange.send()
+                }
             }
         })
         self.tunnelObserver = tunnelObserver

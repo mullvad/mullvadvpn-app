@@ -17,31 +17,32 @@ import PacketTunnelCore
 protocol TunnelInteractor: Sendable {
     // MARK: - Tunnel manipulation
 
-    var tunnel: (any TunnelProtocol)? { get }
+    func getTunnel() async -> (any TunnelProtocol)?
     var backgroundTaskProvider: BackgroundTaskProviding { get }
 
     func getPersistentTunnel() async -> (any TunnelProtocol)?
     func createNewTunnel() async -> any TunnelProtocol
-    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool)
+    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) async
 
     // MARK: - Tunnel status
 
-    var tunnelStatus: TunnelStatus { get }
-    @discardableResult func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus
+    func getTunnelStatus() async -> TunnelStatus
+    @discardableResult func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) async -> TunnelStatus
 
     // MARK: - Configuration
 
     var isConfigurationLoaded: Bool { get }
     var settings: LatestTunnelSettings { get }
-    var deviceState: DeviceState { get }
 
-    func setConfigurationLoaded()
-    func setSettings(_ settings: LatestTunnelSettings, persist: Bool)
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool)
-    func removeLastUsedAccount()
-    func handleRestError(_ error: Error)
+    func getDeviceState() async -> DeviceState
+    func setConfigurationLoaded() async
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) async
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) async
+    func removeLastUsedAccount() async
+    func setLastUsedAccount(_ accountNumber: String) async
+    func handleRestError(_ error: Error) async
 
-    func startTunnel()
-    func prepareForVPNConfigurationDeletion()
-    func selectRelays() throws -> SelectedRelays
+    func startTunnel() async
+    func prepareForVPNConfigurationDeletion() async
+    func selectRelays() async throws -> SelectedRelays
 }
