@@ -1,4 +1,4 @@
-import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
+import { ExternalLinkProps } from '../../renderer/components/external-link';
 import { InternalLinkProps } from '../../renderer/components/internal-link';
 import { type ButtonColors, ButtonProps } from '../../renderer/lib/components';
 import { RoutePath } from '../../shared/routes';
