@@ -97,7 +97,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                     }
                 }
 
-                VStack(spacing: 0) {
+                VStack(spacing: 1) {
                     SegmentedListItem(
                         isLastInList: false,
                         userInteraction: .enabledWithoutHighlight,

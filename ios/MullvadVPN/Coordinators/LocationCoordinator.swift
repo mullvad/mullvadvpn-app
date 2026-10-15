@@ -135,11 +135,11 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
             switch action {
             case .didDelete(let list):
-                self.selectLocationViewModel.delete(customList: list)
+                selectLocationViewModel.delete(customList: list)
             case .didSave(let list):
-                try? self.selectLocationViewModel.save(list: list)
+                try? selectLocationViewModel.save(list: list)
             case .noAction:
-                self.selectLocationViewModel.customListsChanged()
+                selectLocationViewModel.customListsChanged()
             }
         }
 
@@ -206,9 +206,8 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
-        }
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        tunnelManager.startTunnel()
     }
 
     func navigateToDaitaSettings() {
@@ -227,8 +226,7 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
-        }
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        tunnelManager.startTunnel()
     }
 }
