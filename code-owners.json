@@ -32,7 +32,8 @@
     "windows/**",
     "windows-installer/**",
     "typos.toml",
-    ".github/workflows/typos.yml"
+    ".github/workflows/typos.yml",
+    ".github/workflows/desktop-*"
   ],
   "appteam-ios": [
     ".github/workflows/ios*",
