@@ -610,9 +610,21 @@ msgctxt "accessibility"
 msgid "Remove ownership filter"
 msgstr ""
 
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr ""
+
 #. Accessibility description for button removing the providers filter.
 msgctxt "accessibility"
 msgid "Remove providers filter"
+msgstr ""
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
 msgstr ""
 
 msgctxt "accessibility"
