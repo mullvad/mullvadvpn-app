@@ -35,24 +35,21 @@ function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
       </Switch>
       <StatusDialog variant="info" open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <StatusDialog.Text>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet.',
-          )}
-        </StatusDialog.Text>
-        <StatusDialog.Text>
-          {messages.pgettext(
-            'vpn-settings-view',
-            'The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit.',
-          )}
+          {
+            // TRANSLATORS: Warning message shown in dialog when enabling lockdown mode.
+            messages.pgettext(
+              'vpn-settings-view',
+              'Warning: this will block the internet if you aren’t connected through the Mullvad app.',
+            )
+          }
         </StatusDialog.Text>
         <StatusDialog.ButtonGroup>
           <StatusDialog.Button color="destructive" onClick={confirmLockdownMode}>
-            <StatusDialog.Button.Text>{messages.gettext('Enable anyway')}</StatusDialog.Button.Text>
+            <StatusDialog.Button.Text>{messages.gettext('Enable')}</StatusDialog.Button.Text>
           </StatusDialog.Button>
           <StatusDialog.CloseButton>
             <StatusDialog.CloseButton.Text>
-              {messages.gettext('Back')}
+              {messages.gettext('Cancel')}
             </StatusDialog.CloseButton.Text>
           </StatusDialog.CloseButton>
         </StatusDialog.ButtonGroup>
