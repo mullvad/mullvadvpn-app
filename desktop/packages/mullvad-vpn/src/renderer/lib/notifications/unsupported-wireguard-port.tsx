@@ -6,7 +6,7 @@ import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
 import { isInRanges } from '../../../shared/utils';
-import { InternalLink } from '../../components/InternalLink';
+import { InternalLink } from '../../components/internal-link';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { formatHtml } from '../html-formatter';
 

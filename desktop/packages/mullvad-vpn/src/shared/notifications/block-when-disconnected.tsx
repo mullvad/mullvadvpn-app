@@ -1,6 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
-import { InternalLink } from '../../renderer/components/InternalLink';
+import { InternalLink } from '../../renderer/components/internal-link';
 import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';

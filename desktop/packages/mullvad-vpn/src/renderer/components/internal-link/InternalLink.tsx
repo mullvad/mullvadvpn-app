@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
-import { LocationState } from '../../shared/ipc-types';
-import { RoutePath } from '../../shared/routes';
-import { Link, LinkProps } from '../lib/components/link';
-import { useHistory } from '../lib/history';
+import { LocationState } from '../../../shared/ipc-types';
+import { RoutePath } from '../../../shared/routes';
+import { Link, LinkProps } from '../../lib/components/link';
+import { useHistory } from '../../lib/history';
 
 export type InternalLinkProps = Omit<LinkProps, 'href' | 'as'> & {
   to: RoutePath;
