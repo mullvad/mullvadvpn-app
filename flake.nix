@@ -61,17 +61,14 @@
 
       in
       {
-        devShells =
-          pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-            default = import ./nix/desktop-devshell.nix {
-              inherit pkgs desktop-toolchain;
-            };
-          }
-          // {
-            android = import ./nix/android-devshell.nix {
-              inherit pkgs android-toolchain;
-            };
+        devShells = {
+          default = import ./nix/desktop-devshell.nix {
+            inherit pkgs desktop-toolchain;
           };
+          android = import ./nix/android-devshell.nix {
+            inherit pkgs android-toolchain;
+          };
+        };
       }
     );
 }

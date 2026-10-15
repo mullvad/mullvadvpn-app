@@ -66,6 +66,7 @@ in
     ++ [
       android-sdk
       rust-toolchain
+      pkgs.gcc
       jdk
       pkgs.python314
     ]

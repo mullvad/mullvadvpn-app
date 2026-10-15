@@ -10,7 +10,6 @@ in
 
   commonPackages = [
     pkgs.git
-    pkgs.gcc
     pkgs.gnumake
     pkgs.protobuf
     pkgs.jq

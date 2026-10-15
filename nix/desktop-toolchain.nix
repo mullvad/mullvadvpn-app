@@ -10,9 +10,14 @@ in
 {
   inherit desktop-rust-toolchain;
 
-  packages = common-toolchain.commonPackages ++ [
-    desktop-rust-toolchain
-    pkgs.pkg-config
-    pkgs.dbus.dev
-  ];
+  packages =
+    common-toolchain.commonPackages
+    ++ [
+      desktop-rust-toolchain
+      pkgs.stdenv.cc
+    ]
+    ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+      pkgs.pkg-config
+      pkgs.dbus.dev
+    ];
 }
