@@ -5,7 +5,7 @@ import { InAppNotification, InAppNotificationSubtitle } from '../../shared/notif
 import { LabelTinySemiBold } from '../lib/components';
 import { Link } from '../lib/components/link';
 import { ExternalLink } from './external-link';
-import { InternalLink } from './internal-link';
+import { NotificationInternalLink } from './notification-internal-link';
 
 export type NotificationSubtitleProps = Pick<InAppNotification, 'subtitle'>;
 
@@ -16,9 +16,9 @@ const formatSubtitle = (subtitle: InAppNotificationSubtitle) => {
     switch (subtitle.action.type) {
       case 'navigate-internal':
         return (
-          <InternalLink variant="labelTinySemiBold" {...subtitle.action.link}>
-            <InternalLink.Text>{subtitle.content}</InternalLink.Text>
-          </InternalLink>
+          <NotificationInternalLink {...subtitle.action.link}>
+            <NotificationInternalLink.Text>{subtitle.content}</NotificationInternalLink.Text>
+          </NotificationInternalLink>
         );
       case 'navigate-external':
         return (
