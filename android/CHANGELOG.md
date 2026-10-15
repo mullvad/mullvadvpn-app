@@ -30,6 +30,11 @@ Line wrap the file at 100 chars.                                              Th
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Replace grpc-java with wire as grpc library.
+- Update LWO to improved v2 protocol.
+- Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
+- Ask for notification permission on the connect screen instead of after the (now gone) privacy
+  consent screen.
+- Improve how the quick settings tile show the connection state.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
@@ -41,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add workaround for Android failing to restart the VPN app after app upgrade.
 - Fix relay list and custom lists sorting by respecting locales.
 - Ensure cached routes are cleared before setting up new tunnels.
+- Fix a bug where password managers could save the account number as hidden dots.
 
 
 ## [android/2026.12] - 2026-09-30
