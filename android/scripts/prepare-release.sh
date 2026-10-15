@@ -33,6 +33,14 @@ fi
 
 ./check-changelog.sh "$PRODUCT_VERSION"
 
+echo "### Generating new baseline file"
+../gradlew -p ../ generatePlayProdReleaseBaselineProfile
+if git diff --quiet ../app/src/main/baseline-prof.txt; then
+    echo "Warning: Baseline file unchanged"
+fi
+git commit -m "Update baseline file" \
+    ../app/src/main/baseline-prof.txt
+
 ../../scripts/commit-relay-list "$PRODUCT_VERSION"
 echo ""
 
