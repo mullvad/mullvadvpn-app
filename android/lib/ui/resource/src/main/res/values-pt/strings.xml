@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aqui</string>
     <string name="automatic">Automático</string>
     <string name="automatic_entry_description">Quando selecionada, a aplicação escolhe automaticamente um servidor aleatório, dando prioridade aos que se encontram mais próximos da localização de saída, para melhor desempenho.</string>
+    <string name="automatic_entry_extra_info">É utilizado um servidor adicional para aplicar as definições correspondentes à localização selecionada</string>
     <string name="automatic_entry_info_first_paragraph">Escolhe uma localização adequada com base na sua localização de saída, tendo em conta vários fatores como distância, fornecedor e a carga do servidor.</string>
     <string name="automatic_entry_warning">Atenção: Isto irá ignorar as definições de filtro do servidor utilizado como ponto de entrada.</string>
     <string name="automatic_with_country">Automático (%1$s)</string>
@@ -343,6 +344,8 @@
     <string name="mtu_x">Valor: %1$s</string>
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_2_second_paragraph">Garante que a sua ligação não é bloqueada devido a definições incompatíveis.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Isto será indicado pelo símbolo %1$s.</string>
     <string name="multihop_entry_disabled_description">De momento, é selecionado um servidor de entrada automaticamente quando necessário, para garantir uma ligação ativa. Para selecionar manualmente um servidor de entrada, altere o modo multihop para \"Sempre\".</string>
     <string name="multihop_is_disabled">Multihop está desativado</string>
     <string name="multihop_is_enabled">Multihop está ativado</string>
@@ -352,6 +355,7 @@
     <string name="multihop_migration_in_app_message_title">Definições migradas</string>
     <string name="multihop_mode">Modo multihop</string>
     <string name="multihop_when_needed">Multihop quando necessário</string>
+    <string name="multihop_when_needed_info_first_paragraph">A aplicação só utilizará o multihop se não conseguir estabelecer ligação à localização selecionada. Isto pode acontecer se o servidor nessa localização não for compatível com as funcionalidades que ativou. Nesse caso, a aplicação encaminhará automaticamente o seu tráfego através de um servidor compatível com essas funcionalidades antes de chegar à localização selecionada.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">O nome foi alterado para %1$s</string>
     <string name="navigate">Navegar</string>

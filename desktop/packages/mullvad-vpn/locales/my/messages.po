@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-15 07:52\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -736,6 +736,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "%(name)s နည်းလမ်းကို အသုံးပြု၍ API ကို ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ။"
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "အက်ပ်သည် %(domainFronting)s. မှတဆင့် Mullvad API ဆာဗာနှင့် ဆက်သွယ်ဆောင်ရွက်ပါသည်။"
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "သင့်စက်တွင်း SOCKS5 ဆာဗာက သင့်၏ အချက်အလက် အပြန်အလှန်ကူးလူးမှုကို ရှေ့ဆက်၍ ပေးပို့လိုက်မည့် အဝေးဆာဗာ၏ အချက်အလက်အသေးစိတ်ကို ဤအက်ပ်က လိုအပ်ပါသည်။"
@@ -743,6 +751,12 @@ msgstr "သင့်စက်တွင်း SOCKS5 ဆာဗာက သင့်
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "Mullvad API ဆာဗာသို့ သင်ဝင်ရောက်ရန်၊ ဆာဗာစာရင်းများ ရယူရန်နှင့် အလွန်အရေးပါသည့် အခြားလုပ်ဆောင်မှုများအတွက် ဤအက်ပ်သည် ၎င်းနှင့်ဆက်သွယ်ရန် လိုအပ်ပါသည်။"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "သုံးစွဲထားသော CDN မှာ Datapacket ၏ CDN77 ဖြစ်ပါသည်။ ထို CDN သည် ပရောက်စီခံထားသော TLS ဒေတာအသွားအလာကိုသာ စောင့်ကြည့်နိုင်ပြီး အကြောင်းအရာများကိုမူ ကြည့်ရှုနိုင်မည် မဟုတ်ပါ။"
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -755,6 +769,12 @@ msgstr "သင့်စက်တွင်း SOCKS5 ဆာဗာသည် TCP �
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "API ကို စိစစ်ဖြတ်တောက်မှုများ ပြုလုပ်ထားသော်လည်း Mullvad ၏ ပေါင်းကူးဆာဗာများကို မပြုလုပ်ထားပါက ၎င်းသည် အသုံးဝင်နိုင်သည်။"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "တိုက်ရိုက်ဝင်ရောက်ခွင့်နှင့် အခြားနည်းလမ်းများကို ဆင်ဆာဖြတ်တောက်မှုကြောင့် ပိတ်ပင်ထားချိန်တွင် ဤအရာသည် အသုံးဝင်နိုင်ပါသည်။"
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -783,6 +803,14 @@ msgstr "ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထား�
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "\"Mullvad ပေါင်းကူးများ\" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ဆာဗာအား Mullvad ပေါင်းကူး ဆာဗာမှတစ်ဆင့် ဆက်သွယ်ပါသည်။ Shadowsock များဖြင့် ရှုပ်ထွေးအောင် ပြုလုပ်ထားသည့် ဒေတာကူးလူးမှုများကို ပေးပို့ခြင်းဖြင့် ၎င်းက အဆိုပါကိစ္စကို ဆောင်ရွက်ပါသည်။"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "%(domainFronting)s ဝင်ရောက်သုံးစွဲနည်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ထံ CDN တစ်ခုမှတစ်ဆင့် ချိတ်ဆက်ပေးပြီး ယင်းဒေတာအသွားအလာကို အခြားအင်တာနက် ဒေတာအသွားအလာ အများအပြားနှင့် ရောနှောပေးသဖြင့် ဆင်ဆာဖြတ်တောက်ရန် ပိုမိုခက်ခဲစေပါသည်။"
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2074,8 +2102,8 @@ msgstr "အမြဲတမ်း"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "တည်နေရာတစ်ခုကို စာရင်းတွင် ထည့်ရန် ၎င်းအပေါ်တွင်ရှိသော “+“ ကို နှိပ်ပါ"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "တည်နေရာတစ်ခုကို စာရင်းတွင် ထည့်ရန် ၎င်းအပေါ်တွင်ရှိသော “...“  ကို နှိပ်ပါ"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3058,6 +3086,9 @@ msgstr "သင့်အကောင့်အတွက် ရက် 90 တို�
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>အကောင့်ပြန်ဆယ်၍ ရနိုင်မည်မဟုတ်ပါ။</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>အမြဲတမ်း</b>\\nMultihop ကို ဖွင့်ထားသည်။ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပေးပို့ပြီး ထို့နောက်တွင် ရွေးချယ်ထားသောတည်နေရာမှတစ်ဆင့် ထွက်ခွာပါသည်။"
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>သတိ-DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။ </b>"
 
@@ -3073,6 +3104,9 @@ msgstr "<b>သတိပြုရန်-</b> အိုင်ကွန်နှင
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNS အကြောင်းအရာ ပိတ်ဆို့ရေးစနစ်များ</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>ဘယ်တော့မျှ</b>\\nMultihop ကို မပိတ်ထားပါ။ ချိတ်ဆက်မှုပြုလုပ်ရန်အလို့ငှာ သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိသက်ဝင်နေသောဆက်တင်အားလုံးကို တွဲဖက်လုပ်ဆောင်နိုင်ရမည်။"
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။</b>"
 
@@ -3087,6 +3121,9 @@ msgstr "<b>ယင်းက သင့်အမည်ဝှက်ခြင်း�
 
 msgid "<b>Warning:</b>"
 msgstr "<b>သတိပေးချက်-</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်</b>\\nကျွန်ုပ်တို့၏ တည်နေရာ/ဆာဗာအားလုံးသည် အက်ပ်ထဲရှိ လုပ်ဆောင်ချက်တိုင်းကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါ။ သင်ရွေးချယ်ထားသော တည်နေရာ/ဆာဗာသည် သင်ဖွင့်ထားသည့် လုပ်ဆောင်ချက်များကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါက အက်ပ်သည် ကိုက်ညီသောဆာဗာမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်သွားပါမည်။"
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>စက်အားလုံးတွင် ဤအကောင့်သို့ ဝင်သုံးခွင့်ကို ဆုံးရှုံးပါမည်။</b>"
@@ -3136,9 +3173,6 @@ msgstr "နည်းလမ်း ထည့်နေဆဲ..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးနောက် စက်များတွင် VPN အက်ပ်များက အင်တာနက်ချိတ်မပေးနိုင်တော့သည့် အခြေအနေမျိုး ကြုံရတတ်သည်။"
 
-msgid "Agree and continue"
-msgstr "သဘောတူပြီး ဆက်လုပ်ရန်"
-
 msgid "All"
 msgstr "အားလုံး"
 
@@ -3153,6 +3187,9 @@ msgstr "အမြဲဖွင့် VPN ကို %s သို့ သတ်မ�
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "အမြဲဖွင့် VPN ကို အခြား VPN တစ်ခုသို့ သတ်မှတ်ထားပါသည်"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "သင်ရွေးချယ်ထားသော တည်နေရာအတွက် သင့်ဆက်တင်များနှင့် ကိုက်ညီစေရန် ထပ်ဆောင်းဆာဗာကို သုံးသည်"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "အလုပ်ဖြစ်သော ချိတ်ဆက်မှု ဟုတ် မဟုတ် စစ်ဆေးရန် လိုအပ်ချိန်တွင် အဝင်ဆာဗာကို အလိုအလျောက် ရွေးချယ်ပါသည်။ အဝင်ဆာဗာတစ်ခုကို ကိုယ်တိုင်ရွေးချယ်ရန် Multihop မုဒ်ကို \"အမြဲတမ်း\" သို့ ပြောင်းပေးပါ။"
@@ -3442,17 +3479,11 @@ msgstr "အိုင်ကွန်နှင့် ခေါင်းစဉ်"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "အက်ပ်ပိတ်ပြီးနောက် အိုင်ကွန်နှင့် ခေါင်းစဉ်သည် မပြောင်းလဲသေးပါက စက်ကို ပြန်လည်စတင်ကြည့်ပါ။"
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။"
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "ဤအဆင့်များအတိုင်း လုပ်ဆောင်သော်လည်း မပြေလည်ပါက အောက်ရှိ ခလုတ်ကို သုံး၍ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံ အီးမေးလ်တစ်စောင် ပို့ပေးပါ။ အီးမေးလ်တွင် အမည်ဝှက်ထားသော မှတ်တမ်းများကို အော်တို တွဲချိတ်သွားပါမည်။"
 
 msgid "If you have any issues"
 msgstr "ပြဿနာတစ်စုံတစ်ရာရှိပါက"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး နည်းလမ်း၊ စစ်ထုတ်မှုများ၊ DAITA စသည်တို့အနက်မှ တစ်ခုခုဖြစ်စေ၊ ၎င်းတို့အားလုံးဖြစ်စေ စသည့် သင်၏ ဦးစားပေးမှုများကို သင့်လက်ရှိတည်နေရာတွင် မလုပ်ဆောင်နိုင်ပါက ကိုက်ညီမှုရှိသောဆာဗာတစ်ခုမှတစ်ဆင့် ထိုတည်နေရာကို ချိတ်ဆက်ရန် Multihop ကို အလိုအလျောက် အသုံးပြုပါမည်။ ၎င်းကို %1$s သင်္ကေတဖြင့် ဖော်ပြပါမည်။"
 
 msgid "Import new overrides by"
 msgstr "ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်"
@@ -3530,16 +3561,19 @@ msgid "Multihop is disabled"
 msgstr "Multihop ကို ပိတ်ထားသည်"
 
 msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန် သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိအသက်ဝင်နေသော ဆက်တင်အားလုံးကို ပံ့ပိုးပေးရမည်။"
+msgstr "Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန်အလို့ငှာ သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိသက်ဝင်နေသောဆက်တင်အားလုံးကို တွဲဖက်လုပ်ဆောင်နိုင်ရမည်။"
 
 msgid "Multihop is enabled"
 msgstr "Multihop ကို ဖွင့်ထားသည်"
 
 msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "Multihop ကို ဖွင့်ထားသည်။ ရွေးချယ်ထားသော တည်နေရာကိုဖြတ်ပြီး မထွက်ခွာမီ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပို့ပေးသည်။"
+msgstr "Multihop ကို ဖွင့်ထားသည်။ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပေးပို့ပြီး ထို့နောက်တွင် ရွေးချယ်ထားသောတည်နေရာမှတစ်ဆင့် ထွက်ခွာပါသည်။"
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "ယခုအခါ Multihop ကို မုဒ်သုံးခုအဖြစ် ခွဲထုတ်ပါသည်- ၎င်းတို့မှာ လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။\\nယင်းက သင်၏ ချိတ်ဆက်မှု ဦးစားပေးများနှင့်အညီ ပြောင်းလွယ်ပြင်လွယ် အသုံးပြုနိုင်စေသည်။"
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "Multihop သည် သင့်ဒေတာအသွားအလာကို WireGuard ဆာဗာတစ်ခုထဲသို့ ပို့ပေးပြီး ဆာဗာနောက်တစ်ခုမှ ထွက်သွားစေ၍ ခြေရာခံရန် ပိုခက်ခဲစေသည်။ ယင်းက ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် အမည်ဝှက်ခြင်းကို မြှင့်တင်ပေးသည်။ Multihop တွင် ရွေးချယ်စရာ မုဒ်သုံးမျိုးရှိပြီး ၎င်းတို့မှာ-\\n လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။"
 
 msgid "Multihop when needed"
 msgstr "လိုအပ်သည့်အခါ Multihop လုပ်ရန်"
@@ -3664,9 +3698,6 @@ msgstr "ပေါ့တ် သတ်မှတ်ချက်ထက် ကျေ�
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "အနှောင့်အယှက်ပေးသော ကြော်ငြာများ၊ မဲလ်ဝဲရ်များ၊ ခြေရာခံစနစ်များ၊ အခြားဆက်စပ်သည်များနှင့် စပ်လျဉ်း၍ သတိပေးဖော်ပြထားသော ဝက်ဘ်ဆိုက် သို့မဟုတ် ဒိုမိန်းများသို့ စက်မှ မဆက်သွယ်မိစေရန် ကာကွယ်ပေးပါသည်။"
 
-msgid "Privacy"
-msgstr "ကိုယ်ရေးအချက်အလက် လုံခြုံရေး"
-
 msgid "Privacy policy"
 msgstr "ကိုယ်ပိုင်အချက်အလက် မူဝါဒ"
 
@@ -3758,7 +3789,7 @@ msgid "Shows reminders when the account time is about to expire"
 msgstr "အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်"
 
 msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပြီး ပြဿနာများ ဖြေရှင်းပါ။"
+msgstr "သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပြီး ပြဿနာမှန်သမျှကို ဖြေရှင်းပါ။"
 
 msgid "Some of your settings have been migrated, please review the changes."
 msgstr "သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပါ။"
@@ -3773,7 +3804,7 @@ msgid "Suggested action"
 msgstr "အကြံပြုထားသော လုပ်ဆောင်ချက်"
 
 msgid "Suggested multihop entry"
-msgstr "အကြံပြုထားသော multihop အဝင်နေရာ"
+msgstr "အကြံပြုထားသော Multihop အဝင်နေရာ"
 
 msgid "System network settings"
 msgstr "စနစ်ကွန်ရက် ဆက်တင်များ"
@@ -3797,7 +3828,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။"
 
 msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
-msgstr "ချိတ်ဆက်မှုများ ပိတ်ဆို့ခံရခြင်းမရှိစေရန် DAITA ဆက်တင်အခွဲ “တိုက်ရိုက်သာ” ကို ဖယ်ရှားပြီး ရိုးရှင်းအောင် ပြုလုပ်ထားသည်။ ယင်းအစား DAITA ကို ဖွင့်ထားပါက multihop ဆက်တင်ဖြင့် ဤရွေးချယ်မှုကို ပြုလုပ်နိုင်သည်။"
+msgstr "ချိတ်ဆက်မှုများ ပိတ်ဆို့ခံရခြင်းမရှိစေရန် DAITA ဆက်တင်အခွဲဖြစ်သော “တိုက်ရိုက်သာ” ကို ဖယ်ရှားပြီး ရိုးရှင်းအောင် ပြုလုပ်ထားသည်။ ယင်းအစား DAITA ကို ဖွင့်ထားပါက Multihop ဆက်တင်ဖြင့် ဤရွေးချယ်မှုကို ပြုလုပ်နိုင်သည်။"
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "VPN ဆက်တင်များအောက်ရှိ \"IPv6\" ကို မဖွင့်ထားပါက IPv6 DNS ဆာဗာသည် အလုပ်လုပ်မည်မဟုတ်ပါ။"
@@ -3820,11 +3851,14 @@ msgstr "Mullvad API သို့ ဆက်သွယ်၍မရနိုင်�
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "Mullvad API သို့ ဆက်သွယ်၍ မရသောကြောင့် အက်ပ်သည် ဝင်ရောက်၍ မရခဲ့ပါ။"
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "အက်ပ်သည် သင်ရွေးချယ်ထားသော တည်နေရာသို့ ချိတ်ဆက်၍ မရမှသာ Multihop လုပ်ပါမည်။ ထိုတည်နေရာရှိ ဆာဗာက သင်ဖွင့်ထားသော လုပ်ဆောင်ချက်များကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါက ဤသို့ ပြုလုပ်နိုင်ပါသည်။ သို့ရာတွင် အက်ပ်သည် သင့်ဒေတာအသွားအလာကို ဤလုပ်ဆောင်ချက်များ တွဲဖက်လုပ်ဆောင်နိုင်သည့် ဆာဗာတစ်ခုမှတစ်ဆင့် အလိုအလျောက် ပေးပို့မည်ဖြစ်ပြီး ထို့နောက်တွင် သင့်ရွေးချယ်ထားသော တည်နေရာကို ရောက်ရှိပါမည်။"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "လိုကယ် DNS ဆာဗာသည် VPN ဆက်တင်များအောက်ရှိ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို မဖွင့်မချင်း အလုပ်လုပ်မည် မဟုတ်ပါ။"
 
 msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
-msgstr "ယခုအခါ multihop မုဒ် “အမြဲတမ်း” တွင် အဝင်ဆာဗာ ရွေးချယ်မှုအတွက် “အလိုအလျောက်” တည်နေရာ ပါဝင်လာပါပြီ။"
+msgstr "ယခုအခါ Multihop မုဒ် “အမြဲတမ်း” တွင် အဝင်ဆာဗာ ရွေးချယ်မှုအတွက် “အလိုအလျောက်” တည်နေရာ ပါဝင်လာပါပြီ။"
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "ရွေးထားသည့် %s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ "
@@ -3834,6 +3868,9 @@ msgstr "Mullvad နှင့် ချိတ်ဆက်၍ မရအောင�
 
 msgid "This address has already been entered."
 msgstr "ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။"
+
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "ဤနည်းအားဖြင့် မကိုက်ညီသော ဆက်တင်များကြောင့် သင့်ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမခံရစေရန် သေချာစေပါသည်။"
 
 msgid "This field is required"
 msgstr "ဤအကွက်ကို မဖြစ်မနေဖြည့်ရမည်"
@@ -3848,7 +3885,10 @@ msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "ဆင်ဆာဖြတ်တောက်မှု သို့မဟုတ် ကွန်ရက်ပြဿနာများကြောင့် ဖြစ်နိုင်သည်။ အောက်ပါတို့ကို လုပ်ဆောင်ကြည့်ပါ-"
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "သင်၏ လက်ရှိဆက်တင်များမှာ သင်ရွေးချယ်ထားသော တည်နေရာနှင့် ကိုက်ညီကြောင်း သေချာစေရန် လိုအပ်ပါက ဤမုဒ်သည် အက်ပ်အား ထပ်ဆောင်းဆာဗာမှတစ်ဆင့် အလိုအလျောက် multihop လုပ်ဆောင်ခွင့်ပြုပါသည်။"
+msgstr "သင့်လက်ရှိဆက်တင်များက သင်ရွေးချယ်ထားသော တည်နေရာတွင် အလုပ်ဖြစ်စေရန်အတွက် လိုအပ်ပါက အက်ပ်က အပိုဆောင်းဆာဗာတစ်ခုမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်နိုင်ရန် ဤမုဒ်က ဆောင်ရွက်ပေးသည်။"
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "၎င်းကို %1$s သင်္ကေတဖြင့် ပြသပါမည်။"
 
 msgid "Time added"
 msgstr "အချိန်တိုးထားသည်"
@@ -3870,9 +3910,6 @@ msgstr "သင်၏ Mullvad VPN အကောင့်ကို ဖျက်ရ�
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "သင့်လက်ရှိဆက်တင်သည် သင်ရွေးချယ်ထားသောတည်နေရာနှင့် အလုပ်လုပ်ကြောင်း သေချာစေရန်နှင့် သင့်ချိတ်ဆက်မှု ပိတ်ပင်မခံရစေရန် အက်ပ်သည် မတူသော အဝင်ဆာဗာတစ်ခုမှ အလိုအလျောက် Multihop လုပ်ကောင်းလုပ်နိုင်ပါသည်။\\n၎င်းကို %1$s သင်္ကေတဖြင့် ဖော်ပြပါမည်။"
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။"
 
 msgid "Toggle VPN"
 msgstr "VPN ရွေးသုံးရန်"
@@ -3998,13 +4035,13 @@ msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%s</b> ဟု ခေါ်ပါသည်။"
 
 msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
-msgstr "multihop ကို “အမြဲတမ်း” သို့မဟုတ် “ဘယ်တော့မှ” ဟု သတ်မှတ်ထားချိန်တွင် DAITA ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရမည်။"
+msgstr "Multihop ကို “အမြဲတမ်း” သို့မဟုတ် “ဘယ်တော့မှ” ဟု သတ်မှတ်ထားချိန်တွင် DAITA ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရမည်။"
 
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
-msgstr "multihop ကို “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်” ဟု သတ်မှတ်ထားချိန်တွင် သင်ရွေးချယ်ထားသော တည်နေရာသို့ DAITA အသုံးပြု၍ ချိတ်ဆက်ထားကြောင်း သေချာစေရန် အက်ပ်က ထပ်ဆောင်းဆာဗာကို အသုံးပြုနိုင်သည်။"
+msgstr "Multihop ကို “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်” ဟု သတ်မှတ်ထားချိန်တွင် သင်ရွေးချယ်ထားသော တည်နေရာသို့ DAITA အသုံးပြု၍ အသေအချာ ချိတ်ဆက်ရန် အက်ပ်က ထပ်ဆောင်းဆာဗာတစ်ခုကို အသုံးပြုနိုင်သည်။"
 
 msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်။"
+msgstr "ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက် တည်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်။"
 
 msgid "WireGuard port"
 msgstr "WireGuard ပေါ့တ်"
@@ -4031,7 +4068,7 @@ msgid "You will lose your remaining"
 msgstr "သင်သည် သင့်လက်ကျန်ကို ဆုံးရှုံးပါမည်"
 
 msgid "Your current filters were applied to both entry and exit locations."
-msgstr "သင်၏ လက်ရှိ စစ်ထုတ်ချက်များကို အဝင်နေရာနှင့် အထွက်နေရာ နှစ်ခုစလုံးအတွက် အသုံးပြုထားသည်။"
+msgstr "သင်၏ လက်ရှိစစ်ထုတ်ချက်များကို အဝင်နေရာနှင့် အထွက်နေရာ နှစ်ခုစလုံးအတွက် အသုံးပြုထားသည်။"
 
 msgid "Your device"
 msgstr "သင့်စက်"

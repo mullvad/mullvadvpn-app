@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
     <string name="automatic">Automatico</string>
     <string name="automatic_entry_description">Quando questa opzione è selezionata, l\'app sceglie automaticamente un server casuale, privilegiando quelli più vicini alla posizione di uscita per offrire prestazioni migliori.</string>
+    <string name="automatic_entry_extra_info">Per adattare le impostazioni alla posizione selezionata viene utilizzato un server aggiuntivo</string>
     <string name="automatic_entry_info_first_paragraph">Seleziona una posizione adatta in base alla posizione di uscita, tenendo conto di diversi fattori come distanza, provider e carico del server.</string>
     <string name="automatic_entry_warning">Attenzione: le impostazioni dei filtri verranno ignorate per il server utilizzato come punto di entrata.</string>
     <string name="automatic_with_country">Automatica (%1$s)</string>
@@ -343,6 +344,8 @@
     <string name="mtu_x">Valore: %1$s</string>
     <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_2_second_paragraph">In questo modo la connessione non verrà bloccata a causa di impostazioni incompatibili.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Questo sarà indicato dal simbolo %1$s.</string>
     <string name="multihop_entry_disabled_description">Attualmente, quando necessario, viene selezionato automaticamente un server di entrata per garantire il funzionamento della connessione. Per selezionare manualmente un server di entrata, imposta la modalità multihop su \"Sempre\".</string>
     <string name="multihop_is_disabled">Il multihop è disabilitato</string>
     <string name="multihop_is_enabled">Il multihop è abilitato</string>
@@ -352,6 +355,7 @@
     <string name="multihop_migration_in_app_message_title">Impostazioni migrate</string>
     <string name="multihop_mode">Modalità multihop</string>
     <string name="multihop_when_needed">Multihop quando necessario</string>
+    <string name="multihop_when_needed_info_first_paragraph">L\'app utilizzerà Multihop solo se non riesce a connettersi alla posizione selezionata. Questo può accadere quando il server di quella posizione non supporta le funzionalità attivate. In tal caso, l\'app instraderà automaticamente il traffico attraverso un server che supporta tali funzionalità, prima di raggiungere la posizione selezionata.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">Il nome è stato modificato in %1$s</string>
     <string name="navigate">Naviga</string>
@@ -365,7 +369,7 @@
     <string name="new_multihop_modes_off_to_never">L\'impostazione multihop è stata migrata da \"Disattivato\" a \"Mai\"</string>
     <string name="new_multihop_modes_off_to_when_needed">L\'impostazione multihop è stata migrata da \"Disattivato\" a \"Quando necessario\"</string>
     <string name="new_multihop_modes_on_to_always">L\'impostazione multihop è stata migrata da \"Attivato\" a \"Sempre\"</string>
-    <string name="new_multihop_modes_title">Nuove modalità multihop</string>
+    <string name="new_multihop_modes_title">Nuove modalità Multihop</string>
     <string name="new_multihop_nodes_always_description">Multihop è attivato. La connessione viene instradata attraverso un server di entrata prima di uscire dalla posizione selezionata.</string>
     <string name="new_multihop_nodes_never_description">Multihop è disattivato. Per stabilire una connessione, la posizione selezionata deve supportare tutte le impostazioni attive.</string>
     <string name="next">Avanti</string>
