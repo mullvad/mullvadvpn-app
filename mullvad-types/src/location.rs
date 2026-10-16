@@ -163,8 +163,6 @@ pub struct GeoIpLocation {
     pub ipv6: Option<Ipv6Addr>,
     /// If public IP address(es) are Mullvad IPs.
     pub mullvad_exit_ip: bool,
-    /// Hostname of the exit relay. e.g. `se-got-wg-101`.
-    pub hostname: Option<String>,
     /// City name of the exit relay. e.g. "Gothenburg".
     pub city: Option<String>,
     /// Country name of the exit relay. e.g. "Sweden".
@@ -173,8 +171,6 @@ pub struct GeoIpLocation {
     /// Country, city and hostname code of the exit relay. e.g. `se`, `got`, `se-got-wg-001`
     pub location: Option<GeographicLocationConstraint>,
     /// These fields are `Some` when traffic is routed through an entry relay.
-    /// Hostname of the entry relay. e.g. `se-got-wg-101`.
-    pub entry_hostname: Option<String>,
     /// City name of the entry relay. e.g. "Gothenburg"
     pub entry_city: Option<String>,
     ///  Country name of the entry relay. e.g. "Sweden".
@@ -196,10 +192,8 @@ impl From<AmIMullvad> for GeoIpLocation {
             ipv4,
             ipv6,
             mullvad_exit_ip: location.mullvad_exit_ip,
-            hostname: None,
             city: location.city,
             country: location.country,
-            entry_hostname: None,
             entry_city: None,
             entry_country: None,
             location: None,

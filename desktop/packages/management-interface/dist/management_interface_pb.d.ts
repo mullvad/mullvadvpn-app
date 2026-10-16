@@ -998,16 +998,6 @@ export class GeoIpLocation extends jspb.Message {
     getMullvadExitIp(): boolean;
     setMullvadExitIp(value: boolean): GeoIpLocation;
 
-    hasHostname(): boolean;
-    clearHostname(): void;
-    getHostname(): string | undefined;
-    setHostname(value: string): GeoIpLocation;
-
-    hasEntryHostname(): boolean;
-    clearEntryHostname(): void;
-    getEntryHostname(): string | undefined;
-    setEntryHostname(value: string): GeoIpLocation;
-
     hasEntryCity(): boolean;
     clearEntryCity(): void;
     getEntryCity(): string | undefined;
@@ -1047,8 +1037,6 @@ export namespace GeoIpLocation {
         latitude: number,
         longitude: number,
         mullvadExitIp: boolean,
-        hostname?: string,
-        entryHostname?: string,
         entryCity?: string,
         entryCountry?: string,
         entryLocation?: GeographicLocationConstraint.AsObject,

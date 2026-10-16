@@ -418,10 +418,7 @@ message GeoIpLocation {
   double latitude = 5;
   double longitude = 6;
   bool mullvad_exit_ip = 7;
-  optional string hostname = 8;
   // These fields is non-null when traffic is routed through an entry relay.
-  // Hostname of the entry relay. e.g. `se-got-wg-101`.
-  optional string entry_hostname = 10;
   // City name of the entry relay. e.g. "Gothenburg".
   optional string entry_city = 11;
   // Country name of the entry relay. e.g. "Sweden".
@@ -450,7 +447,9 @@ message LocationConstraint {
 }
 
 message GeographicLocationConstraint {
+  // Country code e.g. `se` for "Sweden".
   string country = 1;
+  // City code e.g. `got` for "Gothenburg".
   optional string city = 2;
   optional string hostname = 3;
 }

@@ -34,7 +34,8 @@ class ConnectionPathUseCase(
             val (entryHostname, exitHostname) =
                 when (tunnelState) {
                     is TunnelState.Connected ->
-                        tunnelState.location?.entryHostname to tunnelState.location?.hostname
+                        tunnelState.location?.entryLocation?.code to
+                            tunnelState.location?.location?.code
                     is TunnelState.Connecting,
                     is TunnelState.Disconnected,
                     is TunnelState.Disconnecting,

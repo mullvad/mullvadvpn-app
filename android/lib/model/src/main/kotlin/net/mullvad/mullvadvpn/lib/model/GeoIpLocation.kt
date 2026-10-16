@@ -11,11 +11,9 @@ data class GeoIpLocation(
     val city: String?,
     val latitude: Double,
     val longitude: Double,
-    val hostname: String?,
     val location: GeoLocationId.Hostname?,
     val entryCountry: String?,
     val entryCity: String?,
-    val entryHostname: String?,
     val entryLocation: GeoLocationId.Hostname?,
 ) {
     companion object
