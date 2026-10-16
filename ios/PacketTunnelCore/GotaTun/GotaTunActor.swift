@@ -367,12 +367,20 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         startDeviceCheckIfNeeded()
 
     }
+    
+    private func recoveryTaskReasonForError(_ error: GotaTunError) -> BlockedStateReason? {
+        switch error {
+        case .bindSockets: .socketBindError
+        case .pqNegotiation: .pqNegotiationError
+        default: nil
+        }
+    }
 
     private func handleAdapterError(_ error: GotaTunError) {
-        if case .bindSockets = error,
+        if let reason = recoveryTaskReasonForError(error),
             currentReachability == .reachable
         {
-            makeRecoveryTaskIfNeeded(reason: .socketBindError)
+            makeRecoveryTaskIfNeeded(reason: reason)
             return
         }
         let blockedReason = mapGotaTunError(error)
@@ -840,6 +848,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case .internalError:
             return .unknown
         case .bindSockets:
+            return .tunnelAdapter
+        case .pqNegotiation:
             return .tunnelAdapter
         }
     }
