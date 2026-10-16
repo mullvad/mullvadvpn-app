@@ -126,8 +126,6 @@ class FilterScreenTest {
                 ),
             onApplyClick = mockClickListener,
         )
-        onNodeWithText("Ownership").performClick()
-        onNodeWithText("Providers").performClick()
 
         // Act
         onNodeWithText("Apply").performClick()
