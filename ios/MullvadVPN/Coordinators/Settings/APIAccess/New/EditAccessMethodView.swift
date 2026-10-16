@@ -15,6 +15,7 @@ import SwiftUI
 struct EditAccessMethodView<ViewModel: EditAccessMethodViewModelProtocol>: View {
     @State var viewModel: ViewModel
     @State private var showDetails = false
+    //    @State private var showEditMethod = false
     @State private var deleteConfirmationAlert: MullvadAlert?
     private let itemFactory = SegmentedListItemFactory()
 
@@ -74,17 +75,19 @@ struct EditAccessMethodView<ViewModel: EditAccessMethodViewModelProtocol>: View 
                 if viewModel.isEditable {
                     SegmentedListItem(
                         isLastInList: true,
-                        userInteraction: .enabledWithoutHighlight,
                         accessibilityIdentifier: .accessMethodEnableSwitch,
+                        leadingAndTrailingDestination: {
+                            AddEditApiAccessMethodView(
+                                viewModel: AddEditApiAccessMethodViewModel(accessMethod: viewModel.accessMethod)
+                            ) { persistentAccessMethod in
+                                viewModel.edit()
+                            }
+                        },
                         leading: {
                             itemFactory.leading(for: .generic(title: NSLocalizedString("Edit method", comment: "")))
                         },
                         trailing: {
                             itemFactory.image(for: .chevron)
-                        },
-                        onSelect: {
-                            //It can Be replaced with navigation link when It's fully migrated
-                            viewModel.edit()
                         }
                     )
                     .padding(.bottom, 24.0)
@@ -134,5 +137,6 @@ struct EditAccessMethodView<ViewModel: EditAccessMethodViewModelProtocol>: View 
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .background(Color.mullvadBackground)
+        .toolbar(.visible, for: .navigationBar)
     }
 }

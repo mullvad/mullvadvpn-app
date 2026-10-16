@@ -15,6 +15,7 @@ import SwiftUI
 
 @MainActor
 protocol EditAccessMethodViewModelProtocol {
+    var accessMethod: PersistentAccessMethod { get }
     var infoHeaderConfig: InfoHeaderConfig? { get }
     var infoModalConfig: InfoModalConfig? { get }
     var isEnabled: Bool { get set }
@@ -45,7 +46,7 @@ enum EditAccessMethodAction {
 final class EditAccessMethodViewModel: EditAccessMethodViewModelProtocol {
     typealias OnChange = (EditAccessMethodAction) -> Void
 
-    private var accessMethod: PersistentAccessMethod
+    var accessMethod: PersistentAccessMethod
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
     let onChange: OnChange
 

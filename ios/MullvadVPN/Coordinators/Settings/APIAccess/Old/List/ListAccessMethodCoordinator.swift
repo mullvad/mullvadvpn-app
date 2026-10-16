@@ -73,16 +73,16 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
         }
     }
 
-    private func addNew() {
-        let coordinator = AddAccessMethodCoordinator(
-            navigationController: CustomNavigationController(),
-            accessMethodRepo: accessMethodRepository,
-            proxyConfigurationTester: proxyConfigurationTester
-        )
-
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-    }
+    //    private func addNew() {
+    //        let coordinator = AddAccessMethodCoordinator(
+    //            navigationController: CustomNavigationController(),
+    //            accessMethodRepo: accessMethodRepository,
+    //            proxyConfigurationTester: proxyConfigurationTester
+    //        )
+    //
+    //        coordinator.start()
+    //        presentChild(coordinator, animated: true)
+    //    }
 
     private func edit(item: ListAccessMethodItem) {
         // Remove previous edit coordinator to prevent accumulation.
@@ -173,7 +173,14 @@ extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewContr
     }
 
     func controllerShouldAddNew() {
-        addNew()
+        //        addNew()
+        let controller = UIHostingController(
+            rootView: AddEditApiAccessMethodView(
+                viewModel: AddEditApiAccessMethodViewModel()
+            ) { persistentAccessMethod in
+
+            })
+        navigationController.present(controller, animated: true)
     }
 
     func controller(shouldEditItem item: ListAccessMethodItem) {

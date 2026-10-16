@@ -12,56 +12,106 @@ import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
-struct AddEditApiAccessMethodView: View {
-    @Binding var name: String
+struct AddEditApiAccessMethodView<ViewModel: AddEditApiAccessMethodViewModelProtocol>: View {
+    //@Binding var name: String
+    let viewModel: ViewModel
     let onSave: (PersistentAccessMethod) -> Void
-
+    @Environment(\.dismiss) private var dismiss
     private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                SegmentedListItem(
-                    isLastInList: true,
-                    userInteraction: .enabledWithoutHighlight,
-                    accessibilityIdentifier: .accessMethodEnableSwitch,
-                    leading: {
-                        itemFactory.leading(for: .generic(title: NSLocalizedString("Name", comment: "")))
-                    },
-                    trailing: {
-                        ConfigurableTextField(
-                            placeholder: LocalizedStringKey("Required"), text: $name,
-                            borderStyle: .constant(.none),
-                            appearance: InputViewAppearance(backgroundColor: .clear))
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    SegmentedListItem(
+                        isLastInList: true,
+                        userInteraction: .enabledWithoutHighlight,
+                        accessibilityIdentifier: .accessMethodEnableSwitch,
+                        leading: {
+                            itemFactory.leading(for: .generic(title: NSLocalizedString("Name", comment: "")))
+                        },
+                        trailing: {
+                            ConfigurableTextField(
+                                placeholder: LocalizedStringKey("Required"), text: .constant(""),
+                                borderStyle: .constant(.none),
+                                appearance: InputViewAppearance(backgroundColor: .clear))
 
-                    }
-                )
-                .padding(.bottom, 24.0)
+                        }
+                    )
+                    .accessibilityIdentifier(AccessibilityIdentifier.accessMethodNameTextField)
+                    .padding(.bottom, 24.0)
 
-                SegmentedListItem(
-                    isLastInList: true,
-                    userInteraction: .enabledWithoutHighlight,
-                    accessibilityIdentifier: .accessMethodEnableSwitch,
-                    leading: {
-                        itemFactory.leading(for: .generic(title: NSLocalizedString("Name", comment: "")))
-                    },
-                    trailing: {
-                        itemFactory.trailing(for: .input(title: "", placeholder: "Required", text: $name))
+                    SegmentedListItem(
+                        isLastInList: true,
+                        userInteraction: .enabledWithoutHighlight,
+                        accessibilityIdentifier: .accessMethodEnableSwitch,
+                        leadingAndTrailingDestination: {
+                            Text("Next")
+                                .navigationTitle("Next")
+                                .navigationBarTitleDisplayMode(.inline)
+                        },
+                        leading: {
+                            itemFactory.leading(for: .generic(title: NSLocalizedString("Type", comment: "")))
+                        },
+                        trailing: {
+                            itemFactory.trailing(for: .drillDown(title: "", breadcrumb: nil))
 
-                    }
-                )
-                .padding(.bottom, 24.0)
+                        }
+                    )
+                    .accessibilityIdentifier(AccessibilityIdentifier.accessMethodProtocolPickerView)
+                    .padding(.bottom, 24.0)
+                }
             }
+            .scrollBounceBehavior(.automatic)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .background(Color.mullvadBackground)
+            .safeAreaInset(edge: .top, spacing: 8.0) {
+                VStack(spacing: 0) {
+                    // Prompt
+                    Text("The app will test the method before saving.")
+                        .font(.mullvadTiny)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+
+                    // Navigation row
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(.primary)
+                                .frame(width: 32, height: 32)
+                                .background(.white, in: Circle())
+                        }
+
+                        Text(viewModel.dismissButtonTitle)
+                            .font(.mullvadSmall)
+
+                        // title
+                        Spacer()
+                        Text(viewModel.title)
+                            .font(.mullvadSmall)
+                        Spacer()
+
+                        Button("Save") {
+                            // Your save action
+                        }
+                        .font(.mullvadSmall)
+                    }
+                    .padding(16.0)
+                }
+                .foregroundStyle(.white)
+                .background(Color(red: 25 / 255, green: 48 / 255, blue: 69 / 255))
+            }
+            .toolbar(.hidden, for: .navigationBar)
         }
-        .scrollBounceBehavior(.automatic)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
-        .background(Color.mullvadBackground)
     }
 }
 
 #Preview {
-    AddEditApiAccessMethodView(name: .constant("")) { accessMethod in
+    AddEditApiAccessMethodView(viewModel: AddEditApiAccessMethodViewModel(accessMethod: nil)) { accessMethod in
         print(accessMethod.name)
     }
 }

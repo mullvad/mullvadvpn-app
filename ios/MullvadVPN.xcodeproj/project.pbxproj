@@ -1097,6 +1097,7 @@
 		F095809C2FADEEC200A55BD4 /* SettingsMigrationWizardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */; };
 		F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */; };
 		F09B828730811942005962DD /* AddEditApiAccessMethodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */; };
+		F09B828930820AC1005962DD /* AddEditApiAccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09B828830820ABC005962DD /* AddEditApiAccessMethodViewModel.swift */; };
 		F09C97212D311D8800ADE747 /* ChangeLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97202D311D7A00ADE747 /* ChangeLogView.swift */; };
 		F09C97232D3122F300ADE747 /* ChangeLogReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97222D3122E400ADE747 /* ChangeLogReader.swift */; };
 		F09C97252D312ED000ADE747 /* BulletPointText.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09C97242D312ECD00ADE747 /* BulletPointText.swift */; };
@@ -2758,6 +2759,7 @@
 		F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationWizardCoordinator.swift; sourceTree = "<group>"; };
 		F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationTrackerFactory.swift; sourceTree = "<group>"; };
 		F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditApiAccessMethodView.swift; sourceTree = "<group>"; };
+		F09B828830820ABC005962DD /* AddEditApiAccessMethodViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEditApiAccessMethodViewModel.swift; sourceTree = "<group>"; };
 		F09C97202D311D7A00ADE747 /* ChangeLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogView.swift; sourceTree = "<group>"; };
 		F09C97222D3122E400ADE747 /* ChangeLogReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogReader.swift; sourceTree = "<group>"; };
 		F09C97242D312ECD00ADE747 /* BulletPointText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulletPointText.swift; sourceTree = "<group>"; };
@@ -5139,7 +5141,6 @@
 				F06C3ED430739A68009429FD /* List */,
 				F06C3EDC30739A68009429FD /* Models */,
 				F06C3EE030739A68009429FD /* Pickers */,
-				F06C3EE130739A68009429FD /* AboutView.swift */,
 				F06C3EE230739A68009429FD /* AboutViewController.swift */,
 				F06C3EE330739A68009429FD /* CurrentValueSubject+UIActionBindings.swift */,
 				F06C3EE430739A68009429FD /* Publisher+PreviousValue.swift */,
@@ -5150,13 +5151,15 @@
 		F06C3F2230739ACF009429FD /* New */ = {
 			isa = PBXGroup;
 			children = (
-				F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */,
+				F06C3EE130739A68009429FD /* AboutView.swift */,
 				F06C3ED530739A68009429FD /* AccessMethodValidationError.swift */,
+				F09B82863081192D005962DD /* AddEditApiAccessMethodView.swift */,
+				F09B828830820ABC005962DD /* AddEditApiAccessMethodViewModel.swift */,
 				F06C3F2D307E18B6009429FD /* ApiAccessMethodTestView.swift */,
-				F06C3F2B307D7494009429FD /* MethodTestingStatusView.swift */,
-				F06C3F29307D5FC5009429FD /* EditAccessMethodView+Preview.swift */,
 				F06C3F2330739AFB009429FD /* EditAccessMethodView.swift */,
+				F06C3F29307D5FC5009429FD /* EditAccessMethodView+Preview.swift */,
 				F06C3F2530739B57009429FD /* EditAccessMethodViewModel.swift */,
+				F06C3F2B307D7494009429FD /* MethodTestingStatusView.swift */,
 			);
 			path = New;
 			sourceTree = "<group>";
@@ -7300,6 +7303,7 @@
 				F06C3F1F30739A68009429FD /* EditAccessMethodInteractor.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
+				F09B828930820AC1005962DD /* AddEditApiAccessMethodViewModel.swift in Sources */,
 				F0F939842FD975ED00AF42D7 /* DeprecatedSettingsResolver.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				F09E81EC301370DD00F6F2B8 /* BorderStyle.swift in Sources */,
