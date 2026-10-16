@@ -108,7 +108,7 @@ final class AppResetManagerReal {
             fallthrough
         default:
             resetUserDefaults()
-            await resetKeychain()
+            resetKeychain()
             isAppReady.send(true)
         }
     }
@@ -120,11 +120,11 @@ final class AppResetManagerReal {
         await tunnelManager.unsetAccount(isRemovingProfile: false)
     }
 
-    private func resetKeychain() async {
+    private func resetKeychain() {
         let policy = launchArguments.settingsResetPolicy
         settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
         if policy.shouldReset(.settings) {
-            await tunnelManager.updateSettings([.reset])
+            tunnelManager.updateSettings([.reset])
         }
     }
 

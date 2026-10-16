@@ -277,10 +277,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
                     style: .default,
                     handler: { [weak self] _ in
-                        Task {
-                            PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                            await self?.tunnelManager.reapplyTunnelConfiguration()
-                        }
+                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+                        self?.tunnelManager.reapplyTunnelConfiguration()
                     }
                 )
             )
@@ -290,9 +288,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     title: "Invalidate WireGuard key",
                     style: .default,
                     handler: { [weak self] _ in
-                        Task {
-                            await self?.tunnelManager.invalidateWireGuardKey()
-                        }
+                        self?.tunnelManager.invalidateWireGuardKey()
                     }
                 )
             )

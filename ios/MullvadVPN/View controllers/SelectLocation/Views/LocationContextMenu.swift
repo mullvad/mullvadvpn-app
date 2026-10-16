@@ -53,13 +53,11 @@ extension ExitLocationView {
             default:
                 if let customListNode = location.parent?.asCustomListNode {
                     Button(role: .destructive) {
-                        Task {
-                            await viewModel
-                                .removeLocationFromCustomList(
-                                    location: location,
-                                    customListName: customListNode.name
-                                )
-                        }
+                        viewModel
+                            .removeLocationFromCustomList(
+                                location: location,
+                                customListName: customListNode.name
+                            )
                         UIImpactFeedbackGenerator(
                             style: .medium
                         )
@@ -96,13 +94,11 @@ extension ExitLocationView {
                     return isAlreadyInList
                 }
                 Button(customList.name) {
-                    Task {
-                        await viewModel
-                            .addLocationToCustomList(
-                                location: location,
-                                customListName: customList.name
-                            )
-                    }
+                    viewModel
+                        .addLocationToCustomList(
+                            location: location,
+                            customListName: customList.name
+                        )
                     UIImpactFeedbackGenerator(
                         style: .medium
                     )
@@ -119,7 +115,7 @@ extension ExitLocationView {
                         title: "Create",
                         identifier: nil,
                         handler: { listName in
-                            await viewModel
+                            viewModel
                                 .addLocationToCustomList(
                                     location: location,
                                     customListName: listName

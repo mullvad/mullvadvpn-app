@@ -16,6 +16,7 @@ import MullvadTypes
 // this is still very minimal, and will be fleshed out as needed.
 final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
     var isConfigurationLoaded: Bool
+
     var settings: LatestTunnelSettings
     var deviceState: DeviceState
     var onUpdateTunnelStatus: ((TunnelStatus) -> Void)?
@@ -42,18 +43,6 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
         self.tunnelStatus = TunnelStatus()
     }
 
-    func getTunnel() async -> (any TunnelProtocol)? {
-        tunnel
-    }
-
-    func getTunnelStatus() async -> TunnelStatus {
-        tunnelStatus
-    }
-
-    func getDeviceState() async -> DeviceState {
-        deviceState
-    }
-
     func getPersistentTunnel() async -> (any TunnelProtocol)? {
         tunnel
     }
@@ -65,48 +54,45 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
         )
     }
 
-    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) async {
+    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
         onSetTunnel?(tunnel, shouldRefreshTunnelState)
         self.tunnel = tunnel
     }
 
     var tunnelStatus: TunnelStatus
 
-    @discardableResult func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) async -> TunnelStatus {
+    func updateTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
         var tunnelStatus = self.tunnelStatus
         block(&tunnelStatus)
         onUpdateTunnelStatus?(tunnelStatus)
-        self.tunnelStatus = tunnelStatus
         return tunnelStatus
     }
 
-    func setConfigurationLoaded() async {
+    func setConfigurationLoaded() {
         isConfigurationLoaded = true
     }
 
-    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) async {
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
         onSetSettings?(settings, persist)
         self.settings = settings
     }
 
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool) async {
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
         onSetDeviceState?(deviceState, persist)
         self.deviceState = deviceState
     }
 
-    func setLastUsedAccount(_ accountNumber: String) async {}
+    func removeLastUsedAccount() {}
 
-    func removeLastUsedAccount() async {}
+    func handleRestError(_ error: Error) {}
 
-    func handleRestError(_ error: Error) async {}
+    func startTunnel() {}
 
-    func startTunnel() async {}
-
-    func prepareForVPNConfigurationDeletion() async {}
+    func prepareForVPNConfigurationDeletion() {}
 
     struct NotImplementedError: Error {}
 
-    func selectRelays() async throws -> SelectedRelays {
+    func selectRelays() throws -> SelectedRelays {
         throw NotImplementedError()
     }
 }
