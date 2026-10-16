@@ -41,7 +41,12 @@ echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"
 echo "* Version to test: $CURRENT_VERSION"
 echo "**********************************"
 
-# If 'ACCOUNT_TOKENS' is not set, the account of the environment in the test-manager config is used.
+# Prefer `PARTNER_API_TOKEN` over `ACCOUNT_TOKENS` if it set.
+if [[ -n "${PARTNER_API_TOKEN+-}" ]]; then
+    export PARTNER_API_TOKEN="$PARTNER_API_TOKEN"
+fi
+
+ # If 'ACCOUNT_TOKENS' is not set, the account of the environment in the test-manager config is used.
 if [[ -n "${ACCOUNT_TOKENS+x}" ]]; then
     if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
         echo "Specify account numbers in 'ACCOUNT_TOKENS' file" 1>&2
