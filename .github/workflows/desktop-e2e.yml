@@ -318,7 +318,6 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ENV)] }}
           PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
         run: |
           # A directory with all the binaries is required to run test-manager.
@@ -426,7 +425,6 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ENV)] }}
           PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
         run: |
           # A directory with all the binaries is required to run test-manager.
@@ -496,7 +494,6 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_MACOS', env.TEST_ENV)] }}
           PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
         run: |
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
