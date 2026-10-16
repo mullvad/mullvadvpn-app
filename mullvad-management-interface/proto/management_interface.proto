@@ -418,19 +418,16 @@ message GeoIpLocation {
   double latitude = 5;
   double longitude = 6;
   bool mullvad_exit_ip = 7;
-  optional string hostname = 8;
-  // Hostname of the entry relay. e.g. `se-got-wg-101`.
-  //
-  // This field is non-null when traffic is routed through an entry relay.
-  optional string entry_hostname = 10;
-  // City code of the entry relay. e.g. `got` for "Gothenburg".
-  //
-  // This field is non-null when traffic is routed through an entry relay.
+  // These fields is non-null when traffic is routed through an entry relay.
+  // City name of the entry relay. e.g. "Gothenburg".
   optional string entry_city = 11;
-  // Country code of the entry relay. e.g. `se` for "Sweden".
-  //
-  // This field is non-null when traffic is routed through an entry relay.
+  // Country name of the entry relay. e.g. "Sweden".
   optional string entry_country = 12;
+  // Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`.
+  optional GeographicLocationConstraint entry_location = 13;
+  // These fields are non-null when tunnel state is connecting or connected.
+  // Country, city and hostname code of the entry relay. e.g. `se`, `got`, `se-got-wg-001`.
+  optional GeographicLocationConstraint location = 14;
 }
 
 message TunnelMetadata { string tunnel_interface = 1; }
@@ -450,7 +447,9 @@ message LocationConstraint {
 }
 
 message GeographicLocationConstraint {
+  // Country code e.g. `se` for "Sweden".
   string country = 1;
+  // City code e.g. `got` for "Gothenburg".
   optional string city = 2;
   optional string hostname = 3;
 }

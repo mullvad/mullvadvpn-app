@@ -14,13 +14,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
+import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandSet
 import net.mullvad.mullvadvpn.feature.location.impl.search.emptyLocationsRelayListItems
 import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByOtherEntryExitList
 import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByThisEntryExitList
+import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -30,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -49,6 +53,7 @@ class SelectLocationListViewModel(
     private val relayListRepository: RelayListRepository,
     private val recentsUseCase: RecentsUseCase,
     private val settingsRepository: SettingsRepository,
+    private val connectionProxy: ConnectionProxy,
     relayListScrollConnection: RelayListScrollConnection,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
@@ -92,7 +97,8 @@ class SelectLocationListViewModel(
             recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
-        ) { filteredCountries, customLists, recents, selectedItem, expandedItems ->
+            connectionProxy.tunnelState,
+        ) { filteredCountries, customLists, recents, selectedItem, expandedItems, tunnelState ->
             // If we have no locations we have an empty relay list, and we should show an error
             if (filteredCountries.countries.isEmpty()) {
                 emptyLocationsRelayListItems(
@@ -109,7 +115,11 @@ class SelectLocationListViewModel(
                 val settings = settingsRepository.settingsUpdates.value
                 relayListItems(
                     relayCountries = filteredCountries.countries,
-                    relayMetadata = filteredCountries.relayMetadata,
+                    relayMetadata =
+                        filteredCountries.relayMetadata.withConnectedRelay(
+                            connectedRelay =
+                                tunnelState.location()?.connectedLocationIn(relayListType)
+                        ),
                     relayListType = relayListType,
                     customLists = customLists,
                     recents = recents,
