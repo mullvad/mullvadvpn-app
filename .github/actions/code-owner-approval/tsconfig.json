@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "noImplicitAny": true,
+    "strict": true,
+    "target": "es2022",
+    "types": ["node"]
+  },
+  "exclude": ["test/**"]
+}
