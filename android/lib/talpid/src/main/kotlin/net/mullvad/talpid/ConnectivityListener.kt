@@ -2,6 +2,7 @@ package net.mullvad.talpid
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties
+import co.touchlab.kermit.Logger
 import java.net.InetAddress
 import kotlin.collections.ArrayList
 import kotlinx.coroutines.CoroutineDispatcher
@@ -61,7 +62,10 @@ class ConnectivityListener(
                     resetNetworkState.receiveAsFlow().map { null },
                 )
                 .map { it?.toNetworkState() }
-                .onEach { notifyDefaultNetworkChange(it) }
+                .onEach {
+                    Logger.d("Default Network State: $it")
+                    notifyDefaultNetworkChange(it)
+                }
                 .collect(_mutableNetworkState)
         }
 
