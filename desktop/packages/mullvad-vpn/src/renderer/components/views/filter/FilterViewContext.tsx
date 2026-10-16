@@ -25,10 +25,10 @@ export const useFilterViewContext = (): FilterViewContext => {
 };
 
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
-  const { providers, activeProviders } = useProviders();
-  const { activeOwnership } = useOwnership();
-  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
-  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+  const { providers, exitProviders } = useProviders();
+  const { exitOwnership } = useOwnership();
+  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(exitProviders);
+  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(exitOwnership);
 
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
