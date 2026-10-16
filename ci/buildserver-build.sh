@@ -260,10 +260,10 @@ while true; do
 
     git fetch --prune --tags 2> /dev/null || continue
 
-    # Exclude android/ and ios/ tags from being built.
+    # Only build tags prefixed with "test-" or consisting of a version number
     # Tags can't include spaces so SC2207 isn't a problem here
     # shellcheck disable=SC2207
-    tags=( $(git tag | grep -v -e "^android/.*\|^ios/.*") )
+    tags=( $(git tag | grep -E "^(test-|[[:digit:]]{4}\.[[:digit:]]{1,2}(-beta[[:digit:]]{1,2})?$)") )
 
     for tag in "${tags[@]}"; do
         build_ref "refs/tags/$tag" "$tag" || echo "Failed to build tag $tag"
