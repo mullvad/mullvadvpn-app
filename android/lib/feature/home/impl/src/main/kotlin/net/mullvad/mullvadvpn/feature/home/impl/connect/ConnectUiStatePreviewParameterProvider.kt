@@ -44,20 +44,24 @@ private val otherStates =
                         longitude = 12.99,
                         entryCountry = "EntryCountry",
                         entryCity = "EntryCity",
-                        location = GeoLocationId.Hostname(
-                            city = GeoLocationId.City(
-                                country = GeoLocationId.Country(code = "se"),
-                                code = "got"
+                        location =
+                            GeoLocationId.Hostname(
+                                city =
+                                    GeoLocationId.City(
+                                        country = GeoLocationId.Country(code = "se"),
+                                        code = "got",
+                                    ),
+                                code = "Hostname",
                             ),
-                            code = "Hostname"
-                        ),
-                        entryLocation = GeoLocationId.Hostname(
-                            city = GeoLocationId.City(
-                                country = GeoLocationId.Country(code = "ec"),
-                                code = "enc"
+                        entryLocation =
+                            GeoLocationId.Hostname(
+                                city =
+                                    GeoLocationId.City(
+                                        country = GeoLocationId.Country(code = "ec"),
+                                        code = "enc",
+                                    ),
+                                code = "EntryHostname",
                             ),
-                            code = "EntryHostname"
-                        ),
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,
