@@ -362,7 +362,7 @@
     <string name="multihop">Multihop</string>
     <string name="multihop_mode">Multihop mode</string>
     <string name="multihop_when_needed">Multihop when needed</string>
-    <string name="multihop_description_slide_1_first_paragraph">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\nWhen needed, Always, and Never.</string>
+    <string name="multihop_description_slide_1_first_paragraph">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\nWhen needed, Always, and Never.</string>
     <string name="multihop_description_slide_2_first_paragraph"><b>When needed</b>\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server. </string>
     <string name="multihop_description_slide_2_second_paragraph">This ensures your connection does not get blocked due to incompatible settings.</string>
     <string name="multihop_description_slide_2_third_paragraph">This will be indicated by the %1$s symbol.</string>
