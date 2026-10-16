@@ -105,7 +105,6 @@ impl ParametersGenerator {
             ipv4: None,
             ipv6: None,
             mullvad_exit_ip: true,
-            hostname: Some(exit.hostname.clone()),
             city: Some(location.city),
             country: location.country,
             location: Some(GeographicLocationConstraint::Hostname(
@@ -113,7 +112,6 @@ impl ParametersGenerator {
                 location.city_code,
                 exit.hostname.clone(),
             )),
-            entry_hostname: entry.map(|relay| relay.hostname.clone()),
             entry_city: entry.map(|relay| relay.location.city.clone()),
             entry_country: entry.map(|relay| relay.location.country.clone()),
             entry_location: entry.map(|relay| {

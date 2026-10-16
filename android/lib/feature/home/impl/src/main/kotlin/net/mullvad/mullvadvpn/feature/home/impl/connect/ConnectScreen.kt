@@ -740,8 +740,8 @@ private fun GeoIpLocation?.asString(): String {
 
 @Composable
 private fun GeoIpLocation?.hostnameText(): String? {
-    val entryHostname = this?.entryHostname
-    val exitHostname = this?.hostname
+    val entryHostname = this?.entryLocation?.code
+    val exitHostname = this?.location?.code
     return when {
         entryHostname != null && exitHostname != null ->
             stringResource(R.string.x_via_x, exitHostname, entryHostname)

@@ -8894,8 +8894,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.toObject = function(incl
     latitude: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
     longitude: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
     mullvadExitIp: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
-    hostname: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    entryHostname: jspb.Message.getFieldWithDefault(msg, 10, ""),
     entryCity: jspb.Message.getFieldWithDefault(msg, 11, ""),
     entryCountry: jspb.Message.getFieldWithDefault(msg, 12, ""),
     entryLocation: (f = msg.getEntryLocation()) && proto.mullvad_daemon.management_interface.GeographicLocationConstraint.toObject(includeInstance, f),
@@ -8963,14 +8961,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.deserializeBinaryFromRea
     case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setMullvadExitIp(value);
-      break;
-    case 8:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setHostname(value);
-      break;
-    case 10:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setEntryHostname(value);
       break;
     case 11:
       var value = /** @type {string} */ (reader.readString());
@@ -9065,20 +9055,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.serializeBinaryToWriter 
   if (f) {
     writer.writeBool(
       7,
-      f
-    );
-  }
-  f = /** @type {string} */ (jspb.Message.getField(message, 8));
-  if (f != null) {
-    writer.writeString(
-      8,
-      f
-    );
-  }
-  f = /** @type {string} */ (jspb.Message.getField(message, 10));
-  if (f != null) {
-    writer.writeString(
-      10,
       f
     );
   }
@@ -9292,78 +9268,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getMullvadExit
  */
 proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setMullvadExitIp = function(value) {
   return jspb.Message.setProto3BooleanField(this, 7, value);
-};
-
-
-/**
- * optional string hostname = 8;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getHostname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setHostname = function(value) {
-  return jspb.Message.setField(this, 8, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearHostname = function() {
-  return jspb.Message.setField(this, 8, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasHostname = function() {
-  return jspb.Message.getField(this, 8) != null;
-};
-
-
-/**
- * optional string entry_hostname = 10;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getEntryHostname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setEntryHostname = function(value) {
-  return jspb.Message.setField(this, 10, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearEntryHostname = function() {
-  return jspb.Message.setField(this, 10, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasEntryHostname = function() {
-  return jspb.Message.getField(this, 10) != null;
 };
 
 

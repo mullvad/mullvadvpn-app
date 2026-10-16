@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 
 class ConnectUiStatePreviewParameterProvider : PreviewParameterProvider<ConnectUiState> {
@@ -41,12 +42,22 @@ private val otherStates =
                         city = "Göteborg",
                         latitude = 23.3,
                         longitude = 12.99,
-                        hostname = "Hostname",
-                        entryHostname = "EntryHostname",
                         entryCountry = "EntryCountry",
                         entryCity = "EntryCity",
-                        location = null,
-                        entryLocation = null,
+                        location = GeoLocationId.Hostname(
+                            city = GeoLocationId.City(
+                                country = GeoLocationId.Country(code = "se"),
+                                code = "got"
+                            ),
+                            code = "Hostname"
+                        ),
+                        entryLocation = GeoLocationId.Hostname(
+                            city = GeoLocationId.City(
+                                country = GeoLocationId.Country(code = "ec"),
+                                code = "enc"
+                            ),
+                            code = "EntryHostname"
+                        ),
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,

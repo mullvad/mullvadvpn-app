@@ -181,7 +181,6 @@ class ConnectViewModelTest {
         val location: GeoIpLocation = mockk()
         val tunnelStateTestItem = TunnelState.Connected(tunnelEndpoint, location, emptyList())
         every { location.ipv4?.hostAddress } returns "1.1.1.1"
-        every { location.hostname } returns "hostname"
 
         // Act, Assert
         viewModel.uiState.test {
@@ -212,7 +211,6 @@ class ConnectViewModelTest {
                 ipv6 = mockk(relaxed = true),
                 country = "Sweden",
                 city = "Gothenburg",
-                hostname = "Host",
                 location =
                     GeoLocationId.Hostname(
                         city =
@@ -222,7 +220,6 @@ class ConnectViewModelTest {
                             ),
                         code = "Host",
                     ),
-                entryHostname = "EntryHost",
                 latitude = 57.7065,
                 longitude = 11.967,
                 entryCountry = "Sweden",
