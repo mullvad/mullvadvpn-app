@@ -8,7 +8,9 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import java.net.SocketException
 import net.mullvad.talpid.model.Connectivity
+import net.mullvad.talpid.model.isUsableForInternet
 
 /** This class is used to check the ip version of the underlying network when a VPN is active. */
 class UnderlyingConnectivityStatusResolver(
@@ -58,6 +60,13 @@ class UnderlyingConnectivityStatusResolver(
 
     private fun DatagramSocket.connectSafe(address: InetSocketAddress): Either<Throwable, Unit> =
         Either.catch { connect(address) }
+            .map {
+                // Check if the socket once connected has a local address that actually has the
+                // potential to reach the internet.
+                if (!(localAddress?.isUsableForInternet() ?: false)) {
+                    throw SocketException("Source address not usable for internet communication")
+                }
+            }
             .onLeft { Logger.d("${address.toIpVersionString()} is not available") }
             .also { close() }
 
