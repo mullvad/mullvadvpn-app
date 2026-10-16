@@ -1,12 +1,18 @@
 import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
-import { useOwnership, useProviders } from '../../../features/locations/hooks';
-import { useFilteredProviders } from './hooks';
+import { useProviders } from '../../../features/locations/hooks';
+import {
+  useActiveOwnership,
+  useActiveProviders,
+  useFilteredProviders,
+  useLocationType,
+} from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
 
 type FilterViewContext = {
+  locationType: 'entry' | 'exit';
   selectedProviders: string[];
   availableProviders: string[];
   toggleProviders: (providers: string[]) => void;
@@ -25,11 +31,15 @@ export const useFilterViewContext = (): FilterViewContext => {
 };
 
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
-  const { providers, exitProviders } = useProviders();
-  const { exitOwnership } = useOwnership();
-  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(exitProviders);
-  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(exitOwnership);
+  const locationType = useLocationType();
 
+  const activeOwnership = useActiveOwnership();
+  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+
+  const activeProviders = useActiveProviders();
+  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
+
+  const { providers } = useProviders();
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
   const toggleProviders = React.useCallback(
@@ -53,6 +63,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
 
   const value = useMemo(
     () => ({
+      locationType,
       selectedProviders,
       toggleProviders,
       availableProviders,
@@ -60,7 +71,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
       setOwnership: setSelectedOwnership,
     }),
 
-    [availableProviders, selectedOwnership, selectedProviders, toggleProviders],
+    [availableProviders, locationType, selectedOwnership, selectedProviders, toggleProviders],
   );
 
   return <FilterViewContext.Provider value={value}>{children}</FilterViewContext.Provider>;
