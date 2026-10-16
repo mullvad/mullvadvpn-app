@@ -20,7 +20,7 @@ use tunnel_obfuscation::{
 };
 
 use super::{
-    Multiplex,
+    multiplex::Multiplex,
     params::{ObfuscationParameters, TunnelParameters},
 };
 

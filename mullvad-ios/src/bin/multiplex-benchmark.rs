@@ -8,7 +8,7 @@ use gotatun::{
     x25519::{PublicKey, StaticSecret},
 };
 use ipnetwork::IpNetwork;
-use mullvad_ios::tunnel_adapter::Multiplex;
+use mullvad_ios::tunnel_adapter::multiplex::Multiplex;
 use std::{
     net::{Ipv4Addr, SocketAddr},
     num::NonZero,
