@@ -1,5 +1,3 @@
-#![expect(unused)]
-
 use crate::tunnel_adapter::BoundUdpTransports;
 use gotatun::{
     packet::{Packet, PacketBufPool},
@@ -15,28 +13,17 @@ use std::{
     num::NonZero,
     sync::{
         Arc,
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicU64, AtomicUsize, Ordering},
     },
     task::{Context, Poll},
 };
 use tokio::io::ReadBuf;
 
-fn offset_iterator<T>(slice: &mut [T], offset: usize) -> impl Iterator<Item = &mut T> {
-    let mid = if slice.is_empty() {
-        0
-    } else {
-        offset % slice.len()
-    };
-    let (head, tail) = slice.split_at_mut(mid);
-    tail.iter_mut().chain(head)
-}
-
 /// An abstraction over udp sockets that allows for using multiple IP addresses (and sockets) for the
 /// same relay.
 #[derive(Clone)]
 pub struct Multiplex {
-    send: Arc<AtomicUsize>,
-    recv: usize,
+    send_index: Arc<AtomicU64>,
     multiplexers: Vec<(SocketAddr, SocketMultiplexer)>,
 }
 impl Multiplex {
@@ -60,8 +47,7 @@ impl Multiplex {
         }
 
         Ok(Self {
-            recv: 0,
-            send: Default::default(),
+            send_index: Default::default(),
             multiplexers: pairs,
         })
     }
@@ -83,8 +69,7 @@ impl Multiplex {
         )];
 
         Ok(Self {
-            recv: 0,
-            send: Default::default(),
+            send_index: Default::default(),
             multiplexers: pairs,
         })
     }
@@ -108,15 +93,12 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut res = None;
-        for (_, state) in offset_iterator(&mut self.multiplexers, self.recv) {
+        for (_, state) in self.multiplexers.iter_mut() {
             if let poll @ Poll::Ready(..) = state.poll_recv(cx, read_buf) {
-                res = Some(poll);
-                break;
+                return poll;
             }
         }
-        self.recv = (self.recv + 1) % self.multiplexers.len();
-        res.unwrap_or(Poll::Pending)
+        Poll::Pending
     }
 }
 impl UdpTransportFactory for Multiplex {
@@ -138,7 +120,8 @@ impl UdpSend for Multiplex {
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
     async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
-        let index = self.send.fetch_add(1, Ordering::SeqCst) % self.multiplexers.len();
+        let index =
+            self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.multiplexers.len();
         let (target, state) = &self.multiplexers[index];
         state.send_to(packet, *target).await
     }
@@ -181,15 +164,20 @@ impl SocketMultiplexer {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut res = None;
-        for socket in offset_iterator(&mut self.sockets, self.recv) {
-            if let poll @ Poll::Ready(..) = socket.socket().poll_recv_from(cx, read_buf) {
-                res = Some(poll);
-                break;
+        let mut i = self.recv;
+        let poll = loop {
+            let socket = self.sockets[i].socket();
+
+            if let poll @ Poll::Ready(..) = socket.poll_recv_from(cx, read_buf) {
+                break Some(poll);
             }
-        }
+            i = (i + 1) % self.sockets.len();
+            if i == self.recv {
+                break None;
+            }
+        };
         self.recv = (self.recv + 1) % self.sockets.len();
-        res.unwrap_or(Poll::Pending)
+        if let Some(p) = poll { p } else { Poll::Pending }
     }
 }
 impl UdpRecv for SocketMultiplexer {
