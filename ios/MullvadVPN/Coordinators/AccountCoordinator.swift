@@ -186,10 +186,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
         let alertPresenter = AlertPresenter(context: self)
 
-        Task { [weak self] in
-            await self?.tunnelManager.unsetAccount()
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+        Task {
+            await tunnelManager.unsetAccount()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                 guard let self else { return }
 
                 alertPresenter.dismissAlert(presentation: presentation, animated: true)

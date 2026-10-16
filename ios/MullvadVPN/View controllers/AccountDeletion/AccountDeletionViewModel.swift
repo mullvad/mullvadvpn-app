@@ -130,13 +130,14 @@ class AccountDeletionViewModel: ObservableObject {
 
     @MainActor func doDelete(accountNumber: String) {
         state = .working
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             do {
                 try await backEnd.deleteAccount(accountNumber: accountNumber)
-                state = State.initial
-                onConclusion?(true)
+                self.state = State.initial
+                self.onConclusion?(true)
             } catch {
-                state = State.failure(error)
+                self.state = State.failure(error)
             }
         }
     }

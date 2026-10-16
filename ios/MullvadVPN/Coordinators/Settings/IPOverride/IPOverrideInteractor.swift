@@ -13,7 +13,7 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-final class IPOverrideInteractor: @unchecked Sendable {
+final class IPOverrideInteractor {
     private let logger = Logger(label: "IPOverrideInteractor")
     private let repository: IPOverrideRepositoryProtocol
     private let tunnelManager: TunnelManager
@@ -39,24 +39,24 @@ final class IPOverrideInteractor: @unchecked Sendable {
         resetToDefaultStatus()
     }
 
-    func `import`(url: URL) async {
+    func `import`(url: URL) {
         let data = (try? Data(contentsOf: url)) ?? Data()
-        await handleImport(of: data, context: .file(fileName: url.lastPathComponent))
+        handleImport(of: data, context: .file(fileName: url.lastPathComponent))
     }
 
-    func `import`(text: String) async {
+    func `import`(text: String) {
         let data = text.data(using: .utf8) ?? Data()
-        await handleImport(of: data, context: .text)
+        handleImport(of: data, context: .text)
     }
 
-    func deleteAllOverrides() async {
+    func deleteAllOverrides() {
         repository.deleteAll()
 
         updateTunnel()
         resetToDefaultStatus()
     }
 
-    private func handleImport(of data: Data, context: IPOverrideStatus.Context) async {
+    private func handleImport(of data: Data, context: IPOverrideStatus.Context) {
         do {
             let overrides = try repository.parse(data: data)
 
@@ -75,10 +75,17 @@ final class IPOverrideInteractor: @unchecked Sendable {
     }
 
     private func updateTunnel() {
-        tunnelManager.refreshRelayCacheAndReconnectIfNeeded { [weak self] error in
-            if let error {
-                self?.logger.error(error: error, message: "Could not refresh relay cache tracker.")
-            }
+        do {
+            try tunnelManager.refreshRelayCacheTracker()
+        } catch {
+            logger.error(error: error, message: "Could not refresh relay cache tracker.")
+        }
+
+        switch tunnelManager.tunnelStatus.observedState {
+        case .connecting, .connected, .reconnecting:
+            tunnelManager.reconnectTunnel(selectNewRelay: true)
+        default:
+            break
         }
     }
 

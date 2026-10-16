@@ -63,12 +63,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         )
 
         self.tunnelObserver = tunnelObserver
-        tunnelManager.addObserver(tunnelObserver)
 
-        // If configuration has already finished loading, let UI catch up manually.
-        if tunnelManager.isConfigurationLoaded, appDelegate.launchArguments.target != .uiTests {
-            configureScene()
-        }
+        tunnelManager.addObserver(tunnelObserver)
     }
 
     private func configureScene() {
@@ -184,9 +180,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             }
         }
         if shouldUpdateDeviceData {
-            Task {
-                await deviceUpdateThrottle?.requestAction(force: forceUpdate)
-            }
+            deviceUpdateThrottle?.requestAction(force: forceUpdate)
         }
     }
 
@@ -194,9 +188,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        Task {
-            await deviceUpdateThrottle?.reset()
-        }
+        deviceUpdateThrottle?.reset()
     }
 
     // MARK: - UIWindowSceneDelegate
@@ -256,8 +248,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     // MARK: - SettingsMigrationUIHandler
 
-    func showMigrationError(_ error: Error) {
+    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
         guard let appCoordinator else {
+            completionHandler()
             return
         }
 
@@ -268,7 +261,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default
+                    style: .default,
+                    handler: {
+                        completionHandler()
+                    }
                 )
             ]
         )
