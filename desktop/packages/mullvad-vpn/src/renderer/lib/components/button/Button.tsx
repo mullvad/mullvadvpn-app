@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { colors, Radius, spacings } from '../../foundations';
+import { colors, durations, Radius, spacings } from '../../foundations';
 import { TransientProps } from '../../types';
 import { ButtonProvider } from './ButtonContext';
 import {
@@ -59,7 +59,7 @@ export const StyledButton = styled.button<StyledButtonProps>`
       --pressed: ${variant.pressed};
       --disabled: ${variant.disabled};
       --radius: ${styles.radius};
-      --transition-duration: 0.15s;
+      --transition-duration: ${durations.fast};
 
       display: flex;
       align-items: center;
@@ -103,12 +103,12 @@ export const StyledButton = styled.button<StyledButtonProps>`
       }
 
       &:not(:disabled):hover {
-        --transition-duration: 0s;
+        --transition-duration: ${durations.instant};
         ${backgroundOrBorderColor}: var(--hover);
       }
 
       &:not(:disabled):active {
-        --transition-duration: 0s;
+        --transition-duration: ${durations.instant};
         ${backgroundOrBorderColor}: var(--pressed);
       }
 

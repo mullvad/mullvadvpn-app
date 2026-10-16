@@ -5,12 +5,13 @@ import { ViewTransition } from '../../../types/global';
 import { LocationState } from '../../shared/ipc-types';
 import { useAppContext } from '../context';
 import { TransitionType, useHistory } from '../lib/history';
+import { durationTokens } from './foundations';
 import { getReduceMotion } from './functions';
 import { useEffectEvent } from './utility-hooks';
 
 type QueueItem = { location: Location<LocationState>; transition: TransitionType };
 
-const TRANSITION_DURATION = 450;
+const TRANSITION_DURATION = durationTokens.slow * 1000;
 
 const viewTransitionRef: { current?: ViewTransition } = {};
 

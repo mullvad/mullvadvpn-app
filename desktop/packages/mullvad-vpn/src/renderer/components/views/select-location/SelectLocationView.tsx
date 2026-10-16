@@ -3,7 +3,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { View } from '../../../lib/components/view';
-import { spacings } from '../../../lib/foundations';
+import { durationTokens, spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { type IScrollEvent, StyledScrollable } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
@@ -86,7 +86,7 @@ export function SelectLocationViewImpl() {
             {height !== 0 && (
               <StyledHeaderMaxHeightContainer
                 animate={{ height }}
-                transition={{ height: { duration: 0.25, ease: 'easeOut' } }}>
+                transition={{ height: { duration: durationTokens.normal, ease: 'easeOut' } }}>
                 <SelectLocationHeader>
                   <SelectLocationSelector />
                 </SelectLocationHeader>

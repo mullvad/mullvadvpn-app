@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors, Radius } from '../../../foundations';
+import { colors, durations, Radius } from '../../../foundations';
 import { useProgress } from '../ProgressContext';
 
 const StyledDiv = styled.div<{
@@ -10,7 +10,7 @@ const StyledDiv = styled.div<{
   border-radius: ${Radius.radius4};
   height: 100%;
   width: 100%;
-  transition: transform 0.2s ease-out;
+  transition: transform ${durations.fast} ease-out;
   transform: var(--transform);
 `;
 

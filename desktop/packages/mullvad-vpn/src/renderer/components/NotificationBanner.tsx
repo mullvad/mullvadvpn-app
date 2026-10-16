@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import { IconButton } from '../lib/components';
-import { colors } from '../lib/foundations';
+import { colors, durationTokens } from '../lib/foundations';
 import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { tinyText } from './common-styles';
 
@@ -137,7 +137,7 @@ export function NotificationBanner({ className, children, animateIn }: INotifica
       className={className}
       exit={{ translateY: '-100%' }}
       initial={{ translateY: translateYInitial }}
-      transition={{ duration: 0.25 }}>
+      transition={{ duration: durationTokens.normal }}>
       <Content>{children}</Content>
     </Collapsible>
   );
