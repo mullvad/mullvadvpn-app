@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+#
+# Enforce PGP-signature policy on updates to remote main ref.
+#
+# Install as a `reference-transaction` git hook (see `githooks(1)`):
+#   cp scripts/hooks/reference-transaction.verify-commit-signatures-on-main .git/hooks/reference-transaction
+#
+# When a fetch updates refs/remotes/origin/main, every commit the
+# fetch introduces is verified. On failure the ref update is aborted, so
+# origin/main is never updated, and no file changes hit the working tree.
+#
+# This hook does not protect you from:
+# - `git update-ref refs/remotes/origin/main <tip>`
+# - `git merge FETCH_HEAD`
+# - Anything fetched before the hook was installed, or while it was disabled
+# - The first fetch that creates the tracking ref (initial fill or after
+#   deleting `refs/remotes/origin/main`)
+# - Any fetch whose result lands outside `refs/remotes/origin/main` (other
+#   remotes, other branches, other destination refspecs)
+# - Side-chain history: only main's first-parent chain is verified; commits
+#   below a merge's second parent are unchecked
+#
+
+set -u
+
+# print everything to stderr
+exec 1>&2
+
+debug() {
+	# # uncomment to enable debug printing
+	# printf "[signature-check][debug] %s\n" "$1"
+	true
+}
+
+# ANSI color codes
+if [ -t 2 ] && [ -z "${NO_COLOR:-}" ]; then
+	RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'; BOLD=$'\e[1m'; RESET=$'\e[0m'
+else
+	RED='' GREEN='' YELLOW='' BOLD='' RESET=''
+fi
+
+colorize() {
+	printf "%s%s%s" "$1" "$2" "$RESET"
+}
+
+state="${1:-}"
+debug "arg=$state"
+[ "$state" = prepared ] || exit 0
+
+# Get the upstream of main (e.g. refs/remotes/origin/main).
+remote="$(git config --get branch.main.remote || true)"
+debug "remote=$remote"
+[ -n "$remote" ] || remote=origin
+upstream="$(git config --get branch.main.merge || true)"
+debug "upstream=$upstream"
+[ -n "$upstream" ] || upstream=refs/heads/main
+readonly UPSTREAM_REF="refs/remotes/${remote}/${upstream#refs/heads/}"
+readonly UPSTREAM_BRANCH="${upstream#refs/heads/}"
+debug "upstream_ref=$UPSTREAM_REF upstream_branch=$UPSTREAM_BRANCH"
+
+# Human-readable description of the %G? status letter (see git-log(1)).
+describe_status() {
+	case "$1" in
+	N) printf 'unsigned' ;;
+	B) printf 'BAD signature' ;;
+	E) printf 'signature could not be checked (unknown key or SSH signature)' ;;
+	U) printf 'good signature, but the key is not trusted in your keyring' ;;
+	X) printf 'good signature, but the signature has expired' ;;
+	Y) printf 'good signature, but the signing key has expired' ;;
+	R) printf 'good signature, but the signing key has been revoked' ;;
+	*) printf 'unexpected signature status %q' "$1" ;;
+	esac
+}
+
+# Check whether a SHA is all 0s
+is_zero_oid() {
+	local oid="$1"
+	[ "$oid" = "$(printf '%*s' "${#oid}" '' | tr ' ' '0')" ]
+}
+
+# Verify that every commit on the first-parent chain between old and
+# new has a good signature from a key trusted in the user's keyring (%G? == G).
+# Silent on success; on failure prints the offending commits and returns 1.
+check_range() {
+	local old="$1" new="$2" log rc hash status key subject desc
+	local total=0 bad=0
+	local -a failures=()
+	local last_good=''
+
+	debug "checking $old..$new"
+
+	# list commits, with signature status (%G?).
+	# --reverse: read oldest commits first
+	# --first-parent: only check first-parent of merge commits
+	# --format: use 0xf1 as field separator.
+	log="$(
+		git -c log.showSignature=false \
+		log --first-parent --reverse \
+		--format='%H%x1f%G?%x1f%GK%x1f%s' \
+		"$old..$new" 2>/dev/null
+	)"
+	rc=$?
+	if [ "$rc" -ne 0 ]; then
+		printf '[signature-check] failed to enumerate commits in %s..%s, refusing\n' \
+			"${old:0:10}" "${new:0:10}"
+		return 1
+	fi
+
+	# log is empty => no checks needed.
+	[ -n "$log" ] || return 0
+
+	# check signatures of commits in log
+	while IFS=$'\x1f' read -r hash status key subject; do
+		debug "  $hash $status $key $subject"
+		[ -n "$hash" ] || continue
+		total=$((total + 1))
+		# `G` means good (valid) signature from a trusted key.
+		if [ "$status" = G ]; then
+			[ "$bad" -ne 0 ] || last_good="$(colorize "$GREEN" "${hash:0:10}") $subject"
+		else
+			# format message for bad commit
+			bad=$((bad + 1))
+			desc="$(describe_status "$status")"
+			[ -n "$key" ] && desc="$desc (signing key: $(colorize "$RED" "$key"))"
+			failures+=("  $(colorize "$RED" "${hash:0:10}")  $desc"$'\n'"      $(colorize "$YELLOW" "$subject")")
+		fi
+	done <<<"$log"
+
+	# all commits have good signatures
+	if [ "$bad" -eq 0 ]; then
+		printf '[signature-check] OK. %s signatures checked.\n' "$total"
+		return 0
+	fi
+
+	# render unverified commit hash in red
+	new="$(colorize "$RED"   "${new:0:10}")"
+	old="$(colorize "$GREEN" "${old:0:10}")"
+
+	printf '[signature-check] %d of %d incoming commit(s) in %s..%s fail signature verification:\n' \
+		"$bad" "$total" "$old" "$new"
+	local failure
+	for failure in "${failures[@]}"; do
+		printf '%s\n' "$failure"
+	done
+
+	if [ -n "$last_good" ]; then
+		printf '\n  note: most recent verified commit:\n    %s\n' "$last_good"
+	else
+		printf '\n  note: no verified commits among the incoming commits\n'
+	fi
+
+	printf "\n"
+	printf "  hint: inspect commit log:\n"
+	printf "    git log --show-signature %s..%s\n" "$old" "$new"
+	printf "\n"
+	printf "  hint: danger: manually update remote ref:\n"
+	printf "    git update-ref %s %s\n" "$UPSTREAM_REF" "$new"
+	printf "\n"
+	printf '  note: %s was not updated. main was not updated.\n' "$UPSTREAM_REF"
+	printf "\n"
+	printf '  note: other refs fetched by the same command were not updated either.\n'
+	printf "\n"
+	printf '%s[signature-check] incoming commits are missing valid signatures, refusing to update %s.%s\n' \
+		"$RED$BOLD" "$UPSTREAM_REF" "$RESET"
+	return 1
+}
+
+while read -r old new ref; do
+	debug "[stdin] $old $new $ref"
+	[ "$ref" = "$UPSTREAM_REF" ] || continue
+	[ "$new" != "$old" ] || continue
+	is_zero_oid "$new" && continue
+	is_zero_oid "$old" && continue
+	check_range "$old" "$new" || exit 1
+done
+
+exit 0
