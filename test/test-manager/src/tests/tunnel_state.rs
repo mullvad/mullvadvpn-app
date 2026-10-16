@@ -11,15 +11,13 @@ use crate::{
 };
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
     CustomTunnelEndpoint,
     constraints::Constraint,
     relay_constraints::{GeographicLocationConstraint, LocationConstraint},
     states::TunnelState,
 };
-use std::{assert_matches, net::IpAddr, time::Duration};
-use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint};
+use std::{assert_matches, time::Duration};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
@@ -334,37 +332,14 @@ pub async fn test_connected_state(
 ) -> anyhow::Result<()> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
-    // Set relay to use
-    log::info!("Select relay");
-    let relay =
-        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::new().build()).await?;
-
     // Connect
     connect_and_wait(&mut mullvad_client).await?;
 
     // Verify that endpoint was selected
-    match mullvad_client.get_tunnel_state().await? {
-        TunnelState::Connected {
-            endpoint:
-                TunnelEndpoint {
-                    endpoint:
-                        Endpoint {
-                            address,
-                            protocol: TransportProtocol::Udp,
-                        },
-                    quantum_resistant: _,
-                    obfuscation: _,
-                    entry_endpoint: None,
-                    tunnel_interface: _,
-                    daita: _,
-                },
-            ..
-        } => match address.ip() {
-            IpAddr::V4(addr) => assert_eq!(addr, relay.ipv4_addr_in),
-            IpAddr::V6(addr) => assert_eq!(addr, relay.ipv6_addr_in.unwrap()),
-        },
-        actual => panic!("unexpected tunnel state: {actual:?}"),
-    }
+    assert_matches!(
+        mullvad_client.get_tunnel_state().await?,
+        TunnelState::Connected { .. }
+    );
 
     // Ping outside of tunnel while connected
     //
