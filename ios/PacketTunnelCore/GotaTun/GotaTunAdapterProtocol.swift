@@ -15,6 +15,7 @@ import Network
 public enum GotaTunError: Error, Sendable, Equatable {
     case invalidConfig(String)
     case bindSockets(String)
+    case pqNegotiation(String)
     case internalError(String)
 }
 
