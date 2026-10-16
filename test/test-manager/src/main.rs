@@ -78,6 +78,10 @@ enum Commands {
         #[arg(long, short)]
         account: Option<String>,
 
+        /// Partner API token to use for testing. Overrides the account of the environment.
+        #[arg(long, short)]
+        partner_api_token: Option<PartnerApiToken>,
+
         /// App package to test. Can be a path to the package, just the package file name, git hash
         /// or tag. If the direct path is not given, the package is assumed to be in the directory
         /// specified by the `--package-dir` argument.
@@ -235,7 +239,7 @@ async fn inner_main() -> Result<()> {
             }
             ConfigArg::Account { env } => {
                 let env_config = config.get_environment(env);
-                println!("{}", get_account(None, &env_config).await?);
+                println!("{}", get_account(None, None, &env_config, env).await?);
                 Ok(())
             }
             ConfigArg::Vm(vm_config) => match vm_config {
@@ -323,6 +327,7 @@ async fn inner_main() -> Result<()> {
             verbose,
             test_report,
             runner_dir,
+            partner_api_token,
         } => {
             #[cfg(target_os = "linux")]
             container::relaunch_with_rootlesskit(vnc).await;
@@ -339,7 +344,7 @@ async fn inner_main() -> Result<()> {
             };
 
             let env_config = config.get_environment(env);
-            let account = get_account(account, &env_config).await?;
+            let account = get_account(account, partner_api_token, &env_config, env).await?;
             let mullvad_host = env_config.mullvad_host().to_owned();
             log::info!("Environment: {env:?} ({mullvad_host})");
 
@@ -448,6 +453,7 @@ async fn inner_main() -> Result<()> {
 /// Return `account` if set, otherwise the account of `env_config`.
 async fn get_account(
     account: Option<String>,
+    partner_api_token: Option<PartnerApiToken>,
     env_config: &config::EnvironmentConfig,
     env: Environment,
 ) -> Result<String> {
@@ -455,8 +461,11 @@ async fn get_account(
         Environment::Prod => account
             .or_else(|| env_config.account.clone())
             .context("No account number given, and none is configured for the environment"),
-        Some(Environment::Staging) if let Some(account) = account => Ok(account.clone()),
-        Some(Environment::Staging) => {
+        Environment::Staging if let Some(partner_api_token) = partner_api_token => {
+            generate_stagemole_account(partner_api_token).await
+        }
+        Environment::Staging if let Some(account) = account => Ok(account.clone()),
+        Environment::Staging => {
             let api_token = env_config.partner_api_token.as_ref().context("No partner API token is configured for the environment. Can not generate account number for tests")?;
             generate_stagemole_account(PartnerApiToken::from(api_token.to_owned())).await
         }
