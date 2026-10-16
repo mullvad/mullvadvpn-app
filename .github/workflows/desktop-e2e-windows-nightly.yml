@@ -1,0 +1,17 @@
+---
+name: Desktop - End-to-end nightly tests (Windows)
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+
+jobs:
+  run:
+    uses: ./.github/workflows/desktop-e2e.yml
+    with:
+      oses: "windows10 windows11"
