@@ -67,15 +67,7 @@ actor TunnelManager {
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
 
-    var onInAppLogEntries: (([InAppLogEntry]) -> Void)?
-
-    private var _isConfigurationLoaded = false
-    private var _deviceState: DeviceState = .loggedOut
-    private var _tunnelSettings = LatestTunnelSettings()
-
-    private var _tunnel: (any TunnelProtocol)?
-    private var _tunnelStatus = TunnelStatus()
-    private var _lastNEVPNStatus: NEVPNStatus = .invalid
+    private var onInAppLogEntries: (@Sendable ([InAppLogEntry]) -> Void)?
 
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
@@ -463,102 +455,8 @@ actor TunnelManager {
         }
     }
 
-    /// Nonisolation is safe due to execution on internal queue.
-    nonisolated func stopTunnel(
-        isOnDemandEnabled: Bool = false,
-        completionHandler: (@Sendable (Error?) -> Void)? = nil
-    ) {
-        internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
-                let operation = StopTunnelOperation(
-                    dispatchQueue: actor.internalQueue,
-                    interactor: TunnelInteractorProxy(actor)
-                ) { [weak self] result in
-                    guard let self else { return }
-
-                    if let error = result.error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to stop the tunnel."
-                        )
-
-                        let tunnelError = StopTunnelError(underlyingError: error)
-
-                        self.observerList.notify { observer in
-                            observer.tunnelManager(self, didFailWithError: tunnelError)
-                        }
-                    }
-
-                    completionHandler?(result.error)
-                }
-                operation.isOnDemandEnabled = isOnDemandEnabled
-                operation.addObserver(
-                    BackgroundObserver(
-                        backgroundTaskProvider: actor.backgroundTaskProvider,
-                        name: "Stop tunnel",
-                        cancelUponExpiration: true
-                    ))
-                operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-                actor.operationQueue.addOperation(operation)
-            }
-        }
-    }
-
-    /// Nonisolation is safe due to execution on internal queue.
-    nonisolated func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
-                // Start polling the tunnel immediately when the user reconnects
-                actor.startPollingTunnelStatus(interval: tunnelStatusPollInterval)
-
-                let operation = AsyncBlockOperation(dispatchQueue: actor.internalQueue) { [weak self] finish in
-                    self?.assumeIsolated { actor in
-                        guard let tunnel = actor._tunnel else {
-                            finish(UnsetTunnelError())
-                            return
-                        }
-
-                        _ = tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { [weak self] result in
-                            Task {
-                                if case let .success(observedState) = result,
-                                    let connectionState = observedState.connectionState
-                                {
-                                    _ = await self?.setTunnelStatus { tunnelStatus in
-                                        tunnelStatus.state = .reconnecting(
-                                            connectionState.selectedRelays,
-                                            isPostQuantum: connectionState.isPostQuantum,
-                                            isDaita: connectionState.isDaitaEnabled
-                                        )
-                                        tunnelStatus.observedState = observedState
-                                    }
-                                }
-
-                                finish(result.error)
-                            }
-                        }
-                    }
-                }
-
-                operation.completionBlock = { [weak self] in
-                    Task {
-                        await self?.didReconnectTunnel(error: operation.error)
-                        completionHandler?(operation.error)
-                    }
-                }
-
-                operation.addObserver(
-                    BackgroundObserver(
-                        backgroundTaskProvider: actor.backgroundTaskProvider,
-                        name: "Reconnect tunnel",
-                        cancelUponExpiration: true
-                    )
-                )
-                operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-                actor.operationQueue.addOperation(operation)
-            }
-        }
+    func setOnInAppLogHandler(_ handler: (@Sendable ([InAppLogEntry]) -> Void)?) {
+        onInAppLogEntries = handler
     }
 
     func getInAppLogs(completionHandler: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void) {
@@ -1115,9 +1013,11 @@ actor TunnelManager {
         }
 
         #if NEVER_IN_PRODUCTION
-            _ = tunnel.getInAppLogs { [weak self] result in
+            _ = tunnel?.getInAppLogs { [weak self] result in
                 if case let .success(entries) = result, !entries.isEmpty {
-                    self?.onInAppLogEntries?(entries)
+                    Task {
+                        await self?.onInAppLogEntries?(entries)
+                    }
                 }
             }
         #endif
