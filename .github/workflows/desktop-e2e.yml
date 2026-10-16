@@ -8,8 +8,12 @@
 ---
 name: Desktop - End-to-end tests
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  workflow_call:
+    inputs:
+      oses:
+        required: true
+        type: string
+
   workflow_dispatch:
     inputs:
       oses:
@@ -62,7 +66,7 @@ jobs:
             "fedora41","fedora42","fedora43","fedora44", "fedora45"
           ]'
           default='["debian13","ubuntu2404","ubuntu2604", "ubuntu2610", "fedora43","fedora44", "fedora45"]'
-          oses="${{ github.event.inputs.oses }}"
+          oses="${{ github.event.inputs.oses || inputs.oses }}"
           echo "OSES: $oses"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
             selected="$default"
@@ -77,7 +81,7 @@ jobs:
         run: |
           all='["windows10","windows11"]'
           default='["windows10","windows11"]'
-          oses="${{ github.event.inputs.oses }}"
+          oses="${{ github.event.inputs.oses || inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
             selected="$default"
           else
@@ -91,7 +95,7 @@ jobs:
         run: |
           all='["macos12","macos13","macos14","macos15","macos26", "macos27"]'
           default='["macos15","macos26", "macos27"]'
-          oses="${{ github.event.inputs.oses }}"
+          oses="${{ github.event.inputs.oses || inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
             selected="$default"
           else
