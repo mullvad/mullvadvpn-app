@@ -15,6 +15,7 @@ use super::{
     BoundUdpTransports, IosTunnelAdapter, ObfuscationProxyError, PeerParameters,
     TunnelCallbackHandler, TunnelError, TunnelParameters, params::ObfuscationParameters,
 };
+use talpid_tunnel_config_client::negotiation::NegotiationError;
 
 /// A WireGuard peer (entry or exit).
 #[derive(uniffi::Record)]
@@ -69,6 +70,8 @@ pub enum GotaTunFfiError {
     InvalidConfig(String),
     /// UDP sockets could not be bound, typically because no interface is available.
     BindSockets(String),
+    /// Post-quantum key negotiation failed, typically a timeout or other retryable event
+    PQNegotiation(String),
     /// An internal failure (e.g. the async runtime was unavailable).
     Internal(String),
 }
@@ -78,6 +81,9 @@ impl std::fmt::Display for GotaTunFfiError {
         match self {
             GotaTunFfiError::InvalidConfig(msg) => write!(f, "invalid config: {msg}"),
             GotaTunFfiError::BindSockets(msg) => write!(f, "failed to bind UDP sockets: {msg}"),
+            GotaTunFfiError::PQNegotiation(msg) => {
+                write!(f, "post-quantum key negotiation failed: {msg}")
+            }
             GotaTunFfiError::Internal(msg) => write!(f, "internal error: {msg}"),
         }
     }
@@ -123,6 +129,9 @@ impl TunnelCallbackHandler for CallbackBridge {
             ))
             | TunnelError::RebindUdpSocket(_)
             | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
+            TunnelError::NegotiatePQError(NegotiationError::Exchange(_)) => {
+                GotaTunFfiError::PQNegotiation(format!("{error}"))
+            }
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
