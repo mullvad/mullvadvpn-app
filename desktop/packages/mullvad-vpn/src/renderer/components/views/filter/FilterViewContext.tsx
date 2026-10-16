@@ -1,8 +1,13 @@
 import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
-import { useOwnership, useProviders } from '../../../features/locations/hooks';
-import { useFilteredProviders, useLocationType } from './hooks';
+import { useProviders } from '../../../features/locations/hooks';
+import {
+  useActiveOwnership,
+  useActiveProviders,
+  useFilteredProviders,
+  useLocationType,
+} from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
 
@@ -28,14 +33,13 @@ export const useFilterViewContext = (): FilterViewContext => {
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
   const locationType = useLocationType();
 
-  const { exitOwnership, entryOwnership } = useOwnership();
-  const activeOwnership = locationType === 'entry' ? entryOwnership : exitOwnership;
+  const activeOwnership = useActiveOwnership();
   const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
 
-  const { providers, exitProviders, entryProviders } = useProviders();
-  const activeProviders = locationType === 'entry' ? entryProviders : exitProviders;
+  const activeProviders = useActiveProviders();
   const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
 
+  const { providers } = useProviders();
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
   const toggleProviders = React.useCallback(
