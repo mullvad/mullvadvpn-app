@@ -65,7 +65,6 @@ class FilterScreenTest {
                     filterTarget = RelayHopType.EXIT,
                 )
         )
-        onNodeWithText("Ownership").performClick()
         onNodeWithText("Any").assertExists()
     }
 
@@ -80,7 +79,6 @@ class FilterScreenTest {
                     filterTarget = RelayHopType.EXIT,
                 )
         )
-        onNodeWithText("Ownership").performClick()
         onNodeWithText("Mullvad owned only").assertExists()
     }
 
@@ -95,7 +93,6 @@ class FilterScreenTest {
                     filterTarget = RelayHopType.EXIT,
                 )
         )
-        onNodeWithText("Ownership").performClick()
         onNodeWithText("Rented only").assertExists()
     }
 
@@ -111,13 +108,13 @@ class FilterScreenTest {
                 )
         )
 
-        onNodeWithText("Providers").performClick()
         onNodeWithText("Creanova").assertExists()
         onNodeWithText("100TB").assertExists()
     }
 
     @Test
     fun testApplyButtonClick() = composeExtension.use {
+        // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
         initScreen(
             state =
@@ -129,7 +126,13 @@ class FilterScreenTest {
                 ),
             onApplyClick = mockClickListener,
         )
+        onNodeWithText("Ownership").performClick()
+        onNodeWithText("Providers").performClick()
+
+        // Act
         onNodeWithText("Apply").performClick()
+
+        // Assert
         verify { mockClickListener() }
     }
 
@@ -146,8 +149,6 @@ class FilterScreenTest {
                 )
         )
 
-        // Act
-        onNodeWithText("Providers").performClick()
         // Asset
         onNodeWithText("1RemovedProvider (removed)").assertExists()
     }
