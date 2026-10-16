@@ -10,8 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.net.Inet4Address
-import java.net.Inet6Address
+import java.net.InetAddress
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -120,6 +119,46 @@ class ConnectivityManagerUtilKtTest {
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
             assertEquals(Connectivity.Offline, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    /** An IPv6 link-local address does not provide IPv6 connectivity */
+    @Test
+    fun ipv4OnlyNetworkWithIpv6LinkLocalAddress() = runTest {
+        val network = mockk<Network>()
+        val linkProperties = mockLinkProperties(listOf(IPV4_ADDRESS, IPV6_LINK_LOCAL_ADDRESS))
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns
+            callbackFlow {
+                send(NetworkEvent.Available(network))
+                send(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            // The network is IPv4 only since an IPv6 link-local address is not global
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    /** A unique local IPv6 address does not provide IPv6 connectivity */
+    @Test
+    fun ipv4NetworkWithIpv6UniqueLocalAddress() = runTest {
+        val network = mockk<Network>()
+        val linkProperties = mockLinkProperties(listOf(IPV4_ADDRESS, IPV6_UNIQUE_LOCAL_ADDRESS))
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns
+            callbackFlow {
+                send(NetworkEvent.Available(network))
+                send(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            // The network is IPv4 only since a unique local IPv6 address is not routable
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
             expectNoEvents()
         }
     }
@@ -289,27 +328,29 @@ class ConnectivityManagerUtilKtTest {
     }
 
     private fun mockLinkProperties(ipv4: Boolean, ipv6: Boolean) =
-        mockk<LinkProperties> {
-            val linkAddresses = buildList {
-                if (ipv4) {
-                    val linkIpv4Address: LinkAddress = mockk()
-                    val ipv4Address: Inet4Address = mockk()
-                    every { linkIpv4Address.address } returns ipv4Address
-                    add(linkIpv4Address)
-                }
-                if (ipv6) {
-                    val linkIpv6Address: LinkAddress = mockk()
-                    val ipv6Address: Inet6Address = mockk()
-                    every { linkIpv6Address.address } returns ipv6Address
-                    add(linkIpv6Address)
-                }
+        mockLinkProperties(
+            buildList {
+                if (ipv4) add(IPV4_ADDRESS)
+                if (ipv6) add(IPV6_GLOBAL_ADDRESS)
             }
+        )
 
-            every { this@mockk.linkAddresses } returns linkAddresses
+    private fun mockLinkProperties(addresses: List<String>): LinkProperties {
+        val linkAddresses = addresses.map { address ->
+            val linkAddress: LinkAddress = mockk()
+            every { linkAddress.address } returns InetAddress.getByName(address)
+            linkAddress
         }
+        return mockk { every { this@mockk.linkAddresses } returns linkAddresses }
+    }
 
     companion object {
         private const val CONNECTIVITY_MANAGER_UTIL_CLASS =
             "net.mullvad.talpid.util.ConnectivityManagerUtilKt"
+
+        private const val IPV4_ADDRESS = "192.168.0.2"
+        private const val IPV6_GLOBAL_ADDRESS = "2001:db8::1"
+        private const val IPV6_LINK_LOCAL_ADDRESS = "fe80::1111:2222:3333:4444"
+        private const val IPV6_UNIQUE_LOCAL_ADDRESS = "fd00::1"
     }
 }
