@@ -56,6 +56,7 @@ struct ActionBox: View {
                             Text(additionalInfo.warningTitle)
                                 .font(Font.mullvadTinySemiBold)
                                 .foregroundStyle(Color.mullvadTextPrimary)
+                                .multilineTextAlignment(.leading)
                             Spacer()
                             Button {
                                 withAnimation {
@@ -102,6 +103,16 @@ struct ActionBox: View {
 
 #Preview {
     @Previewable @State var isChecked: Bool = false
+    @Previewable @State var isChecked2: Bool = false
+    @Previewable @State var isChecked3: Bool = false
+    var privacyPolicyLink: AttributedString = {
+        var result = AttributedString(localized: "privacy policy")
+        result.link = .init(string: "https://mullvad.net")
+        result.foregroundColor = .white
+        result.font = Font.mullvadTinySemiBold
+        result.underlineStyle = .single
+        return result
+    }()
     VStack {
         Spacer()
         ActionBox(
@@ -118,7 +129,16 @@ struct ActionBox: View {
             action: .init(onAction: {}, label: "Action")
         )
         ActionBox(
-            isChecked: $isChecked,
+            isChecked: $isChecked2,
+            toggleTitle: "By checking this box I agree to the risks involved with proceeding with this action.",
+            additionalInfo: .init(
+                warningTitle: "This impacts your anonymity",
+                warningMessage:
+                    "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our \(privacyPolicyLink)"
+            ),
+        )
+        ActionBox(
+            isChecked: $isChecked3,
             toggleTitle: "By checking this box I agree to the risks involved with proceeding with this action."
         )
         Spacer()

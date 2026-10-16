@@ -28,6 +28,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var viewControllerFactory: SettingsViewControllerFactory?
+    private let problemReportViewModel: ProblemReportViewModel
     private var alertPresenter: AlertPresenter?
 
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)? {
@@ -79,6 +80,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
         ipOverrideRepository: IPOverrideRepository,
         appPreferences: AppPreferencesDataSource,
         relaySelectorWrapper: RelaySelectorWrapper,
+        problemReportViewModel: ProblemReportViewModel,
         breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.navigationController = navigationController
@@ -86,6 +88,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
         self.accessMethodRepository = accessMethodRepository
         self.relaySelectorWrapper = relaySelectorWrapper
         self.appPreferences = appPreferences
+        self.problemReportViewModel = problemReportViewModel
         self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init()
@@ -101,7 +104,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
             navigationController: navigationController,
             alertPresenter: AlertPresenter(context: self),
             relaySelectorWrapper: relaySelectorWrapper,
-            appPreferences: appPreferences
+            appPreferences: appPreferences,
+            problemReportViewModel: problemReportViewModel
         )
     }
 
@@ -340,7 +344,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
             return .notificationSettings
         case is UIHostingController<ChangeLogView<ChangeLogViewModel>>:
             return .changelog
-        case is ProblemReportViewController:
+        case is UIHostingController<ProblemReportView>:
             return .problemReport
         default:
             return nil
