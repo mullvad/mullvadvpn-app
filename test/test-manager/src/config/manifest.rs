@@ -70,6 +70,12 @@ pub struct EnvironmentConfig {
     pub account: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_locations: Option<TestLocationList>,
+    /// The environment in which the config is valid.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub environment: Option<Environment>,
+    /// Partner API token. Used to generate account numbers on the fly.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub partner_api_token: Option<String>,
 }
 
 impl EnvironmentConfig {
@@ -88,6 +94,8 @@ impl EnvironmentConfig {
             mullvad_host: overrides.mullvad_host.or(self.mullvad_host),
             account: overrides.account.or(self.account),
             test_locations: overrides.test_locations.or(self.test_locations),
+            environment: overrides.environment.or(self.environment),
+            partner_api_token: overrides.partner_api_token.or(self.partner_api_token),
         }
     }
 }
@@ -118,7 +126,8 @@ impl Config {
     /// Return the settings for `env`, combining the built-in environment and the one in the
     /// config file.
     pub fn get_environment(&self, env: Environment) -> EnvironmentConfig {
-        let builtin = builtin_environments().get(env).clone();
+        let mut builtin = builtin_environments().get(env).clone();
+        builtin.environment = Some(env);
         builtin.merge(self.environments.get(env).clone())
     }
 }
