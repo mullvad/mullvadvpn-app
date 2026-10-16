@@ -367,7 +367,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         startDeviceCheckIfNeeded()
 
     }
-    
+
     private func recoveryTaskReasonForError(_ error: GotaTunError) -> BlockedStateReason? {
         switch error {
         case .bindSockets: .socketBindError
