@@ -202,6 +202,7 @@ extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewContr
                 }
             })
         let controller = UIHostingController(rootView: EditAccessMethodView(viewModel: viewModel))
+        controller.view.setAccessibilityIdentifier(.editAccessMethodView)
         controller.title = NSLocalizedString(accessMethod.name, comment: "")
         navigationController.pushViewController(controller, animated: true)
 

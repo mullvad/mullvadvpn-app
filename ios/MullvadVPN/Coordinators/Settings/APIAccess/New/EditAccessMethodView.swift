@@ -75,7 +75,6 @@ struct EditAccessMethodView<ViewModel: EditAccessMethodViewModelProtocol>: View 
                 if viewModel.isEditable {
                     SegmentedListItem(
                         isLastInList: true,
-                        accessibilityIdentifier: .accessMethodEnableSwitch,
                         leadingAndTrailingDestination: {
                             AddEditApiAccessMethodView(
                                 viewModel: AddEditApiAccessMethodViewModel(accessMethod: viewModel.accessMethod)

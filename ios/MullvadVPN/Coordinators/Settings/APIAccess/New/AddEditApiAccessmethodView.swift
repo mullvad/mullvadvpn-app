@@ -26,7 +26,6 @@ struct AddEditApiAccessMethodView<ViewModel: AddEditApiAccessMethodViewModelProt
                     SegmentedListItem(
                         isLastInList: true,
                         userInteraction: .enabledWithoutHighlight,
-                        accessibilityIdentifier: .accessMethodEnableSwitch,
                         leading: {
                             itemFactory.leading(for: .generic(title: NSLocalizedString("Name", comment: "")))
                         },
@@ -44,7 +43,6 @@ struct AddEditApiAccessMethodView<ViewModel: AddEditApiAccessMethodViewModelProt
                     SegmentedListItem(
                         isLastInList: true,
                         userInteraction: .enabledWithoutHighlight,
-                        accessibilityIdentifier: .accessMethodEnableSwitch,
                         leadingAndTrailingDestination: {
                             Text("Next")
                                 .navigationTitle("Next")

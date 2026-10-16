@@ -18,12 +18,12 @@ class EditAccessMethodPage: Page {
 
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.tables[.editAccessMethodView]
+        self.pageElement = app.otherElements[.editAccessMethodView]
         waitForPageToBeShown()
     }
 
     @discardableResult func tapEnableMethodSwitch() -> Self {
-        app.switches[AccessibilityIdentifier.accessMethodEnableSwitch].tap()
+        app.switches[.accessMethodEnableSwitch].switches.firstMatch.tap()
         return self
     }
 
@@ -63,7 +63,7 @@ class EditAccessMethodPage: Page {
     }
 
     @discardableResult func verifySwitchDisabled() -> Self {
-        XCTAssertFalse(app.switches[AccessibilityIdentifier.accessMethodEnableSwitch].isEnabled)
+        XCTAssertFalse(app.switches[.accessMethodEnableSwitch].switches.firstMatch.isEnabled)
         return self
     }
 

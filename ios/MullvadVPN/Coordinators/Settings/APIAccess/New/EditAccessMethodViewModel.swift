@@ -16,17 +16,17 @@ import SwiftUI
 @MainActor
 protocol EditAccessMethodViewModelProtocol {
     var accessMethod: PersistentAccessMethod { get }
+    
+    var name: String { get }
     var infoHeaderConfig: InfoHeaderConfig? { get }
     var infoModalConfig: InfoModalConfig? { get }
     var isEnabled: Bool { get set }
-    var name: String { get }
     var isEditable: Bool { get }
     var testState: ApiAccessMethodTestState { get set }
 
     func startTesting()
     func stopTesting()
     func delete()
-    func edit()
 }
 
 enum ApiAccessMethodTestState {
@@ -36,32 +36,23 @@ enum ApiAccessMethodTestState {
     case unreachable
 }
 
-enum EditAccessMethodAction {
-    case toggleEnabled(PersistentAccessMethod)
-    case delete(PersistentAccessMethod)
-    case edit(PersistentAccessMethod)
-}
-
 @Observable
 final class EditAccessMethodViewModel: EditAccessMethodViewModelProtocol {
-    typealias OnChange = (EditAccessMethodAction) -> Void
-
     var accessMethod: PersistentAccessMethod
+    let interactor: EditAccessMethodInteractorProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
-    let onChange: OnChange
-
+    
     var testState: ApiAccessMethodTestState = .idle
 
-    var isEditable: Bool {
-        !accessMethod.kind.isPermanent
-    }
-
-    var isEnabled: Bool {
-        didSet {
-            guard isEnabled != oldValue else { return }
-            accessMethod.isEnabled = isEnabled
-            onChange(.toggleEnabled(accessMethod))
-        }
+    init(
+        id: UUID,
+        interactor: EditAccessMethodInteractorProtocol,
+        proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    ) throws {
+        self.accessMethod = try interactor.fetch(id)
+        self.interactor = interactor
+        self.proxyConfigurationTester = proxyConfigurationTester
+        self.isEnabled = accessMethod.isEnabled
     }
 
     var name: String {
@@ -212,18 +203,25 @@ final class EditAccessMethodViewModel: EditAccessMethodViewModelProtocol {
             nil
         }
     }
+    
+    var isEnabled: Bool {
+        didSet {
+            guard isEnabled != oldValue else { return }
 
-    init(
-        accessMethod: PersistentAccessMethod,
-        proxyConfigurationTester: ProxyConfigurationTesterProtocol,
-        onChange: @escaping OnChange
-    ) {
-        self.accessMethod = accessMethod
-        self.proxyConfigurationTester = proxyConfigurationTester
-        self.onChange = onChange
-        self.isEnabled = accessMethod.isEnabled
+            guard interactor.canBeDisabled() || isEnabled else {
+                isEnabled = oldValue
+                return
+            }
+
+            accessMethod.isEnabled = isEnabled
+            interactor.save(accessMethod)
+        }
     }
-
+    
+    var isEditable: Bool {
+        accessMethod.kind.isPermanent
+    }
+    
     func startTesting() {
         testState = .testing
         proxyConfigurationTester.start(configuration: accessMethod) { [weak self] error in
@@ -245,10 +243,6 @@ final class EditAccessMethodViewModel: EditAccessMethodViewModelProtocol {
     }
 
     func delete() {
-        onChange(.delete(accessMethod))
-    }
-
-    func edit() {
-        onChange(.edit(accessMethod))
+        interactor.delete(accessMethod)
     }
 }
