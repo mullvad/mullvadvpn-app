@@ -1,6 +1,8 @@
 ---
 name: Desktop - End-to-end nightly tests (macOS)
 on:
+  push:
+    branches: [split-nightly-desktop-e2e-runs-per-platform]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
