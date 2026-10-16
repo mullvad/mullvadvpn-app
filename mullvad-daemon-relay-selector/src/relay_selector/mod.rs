@@ -2,47 +2,100 @@ pub mod grpc_service;
 
 use std::ops::Deref;
 use std::path::Path;
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::Arc;
+use std::sync::Mutex;
 
-use mullvad_relay_selector::query::RelayQuery;
+use mullvad_relay_selector::query::{RelayQuery, obfuscation_constraint_from_settings};
 use mullvad_relay_selector::{EntrySpecificConstraints, Error, GetRelay, RelaySelector};
 use mullvad_types::custom_list::CustomListsSettings;
+use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
-use talpid_types::net::{IpAvailability, IpVersion};
+use talpid_types::net::obfuscation::ObfuscatorConfig;
+use talpid_types::net::obfuscation::Obfuscators;
 
 use crate::relay_list;
 
-/// [`RETRY_ORDER`] defines an ordered set of entry-relay parameters which the relay selector
-/// should prioritize on successive connection attempts. Note that these will *never* override user
-/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
+/// The kind of an obfuscation method.
 ///
-/// Each entry is an [`EntrySpecificConstraints`] that specifies only the axes that vary between
-/// retry attempts (`ip_version` and `obfuscation`). All other fields are left as
-/// `Constraint::Any` so that intersecting with the user's entry-specific constraints preserves
-/// them. The user's hop count, exit constraints, allowed_ips, and quantum_resistant settings
-/// are passed through unchanged when merging with the user query via
-/// [`RelayQuery::merge_retry`].
+/// Differs from [`SelectedObfuscation`], which contains `Off` and `Auto`.
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
+pub enum ObfuscationMethodKind {
+    Udp2Tcp,
+    Shadowsocks,
+    Quic,
+    Lwo,
+}
+
+impl ObfuscationMethodKind {
+    fn to_constraint(self) -> EntrySpecificConstraints {
+        EntrySpecificConstraints {
+            obfuscation: obfuscation_constraint_from_settings(ObfuscationSettings {
+                selected_obfuscation: match self {
+                    ObfuscationMethodKind::Udp2Tcp => SelectedObfuscation::Udp2Tcp,
+                    ObfuscationMethodKind::Shadowsocks => SelectedObfuscation::Shadowsocks,
+                    ObfuscationMethodKind::Quic => SelectedObfuscation::Quic,
+                    ObfuscationMethodKind::Lwo => SelectedObfuscation::Lwo,
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<&ObfuscatorConfig> for ObfuscationMethodKind {
+    fn from(config: &ObfuscatorConfig) -> Self {
+        match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationMethodKind::Udp2Tcp,
+            ObfuscatorConfig::Shadowsocks { .. } => ObfuscationMethodKind::Shadowsocks,
+            ObfuscatorConfig::Quic { .. } => ObfuscationMethodKind::Quic,
+            ObfuscatorConfig::Lwo { .. } => ObfuscationMethodKind::Lwo,
+        }
+    }
+}
+
+/// The obfuscation methods tried, in order, by the staggered obfuscation retry strategy.
 ///
-/// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
-pub static RETRY_ORDER: LazyLock<Vec<EntrySpecificConstraints>> = LazyLock::new(|| {
-    vec![
-        // 1: any wireguard relay
-        EntrySpecificConstraints::default(),
-        // 2: prefer IPv6
-        EntrySpecificConstraints::default().ip_version(IpVersion::V6),
-        // 3: lwo
-        EntrySpecificConstraints::lwo(),
-        // 4: shadowsocks
-        EntrySpecificConstraints::shadowsocks(),
-        // 5: quic
-        EntrySpecificConstraints::quic(),
-        // 6: udp2tcp
-        EntrySpecificConstraints::udp2tcp(),
-        // 7: udp2tcp + IPv6
-        EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
-    ]
-});
+/// Each connection attempt selects a relay supporting at least one of the still-pending
+/// methods, then removes every method that relay offers from the pending set. Once the set
+/// is empty, a new round starts. This guarantees that every method is attempted at least
+/// once per round, in a number of retries bounded by the number of methods.
+pub const RETRY_ORDER: &[ObfuscationMethodKind] = &[
+    ObfuscationMethodKind::Lwo,
+    ObfuscationMethodKind::Shadowsocks,
+    ObfuscationMethodKind::Quic,
+    ObfuscationMethodKind::Udp2Tcp,
+];
+
+/// The staggered obfuscation retry round, see [`RETRY_ORDER`].
+#[derive(Debug, Default)]
+pub struct ObfuscationRound {
+    /// Obfuscation methods not yet attempted in this round.
+    pending: Vec<(ObfuscationMethodKind, RelayQuery)>,
+}
+
+impl ObfuscationRound {
+    pub fn new(query: RelayQuery) -> Self {
+        Self {
+            pending: RETRY_ORDER
+                .iter()
+                .filter_map(|obf| {
+                    query
+                        .clone()
+                        .merge_retry(obf.to_constraint())
+                        .map(|obf_query| (*obf, obf_query))
+                })
+                .collect(),
+        }
+    }
+
+    /// Remove every method the selected relay's multiplexer offers from the pending set, since
+    /// they have all been attempted.
+    fn remove_offered(&mut self, offered: &std::collections::HashSet<ObfuscationMethodKind>) {
+        self.pending.retain(|pending| !offered.contains(&pending.0));
+    }
+}
 
 /// A [RelaySelector] instance backed by a relay list on-disk.
 ///
@@ -120,52 +173,76 @@ impl RelaySelectorIO {
         *config.query.lock().unwrap() = RelayQuery::from(settings);
     }
 
+    pub fn query(&self) -> impl Deref<Target = RelayQuery> {
+        self.config.query.lock().unwrap()
+    }
+
     /// Update only the custom list settings used for location filtering.
     pub fn set_custom_lists(&self, custom_lists: CustomListsSettings) {
         let config = &self.config;
         *config.custom_lists.lock().unwrap() = custom_lists;
     }
 
-    /// Returns a random relay and relay endpoint matching the current constraints corresponding to
-    /// `retry_attempt` in one of the retry orders while considering the [`Config`].
-    pub fn get_relay(
-        &self,
-        retry_attempt: usize,
-        runtime_ip_availability: IpAvailability,
-    ) -> Result<GetRelay, Error> {
-        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_ip_availability)
+    /// Get a relay from the user's query, or return `None` if the multiplexed obfuscation retry
+    /// strategy should be used instead.
+    pub fn get_user_relay(&self, user_query: RelayQuery) -> Option<Result<GetRelay, Error>> {
+        // Do not use the obfuscation multiplexer if the user has explicitly requested a single
+        // anti-censorship method, or disabled anti-censorship.
+        if user_query.entry_specific().obfuscation.is_only() {
+            Some(self.get_relay_by_query(user_query))
+        } else {
+            None
+        }
     }
 
-    /// Returns a random relay and relay endpoint matching the current constraints defined by
-    /// `retry_order` corresponding to `retry_attempt`.
-    pub fn get_relay_with_custom_params(
+    pub fn multiplexed_obfuscation_relay(
         &self,
-        retry_attempt: usize,
-        retry_order: &[EntrySpecificConstraints],
-        runtime_ip_availability: IpAvailability,
+        user_query: RelayQuery,
+        obfuscation_strategy: &mut ObfuscationRound,
     ) -> Result<GetRelay, Error> {
-        let mut user_query = self.config.query.lock().unwrap().clone();
-        // Runtime parameters may shrink the set of usable IP versions — apply that *before*
-        // merging with retry_order so an IPv6-only retry attempt is correctly rejected when only
-        // IPv4 is available.
-        user_query.apply_ip_availability(runtime_ip_availability)?;
-        log::trace!("Merging user preferences {user_query:?} with default retry strategy");
-
-        // Select a relay using the user's preferences merged with the nth compatible retry entry,
-        // looping back to the start if necessary.
-        let maybe_relay = retry_order
+        // Select a relay using the user's preferences and the first pending obfuscation method
+        // that yields a relay.
+        let relay = obfuscation_strategy
+            .pending
             .iter()
-            .filter_map(|retry| user_query.clone().merge_retry(retry.clone()))
-            .filter_map(|query| self.get_relay_by_query(query).ok())
-            .cycle()
-            .nth(retry_attempt);
+            .filter_map(|(_, selection_query)| {
+                // Select a relay that supports this pending method, but connect to it with the
+                // user's query, whose obfuscation is on "auto" — so the relay's multiplexer
+                // races every method it supports.
+                self.get_relay_for_pending_obfuscation(selection_query.clone(), user_query.clone())
+                    .inspect_err(|error| {
+                        log::debug!("No relay for pending obfuscation method: {error}")
+                    })
+                    .ok()
+            })
+            .next();
 
-        match maybe_relay {
-            Some(v) => Ok(v),
-            // If no retry merged with `user_query` yields a relay, fall back to the user's
-            // preferences alone.
-            None => self.get_relay_by_query(user_query),
+        let Some(relay) = relay else {
+            // No relay supports any of the pending obfuscation methods. Start a new round
+            // and fall back to the user's query alone, which multiplexes every method the selected relay offers.
+            *obfuscation_strategy = ObfuscationRound::new(user_query.clone());
+            // No relay matches any pending obfuscation method. Fall back to the user's query
+            // alone, which multiplexes every method the selected relay offers.
+            return self.get_relay_by_query(user_query);
+        };
+
+        // Remove the methods the selected relay offers from the pending set. A relay selected
+        // for one pending method multiplexes every method it supports, so they have all been
+        // attempted and should not be retried within this round.
+        if let Some(obfuscator) = &relay.obfuscator
+            && let Obfuscators::Multiplexer {
+                configs: (first, rest),
+                ..
+            } = obfuscator
+        {
+            let offered: std::collections::HashSet<ObfuscationMethodKind> = std::iter::once(first)
+                .chain(rest.iter())
+                .map(ObfuscationMethodKind::from)
+                .collect();
+            obfuscation_strategy.remove_offered(&offered);
         }
+
+        Ok(relay)
     }
 }
 
@@ -215,45 +292,5 @@ impl From<RelayQuery> for Config {
             query,
             custom_lists,
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
-    /// modified, the programmer should be made aware to update all external documents which rely on the
-    /// retry order to be correct.
-    ///
-    /// When all necessary changes have been made, feel free to update this test to mirror the new
-    /// [`RETRY_ORDER`].
-    #[test]
-    fn assert_retry_order() {
-        use talpid_types::net::IpVersion;
-        let expected_retry_order = vec![
-            // 1 (wireguard)
-            EntrySpecificConstraints::default(),
-            // 2
-            EntrySpecificConstraints::default().ip_version(IpVersion::V6),
-            // 3
-            EntrySpecificConstraints::lwo(),
-            // 4
-            EntrySpecificConstraints::shadowsocks(),
-            // 5
-            EntrySpecificConstraints::quic(),
-            // 6
-            EntrySpecificConstraints::udp2tcp(),
-            // 7
-            EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
-        ];
-
-        assert!(
-            *RETRY_ORDER == expected_retry_order,
-            "
-    The relay selector's retry order has been modified!
-    Make sure to update `docs/relay-selector.md` with these changes.
-    Lastly, you may go ahead and fix this test to reflect the new retry order.
-    "
-        );
     }
 }
