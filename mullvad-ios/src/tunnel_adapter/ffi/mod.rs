@@ -81,7 +81,9 @@ impl std::fmt::Display for GotaTunFfiError {
         match self {
             GotaTunFfiError::InvalidConfig(msg) => write!(f, "invalid config: {msg}"),
             GotaTunFfiError::BindSockets(msg) => write!(f, "failed to bind UDP sockets: {msg}"),
-            GotaTunFfiError::PQNegotiation(msg) => write!(f, "post-quantum key negotiation failed: {msg}"),
+            GotaTunFfiError::PQNegotiation(msg) => {
+                write!(f, "post-quantum key negotiation failed: {msg}")
+            }
             GotaTunFfiError::Internal(msg) => write!(f, "internal error: {msg}"),
         }
     }
@@ -127,7 +129,9 @@ impl TunnelCallbackHandler for CallbackBridge {
             ))
             | TunnelError::RebindUdpSocket(_)
             | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
-            TunnelError::NegotiatePQError(NegotiationError::Exchange(_)) => GotaTunFfiError::PQNegotiation(format!("{error}")),
+            TunnelError::NegotiatePQError(NegotiationError::Exchange(_)) => {
+                GotaTunFfiError::PQNegotiation(format!("{error}"))
+            }
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
