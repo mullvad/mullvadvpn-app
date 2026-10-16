@@ -1,6 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
-import { InternalLink } from '../../renderer/components/InternalLink';
+import { NotificationInternalLink } from '../../renderer/components/notification-internal-link';
 import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
@@ -68,9 +68,8 @@ export class LockdownModeNotificationProvider
 
     const formattedSubtitle = formatHtml(subtitle, {
       a: (value) => (
-        <InternalLink
+        <NotificationInternalLink
           to={RoutePath.vpnSettings}
-          variant="labelTinySemiBold"
           locationState={{
             options: [
               {
@@ -79,8 +78,8 @@ export class LockdownModeNotificationProvider
               },
             ],
           }}>
-          <InternalLink.Text>{value}</InternalLink.Text>
-        </InternalLink>
+          <NotificationInternalLink.Text>{value}</NotificationInternalLink.Text>
+        </NotificationInternalLink>
       ),
     });
 

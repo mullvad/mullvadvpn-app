@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
-import { InternalLink } from '../../components/InternalLink';
+import { NotificationInternalLink } from '../../components/notification-internal-link';
 import { formatHtml } from '../html-formatter';
 import { formatDeviceName } from '../utils';
 
@@ -35,9 +35,9 @@ export class NewDeviceNotificationProvider implements InAppNotificationProvider 
         ),
         {
           a: (value) => (
-            <InternalLink variant="labelTinySemiBold" to={RoutePath.manageDevices}>
-              <InternalLink.Text>{value}</InternalLink.Text>
-            </InternalLink>
+            <NotificationInternalLink to={RoutePath.manageDevices}>
+              <NotificationInternalLink.Text>{value}</NotificationInternalLink.Text>
+            </NotificationInternalLink>
           ),
         },
       ),
