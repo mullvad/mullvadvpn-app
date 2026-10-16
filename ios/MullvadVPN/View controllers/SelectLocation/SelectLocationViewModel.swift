@@ -18,8 +18,8 @@ protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
     func customListsChanged()
-    func addLocationToCustomList(location: LocationNode, customListName: String) async
-    func removeLocationFromCustomList(location: LocationNode, customListName: String) async
+    func addLocationToCustomList(location: LocationNode, customListName: String)
+    func removeLocationFromCustomList(location: LocationNode, customListName: String)
     func showEditCustomList(name: String)
     func didFinish()
     func showDaitaSettings()
@@ -333,10 +333,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
-        try customListInteractor.addLocationToCustomList(
-            relayLocations: relayLocations,
-            customListName: customListName
-        )
+        try customListInteractor.addLocationToCustomList(relayLocations: relayLocations, customListName: customListName)
         customListsChanged()
     }
 

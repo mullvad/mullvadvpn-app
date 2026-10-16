@@ -11,7 +11,6 @@
 import MullvadSettings
 import MullvadTypes
 
-@MainActor
 class MultihopTunnelSettingsViewModel: ObservableObject {
     enum ValidationError {
         case filters(state: MultihopState)
@@ -37,15 +36,11 @@ class MultihopTunnelSettingsViewModel: ObservableObject {
 
         tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, _ in
-                Task { @MainActor [weak self] in
-                    self?.updateAutomaticRoutingStatus()
-                }
+                self?.updateAutomaticRoutingStatus()
             },
             didUpdateTunnelSettings: { [weak self] _, newSettings in
-                Task { @MainActor [weak self] in
-                    self?.multihopState = newSettings.tunnelMultihopState
-                    self?.updateAutomaticRoutingStatus()
-                }
+                self?.multihopState = newSettings.tunnelMultihopState
+                self?.updateAutomaticRoutingStatus()
             }
         )
 

@@ -29,7 +29,7 @@ final actor StorePaymentManagerInteractor {
 
     // MARK: Tunnel manager
 
-    func updateAccountData(for account: Account) async {
+    func updateAccountData(for account: Account) {
         guard case .loggedIn(var storedAccountData, let deviceData) = tunnelManager.deviceState else {
             return
         }
@@ -37,7 +37,7 @@ final actor StorePaymentManagerInteractor {
         storedAccountData.expiry = account.expiry
         let newDeviceState = DeviceState.loggedIn(storedAccountData, deviceData)
 
-        await tunnelManager.setDeviceState(newDeviceState, persist: true)
+        tunnelManager.setDeviceState(newDeviceState, persist: true)
     }
 
     // MARK: API proxy

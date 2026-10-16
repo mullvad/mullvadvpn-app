@@ -43,7 +43,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
     private let deviceState: @Sendable () -> DeviceState
-    private let onUpdateAccount: @Sendable (DeviceState, (@Sendable () -> Void)?) -> Void
+    private let onUpdateAccount: @Sendable (DeviceState) -> Void
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -54,7 +54,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         devicesProxy: DeviceHandling,
         action: SetAccountAction,
         deviceState: @escaping @Sendable () -> DeviceState,
-        onUpdateAccount: @escaping @Sendable (DeviceState, (@Sendable () -> Void)?) -> Void
+        onUpdateAccount: @escaping @Sendable (DeviceState) -> Void
     ) {
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
@@ -116,15 +116,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         switch deviceState() {
         case let .loggedIn(accountData, deviceData):
             deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
-                onUpdateAccount(.loggedOut) {
-                    completion()
-                }
+                onUpdateAccount(.loggedOut)
+                completion()
             }
 
         case .revoked:
-            onUpdateAccount(.loggedOut) {
-                completion()
-            }
+            onUpdateAccount(.loggedOut)
+            completion()
 
         case .loggedOut:
             completion()
@@ -171,9 +169,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
-                onUpdateAccount(.loggedOut) {
-                    completion(result)
-                }
+                onUpdateAccount(.loggedOut)
+                completion(result)
             } else {
                 completion(result)
             }
@@ -194,21 +191,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         do {
             let accountData = try result.get()
-
             createDevice(accountNumber: accountData.number) { [self] result in
-                switch result {
-                case .success(let newDevice):
-                    let storedDeviceData = storeSettings(accountData: accountData, newDevice: newDevice)
+                completion(
+                    result.map { newDevice in
+                        storeSettings(accountData: accountData, newDevice: newDevice)
 
-                    // Transition device state to logged in.
-                    onUpdateAccount(
-                        .loggedIn(accountData, storedDeviceData),
-                        {
-                            completion(.success(accountData))
-                        })
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+                        return accountData
+                    })
             }
         } catch {
             completion(.failure(error))
@@ -216,7 +205,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     }
 
     /// Store account data and newly created device in settings and transition device state to logged in state.
-    private func storeSettings(accountData: StoredAccountData, newDevice: NewDevice) -> StoredDeviceData {
+    private func storeSettings(accountData: StoredAccountData, newDevice: NewDevice) {
         logger.debug("Saving settings...")
 
         // Create stored device data.
@@ -234,7 +223,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             )
         )
 
-        return storedDeviceData
+        // Transition device state to logged in.
+        onUpdateAccount(.loggedIn(accountData, storedDeviceData))
     }
 
     /// Create new account and produce `StoredAccountData` upon success.

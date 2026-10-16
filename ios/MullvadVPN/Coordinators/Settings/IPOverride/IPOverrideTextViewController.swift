@@ -18,9 +18,7 @@ class IPOverrideTextViewController: UIViewController {
         return UIBarButtonItem(
             title: NSLocalizedString("Import", comment: ""),
             primaryAction: UIAction(handler: { [weak self] _ in
-                Task {
-                    await self?.interactor.import(text: self?.textView.text ?? "")
-                }
+                self?.interactor.import(text: self?.textView.text ?? "")
                 self?.dismiss(animated: true)
             })
         )

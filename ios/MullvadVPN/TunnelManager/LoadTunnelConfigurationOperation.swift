@@ -32,11 +32,11 @@ actor LoadTunnelConfigurationTask {
         let settings = settingsResult.flattenValue()
         let deviceState = deviceStateResult.flattenValue()
 
-        await interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
-        await interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
+        interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
+        interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
         guard let tunnel else {
-            await setTunnelAndLoadConfiguration(nil)
+            setTunnelAndLoadConfiguration(nil)
             return
         }
 
@@ -44,15 +44,15 @@ actor LoadTunnelConfigurationTask {
             tunnel.removeFromPreferences { error in
                 error.flatMap { self.logger.error(error: $0, message: "Failed to remove VPN configuration.") }
             }
-            await setTunnelAndLoadConfiguration(nil)
+            setTunnelAndLoadConfiguration(nil)
         } else {
-            await setTunnelAndLoadConfiguration(tunnel)
+            setTunnelAndLoadConfiguration(tunnel)
         }
     }
 
-    private func setTunnelAndLoadConfiguration(_ tunnel: (any TunnelProtocol)?) async {
-        await interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
-        await interactor.setConfigurationLoaded()
+    private func setTunnelAndLoadConfiguration(_ tunnel: (any TunnelProtocol)?) {
+        interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
+        interactor.setConfigurationLoaded()
     }
 
     private func readSettings() -> Result<LatestTunnelSettings?, Error> {
