@@ -186,7 +186,9 @@ extension LoginViewModel {
         switch loginState {
         case .failure(_, let error):
             .init(
-                text: (error as? DisplayError)?.displayErrorDescription ?? error.localizedDescription,
+                text: LocalizedStringKey(
+                    (error as? DisplayError)?.displayErrorDescription ?? error.localizedDescription
+                ),
                 appearance: .error
             )
         case .authenticating, .default, .success:
