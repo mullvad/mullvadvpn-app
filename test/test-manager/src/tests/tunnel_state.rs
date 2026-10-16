@@ -18,7 +18,7 @@ use mullvad_types::{
     relay_constraints::{GeographicLocationConstraint, LocationConstraint},
     states::TunnelState,
 };
-use std::{assert_matches, net::SocketAddr, time::Duration};
+use std::{assert_matches, net::IpAddr, time::Duration};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -349,7 +349,7 @@ pub async fn test_connected_state(
                 TunnelEndpoint {
                     endpoint:
                         Endpoint {
-                            address: SocketAddr::V4(addr),
+                            address,
                             protocol: TransportProtocol::Udp,
                         },
                     quantum_resistant: _,
@@ -359,9 +359,10 @@ pub async fn test_connected_state(
                     daita: _,
                 },
             ..
-        } => {
-            assert_eq!(*addr.ip(), relay.ipv4_addr_in);
-        }
+        } => match address.ip() {
+            IpAddr::V4(addr) => assert_eq!(addr, relay.ipv4_addr_in),
+            IpAddr::V6(addr) => assert_eq!(addr, relay.ipv6_addr_in.unwrap()),
+        },
         actual => panic!("unexpected tunnel state: {actual:?}"),
     }
 
