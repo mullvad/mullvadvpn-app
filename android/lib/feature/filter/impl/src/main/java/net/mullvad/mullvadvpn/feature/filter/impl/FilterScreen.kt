@@ -98,8 +98,8 @@ fun FilterScreen(
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
     onSelectedProvider: (checked: Boolean, provider: ProviderId) -> Unit,
 ) {
-    var providerExpanded by rememberSaveable { mutableStateOf(false) }
-    var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
+    var providerExpanded by rememberSaveable { mutableStateOf(true) }
+    var ownershipExpanded by rememberSaveable { mutableStateOf(true) }
 
     val backgroundColor = MaterialTheme.colorScheme.surface
     ScaffoldWithSmallTopBar(
