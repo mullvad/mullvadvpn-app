@@ -37,41 +37,35 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
-        Task {
-            guard case .loggedIn = await interactor.getDeviceState() else {
-                finish(result: .failure(InvalidDeviceStateError()))
-                return
+        guard case .loggedIn = interactor.deviceState else {
+            finish(result: .failure(InvalidDeviceStateError()))
+            return
+        }
+
+        switch interactor.tunnelStatus.state {
+        case .disconnecting(.nothing):
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .disconnecting(.reconnect)
             }
 
-            switch await interactor.getTunnelStatus().state {
-            case .disconnecting(.nothing):
-                await interactor.updateTunnelStatus { tunnelStatus in
-                    tunnelStatus = TunnelStatus()
-                    tunnelStatus.state = .disconnecting(.reconnect)
-                }
-                finish(result: .success(()))
+            finish(result: .success(()))
 
-            case .disconnected, .pendingReconnect, .waitingForConnectivity:
-                // Capture settings on internalQueue before entering async context.
-                let settings = interactor.settings
-                makeTunnelProviderAndStartTunnel(settings: settings) { error in
-                    self.finish(result: error.map { .failure($0) } ?? .success(()))
-                }
-
-            default:
-                finish(result: .success(()))
+        case .disconnected, .pendingReconnect, .waitingForConnectivity:
+            makeTunnelProviderAndStartTunnel { error in
+                self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
+
+        default:
+            finish(result: .success(()))
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel(
-        settings: LatestTunnelSettings,
-        completionHandler: @escaping @Sendable (Error?) -> Void
-    ) {
-        makeTunnelProvider(settings: settings) { result in
-            Task {
+    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping @Sendable (Error?) -> Void) {
+        makeTunnelProvider { result in
+            self.dispatchQueue.async {
                 do {
-                    try await self.startTunnel(tunnel: result.get(), settings: settings)
+                    try self.startTunnel(tunnel: result.get())
                     completionHandler(nil)
                 } catch {
                     completionHandler(error)
@@ -80,8 +74,8 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         }
     }
 
-    private func startTunnel(tunnel: any TunnelProtocol, settings: LatestTunnelSettings) async throws {
-        let selectedRelays = try? await interactor.selectRelays()
+    private func startTunnel(tunnel: any TunnelProtocol) throws {
+        let selectedRelays = try? interactor.selectRelays()
         var tunnelOptions = PacketTunnelOptions()
 
         do {
@@ -95,14 +89,14 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             )
         }
 
-        await interactor.setTunnel(tunnel, shouldRefreshTunnelState: false)
+        interactor.setTunnel(tunnel, shouldRefreshTunnelState: false)
 
-        await interactor.updateTunnelStatus { tunnelStatus in
+        interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .connecting(
                 selectedRelays,
-                isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
-                isDaita: settings.daita.isEnabled
+                isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled,
+                isDaita: interactor.settings.daita.isEnabled
             )
         }
 
@@ -110,8 +104,9 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     private func makeTunnelProvider(
-        settings: LatestTunnelSettings,
-        completionHandler: @escaping @Sendable (Result<any TunnelProtocol, Error>) -> Void
+        completionHandler:
+            @escaping @Sendable (Result<any TunnelProtocol, Error>)
+            -> Void
     ) {
         Task {
             let tunnel: any TunnelProtocol
@@ -122,8 +117,8 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             }
 
             let configuration = TunnelConfiguration(
-                includeAllNetworks: settings.includeAllNetworks.includeAllNetworksIsEnabled,
-                excludeLocalNetworks: settings.includeAllNetworks.localNetworkSharingIsEnabled
+                includeAllNetworks: interactor.settings.includeAllNetworks.includeAllNetworksIsEnabled,
+                excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
             )
 
             tunnel.setConfiguration(configuration)

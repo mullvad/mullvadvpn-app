@@ -30,26 +30,25 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
-        Task {
-            switch await interactor.getTunnelStatus().state {
-            case .disconnecting(.reconnect):
-                await interactor.updateTunnelStatus { tunnelStatus in
-                    tunnelStatus.state = .disconnecting(.nothing)
-                }
-                finish(result: .success(()))
-
-            case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
-                .negotiatingEphemeralPeer:
-                await doShutDownTunnel()
-
-            case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
-                finish(result: .success(()))
+        switch interactor.tunnelStatus.state {
+        case .disconnecting(.reconnect):
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus.state = .disconnecting(.nothing)
             }
+
+            finish(result: .success(()))
+
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
+            .negotiatingEphemeralPeer:
+            doShutDownTunnel()
+
+        case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
+            finish(result: .success(()))
         }
     }
 
-    private func doShutDownTunnel() async {
-        guard let tunnel = await interactor.getTunnel() else {
+    private func doShutDownTunnel() {
+        guard let tunnel = interactor.tunnel else {
             finish(result: .failure(UnsetTunnelError()))
             return
         }

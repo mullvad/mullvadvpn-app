@@ -207,7 +207,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         repeat {
             migrationManager.migrateSettings(
                 store: settingsManager.store,
-                completion: { [unowned self] migrationResult in
+                migrationCompleted: { [unowned self] migrationResult in
                     switch migrationResult {
                     case .success:
                         providerLogger.debug("Successful migration from PacketTunnel")

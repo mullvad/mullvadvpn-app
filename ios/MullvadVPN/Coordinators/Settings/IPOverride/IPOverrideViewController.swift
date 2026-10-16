@@ -154,9 +154,7 @@ class IPOverrideViewController: UIViewController {
                     title: NSLocalizedString("Clear", comment: ""),
                     style: .destructive,
                     handler: { [weak self] in
-                        Task {
-                            await self?.interactor.deleteAllOverrides()
-                        }
+                        self?.interactor.deleteAllOverrides()
                     }
                 ),
                 AlertAction(
@@ -185,11 +183,7 @@ extension IPOverrideViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         if let url = urls.first {
             url.securelyScoped { [weak self] scopedUrl in
-                Task {
-                    if let scopedUrl {
-                        await self?.interactor.import(url: scopedUrl)
-                    }
-                }
+                scopedUrl.flatMap { self?.interactor.import(url: $0) }
             }
         }
     }

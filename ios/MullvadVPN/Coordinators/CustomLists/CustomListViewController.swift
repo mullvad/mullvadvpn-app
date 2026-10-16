@@ -52,9 +52,7 @@ class CustomListViewController: UIViewController {
             title: NSLocalizedString("Save", comment: ""),
             textStyle: .headline,
             primaryAction: UIAction { [weak self] _ in
-                Task {
-                    await self?.onSave()
-                }
+                self?.onSave()
             }
         )
         barButtonItem.setAccessibilityIdentifier(.saveCreateCustomListButton)
@@ -179,7 +177,8 @@ class CustomListViewController: UIViewController {
                     style: .destructive,
                     accessibilityId: .confirmDeleteCustomListButton,
                     handler: {
-                        self.interactor.delete(customList: self.subject.value.customList)
+                        self.interactor
+                            .delete(customList: self.subject.value.customList)
                         self.delegate?.customListDidDelete(self.subject.value.customList)
                     }
                 ),

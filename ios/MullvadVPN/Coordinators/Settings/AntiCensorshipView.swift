@@ -109,11 +109,9 @@ struct AntiCensorshipView: View {
     }
 
     func updateSettings() {
-        Task {
-            await settingsInteractor.tunnelManager.updateSettings([
-                .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
-            ])
-        }
+        settingsInteractor.tunnelManager.updateSettings([
+            .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
+        ])
     }
 
     @ViewBuilder
