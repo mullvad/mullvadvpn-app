@@ -1,6 +1,10 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
-use super::{Error, Result};
+use crate::{
+    CloseMsg, Error, Result,
+    config::Config,
+    ephemeral::{self, IngressSession},
+};
 use std::{
     iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -17,34 +21,11 @@ use talpid_types::net::{
 use tokio::sync::oneshot;
 use tunnel_obfuscation::{
     create_transport, lwo,
-    multiplexer::{self, Multiplexer, Transport},
+    multiplexer::{self, Multiplexer, Selected, Transport},
     quic, shadowsocks, udp2tcp,
 };
 
 pub use tunnel_obfuscation::gotatun_transport::RunningObfuscation;
-
-pub enum Obfuscator {
-    Single(RunningObfuscation),
-    Multiplexer(RunningObfuscation, SelectedTransportRx),
-}
-
-impl Obfuscator {
-    pub fn obfuscation(&self) -> &RunningObfuscation {
-        match self {
-            Obfuscator::Single(running_obfuscation) => running_obfuscation,
-            Obfuscator::Multiplexer(running_obfuscation, _) => running_obfuscation,
-        }
-    }
-
-    pub async fn multiplexer_committed_to(
-        obfuscator: Option<Obfuscator>,
-    ) -> Result<Option<SelectedObfuscation>> {
-        match obfuscator {
-            Some(Self::Single(_)) | None => Ok(None),
-            Some(Self::Multiplexer(_, rx)) => rx.selected_obfuscation().await,
-        }
-    }
-}
 
 /// Settings for the local socket obfuscator to run: either a single obfuscator or a multiplexer.
 #[derive(Debug, Clone)]
@@ -187,67 +168,84 @@ pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> O
     }
 }
 
-/// Set up the obfuscation for `settings`.
-///
-/// The [SelectedTransportRx] is `Some` only for a multiplexer, and returns the selected obfuscation
-/// type.
-pub async fn create_obfuscation(
-    settings: &ObfuscationSettings,
+/// Set up a single obfuscator.
+pub async fn create_single(
+    settings: &tunnel_obfuscation::Settings,
     bypass: Arc<dyn SocketBypass>,
-) -> Result<Obfuscator> {
+) -> Result<RunningObfuscation> {
     match settings {
         // LWO is special-cased since `ObfuscatedTransport` does not support batched send/recv.
-        ObfuscationSettings::Single(tunnel_obfuscation::Settings::Lwo(settings)) => Ok(
-            Obfuscator::Single(RunningObfuscation::Lwo(settings.clone())),
-        ),
-        ObfuscationSettings::Single(settings) => {
-            let transport = create_transport(bypass, settings)
-                .await
-                .map_err(Error::ObfuscationError)?;
-            Ok(Obfuscator::Single(RunningObfuscation::Transport(transport)))
+        tunnel_obfuscation::Settings::Lwo(settings) => {
+            Ok(RunningObfuscation::Lwo(settings.clone()))
         }
+        settings => create_transport(bypass, settings)
+            .await
+            .map(RunningObfuscation::Transport)
+            .map_err(Error::ObfuscationError),
+    }
+}
 
-        ObfuscationSettings::Multiplexer {
+/// Race `transports` through a new session with the ingress relay of `config`, until one of them
+/// completes a handshake.
+///
+/// Return the transport that the multiplexer selected, and the session with the ingress relay.
+pub async fn run_multiplexer(
+    config: &Config,
+    retry_attempt: u32,
+    transports: Vec<Transport>,
+    client_public_key: PublicKey,
+    bypass: &Arc<dyn SocketBypass>,
+) -> std::result::Result<(Selected, IngressSession), CloseMsg> {
+    let (selected_tx, selected_rx) = oneshot::channel();
+    let multiplexer = Multiplexer::new(
+        Arc::clone(bypass),
+        multiplexer::Settings {
             transports,
             client_public_key,
-        } => {
-            let (selected_transport, selected_transport_rx) = oneshot::channel();
-            let multiplexer = Multiplexer::new(
-                bypass,
-                multiplexer::Settings {
-                    transports: transports.clone(),
-                    client_public_key: client_public_key.clone(),
-                    selected_transport,
-                },
-            );
-            Ok(Obfuscator::Multiplexer(
-                RunningObfuscation::Transport(Arc::new(multiplexer)),
-                SelectedTransportRx(selected_transport_rx),
-            ))
+            selected_transport: selected_tx,
+        },
+    );
+    let multiplexer = RunningObfuscation::Transport(Arc::new(multiplexer));
+
+    let session =
+        ephemeral::open_ingress_session(config, retry_attempt, Some(multiplexer), bypass).await?;
+    if let Err(error) = ephemeral::handshake(&session, config, retry_attempt).await {
+        session.stop().await;
+        return Err(error);
+    }
+
+    // The multiplexer only lets a handshake response through once it has selected a transport.
+    match selected_rx.await {
+        Ok(selected) => {
+            log::debug!("Selected obfuscation: {:?}", selected.config);
+            Ok((selected, session))
+        }
+        Err(_) => {
+            log::error!("The multiplexer stopped before selecting a transport");
+            session.stop().await;
+            Err(CloseMsg::SetupError(Error::UnknownSelectedObfuscator))
         }
     }
 }
 
-/// Told which transport a multiplexer committed to.
-pub struct SelectedTransportRx(oneshot::Receiver<Transport>);
-
-impl SelectedTransportRx {
-    pub async fn selected_obfuscation(self) -> Result<Option<SelectedObfuscation>> {
-        let rx = self.0;
-        let transport = rx.await.map_err(|_err| {
-            log::error!("The multiplexer stopped before selecting a transport");
-            Error::UnknownSelectedObfuscator
-        })?;
-
-        let selected = match transport {
-            Transport::Direct(_) => SelectedObfuscation::Direct,
-            Transport::Obfuscated(settings) => {
-                SelectedObfuscation::Obfuscated(config_from_single_settings(&settings))
-            }
-        };
-
-        log::debug!("Selected obfuscation: {selected:?}");
-        Ok(Some(selected))
+/// Return the obfuscation to reach the ingress relay with, using only the `selected` transport.
+///
+/// See [`Config::with_transport`] for the corresponding config.
+pub fn commit_to(selected: Selected) -> (Option<RunningObfuscation>, SelectedObfuscation) {
+    match selected.config {
+        Transport::Direct(_) => (None, SelectedObfuscation::Direct),
+        Transport::Obfuscated(settings) => {
+            let obfuscator_config = config_from_single_settings(&settings);
+            let obfuscation = match settings {
+                // LWO is applied inline by GotaTun. See `create_single`.
+                tunnel_obfuscation::Settings::Lwo(settings) => RunningObfuscation::Lwo(settings),
+                _ => RunningObfuscation::Transport(selected.transport),
+            };
+            (
+                Some(obfuscation),
+                SelectedObfuscation::Obfuscated(obfuscator_config),
+            )
+        }
     }
 }
 

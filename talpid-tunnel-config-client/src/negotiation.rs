@@ -17,6 +17,7 @@ use gotatun::{
 };
 use ipnetwork::IpNetwork;
 use std::{
+    io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     time::Duration,
 };
@@ -34,7 +35,10 @@ const USERSPACE_NET_MTU: u16 = 576;
 const MULTIHOP_CHANNEL_CAPACITY: usize = 100;
 
 /// How often to check whether a device has completed a handshake with its peer.
-const HANDSHAKE_POLL_INTERVAL: Duration = Duration::from_millis(50);
+const HANDSHAKE_POLL_INTERVAL: Duration = Duration::from_millis(10);
+
+/// ICMP identifier of the ping that [`IngressSession::handshake`] sends to initiate a handshake.
+const HANDSHAKE_PING_IDENT: u16 = 0x6d76;
 
 /// A relay to negotiate an ephemeral peer with.
 pub struct Relay {
@@ -127,26 +131,112 @@ pub enum NegotiationError {
     /// Failed to create a GotaTun device.
     #[error("Failed to create GotaTun device")]
     Device(#[source] gotatun::device::Error),
+    /// Failed to ping the config service to initiate a handshake.
+    #[error("Failed to ping the config service")]
+    Ping(#[source] io::Error),
     /// The exchange with a config service failed.
     #[error("Failed to exchange ephemeral peer")]
     Exchange(#[source] Error),
 }
 
+/// A WireGuard session with the ingress relay, which reaches the config service of the ingress
+/// relay through a userspace network stack.
+///
+/// The session can be established with [`Self::handshake`] to find out whether the relay is
+/// reachable at all, and then be reused to negotiate ephemeral peers with
+/// [`negotiate_ephemeral_peers_over`].
+pub struct IngressSession<F: UdpTransportFactory> {
+    device: Device<(F, SmoltcpIpSend, SmoltcpIpRecv)>,
+    net: SmoltcpHandle,
+    _net_guard: SmoltcpNetworkGuard,
+}
+
+impl<F: UdpTransportFactory> IngressSession<F> {
+    /// Create a device that reaches the ingress relay through `transport`. No handshake is
+    /// initiated until something is sent through the session.
+    pub async fn new(config: &NegotiationConfig, transport: F) -> Result<Self, NegotiationError> {
+        let (net, net_recv, net_send, net_guard) = userspace_net(config);
+
+        let peer =
+            ingress_peer(config, config.relays.ingress()).with_allowed_ip(config.allowed_ip());
+        let device = DeviceBuilder::new()
+            .with_udp(transport)
+            .with_ip_pair(net_send, net_recv)
+            .with_private_key(static_secret(&config.private_key))
+            .with_peer(peer)
+            .build()
+            .await
+            .map_err(NegotiationError::Device)?;
+
+        Ok(Self {
+            device,
+            net,
+            _net_guard: net_guard,
+        })
+    }
+
+    /// Complete a handshake with the ingress relay, or fail with [`NegotiationError::Timeout`] if
+    /// that takes longer than [`NegotiationConfig::handshake_timeout`].
+    // TODO: upstream forced handshake to gotatun
+    pub async fn handshake(&self, config: &NegotiationConfig) -> Result<(), NegotiationError> {
+        // GotaTun initiates a handshake once it has something to send, so ping the config service.
+        let ping = async {
+            let socket = self.net.icmp_socket(HANDSHAKE_PING_IDENT).await?;
+            socket
+                .send_to_v4(
+                    &echo_request(HANDSHAKE_PING_IDENT),
+                    config.config_service_ip,
+                )
+                .await?;
+            // Keep the socket open, so that the ping is not dropped before it is sent.
+            std::future::pending::<io::Result<()>>().await
+        };
+        tokio::select! {
+            result = ping => {
+                let error = result.expect_err("the ping never completes");
+                Err(NegotiationError::Ping(error))
+            }
+            () = wait_for_handshake(&self.device) => Ok(()),
+            error = fail_without_handshake(&self.device, config.handshake_timeout) => Err(error),
+        }
+    }
+
+    /// Stop the device.
+    pub async fn stop(self) {
+        self.device.stop().await
+    }
+}
+
 /// Negotiate ephemeral peers with the relays in `config`, using a new ephemeral key. In multihop,
 /// the exit relay gets a key of its own if [`NegotiationConfig::separate_exit_key`] is set.
 ///
-/// In multihop, the entry peer is negotiated first. The exit peer is then negotiated through the
-/// entry relay, using the negotiated entry peer.
-///
-/// The temporary devices reach the ingress relay through the UDP transports that
-/// `ingress_transport` creates for a device with the given public key.
-///
-/// Each exchange with a config service takes at most [`NegotiationConfig::timeout`], or
-/// [`NegotiationConfig::handshake_timeout`] if the relay does not complete a WireGuard handshake.
+/// The ingress relay is reached through a new [`IngressSession`] over `ingress_transport`. See
+/// [`negotiate_ephemeral_peers_over`].
 pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
     ingress_transport: impl Fn(&PublicKey) -> F,
+) -> Result<NegotiatedPeers, NegotiationError> {
+    let ingress =
+        IngressSession::new(config, ingress_transport(&config.private_key.public_key())).await?;
+    negotiate_ephemeral_peers_over(config, negotiate, ingress, ingress_transport).await
+}
+
+/// Negotiate ephemeral peers with the relays in `config`, using a new ephemeral key. In multihop,
+/// the exit relay gets a key of its own if [`NegotiationConfig::separate_exit_key`] is set.
+///
+/// The ingress peer is negotiated through `ingress`, which is stopped when this returns. In
+/// multihop, the exit peer is then negotiated through the entry relay, using the negotiated entry
+/// peer, by a device that reaches the entry relay through the UDP transports that
+/// `ingress_transport` creates for a device with the given public key.
+///
+/// Each exchange with a config service takes at most [`NegotiationConfig::timeout`], or
+/// [`NegotiationConfig::handshake_timeout`] if the relay does not complete a WireGuard handshake.
+pub async fn negotiate_ephemeral_peers_over<F: UdpTransportFactory, G: UdpTransportFactory>(
+    config: &NegotiationConfig,
+    negotiate: Negotiables,
+    ingress: IngressSession<F>,
+    ingress_transport: impl Fn(&PublicKey) -> G,
 ) -> Result<NegotiatedPeers, NegotiationError> {
     let ephemeral_key = PrivateKey::new_from_random();
 
@@ -156,8 +246,7 @@ pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
         negotiate.post_quantum,
         negotiate.daita
     );
-    let ingress_peer =
-        negotiate_with_ingress(config, negotiate, &ingress_transport, &ephemeral_key).await?;
+    let ingress_peer = negotiate_with_ingress(config, negotiate, ingress, &ephemeral_key).await?;
     log::debug!(
         "Negotiated ephemeral peer with the ingress relay (psk={}, daita={})",
         ingress_peer.psk.is_some(),
@@ -200,31 +289,18 @@ pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
     })
 }
 
-/// Negotiate an ephemeral peer with the ingress relay, through a device that uses the private key
-/// of this device.
+/// Negotiate an ephemeral peer with the ingress relay through `ingress`, and stop it.
 async fn negotiate_with_ingress<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
-    ingress_transport: impl Fn(&PublicKey) -> F,
+    ingress: IngressSession<F>,
     ephemeral_key: &PrivateKey,
 ) -> Result<EphemeralPeer, NegotiationError> {
-    let (net, net_recv, net_send, _net_guard) = userspace_net(config);
-
-    let peer = ingress_peer(config, config.relays.ingress()).with_allowed_ip(config.allowed_ip());
-    let device = DeviceBuilder::new()
-        .with_udp(ingress_transport(&config.private_key.public_key()))
-        .with_ip_pair(net_send, net_recv)
-        .with_private_key(static_secret(&config.private_key))
-        .with_peer(peer)
-        .build()
-        .await
-        .map_err(NegotiationError::Device)?;
-
     let result = tokio::select! {
-        result = request_ephemeral_peer_through(net, config, ephemeral_key, negotiate) => result,
-        error = fail_without_handshake(&device, config.handshake_timeout) => Err(error),
+        result = request_ephemeral_peer_through(ingress.net.clone(), config, ephemeral_key, negotiate) => result,
+        error = fail_without_handshake(&ingress.device, config.handshake_timeout) => Err(error),
     };
-    device.stop().await;
+    ingress.stop().await;
     result
 }
 
@@ -304,26 +380,46 @@ async fn negotiate_through_entry<F: UdpTransportFactory>(
 
 /// Return [`NegotiationError::Timeout`] if `device` has not completed a handshake with its peer
 /// within `timeout`. Never returns otherwise.
-// TODO: consider upstreaming a function that forces a handshake to gotatun.
 async fn fail_without_handshake(
     device: &Device<impl DeviceTransports>,
     timeout: Duration,
 ) -> NegotiationError {
-    let handshake = async {
-        loop {
-            let peers = device.read(async |device| device.peers().await).await;
-            if peers.iter().all(|peer| peer.stats.last_handshake.is_some()) {
-                log::debug!("Handshake with relays complete");
-                return;
-            }
-            tokio::time::sleep(HANDSHAKE_POLL_INTERVAL).await;
-        }
-    };
-    if tokio::time::timeout(timeout, handshake).await.is_ok() {
+    if tokio::time::timeout(timeout, wait_for_handshake(device))
+        .await
+        .is_ok()
+    {
         std::future::pending::<()>().await;
     }
     log::debug!("No handshake with the relay within {timeout:?}");
     NegotiationError::Timeout
+}
+
+/// Wait until `device` has completed a handshake with all of its peers.
+// TODO: consider upstreaming a function that forces a handshake to gotatun.
+async fn wait_for_handshake(device: &Device<impl DeviceTransports>) {
+    loop {
+        let peers = device.read(async |device| device.peers().await).await;
+        if peers.iter().all(|peer| peer.stats.last_handshake.is_some()) {
+            log::debug!("Handshake with relays complete");
+            return;
+        }
+        tokio::time::sleep(HANDSHAKE_POLL_INTERVAL).await;
+    }
+}
+
+/// An ICMP echo request with identifier `ident`, sequence number 0 and no payload.
+fn echo_request(ident: u16) -> [u8; 8] {
+    const ECHO_REQUEST: u8 = 8;
+    let [id_hi, id_lo] = ident.to_be_bytes();
+    let mut packet = [ECHO_REQUEST, 0, 0, 0, id_hi, id_lo, 0, 0];
+    let sum = packet
+        .chunks_exact(2)
+        .map(|word| u32::from(u16::from_be_bytes([word[0], word[1]])))
+        .sum::<u32>();
+    let sum = (sum & 0xffff) + (sum >> 16);
+    let checksum = !(sum as u16);
+    packet[2..4].copy_from_slice(&checksum.to_be_bytes());
+    packet
 }
 
 /// Request an ephemeral peer from the config service that is reached through `net`.
