@@ -36,6 +36,9 @@ impl PartnerApiClient {
 
     /// stagemole.eu
     pub fn stagemole(api_token: PartnerApiToken) -> Self {
+        // NOTE: Calling `stagemole_partner` is deliberate here, and does not risk mixing up
+        // production and staging environments.
+        #[expect(clippy::disallowed_methods)]
         let partner = ApiEndpoint::stagemole_partner();
         Self::new(api_token, partner)
     }
