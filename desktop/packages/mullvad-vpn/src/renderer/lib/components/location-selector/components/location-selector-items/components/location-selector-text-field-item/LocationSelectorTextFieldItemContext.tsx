@@ -9,8 +9,8 @@ type LocationSelectorItemContextProps = Omit<
   inputRef: React.RefObject<HTMLInputElement | null>;
   textFieldRef: React.RefObject<HTMLDivElement | null>;
   triggerRef: React.RefObject<HTMLDivElement | null>;
-  focusInsideTextField: boolean;
-  setFocusInsideTextField: React.Dispatch<React.SetStateAction<boolean>>;
+  focusInsideTrigger: boolean;
+  setFocusInsideTrigger: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const LocationSelectorTextFieldItemContext = React.createContext<
@@ -43,18 +43,18 @@ export function LocationSelectorTextFieldItemProvider({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const textFieldRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLDivElement>(null);
-  const [focusInsideTextField, setFocusInsideTextField] = React.useState(false);
+  const [focusInsideTrigger, setFocusInsideTrigger] = React.useState(false);
 
   const value = React.useMemo(
     () => ({
       inputRef: inputRefProp ?? inputRef,
       triggerRef: triggerRefProp ?? triggerRef,
       textFieldRef,
-      focusInsideTextField,
-      setFocusInsideTextField,
+      focusInsideTrigger,
+      setFocusInsideTrigger,
       ...props,
     }),
-    [inputRefProp, triggerRefProp, focusInsideTextField, props],
+    [inputRefProp, triggerRefProp, focusInsideTrigger, props],
   );
 
   return (
