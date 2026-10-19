@@ -13,16 +13,19 @@ import Operations
 
 extension REST {
     final class MullvadDeviceProxy: DeviceHandling, @unchecked Sendable {
+        let apiContext: ApiContext
         let transportProvider: APITransportProviderProtocol
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
 
         public init(
+            apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
             responseDecoder: JSONDecoder
         ) {
+            self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
@@ -34,16 +37,17 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: Device.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .getDevice(retryStrategy, accountNumber: accountNumber, identifier: identifier),
-                responseHandler: responseHandler,
-                completionHandler: completion
-            )
+            return Task {
+                do {
+                    let device = try await getDevice(
+                        accountNumber: accountNumber,
+                        identifier: identifier,
+                        retryStrategy: retryStrategy)
+                    completion(.success(device))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.cancellable
         }
 
         func getDevice(
@@ -51,13 +55,14 @@ extension REST {
             identifier: String,
             retryStrategy: REST.RetryStrategy
         ) async throws -> Device {
-            try await executeRequest(
-                .getDevice(
-                    retryStrategy,
-                    accountNumber: accountNumber,
-                    identifier: identifier
-                )
-            )
+            let response = try await apiContext.getDevice(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber,
+                identifier: identifier)
+            return try decode(
+                decoding: Device.self,
+                responseDecoder: responseDecoder,
+                response: response)
         }
 
         func getDevices(

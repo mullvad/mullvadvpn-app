@@ -3,7 +3,10 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
 };
 
-use crate::api_client::ApiContext;
+use crate::{
+    api_client::ApiContext,
+    type_bridges::{AnyError, TokioBridge},
+};
 
 use super::{
     cancellation::RequestCancelHandle, do_request, do_request_with_empty_body,
@@ -16,30 +19,20 @@ use talpid_types::net::wireguard::PublicKey;
 #[uniffi::export]
 impl ApiContext {
     /// Get device info via the Mullvad API client.
-    pub fn get_device(
+    pub async fn get_device(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         identifier: String,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| match get_device_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-                identifier,
-            )
+    ) -> Result<ApiResponse, AnyError> {
+        let api = DevicesProxy::new(self.rest_handle());
+
+        let future_factory = move || api.get_response(account_number.clone(), identifier.clone());
+
+        TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
-            {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(ApiResponse::rest_error(err));
-                }
-            },
-        )
+            .map_err(AnyError::from)
+            .inspect_err(|e| log::error!("get_device failed: {e}"))
     }
 
     /// Get devices info via the Mullvad API client.
@@ -171,19 +164,6 @@ impl ApiContext {
             },
         )
     }
-}
-
-async fn get_device_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    account_number: String,
-    identifier: String,
-) -> Result<ApiResponse, rest::Error> {
-    let api = DevicesProxy::new(rest_client);
-
-    let future_factory = || api.get_response(account_number.clone(), identifier.clone());
-
-    do_request(retry_strategy, future_factory).await
 }
 
 async fn get_devices_inner(
