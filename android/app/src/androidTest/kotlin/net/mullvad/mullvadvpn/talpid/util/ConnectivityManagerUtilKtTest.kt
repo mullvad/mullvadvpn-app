@@ -157,8 +157,8 @@ class ConnectivityManagerUtilKtTest {
             }
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
-            // The network is IPv4 only since a unique local IPv6 address is not routable
-            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
+            // The network is IPv4AndIPv6 since a unique local IPv6 address could be used with NPTv6
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
             expectNoEvents()
         }
     }
