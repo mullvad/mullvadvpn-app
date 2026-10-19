@@ -215,13 +215,17 @@ function run_tests_for_os {
         env_arg=()
     fi
 
+    # Prefer `ACCOUNT_TOKENS` over `PARTNER_API_TOKEN` if it set.
     if [[ -z "${ACCOUNT_TOKEN:-}" ]]; then
         # Needed to redact the account number from the output
         ACCOUNT_TOKEN=$($test_manager config account "${env_arg[@]}") || exit 1
+        account_arg=(--account "$ACCOUNT_TOKEN")
+    elif [[ -n "${PARTNER_API_TOKEN+-}" ]]; then
+        account_arg=(--partner-api-token "$PARTNER_API_TOKEN")
     fi
 
     if ! RUST_LOG_STYLE=always $test_manager run-tests \
-        --account "$ACCOUNT_TOKEN" \
+        "${account_arg[@]}" \
         --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
         "${upgrade_package_arg[@]}" \
         "${test_report_arg[@]}" \
