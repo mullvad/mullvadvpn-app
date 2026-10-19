@@ -1,3 +1,5 @@
+use crate::get_connection_zbus;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to create a DBus connection")]
@@ -7,17 +9,20 @@ pub enum Error {
     ReadSystemStateError(#[source] zbus::Error),
 
     #[error("Failed to parse SystemState value: {0}")]
-    ParseSystemStateError(#[source] zvariant::Error),
+    ParseSystemStateError(#[source] zbus::wire::Error),
 }
 
 /// Returns true if the host is in any running state. I.e. returns false if the host is shutting down,
 /// entering maintenance mode or is in some other weird state.
-pub fn is_host_running() -> Result<bool, Error> {
+pub async fn is_host_running() -> Result<bool, Error> {
     use SystemState::*;
-    let connection = crate::get_connection_zbus().map_err(Error::ConnectError)?;
-    let proxy = SystemdManagerProxyBlocking::new(&connection).map_err(Error::ConnectError)?;
+    let connection = get_connection_zbus().await.map_err(Error::ConnectError)?;
+    let proxy = SystemdManagerProxy::new(&connection)
+        .await
+        .map_err(Error::ConnectError)?;
     let state = proxy
         .system_state()
+        .await
         .map_err(Error::ReadSystemStateError)?
         .parse()
         .map_err(Error::ParseSystemStateError)?;
@@ -41,7 +46,7 @@ trait SystemdManager {
 /// The current state of the system manager.
 ///
 /// NOTE: This type can not be used as the return value of `SystemdManager::system_state` just yet: <https://github.com/z-galaxy/zbus/issues/1233>.
-#[derive(Debug, serde::Deserialize, zvariant::Type, zvariant::OwnedValue)]
+#[derive(Debug, serde::Deserialize, zbus::Type, zbus::zvariant::OwnedValue)]
 #[zvariant(signature = "s")]
 pub enum SystemState {
     /// The system is booting, and basic.target has not been reached yet.
@@ -67,12 +72,12 @@ pub enum SystemState {
 // TODO: No longer need to implement this manually once
 // https://github.com/z-galaxy/zbus/issues/234#issuecomment-2016855248 is fixed.
 impl std::str::FromStr for SystemState {
-    type Err = zvariant::Error;
+    type Err = zbus::wire::Error;
 
     fn from_str(dbus_value: &str) -> Result<Self, <Self as std::str::FromStr>::Err> {
-        use zvariant::serialized::Context;
-        use zvariant::{LE, to_bytes};
-        let ctxt = Context::new_dbus(LE, 0);
+        use zbus::wire::serialized::Context;
+        use zbus::wire::{LE, to_bytes};
+        let ctxt = Context::new(LE, 0);
 
         let encoded = to_bytes(ctxt, &dbus_value)?;
         let state = encoded.deserialize()?.0;

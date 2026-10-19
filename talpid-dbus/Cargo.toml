@@ -18,7 +18,7 @@ zbus = { workspace = true, optional = true }
 [features]
 default = ["libdbus"]
 libdbus = ["dep:dbus"]
-zbus = ["dep:serde", "dep:zbus", "dep:zvariant"]  # experimental: Prefer zbus over libdbus
+zbus = ["dep:serde", "dep:zbus"]  # experimental: Prefer zbus over libdbus
 
 [lints]
 workspace = true
