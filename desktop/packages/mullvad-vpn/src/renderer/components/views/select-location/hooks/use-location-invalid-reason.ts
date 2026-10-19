@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { messages } from '../../../../../shared/gettext';
 import {
   useGetIsRelayLocationInRelayLocationsForHostnames,
