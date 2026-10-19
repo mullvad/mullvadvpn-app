@@ -129,9 +129,9 @@ impl TunnelCallbackHandler for CallbackBridge {
             ))
             | TunnelError::RebindUdpSocket(_)
             | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
-            TunnelError::NegotiatePQError(NegotiationError::Exchange(_)) => {
-                GotaTunFfiError::PQNegotiation(format!("{error}"))
-            }
+            TunnelError::NegotiatePQError(
+                NegotiationError::Exchange(_) | NegotiationError::Timeout,
+            ) => GotaTunFfiError::PQNegotiation(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
