@@ -4,14 +4,14 @@ import type { LocationSelectorItemType } from '../../../../../../../../../types'
 import { useLocationSelectorTextFieldItemContext } from '../../../../../../../LocationSelectorTextFieldItemContext';
 
 export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof icons {
-  const { focusInsideTextField } = useLocationSelectorTextFieldItemContext();
+  const { focusInsideTrigger } = useLocationSelectorTextFieldItemContext();
   const { invalid } = useTextFieldContext();
 
   if (invalid) {
     return 'alert';
   }
 
-  if (focusInsideTextField) {
+  if (focusInsideTrigger) {
     return 'search';
   }
 
