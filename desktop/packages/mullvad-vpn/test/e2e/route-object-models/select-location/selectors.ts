@@ -9,7 +9,25 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', { name: 'Open select location menu' }).filter({ visible: true }),
   filterMenuOption: () =>
     page.getByRole('link', { name: 'Filters', exact: true }).filter({ visible: true }),
-  filterChip: (label: string) => {
+  filterEntryButton: () =>
+    page
+      .getByRole('button', { name: 'Configure filters for entry location', exact: true })
+      .filter({ visible: true }),
+  filterEntryAutomaticButton: () =>
+    page
+      .getByRole('button', {
+        name: 'Entry location filters are overridden due to use of Automatic entry location',
+        exact: true,
+      })
+      .filter({ visible: true }),
+  filterExitButton: () =>
+    page
+      .getByRole('button', { name: 'Configure filters for exit location', exact: true })
+      .filter({ visible: true }),
+  filterChipLink: (label: string) => {
+    return page.locator('a', { hasText: label }).filter({ visible: true });
+  },
+  filterChipButton: (label: string) => {
     return page.locator('button', { hasText: label }).filter({ visible: true });
   },
   accordionButton: (label: string) => {

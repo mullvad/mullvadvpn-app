@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
+import { LocationType } from '../../../../src/renderer/features/locations/types';
 import {
   type ISettings,
   ObfuscationType,
@@ -335,9 +336,12 @@ test.describe('Select location', () => {
   });
 
   test.describe('Filter', () => {
-    test.describe('Applied from filter view', () => {
+    test.describe('Filter multihop: never', () => {
       test.beforeEach(async () => {
-        await helpers.resetView();
+        await helpers.mockSettings({
+          multihop: 'never',
+        });
+        await helpers.resetFilterView(LocationType.exit);
         await helpers.resetProviders();
         await helpers.resetOwnership();
       });
@@ -374,11 +378,11 @@ test.describe('Select location', () => {
             util.ipc.settings.setRelaySettings.handle(),
             routes.filter.applyFilter(),
           ]);
-          await helpers.updateMockRelayFilter({
+          await helpers.updateMockExitRelayFilter({
             providers: [provider],
           });
           await util.expectRoute(RoutePath.selectLocation);
-          const providerFilterChip = routes.selectLocation.getFilterChip('Providers: 1');
+          const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
           await expect(providerFilterChip).toBeVisible();
 
           const relaySelectionPaths = helpers.toSelectionPaths(
@@ -412,14 +416,14 @@ test.describe('Select location', () => {
           // Select rented only
           await routes.filter.expandOwnership();
           await routes.filter.selectOwnershipOption('Rented only');
-          await helpers.updateMockRelayFilter({
+          await helpers.updateMockExitRelayFilter({
             ownership: Ownership.rented,
           });
 
           await routes.filter.applyFilter();
           await util.expectRoute(RoutePath.selectLocation);
 
-          const ownerFilterChip = routes.selectLocation.getFilterChip('Rented');
+          const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
           await expect(ownerFilterChip).toBeVisible();
 
           const relaySelectionPaths = helpers.toSelectionPaths(
@@ -448,6 +452,7 @@ test.describe('Select location', () => {
         });
       });
     });
+
     test.describe('Filter by obfuscation', () => {
       test('Should apply filter when QUIC obfuscation is selected', async () => {
         const settings = getDefaultSettings();
@@ -488,6 +493,178 @@ test.describe('Select location', () => {
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
+      });
+    });
+
+    test.describe('Filter multihop: always', () => {
+      test.beforeEach(async () => {
+        await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await helpers.updateMockExitRelayFilter({
+          ownership: Ownership.any,
+          providers: [],
+        });
+        await helpers.updateMockEntryRelayFilter({
+          ownership: Ownership.any,
+          providers: [],
+        });
+        await helpers.resetSelectLocationView();
+      });
+
+      // TODO: Create a helper to set 'any' location
+      // const settings = getDefaultSettings();
+      // if ('normal' in settings.relaySettings) {
+      //   settings.relaySettings.normal.wireguardConstraints.entryLocation = 'any';
+      // }
+      // await util.ipc.settings[''].notify(settings);
+
+      test('Should show Providers and Ownership filter when viewing Exit locations', async () => {
+        let initialSettings: ISettings = getDefaultSettings();
+        initialSettings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await routes.selectLocation.gotoExitLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        await helpers.updateMockExitRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          initialSettings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        await helpers.updateMockExitRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          initialSettings,
+        );
+
+        const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+      });
+
+      test('Should show Providers and Ownership filter when viewing Entry locations', async () => {
+        let initialSettings: ISettings = getDefaultSettings();
+        initialSettings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await routes.selectLocation.gotoEntryLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        await helpers.updateMockEntryRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          initialSettings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        await helpers.updateMockEntryRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          initialSettings,
+        );
+
+        const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+      });
+
+      test('Should show QUIC filter when viewing Entry locations and not when viewing Exit locations', async () => {
+        let initialSettings: ISettings = getDefaultSettings();
+        initialSettings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        if ('normal' in initialSettings.relaySettings) {
+          initialSettings.obfuscationSettings.selectedObfuscation = ObfuscationType.quic;
+        }
+        await util.ipc.settings[''].notify(initialSettings);
+
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+
+        await routes.selectLocation.gotoEntryLocations();
+        await expect(quicFilterChip).toBeVisible();
+
+        await routes.selectLocation.gotoExitLocations();
+        await expect(quicFilterChip).not.toBeVisible();
+      });
+
+      test('Should show different filters when viewing Entry and Exit locations', async () => {
+        let initialSettings: ISettings = getDefaultSettings();
+        initialSettings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await routes.selectLocation.gotoEntryLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        initialSettings = await helpers.updateMockEntryRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          initialSettings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        await routes.selectLocation.gotoExitLocations();
+
+        await helpers.updateMockExitRelayFilter(
+          {
+            providers: [],
+          },
+          initialSettings,
+        );
+
+        await expect(providerFilterChip).not.toBeVisible();
+      });
+    });
+
+    test.describe('Filter multihop: when-needed', () => {
+      test.beforeEach(async () => {
+        await helpers.mockSettings({
+          multihop: 'when-needed',
+        });
+        await helpers.updateMockExitRelayFilter({
+          ownership: Ownership.any,
+          providers: [],
+        });
+        await helpers.updateMockEntryRelayFilter({
+          ownership: Ownership.any,
+          providers: [],
+        });
+        await helpers.resetSelectLocationView();
+      });
+
+      test('Should show single Exit location selector item if not connected', () => {
+        // TODO
+      });
+
+      test('Should show single Exit location selector item when connected without automatic entry', () => {
+        // TODO
+      });
+
+      test('Should show Entry and Exit location selector items when connected with automatic entry', () => {
+        // TODO
+      });
+
+      test('Should show anti-censorship filters when viewing Exit locations when not connected', () => {
+        // TODO
+      });
+
+      test('Should hide anti-censorship filters when viewing Exit locations when connected with automatic entry', () => {
+        // TODO
+      });
+
+      test('Should show location filters when viewing Exit locations when connected with automatic entry', () => {
+        // TODO
       });
     });
   });
