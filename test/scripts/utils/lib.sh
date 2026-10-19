@@ -215,13 +215,13 @@ function run_tests_for_os {
         env_arg=()
     fi
 
-    # Prefer `PARTNER_API_TOKEN` over `ACCOUNT_TOKENS` if it set.
-    if [[ -n "${PARTNER_API_TOKEN+-}" ]]; then
-        account_arg=(--partner-api-token "$PARTNER_API_TOKEN")
-    elif [[ -z "${ACCOUNT_TOKEN:-}" ]]; then
+    # Prefer `ACCOUNT_TOKENS` over `PARTNER_API_TOKEN` if it set.
+    if [[ -z "${ACCOUNT_TOKEN:-}" ]]; then
         # Needed to redact the account number from the output
         ACCOUNT_TOKEN=$($test_manager config account "${env_arg[@]}") || exit 1
         account_arg=(--account "$ACCOUNT_TOKEN")
+    elif [[ -n "${PARTNER_API_TOKEN+-}" ]]; then
+        account_arg=(--partner-api-token "$PARTNER_API_TOKEN")
     fi
 
     if ! RUST_LOG_STYLE=always $test_manager run-tests \
