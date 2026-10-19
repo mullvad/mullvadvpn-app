@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
+import { LocationType } from '../../../features/locations/types';
 import { View } from '../../../lib/components/view';
 import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
@@ -15,7 +16,7 @@ import {
   SpacePreAllocationView,
   StyledSelectLocationHeader,
 } from './components';
-import { useLocationSlides, useMeasureLocationSelector } from './hooks';
+import { useLocationInvalidReason, useLocationSlides, useMeasureLocationSelector } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
