@@ -10,6 +10,8 @@ vi.mock(import("../src/github"), () => ({
   setCommitStatus: vi.fn(),
   searchMatchingFiles: vi.fn().mockResolvedValue([]),
   isUserInTeam: vi.fn(),
+  isFork: vi.fn(),
+  getTeamMembers: vi.fn(),
 }));
 
 vi.mock(import("@actions/core"), async () => ({
@@ -21,6 +23,7 @@ vi.mock(import("@actions/core"), async () => ({
 const mockedMatchingFiles = vi.mocked(github.searchMatchingFiles);
 const mockedApprovers = vi.mocked(github.getApprovers);
 const mockedIsInTeam = vi.mocked(github.isUserInTeam);
+const mockedTeamMembers = vi.mocked(github.getTeamMembers);
 const mockedPullRequestAuthor = vi.mocked(github.getPullRequestAuthor);
 
 describe("retrieveApprovalState", () => {
@@ -84,7 +87,23 @@ describe("retrieveApprovalState", () => {
         owns({ team: ["some"] }),
         {
           approvers: approvedBy(DEFAULT_AUTHOR),
-          authorIsMemberOfTeam: true,
+          approverIsMemberOfTeam: true,
+        },
+      );
+
+      expect(result.required).toEqual(new Set(["team"]));
+      expect(result.missing).toEqual(new Set());
+    });
+
+    test("multiple patterns for the same team match a changed file", async () => {
+      const result = await checkApproval(
+        changed(["index.js"]),
+        owns({ team: ["*.ts", "*.js"] }),
+        {
+          author: "x",
+          approvers: ["member"],
+          teamMembers: ["member"],
+          approverIsMemberOfTeam: true,
         },
       );
 
@@ -98,8 +117,8 @@ describe("retrieveApprovalState", () => {
           changed(["some"]),
           owns({ team: ["some"] }),
           {
-            approvers: approvedBy(DEFAULT_AUTHOR),
-            authorIsMemberOfTeam: true,
+            approvers: [],
+            approverIsMemberOfTeam: true,
           },
         );
 
@@ -111,8 +130,8 @@ describe("retrieveApprovalState", () => {
           changed(["some"]),
           owns({ team: ["some"] }),
           {
-            approvers: approvedBy(DEFAULT_AUTHOR),
-            authorIsMemberOfTeam: false,
+            approvers: [],
+            approverIsMemberOfTeam: false,
           },
         );
 
@@ -150,13 +169,97 @@ describe("retrieveApprovalState", () => {
           changed(["some"]),
           owns({ team: ["some"], team2: ["some"], team3: ["some"] }),
           {
-            approvers: approvedBy(DEFAULT_AUTHOR),
-            authorIsMemberOfTeam: (team) => team === "team" || team === "team2",
+            approvers: approvedBy(DEFAULT_AUTHOR, "member2"),
+            teamMembers: [DEFAULT_AUTHOR, "member2"],
+            approverIsMemberOfTeam: (user, team) =>
+              (user == DEFAULT_AUTHOR && team == "team") ||
+              (user == "member2" && team == "team2"),
           },
         );
 
         expect(result.required).toEqual(new Set(["team", "team2", "team3"]));
         expect(result.missing).toEqual(new Set(["team3"]));
+      });
+
+      test("a single approver can satisfy multiple affected teams", async () => {
+        const result = await checkApproval(
+          changed(["a", "b"]),
+          owns({ team: ["a"], team2: ["b"] }),
+          {
+            author: "x",
+            approvers: ["multi-member"],
+            teamMembers: ["multi-member"],
+            approverIsMemberOfTeam: (user, team) =>
+              user === "multi-member" && (team === "team" || team === "team2"),
+          },
+        );
+
+        expect(result.required).toEqual(new Set(["team", "team2"]));
+        expect(result.missing).toEqual(new Set());
+      });
+    });
+
+    describe("a 3rd party PR", () => {
+      describe("review count", () => {
+        test("requires 2 approvals on code-owner-related changes by default", async () => {
+          const result = await checkApproval(
+            changed(["some"]),
+            owns({ team: ["some"], team2: ["some"], team3: ["some"] }),
+            {
+              teamMembers: [],
+            },
+          );
+
+          expect(result.missingApprovalCount).toEqual(2);
+          expect(result.missing.size).toEqual(3);
+        });
+
+        test("requires 1 approval upon one approval", async () => {
+          const result = await checkApproval(
+            changed(["some"]),
+            owns({ team: ["some"], team2: ["some"], team3: ["some"] }),
+            {
+              author: "x",
+              approvers: ["a"],
+              teamMembers: ["a", "b"],
+            },
+          );
+
+          expect(result.missingApprovalCount).toEqual(1);
+        });
+
+        test("requires 0 after having received 2 approvals from team members", async () => {
+          const result = await checkApproval(
+            changed(["some"]),
+            owns({ team: ["some"], team2: ["some"], team3: ["some"] }),
+            {
+              author: "x",
+              approvers: ["a", "c"],
+              teamMembers: ["a", "b", "c"],
+            },
+          );
+
+          expect(result.missingApprovalCount).toEqual(0);
+        });
+      });
+
+      describe("code owners", () => {
+        test("are required even when a fellow appteam-member approves", async () => {
+          const result = await checkApproval(
+            changed(["some"]),
+            owns({ team: ["some"], team2: ["some"], team3: ["some"] }),
+            {
+              approverIsMemberOfTeam: false,
+              approvers: ["a"],
+              author: "x",
+              teamMembers: ["a", "b"],
+            },
+          );
+
+          expect(result.missingApprovalCount).toEqual(1);
+          expect(result.required).toHaveLength(3);
+          expect(result.missing).toEqual(new Set(["team", "team2", "team3"]));
+        });
       });
     });
   });
@@ -185,23 +288,28 @@ async function checkApproval(
   options: {
     author?: string | null;
     approvers?: string[];
-    authorIsMemberOfTeam?: boolean | ((team: string) => boolean);
+    approverIsMemberOfTeam?:
+      boolean | ((user: string, team: string) => boolean);
     globMatches?: string[];
+    teamMembers?: string[];
   } = {},
 ) {
   const {
     author = DEFAULT_AUTHOR,
     approvers = [],
-    authorIsMemberOfTeam = false,
+    approverIsMemberOfTeam = false,
+    teamMembers = [DEFAULT_AUTHOR],
   } = options;
 
-  mockedPullRequestAuthor.mockResolvedValue(author);
+  mockedPullRequestAuthor.mockReturnValue(author);
   mockedApprovers.mockResolvedValue(approvers);
-  mockedIsInTeam.mockImplementation(({team}) =>
+  mockedTeamMembers.mockResolvedValue(teamMembers);
+
+  mockedIsInTeam.mockImplementation(({ user, team }) =>
     Promise.resolve(
-      typeof authorIsMemberOfTeam === "function"
-        ? authorIsMemberOfTeam(team)
-        : authorIsMemberOfTeam,
+      typeof approverIsMemberOfTeam === "function"
+        ? approverIsMemberOfTeam(user, team)
+        : approverIsMemberOfTeam,
     ),
   );
   mockedMatchingFiles.mockImplementation((patterns) => {
@@ -213,4 +321,3 @@ async function checkApproval(
 
   return retrieveApprovalState(changedFiles, ownership);
 }
-

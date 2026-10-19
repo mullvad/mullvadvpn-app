@@ -99,6 +99,35 @@ export async function getApprovers() {
   return approvers;
 }
 
+export async function getTeamMembers(team: string): Promise<string[]> {
+  const octokit = getOctokitClient();
+  const { owner } = context.repo;
+
+  const members = await octokit.paginate(octokit.rest.teams.listMembersInOrg, {
+    org: owner,
+    team_slug: team,
+  });
+
+  return members.map((m) => m.login);
+}
+
+export async function isFork() {
+  const client = getOctokitClient();
+  const prNumber = context.payload.pull_request?.number;
+  if (!prNumber) {
+    return false;
+  }
+
+  const { owner, repo } = context.repo;
+  const res = await client.rest.pulls.get({
+    owner,
+    repo,
+    pull_number: prNumber,
+  });
+
+  return res.data.head.repo.fork;
+}
+
 export function getPullRequestAuthor() {
   return context.payload.pull_request?.user?.login;
 }

@@ -27,26 +27,33 @@ async function run() {
       return;
     }
 
+    const mergeable =
+      approvals.missing.size == 0 && approvals.missingApprovalCount == 0;
+
     const requiredApprovals = Array.from(approvals.required.values()).join(",");
     info(`👥 This PR needs approval from: ${requiredApprovals}`);
 
-    if (approvals.missing.size == 0) {
-      info("✅ All code owners approved this change!");
-      await setCommitStatus(
-        "success",
-        `All code owners have approved: ${requiredApprovals}`,
-      );
+    const allCodeOwnersApproved = approvals.missing.size == 0;
+    const approvalCountSatisfied = approvals.missingApprovalCount == 0;
+
+    const requiredCodeOwners = Array.from(approvals.missing.values()).join(",");
+    const codeOwnersMsg = allCodeOwnersApproved
+      ? `Code owners approved!`
+      : `Missing approvals from : ${requiredCodeOwners}.`;
+    const approvalCountMsg = approvalCountSatisfied
+      ? `Approval count: ✅`
+      : `Approvals missing: ${approvals.missingApprovalCount}.`;
+
+    const message = `${codeOwnersMsg} ${approvalCountMsg}`;
+    if (mergeable) {
+      info("✅ Sufficient code owners approved this change!");
+      await setCommitStatus("success", `✅ ${message}`);
 
       return;
     }
 
-    const missingApprovals = Array.from(approvals.missing.values()).join(",");
-
-    error(`❌ Missing approvals from: ${missingApprovals}`);
-    await setCommitStatus(
-      "failure",
-      `Missing approvals from: ${missingApprovals}`,
-    );
+    error(`❌ ${message}`);
+    await setCommitStatus("failure", `❌ ${message}`);
   } catch (err) {
     await setCommitStatus("error", "Error checking code owner approvals");
     setFailed(`Checking approvals failed with ${err}`);
