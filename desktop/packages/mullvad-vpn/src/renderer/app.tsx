@@ -671,7 +671,7 @@ export default class AppRenderer {
   };
 
   public updateRelayLocationsFiltered = async (ignoreCache: boolean = false) => {
-    const state = this.reduxStore.getState();
+    let state = this.reduxStore.getState();
     const relaySelectorQueries = convertSettingsToRelaySelectorQueries(state.settings);
     if (relaySelectorQueries) {
       const relaySelectorQueriesWithKey = relaySelectorQueries
@@ -698,7 +698,9 @@ export default class AppRenderer {
 
           return key !== relayLocationsFilteredContextKey;
         });
+
       if (relaySelectorQueriesWithKey.length > 0) {
+        console.log('had new queries!', relaySelectorQueriesWithKey);
         const relaySelectorQueryResults = await Promise.all(
           relaySelectorQueriesWithKey.map(async ({ context, key, predicate }) => {
             const relayPartitions = await IpcRendererEventChannel.relays.partitionRelays(predicate);
@@ -711,7 +713,24 @@ export default class AppRenderer {
           }),
         );
 
-        const relayLocationsFiltered = relaySelectorQueryResults.reduce(
+        state = this.reduxStore.getState();
+
+        const relaySelectorQueryResultsFiltered = relaySelectorQueryResults.filter(
+          ({ context, key }) => {
+            if (ignoreCache || !(context in state.settings.relayLocationsFiltered)) {
+              return true;
+            }
+
+            const relayLocationsFilteredContextKey =
+              state.settings.relayLocationsFiltered[context].key;
+
+            return key !== relayLocationsFilteredContextKey;
+          },
+        );
+
+        console.log('filter queries again', relaySelectorQueryResultsFiltered);
+
+        const relayLocationsFiltered = relaySelectorQueryResultsFiltered.reduce(
           (allRelayLocationsFiltered, { context, relayPartitions, key }) => ({
             ...allRelayLocationsFiltered,
             [context]: {
@@ -722,7 +741,9 @@ export default class AppRenderer {
           state.settings.relayLocationsFiltered,
         );
 
+        console.log('pre write query');
         this.reduxActions.settings.updateRelayLocationsFiltered(relayLocationsFiltered);
+        console.log('post write query');
       }
     }
   };

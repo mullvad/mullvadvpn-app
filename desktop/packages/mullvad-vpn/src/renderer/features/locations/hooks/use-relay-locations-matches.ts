@@ -1,19 +1,12 @@
-import React from 'react';
-
-import { useSettingsRelayLocationsFiltered } from '../../../redux/hooks';
+import { useSelector } from '../../../redux/store';
 import { LocationType } from '../types';
 
-export function useRelayLocationsMatches(locationType: LocationType) {
-  const { relayLocationsFiltered } = useSettingsRelayLocationsFiltered();
-
-  const relayLocationsMatches = React.useMemo(() => {
-    const relayLocations =
-      locationType === LocationType.exit
-        ? relayLocationsFiltered.exit
-        : relayLocationsFiltered.entry;
-
-    return relayLocations.matches;
-  }, [locationType, relayLocationsFiltered]);
+export function useRelayLocationsMatchesHostnames(locationType: LocationType) {
+  const relayLocationsMatches = useSelector((state) =>
+    state.settings.relayLocationsFiltered[
+      locationType === LocationType.entry ? 'entry' : 'exit'
+    ].matches.map((relayMatch) => relayMatch.relay.hostname),
+  );
 
   return relayLocationsMatches;
 }
