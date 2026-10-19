@@ -4,7 +4,7 @@ import { Flex } from '../../../../../../lib/components';
 import { Listbox } from '../../../../../../lib/components/listbox';
 import type { ListboxOptionProps } from '../../../../../../lib/components/listbox/components/listbox-options/components';
 import { useRovingFocus } from '../../../../../../lib/hooks';
-import { SplitOptionItem, SplitOptionNavigateButton } from './components';
+import { SplitOptionInfoButton, SplitOptionItem, SplitOptionNavigateButton } from './components';
 
 export type SplitOptionProps<T> = ListboxOptionProps<T>;
 
@@ -34,6 +34,7 @@ function SplitOption<T>({ children, ...props }: SplitOptionProps<T>) {
 const SplitOptionNamespace = Object.assign(SplitOption, {
   Item: SplitOptionItem,
   NavigateButton: SplitOptionNavigateButton,
+  InfoButton: SplitOptionInfoButton,
   Label: Listbox.Options.Option.Item.Label,
 });
 
