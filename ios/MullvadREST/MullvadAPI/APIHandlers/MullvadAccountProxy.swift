@@ -54,16 +54,16 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<NewAccountData>
         ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: NewAccountData.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .createAccount(retryStrategy),
-                responseHandler: responseHandler,
-                completionHandler: completion
-            )
+            Task {
+                do {
+                    let response = try await apiContext.createAccount(retryStrategy: retryStrategy.toRustStrategy())
+                    let body = try response.get().body
+                    let account = try responseDecoder.decode(NewAccountData.self, from: body)
+                    completion(.success(account))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.cancellable
         }
 
         public func getAccountData(
@@ -74,14 +74,10 @@ extension REST {
                 let response = try await apiContext.getAccount(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber)
-                response
-                
-                switch response {
-                case .body(let body, _, _, _):
-                    return .success(try responseDecoder.decode(Account.self, from: body))
-                case .error(let statusCode, let errorDescription, let serverResponseCode):
-                    throw APIError(statusCode: Int(statusCode), errorDescription: errorDescription ?? "", serverResponseCode: serverResponseCode)
-                }
+
+                let data = try response.get().body
+                let account = try responseDecoder.decode(Account.self, from: data)
+                return .success(account)
             } catch {
                 return .failure(error)
             }

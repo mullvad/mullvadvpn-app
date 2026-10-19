@@ -18,7 +18,6 @@ public enum APIRequest: Codable, Sendable {
     case checkApiAvailability(_ retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod)
 
     // Account Proxy
-    case createAccount(_ retryStrategy: REST.RetryStrategy)
     case deleteAccount(_ retryStrategy: REST.RetryStrategy, accountNumber: String)
     case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
     case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
@@ -42,8 +41,6 @@ public enum APIRequest: Codable, Sendable {
             "get-relay-list"
         case .sendProblemReport:
             "send-problem-report"
-        case .createAccount:
-            "create-account"
         case .deleteAccount:
             "delete-account"
         case .getDevices:
@@ -68,7 +65,6 @@ public enum APIRequest: Codable, Sendable {
         case let .getAddressList(strategy),
             let .getRelayList(strategy, _, _),
             let .sendProblemReport(strategy, _),
-            let .createAccount(strategy),
             let .deleteAccount(strategy, _),
             let .createDevice(strategy, _, _),
             let .getDevices(strategy, _),
