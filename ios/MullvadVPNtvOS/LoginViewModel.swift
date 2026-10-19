@@ -34,7 +34,7 @@ enum LoggingInState: Sendable, Equatable {
 
 protocol LoggingIn {
     var state: LoggingInState { get set }
-    func loginWithNumber(_: String) async
+    func loginWith(_: String) async
     func createAccount() async
 }
 
@@ -49,7 +49,7 @@ class LoginViewModel: LoggingIn {
         self.deviceProxy = deviceProxy
     }
 
-    func loginWithNumber(_ accountNumber: String) async {
+    func loginWith(_ accountNumber: String) async {
         state = .authenticating
 
         // FIXME: Harmonize the flow to login, all the APIs used should look the same (either with a Result type or throwing flow)
@@ -87,7 +87,7 @@ class LoginViewModel: LoggingIn {
 final class LoginViewModelStub: LoggingIn {
     var state: LoggingInState = .`initial`
 
-    func loginWithNumber(_: String) async {
+    func loginWith(_: String) async {
         state = .authenticating
         try? await Task.sleep(for: .milliseconds(200))
         state = .success
