@@ -494,6 +494,26 @@ msgctxt "accessibility"
 msgid "Illustration showing separate filters for entry and exit locations"
 msgstr ""
 
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr ""
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr ""
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr ""
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr ""
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -518,6 +538,11 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "More information"
+msgstr ""
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
 msgstr ""
 
 #. Accessibility label for link to go to download page.
@@ -2592,10 +2617,31 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr ""
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr ""
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr ""
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr ""
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
 msgstr ""
 
 #. Title label in navigation bar
@@ -2606,6 +2652,16 @@ msgstr ""
 #. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr ""
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
 msgstr ""
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
@@ -3201,7 +3257,16 @@ msgid "Always"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr ""
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -3235,10 +3300,6 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr ""
 
 #. Label for the Multihop mode setting's option to never use the multihop
@@ -3293,6 +3354,17 @@ msgstr ""
 
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr ""
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr ""
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -3487,9 +3559,6 @@ msgid "Always-on VPN assigned to %s"
 msgstr ""
 
 msgid "Always-on VPN assigned to other VPN"
-msgstr ""
-
-msgid "An additional server is used to match your settings for your selected location"
 msgstr ""
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
@@ -4129,9 +4198,6 @@ msgid "These methods may be useful in situations where you are blocked from reac
 msgstr ""
 
 msgid "This address has already been entered."
-msgstr ""
-
-msgid "This ensures your connection does not get blocked due to incompatible settings."
 msgstr ""
 
 msgid "This field is required"
