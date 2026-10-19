@@ -247,7 +247,7 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
 
     /// Failed to bind socket
     case socketBindError
-    
+
     /// Failed to negotiate post-quantum key
     case pqNegotiationError
 
@@ -260,7 +260,8 @@ public enum BlockedStateReason: String, Codable, Equatable, Sendable {
         case .deviceLocked, .multihopEntryEqualsExit, .outdatedSchema, .noRelaysSatisfyingConstraints,
             .noRelaysSatisfyingPortConstraints, .noRelaysSatisfyingDaitaConstraints,
             .noRelaysSatisfyingFilterConstraints, .noRelaysSatisfyingObfuscationSettings, .readSettings,
-            .invalidRelayPublicKey, .noRelaysSatisfyingObfuscationPortConstraints, .offline, .socketBindError, .pqNegotiationError:
+            .invalidRelayPublicKey, .noRelaysSatisfyingObfuscationPortConstraints,
+            .offline, .socketBindError, .pqNegotiationError:
             return true
         case .deviceRevoked, .deviceLoggedOut, .tunnelAdapter, .accountExpired, .invalidAccount, .unknown:
             return false
