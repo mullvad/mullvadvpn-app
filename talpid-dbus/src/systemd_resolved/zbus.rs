@@ -7,9 +7,9 @@ use std::sync::LazyLock;
 use libc::AF_INET;
 use libc::AF_INET6;
 use serde::{Deserialize, Serialize};
-use zbus::blocking::Connection;
-use zbus::zvariant::ObjectPath;
-use zvariant::OwnedObjectPath;
+use zbus::Connection;
+use zbus::wire::ObjectPath;
+use zbus::wire::OwnedObjectPath;
 
 /// <https://www.freedesktop.org/software/systemd/man/latest/org.freedesktop.resolve1.html#The%20Manager%20Object>
 #[zbus::proxy(
@@ -109,9 +109,6 @@ pub enum Error {
 
     #[error("Failed to perform RPC call on D-Bus")]
     DBusRpcError(#[source] zbus::Error),
-
-    #[error("Async D-Bus task failed")]
-    AsyncTaskError(#[source] tokio::task::JoinError),
 }
 
 static RESOLVED_STUB_PATHS: LazyLock<Vec<&'static Path>> = LazyLock::new(|| {
@@ -131,27 +128,30 @@ pub struct SystemdResolved {
 }
 
 #[derive(Clone)]
-// TODO: Make proper async
 pub struct AsyncHandle {
     dbus_interface: SystemdResolved,
 }
 
 impl SystemdResolved {
-    pub fn new() -> Result<Self, Error> {
-        let dbus_connection = crate::get_connection_zbus().map_err(Error::ConnectDBus)?;
+    pub async fn new() -> Result<Self, Error> {
+        let dbus_connection = crate::get_connection_zbus()
+            .await
+            .map_err(Error::ConnectDBus)?;
 
         let systemd_resolved = SystemdResolved { dbus_connection };
 
-        systemd_resolved.ensure_resolved_exists()?;
+        systemd_resolved.ensure_resolved_exists().await?;
         Self::ensure_resolv_conf_is_resolved_symlink()?;
         Ok(systemd_resolved)
     }
 
     /// Try to look up the DNS property from SystemdResolved.
     /// If it is set, this function returns Ok(()).
-    pub fn ensure_resolved_exists(&self) -> Result<Vec<DnsServer>, Error> {
-        self.as_manager_object()?
+    pub async fn ensure_resolved_exists(&self) -> Result<Vec<DnsServer>, Error> {
+        self.as_manager_object()
+            .await?
             .dns()
+            .await
             .map_err(Error::NoSystemdResolved)
     }
 
@@ -242,21 +242,25 @@ impl SystemdResolved {
     }
 
     /// Create a dbus proxy for `org.freedesktop.resolve1.Manager`
-    fn as_manager_object(&self) -> Result<ResolveManagerProxyBlocking<'_>, Error> {
-        ResolveManagerProxyBlocking::new(&self.dbus_connection).map_err(Error::Proxy)
+    async fn as_manager_object(&self) -> Result<ResolveManagerProxy<'_>, Error> {
+        ResolveManagerProxy::new(&self.dbus_connection)
+            .await
+            .map_err(Error::Proxy)
     }
 
     /// Create a dbus proxy for `org.freedesktop.resolve1.Link`
-    fn as_link_object<'a>(
+    async fn as_link_object<'a>(
         &self,
         link_object_path: &ObjectPath<'a>,
-    ) -> Result<ResolveLinkProxyBlocking<'a>, Error> {
-        ResolveLinkProxyBlocking::new(&self.dbus_connection, link_object_path).map_err(Error::Proxy)
+    ) -> Result<ResolveLinkProxy<'a>, Error> {
+        ResolveLinkProxy::new(&self.dbus_connection, link_object_path)
+            .await
+            .map_err(Error::Proxy)
     }
 
-    pub fn get_dns(&self, interface_index: u32) -> Result<DnsState, Error> {
-        let link_object_path = self.fetch_link(interface_index)?;
-        let set_servers = self.get_link_dns(&link_object_path)?;
+    pub async fn get_dns(&self, interface_index: u32) -> Result<DnsState, Error> {
+        let link_object_path = self.fetch_link(interface_index).await?;
+        let set_servers = self.get_link_dns(&link_object_path).await?;
 
         Ok(DnsState {
             interface_path: link_object_path,
@@ -265,14 +269,19 @@ impl SystemdResolved {
         })
     }
 
-    pub fn set_dns_state(&self, state: DnsState) -> Result<(), Error> {
+    pub async fn set_dns_state(&self, state: DnsState) -> Result<(), Error> {
         self.set_link_dns(&state.interface_path, &state.set_servers)
+            .await
     }
 
-    pub fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState, Error> {
+    pub async fn set_dns(
+        &self,
+        interface_index: u32,
+        servers: Vec<IpAddr>,
+    ) -> Result<DnsState, Error> {
         let servers: Vec<_> = servers.into_iter().map(LinkIpAddr::from).collect();
-        let link_object_path = self.fetch_link(interface_index)?;
-        self.set_link_dns(&link_object_path, &servers)?;
+        let link_object_path = self.fetch_link(interface_index).await?;
+        self.set_link_dns(&link_object_path, &servers).await?;
         // TODO: can this be automatically derived somehow? I.e. return it from `set_link_dns`?
         let dns_state = DnsState {
             interface_path: link_object_path,
@@ -282,50 +291,66 @@ impl SystemdResolved {
         Ok(dns_state)
     }
 
-    pub fn get_domains(&self, interface_index: u32) -> Result<Vec<(String, bool)>, Error> {
-        let link_object_path = self.fetch_link(interface_index)?;
-        self.get_link_dns_domains(&link_object_path)
+    pub async fn get_domains(&self, interface_index: u32) -> Result<Vec<(String, bool)>, Error> {
+        let link_object_path = self.fetch_link(interface_index).await?;
+        self.get_link_dns_domains(&link_object_path).await
     }
 
-    pub fn set_domains(&self, interface_index: u32, domains: &[(&str, bool)]) -> Result<(), Error> {
-        let link_object_path = self.fetch_link(interface_index)?;
-        self.as_link_object(&link_object_path)?
+    pub async fn set_domains(
+        &self,
+        interface_index: u32,
+        domains: &[(&str, bool)],
+    ) -> Result<(), Error> {
+        let link_object_path = self.fetch_link(interface_index).await?;
+        self.as_link_object(&link_object_path)
+            .await?
             .set_domains(domains)
+            .await
             .map_err(Error::SetDomainsError)
     }
 
     /// Returns the object path to the `org.freedesktop.resolve1.Link` object corresponding to the
     /// network interface index.
-    fn fetch_link(&self, interface_index: u32) -> Result<OwnedObjectPath, Error> {
+    async fn fetch_link(&self, interface_index: u32) -> Result<OwnedObjectPath, Error> {
         // grep `GetLink`:
         // https://manpages.debian.org/bullseye/systemd/org.freedesktop.resolve1.5.en.html
 
-        self.as_manager_object()?
+        self.as_manager_object()
+            .await?
             .get_link(i32::try_from(interface_index).expect("interface index fits in an i32"))
+            .await
             .map_err(Error::GetLinkError)
     }
 
-    fn get_link_dns(&self, link_object_path: &ObjectPath<'_>) -> Result<Vec<LinkIpAddr>, Error> {
-        self.as_link_object(link_object_path)?
+    async fn get_link_dns(
+        &self,
+        link_object_path: &ObjectPath<'_>,
+    ) -> Result<Vec<LinkIpAddr>, Error> {
+        self.as_link_object(link_object_path)
+            .await?
             .dns()
+            .await
             .map_err(Error::DBusRpcError)
     }
 
-    fn set_link_dns(
+    async fn set_link_dns(
         &self,
         link_object_path: &ObjectPath<'_>,
         servers: &[LinkIpAddr],
     ) -> Result<(), Error> {
         // TODO: Check if workaround on main is relevant anymore.
-        self.as_link_object(link_object_path)?
+        self.as_link_object(link_object_path)
+            .await?
             .set_dns(servers)
+            .await
             .map_err(Error::DBusRpcError)
     }
 
-    fn link_disable_dns_over_tls(&self, interface_index: u32) -> Result<(), Error> {
-        let link_object_path = self.fetch_link(interface_index)?;
-        self.as_link_object(&link_object_path)?
+    async fn link_disable_dns_over_tls(&self, interface_index: u32) -> Result<(), Error> {
+        let link_object_path = self.fetch_link(interface_index).await?;
+        self.as_link_object(&link_object_path).await?
             .set_dns_over_tls("no")
+            .await
             .or_else(|err| {
                 if let zbus::Error::FDO(fdo) = &err
                     && let zbus::fdo::Error::UnknownMethod(..) = &**fdo {
@@ -338,20 +363,24 @@ impl SystemdResolved {
             .map_err(Error::DBusRpcError)
     }
 
-    fn get_link_dns_domains(
+    async fn get_link_dns_domains(
         &self,
         link_object_path: &ObjectPath<'_>,
     ) -> Result<Vec<(String, bool)>, Error> {
         let domains: Vec<(String, bool)> = self
-            .as_link_object(link_object_path)?
+            .as_link_object(link_object_path)
+            .await?
             .domains()
+            .await
             .map_err(Error::DBusRpcError)?;
         Ok(domains)
     }
 
-    pub fn revert_link(&mut self, dns_state: &DnsState) -> Result<(), Error> {
-        self.as_link_object(&dns_state.interface_path)?
+    pub async fn revert_link(&mut self, dns_state: &DnsState) -> Result<(), Error> {
+        self.as_link_object(&dns_state.interface_path)
+            .await?
             .revert()
+            .await
             .or_else(|err| {
                 if let zbus::Error::FDO(fdo) = &err
                     && let zbus::fdo::Error::UnknownObject(..) = &**fdo
@@ -381,16 +410,12 @@ impl AsyncHandle {
 
     pub async fn get_dns(&self, interface_index: u32) -> Result<DnsState, Error> {
         let interface = self.dbus_interface.clone();
-        tokio::task::spawn_blocking(move || interface.get_dns(interface_index))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.get_dns(interface_index).await
     }
 
     pub async fn set_dns_state(&self, state: DnsState) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
-        tokio::task::spawn_blocking(move || interface.set_dns_state(state))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.set_dns_state(state).await
     }
 
     pub async fn set_dns(
@@ -400,16 +425,12 @@ impl AsyncHandle {
     ) -> Result<DnsState, Error> {
         log::info!("Updating DNS: {servers:#?}");
         let interface = self.dbus_interface.clone();
-        tokio::task::spawn_blocking(move || interface.set_dns(interface_index, servers))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.set_dns(interface_index, servers).await
     }
 
     pub async fn disable_dot(&self, interface_index: u32) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
-        tokio::task::spawn_blocking(move || interface.link_disable_dns_over_tls(interface_index))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.link_disable_dns_over_tls(interface_index).await
     }
 
     pub async fn set_domains(
@@ -419,16 +440,12 @@ impl AsyncHandle {
     ) -> Result<(), Error> {
         let interface = self.dbus_interface.clone();
         let domains = domains.to_vec();
-        tokio::task::spawn_blocking(move || interface.set_domains(interface_index, &domains))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.set_domains(interface_index, &domains).await
     }
 
     pub async fn revert_link(&self, state: DnsState) -> Result<(), Error> {
         let mut interface = self.dbus_interface.clone();
-        tokio::task::spawn_blocking(move || interface.revert_link(&state))
-            .await
-            .map_err(Error::AsyncTaskError)?
+        interface.revert_link(&state).await
     }
 
     pub fn handle(&self) -> &SystemdResolved {
@@ -436,7 +453,7 @@ impl AsyncHandle {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, zvariant::Type)]
+#[derive(Debug, Clone, PartialEq, zbus::wire::Type)]
 pub struct DnsState {
     pub interface_path: OwnedObjectPath,
     pub interface_index: u32,
@@ -444,7 +461,7 @@ pub struct DnsState {
 }
 
 /// The IP address representation that systemd-resolved communicates back and forth over DBUS.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, zvariant::Type, zvariant::Value)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, zbus::Type, zbus::zvariant::Value)]
 pub struct LinkIpAddr((i32, Vec<u8>));
 
 impl From<IpAddr> for LinkIpAddr {
@@ -471,23 +488,23 @@ impl From<IpAddr> for LinkIpAddr {
 /// - a numeric network interface index
 /// - an address family
 /// - a byte array containing the DNS server address (either 4 bytes in length for IPv4 or 16 bytes in lengths for IPv6)
-#[derive(Debug, zvariant::Type, zvariant::OwnedValue, zvariant::Value)]
+#[derive(Debug, Serialize, Deserialize, zbus::Type, zbus::wire::Variant)]
 pub struct DnsServer {
     pub iface_index: i32,
     pub address_family: i32,
     pub address: DnsAddress,
 }
 
-#[derive(Debug, zvariant::Type, zvariant::Value)]
+#[derive(Debug, Serialize, Deserialize, zbus::Type, zbus::wire::Variant)]
 pub struct DnsAddress(Vec<u8>);
 
 impl TryFrom<DnsAddress> for IpAddr {
-    type Error = zvariant::Error;
+    type Error = zbus::wire::Error;
     fn try_from(value: DnsAddress) -> Result<Self, Self::Error> {
         let bytes = value.0;
         // chop of the leading i32. systemd-resolved be like that.
         let Some((_, octets)) = bytes.as_slice().split_first_chunk::<4>() else {
-            return Err(zvariant::Error::IncorrectType);
+            return Err(zbus::wire::Error::IncorrectType);
         };
         match octets.len() {
             4 => {
@@ -498,7 +515,7 @@ impl TryFrom<DnsAddress> for IpAddr {
                 let octets = octets.first_chunk::<16>().unwrap();
                 Ok(IpAddr::V6(Ipv6Addr::from(*octets)))
             }
-            _ => Err(zvariant::Error::OutOfBounds),
+            _ => Err(zbus::wire::Error::OutOfBounds),
         }
     }
 }
@@ -511,12 +528,12 @@ mod tests {
     ///
     /// This test probably requires that you have configured DNS using systemd-resolved,
     /// which is why it is marked with `#[ignore]`. Run this test using `cargo test -- --ignored`.
-    #[test]
+    #[tokio::test]
     #[ignore]
-    fn test_get_dns() {
-        let connection = Connection::system().unwrap();
-        let resolved = ResolveManagerProxyBlocking::new(&connection).unwrap();
-        let dns = resolved.dns().unwrap();
+    async fn test_get_dns() {
+        let connection = Connection::system().await.unwrap();
+        let resolved = ResolveManagerProxy::new(&connection).await.unwrap();
+        let dns = resolved.dns().await.unwrap();
         println!("{dns:?}");
         assert!(!dns.is_empty(), "expect DNS to be configured");
     }
