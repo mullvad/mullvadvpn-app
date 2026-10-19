@@ -67,16 +67,14 @@ export function LocationSelectorTextFieldInput({
   return (
     <StyledLocationSelectorTextFieldInput>
       <LocationSelectorInputIcon />
-      <TextField.InputGroup>
-        <StyledLocationSelectorTextFieldInputInput
-          ref={inputRef}
-          onFocus={handleFocus}
-          tabIndex={tabIndex}
-          $selected={selected}
-          aria-hidden={ariaHidden}
-          {...props}
-        />
-      </TextField.InputGroup>
+      <StyledLocationSelectorTextFieldInputInput
+        ref={inputRef}
+        onFocus={handleFocus}
+        tabIndex={tabIndex}
+        $selected={selected}
+        aria-hidden={ariaHidden}
+        {...props}
+      />
     </StyledLocationSelectorTextFieldInput>
   );
 }
