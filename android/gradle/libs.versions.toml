@@ -49,6 +49,9 @@ cyclonedx-bom = "3.4.1"
 dependency-versions = "0.65.0"
 detekt = "2.0.0-alpha.6"
 accompanist = "0.37.3"
+# Only used to override the vulnerable version (2.22.2) used by the CycloneDX plugin.
+# Remove explicit jackson version once it has been fixed upstream.
+jackson = "2.22.3"
 junit = "5.14.4"
 junit4 = "1.3.0"
 junit5-android = "2.0.1"
@@ -135,6 +138,7 @@ cyclonedx-gradle-plugin = { module = "org.cyclonedx:cyclonedx-gradle-plugin", ve
 detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 detekt-gradle-plugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
