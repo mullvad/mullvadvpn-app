@@ -12,7 +12,6 @@ import MullvadLogging
 import SwiftUI
 
 struct LoginView: View {
-
     @State private var accountNumber: String = ""
     @State private var accountTextColor: Color = .white
     @Environment(Navigation.self) private var navigation: Navigation
