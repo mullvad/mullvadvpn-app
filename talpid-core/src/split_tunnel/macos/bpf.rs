@@ -20,10 +20,7 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tokio::io::{
-    AsyncRead, Interest, ReadBuf,
-    unix::{AsyncFd, AsyncFdRegisterError},
-};
+use tokio::io::{AsyncRead, Interest, ReadBuf, unix::AsyncFd};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -50,7 +47,7 @@ pub enum Error {
     SetFileFlags(#[source] io::Error),
     /// Failed to create AsyncFd
     #[error("Failed to create AsyncFd")]
-    AsyncFd(#[source] AsyncFdRegisterError<File>),
+    AsyncFd(#[source] io::Error),
 }
 
 macro_rules! ioctl {
@@ -271,11 +268,11 @@ impl BpfStream {
     /// - `file.as_raw_fd` must refer to the same underlying file for the entire lifetime of this
     ///   [BpfStream].
     unsafe fn from_file(file: File) -> Result<Self, Error> {
-        Ok(BpfStream {
-            // SAFETY: All safety invariants documented by `from_file` is assumed to hold.
-            inner: unsafe { AsyncFd::register_with_interest(file, Interest::READABLE) }
-                .map_err(Error::AsyncFd)?,
-        })
+        // SAFETY: All safety invariants documented by `from_file` is assumed to hold.
+        let async_fd = unsafe { AsyncFd::register_with_interest(file, Interest::READABLE) }
+            .map_err(io::Error::from)
+            .map_err(Error::AsyncFd)?;
+        Ok(BpfStream { inner: async_fd })
     }
 }
 
