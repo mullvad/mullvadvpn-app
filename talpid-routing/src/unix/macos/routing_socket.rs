@@ -161,7 +161,7 @@ impl RoutingSocketInner {
         let _ = fcntl::fcntl(&fd, fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK))?;
         let socket = File::from(fd);
         // SAFETY:
-        // - The underlying socket was successfully created by `socket`, and therefor is valid (and
+        // - The underlying socket was successfully created by `socket`, and therefore is valid (and
         // open).
         // - Ownership of the underlying socket is move to AsyncFd. It will therefor remain open and
         // valid for the entire lifetime of AsyncFd.
