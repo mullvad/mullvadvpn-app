@@ -8,8 +8,9 @@ use crate::{
     rest::{self, MullvadRestHandle},
 };
 
-use http::StatusCode;
+use http::{StatusCode, header};
 use mullvad_types::account::AccountNumber;
+use safelog::Sensitive;
 use serde_json::json;
 
 const PARTNER_API_PREFIX: &str = "v1/accounts";
@@ -18,6 +19,8 @@ const PARTNER_API_PREFIX: &str = "v1/accounts";
 pub struct PartnerApiClient {
     /// Partner API.
     partner: MullvadRestHandle,
+    /// Partner API token for authentication.
+    api_token: Sensitive<String>,
 }
 
 impl PartnerApiClient {
@@ -34,14 +37,12 @@ impl PartnerApiClient {
     }
 
     fn new(api_token: String, partner: ApiEndpoint) -> Self {
+        let api_token = Sensitive::new(api_token);
         let partner = {
             let runtime = crate::Runtime::new(tokio::runtime::Handle::current(), &partner);
-            let mut partner = runtime.mullvad_rest_handle(ApiConnectionMode::Direct);
-            // NOTE: `api_token` is expected to be base64-encoded.
-            partner.set_auth_header(&format!("Basic {api_token}"));
-            partner
+            runtime.mullvad_rest_handle(ApiConnectionMode::Direct)
         };
-        Self { partner }
+        Self { partner, api_token }
     }
 
     /// Create a new Mullvad account.
@@ -51,22 +52,30 @@ impl PartnerApiClient {
             // this is really just account number ..
             id: AccountNumber,
         }
-        let request = self.partner.post(PARTNER_API_PREFIX)?;
+        let request = self
+            .partner
+            .post(PARTNER_API_PREFIX)?
+            .header(header::AUTHORIZATION, &self.api_token)?;
         let response = request.expected_status(&[StatusCode::CREATED]).await?;
         let account: AccountCreationResponse = response.deserialize().await?;
 
         Ok(account.id)
     }
 
-    /// Add 1 day of VPN time to `account`.
-    pub async fn top_up(&self, account: impl Borrow<AccountNumber>) -> Result<(), rest::Error> {
+    /// Add requested number of days of VPN time to `account`.
+    pub async fn add_time(
+        &self,
+        account: impl Borrow<AccountNumber>,
+        days: u32,
+    ) -> Result<(), rest::Error> {
         let account = account.borrow();
         let body = json!({
-            "days": 1
+            "days": days
         });
         let request = self
             .partner
-            .post_json(&format!("{PARTNER_API_PREFIX}/{account}/extend"), &body)?;
+            .post_json(&format!("{PARTNER_API_PREFIX}/{account}/extend"), &body)?
+            .header(header::AUTHORIZATION, &self.api_token)?;
         request.expected_status(&[StatusCode::OK]).await?;
         Ok(())
     }

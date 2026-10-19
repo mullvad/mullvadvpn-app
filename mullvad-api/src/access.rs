@@ -59,7 +59,7 @@ async fn fetch_access_token(
     let body = AccessTokenRequest { account_number };
 
     let body = serde_json::to_vec(&body)?;
-    let request = hyper_request_json_bytes(host, ACCESS_TOKEN_PATH, Method::POST, body, None)?;
+    let request = hyper_request_json_bytes(host, ACCESS_TOKEN_PATH, Method::POST, body)?;
     let response = send_request.send_request(request).await?;
 
     if !response.status().is_success() {

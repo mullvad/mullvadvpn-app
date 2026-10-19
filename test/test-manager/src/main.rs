@@ -470,6 +470,6 @@ async fn get_account(
 async fn generate_stagemole_account(partner_api_token: &str) -> Result<AccountNumber> {
     let client = PartnerApiClient::stagemole(partner_api_token.to_owned());
     let account = client.create_account().await?;
-    client.top_up(&account).await?;
+    client.add_time(&account, 1).await?;
     Ok(account)
 }
