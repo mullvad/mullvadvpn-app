@@ -460,7 +460,9 @@ async fn get_account(
         Some(Environment::Prod) | None => account
             .or_else(|| env_config.account.clone())
             .context("No account number given, and none is configured for the environment"),
-        Some(Environment::Staging) if let Some(partner_api_token) = partner_api_token => generate_stagemole_account(&partner_api_token).await,
+        Some(Environment::Staging) if let Some(partner_api_token) = partner_api_token => {
+            generate_stagemole_account(&partner_api_token).await
+        }
         Some(Environment::Staging) if let Some(account) = account => Ok(account.clone()),
         Some(Environment::Staging) => generate_stagemole_account(env_config.partner_api_token.as_ref().expect("No partner API token is configured for the environment. Can not generate account number for tests")).await,
     }
