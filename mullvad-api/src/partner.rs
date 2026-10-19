@@ -58,10 +58,10 @@ impl PartnerApiClient {
             // this is really just account number ..
             id: AccountNumber,
         }
-        let request = self
-            .partner
-            .post(PARTNER_API_PREFIX)?
-            .header(header::AUTHORIZATION, &self.api_token)?;
+        let request = self.partner.post(PARTNER_API_PREFIX)?.header(
+            header::AUTHORIZATION,
+            &format!("Basic {token}", token = self.api_token.as_str()),
+        )?;
         let response = request.expected_status(&[StatusCode::CREATED]).await?;
         let account: AccountCreationResponse = response.deserialize().await?;
 
@@ -81,7 +81,10 @@ impl PartnerApiClient {
         let request = self
             .partner
             .post_json(&format!("{PARTNER_API_PREFIX}/{account}/extend"), &body)?
-            .header(header::AUTHORIZATION, &self.api_token)?;
+            .header(
+                header::AUTHORIZATION,
+                &format!("Basic {token}", token = self.api_token.as_str()),
+            )?;
         request.expected_status(&[StatusCode::OK]).await?;
         Ok(())
     }
