@@ -79,7 +79,7 @@ struct LoginView: View {
         print("Logging in with \(accountNumber)")
         if validateAccountNumber() {
             accountTextColor = .white
-            await viewModel.loginWithNumber(accountNumber)
+            await viewModel.loginWith(accountNumber)
         } else {
             accountTextColor = .mullvadDangerColor
         }
