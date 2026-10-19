@@ -5,6 +5,7 @@ import useActions from '../../../lib/actionsHook';
 import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
+import { useLocationInvalidReason } from './hooks';
 
 type TransitionState = 'idle' | 'transitioningOut' | 'transitioningIn';
 
@@ -19,6 +20,10 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setIsLocationSelectorExpanded: (value: boolean) => void;
   transitionState: TransitionState;
   setTransitionState: (value: TransitionState) => void;
+  invalidReason: {
+    entry: string | undefined;
+    exit: string | undefined;
+  };
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -67,6 +72,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     [setSelectLocationView],
   );
 
+  const invalidReasonEntry = useLocationInvalidReason(LocationType.entry);
+  const invalidReasonExit = useLocationInvalidReason(LocationType.exit);
+
   const value = React.useMemo(
     () => ({
       locationType: locationTypeSelector,
@@ -79,6 +87,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setIsLocationSelectorExpanded,
       transitionState,
       setTransitionState,
+      invalidReason: {
+        entry: invalidReasonEntry,
+        exit: invalidReasonExit,
+      },
     }),
     [
       locationTypeSelector,
@@ -89,6 +101,8 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setIsolatedItem,
       isLocationSelectorExpanded,
       transitionState,
+      invalidReasonEntry,
+      invalidReasonExit,
     ],
   );
 
