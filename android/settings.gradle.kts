@@ -120,6 +120,11 @@ include(
 )
 
 gradle.lifecycle.beforeProject {
+    // Set group based on the full module path, since many modules share names like api and impl
+    group = "net.mullvad.mullvadvpn" + path.substringBeforeLast(':').replace(':', '.')
+    // Gives modules a version in the SBOMs. Fixed, like our crates, to keep build caches stable.
+    version = "0.0.0"
+
     // `base` adds the `clean` task, which projects without a build file would otherwise lack.
     pluginManager.apply("base")
 
