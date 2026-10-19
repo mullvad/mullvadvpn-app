@@ -1,5 +1,6 @@
 import { type Locator, Page } from 'playwright';
 
+import { LocationType } from '../../../../src/renderer/features/locations/types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
@@ -30,6 +31,13 @@ export class SelectLocationRouteObjectModel {
     );
   }
 
+  async gotoEntryAutomatic(country: string) {
+    await this.getEntryAutomaticButton(country).click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
+  }
+
   async gotoExitLocations() {
     await this.getExitInput().click();
     await this.page.waitForFunction(() =>
@@ -37,12 +45,28 @@ export class SelectLocationRouteObjectModel {
     );
   }
 
+  async gotoLocations(locationType: LocationType) {
+    if (locationType === LocationType.exit) {
+      await this.gotoExitLocations();
+    } else {
+      await this.gotoEntryLocations();
+    }
+  }
+
   getEntryInput() {
     return this.selectors.entryInput();
   }
 
+  getEntryAutomaticButton(country: string) {
+    return this.selectors.entryAutomaticButton(country);
+  }
+
   getExitInput() {
     return this.selectors.exitInput();
+  }
+
+  getNonMatchingFilterErrorMessage() {
+    return this.selectors.nonMatchingFilterErrorMessage();
   }
 
   getLocationsMatching(relayNames: string[]) {
@@ -53,8 +77,16 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.automaticLocation();
   }
 
-  getFilterChip(label: string) {
-    return this.selectors.filterChip(label);
+  getAutomaticEntryMultihopModeToAlwaysButton() {
+    return this.selectors.automaticEntryMultihopModeToAlwaysButton();
+  }
+
+  getFilterChipButton(label: string) {
+    return this.selectors.filterChipButton(label);
+  }
+
+  getFilterChipLink(label: string) {
+    return this.selectors.filterChipLink(label);
   }
 
   getAllLocationsSection() {
@@ -79,6 +111,10 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.locations(recentsSection);
   }
 
+  getHeaderMenuButton() {
+    return this.selectors.headerMenuButton();
+  }
+
   getRecentMenuButton(locationName: string) {
     const recentsSection = this.selectors.recentSection();
     return this.selectors.locationMenuButton(locationName, recentsSection);
@@ -100,9 +136,18 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.deleteCustomListButton();
   }
 
-  async gotoFilter() {
-    await this.selectors.selectLocationMenuButton().click();
-    await this.selectors.filterMenuOption().click();
+  async gotoEntryFilter() {
+    await this.selectors.filterEntryButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoEntryAutomaticFilter() {
+    await this.selectors.filterEntryAutomaticButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoExitFilter() {
+    await this.selectors.filterExitButton().click();
     await this.utils.expectRoute(RoutePath.filter);
   }
 }

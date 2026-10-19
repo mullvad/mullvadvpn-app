@@ -1,15 +1,18 @@
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
+import { LocationType } from '../../../../src/renderer/features/locations/types';
 import {
   type Constraint,
   type CustomLists,
+  type ILocation,
   IRelayList,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
   ISettings,
   MultihopMode,
+  ObfuscationType,
   Ownership,
   type Recents,
   type RelayLocation,
@@ -65,6 +68,14 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
         }))
         .filter((country) => country.cities.length > 0),
     };
+  };
+
+  const getProvidersFromRelayList = (relayList: IRelayList) => {
+    const providersList = relayList.countries.flatMap(({ cities }) =>
+      cities.flatMap((city) => city.relays.flatMap((relay) => relay.provider)),
+    );
+
+    return [...new Set(providersList)];
   };
 
   const getRelaysByProvider = (relayList: IRelayList, provider: string): IRelayList => {
@@ -133,30 +144,99 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     await routes.filter.collapseProviders();
   };
 
-  const resetView = async () => {
+  const resetFilterView = async (locationType: LocationType) => {
     const currentRoute = await utils.getCurrentRoute();
     if (currentRoute === RoutePath.selectLocation) {
-      await routes.selectLocation.gotoFilter();
+      if (locationType === LocationType.exit) {
+        await routes.selectLocation.gotoExitFilter();
+      } else {
+        await routes.selectLocation.gotoEntryFilter();
+      }
     }
   };
 
-  const updateMockRelayFilter = async ({
-    ownership,
-    providers,
-  }: {
-    ownership?: Ownership;
-    providers?: string[];
-  }) => {
-    const settings = getDefaultSettings();
+  const resetSelectLocationView = async () => {
+    const currentRoute = await utils.getCurrentRoute();
+    if (currentRoute === RoutePath.filter) {
+      await routes.filter.gotoSelectLocation();
+    }
+  };
+
+  const updateMockRelayFilter = async (
+    {
+      ownership,
+      providers,
+      locationType,
+    }: {
+      locationType: LocationType;
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
     if ('normal' in settings.relaySettings) {
       if (ownership) {
-        settings.relaySettings.normal.ownership = ownership;
+        if (locationType === LocationType.exit) {
+          settings.relaySettings.normal.ownership = ownership;
+        } else {
+          settings.relaySettings.normal.wireguardConstraints.entryOwnership = ownership;
+        }
       }
       if (providers) {
-        settings.relaySettings.normal.providers = providers;
+        if (locationType === LocationType.exit) {
+          settings.relaySettings.normal.providers = providers;
+        } else {
+          settings.relaySettings.normal.wireguardConstraints.entryProviders = providers;
+        }
       }
     }
     await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
+  const updateMockEntryRelayFilter = async (
+    {
+      ownership,
+      providers,
+    }: {
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    return updateMockRelayFilter(
+      {
+        ownership,
+        providers,
+        locationType: LocationType.entry,
+      },
+      settings,
+    );
+  };
+
+  const updateMockExitRelayFilter = async (
+    {
+      ownership,
+      providers,
+    }: {
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    return updateMockRelayFilter(
+      {
+        ownership,
+        providers,
+        locationType: LocationType.exit,
+      },
+      settings,
+    );
   };
 
   const mockSettings = async (
@@ -261,6 +341,69 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return newSettings;
   };
 
+  const mockEntryAndExitLocations = async (
+    {
+      entryLocation,
+      exitLocation,
+    }: {
+      entryLocation: Constraint<RelayLocation>;
+      exitLocation: Constraint<RelayLocation>;
+    },
+    settings?: ISettings,
+  ) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    if ('normal' in settings.relaySettings) {
+      settings.relaySettings.normal.location = exitLocation;
+      settings.relaySettings.normal.wireguardConstraints.entryLocation = entryLocation;
+    }
+    await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
+  const mockConnectTunnel = async (location: ILocation) => {
+    await utils.ipc.tunnel[''].notify({
+      state: 'connected',
+      details: {
+        endpoint: {
+          entryEndpoint: {
+            address: '',
+            transportProtocol: 'tcp',
+          },
+          address: '',
+          daita: false,
+          protocol: 'tcp',
+          quantumResistant: false,
+        },
+        location,
+      },
+    });
+  };
+
+  const mockDisconnectTunnel = async (location: ILocation) => {
+    await utils.ipc.tunnel[''].notify({
+      state: 'disconnected',
+      lockedDown: false,
+      location,
+    });
+  };
+
+  const mockAntiCensorship = async (obfuscationType: ObfuscationType, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    if ('normal' in settings.relaySettings) {
+      settings.obfuscationSettings.selectedObfuscation = obfuscationType;
+    }
+    await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -269,15 +412,23 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     getRelaysByOwner,
     getRelaysByProvider,
     getRelaysByObfuscation,
+    getProvidersFromRelayList,
     resetOwnership,
     resetProviders,
-    resetView,
+    resetFilterView,
+    resetSelectLocationView,
     updateMockRelayFilter,
+    updateMockEntryRelayFilter,
+    updateMockExitRelayFilter,
     mockSettings,
     mockEntryLocation,
     mockExitLocation,
     mockCustomLists,
     mockRecents,
+    mockEntryAndExitLocations,
+    mockConnectTunnel,
+    mockDisconnectTunnel,
+    mockAntiCensorship,
   };
 };
 
