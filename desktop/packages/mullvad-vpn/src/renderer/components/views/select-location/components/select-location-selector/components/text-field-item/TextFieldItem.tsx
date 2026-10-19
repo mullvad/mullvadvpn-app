@@ -7,8 +7,8 @@ import { TextField } from '../../../../../../../lib/components/text-field';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import { FilterTrailingButton } from '../filter-trailing-button';
 import {
+  useHandleBlur,
   useHandleClearButtonClick,
-  useHandleFocusExit,
   useHandleInputKeyDown,
   useHandleValueChange,
 } from './hooks';
@@ -41,7 +41,7 @@ function TextFieldItemImpl({
   const handleClearButtonClick = useHandleClearButtonClick();
 
   const handleKeyDown = useHandleInputKeyDown();
-  const handleFocusExit = useHandleFocusExit();
+  const handleBlur = useHandleBlur();
   const handleValueChange = useHandleValueChange();
 
   const showClearButton = id === isolatedItem;
@@ -55,13 +55,12 @@ function TextFieldItemImpl({
       inputRef={inputRef}
       triggerRef={triggerRef}
       {...props}>
-      <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel}>
-        <LocationSelector.Items.TextFieldItem.TextField
-          invalid={textFieldInvalid}
-          value={value}
-          onFocusExit={handleFocusExit}
-          onValueChange={handleValueChange}>
-          <TextField.InputGroup>
+      <LocationSelector.Items.TextFieldItem.TextField
+        invalid={textFieldInvalid}
+        value={value}
+        onValueChange={handleValueChange}>
+        <TextField.InputGroup>
+          <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
             <StyledInput
               placeholder={placeholder}
               onFocus={handleFocus}
@@ -74,15 +73,15 @@ function TextFieldItemImpl({
                 aria-label={messages.pgettext('accessibility', 'Clear search')}
               />
             )}
-            {showFilterTrailingButton && <FilterTrailingButton type={id} />}
-          </TextField.InputGroup>
-          {textFieldInvalid && (
-            <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
-              {invalidReason}
-            </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
-          )}
-        </LocationSelector.Items.TextFieldItem.TextField>
-      </LocationSelector.Items.TextFieldItem.Trigger>
+          </LocationSelector.Items.TextFieldItem.Trigger>
+          {showFilterTrailingButton && <FilterTrailingButton type={id} />}
+        </TextField.InputGroup>
+        {textFieldInvalid && (
+          <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+            {invalidReason}
+          </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+        )}
+      </LocationSelector.Items.TextFieldItem.TextField>
     </LocationSelector.Items.TextFieldItem>
   );
 }
