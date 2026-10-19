@@ -114,6 +114,34 @@ extension REST {
         }
     }
 
+    static func decode<T: Decodable>(decoding: T.Type, responseDecoder: JSONDecoder, response: ApiResponse) throws -> T {
+        let proxyResponse: ProxyAPIResponse
+        switch response {
+        case .body(let body, _, let sigsumDigest, let sigsumTimestamp):
+            proxyResponse = ProxyAPIResponse(
+                data: body, error: nil,
+                digest: sigsumDigest, timestamp: sigsumTimestamp)
+        case .error(let statusCode, let errorDescription, let serverResponseCode):
+            proxyResponse = ProxyAPIResponse(
+                data: nil,
+                error: APIError(
+                    statusCode: Int(statusCode),
+                    errorDescription: errorDescription ?? "",
+                    serverResponseCode: serverResponseCode))
+        }
+        let decoded = rustResponseHandler(decoding: decoding, with: responseDecoder)
+            .handleResponse(proxyResponse)
+
+        switch decoded {
+        case .success(let account):
+            return account
+        case .decoding(let decoder):
+            return try decoder()
+        case .unhandledResponse(let error):
+            throw REST.Error.unhandledResponse(0, error)
+        }
+    }
+
     static func rustCustomResponseHandler<T: Decodable>(
         conversion: @escaping (_ data: Data, _ digest: String?, _ timestamp: Int64?) -> T?
     ) -> RustResponseHandler<T?> {

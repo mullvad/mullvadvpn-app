@@ -70,8 +70,8 @@ final actor StorePaymentManagerInteractor {
 
     // MARK: Account proxy
 
-    func getAccountData(accountNumber: String) async -> Result<Account, Error> {
-        await accountProxy.getAccountData(
+    func getAccountData(accountNumber: String) async throws -> Account {
+        try await accountProxy.getAccountData(
             accountNumber: accountNumber,
             retryStrategy: .default
         )

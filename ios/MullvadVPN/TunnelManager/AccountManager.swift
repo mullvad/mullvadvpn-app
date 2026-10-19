@@ -110,13 +110,12 @@ struct AccountManager: Sendable {
     func updateAccountData() async throws {
         let (accountData, _) = try ensureLoggedIn()
 
-        let result = await accountsProxy.getAccountData(
-            accountNumber: accountData.number,
-            retryStrategy: .default
-        )
-
         do {
-            let accountData = try result.get()
+            let accountData = try await accountsProxy.getAccountData(
+                accountNumber: accountData.number,
+                retryStrategy: .default
+            )
+
             switch interactor.deviceState {
             case .loggedIn(var storedAccountData, let storedDeviceData):
                 storedAccountData.expiry = accountData.expiry

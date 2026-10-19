@@ -21,7 +21,7 @@ public protocol RESTAccountHandling: Sendable {
     func getAccountData(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Account, Error>
+    ) async throws -> Account
 
     func deleteAccount(
         accountNumber: String,
@@ -36,12 +36,15 @@ extension REST {
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
+        let apiContext: ApiContext
 
         public init(
+            apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
             responseDecoder: JSONDecoder
         ) {
+            self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
@@ -66,20 +69,15 @@ extension REST {
         public func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy
-        ) async -> Result<Account, Swift.Error> {
-            let request = APIRequest.getAccount(retryStrategy, accountNumber: accountNumber)
+        ) async throws -> Account {
+            let response = try await apiContext.getAccount(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber)
 
-            let task = MullvadApiNetworkTask(
-                name: request.name,
-                request: request,
-                transportProvider: transportProvider,
-                responseHandler: rustResponseHandler(
-                    decoding: Account.self,
-                    with: responseDecoder
-                )
-            )
-
-            return await task.startRequest()
+            return try decode(
+                decoding: Account.self,
+                responseDecoder: responseDecoder,
+                response: response)
         }
 
         public func deleteAccount(

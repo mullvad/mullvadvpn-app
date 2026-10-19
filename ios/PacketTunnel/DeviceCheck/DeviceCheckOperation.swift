@@ -138,7 +138,11 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
 
         dispatchGroup.enter()
         let accountTask = Task {
-            accountResult = await remoteService.getAccountData(accountNumber: accountNumber)
+            do {
+                accountResult = .success(try await remoteService.getAccountData(accountNumber: accountNumber))
+            } catch {
+                accountResult = .failure(error)
+            }
             dispatchGroup.leave()
         }
 

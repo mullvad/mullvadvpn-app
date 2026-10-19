@@ -11,6 +11,7 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
+import MullvadRustRuntime
 
 struct AccountProxyStubError: Error {}
 
@@ -44,14 +45,12 @@ struct AccountsProxyStub: RESTAccountHandling {
     func getAccountData(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Account, Error> {
-        .success(
-            Account(
-                id: accountNumber,
-                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
-                maxDevices: 1,
-                canAddDevices: true
-            )
+    ) async throws -> Account {
+        Account(
+            id: accountNumber,
+            expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+            maxDevices: 1,
+            canAddDevices: true
         )
     }
 

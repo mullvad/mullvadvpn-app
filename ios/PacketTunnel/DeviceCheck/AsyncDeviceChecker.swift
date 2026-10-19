@@ -37,10 +37,10 @@ final class AsyncDeviceChecker: Sendable {
                 accountNumber: accountData.number,
                 identifier: deviceData.identifier
             )
-            let (accountResult, deviceResult) = await (accountTask, deviceTask)
+            let (accountResult, deviceResult) = await (try accountTask, deviceTask)
 
             var deviceCheck = DeviceCheck(
-                accountVerdict: try AccountVerdict(accountResult: accountResult),
+                accountVerdict: try AccountVerdict(accountResult: .success(accountResult)),
                 deviceVerdict: try DeviceVerdict(deviceResult: deviceResult, deviceState: deviceStateAccessor.read()),
                 keyRotationStatus: .noAction
             )

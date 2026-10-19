@@ -22,8 +22,8 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         self.devicesProxy = devicesProxy
     }
 
-    func getAccountData(accountNumber: String) async -> Result<Account, Error> {
-        await accountsProxy.getAccountData(
+    func getAccountData(accountNumber: String) async throws -> Account {
+        try await accountsProxy.getAccountData(
             accountNumber: accountNumber,
             retryStrategy: .noRetry
         )

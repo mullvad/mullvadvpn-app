@@ -385,7 +385,7 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_delete_account(uint64_t ptr, ui
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_ACCOUNT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_ACCOUNT
-uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_account(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_account(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_API_ADDRS_AVAILABLE

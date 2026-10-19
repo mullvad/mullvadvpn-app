@@ -218,14 +218,11 @@ final actor StorePaymentManager: @unchecked Sendable {
 
         logger.debug("Updating account data")
 
-        let result = await interactor.getAccountData(accountNumber: accountNumber)
-
-        switch result {
-        case let .success(accountData):
+        do {
+            let accountData = try await interactor.getAccountData(accountNumber: accountNumber)
             logger.info("Successfully updated account data. New expiry: \(accountData.expiry.safeLogFormatted)")
             await interactor.updateAccountData(for: accountData)
-
-        case let .failure(error):
+        } catch {
             if !error.isOperationCancellationError {
                 logger.error(error: error, message: "Failed to update account data.")
             }

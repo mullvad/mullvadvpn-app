@@ -1119,7 +1119,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
     
-    func getAccount(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func getAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
     func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper)  -> RequestCancelHandle
     
@@ -1292,14 +1292,21 @@ open func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String) -> 
 })
 }
     
-open func getAccount(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_account(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func getAccount(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_account(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> RequestCancelHandle  {
@@ -4102,7 +4109,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_delete_account() != 38112) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 11520) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 9768) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_api_addrs_available() != 37698) {

@@ -262,10 +262,16 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         logger.debug("Request account data...")
 
         let task = Task {
-            let accountResult = await accountsProxy.getAccountData(
-                accountNumber: accountNumber,
-                retryStrategy: .default
-            )
+            let accountResult: Result<Account, Error>
+            do {
+                accountResult = .success(
+                    try await accountsProxy.getAccountData(
+                        accountNumber: accountNumber,
+                        retryStrategy: .default
+                    ))
+            } catch {
+                accountResult = .failure(error)
+            }
 
             let result = accountResult.inspectError { error in
                 guard !(error is CancellationError) else { return }

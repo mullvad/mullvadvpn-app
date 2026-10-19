@@ -29,6 +29,7 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     }
 
     public static func makeProxyFactory(
+        apiContext: ApiContext,
         apiTransportProvider: any APITransportProviderProtocol
     ) -> any ProxyFactoryProtocol {
         MockProxyFactory(

@@ -273,12 +273,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func setUpProxies(containerURL: URL) async {
         if launchArguments.target == .screenshots {
             proxyFactory = await MockProxyFactory.makeProxyFactory(
+                apiContext: apiContext,
                 apiTransportProvider: REST.AnyAPITransportProvider {
                     await self.apiTransportMonitor.makeTransport()
                 }
             )
         } else {
             proxyFactory = await REST.ProxyFactory.makeProxyFactory(
+                apiContext: apiContext,
                 apiTransportProvider: REST.AnyAPITransportProvider {
                     await self.apiTransportMonitor.makeTransport()
                 }
