@@ -4,6 +4,7 @@ set -eu
 shopt -s nullglob globstar
 
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
+ANDROID_ROOT_SUFFIXES='(\.apk|\.cdx\.json|\.play\.apk|\.play\.cdx\.json)$'
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -66,7 +67,7 @@ while true; do
             file_upload_dir="$upload_path/$version"
             if [[ $platform == "desktop" && ! $filename == MullvadVPN-* ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
-            elif [[ $platform == "android" && ! $filename =~ MullvadVPN-"$version"(.apk|.play.apk) ]]; then
+            elif [[ $platform == "android" && ! $filename =~ MullvadVPN-"$version"$ANDROID_ROOT_SUFFIXES ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
