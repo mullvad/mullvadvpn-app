@@ -62,7 +62,7 @@ pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
 
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
-pub(crate) const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
+const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
 #[cfg(any(target_os = "ios", target_os = "tvos"))]

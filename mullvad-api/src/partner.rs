@@ -12,6 +12,8 @@ use http::StatusCode;
 use mullvad_types::account::AccountNumber;
 use serde_json::json;
 
+const PARTNER_API_PREFIX: &str = "v1/accounts";
+
 #[derive(Debug, Clone)]
 pub struct PartnerApiClient {
     /// Partner API.
@@ -49,7 +51,7 @@ impl PartnerApiClient {
             // this is really just account number ..
             id: AccountNumber,
         }
-        let request = self.partner.post("v1/accounts")?;
+        let request = self.partner.post(PARTNER_API_PREFIX)?;
         let response = request.expected_status(&[StatusCode::CREATED]).await?;
         let account: AccountCreationResponse = response.deserialize().await?;
 
@@ -64,7 +66,7 @@ impl PartnerApiClient {
         });
         let request = self
             .partner
-            .post_json(&format!("v1/accounts/{account}/extend"), &body)?;
+            .post_json(&format!("{PARTNER_API_PREFIX}/{account}/extend"), &body)?;
         request.expected_status(&[StatusCode::OK]).await?;
         Ok(())
     }
