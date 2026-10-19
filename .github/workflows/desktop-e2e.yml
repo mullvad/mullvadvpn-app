@@ -318,7 +318,8 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          PARTNER_API_TOKEN: ${{ secrets[format('{0}_PARTNER_AUTH', env.TEST_ENV)] }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ENV)] }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -425,7 +426,8 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          PARTNER_API_TOKEN: ${{ secrets[format('{0}_PARTNER_AUTH', env.TEST_ENV)] }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ENV)] }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -494,7 +496,8 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          PARTNER_API_TOKEN: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          PARTNER_API_TOKEN: ${{ secrets[format('{0}_PARTNER_AUTH', env.TEST_ENV)] }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ENV)] }}
         run: |
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
