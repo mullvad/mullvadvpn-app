@@ -21,8 +21,12 @@ export const StyledLocationTextFieldTrigger = styled.div`
   }
 `;
 
-export function LocationSelectorTrigger({ children, ...props }: LocationSelectorTriggerProps) {
-  const { inputRef, triggerRef } = useLocationSelectorTextFieldItemContext();
+export function LocationSelectorTrigger({
+  children,
+  onBlur: onBlurProps,
+  ...props
+}: LocationSelectorTriggerProps) {
+  const { inputRef, triggerRef, setFocusInsideTrigger } = useLocationSelectorTextFieldItemContext();
   const [tabIndex, setTabIndex] = React.useState(-1);
 
   const handleKeyDown = React.useCallback(
@@ -32,11 +36,12 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       }
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        setFocusInsideTrigger(true);
         inputRef.current?.focus();
         setTabIndex(-1);
       }
     },
-    [inputRef, triggerRef],
+    [inputRef, setFocusInsideTrigger, triggerRef],
   );
 
   const handleMouseDown = React.useCallback(
@@ -46,20 +51,35 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       // mouse clicks.
       if (document.activeElement !== inputRef.current) {
         event.preventDefault();
+        setFocusInsideTrigger(true);
         inputRef.current?.focus();
         setTabIndex(-1);
       }
     },
-    [inputRef],
+    [inputRef, setFocusInsideTrigger],
   );
 
   React.useEffect(() => {
     setTabIndex(inputRef.current === document.activeElement ? -1 : 0);
   }, [inputRef]);
 
-  const handleOnBlur = React.useCallback(() => {
-    setTabIndex(0);
-  }, []);
+  const handleBlur = React.useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      const focusWillBeWithinTrigger = triggerRef.current?.contains(e.relatedTarget) ?? false;
+      const focusWillBeOnTriggerElement = triggerRef.current == e.relatedTarget;
+
+      // If the triggerRef element is the next element which will receive focus,
+      // then the focus is no longer "inside" the trigger in the strictest sense.
+      const focusInsideTrigger = !focusWillBeOnTriggerElement && focusWillBeWithinTrigger;
+
+      setFocusInsideTrigger(focusInsideTrigger);
+      if (!focusInsideTrigger) {
+        onBlurProps?.(e);
+        setTabIndex(0);
+      }
+    },
+    [triggerRef, setFocusInsideTrigger, onBlurProps],
+  );
 
   return (
     <StyledLocationTextFieldTrigger
@@ -67,7 +87,7 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
       tabIndex={tabIndex}
       onKeyDown={handleKeyDown}
       onMouseDown={handleMouseDown}
-      onBlur={handleOnBlur}
+      onBlur={handleBlur}
       role="button"
       {...props}>
       {children}
