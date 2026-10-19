@@ -39,17 +39,18 @@ fi
 ./check-changelog.sh "$PRODUCT_VERSION"
 
 if [[ $SKIP_BASELINE == "yes" ]]; then
-    echo "### Skipping baseline file generation due to provided argument"
-elif [[ $PRODUCT_VERSION != *"beta"* && $PRODUCT_VERSION != *"alpha"* ]]; then
-    echo "### Generating new baseline file"
+    echo "Skipping baseline file generation due to skip baseline argument"
+elif [[ $PRODUCT_VERSION == *"beta"* || $PRODUCT_VERSION == *"alpha"* ]]; then
+    echo "Skipping baseline file generation for beta/alpha release"
+else
+    echo "### Generating new baseline file ###"
     ../gradlew -p ../ generatePlayProdReleaseBaselineProfile
     if git diff --quiet ../app/src/main/baseline-prof.txt; then
         echo "Info: Baseline file unchanged"
-    fi
-    git commit -m "Update baseline file" \
+    else
+        git commit -m "Update baseline file" \
         ../app/src/main/baseline-prof.txt
-else
-    echo "### Skipping baseline file generation for beta/alpha release"
+    fi
 fi
 
 ../../scripts/commit-relay-list "$PRODUCT_VERSION"
