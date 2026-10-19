@@ -42,7 +42,7 @@ echo "* Version to test: $CURRENT_VERSION"
 echo "**********************************"
 
 # Prefer `PARTNER_API_TOKEN` over `ACCOUNT_TOKENS` if it set.
-if [[ -n "${PARTNER_API_TOKEN+-}" ]]; then
+if [[ -n "${PARTNER_API_TOKEN:-}" ]]; then
     export PARTNER_API_TOKEN="$PARTNER_API_TOKEN"
 fi
 
