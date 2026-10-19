@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.android.gradle.junit5)
     compileOnly(libs.detekt.gradle.plugin)
+    implementation(libs.cyclonedx.gradle.plugin)
 }
 
 gradlePlugin {
