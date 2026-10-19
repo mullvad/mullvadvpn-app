@@ -669,7 +669,7 @@ struct NewErrorResponse {
     pub r#type: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RequestFactory {
     service: RequestServiceHandle,
     default_timeout: Duration,
@@ -752,7 +752,7 @@ pub(crate) fn hyper_request<B>(
     body: B,
 ) -> Result<http::Request<B>> {
     let uri = Uri::builder().path_and_query(format!("/{path}")).build()?;
-    let request = http::request::Builder::new()
+    let builder = http::request::Builder::new()
         .method(method)
         .uri(uri)
         .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
@@ -760,8 +760,9 @@ pub(crate) fn hyper_request<B>(
         .header(
             header::HOST,
             HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
-        )
-        .body(body)?;
+        );
+
+    let request = builder.body(body)?;
     Ok(request)
 }
 
@@ -843,7 +844,7 @@ where
     Ok(res)
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub(crate) factory: RequestFactory,

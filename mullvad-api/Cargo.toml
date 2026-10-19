@@ -30,6 +30,7 @@ mullvad-fs = { path = "../mullvad-fs" }
 mullvad-tls-client = { path = "../mullvad-tls-client" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
+safelog.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
 sha2 = { workspace = true }

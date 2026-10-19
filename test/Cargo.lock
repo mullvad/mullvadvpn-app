@@ -2334,6 +2334,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
+ "safelog",
  "serde",
  "serde_json",
  "sha2",

@@ -2,3 +2,9 @@ enum-variant-size-threshold = 1000
 # `result_large_err` defaults to 128 bytes, which some of our state machine
 # transition errors exceed by carrying the state to transition to.
 large-error-threshold = 256
+
+disallowed-methods = [
+  # Note: Use this functions with caution. They should never be used in release builds / in the Mullvad app.
+  { path = "mullvad_api::partner::ApiEndpoint::stagemole", reason = "Do not use stagemole APIs in release builds" },
+  { path = "mullvad_api::partner::ApiEndpoint::stagemole_partner", reason = "Do not use stagemole APIs in release builds" },
+]
