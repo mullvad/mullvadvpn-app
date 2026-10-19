@@ -20,7 +20,10 @@ use std::{
     pin::Pin,
     task::{Context, Poll},
 };
-use tokio::io::{AsyncRead, Interest, ReadBuf, unix::AsyncFd};
+use tokio::io::{
+    AsyncRead, Interest, ReadBuf,
+    unix::{AsyncFd, AsyncFdRegisterError},
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -47,7 +50,7 @@ pub enum Error {
     SetFileFlags(#[source] io::Error),
     /// Failed to create AsyncFd
     #[error("Failed to create AsyncFd")]
-    AsyncFd(#[source] io::Error),
+    AsyncFd(#[source] AsyncFdRegisterError<File>),
 }
 
 macro_rules! ioctl {
@@ -256,12 +259,22 @@ pub struct BpfStream {
 
 impl BpfStream {
     pub fn from_read_half(reader: ReadHalf) -> Result<Self, Error> {
-        Self::from_file(reader.0)
+        // SAFETY:
+        // - ReadHalf was created by calling `Bpf::open`.
+        // - Underlying bpf device is assumed to live for the entire lifetime of the VPN program.
+        unsafe { Self::from_file(reader.0) }
     }
 
-    fn from_file(file: File) -> Result<Self, Error> {
+    /// # Safety
+    /// - `file` descriptor returned by calling `file.as_raw_fd` must be a valid file handle.
+    /// - `file` must be an open file.
+    /// - `file.as_raw_fd` must refer to the same underlying file for the entire lifetime of this
+    ///   [BpfStream].
+    unsafe fn from_file(file: File) -> Result<Self, Error> {
         Ok(BpfStream {
-            inner: AsyncFd::with_interest(file, Interest::READABLE).map_err(Error::AsyncFd)?,
+            // SAFETY: All safety invariants documented by `from_file` is assumed to hold.
+            inner: unsafe { AsyncFd::register_with_interest(file, Interest::READABLE) }
+                .map_err(Error::AsyncFd)?,
         })
     }
 }

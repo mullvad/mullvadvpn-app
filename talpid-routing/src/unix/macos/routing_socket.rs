@@ -160,9 +160,15 @@ impl RoutingSocketInner {
         let fd = socket(AddressFamily::Route, SockType::Raw, SockFlag::empty(), None)?;
         let _ = fcntl::fcntl(&fd, fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK))?;
         let socket = File::from(fd);
-        Ok(Self {
-            socket: AsyncFd::new(socket)?,
-        })
+        // SAFETY:
+        // - The underlying socket was successfully created by `socket`, and therefor is valid (and
+        // open).
+        // - Ownership of the underlying socket is move to AsyncFd. It will therefor remain open and
+        // valid for the entire lifetime of AsyncFd.
+        // - Since the socket is owned by AyncFd, no one else will close it during the lifetime of
+        // AsyncFd. Every call to inner.as_raw_fd will return the same file descriptor.
+        let async_fd = unsafe { AsyncFd::register(socket) }?;
+        Ok(Self { socket: async_fd })
     }
 
     async fn read(&mut self, out: &mut [u8]) -> std::io::Result<usize> {
