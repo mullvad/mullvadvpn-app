@@ -86,14 +86,43 @@ export async function getApprovers() {
   }
 
   // Filter to only approved reviews
-  const approvers = new Array<string>();
+  const approvers = new Set<string>();
   for (const [, review] of latestReviews) {
     if (review.state === 'APPROVED' && review.user) {
-      approvers.push(review.user.login);
+      approvers.add(review.user.login);
     }
   }
 
   return approvers;
+}
+
+export async function getTeamMembers(team: string): Promise<Set<string>> {
+  const octokit = getOctokitClient();
+  const { owner } = context.repo;
+
+  const members = await octokit.paginate(octokit.rest.teams.listMembersInOrg, {
+    org: owner,
+    team_slug: team,
+  });
+
+  return new Set(members.map((m) => m.login));
+}
+
+export async function isFork() {
+  const client = getOctokitClient();
+  const prNumber = context.payload.pull_request?.number;
+  if (!prNumber) {
+    return false;
+  }
+
+  const { owner, repo } = context.repo;
+  const res = await client.rest.pulls.get({
+    owner,
+    repo,
+    pull_number: prNumber,
+  });
+
+  return res.data.head.repo.fork;
 }
 
 export function getPullRequestAuthor() {
@@ -111,7 +140,7 @@ export async function isUserInTeam({ user, team }: { user: string; team: string 
     });
     return response.data.state == 'active';
   } catch (e) {
-    debug(`Retrievinng team membership for ${user} failed with ${e}`);
+    debug(`Retrieving team membership for ${user} failed with ${e}`);
     return false;
   }
 }
