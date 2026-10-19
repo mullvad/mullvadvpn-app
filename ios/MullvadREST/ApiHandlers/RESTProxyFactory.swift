@@ -19,22 +19,31 @@ public protocol ProxyFactoryProtocol {
     func createDevicesProxy() -> DeviceHandling
 
     static func makeProxyFactory(
-        apiTransportProvider: APITransportProviderProtocol
+        apiTransportProvider: APITransportProviderProtocol,
+        apiContext: ApiContext
     ) -> ProxyFactoryProtocol
 }
 
 extension REST {
     public final class ProxyFactory: ProxyFactoryProtocol {
+        public let apiContext: ApiContext
         public let apiTransportProvider: APITransportProviderProtocol
 
         public static func makeProxyFactory(
-            apiTransportProvider: any APITransportProviderProtocol
+            apiTransportProvider: any APITransportProviderProtocol,
+            apiContext: ApiContext
         ) -> any ProxyFactoryProtocol {
-            ProxyFactory(apiTransportProvider: apiTransportProvider)
+            ProxyFactory(
+                apiTransportProvider: apiTransportProvider,
+                apiContext: apiContext)
         }
 
-        public init(apiTransportProvider: APITransportProviderProtocol) {
+        public init(
+            apiTransportProvider: APITransportProviderProtocol,
+            apiContext: ApiContext
+        ) {
             self.apiTransportProvider = apiTransportProvider
+            self.apiContext = apiContext
         }
 
         public func createAPIProxy() -> APIQuerying {
@@ -47,6 +56,7 @@ extension REST {
 
         public func createAccountsProxy() -> RESTAccountHandling {
             MullvadAccountProxy(
+                apiContext: apiContext,
                 transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadAccountProxy.dispatchQueue"),
                 responseDecoder: Coding.makeJSONDecoder()

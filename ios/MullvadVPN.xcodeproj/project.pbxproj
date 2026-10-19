@@ -85,6 +85,7 @@
 		1A0EAD61C688421D9A7529AB /* DeviceCheck+BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift */; };
 		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
 		3837408A308F8EFB00DDD977 /* AnyError+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38374089308F8EF600DDD977 /* AnyError+Extensions.swift */; };
+		38131779308B520B007E22D9 /* ApiResponse+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38131778308B520B007E22D9 /* ApiResponse+Extensions.swift */; };
 		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
 		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
@@ -1954,6 +1955,7 @@
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		38374089308F8EF600DDD977 /* AnyError+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyError+Extensions.swift"; sourceTree = "<group>"; };
+		38131778308B520B007E22D9 /* ApiResponse+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ApiResponse+Extensions.swift"; sourceTree = "<group>"; };
 		38693EC430458CF000BC154A /* mullvad_uniffi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = mullvad_uniffi.swift; path = generated/mullvad_uniffi.swift; sourceTree = "<group>"; };
 		38693EC630458CFD00BC154A /* mullvad_uniffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mullvad_uniffi.h; path = include/mullvad_uniffi.h; sourceTree = "<group>"; };
 		440118B0308A5B02000601B2 /* ProblemReportFailurePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportFailurePage.swift; sourceTree = "<group>"; };
@@ -4760,6 +4762,7 @@
 		7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */ = {
 			isa = PBXGroup;
 			children = (
+				38131778308B520B007E22D9 /* ApiResponse+Extensions.swift */,
 				7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */,
 				7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */,
 				7A95B6742D5DF86400687524 /* APIRequestProxy.swift */,
@@ -6558,6 +6561,7 @@
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
 				7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */,
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
+				38131779308B520B007E22D9 /* ApiResponse+Extensions.swift in Sources */,
 				F06045E62B231EB700B2D37A /* URLSessionTaskWrapper.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				7A56B3422F1145FE00CBF960 /* AppStoreMetaData.swift in Sources */,

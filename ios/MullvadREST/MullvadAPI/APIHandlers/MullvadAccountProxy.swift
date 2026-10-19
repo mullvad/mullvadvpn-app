@@ -32,16 +32,19 @@ public protocol RESTAccountHandling: Sendable {
 
 extension REST {
     public final class MullvadAccountProxy: RESTAccountHandling, @unchecked Sendable {
+        let apiContext: ApiContext
         let transportProvider: APITransportProviderProtocol
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
 
         public init(
+            apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
             responseDecoder: JSONDecoder
         ) {
+            self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
@@ -67,19 +70,21 @@ extension REST {
             accountNumber: String,
             retryStrategy: REST.RetryStrategy
         ) async -> Result<Account, Swift.Error> {
-            let request = APIRequest.getAccount(retryStrategy, accountNumber: accountNumber)
-
-            let task = MullvadApiNetworkTask(
-                name: request.name,
-                request: request,
-                transportProvider: transportProvider,
-                responseHandler: rustResponseHandler(
-                    decoding: Account.self,
-                    with: responseDecoder
-                )
-            )
-
-            return await task.startRequest()
+            do {
+                let response = try await apiContext.getAccount(
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber)
+                response
+                
+                switch response {
+                case .body(let body, _, _, _):
+                    return .success(try responseDecoder.decode(Account.self, from: body))
+                case .error(let statusCode, let errorDescription, let serverResponseCode):
+                    throw APIError(statusCode: Int(statusCode), errorDescription: errorDescription ?? "", serverResponseCode: serverResponseCode)
+                }
+            } catch {
+                return .failure(error)
+            }
         }
 
         public func deleteAccount(

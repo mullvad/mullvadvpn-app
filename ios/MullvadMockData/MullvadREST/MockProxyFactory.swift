@@ -15,6 +15,7 @@ import MullvadTypes
 
 public struct MockProxyFactory: ProxyFactoryProtocol {
     public var apiTransportProvider: APITransportProviderProtocol
+    public var apiContext: ApiContext
 
     public func createAPIProxy() -> any APIQuerying {
         APIProxyStub()
@@ -29,10 +30,12 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     }
 
     public static func makeProxyFactory(
-        apiTransportProvider: any APITransportProviderProtocol
+        apiTransportProvider: any APITransportProviderProtocol,
+        apiContext: ApiContext
     ) -> any ProxyFactoryProtocol {
         MockProxyFactory(
-            apiTransportProvider: apiTransportProvider
+            apiTransportProvider: apiTransportProvider,
+            apiContext: apiContext
         )
     }
 }

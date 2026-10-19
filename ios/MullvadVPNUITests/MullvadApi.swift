@@ -111,13 +111,10 @@ class MullvadApi {
         }
     }
 
-    func getExpiry(forAccount: String) throws -> UInt64 {
-        let response = try makeRequest { strategy in
-            let handle = context.getAccount(
-                retryStrategy: strategy,
-                accountNumber: forAccount)
-            return handle
-        }
+    func getExpiry(forAccount: String) async throws -> UInt64 {
+        let response = try await context.getAccount(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy(),
+            accountNumber: forAccount)
         let data = try requireBody(response)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
