@@ -16,7 +16,7 @@ use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use anyhow::{Context, Ok, Result};
 use clap::Parser;
 use config::ConfigFile;
-use mullvad_api::partner::PartnerApiClient;
+use mullvad_api::partner::{PartnerApiClient, PartnerApiToken};
 use mullvad_types::account::AccountNumber;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
@@ -80,7 +80,7 @@ enum Commands {
 
         /// Partner API token to use for testing. Overrides the account of the environment.
         #[arg(long, short)]
-        partner_api_token: Option<String>,
+        partner_api_token: Option<PartnerApiToken>,
 
         /// App package to test. Can be a path to the package, just the package file name, git hash
         /// or tag. If the direct path is not given, the package is assumed to be in the directory
@@ -453,7 +453,7 @@ async fn inner_main() -> Result<()> {
 /// Return `account` if set, otherwise the account of `env_config`.
 async fn get_account(
     account: Option<String>,
-    partner_api_token: Option<String>,
+    partner_api_token: Option<PartnerApiToken>,
     env_config: &config::EnvironmentConfig,
 ) -> Result<String> {
     match env_config.environment {
@@ -461,19 +461,19 @@ async fn get_account(
             .or_else(|| env_config.account.clone())
             .context("No account number given, and none is configured for the environment"),
         Some(Environment::Staging) if let Some(partner_api_token) = partner_api_token => {
-            generate_stagemole_account(&partner_api_token).await
+            generate_stagemole_account(partner_api_token).await
         }
         Some(Environment::Staging) if let Some(account) = account => Ok(account.clone()),
         Some(Environment::Staging) => {
             let api_token = env_config.partner_api_token.as_ref().context("No partner API token is configured for the environment. Can not generate account number for tests")?;
-            generate_stagemole_account(api_token).await
+            generate_stagemole_account(PartnerApiToken::from(api_token.to_owned())).await
         }
     }
 }
 
 /// Generate a stagemole account with a validity of 1 day.
-async fn generate_stagemole_account(partner_api_token: &str) -> Result<AccountNumber> {
-    let client = PartnerApiClient::stagemole(partner_api_token.to_owned());
+async fn generate_stagemole_account(partner_api_token: PartnerApiToken) -> Result<AccountNumber> {
+    let client = PartnerApiClient::stagemole(partner_api_token);
     let account = client.create_account().await?;
     client.add_time(&account, 1).await?;
     Ok(account)

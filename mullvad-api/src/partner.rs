@@ -20,24 +20,27 @@ pub struct PartnerApiClient {
     /// Partner API.
     partner: MullvadRestHandle,
     /// Partner API token for authentication.
-    api_token: Sensitive<String>,
+    api_token: PartnerApiToken,
 }
+
+/// An un-printable Partner API token. Used to authenticate against the partner API. See
+/// [PartnerApiClient].
+pub type PartnerApiToken = Sensitive<String>;
 
 impl PartnerApiClient {
     /// mullvad.net
-    pub fn mullvad(api_token: String) -> Self {
+    pub fn mullvad(api_token: PartnerApiToken) -> Self {
         let partner = ApiEndpoint::mullvad_partner();
         Self::new(api_token, partner)
     }
 
     /// stagemole.eu
-    pub fn stagemole(api_token: String) -> Self {
+    pub fn stagemole(api_token: PartnerApiToken) -> Self {
         let partner = ApiEndpoint::stagemole_partner();
         Self::new(api_token, partner)
     }
 
-    fn new(api_token: String, partner: ApiEndpoint) -> Self {
-        let api_token = Sensitive::new(api_token);
+    fn new(api_token: PartnerApiToken, partner: ApiEndpoint) -> Self {
         let partner = {
             let runtime = crate::Runtime::new(tokio::runtime::Handle::current(), &partner);
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct)
