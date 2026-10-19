@@ -67,8 +67,8 @@ impl IosTunDevice {
         );
 
         // SAFETY:
-        // - The underlying socket was successfully created by `dup`, and therefor is valid.
-        // - IosTunDevice is cleaned up if iOS closes the underlying fd. AsyncFd is therefor valid
+        // - The underlying socket was successfully created by `dup`, and therefore is valid.
+        // - IosTunDevice is cleaned up if iOS closes the underlying fd. AsyncFd is therefore valid
         // for the lifetime of the fd.
         // - Since the dup'd fd' is owned by AyncFd, no one else will close it during the lifetime of
         // AsyncFd. Every call to inner.as_raw_fd will return the same file descriptor.
