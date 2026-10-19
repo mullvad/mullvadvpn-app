@@ -55,14 +55,6 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
 
         // Device Proxy
-        case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
-            return MullvadApiCancellable(
-                handle: apiContext.getDevice(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber,
-                    identifier: identifier
-                ))
-
         case let .getDevices(retryStrategy, accountNumber):
             return MullvadApiCancellable(
                 handle: apiContext.getDevices(

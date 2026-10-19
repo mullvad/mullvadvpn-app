@@ -65,6 +65,7 @@ extension REST {
 
         public func createDevicesProxy() -> DeviceHandling {
             MullvadDeviceProxy(
+                apiContext: apiContext,
                 transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadDeviceProxy.dispatchQueue"),
                 responseDecoder: Coding.makeJSONDecoder()
