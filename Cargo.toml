@@ -162,6 +162,7 @@ windows-result = "0.4.1"
 windows-sys = "0.61.2"
 winresource = "0.1.31"
 wmi = "0.18.1"
+zbus = "5.12"
 # We cannot use zerocopy "0.8.32" or above due to https://github.com/google/zerocopy/issues/2880
 # TODO: Update the version when the issue is resolved
 zerocopy = "=0.8.31"
