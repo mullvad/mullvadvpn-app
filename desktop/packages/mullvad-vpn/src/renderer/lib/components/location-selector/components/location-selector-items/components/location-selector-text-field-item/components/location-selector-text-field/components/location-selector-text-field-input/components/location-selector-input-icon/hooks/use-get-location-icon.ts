@@ -1,9 +1,16 @@
 import type { icons } from '../../../../../../../../../../../../icon/types';
+import { useTextFieldContext } from '../../../../../../../../../../../../text-field';
 import type { LocationSelectorItemType } from '../../../../../../../../../types';
 import { useLocationSelectorTextFieldItemContext } from '../../../../../../../LocationSelectorTextFieldItemContext';
 
 export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof icons {
   const { focusInsideTextField } = useLocationSelectorTextFieldItemContext();
+  const { invalid } = useTextFieldContext();
+
+  if (invalid) {
+    return 'alert';
+  }
+
   if (focusInsideTextField) {
     return 'search';
   }
