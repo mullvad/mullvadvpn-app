@@ -1,15 +1,14 @@
-import { useMultihop } from '../../../../features/multihop/hooks';
-import { useConnection } from '../../../../features/tunnel/hooks';
+import { useIsUsingMagicMultihop, useMultihop } from '../../../../features/multihop/hooks';
 
 export function useEntryType() {
   const { multihop } = useMultihop();
-  const { entryHostname } = useConnection();
+  const isUsingMagicMultihop = useIsUsingMagicMultihop();
 
   if (multihop === 'always') {
     return 'entry';
   }
 
-  if (multihop === 'when-needed' && entryHostname) {
+  if (isUsingMagicMultihop) {
     return 'entryAutomatic';
   }
 
