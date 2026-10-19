@@ -163,7 +163,7 @@ impl RoutingSocketInner {
         // SAFETY:
         // - The underlying socket was successfully created by `socket`, and therefore is valid (and
         // open).
-        // - Ownership of the underlying socket is move to AsyncFd. It will therefor remain open and
+        // - Ownership of the underlying socket is moved to AsyncFd. It will therefore remain open and
         // valid for the entire lifetime of AsyncFd.
         // - Since the socket is owned by AyncFd, no one else will close it during the lifetime of
         // AsyncFd. Every call to inner.as_raw_fd will return the same file descriptor.
