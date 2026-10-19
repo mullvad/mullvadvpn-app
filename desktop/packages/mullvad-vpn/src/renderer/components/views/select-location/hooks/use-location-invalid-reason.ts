@@ -3,8 +3,8 @@ import React from 'react';
 import { messages } from '../../../../../shared/gettext';
 import {
   useGetIsRelayLocationInRelayLocationsForHostnames,
-  useRelayLocationsDiscardsHostnames,
-  useRelayLocationsMatchesHostnames,
+  useRelayLocationsDiscards,
+  useRelayLocationsMatches,
   useSelectedEntryOrExitLocation,
 } from '../../../../features/locations/hooks';
 import { LocationType } from '../../../../features/locations/types';
@@ -12,16 +12,24 @@ import { LocationType } from '../../../../features/locations/types';
 export function useLocationInvalidReason(locationType: LocationType) {
   const location = useSelectedEntryOrExitLocation(locationType);
 
-  const relayLocationsMatchesHostnames = useRelayLocationsMatchesHostnames(locationType);
+  const relayLocationsMatches = useRelayLocationsMatches(locationType);
+  const relayLocationsMatchesHostnames = React.useMemo(
+    () => relayLocationsMatches.map((relay) => relay.relay.hostname),
+    [relayLocationsMatches],
+  );
   const getIsRelayLocationInRelayLocationsMatches =
     useGetIsRelayLocationInRelayLocationsForHostnames(relayLocationsMatchesHostnames);
 
-  const relayLocationsDiscardsHostnames = useRelayLocationsDiscardsHostnames(locationType);
+  const relayLocationsDiscards = useRelayLocationsDiscards(locationType);
+  const relayLocationsDiscardsHostnames = React.useMemo(
+    () => relayLocationsDiscards.map((relay) => relay.relay.hostname),
+    [relayLocationsDiscards],
+  );
   const getIsRelayLocationInRelayLocationsDiscards =
     useGetIsRelayLocationInRelayLocationsForHostnames(relayLocationsDiscardsHostnames);
 
   // Ensure we have matches or discards to not give a false positive
-  if (relayLocationsMatchesHostnames.length > 0 || relayLocationsDiscardsHostnames.length > 0) {
+  if (relayLocationsMatches.length > 0 || relayLocationsDiscards.length > 0) {
     const isLocationInRelayLocationsMatches = getIsRelayLocationInRelayLocationsMatches(location);
     const isLocationInRelayLocationsDiscards = getIsRelayLocationInRelayLocationsDiscards(location);
 
