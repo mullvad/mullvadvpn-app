@@ -260,9 +260,12 @@ impl BpfStream {
     }
 
     fn from_file(file: File) -> Result<Self, Error> {
-        Ok(BpfStream {
-            inner: AsyncFd::with_interest(file, Interest::READABLE).map_err(Error::AsyncFd)?,
-        })
+        // SAFETY: All safety invariants listed by register_with_interest are assumed to hold due to
+        // `file` being owned.
+        let async_fd = unsafe { AsyncFd::register_with_interest(file, Interest::READABLE) }
+            .map_err(io::Error::from)
+            .map_err(Error::AsyncFd)?;
+        Ok(BpfStream { inner: async_fd })
     }
 }
 
