@@ -2,8 +2,8 @@
 
 # This script downloads the current version (as defined by android-version-name.txt) from
 # release.mullvad.net and verify that the signature.
-# It then extract the changelog entries for that version and uploads it to github with the
-# apk file and the signature.
+# It then extracts the changelog entries for that version and uploads it to github with the
+# apk and SBOM report along with signatures for both.
 
 set -eu
 
