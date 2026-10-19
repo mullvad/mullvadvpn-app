@@ -71,6 +71,7 @@ export const StyledListItem = styled(StyledListItemRoot)<{
                 border-bottom-right-radius: var(--disabled-border-radius);
               }
               ${StyledListItemTrailingAction} {
+                border-top-right-radius: var(--disabled-border-radius);
                 border-bottom-right-radius: var(--disabled-border-radius);
               }
             }
