@@ -1,6 +1,12 @@
 import { endGroup, info, startGroup } from '@actions/core';
 
-import { getApprovers, getPullRequestAuthor, isUserInTeam, searchMatchingFiles } from './github';
+import {
+  getApprovers,
+  getPullRequestAuthor,
+  getTeamMembers,
+  isUserInTeam,
+  searchMatchingFiles,
+} from './github';
 import { TeamPatterns } from './parse';
 
 async function determineRequiredReviewers(
@@ -28,21 +34,9 @@ async function determineRequiredReviewers(
   return affectedTeams;
 }
 
-async function determineMissingReviewers(affectedTeams: Set<string>) {
+async function determineMissingReviewers(approvers: string[], affectedTeams: Set<string>) {
   // Set of teams that have approved this PR
   const approvedTeams = new Set<string>();
-
-  // Get array of github usernames that have approved the PR
-  const approvers = await getApprovers();
-
-  // PR author automatically counts as an approver. A code owner changing
-  // their own code does not need extra code owner approval. They still
-  // need the code reviewed, but that's not part of code ownership approval.
-  const prAuthor = await getPullRequestAuthor();
-  if (prAuthor && !approvers.includes(prAuthor)) {
-    approvers.push(prAuthor);
-  }
-  info(`👍 PR approved by the following accounts: ${approvers.join(', ')}`);
 
   for (const approver of approvers) {
     for (const team of affectedTeams) {
@@ -63,9 +57,17 @@ async function determineMissingReviewers(affectedTeams: Set<string>) {
   return new Set(missingApprovals);
 }
 
+function crossReferenceApprovers(approvers: string[], allowedApprovers: string[]) {
+  const referenceApprovers = new Set(allowedApprovers);
+
+  return approvers.filter((a) => referenceApprovers.has(a));
+}
+
 type Approvers = {
   required: Set<string>;
   missing: Set<string>;
+  requiredApprovalCount: number;
+  missingApprovalCount: number;
 };
 
 export async function retrieveApprovalState(
@@ -75,9 +77,39 @@ export async function retrieveApprovalState(
   const affectedTeams = await determineRequiredReviewers(changedFiles, codeOwnerships);
 
   if (affectedTeams.size === 0) {
-    return { required: new Set(), missing: new Set() };
+    return {
+      required: new Set(),
+      missing: new Set(),
+      missingApprovalCount: 0,
+      requiredApprovalCount: 0,
+    };
   }
 
-  const missingApprovals = await determineMissingReviewers(affectedTeams);
-  return { required: affectedTeams, missing: missingApprovals };
+  const prAuthor = getPullRequestAuthor();
+
+  // Get array of usernames that have approved the PR
+  const approvers = await getApprovers();
+  const authorIncluded =
+    prAuthor && !approvers.includes(prAuthor)
+      ? // PR author automatically counts as an approver. A code owner changing
+        // their own code does not need extra code owner approval. They still
+        // need the code reviewed, but that's not part of code ownership approval.
+        [...approvers, prAuthor]
+      : [...approvers];
+
+  const missingApprovals = await determineMissingReviewers(authorIncluded, affectedTeams);
+
+  const approvingTeamMembers = crossReferenceApprovers(
+    authorIncluded,
+    await getTeamMembers('appteam'),
+  );
+  const requiredApprovalCount = 2;
+  const missingApprovalCount = Math.max(requiredApprovalCount - approvingTeamMembers.length, 0);
+
+  return {
+    required: affectedTeams,
+    missing: missingApprovals,
+    requiredApprovalCount,
+    missingApprovalCount,
+  };
 }
