@@ -120,6 +120,11 @@ include(
 )
 
 gradle.lifecycle.beforeProject {
+    // Set group based on the full module path.
+    group = "net.mullvad.mullvadvpn" + path.substringBeforeLast(':').replace(':', '.')
+    // Set fixed module version the same way we do for workspace crates.
+    version = "0.0.0"
+
     // `base` adds the `clean` task, which projects without a build file would otherwise lack.
     pluginManager.apply("base")
 
