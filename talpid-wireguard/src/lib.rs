@@ -1203,7 +1203,7 @@ pub enum TunnelError {
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 
-    if talpid_dbus::systemd_resolved::SystemdResolved::new().is_ok() {
+    if talpid_dbus::systemd_resolved::dbus_rs::SystemdResolved::new().is_ok() {
         return false;
     }
 
