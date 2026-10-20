@@ -1,7 +1,8 @@
 import {
   type CustomLists,
-  IRelayList,
-  IWireguardEndpointData,
+  type ILocation,
+  type IRelayList,
+  type IWireguardEndpointData,
   type Recents,
 } from '../../src/shared/daemon-rpc-types';
 
@@ -112,9 +113,21 @@ const recents: Recents = {
   ],
 };
 
+const location: ILocation = {
+  country: 'Sweden',
+  city: 'Gothenburg',
+  hostname: 'mullvad-wireguard-1',
+  latitude: 58,
+  longitude: 12,
+  mullvadExitIp: false,
+  ipv4: '10.0.0.1',
+  ipv6: '00:00:00:00:00:00:00:01',
+};
+
 export const mockData = {
   relayList,
   wireguardEndpointData,
   customLists,
   recents,
+  location,
 };
