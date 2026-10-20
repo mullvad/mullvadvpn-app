@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,11 +48,6 @@
       <trans-unit id="%@ via %@" xml:space="preserve" approved="yes">
         <source>%1$@ via %2$@</source>
         <target state="final">%1$@，经由 %2$@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
-        <source>%@ was added to your account.</source>
-        <target state="final">%@已添加到您的帐户中。</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
@@ -1020,11 +1015,6 @@
         <target state="final">输入 IP</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enter voucher code" xml:space="preserve" approved="yes">
-        <source>Enter voucher code</source>
-        <target state="final">输入优惠码</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
         <source>Enter your account number</source>
         <target state="final">输入您的帐号</target>
@@ -1320,10 +1310,10 @@
         <target state="final">如果您在连接到 VPN 服务器时遇到问题，请联系支持团队。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
-        <target state="final">如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 Cloudflare。</target>
-        <note/>
+      <trans-unit id="If you are not connected to our VPN, then the %@ will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the %@ will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">如果您未连接到我们的 VPN，%@将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 Cloudflare。</target>
+        <note from="auto-generated">A description of an encrypted DNS proxy. The argument is the string “Encrypted DNS proxy”.</note>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
         <source>If you disconnect now, you won’t be able to secure your connection until the device is online.</source>
@@ -1475,11 +1465,6 @@
         <target state="final">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." xml:space="preserve" approved="yes">
-        <source>It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.</source>
-        <target state="final">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Italy" xml:space="preserve" approved="yes">
         <source>Italy</source>
         <target state="final">意大利</target>
@@ -1603,11 +1588,6 @@
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
         <target state="final">退出</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
-        <source>Logging out...</source>
-        <target state="final">正在退出登录…</target>
         <note/>
       </trans-unit>
       <trans-unit id="London" xml:space="preserve" approved="yes">
@@ -1950,11 +1930,6 @@
         <target state="final">覆盖设置处于激活状态</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Obfuscation" xml:space="preserve" approved="yes">
-        <source>Obfuscation</source>
-        <target state="final">混淆</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked." xml:space="preserve" approved="yes">
         <source>Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.</source>
         <target state="final">混淆会将 WireGuard 流量隐藏在其他协议中。这有助于规避审查和其他类型的过滤，在这些过滤中，普通 WireGuard 连接将被阻止。</target>
@@ -2177,7 +2152,7 @@
       </trans-unit>
       <trans-unit id="Quantum resistance" xml:space="preserve" approved="yes">
         <source>Quantum resistance</source>
-        <target state="final">量子阻力</target>
+        <target state="final">抗量子</target>
         <note/>
       </trans-unit>
       <trans-unit id="Quantum-resistant tunnel" xml:space="preserve" approved="yes">
@@ -2218,16 +2193,6 @@
       <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
         <target state="final">正在重新连接到%@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Redeem" xml:space="preserve" approved="yes">
-        <source>Redeem</source>
-        <target state="final">兑换</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Redeem voucher" xml:space="preserve" approved="yes">
-        <source>Redeem voucher</source>
-        <target state="final">兑换优惠券</target>
         <note/>
       </trans-unit>
       <trans-unit id="Refund successful" xml:space="preserve" approved="yes">
@@ -2700,6 +2665,11 @@
         <target state="final">谢谢！</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents." xml:space="preserve" approved="yes">
+        <source>The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents.</source>
+        <target state="final">所使用的 CDN 为 Datapacket 的 CDN77。该 CDN 仅能观察所代理的 TLS 流量，而无法查看具体内容。</target>
+        <note from="auto-generated">Explanation of how the domain fronting method works, focusing on the CDN used and its limitations.</note>
+      </trans-unit>
       <trans-unit id="The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting." xml:space="preserve" approved="yes">
         <source>The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting.</source>
         <target state="final">DAITA 子设置“仅直连”已被移除并简化，以避免阻止连接。现在，在启用 DAITA 的情况下，您可以通过多跳设置来配置此选项。</target>
@@ -2710,6 +2680,11 @@
         <target state="final">此应用直接与 Mullvad API 服务器通信。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The app communicates with a Mullvad API server via %@." xml:space="preserve" approved="yes">
+        <source>The app communicates with a Mullvad API server via %@.</source>
+        <target state="final">此应用通过%@与 Mullvad API 服务器通信。</target>
+        <note from="auto-generated">The text that appears in the body of the "Domain fronting" info modal. The argument is the string “domain fronting”.</note>
+      </trans-unit>
       <trans-unit id="The app communicates with a Mullvad API server via a Mullvad bridge server." xml:space="preserve" approved="yes">
         <source>The app communicates with a Mullvad API server via a Mullvad bridge server.</source>
         <target state="final">此应用通过 Mullvad 桥接服务器与 Mullvad API 服务器通信。</target>
@@ -2719,6 +2694,11 @@
         <source>The app communicates with a Mullvad API server via a proxy address.</source>
         <target state="final">此应用通过代理地址与 Mullvad API 服务器通信。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="The app communicates with a Mullvad API server via domain fronting." xml:space="preserve" approved="yes">
+        <source>The app communicates with a Mullvad API server via domain fronting.</source>
+        <target state="final">此应用通过域前置与 Mullvad API 服务器通信。</target>
+        <note from="auto-generated">The body text of the info header for the "Domain fronting" access method.</note>
       </trans-unit>
       <trans-unit id="The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations." xml:space="preserve" approved="yes">
         <source>The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.</source>
@@ -2789,6 +2769,11 @@
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
         <target state="final">如果 API 被审查，但 Mullvad 的桥接服务器没有被审查，此方法可能很有用。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This can be useful when direct access and other methods are blocked by censorship." xml:space="preserve" approved="yes">
+        <source>This can be useful when direct access and other methods are blocked by censorship.</source>
+        <target state="final">当直接访问和其他方法被审查阻止时，此方法可能会派上用场。</target>
+        <note from="auto-generated">Description of the benefits of using the "Domain fronting" access method when direct access and other methods are blocked by censorship.</note>
       </trans-unit>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
         <source>This can be useful when you are not affected by censorship.</source>
@@ -3030,9 +3015,9 @@
         <target state="final">已取消选中</target>
         <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
       </trans-unit>
-      <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
-        <source>Unexpected error occured.</source>
-        <target state="final">意外出错。</target>
+      <trans-unit id="Unexpected error occurred." xml:space="preserve" approved="yes">
+        <source>Unexpected error occurred.</source>
+        <target state="final">发生意外错误。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Unexpected server response: %1$@ (HTTP status: %2$d)" xml:space="preserve" approved="yes">
@@ -3090,11 +3075,6 @@
         <target state="final">温哥华</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Verifying voucher..." xml:space="preserve" approved="yes">
-        <source>Verifying voucher...</source>
-        <target state="final">正在验证优惠券…</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Vienna" xml:space="preserve" approved="yes">
         <source>Vienna</source>
         <target state="final">维也纳</target>
@@ -3108,21 +3088,6 @@
       <trans-unit id="View app logs" xml:space="preserve" approved="yes">
         <source>View app logs</source>
         <target state="final">查看应用日志</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Voucher code has already been used." xml:space="preserve" approved="yes">
-        <source>Voucher code has already been used.</source>
-        <target state="final">该优惠券码已被使用。</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Voucher code is invalid." xml:space="preserve" approved="yes">
-        <source>Voucher code is invalid.</source>
-        <target state="final">该优惠券码无效。</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Voucher was successfully redeemed." xml:space="preserve" approved="yes">
-        <source>Voucher was successfully redeemed.</source>
-        <target state="final">优惠券已成功兑换。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection." xml:space="preserve" approved="yes">
@@ -3172,7 +3137,7 @@
       </trans-unit>
       <trans-unit id="When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA." xml:space="preserve" approved="yes">
         <source>When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA.</source>
-        <target state="final">当多跳设为“按需”时，App 可能会使用附加服务器，以确保您能使用 DAITA 连接到所选位置。</target>
+        <target state="final">当多跳设为“按需”时，应用可能会使用附加服务器，以确保您能使用 DAITA 连接到所选位置。</target>
         <note/>
       </trans-unit>
       <trans-unit id="When needed" xml:space="preserve" approved="yes">
@@ -3182,12 +3147,12 @@
       </trans-unit>
       <trans-unit id="When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance." xml:space="preserve" approved="yes">
         <source>When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</source>
-        <target state="final">选中后，App 会自动挑选一个随机服务器，优先选择距离出口位置较近的服务器以获得更佳性能。</target>
+        <target state="final">选中后，应用会自动挑选一个随机服务器，优先选择距离出口位置较近的服务器以获得更佳性能。</target>
         <note from="auto-generated">Description of the automatic location in the multihop mode “Always”.</note>
       </trans-unit>
       <trans-unit id="When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance" xml:space="preserve" approved="yes">
         <source>When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance</source>
-        <target state="final">选择“自动”位置时，App 会自动挑选一个随机入口服务器，优先选择距离出口位置较近的服务器以获得更佳性能</target>
+        <target state="final">选择“自动”位置时，应用会自动挑选一个随机入口服务器，优先选择距离出口位置较近的服务器以获得更佳性能</target>
         <note from="auto-generated">Description of a feature in the Automatic location section of the app.</note>
       </trans-unit>
       <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve" approved="yes">
@@ -3205,20 +3170,25 @@
         <target state="final">WireGuard 端口</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve" approved="yes">
-        <source>With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
-        <target state="final">使用“直接”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。</target>
+      <trans-unit id="With the %@ access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor." xml:space="preserve" approved="yes">
+        <source>With the %@ access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor.</source>
+        <target state="final">采用%@访问方法时，应用会通过 CDN 访问 Mullvad API，将流量与大量其他网络流量混合在一起，从而加大审查难度。</target>
+        <note from="auto-generated">A description of the domain fronting access method. The argument is the string “domain fronting”.</note>
+      </trans-unit>
+      <trans-unit id="With the “%@” method, the app communicates with a Mullvad API server directly without any intermediate proxies." xml:space="preserve" approved="yes">
+        <source>With the “%@” method, the app communicates with a Mullvad API server directly without any intermediate proxies.</source>
+        <target state="final">使用“%@”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve" approved="yes">
-        <source>With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
-        <target state="final">利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</target>
+      <trans-unit id="With the “%@” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve" approved="yes">
+        <source>With the “%@” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
+        <target state="final">使用“%@”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks." xml:space="preserve" approved="yes">
-        <source>With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</source>
-        <target state="final">使用“Mullvad 桥接”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。</target>
-        <note/>
+      <trans-unit id="With the “%@” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers." xml:space="preserve" approved="yes">
+        <source>With the “%@” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</source>
+        <target state="final">利用“%@”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</target>
+        <note from="auto-generated">A description of the Encrypted DNS proxy method. The argument is the string “Encrypted DNS proxy”.</note>
       </trans-unit>
       <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
         <source>Would you like to continue?</source>
@@ -3277,7 +3247,7 @@
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="final">您当前已应用入口筛选器。切换至“%@”后，App 将忽略针对自动选择的入口服务器的筛选器设置。</target>
+        <target state="final">您当前已应用入口筛选器。切换至“%@”后，应用将忽略针对自动选择的入口服务器的筛选器设置。</target>
         <note>Variable refers to multihop mode</note>
       </trans-unit>
       <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
@@ -3442,49 +3412,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3494,23 +3464,42 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
     </body>
   </file>
+  <file original="MullvadVPNtvOS/Localizable.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+    </header>
+    <body>
+      <trans-unit id="Hello, world!" xml:space="preserve" approved="yes">
+        <source>Hello, world!</source>
+        <target state="final">你好，世界！</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="MullvadVPNtvOS/MullvadVPNtvOS-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+    </header>
+    <body>
+    </body>
+  </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3532,14 +3521,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="zh-Hans" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
     </header>
     <body>
     </body>
