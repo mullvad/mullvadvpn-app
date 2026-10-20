@@ -95,7 +95,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
 
         throttle {
             do {
-                accountNumber = try self.mullvadAPI.createAccount()
+                accountNumber = try await self.mullvadAPI.createAccount()
             } catch {
                 XCTFail("Failed to create account with error: \(error.localizedDescription)")
             }
@@ -114,7 +114,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
 
         throttle {
             do {
-                try self.mullvadAPI.delete(account: accountNumber)
+                try await self.mullvadAPI.delete(account: accountNumber)
             } catch {
                 XCTFail("Failed to delete account with error: \(error.localizedDescription)")
             }

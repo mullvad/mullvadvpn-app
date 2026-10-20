@@ -87,18 +87,17 @@ class MullvadApi {
             accessMethodChangeListeners: [])
     }
 
-    func createAccount() throws -> String {
-        let response = try makeRequest { strategy in
-            context.createAccount(retryStrategy: strategy)
-        }
+    func createAccount() async throws -> String {
+        let response = try await context.createAccount(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy())
         let data = try requireBody(response)
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
     }
 
-    func delete(account: String) throws {
-        _ = try makeRequest { strategy in
-            context.deleteAccount(retryStrategy: strategy, accountNumber: account)
-        }
+    func delete(account: String) async throws {
+        _ = try await context.deleteAccount(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy(),
+            accountNumber: account)
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {

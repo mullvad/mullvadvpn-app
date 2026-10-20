@@ -88,21 +88,17 @@ extension REST {
             retryStrategy: RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            let request = APIRequest.deleteAccount(retryStrategy, accountNumber: accountNumber)
-
-            let networkOperation = MullvadApiNetworkOperation(
-                name: request.name,
-                dispatchQueue: dispatchQueue,
-                request: request,
-                transportProvider: transportProvider,
-                responseDecoder: responseDecoder,
-                responseHandler: rustEmptyResponseHandler(),
-                completionHandler: completion
-            )
-
-            operationQueue.addOperation(networkOperation)
-
-            return networkOperation
+            Task {
+                do {
+                    let response = try await apiContext.deleteAccount(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber)
+                    _ = try response.get()
+                    completion(.success(()))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.cancellable
         }
 
         private func createNetworkOperation<Success: Decodable>(
