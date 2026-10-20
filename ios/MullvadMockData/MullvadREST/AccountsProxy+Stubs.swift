@@ -57,9 +57,5 @@ struct AccountsProxyStub: RESTAccountHandling {
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Void>
-    ) -> Cancellable {
-        completion(deleteAccountResult)
-        return AnyCancellable()
-    }
+    ) async throws {}
 }

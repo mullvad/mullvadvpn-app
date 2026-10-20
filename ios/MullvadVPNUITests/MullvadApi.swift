@@ -95,10 +95,10 @@ class MullvadApi {
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
     }
 
-    func delete(account: String) throws {
-        _ = try makeRequest { strategy in
-            context.deleteAccount(retryStrategy: strategy, accountNumber: account)
-        }
+    func delete(account: String) async throws {
+        _ = try await context.deleteAccount(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy(),
+            accountNumber: account)
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {

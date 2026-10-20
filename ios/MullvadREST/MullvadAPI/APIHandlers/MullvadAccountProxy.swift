@@ -26,8 +26,7 @@ public protocol RESTAccountHandling: Sendable {
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Void>
-    ) -> Cancellable
+    ) async throws
 }
 
 extension REST {
@@ -83,23 +82,14 @@ extension REST {
         public func deleteAccount(
             accountNumber: String,
             retryStrategy: RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<Void>
-        ) -> Cancellable {
-            let request = APIRequest.deleteAccount(retryStrategy, accountNumber: accountNumber)
+        ) async throws {
+            let response = try await apiContext.deleteAccount(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber)
 
-            let networkOperation = MullvadApiNetworkOperation(
-                name: request.name,
-                dispatchQueue: dispatchQueue,
-                request: request,
-                transportProvider: transportProvider,
-                responseDecoder: responseDecoder,
-                responseHandler: rustEmptyResponseHandler(),
-                completionHandler: completion
-            )
-
-            operationQueue.addOperation(networkOperation)
-
-            return networkOperation
+            if case let .error(statusCode, errorDescription, serverResponseCode) = response {
+                throw APIError(statusCode: Int(statusCode), errorDescription: errorDescription ?? "", serverResponseCode: serverResponseCode)
+            }
         }
 
         private func createNetworkOperation<Success: Decodable>(

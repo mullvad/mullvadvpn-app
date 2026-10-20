@@ -11,7 +11,7 @@
 import XCTest
 
 class AccountTests: LoggedOutUITestCase {
-    func testCreateAccount() throws {
+    func testCreateAccount() async throws {
         LoginPage(app)
             .tapCreateAccountButton()
             .tryConfirmAccountCreation()
@@ -19,7 +19,7 @@ class AccountTests: LoggedOutUITestCase {
         // Verify welcome page is shown and get account number from it
         let accountNumber = WelcomePage(app).getAccountNumber()
 
-        mullvadAPIWrapper.deleteAccount(accountNumber)
+        await mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
     func testCreateAccountWithLastUsedAccount() async throws {
@@ -28,7 +28,9 @@ class AccountTests: LoggedOutUITestCase {
 
         // Teardown
         addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            Task {
+                await self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            }
         }
 
         login(accountNumber: temporaryAccountNumber)
@@ -48,7 +50,7 @@ class AccountTests: LoggedOutUITestCase {
         // Verify welcome page is shown and get account number from it
         let accountNumber = WelcomePage(app).getAccountNumber()
 
-        self.mullvadAPIWrapper.deleteAccount(accountNumber)
+        await self.mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
     func testDeleteAccount() async throws {
@@ -82,7 +84,9 @@ class AccountTests: LoggedOutUITestCase {
 
         // Teardown
         addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            Task {
+                await self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            }
         }
 
         login(accountNumber: temporaryAccountNumber)
@@ -108,7 +112,9 @@ class AccountTests: LoggedOutUITestCase {
 
         // Teardown
         addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            Task {
+                await self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            }
         }
 
         login(accountNumber: temporaryAccountNumber)
@@ -165,7 +171,9 @@ class AccountTests: LoggedOutUITestCase {
 
         // Teardown
         addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            Task {
+                await self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
+            }
         }
 
         login(accountNumber: temporaryAccountNumber)
@@ -191,7 +199,7 @@ class AccountTests: LoggedOutUITestCase {
         LoginPage(app)
 
         XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 0, "Account has 0 devices")
-        mullvadAPIWrapper.deleteAccount(newAccountNumber)
+        await mullvadAPIWrapper.deleteAccount(newAccountNumber)
     }
 
     func testTimeLeft() async throws {
@@ -222,7 +230,9 @@ class AccountTests: LoggedOutUITestCase {
 
         // Teardown
         addTeardownBlock {
-            self.mullvadAPIWrapper.deleteAccount(accountNumber)
+            Task {
+                await self.mullvadAPIWrapper.deleteAccount(accountNumber)
+            }
         }
 
         await addTime(accountNumber: accountNumber, days: 1)

@@ -299,22 +299,18 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private func deleteAccount(accountNumber: String, completion: @escaping @Sendable (Result<Void, Error>) -> Void) {
         logger.debug("Delete account...")
 
-        let task = accountsProxy.deleteAccount(
-            accountNumber: accountNumber,
-            retryStrategy: .default
-        ) { [self] result in
-            dispatchQueue.async { [self] in
-                let result = result.inspectError { error in
-                    guard !error.isOperationCancellationError else { return }
-
-                    logger.error(error: error, message: "Failed to delete account.")
-                }
-
-                completion(result)
+        let task = Task {
+            do {
+                try await accountsProxy.deleteAccount(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default)
+            } catch {
+                guard !error.isOperationCancellationError else { return }
+                logger.error(error: error, message: "Failed to delete account.")
             }
         }
 
-        tasks.append(task)
+        tasks.append(task.cancellable)
     }
 
     /// Delete device from API.

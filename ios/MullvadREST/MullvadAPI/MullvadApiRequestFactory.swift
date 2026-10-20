@@ -42,12 +42,6 @@ public struct MullvadApiRequestFactory: Sendable {
                     retryStrategy: retryStrategy.toRustStrategy(),
                     request: problemReportRequest
                 ))
-        case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
-            return MullvadApiCancellable(
-                handle: apiContext.deleteAccount(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber
-                ))
 
         // Device Proxy
         case let .getDevices(retryStrategy, accountNumber):

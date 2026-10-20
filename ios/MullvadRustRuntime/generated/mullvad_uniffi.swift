@@ -1117,7 +1117,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func createAccount(retryStrategy: RetryStrategy) async throws  -> ApiResponse
     
-    func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
     func getAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
@@ -1290,14 +1290,21 @@ open func createAccount(retryStrategy: RetryStrategy)async throws  -> ApiRespons
         )
 }
     
-open func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_delete_account(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_delete_account(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func getAccount(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
@@ -4120,7 +4127,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_create_account() != 57493) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_account() != 38112) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_account() != 18133) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 9768) {
