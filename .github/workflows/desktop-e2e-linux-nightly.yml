@@ -13,5 +13,6 @@ env:
 jobs:
   run:
     uses: ./.github/workflows/desktop-e2e.yml
+    secrets: inherit
     with:
       oses: "debian13 ubuntu2404 ubuntu2604 ubuntu2610 fedora43 fedora44 fedora45"
