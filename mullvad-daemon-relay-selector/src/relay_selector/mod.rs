@@ -6,75 +6,14 @@ use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use mullvad_relay_selector::query::{RelayQuery, obfuscation_constraint_from_settings};
-use mullvad_relay_selector::{EntrySpecificConstraints, GetRelay, RelaySelector};
+use mullvad_relay_selector::query::RelayQuery;
+use mullvad_relay_selector::{GetRelay, RelaySelector};
 use mullvad_types::custom_list::CustomListsSettings;
-use mullvad_types::relay_constraints::ObfuscationConstraint;
-use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
-use talpid_types::net::obfuscation::ObfuscatorConfig;
-use talpid_types::net::obfuscation::Obfuscators;
+use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
 
 use crate::relay_list;
-
-/// The kind of an obfuscation method.
-///
-/// Differs from [`SelectedObfuscation`], which contains `Off` and `Auto`.
-#[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
-pub enum ObfuscationMethodKind {
-    Udp2Tcp,
-    Shadowsocks,
-    Quic,
-    Lwo,
-}
-
-impl ObfuscationMethodKind {
-    fn to_constraint(self) -> EntrySpecificConstraints {
-        EntrySpecificConstraints {
-            obfuscation: obfuscation_constraint_from_settings(ObfuscationSettings {
-                selected_obfuscation: match self {
-                    ObfuscationMethodKind::Udp2Tcp => SelectedObfuscation::Udp2Tcp,
-                    ObfuscationMethodKind::Shadowsocks => SelectedObfuscation::Shadowsocks,
-                    ObfuscationMethodKind::Quic => SelectedObfuscation::Quic,
-                    ObfuscationMethodKind::Lwo => SelectedObfuscation::Lwo,
-                },
-                ..Default::default()
-            }),
-            ..Default::default()
-        }
-    }
-}
-
-impl From<&ObfuscatorConfig> for ObfuscationMethodKind {
-    fn from(config: &ObfuscatorConfig) -> Self {
-        match config {
-            ObfuscatorConfig::Udp2Tcp { .. } => ObfuscationMethodKind::Udp2Tcp,
-            ObfuscatorConfig::Shadowsocks { .. } => ObfuscationMethodKind::Shadowsocks,
-            ObfuscatorConfig::Quic { .. } => ObfuscationMethodKind::Quic,
-            ObfuscatorConfig::Lwo { .. } => ObfuscationMethodKind::Lwo,
-        }
-    }
-}
-
-/// The obfuscation methods tried, in order, by the staggered obfuscation retry strategy.
-///
-/// Each connection attempt selects a relay supporting at least one of the still-pending
-/// methods, then removes every method that relay offers from the pending set. Once the set
-/// is empty, a new round starts. This guarantees that every method is attempted at least
-/// once per round, in a number of retries bounded by the number of methods.
-// pub const RETRY_ORDER: &[ObfuscationMethodKind] = &[
-//     ObfuscationMethodKind::Lwo,
-//     ObfuscationMethodKind::Shadowsocks,
-//     ObfuscationMethodKind::Quic,
-//     ObfuscationMethodKind::Udp2Tcp,
-// ];
-
-/// The staggered obfuscation retry round, see [`RETRY_ORDER`].
-#[derive(Debug, Default)]
-pub struct ObfuscationRound {
-    failed_methods: ObfuscationConstraint,
-}
 
 /// A [RelaySelector] instance backed by a relay list on-disk.
 ///
