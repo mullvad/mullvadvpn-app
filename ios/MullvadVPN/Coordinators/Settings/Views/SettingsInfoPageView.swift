@@ -31,6 +31,7 @@ struct SettingsInfoPageView: View {
                 Image(image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .accessibilityHidden(true)
                 if let text {
                     bodyText(text)
                         .fixedSize(horizontal: false, vertical: true)
