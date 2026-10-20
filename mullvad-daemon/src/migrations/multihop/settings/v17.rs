@@ -121,7 +121,7 @@ impl __Settings {
             return Ok(self);
         }
 
-        let relay = relay_selector.get_relay_by_query(query.clone());
+        let relay = relay_selector.get_relay_by_query(&query);
         if let Ok(GetRelay {
             inner: WireguardConfig::Multihop { entry, .. },
             ..

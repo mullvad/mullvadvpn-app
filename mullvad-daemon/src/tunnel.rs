@@ -215,18 +215,8 @@ impl InnerParametersGenerator {
             endpoint,
             obfuscator,
             inner,
+            server_override,
         } = selected_relay;
-
-        let server_override = {
-            let first_relay = match &inner {
-                WireguardConfig::Singlehop { exit } => exit,
-                WireguardConfig::Multihop { exit: _, entry } => entry,
-            };
-            match endpoint.peer.endpoint {
-                SocketAddr::V4(_) => first_relay.overridden_ipv4,
-                SocketAddr::V6(_) => first_relay.overridden_ipv6,
-            }
-        };
 
         self.last_generated_relays = Some(LastSelectedRelays {
             config: inner,

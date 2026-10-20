@@ -108,50 +108,45 @@ impl RelaySelectorIO {
         let mut relays = vec![];
 
         // First, we make a WireGuard-only attempt before using any obfuscations
-        if let Some(wg_query) = user_query.clone().direct_only()
-            && let Ok(wg_relay) = self.get_relay_by_query(wg_query)
+        if let Some(wg_query) = user_query.clone().wireguard_only()
+            && let Ok(wg_relay) = self.get_relay_by_query(&wg_query)
         {
             relays.push(wg_relay);
         }
-        // Append relays until we have covered all obfuscation methods included in the user query
-        loop {
-            let Ok(relay) = self.get_relay_by_query(user_query.clone()) else {
-                // No more relays can be found
-                return relays;
-            };
 
-            // Remove the methods the selected relay offers from the pending set. A relay selected
-            // for one pending method multiplexes every method it supports, so they have all been
-            // attempted and should not be retried within this round.
-            let (direct, obf_configs) = match &relay.obfuscator {
-                None => (Some(relay.endpoint.peer.endpoint), vec![]),
-                Some(Obfuscators::Multiplexer {
-                    direct,
-                    configs: (first, rest),
-                }) => {
-                    let obf_configs = iter::once(first).chain(rest.iter()).collect();
-                    (*direct, obf_configs)
-                }
-                Some(Obfuscators::Single(conf)) => (None, vec![conf]),
-            };
-            let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
-            // Note here that we don't e.g. check that the port matches.
-            // If we wanted to make the Obfuscation constraints support the same
-            // method specified multiple times with different settings/ports, then we
-            // should match on the chosen endpoint.
-            if let Some(addr) = direct {
-                debug_assert_eq!(addr, relay.endpoint.peer.endpoint);
-                obfuscation.direct = None;
-            }
-            for config in obf_configs {
-                match config {
-                    ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
-                    ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
-                    ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
-                    ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
-                }
-            }
+        // Then, append relays until we have covered all obfuscation methods included in the user query
+        while let Ok(relay) = self.get_relay_by_query(&user_query) {
+            remove_supported_obfuscations(&mut user_query, &relay);
             relays.push(relay);
+        }
+        // No more relays can be found
+        relays
+    }
+}
+
+/// Remove the obfuscation methods that the selected relay offers from the query.
+fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) {
+    let (direct, obf_configs) = match &relay.obfuscator {
+        None => (true, vec![]),
+        Some(Obfuscators::Multiplexer {
+            direct,
+            configs: (first, rest),
+        }) => (
+            direct.is_some(),
+            iter::once(first).chain(rest.iter()).collect(),
+        ),
+        Some(Obfuscators::Single(conf)) => (false, vec![conf]),
+    };
+    let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
+    if direct {
+        obfuscation.direct = None;
+    }
+    for config in obf_configs {
+        match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+            ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+            ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+            ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
         }
     }
 }

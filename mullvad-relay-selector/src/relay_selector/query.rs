@@ -54,9 +54,8 @@ pub enum Hops {
 }
 
 impl RelayQuery {
-    // TODO: less cheeky name
     /// Constrain query to only direct/wireguard connect, if compatible with obfuscation constraint
-    pub fn direct_only(mut self) -> Option<Self> {
+    pub fn wireguard_only(mut self) -> Option<Self> {
         let obfuscation = &mut self.entry_specific_mut().obfuscation;
         *obfuscation = ObfuscationConstraint {
             direct: Some(obfuscation.direct?), // If direct is None, intersection returns None
