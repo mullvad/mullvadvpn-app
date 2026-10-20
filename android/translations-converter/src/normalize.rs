@@ -64,7 +64,7 @@ mod gettext {
             let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes
             let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
-            // Replace double-backspace newline with single backspace newline
+            // Replace double-backslash newline with single backslash newline
             let string = ESCAPED_NEWLINE.replace_all(&string, r"\n");
 
             string.into_owned()
