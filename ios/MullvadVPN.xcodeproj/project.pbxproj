@@ -884,6 +884,7 @@
 		A992DA242C24709F00DE7CE5 /* MullvadRustRuntime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A998DA812BD147AD001D61A2 /* ListCustomListsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A998DA802BD147AD001D61A2 /* ListCustomListsPage.swift */; };
 		A998DA832BD2B055001D61A2 /* EditCustomListLocationsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A998DA822BD2B055001D61A2 /* EditCustomListLocationsPage.swift */; };
+		A99D5FEE308742C300822780 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; };
 		A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */; };
 		A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */; };
 		A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
@@ -2978,6 +2979,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A99D5FEE308742C300822780 /* WireGuardKitTypes in Frameworks */,
 				F0C3333C2B31A29C00D1A478 /* MullvadSettings.framework in Frameworks */,
 				58D223BF294C8AE90029F5F8 /* Operations.framework in Frameworks */,
 				58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */,
@@ -5115,6 +5117,29 @@
 			path = MullvadRustRuntime;
 			sourceTree = "<group>";
 		};
+		A99D5FEF308745A400822780 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A942FDDF3077AF3000CFAD89 /* DependencyManager.swift */,
+				A926A9B93075378B005946C5 /* LoginViewModel.swift */,
+				A926A9BF30764365005946C5 /* Navigation.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A99D5FF03087460000822780 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A926A9C730764687005946C5 /* AccountView.swift */,
+				A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */,
+				A926A9B430753702005946C5 /* LoginView.swift */,
+				A926A9C930764A10005946C5 /* MapView.swift */,
+				A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */,
+				A926A9BB30764316005946C5 /* MullvadTvOSRootView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		A9D9A4C12C36D53C004088DD /* MullvadRustRuntimeTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -5517,18 +5542,11 @@
 		F9FF6095304E918900B0B36C /* MullvadVPNtvOS */ = {
 			isa = PBXGroup;
 			children = (
-				A926A9C730764687005946C5 /* AccountView.swift */,
-				F9FF6092304E918900B0B36C /* Assets.xcassets */,
-				A926A9C1307643AB005946C5 /* CreateAccountPromptView.swift */,
-				A942FDDF3077AF3000CFAD89 /* DependencyManager.swift */,
-				A926A9B430753702005946C5 /* LoginView.swift */,
-				A926A9B93075378B005946C5 /* LoginViewModel.swift */,
-				A926A9C930764A10005946C5 /* MapView.swift */,
-				A926A9BD30764343005946C5 /* MullvadTVHeaderView.swift */,
-				A926A9BB30764316005946C5 /* MullvadTvOSRootView.swift */,
-				F9FF6094304E918900B0B36C /* MullvadVPNtvOSApp.swift */,
-				A926A9BF30764365005946C5 /* Navigation.swift */,
 				A942FDF33079895800CFAD89 /* Info.plist */,
+				F9FF6094304E918900B0B36C /* MullvadVPNtvOSApp.swift */,
+				F9FF6092304E918900B0B36C /* Assets.xcassets */,
+				A99D5FEF308745A400822780 /* Models */,
+				A99D5FF03087460000822780 /* Views */,
 			);
 			path = MullvadVPNtvOS;
 			sourceTree = "<group>";
@@ -7542,7 +7560,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */,
-				7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */,
 				7AE16DCE2F9B98EF00A72A39 /* InAppLogBuffer.swift in Sources */,
 				E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */,
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
