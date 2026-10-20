@@ -152,6 +152,7 @@
     <string name="delete">حذف کردن</string>
     <string name="delete_account">حذف حساب</string>
     <string name="delete_account_cant_be_undone">حذف حسابتان قابل بازگرداندن نیست.</string>
+    <string name="delete_account_complete_subtitle">ممنونیم که بخشی از جامعه ما بودید.\nحریم خصوصی برای مردم است!</string>
     <string name="delete_account_confirm_first_item"><b>این اقدام قابل بازگرداندن نیست.</b></string>
     <string name="delete_account_confirm_second_item"><b>دسترسی به این حساب را در همه دستگاه‌ها از دست خواهید داد.</b></string>
     <string name="delete_account_confirm_third_item"><b>بازیابی حساب ممکن نخواهد بود.</b></string>
@@ -345,10 +346,12 @@
     <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون <b>%1$s</b> نام دارد.</string>
     <string name="new_device_notification_title">دستگاه جدید ایجاد شد</string>
     <string name="new_list">فهرست جدید</string>
+    <string name="new_multihop_modes_first_paragraph">قابلیت چندگامی (Multihop) اکنون به سه حالت تقسیم شده است: «در صورت نیاز»، «همیشه» و «هرگز». این امکان انعطاف‌پذیری بیشتری در تنظیمات اتصال شما فراهم می‌کند.</string>
     <string name="new_multihop_modes_off_to_always">تنظیمات چندگامی شما از «خاموش» به «همیشه» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_off_to_never">تنظیمات چندگامی شما از «خاموش» به «هرگز» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_off_to_when_needed">تنظیمات چندگامی شما از «خاموش» به «در صورت نیاز» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_on_to_always">تنظیمات چندگامی شما از «روشن» به «همیشه» انتقال پیدا کرد</string>
+    <string name="new_multihop_nodes_when_needed_description">برای اطمینان از اینکه تنظیمات فعلی شما با موقعیت مکانی انتخابی‌تان کار می‌کند و برای جلوگیری از مسدود شدن اتصال شما، برنامه ممکن است به طور خودکار از طریق یک سرور ورودی متفاوت، به صورت چندگامی (multihop) عمل کند.\nاین با نماد %1$s نشان داده خواهد شد.</string>
     <string name="next">بعدی</string>
     <string name="next_with_icon">بعدی %1$s</string>
     <string name="no_custom_lists_available">هیچ فهرست سفارشی موجود نیست</string>

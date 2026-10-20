@@ -152,6 +152,7 @@
     <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
     <string name="delete_account_cant_be_undone">لا يمكن التراجع عن حذف حسابك.</string>
+    <string name="delete_account_complete_subtitle">نشكرك لكونك جزء من مجتمعنا.\nالخصوصية حق للجميع!</string>
     <string name="delete_account_confirm_first_item"><b>لا يمكن التراجع عن هذا الإجراء.</b></string>
     <string name="delete_account_confirm_second_item"><b>سوف تفقد صلاحية الوصول إلى هذا الحساب على جميع الأجهزة.</b></string>
     <string name="delete_account_confirm_third_item"><b>لن يكون من الممكن استرداد الحساب.</b></string>
@@ -345,10 +346,12 @@
     <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن <b>%1$s</b>.</string>
     <string name="new_device_notification_title">تم إنشاء جهاز جديد</string>
     <string name="new_list">قائمة جديدة</string>
+    <string name="new_multihop_modes_first_paragraph">ينقسم وضع القفزات المتعددة الآن إلى ثلاثة خيارات: \"عند الحاجة\"، و\"دائمًا\"، و\"مطلقًا\".\nيمنحك هذا مرونة أكبر في إدارة تفضيلات الاتصال لديك.</string>
     <string name="new_multihop_modes_off_to_always">تم تبديل إعداد القفزات المتعددة لديك من \"إيقاف التشغيل\" إلى \"دائمًا\"</string>
     <string name="new_multihop_modes_off_to_never">تم تبديل إعداد القفزات المتعددة لديك من \"إيقاف التشغيل\" إلى \"مطلقًا\"</string>
     <string name="new_multihop_modes_off_to_when_needed">تم تبديل إعداد القفزات المتعددة لديك من \"إيقاف التشغيل\" إلى \"عند الحاجة\"</string>
     <string name="new_multihop_modes_on_to_always">تم تبديل إعداد القفزات المتعددة لديك من \"تشغيل\" إلى \"دائمًا\"</string>
+    <string name="new_multihop_nodes_when_needed_description">لضمان عمل إعداداتك الحالية مع الموقع المحدد ولتجنب حظر اتصالك، قد يقوم التطبيق تلقائيًا بالاتصال عبر قفزات متعددة من خلال خادم دخول مختلف.\nوسيتم توضيح ذلك بالرمز %1$s.</string>
     <string name="next">التالي</string>
     <string name="next_with_icon">التالي %1$s</string>
     <string name="no_custom_lists_available">لا توجد قوائم مُخصَّصة متاحة</string>

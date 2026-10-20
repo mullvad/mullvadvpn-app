@@ -154,6 +154,7 @@
     <string name="delete">ဖျက်ရန်</string>
     <string name="delete_account">အကောင့် ဖျက်ရန်</string>
     <string name="delete_account_cant_be_undone">သင့်အကောင့် ဖျက်ခြင်းကို ပြန်ပြင်၍မရနိုင်ပါ။</string>
+    <string name="delete_account_complete_subtitle">ကျွန်ုပ်တို့၏ အသိုက်အဝန်းတွင် ပါဝင်ပေးသည့်အတွက် ကျေးဇူးတင်ပါသည်။\nကိုယ်ရေးလုံခြုံမှုသည် လူတိုင်းအတွက် အရေးကြီးပါသည်။</string>
     <string name="delete_account_confirm_first_item"><b>ဤလုပ်ဆောင်မှုကို ပြန်ပြင်၍မရပါ။</b></string>
     <string name="delete_account_confirm_second_item"><b>စက်အားလုံးတွင် ဤအကောင့်သို့ ဝင်သုံးခွင့်ကို ဆုံးရှုံးပါမည်။</b></string>
     <string name="delete_account_confirm_third_item"><b>အကောင့်ပြန်ဆယ်၍ ရနိုင်မည်မဟုတ်ပါ။</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%1$s</b> ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
+    <string name="new_multihop_modes_first_paragraph">ယခုအခါ Multihop ကို မုဒ်သုံးခုအဖြစ် ခွဲထုတ်ပါသည်- ၎င်းတို့မှာ လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။\nယင်းက သင်၏ ချိတ်ဆက်မှု ဦးစားပေးများနှင့်အညီ ပြောင်းလွယ်ပြင်လွယ် အသုံးပြုနိုင်စေသည်။</string>
     <string name="new_multihop_modes_off_to_always">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “အမြဲတမ်း” သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_never">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “ဘယ်တော့မှ\" သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_when_needed">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်\" သို့ ပြောင်းရွှေ့ထားသည်</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Multihop မုဒ်အသစ်များ</string>
     <string name="new_multihop_nodes_always_description">Multihop ကို ဖွင့်ထားသည်။ ရွေးချယ်ထားသော တည်နေရာကိုဖြတ်ပြီး မထွက်ခွာမီ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပို့ပေးသည်။</string>
     <string name="new_multihop_nodes_never_description">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန် သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိအသက်ဝင်နေသော ဆက်တင်အားလုံးကို ပံ့ပိုးပေးရမည်။</string>
+    <string name="new_multihop_nodes_when_needed_description">သင့်လက်ရှိဆက်တင်သည် သင်ရွေးချယ်ထားသောတည်နေရာနှင့် အလုပ်လုပ်ကြောင်း သေချာစေရန်နှင့် သင့်ချိတ်ဆက်မှု ပိတ်ပင်မခံရစေရန် အက်ပ်သည် မတူသော အဝင်ဆာဗာတစ်ခုမှ အလိုအလျောက် Multihop လုပ်ကောင်းလုပ်နိုင်ပါသည်။\n၎င်းကို %1$s သင်္ကေတဖြင့် ဖော်ပြပါမည်။</string>
     <string name="next">ရှေ့သို့</string>
     <string name="next_with_icon">ရှေ့သို့ %1$s</string>
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>

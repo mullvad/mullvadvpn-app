@@ -154,6 +154,7 @@
     <string name="delete">刪除</string>
     <string name="delete_account">刪除帳戶</string>
     <string name="delete_account_cant_be_undone">刪除帳戶的操作無法復原。</string>
+    <string name="delete_account_complete_subtitle">感謝您加入我們的社群。\n大家都享有隱私權！</string>
     <string name="delete_account_confirm_first_item"><b>此操作無法復原。</b></string>
     <string name="delete_account_confirm_second_item"><b>您在所有裝置上都將無法存取此帳戶。</b></string>
     <string name="delete_account_confirm_third_item"><b>將無法恢復帳戶。</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">歡迎，此裝置現在名為 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
+    <string name="new_multihop_modes_first_paragraph">多點跳躍現在分為三種模式：「必要時」、「一律」和「從不」。\n這讓您在設定連線喜好設定時更有彈性。</string>
     <string name="new_multihop_modes_off_to_always">您的多點跳躍設定已從「關閉」遷移至「一律」</string>
     <string name="new_multihop_modes_off_to_never">您的多點跳躍設定已從「關閉」遷移至「從不」</string>
     <string name="new_multihop_modes_off_to_when_needed">您的多點跳躍設定已從「關閉」遷移至「必要時」</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">新多點跳躍模式</string>
     <string name="new_multihop_nodes_always_description">已啟用多點跳躍。您的連線將先行經入口伺服器，再從所選位置出口。</string>
     <string name="new_multihop_nodes_never_description">已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。</string>
+    <string name="new_multihop_nodes_when_needed_description">為確保您目前的設定與所選位置相容，並避免連線遭到封鎖，應用程式可能會自動透過不同的入口伺服器進行多點跳躍。\n這將以 %1$s 符號標示。</string>
     <string name="next">下一步</string>
     <string name="next_with_icon">下一步 %1$s</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>
