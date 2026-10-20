@@ -54,26 +54,14 @@ pub enum Hops {
 }
 
 impl RelayQuery {
-    /// Tighten `self`'s entry-specific constraints by intersecting them with `retry`.
-    ///
-    /// Returns `None` when the retry's constraints are incompatible with the user's
-    /// — e.g., the user pinned ip_version=v4 and the retry wants v6. The retry order
-    /// only ever modifies obfuscation and ip_version, both of which live in
-    /// [`EntrySpecificConstraints`], so this is the only kind of merging needed.
-    pub fn merge_retry(mut self, retry: EntrySpecificConstraints) -> Option<Self> {
-        let merged = self.entry_specific().clone().intersection(retry)?;
-        *self.entry_specific_mut() = merged;
-        Some(self)
-    }
-
     // TODO: less cheeky name
     /// Constrain query to only direct/wireguard connect, if compatible with obfuscation constraint
     pub fn direct_only(mut self) -> Option<Self> {
         let obfuscation = &mut self.entry_specific_mut().obfuscation;
-        *obfuscation = obfuscation.clone().intersection(ObfuscationConstraint {
-            direct: Some(Default::default()),
-            ..Default::default() // Other are disabled (None or false)
-        })?;
+        *obfuscation = ObfuscationConstraint {
+            direct: Some(obfuscation.direct?), // If direct is None, intersection returns None
+            ..Default::default()               // Other are disabled (None or false)
+        };
         Some(self)
     }
 

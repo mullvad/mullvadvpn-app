@@ -1,18 +1,15 @@
 pub mod grpc_service;
 
-use std::default;
+use std::iter;
 use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
 
 use mullvad_relay_selector::query::{RelayQuery, obfuscation_constraint_from_settings};
-use mullvad_relay_selector::{EntrySpecificConstraints, Error, GetRelay, RelaySelector};
-use mullvad_types::Intersection;
-use mullvad_types::constraints::Constraint;
+use mullvad_relay_selector::{EntrySpecificConstraints, GetRelay, RelaySelector};
 use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_constraints::ObfuscationConstraint;
-use mullvad_types::relay_constraints::WireguardPortSettings;
 use mullvad_types::relay_constraints::{ObfuscationSettings, SelectedObfuscation};
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
@@ -166,8 +163,9 @@ impl RelaySelectorIO {
     }
 
     /// Return a list of next relays to connect to, in order. The list has multiple entries if
-    ///
-    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> Result<Vec<GetRelay>, Error> {
+    /// obfuscation is used, indicating the relays which to connect to in order of preference.
+    /// The list is empty if no relays match the query.
+    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> Vec<GetRelay> {
         let mut relays = vec![];
 
         // First, we make a WireGuard-only attempt before using any obfuscations
@@ -176,42 +174,45 @@ impl RelaySelectorIO {
         {
             relays.push(wg_relay);
         }
+        // Append relays until we have covered all obfuscation methods included in the user query
         loop {
-            // Get relay using query initial query
-            let relay = self.get_relay_by_query(user_query.clone())?;
+            let Ok(relay) = self.get_relay_by_query(user_query.clone()) else {
+                // No more relays can be found
+                return relays;
+            };
 
             // Remove the methods the selected relay offers from the pending set. A relay selected
             // for one pending method multiplexes every method it supports, so they have all been
             // attempted and should not be retried within this round.
-            if let Some(Obfuscators::Multiplexer {
-                direct,
-                configs: (first, rest),
-            }) = &relay.obfuscator
-            {
-                let obf_configs = std::iter::once(first).chain(rest.iter());
-                let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
-                // Note here that we don't e.g. check that the port matches.
-                // If we wanted to make the Obfuscation constraints support the same
-                // method specified multiple times with different settings/ports, then we
-                // should match on the chosen endpoint.
-                if let Some(addr) = direct {
-                    debug_assert_eq!(*addr, relay.endpoint.peer.endpoint);
-                    obfuscation.direct = None;
+            let (direct, obf_configs) = match &relay.obfuscator {
+                None => (Some(relay.endpoint.peer.endpoint), vec![]),
+                Some(Obfuscators::Multiplexer {
+                    direct,
+                    configs: (first, rest),
+                }) => {
+                    let obf_configs = iter::once(first).chain(rest.iter()).collect();
+                    (*direct, obf_configs)
                 }
-                for config in obf_configs {
-                    match config {
-                        ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
-                        ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
-                        ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
-                        ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
-                    }
-                }
-                relays.push(relay);
-            } else {
-                relays.push(relay);
-                // Either no obfuscation or a single obfuscation
-                return Ok(relays);
+                Some(Obfuscators::Single(conf)) => (None, vec![conf]),
+            };
+            let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
+            // Note here that we don't e.g. check that the port matches.
+            // If we wanted to make the Obfuscation constraints support the same
+            // method specified multiple times with different settings/ports, then we
+            // should match on the chosen endpoint.
+            if let Some(addr) = direct {
+                debug_assert_eq!(addr, relay.endpoint.peer.endpoint);
+                obfuscation.direct = None;
             }
+            for config in obf_configs {
+                match config {
+                    ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+                    ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+                    ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+                    ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+                }
+            }
+            relays.push(relay);
         }
     }
 }
@@ -264,3 +265,7 @@ impl From<RelayQuery> for Config {
         }
     }
 }
+
+// TODO: Add tests
+// Test that `get_next_relays` interacts correctly with `when needed`:
+// All obfuscations reachable with singlehop should be used before multihop is used

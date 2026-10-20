@@ -205,7 +205,7 @@ impl InnerParametersGenerator {
 
             // Regenerate next relays.
             // TODO: Make sure this can't return empty list?
-            self.next_relays = self.relay_selector.get_next_relays(user_query.clone())?;
+            self.next_relays = self.relay_selector.get_next_relays(user_query.clone());
             self.next_relays
                 .pop()
                 .ok_or_else(|| mullvad_relay_selector::Error::NoRelay(Box::new(user_query)))?
