@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">¡Le damos la bienvenida! Este dispositivo ahora se llama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUEVO DISPOSITIVO CREADO</string>
     <string name="new_list">Nueva lista</string>
+    <string name="new_multihop_modes_always_description">El salto múltiple está habilitado. Su conexión se enruta a través de un servidor de entrada antes de salir por la ubicación seleccionada.</string>
+    <string name="new_multihop_modes_never_description">El salto múltiple está deshabilitado. Para establecer una conexión, la ubicación seleccionada debe ser compatible con todos los ajustes activos.</string>
     <string name="new_multihop_modes_off_to_always">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Siempre»</string>
     <string name="new_multihop_modes_off_to_never">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Nunca»</string>
     <string name="new_multihop_modes_off_to_when_needed">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Cuando sea necesario»</string>
     <string name="new_multihop_modes_on_to_always">Su configuración de salto múltiple se ha migrado de «Activada» a «Siempre»</string>
     <string name="new_multihop_modes_title">Nuevos modos de salto múltiple</string>
-    <string name="new_multihop_nodes_always_description">El salto múltiple está habilitado. Su conexión se enruta a través de un servidor de entrada antes de salir por la ubicación seleccionada.</string>
-    <string name="new_multihop_nodes_never_description">El salto múltiple está deshabilitado. Para establecer una conexión, la ubicación seleccionada debe ser compatible con todos los ajustes activos.</string>
     <string name="next">Siguiente</string>
     <string name="next_with_icon">Siguiente %1$s</string>
     <string name="no_custom_lists_available">No hay listas personalizadas disponibles</string>

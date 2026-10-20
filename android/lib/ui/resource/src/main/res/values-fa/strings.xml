@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون <b>%1$s</b> نام دارد.</string>
     <string name="new_device_notification_title">دستگاه جدید ایجاد شد</string>
     <string name="new_list">فهرست جدید</string>
+    <string name="new_multihop_modes_always_description">قابلیت مالتی‌هاپ فعال است. اتصال شما پیش از خروج از طریق موقعیت مکانی انتخاب‌شده، از یک سرور ورودی عبور داده می‌شود.</string>
+    <string name="new_multihop_modes_never_description">قابلیت مالتی‌هاپ غیرفعال است. برای برقراری اتصال، موقعیت مکانی انتخابی شما باید از تمامی تنظیمات فعال پشتیبانی کند.</string>
     <string name="new_multihop_modes_off_to_always">تنظیمات چندگامی شما از «خاموش» به «همیشه» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_off_to_never">تنظیمات چندگامی شما از «خاموش» به «هرگز» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_off_to_when_needed">تنظیمات چندگامی شما از «خاموش» به «در صورت نیاز» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_on_to_always">تنظیمات چندگامی شما از «روشن» به «همیشه» انتقال پیدا کرد</string>
     <string name="new_multihop_modes_title">حالت‌های جدید مالتی‌هاپ</string>
-    <string name="new_multihop_nodes_always_description">قابلیت مالتی‌هاپ فعال است. اتصال شما پیش از خروج از طریق موقعیت مکانی انتخاب‌شده، از یک سرور ورودی عبور داده می‌شود.</string>
-    <string name="new_multihop_nodes_never_description">قابلیت مالتی‌هاپ غیرفعال است. برای برقراری اتصال، موقعیت مکانی انتخابی شما باید از تمامی تنظیمات فعال پشتیبانی کند.</string>
     <string name="next">بعدی</string>
     <string name="next_with_icon">بعدی %1$s</string>
     <string name="no_custom_lists_available">هیچ فهرست سفارشی موجود نیست</string>

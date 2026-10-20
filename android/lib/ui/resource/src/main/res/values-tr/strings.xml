@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık <b>%1$s</b>.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
+    <string name="new_multihop_modes_always_description">Çoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir.</string>
+    <string name="new_multihop_modes_never_description">Çoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir.</string>
     <string name="new_multihop_modes_off_to_always">Çoklu geçiş ayarınız “Kapalı” yerine “Her zaman” olarak ayarlandı</string>
     <string name="new_multihop_modes_off_to_never">Çoklu geçiş ayarınız “Kapalı” yerine “Asla” olarak ayarlandı</string>
     <string name="new_multihop_modes_off_to_when_needed">Çoklu geçiş ayarınız “Kapalı” yerine “Gerektiğinde” olarak ayarlandı</string>
     <string name="new_multihop_modes_on_to_always">Çoklu geçiş ayarınız “Açık” yerine “Her zaman” olarak ayarlandı</string>
     <string name="new_multihop_modes_title">Yeni çoklu geçiş modları</string>
-    <string name="new_multihop_nodes_always_description">Çoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir.</string>
-    <string name="new_multihop_nodes_never_description">Çoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir.</string>
     <string name="next">Sonraki</string>
     <string name="next_with_icon">İleri %1$s</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>

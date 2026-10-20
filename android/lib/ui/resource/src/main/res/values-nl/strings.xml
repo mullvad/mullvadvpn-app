@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="new_list">Nieuwe lijst</string>
+    <string name="new_multihop_modes_always_description">Multihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat.</string>
+    <string name="new_multihop_modes_never_description">Multihop is uitgeschakeld. De door u geselecteerde locatie moet alle actieve instellingen ondersteunen om een verbinding tot stand te kunnen brengen.</string>
     <string name="new_multihop_modes_off_to_always">Uw multihopinstelling is gemigreerd van \"Uit\" naar \"Altijd\".</string>
     <string name="new_multihop_modes_off_to_never">Uw multihopinstelling is gemigreerd van \"Uit\" naar \"Nooit\".</string>
     <string name="new_multihop_modes_off_to_when_needed">Uw multihopinstelling is gemigreerd van \"Uit\" naar \"Wanneer nodig\".</string>
     <string name="new_multihop_modes_on_to_always">Uw multihopinstelling is gemigreerd van \"Aan\" naar \"Altijd\".</string>
     <string name="new_multihop_modes_title">Nieuwe multihopmodussen</string>
-    <string name="new_multihop_nodes_always_description">Multihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat.</string>
-    <string name="new_multihop_nodes_never_description">Multihop is uitgeschakeld. De door u geselecteerde locatie moet alle actieve instellingen ondersteunen om een verbinding tot stand te kunnen brengen.</string>
     <string name="next">Volgende</string>
     <string name="next_with_icon">Volgende %1$s</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>

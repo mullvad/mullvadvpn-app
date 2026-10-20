@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">歡迎，此裝置現在名為 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
+    <string name="new_multihop_modes_always_description">已啟用多點跳躍。您的連線會先經過入口伺服器，再透過所選位置的伺服器連出。</string>
+    <string name="new_multihop_modes_never_description">已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。</string>
     <string name="new_multihop_modes_off_to_always">您的多點跳躍設定已從「關閉」遷移至「一律」</string>
     <string name="new_multihop_modes_off_to_never">您的多點跳躍設定已從「關閉」遷移至「從不」</string>
     <string name="new_multihop_modes_off_to_when_needed">您的多點跳躍設定已從「關閉」遷移至「必要時」</string>
     <string name="new_multihop_modes_on_to_always">您的多點跳躍設定已從「開啟」遷移至「一律」</string>
     <string name="new_multihop_modes_title">新多點跳躍模式</string>
-    <string name="new_multihop_nodes_always_description">已啟用多點跳躍。您的連線會先經過入口伺服器，再透過所選位置的伺服器連出。</string>
-    <string name="new_multihop_nodes_never_description">已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。</string>
     <string name="next">下一步</string>
     <string name="next_with_icon">下一步 %1$s</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>

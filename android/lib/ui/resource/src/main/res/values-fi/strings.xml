@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
+    <string name="new_multihop_modes_always_description">Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta.</string>
+    <string name="new_multihop_modes_never_description">Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden.</string>
     <string name="new_multihop_modes_off_to_always">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"aina\"-tilaan</string>
     <string name="new_multihop_modes_off_to_never">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"ei koskaan\" -tilaan</string>
     <string name="new_multihop_modes_off_to_when_needed">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"tarvittaessa\"-tilaan</string>
     <string name="new_multihop_modes_on_to_always">Multihop-asetuksesi siirrettiin \"päällä\" -tilasta \"aina\"-tilaan</string>
     <string name="new_multihop_modes_title">Uudet multihop-tilat</string>
-    <string name="new_multihop_nodes_always_description">Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta.</string>
-    <string name="new_multihop_nodes_never_description">Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden.</string>
     <string name="next">Seuraava</string>
     <string name="next_with_icon">Seuraava %1$s</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>

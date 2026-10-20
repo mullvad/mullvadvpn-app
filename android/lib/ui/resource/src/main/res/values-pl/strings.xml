@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">To urządzenie ma teraz nazwę <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UTWORZONO NOWE URZĄDZENIE</string>
     <string name="new_list">Nowa lista</string>
+    <string name="new_multihop_modes_always_description">Wielokrotne przeskoki są włączone. Połączenie jest najpierw kierowane przez serwer wejścia, a następnie wychodzi przez wybraną lokalizację.</string>
+    <string name="new_multihop_modes_never_description">Wielokrotne przeskoki są wyłączone. Wybrana lokalizacja musi obsługiwać wszystkie aktywne ustawienia, aby można było nawiązać połączenie.</string>
     <string name="new_multihop_modes_off_to_always">Ustawienie wielokrotnego przeskoku zostało zmienione wskutek migracji z „Wyłączono” na „Zawsze”</string>
     <string name="new_multihop_modes_off_to_never">Ustawienie wielokrotnych przeskoków zostało wskutek migracji zmienione z „Wyłączono” na „Nigdy”</string>
     <string name="new_multihop_modes_off_to_when_needed">Ustawienie wielokrotnych przeskoków zostało wskutek migracji zmienione z „Wyłączono” na „W razie potrzeby”</string>
     <string name="new_multihop_modes_on_to_always">Ustawienie wielokrotnego przeskoku zostało zmienione wskutek migracji z „Włączono” na „Zawsze”</string>
     <string name="new_multihop_modes_title">Nowe tryby wielokrotnych przeskoków</string>
-    <string name="new_multihop_nodes_always_description">Wielokrotne przeskoki są włączone. Połączenie jest najpierw kierowane przez serwer wejścia, a następnie wychodzi przez wybraną lokalizację.</string>
-    <string name="new_multihop_nodes_never_description">Wielokrotne przeskoki są wyłączone. Wybrana lokalizacja musi obsługiwać wszystkie aktywne ustawienia, aby można było nawiązać połączenie.</string>
     <string name="next">Dalej</string>
     <string name="next_with_icon">Dalej %1$s</string>
     <string name="no_custom_lists_available">Brak dostępnych list niestandardowych</string>

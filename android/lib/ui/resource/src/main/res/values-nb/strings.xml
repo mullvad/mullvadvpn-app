@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="new_list">Ny liste</string>
+    <string name="new_multihop_modes_always_description">Multihopp er aktivert. Tilkoblingen din dirigeres via en inngangsserver før den går ut via den valgte plasseringen.</string>
+    <string name="new_multihop_modes_never_description">Multihopp er deaktivert. Den valgte plasseringen må støtte alle aktive innstillinger for at det skal være mulig å opprette en tilkobling.</string>
     <string name="new_multihop_modes_off_to_always">Innstillingen for multihopp ble overført fra «Av» til «Alltid».</string>
     <string name="new_multihop_modes_off_to_never">Innstillingen for multihopp ble overført fra «Av» til «Aldri».</string>
     <string name="new_multihop_modes_off_to_when_needed">Innstillingen for multihopp ble overført fra «Av» til «Når nødvendig».</string>
     <string name="new_multihop_modes_on_to_always">Innstillingen for multihopp ble overført fra «På» til «Alltid».</string>
     <string name="new_multihop_modes_title">Nye multihopp-moduser</string>
-    <string name="new_multihop_nodes_always_description">Multihopp er aktivert. Tilkoblingen din dirigeres via en inngangsserver før den går ut via den valgte plasseringen.</string>
-    <string name="new_multihop_nodes_never_description">Multihopp er deaktivert. Den valgte plasseringen må støtte alle aktive innstillinger for at det skal være mulig å opprette en tilkobling.</string>
     <string name="next">Neste</string>
     <string name="next_with_icon">Neste %1$s</string>
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>

@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%1$s</b> ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
+    <string name="new_multihop_modes_always_description">Multihop ကို ဖွင့်ထားသည်။ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပေးပို့ပြီး ထို့နောက်တွင် ရွေးချယ်ထားသောတည်နေရာမှတစ်ဆင့် ထွက်ခွာပါသည်။</string>
+    <string name="new_multihop_modes_never_description">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန်အလို့ငှာ သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိသက်ဝင်နေသောဆက်တင်အားလုံးကို တွဲဖက်လုပ်ဆောင်နိုင်ရမည်။</string>
     <string name="new_multihop_modes_off_to_always">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “အမြဲတမ်း” သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_never">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “ဘယ်တော့မှ\" သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_when_needed">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်\" သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_on_to_always">သင်၏ Multihop ဆက်တင်ကို “ဖွင့်” မှ “အမြဲတမ်း” သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_title">Multihop မုဒ်အသစ်များ</string>
-    <string name="new_multihop_nodes_always_description">Multihop ကို ဖွင့်ထားသည်။ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပေးပို့ပြီး ထို့နောက်တွင် ရွေးချယ်ထားသောတည်နေရာမှတစ်ဆင့် ထွက်ခွာပါသည်။</string>
-    <string name="new_multihop_nodes_never_description">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန်အလို့ငှာ သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိသက်ဝင်နေသောဆက်တင်အားလုံးကို တွဲဖက်လုပ်ဆောင်နိုင်ရမည်။</string>
     <string name="next">ရှေ့သို့</string>
     <string name="next_with_icon">ရှေ့သို့ %1$s</string>
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>

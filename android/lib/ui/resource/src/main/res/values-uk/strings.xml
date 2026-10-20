@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Ласкаво просимо! Цей пристрій тепер називається <b>«%1$s»</b>.</string>
     <string name="new_device_notification_title">СТВОРЕНО НОВИЙ ПРИСТРІЙ</string>
     <string name="new_list">Новий список</string>
+    <string name="new_multihop_modes_always_description">Подвійний вхід ввімкнено. Ваше підключення проходить через сервер входу, а потім — через сервер у вибраному розташуванні.</string>
+    <string name="new_multihop_modes_never_description">Подвійний вхід вимкнено. Щоб установити зʼєднання, вибране розташування повинно підтримувати всі активні параметри.</string>
     <string name="new_multihop_modes_off_to_always">Налаштування подвійного VPN змінено з «Вимкнено» на «Завжди»</string>
     <string name="new_multihop_modes_off_to_never">Налаштування подвійного VPN змінено з «Вимкнено» на «Ніколи»</string>
     <string name="new_multihop_modes_off_to_when_needed">Налаштування подвійного VPN змінено з «Вимкнено» на «За потреби»</string>
     <string name="new_multihop_modes_on_to_always">Налаштування подвійного VPN змінено з «Увімкнено» на «Завжди»</string>
     <string name="new_multihop_modes_title">Нові режими подвійного VPN</string>
-    <string name="new_multihop_nodes_always_description">Подвійний вхід ввімкнено. Ваше підключення проходить через сервер входу, а потім — через сервер у вибраному розташуванні.</string>
-    <string name="new_multihop_nodes_never_description">Подвійний вхід вимкнено. Щоб установити зʼєднання, вибране розташування повинно підтримувати всі активні параметри.</string>
     <string name="next">Далі</string>
     <string name="next_with_icon">Далі %1$s</string>
     <string name="no_custom_lists_available">Немає користувацьких списків</string>

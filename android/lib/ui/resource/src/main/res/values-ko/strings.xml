@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 <b>%1$s</b>입니다.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
+    <string name="new_multihop_modes_always_description">멀티홉이 활성화됩니다. 선택한 위치로 나가기 전에 연결이 진입 서버를 통해 라우팅되어야 합니다.</string>
+    <string name="new_multihop_modes_never_description">멀티홉이 비활성화됩니다. 연결을 구축하려면 선택된 위치가 모든 활성 설정을 지원해야 합니다.</string>
     <string name="new_multihop_modes_off_to_always">멀티홉 설정이 \"끄기\"에서 \"항상\"으로 마이그레이션되었습니다</string>
     <string name="new_multihop_modes_off_to_never">멀티홉 설정이 \"끄기\"에서 \"안 함\"으로 마이그레이션되었습니다</string>
     <string name="new_multihop_modes_off_to_when_needed">멀티홉 설정이 \"끄기\"에서 \"필요 시\"로 마이그레이션되었습니다</string>
     <string name="new_multihop_modes_on_to_always">멀티홉 설정이 \"켜기\"에서 \"항상\"으로 마이그레이션되었습니다</string>
     <string name="new_multihop_modes_title">새 멀티홉 모드</string>
-    <string name="new_multihop_nodes_always_description">멀티홉이 활성화됩니다. 선택한 위치로 나가기 전에 연결이 진입 서버를 통해 라우팅되어야 합니다.</string>
-    <string name="new_multihop_nodes_never_description">멀티홉이 비활성화됩니다. 연결을 구축하려면 선택된 위치가 모든 활성 설정을 지원해야 합니다.</string>
     <string name="next">다음</string>
     <string name="next_with_icon">다음 %1$s</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>

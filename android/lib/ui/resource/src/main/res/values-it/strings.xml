@@ -365,13 +365,13 @@
     <string name="new_device_notification_message">Ti diamo il benvenuto, questo dispositivo ora si chiama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="new_list">Nuovo elenco</string>
+    <string name="new_multihop_modes_always_description">Multihop è attivato. La connessione viene instradata attraverso un server di entrata prima di uscire dalla posizione selezionata.</string>
+    <string name="new_multihop_modes_never_description">Multihop è disattivato. Per stabilire una connessione, la posizione selezionata deve supportare tutte le impostazioni attive.</string>
     <string name="new_multihop_modes_off_to_always">L\'impostazione multihop è stata migrata da \"Disattivato\" a \"Sempre\"</string>
     <string name="new_multihop_modes_off_to_never">L\'impostazione multihop è stata migrata da \"Disattivato\" a \"Mai\"</string>
     <string name="new_multihop_modes_off_to_when_needed">L\'impostazione multihop è stata migrata da \"Disattivato\" a \"Quando necessario\"</string>
     <string name="new_multihop_modes_on_to_always">L\'impostazione multihop è stata migrata da \"Attivato\" a \"Sempre\"</string>
     <string name="new_multihop_modes_title">Nuove modalità Multihop</string>
-    <string name="new_multihop_nodes_always_description">Multihop è attivato. La connessione viene instradata attraverso un server di entrata prima di uscire dalla posizione selezionata.</string>
-    <string name="new_multihop_nodes_never_description">Multihop è disattivato. Per stabilire una connessione, la posizione selezionata deve supportare tutte le impostazioni attive.</string>
     <string name="next">Avanti</string>
     <string name="next_with_icon">Avanti %1$s</string>
     <string name="no_custom_lists_available">Nessun elenco personalizzato disponibile</string>
