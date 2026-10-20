@@ -154,6 +154,7 @@
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="delete_account_cant_be_undone">La eliminación de la cuenta no se puede deshacer.</string>
+    <string name="delete_account_complete_subtitle">Gracias por formar parte de nuestra comunidad.\n¡La privacidad es para las personas!</string>
     <string name="delete_account_confirm_first_item"><b>Esta acción no se puede deshacer.</b></string>
     <string name="delete_account_confirm_second_item"><b>Perderá el acceso a esta cuenta en todos los dispositivos.</b></string>
     <string name="delete_account_confirm_third_item"><b>No será posible recuperar la cuenta.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">¡Le damos la bienvenida! Este dispositivo ahora se llama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUEVO DISPOSITIVO CREADO</string>
     <string name="new_list">Nueva lista</string>
+    <string name="new_multihop_modes_first_paragraph">El salto múltiple ahora tiene tres modos: «Cuando sea necesario», «Siempre» y «Nunca».\nEsto ofrece más flexibilidad con sus preferencias de conexión.</string>
     <string name="new_multihop_modes_off_to_always">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Siempre»</string>
     <string name="new_multihop_modes_off_to_never">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Nunca»</string>
     <string name="new_multihop_modes_off_to_when_needed">Su configuración de salto múltiple se ha migrado de «Desactivada» a «Cuando sea necesario»</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Nuevos modos de salto múltiple</string>
     <string name="new_multihop_nodes_always_description">El salto múltiple está activado. Su conexión se enruta a través de un servidor de entrada antes de salir por la ubicación seleccionada.</string>
     <string name="new_multihop_nodes_never_description">El salto múltiple está desactivado. Para establecer una conexión, la ubicación seleccionada debe ser compatible con todos los ajustes activos.</string>
+    <string name="new_multihop_nodes_when_needed_description">Para garantizar que la configuración actual funcione con la ubicación seleccionada y evitar que se bloquee su conexión, la aplicación podría usar automáticamente un salto múltiple a través de otro servidor de entrada.\nEn ese caso, se indicará con el símbolo %1$s.</string>
     <string name="next">Siguiente</string>
     <string name="next_with_icon">Siguiente %1$s</string>
     <string name="no_custom_lists_available">No hay listas personalizadas disponibles</string>

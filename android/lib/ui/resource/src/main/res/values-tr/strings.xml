@@ -154,6 +154,7 @@
     <string name="delete">Sil</string>
     <string name="delete_account">Hesabı sil</string>
     <string name="delete_account_cant_be_undone">Hesabınızı silme işlemi geri alınamaz.</string>
+    <string name="delete_account_complete_subtitle">Topluluğumuzun bir parçası olduğunuz için teşekkür ederiz.\nGizlilik herkes için önemlidir!</string>
     <string name="delete_account_confirm_first_item"><b>Bu işlem geri alınamaz.</b></string>
     <string name="delete_account_confirm_second_item"><b>Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz.</b></string>
     <string name="delete_account_confirm_third_item"><b>Hesap kurtarma mümkün olmayacaktır.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık <b>%1$s</b>.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
+    <string name="new_multihop_modes_first_paragraph">Çoklu geçiş artık üç moda ayrıldı: Gerektiğinde, Her zaman ve Asla.\nBu sayede bağlantı tercihlerinizi daha esnek bir şekilde ayarlamanızı sağlar.</string>
     <string name="new_multihop_modes_off_to_always">Çoklu geçiş ayarınız “Kapalı” yerine “Her zaman” olarak ayarlandı</string>
     <string name="new_multihop_modes_off_to_never">Çoklu geçiş ayarınız “Kapalı” yerine “Asla” olarak ayarlandı</string>
     <string name="new_multihop_modes_off_to_when_needed">Çoklu geçiş ayarınız “Kapalı” yerine “Gerektiğinde” olarak ayarlandı</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Yeni çoklu geçiş modları</string>
     <string name="new_multihop_nodes_always_description">Çoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir.</string>
     <string name="new_multihop_nodes_never_description">Çoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir.</string>
+    <string name="new_multihop_nodes_when_needed_description">Mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmasını sağlamak ve bağlantınızın engellenmesini önlemek için uygulama, farklı bir giriş sunucusu üzerinden otomatik olarak çoklu geçiş yapabilir.\nBu durum %1$s simgesiyle gösterilir.</string>
     <string name="next">Sonraki</string>
     <string name="next_with_icon">İleri %1$s</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
