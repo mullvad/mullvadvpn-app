@@ -18,6 +18,7 @@ use gotatun::{
     udp::channel::{UdpChannelFactory, new_udp_tun_channel},
     x25519::StaticSecret,
 };
+use ipnetwork::IpNetwork;
 use merge::MergingIpRecv;
 use nat::{NatIpRecv, NatIpSend};
 use router::{SplitIpRecv, TunRxRouter, TunTxRouter};
@@ -151,7 +152,20 @@ pub async fn build(
         TunRxRouter::new(filtered_tun)
     };
 
-    let default_output = router.add_default_route(CHANNEL_CAPACITY);
+    let gateway_v4_net: IpNetwork = IpAddr::from(config.ipv4_gateway).into();
+    let gateway_v6_net = config.ipv6_gateway.map(IpAddr::from).map(IpNetwork::from);
+
+    let default_routes: Vec<_> = [
+        IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap(),
+        IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap(),
+        gateway_v4_net,
+    ]
+    .into_iter()
+    .chain(gateway_v6_net)
+    .collect();
+
+    let default_output = router.add_routes(&default_routes, CHANNEL_CAPACITY);
+
     let pvpn_output = router.add_routes(&personal_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
     let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
 
@@ -175,6 +189,8 @@ pub async fn build(
         tun_dev.clone(),
         personal_vpn.peer.endpoint,
         &personal_vpn.peer.allowed_ip,
+        config.ipv4_gateway,
+        config.ipv6_gateway,
     );
 
     // Rewrite IP addresses between the inner and outer tunnel environments.
@@ -221,7 +237,7 @@ struct NatMappings {
     v6: Option<(Ipv6Addr, Ipv6Addr)>,
 }
 
-/// Helper: Resolves and validates the address mappings needed for NAT rewriting
+/// Resolves and validates the address mappings needed for NAT rewriting
 fn resolve_nat_mappings(
     personal_vpn: &PersonalVpnConfig,
     outer_v4: Option<Ipv4Addr>,
@@ -267,7 +283,7 @@ fn resolve_nat_mappings(
     Ok(NatMappings { v4, v6 })
 }
 
-/// Helper: Calculates MTU and Overhead based on the IP address type
+/// Calculates MTU and Overhead based on the IP address type
 fn calculate_mtu_and_overhead(
     endpoint_ip: IpAddr,
     tun_dev: &GotaTunDevice,

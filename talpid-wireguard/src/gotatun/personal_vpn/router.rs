@@ -57,16 +57,6 @@ impl<R: IpRecv> TunRxRouter<R> {
         }
     }
 
-    /// Route all IPv4 and IPv6 traffic that matches no other route to the returned receiver.
-    /// This replaces any previous default route.
-    pub fn add_default_route(&mut self, channel_capacity: usize) -> SplitIpRecv {
-        let default_routes = [
-            IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap(),
-            IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap(),
-        ];
-        self.add_routes(&default_routes, channel_capacity)
-    }
-
     /// Route traffic to any of `routes` to the returned receiver. This replaces any previous
     /// routes for the same networks.
     pub fn add_routes(&mut self, routes: &[IpNetwork], channel_capacity: usize) -> SplitIpRecv {
@@ -123,6 +113,7 @@ pub struct TunTxRouter<Inner, Outer> {
     inner_tun_endpoint: SocketAddr,
     inner_allowed_ips: IpNetworkTable<()>,
     endpoint_fragments: Ipv4Fragments,
+    gateways: Vec<IpAddr>,
 }
 
 impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
@@ -135,10 +126,16 @@ impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
         outer_tx: Outer,
         inner_tun_endpoint: SocketAddr,
         inner_allowed_ips: &[IpNetwork],
+        ipv4_gateway: Ipv4Addr,
+        ipv6_gateway: Option<Ipv6Addr>,
     ) -> Self {
         let mut table = IpNetworkTable::new();
         for net in inner_allowed_ips {
             table.insert(to_table_network(net), ());
+        }
+        let mut gateways = vec![IpAddr::from(ipv4_gateway)];
+        if let Some(ipv6_gateway) = ipv6_gateway {
+            gateways.push(ipv6_gateway.into())
         }
         Self {
             inner_tx,
@@ -146,6 +143,7 @@ impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
             inner_tun_endpoint,
             inner_allowed_ips: table,
             endpoint_fragments: Ipv4Fragments::default(),
+            gateways,
         }
     }
 
@@ -177,8 +175,10 @@ impl<Inner: IpSend, Outer: IpSend> IpSend for TunTxRouter<Inner, Outer> {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
         if let Some(source) = packet.source()
             && self.inner_allowed_ips.longest_match(source).is_some()
+            && self.inner_tun_endpoint.ip() != source
+            && !self.gateways.contains(&source)
         {
-            log::trace!(
+            log::error!(
                 "Dropping decapsulated outer tunnel packet from {source}, which is inside the \
                  inner tunnel's allowed IPs"
             );
@@ -218,7 +218,11 @@ mod tests {
     async fn rx_router_routes_by_destination() {
         let (tx, source) = ChannelIpRecv::new();
         let mut router = TunRxRouter::new(source);
-        let mut default_recv = router.add_default_route(10);
+        let default_routes = [
+            IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap(),
+            IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap(),
+        ];
+        let mut default_recv = router.add_routes(&default_routes, 10);
         let mut inner_recv = router.add_routes(&["10.100.0.0/24".parse().unwrap()], 10);
         tokio::spawn(router.run(PacketBufPool::new(10)));
 
@@ -245,7 +249,14 @@ mod tests {
         let inner_endpoint: SocketAddr = "203.0.113.1:51820".parse().unwrap();
         let (inner_tx, mut inner_rx) = ChannelIpSend::new();
         let (outer_tx, mut outer_rx) = ChannelIpSend::new();
-        let mut router = TunTxRouter::new(inner_tx, outer_tx, inner_endpoint, &[]);
+        let mut router = TunTxRouter::new(
+            inner_tx,
+            outer_tx,
+            inner_endpoint,
+            &[],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
+        );
 
         router
             .send(packet("203.0.113.1:51820", "10.64.0.2:1234"))
@@ -291,7 +302,14 @@ mod tests {
         let inner_endpoint: SocketAddr = "203.0.113.1:51820".parse().unwrap();
         let (inner_tx, mut inner_rx) = ChannelIpSend::new();
         let (outer_tx, mut outer_rx) = ChannelIpSend::new();
-        let mut router = TunTxRouter::new(inner_tx, outer_tx, inner_endpoint, &[]);
+        let mut router = TunTxRouter::new(
+            inner_tx,
+            outer_tx,
+            inner_endpoint,
+            &[],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
+        );
 
         let datagram = udp_packet(
             inner_endpoint,
@@ -340,6 +358,8 @@ mod tests {
             outer_tx,
             inner_endpoint,
             &["10.100.0.0/24".parse().unwrap()],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
         );
 
         router
