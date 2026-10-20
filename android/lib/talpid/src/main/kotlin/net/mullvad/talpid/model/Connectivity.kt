@@ -41,8 +41,9 @@ sealed interface Connectivity {
 }
 
 /**
- * Returns whether the address can be used for internet communication, i.e. if it is globally
- * routable and not reserved for other purposes.
+ * Returns whether the address could be used for internet communication, i.e. if it is globally
+ * routable and not reserved for other purposes. Goal to be fully accurate but to filter out
+ * addresses that absolutely cannot be able to reach the internet.
  */
 internal fun InetAddress.isUsableForInternet(): Boolean =
     when {
