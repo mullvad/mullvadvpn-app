@@ -149,17 +149,9 @@ pub async fn run(
     };
 
     for test in tests {
-        const MAX_ATTEMPTS: usize = 5;
-        let mut prepare_attempts = 0;
-
-        let mut mullvad_client = loop {
-            let result = tests::prepare_daemon(&test_runner_client, &rpc_provider)
-                .await;
-            if result.is_ok() || prepare_attempts >= MAX_ATTEMPTS {
-                break result;
-            }
-            prepare_attempts += 1;
-        }?;
+        let mut mullvad_client = tests::prepare_daemon(&test_runner_client, &rpc_provider)
+            .await
+            .context("Failed to reset daemon before test")?;
 
         tests::set_test_location(&mut mullvad_client, &test)
             .await
