@@ -64,6 +64,7 @@ struct ProblemReportView: View {
             LogView(viewModel: viewModel)
         }
         .navigationTitle("Report a problem")
+        .navigationBarTitleDisplayMode((viewModel.modalState == nil) ? .automatic : .inline)
     }
 
     var privacyPolicyLink: AttributedString {

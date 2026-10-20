@@ -44,7 +44,7 @@ extension ProblemReportView {
                             details: [
                                 .init(
                                     text: NSLocalizedString("Thanks! We will look into this.", comment: ""),
-                                    style: .primary(.none, alignment: .leading))
+                                    style: .secondary(.none, alignment: .leading))
                             ],
                             actions: [])
                     )
@@ -56,13 +56,14 @@ extension ProblemReportView {
                                 text: NSLocalizedString("Failed to send", comment: ""),
                                 style: .headline(.bold, alignment: .leading)
                             ),
+                            verticalAlignment: .top,
                             details: [
                                 .init(
                                     text:
                                         NSLocalizedString(
                                             "If you exit the form and try again later, the information you already entered will still be here.",
                                             comment: ""),
-                                    style: .primary(.none, alignment: .leading)
+                                    style: .secondary(.none, alignment: .leading)
                                 ),
                                 .init(
                                     text:
@@ -72,7 +73,8 @@ extension ProblemReportView {
                                             Please attach your app log to your email.
                                             """,
                                             comment: ""),
-                                    style: .primary(.none, alignment: .leading)
+                                    style: .secondary(.none, alignment: .leading),
+                                    isMarkdown: true
                                 ),
                             ],
                             actions: [
@@ -91,8 +93,9 @@ extension ProblemReportView {
                             ])
                     )
                 }
-            }.background(Color.mullvadBackground)
-
+            }
+            .padding([.top], 36)
+            .background(Color.mullvadBackground)
         }
     }
 }
