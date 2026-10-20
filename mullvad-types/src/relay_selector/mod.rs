@@ -80,20 +80,20 @@ pub enum Predicate {
     Exit(MultihopConstraints),
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct EntryConstraints {
     pub general: ExitConstraints,
     pub entry_specific: EntrySpecificConstraints,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct EntrySpecificConstraints {
     pub obfuscation: ObfuscationConstraint,
     pub daita: Constraint<bool>,
     pub ip_version: Constraint<IpVersion>,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct ExitConstraints {
     pub location: Constraint<ResolvedLocationConstraint>,
     pub providers: Constraint<Providers>,

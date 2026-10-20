@@ -120,10 +120,10 @@ pub trait Intersection: Sized {
 }
 
 // TODO: Remove this? It just feels silly
-impl<T> Intersection for Option<T> {
+impl<T: Intersection> Intersection for Option<T> {
     fn intersection(self, _other: Self) -> Option<Self> {
         match (self, _other) {
-            (Some(inner), Some(_)) => Some(Some(inner)),
+            (Some(a), Some(b)) => Some(a.intersection(b)),
             (None, None) => Some(None),
             _ => None,
         }

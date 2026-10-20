@@ -752,53 +752,6 @@ pub struct ObfuscationConstraint {
     pub lwo: Option<LwoSettings>,
 }
 
-// TODO: Maybe we should retire the Intersection trait now that the retry logic doesn't depend on it?
-// I don't think that this implementation is meaningful.
-impl Intersection for ObfuscationConstraint {
-    fn intersection(self, other: Self) -> Option<Self> {
-        Some(Self {
-            direct: self.direct.intersection(other.direct)?,
-            udp2tcp: self.udp2tcp.intersection(other.udp2tcp)?,
-            shadowsocks: self.shadowsocks.intersection(other.shadowsocks)?,
-            lwo: self.lwo.intersection(other.lwo)?,
-            quic: (self.quic && other.quic).then_some(true)?,
-        })
-    }
-}
-
-impl From<Obfuscators> for ObfuscationConstraint {
-    fn from(value: Obfuscators) -> Self {
-        match value {
-            Obfuscators::Single(_) => todo!(),
-            Obfuscators::Multiplexer { direct, configs } => {
-                let mut obf_constraint = ObfuscationConstraint::default();
-                for config in iter::once(configs.0).chain(configs.1) {
-                    match config {
-                        talpid_types::net::obfuscation::ObfuscatorConfig::Udp2Tcp { endpoint } => {
-                            obf_constraint.udp2tcp = Some(Udp2TcpObfuscationSettings {
-                                port: Constraint::Only(endpoint.port()),
-                            })
-                        }
-                        talpid_types::net::obfuscation::ObfuscatorConfig::Shadowsocks {
-                            endpoint,
-                        } => todo!(),
-                        talpid_types::net::obfuscation::ObfuscatorConfig::Quic {
-                            hostname,
-                            endpoint,
-                            auth_token,
-                        } => todo!(),
-                        talpid_types::net::obfuscation::ObfuscatorConfig::Lwo {
-                            endpoint,
-                            version,
-                        } => todo!(),
-                    }
-                }
-                obf_constraint
-            }
-        }
-    }
-}
-
 /// Represents a specific obfuscation method (or explicit "off").
 ///
 /// This enum does *not* have an `Auto` variant — that role is played by
