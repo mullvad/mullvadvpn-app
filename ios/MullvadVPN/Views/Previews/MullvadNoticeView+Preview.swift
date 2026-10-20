@@ -86,6 +86,27 @@ struct MullvadNoticeViewPreviewWrapper: View {
 
         let view5 = MullvadNoticeView(
             viewModel: NoticeViewModel(
+                style: .fail,
+                title: MullvadNoticeView.TextItem(text: "Failed to send", style: .secondary(alignment: .center)),
+                details: [
+                    .init(
+                        text: """
+                            If you still experience issues you can email our support directly at **example@example.com**. \
+                            Please attach your app log to your email.
+                            """,
+                        style: .secondary(.none, alignment: .leading),
+                        isMarkdown: true
+                    )
+                ],
+                actions: [
+                    MullvadNoticeView.ActionItem(style: .primary, state: .init(kind: .idle, message: "Edit message")),
+                    MullvadNoticeView.ActionItem(style: .success, state: .init(kind: .idle, message: "Try again")),
+                ]
+            )
+        )
+
+        let view6 = MullvadNoticeView(
+            viewModel: NoticeViewModel(
                 style: .custom(.init(image: Image.mullvadIconMultihopWhenNeeded)),
                 title: MullvadNoticeView.TextItem(text: "Custom state", style: .secondary(alignment: .center)),
                 details: [
