@@ -451,6 +451,7 @@ message GeographicLocationConstraint {
   string country = 1;
   // City code e.g. `got` for "Gothenburg".
   optional string city = 2;
+  // Hostname of the relay. e.g. `se-got-wg-101`.
   optional string hostname = 3;
 }
 
