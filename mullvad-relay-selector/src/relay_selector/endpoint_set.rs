@@ -570,7 +570,7 @@ impl Verdict {
         iter.into_iter().fold(Verdict::Accept, |acc, v| acc.and(v))
     }
 
-    /// Return `Accept` if any verdict is accept, otherwise accumulates all rejection reasons.
+    /// Return `Accept` if any verdict is accept, otherwise accumulates all unique rejection reasons.
     pub(crate) fn any<I: IntoIterator<Item = Verdict>>(iter: I) -> Verdict {
         let mut reasons = Vec::new();
         for v in iter {
@@ -579,6 +579,8 @@ impl Verdict {
                 Verdict::Reject(r) => reasons.extend(r),
             }
         }
+        let mut seen = HashSet::new();
+        reasons.retain(|reason| seen.insert(reason.clone()));
         Verdict::Reject(reasons)
     }
 }

@@ -111,6 +111,8 @@ impl RelaySelectorIO {
         if let Some(wg_query) = user_query.clone().wireguard_only()
             && let Ok(wg_relay) = self.get_relay_by_query(&wg_query)
         {
+            // TODO: We could remove `direct` from the user query here to be more consistent
+            // There might be some benefit to including it in the obfuscation attempt, though.
             relays.push(wg_relay);
         }
 
@@ -119,7 +121,7 @@ impl RelaySelectorIO {
             remove_supported_obfuscations(&mut user_query, &relay);
             relays.push(relay);
         }
-        // No more relays can be found
+
         relays
     }
 }
