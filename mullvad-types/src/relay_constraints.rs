@@ -743,13 +743,26 @@ pub struct ObfuscationSettings {
     pub lwo: LwoSettings,
 }
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ObfuscationConstraint {
     pub direct: Option<WireguardPortSettings>,
     pub quic: bool,
     pub udp2tcp: Option<Udp2TcpObfuscationSettings>,
     pub shadowsocks: Option<ShadowsocksSettings>,
     pub lwo: Option<LwoSettings>,
+}
+
+impl Default for ObfuscationConstraint {
+    /// Returns a default `ObfuscationConstraint` with all obfuscation methods enabled.
+    fn default() -> Self {
+        Self {
+            direct: Some(Default::default()),
+            quic: true,
+            udp2tcp: Some(Default::default()),
+            shadowsocks: Some(Default::default()),
+            lwo: Some(Default::default()),
+        }
+    }
 }
 
 /// Represents a specific obfuscation method (or explicit "off").

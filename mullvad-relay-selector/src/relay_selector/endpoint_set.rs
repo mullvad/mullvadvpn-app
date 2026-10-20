@@ -262,7 +262,9 @@ impl RelayEndpointSet {
 
         let obfuscator_config = match &configs[..] {
             [] => None,
-            [single_conf] => Some(Obfuscators::Single(single_conf.clone())),
+            [single_conf] if wireguard_endpoint.is_none() => {
+                Some(Obfuscators::Single(single_conf.clone()))
+            }
             [first, remaining @ ..] => Some(Obfuscators::Multiplexer {
                 direct: wireguard_endpoint,
                 configs: (first.clone(), remaining.to_vec()),
