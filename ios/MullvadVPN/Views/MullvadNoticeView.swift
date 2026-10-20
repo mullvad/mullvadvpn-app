@@ -88,7 +88,7 @@ struct MullvadNoticeView: View {
                     .padding(.bottom, actionHeight)
                 }
             }
-            VStack(spacing: 12) {
+            VStack(spacing: 0) {
                 Spacer()
                 Group {
                     ForEach(viewModel.actions) { action in
@@ -132,6 +132,7 @@ extension MullvadNoticeView {
         let text: String
         var symbols: [Image] = []
         let style: MullvadNoticeView.Style.Text
+        var isMarkdown: Bool = false
     }
 
     // MARK: - Action State
@@ -205,6 +206,7 @@ extension MullvadNoticeView.Style {
         let emphasis: Emphasis
         let font: Font
         let color: Color
+        let tintColor: Color
         let alignment: TextAlignment
         let padding: EdgeInsets
 
@@ -212,6 +214,7 @@ extension MullvadNoticeView.Style {
             emphasis: Emphasis = .none,
             font: Font,
             color: Color,
+            tintColor: Color,
             alignment: TextAlignment = .leading,
             padding: EdgeInsets = EdgeInsets(
                 top: 0,
@@ -223,6 +226,7 @@ extension MullvadNoticeView.Style {
             self.emphasis = emphasis
             self.font = font
             self.color = color
+            self.tintColor = tintColor
             self.alignment = alignment
             self.padding = padding
         }
@@ -240,6 +244,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextPrimary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -255,6 +260,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextPrimary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -270,6 +276,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextSecondary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -347,13 +354,15 @@ private struct StyledTextView: View {
     private var textContent: Text {
         buildText(
             from: item.text,
-            symbols: item.symbols
+            symbols: item.symbols,
+            isMarkdown: item.isMarkdown
         )
     }
 
     private func buildText(
         from template: String,
-        symbols: [Image]
+        symbols: [Image],
+        isMarkdown: Bool
     ) -> Text {
 
         let parts = template.components(separatedBy: "%@")
@@ -369,8 +378,13 @@ private struct StyledTextView: View {
                     "\(symbols[index].renderingMode(.template))"
                 )
             }()
-
-            return result + Text(part) + symbolText
+            let partText =
+                if isMarkdown, let attrPart = try? AttributedString(markdown: part) {
+                    Text(attrPart)
+                } else {
+                    Text(part)
+                }
+            return result + partText + symbolText
         }
     }
 }
@@ -382,6 +396,7 @@ private struct TextStyleModifier: ViewModifier {
         content
             .font(style.font)
             .foregroundStyle(style.color)
+            .tint(style.tintColor)
             .multilineTextAlignment(style.alignment)
             .frame(
                 maxWidth: .infinity,
