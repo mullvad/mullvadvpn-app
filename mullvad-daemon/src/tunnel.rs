@@ -1,5 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use mullvad_types::{CustomTunnelEndpoint, Intersection};
+use mullvad_types::CustomTunnelEndpoint;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
@@ -7,7 +7,7 @@ use talpid_error::ErrorExt;
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
-use mullvad_daemon_relay_selector::relay_selector::{ObfuscationRound, RelaySelectorIO};
+use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
