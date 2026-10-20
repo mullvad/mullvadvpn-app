@@ -35,8 +35,6 @@ use talpid_types::net::{
 };
 use vec1::Vec1;
 
-use crate::query::ObfuscationMode;
-
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Found no valid port matching the selected settings")]
@@ -217,6 +215,9 @@ impl RelayEndpointSet {
         Verdict::any(verdicts)
     }
 
+    // TODO: This should return interleaved IPv4 and IPv6 attempts for each
+    // connection method, including wireguard.
+    // It should also support disabling wireguard, and only multiplexing obfuscators
     pub fn get_wireguard_obfuscator(
         &self,
         ObfuscationConstraint {
