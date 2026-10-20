@@ -700,7 +700,6 @@ export default class AppRenderer {
         });
 
       if (relaySelectorQueriesWithKey.length > 0) {
-        console.log('had new queries!', relaySelectorQueriesWithKey);
         const relaySelectorQueryResults = await Promise.all(
           relaySelectorQueriesWithKey.map(async ({ context, key, predicate }) => {
             const relayPartitions = await IpcRendererEventChannel.relays.partitionRelays(predicate);
@@ -728,8 +727,6 @@ export default class AppRenderer {
           },
         );
 
-        console.log('filter queries again', relaySelectorQueryResultsFiltered);
-
         const relayLocationsFiltered = relaySelectorQueryResultsFiltered.reduce(
           (allRelayLocationsFiltered, { context, relayPartitions, key }) => ({
             ...allRelayLocationsFiltered,
@@ -741,9 +738,7 @@ export default class AppRenderer {
           state.settings.relayLocationsFiltered,
         );
 
-        console.log('pre write query');
         this.reduxActions.settings.updateRelayLocationsFiltered(relayLocationsFiltered);
-        console.log('post write query');
       }
     }
   };

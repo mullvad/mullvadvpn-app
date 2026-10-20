@@ -231,7 +231,6 @@ export default function (
       };
 
     case 'UPDATE_RELAY_LOCATIONS_FILTERED':
-      console.log('write query');
       return {
         ...state,
         relayLocationsFiltered: {
