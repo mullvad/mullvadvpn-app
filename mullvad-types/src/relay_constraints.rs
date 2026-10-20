@@ -833,7 +833,7 @@ pub fn obfuscation_constraint_from_settings(
             udp2tcp: Some(obfuscation.udp2tcp),
             shadowsocks: Some(obfuscation.shadowsocks),
             lwo: Some(obfuscation.lwo),
-            quic: false,
+            quic: true,
         },
         Off => ObfuscationConstraint {
             direct: Some(WireguardPortSettings {
