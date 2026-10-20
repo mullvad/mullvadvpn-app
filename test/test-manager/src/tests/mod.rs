@@ -192,6 +192,55 @@ pub async fn prepare_daemon(
     client
 }
 
+/// Printing mullvad-daemon process' open fd count.
+const DAEMON_FD_COUNT_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
+     if [ -n \"$pid\" ]; then \
+         lsof=$(command -v lsof || true); \
+         [ -z \"$lsof\" ] && [ -x /usr/sbin/lsof ] && lsof=/usr/sbin/lsof; \
+         if [ -n \"$lsof\" ]; then \
+             \"$lsof\" -a -p \"$pid\" 2>/dev/null | wc -l; \
+         else \
+             ls /proc/$pid/fd 2>/dev/null | wc -l; \
+         fi; \
+     fi";
+
+/// Print an fd-type breakdown of the daemon's open fds.
+const DAEMON_FD_BREAKDOWN_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
+     [ -n \"$pid\" ] && lsof -a -p \"$pid\" 2>/dev/null \
+         | awk 'NR>1 {print $5, $9}' | sort | uniq -c | sort -rn \
+         | awk '{$1=$1; print}' | sort -rn | head -40";
+
+/// Run a snippet through /bin/sh on the test VM and return its trimmed stdout.
+async fn exec_shell(rpc: &ServiceClient, command: &str) -> anyhow::Result<String> {
+    let result = rpc.exec("/bin/sh", ["-c", command]).await?;
+    Ok(String::from_utf8_lossy(&result.stdout).trim().to_string())
+}
+
+/// Log the daemon's open file-descriptor count before a test. The daemon is
+/// only restarted on version mismatch, so per-test counts form a step function
+/// that points at the test leaking or hogging fds. Best-effort: failures only
+/// log a warning.
+pub async fn log_daemon_fd_count(rpc: &ServiceClient, test_name: &str) {
+    match exec_shell(rpc, DAEMON_FD_COUNT_CMD).await {
+        Ok(count) if !count.is_empty() => {
+            log::info!("fd-count: daemon has {count} open fds before {test_name}");
+        }
+        Ok(_) => log::warn!("fd-count: could not determine daemon pid"),
+        Err(error) => log::warn!("fd-count: failed to query daemon fd count: {error}"),
+    }
+}
+
+/// Dump an fd info.
+pub async fn log_daemon_fd_breakdown(rpc: &ServiceClient) {
+    match exec_shell(rpc, DAEMON_FD_BREAKDOWN_CMD).await {
+        Ok(breakdown) if !breakdown.is_empty() => {
+            log::error!("fd-breakdown of daemon at abort:\n{breakdown}");
+        }
+        Ok(_) => log::error!("fd-breakdown: daemon pid unavailable"),
+        Err(error) => log::error!("fd-breakdown: failed to query: {error}"),
+    }
+}
+
 /// Create and selects an "anonymous" custom list for this test. The custom list will
 /// have the same name as the test and contain the locations as specified by
 /// [`TestMetadata`] location field.

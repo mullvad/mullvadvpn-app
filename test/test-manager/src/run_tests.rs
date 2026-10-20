@@ -149,9 +149,15 @@ pub async fn run(
     };
 
     for test in tests {
-        let mut mullvad_client = tests::prepare_daemon(&test_runner_client, &rpc_provider)
-            .await
-            .context("Failed to reset daemon before test")?;
+        let prepared = tests::prepare_daemon(&test_runner_client, &rpc_provider).await;
+        if prepared.is_err() {
+            tests::log_daemon_fd_breakdown(&test_runner_client).await;
+        }
+        let mut mullvad_client = prepared.context("Failed to reset daemon before test")?;
+
+        tests::log_daemon_fd_count(&test_runner_client, test.name).await;
+
+        tests::log_daemon_fd_count(&test_runner_client, test.name).await;
 
         tests::set_test_location(&mut mullvad_client, &test)
             .await
@@ -160,6 +166,15 @@ pub async fn run(
         test_handler
             .run_test(&test.func, test.name, Some(mullvad_client))
             .await?;
+
+        if test_handler.failed_tests.last().is_some_and(|t| {
+            std::ptr::eq(*t, test.name)
+        }) {
+            // The test failed and the daemon was not restarted: this fd census
+            // catches a leak mid-bloom (e.g. the recoverable dns_config
+            // EMFILE form that never reaches a prepare_daemon abort).
+            tests::log_daemon_fd_breakdown(&test_runner_client).await;
+        }
     }
 
     let result = test_handler.gather_results();
