@@ -49,6 +49,7 @@ mod gettext {
 
     static ESCAPED_SINGLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\'").unwrap());
     static ESCAPED_DOUBLE_QUOTES: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\""#).unwrap());
+    static ESCAPED_NEWLINE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\\\n").unwrap());
     // Look for both %(...) and %(1-9)$(...) as we now push the latter to the common translation file
     static NAMED_PARAMETERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"%\([^)]*\)").unwrap());
     static ORDERED_PARAMETERS: LazyLock<Regex> =
@@ -63,6 +64,8 @@ mod gettext {
             let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes
             let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
+            // Replace double-backslash newline with single backslash newline
+            let string = ESCAPED_NEWLINE.replace_all(&string, r"\n");
 
             string.into_owned()
         }

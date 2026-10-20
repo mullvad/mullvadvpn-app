@@ -24,7 +24,8 @@ impl StringValue {
             .replace('&', r"&amp;")
             .replace('\\', r"\\")
             .replace('\"', "\\\"")
-            .replace('\'', r"\'");
+            .replace('\'', r"\'")
+            .replace(r"\\n", r"\n");
 
         let value_without_line_breaks = Self::collapse_line_breaks(value_with_parameters);
         let value = Self::ensure_parameters_are_indexed(value_without_line_breaks, arg_ordering);
