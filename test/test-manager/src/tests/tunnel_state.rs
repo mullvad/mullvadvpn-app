@@ -49,6 +49,7 @@ async fn setup_nftables_drop_pings_rule(
                 chain postrouting {{
                     type filter hook postrouting priority 0; policy accept;
                     ip length > {max_packet_size} drop;
+                    ip6 length > {max_packet_size} drop;
                 }}
             }}"
         )),
