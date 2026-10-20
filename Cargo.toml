@@ -134,7 +134,7 @@ socket2 = "0.6.5"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
 system-configuration = "0.7.0"
-talpid-dbus = { path = "./talpid-dbus" }
+talpid-dbus = { path = "./talpid-dbus", default-features = false, features = ["libdbus"] }
 talpid-error = { path = "./talpid-error" }
 talpid-logging = { path = "./talpid-logging" }
 tempfile = "3.27.0"
@@ -162,6 +162,7 @@ windows-result = "0.4.1"
 windows-sys = "0.61.2"
 winresource = "0.1.31"
 wmi = "0.18.1"
+zbus = "6.0.0"
 # We cannot use zerocopy "0.8.32" or above due to https://github.com/google/zerocopy/issues/2880
 # TODO: Update the version when the issue is resolved
 zerocopy = "=0.8.31"

@@ -17,7 +17,7 @@ pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), 
 /// be assumed that the machine is shutting down.
 #[cfg(target_os = "linux")]
 pub fn is_shutdown_user_initiated() -> bool {
-    talpid_dbus::systemd::is_host_running()
+    talpid_dbus::systemd::dbus_rs::is_host_running()
         .map_err(|err| {
             err.display_chain_with_msg(
                 "Failed to determine if host is shutting down, assuming it is shutting down",

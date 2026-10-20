@@ -33,9 +33,9 @@ pub fn get_connection() -> Result<Arc<dbus::blocking::SyncConnection>, dbus::Err
 
 #[cfg(feature = "zbus")]
 /// Create a system DBus connection to the system-wide message bus.
-pub fn get_connection_zbus() -> Result<zbus::blocking::Connection, zbus::Error> {
+pub async fn get_connection_zbus() -> Result<zbus::Connection, zbus::Error> {
     // Create the socket once and then clone seems to be the deal with zbus.
     // No need to go super-fancy with the LazyLock<Mutex<..> shennanings.
-    let system = zbus::blocking::Connection::system()?;
+    let system = zbus::Connection::system().await?;
     Ok(system)
 }

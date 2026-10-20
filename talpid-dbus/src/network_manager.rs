@@ -64,7 +64,7 @@ pub enum Error {
     #[error(
         "NM is configured to manage DNS via systemd-resolved but systemd-resolved is not managing /etc/resolv.conf: {0}"
     )]
-    SystemdResolvedNotManagingResolvconf(systemd_resolved::Error),
+    SystemdResolvedNotManagingResolvconf(systemd_resolved::dbus_rs::Error),
 
     #[error("Configuration has no device associated to it")]
     NoDevice,
@@ -346,6 +346,7 @@ impl NetworkManager {
         self.ensure_network_manager_exists()?;
         Ok(())
     }
+
     pub fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
         // check if NM is set to manage resolv.conf
         let management_mode: String = self
@@ -356,7 +357,7 @@ impl NetworkManager {
         }
 
         if management_mode == "systemd-resolved" {
-            return match systemd_resolved::SystemdResolved::new() {
+            return match systemd_resolved::dbus_rs::SystemdResolved::new() {
                 Ok(_) => Ok(()),
                 Err(err) => Err(Error::SystemdResolvedNotManagingResolvconf(err)),
             };
