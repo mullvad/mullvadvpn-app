@@ -154,6 +154,7 @@
     <string name="delete">Ta bort</string>
     <string name="delete_account">Ta bort konto</string>
     <string name="delete_account_cant_be_undone">Det går inte att ångra borttagningen av kontot.</string>
+    <string name="delete_account_complete_subtitle">Tack för att du är en del av vår community.\nFör ett fritt internet!</string>
     <string name="delete_account_confirm_first_item"><b>Det går inte att ångra åtgärden.</b></string>
     <string name="delete_account_confirm_second_item"><b>Du förlorar åtkomsten till kontot på alla enheter.</b></string>
     <string name="delete_account_confirm_third_item"><b>Det går inte att återställa kontot.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="new_list">Ny lista</string>
+    <string name="new_multihop_modes_first_paragraph">Multihopp är nu uppdelat i tre lägen: Vid behov, Alltid och Aldrig.\nDetta ger dig mer flexibilitet i anslutningsinställningarna.</string>
     <string name="new_multihop_modes_off_to_always">Din multihoppinställning har migrerats från \"Av\" till \"Alltid\"</string>
     <string name="new_multihop_modes_off_to_never">Din multihoppinställning har migrerats från \"Av\" till \"Aldrig\"</string>
     <string name="new_multihop_modes_off_to_when_needed">Din multihoppinställning har migrerats från \"Av\" till \"Vid behov\"</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Nya multihopplägen</string>
     <string name="new_multihop_nodes_always_description">Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen.</string>
     <string name="new_multihop_nodes_never_description">Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning.</string>
+    <string name="new_multihop_nodes_when_needed_description">Appen kanske multihoppar automatiskt via en annan ingångsserver för att garantera att dina nuvarande inställningar fungerar samt för att undvika att anslutningen blockeras.\nDetta anges av symbolen %1$s.</string>
     <string name="next">Nästa</string>
     <string name="next_with_icon">Nästa %1$s</string>
     <string name="no_custom_lists_available">Inga anpassade listor är tillgängliga</string>

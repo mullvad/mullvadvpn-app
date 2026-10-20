@@ -154,6 +154,7 @@
     <string name="delete">Slet</string>
     <string name="delete_account">Slet konto</string>
     <string name="delete_account_cant_be_undone">Sletning af din konto kan ikke fortrydes.</string>
+    <string name="delete_account_complete_subtitle">Tak, fordi du er en del af vores fællesskab.\nFor et frit internet!</string>
     <string name="delete_account_confirm_first_item"><b>Denne handling kan ikke fortrydes.</b></string>
     <string name="delete_account_confirm_second_item"><b>Du vil miste adgangen til denne konto på alle enheder.</b></string>
     <string name="delete_account_confirm_third_item"><b>Kontogendannelse er ikke mulig.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Velkommen, denne enhed har nu fået navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
     <string name="new_list">Ny liste</string>
+    <string name="new_multihop_modes_first_paragraph">Multihop inddeles nu i tre tilstande: Efter behov, Altid og Aldrig.\nDette giver dig mere fleksibilitet, hvad angår dine forbindelsespræferencer.</string>
     <string name="new_multihop_modes_off_to_always">Din multihop-indstilling blev migreret fra \"Fra\" til \"Altid\"</string>
     <string name="new_multihop_modes_off_to_never">Din multihop-indstilling blev migreret fra \"Fra\" til \"Aldrig\"</string>
     <string name="new_multihop_modes_off_to_when_needed">Din multihop-indstilling blev migreret fra \"Fra\" til \"Efter behov\"</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Nye multihop-tilstande</string>
     <string name="new_multihop_nodes_always_description">Multihop er aktiveret. Din forbindelse ledes gennem en indgangsserver, før den ledes ud via den valgte placering.</string>
     <string name="new_multihop_nodes_never_description">Multihop er deaktiveret. Din valgte placering skal understøtte alle aktive indstillinger for at kunne oprette en forbindelse.</string>
+    <string name="new_multihop_nodes_when_needed_description">For at sikre at dine nuværende indstillinger fungerer med din valgte placering og for at undgå at blokere din forbindelse, vil appen muligvis automatisk overføre data med multihop via en anden indgangsserver.\nDette angives med %1$s-symbolet.</string>
     <string name="next">Næste</string>
     <string name="next_with_icon">Næste %1$s</string>
     <string name="no_custom_lists_available">Ingen brugerdefinerede lister tilgængelige</string>

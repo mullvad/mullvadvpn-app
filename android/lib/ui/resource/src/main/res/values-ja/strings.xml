@@ -154,6 +154,7 @@
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除する</string>
     <string name="delete_account_cant_be_undone">アカウントを削除すると元に戻すことはできません。</string>
+    <string name="delete_account_complete_subtitle">ご利用いただきありがとうございました。\nプライバシーをすべての人に！</string>
     <string name="delete_account_confirm_first_item"><b>この操作は取り消すことができません。</b></string>
     <string name="delete_account_confirm_second_item"><b>すべてのデバイスでこのアカウントへのアクセス権が失われます。</b></string>
     <string name="delete_account_confirm_third_item"><b>アカウントの復旧はできません。</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">ようこそ。このデバイス名は<b>%1$s</b>です。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="new_list">新規リスト</string>
+    <string name="new_multihop_modes_first_paragraph">マルチホップが「必要時」「常に有効」「無効」の3つのモードに分かれました。\nこれにより、接続設定をより柔軟に選択できるようになっています。</string>
     <string name="new_multihop_modes_off_to_always">マルチホップ設定が「オフ」から「常に有効」に移行されました</string>
     <string name="new_multihop_modes_off_to_never">マルチホップ設定が「オフ」から「無効」に移行されました</string>
     <string name="new_multihop_modes_off_to_when_needed">マルチホップ設定が「オフ」から「必要時」に移行されました</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">新しいマルチホップモード</string>
     <string name="new_multihop_nodes_always_description">マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。</string>
     <string name="new_multihop_nodes_never_description">マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。</string>
+    <string name="new_multihop_nodes_when_needed_description">現在の設定を選択した場所で正常に機能させ、接続のブロックを防ぐため、アプリが別の入口サーバーを経由して自動的にマルチホップを行う場合があります。\nこの場合、%1$sマークが表示されます。</string>
     <string name="next">次へ</string>
     <string name="next_with_icon">次へ %1$s</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>
