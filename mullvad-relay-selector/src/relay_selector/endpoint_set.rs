@@ -214,7 +214,7 @@ impl RelayEndpointSet {
             });
         }
 
-        Verdict::all(verdicts)
+        Verdict::any(verdicts)
     }
 
     pub fn get_wireguard_obfuscator(
@@ -565,6 +565,18 @@ impl Verdict {
     /// otherwise accumulates all rejection reasons.
     pub(crate) fn all<I: IntoIterator<Item = Verdict>>(iter: I) -> Verdict {
         iter.into_iter().fold(Verdict::Accept, |acc, v| acc.and(v))
+    }
+
+    /// Return `Accept` if any verdict is accept, otherwise accumulates all rejection reasons.
+    pub(crate) fn any<I: IntoIterator<Item = Verdict>>(iter: I) -> Verdict {
+        let mut reasons = Vec::new();
+        for v in iter {
+            match v {
+                Verdict::Accept => return Verdict::Accept,
+                Verdict::Reject(r) => reasons.extend(r),
+            }
+        }
+        Verdict::Reject(reasons)
     }
 }
 
