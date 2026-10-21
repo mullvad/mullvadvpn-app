@@ -11,5 +11,5 @@
 import Foundation
 
 protocol SettingsMigrationUIHandler {
-    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void)
+    func showMigrationError(_ error: Error)
 }

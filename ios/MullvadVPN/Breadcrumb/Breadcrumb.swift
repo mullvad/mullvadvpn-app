@@ -11,7 +11,7 @@
 import SwiftUI
 import UIKit
 
-enum Breadcrumb: Hashable {
+enum Breadcrumb: Hashable, Sendable {
     case info(SettingsNavigationRoute)
     case warning(SettingsNavigationRoute)
     case error(SettingsNavigationRoute)
