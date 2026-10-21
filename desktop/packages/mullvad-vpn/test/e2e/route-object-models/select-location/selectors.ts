@@ -72,4 +72,6 @@ export const createSelectors = (page: Page) => ({
   deleteCustomListButton() {
     return page.getByRole('button', { name: 'Delete' });
   },
+  nonMatchingFilterErrorMessage: () =>
+    page.getByText('Selection does not match filter settings').filter({ visible: true }),
 });
