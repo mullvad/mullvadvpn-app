@@ -17,6 +17,7 @@ import { TextFieldItemProvider, useTextFieldItemContext } from './TextFieldItemC
 export type SelectLocationSelectorItemProps = LocationSelectorTextFieldItemProps & {
   defaultValue?: string;
   placeholder?: string;
+  validate?: (value: string) => string | boolean;
 };
 
 const StyledInput = styled(LocationSelector.Items.TextFieldItem.TextField.Input)`
@@ -33,7 +34,7 @@ function TextFieldItemImpl({
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
   const {
     triggerRef,
-    textField: { inputRef, value, handleFocus },
+    textField: { inputRef, value, handleFocus, invalid, invalidReason },
   } = useTextFieldItemContext();
   const { isolatedItem } = useSelectLocationViewContext();
 
@@ -45,6 +46,7 @@ function TextFieldItemImpl({
 
   const showClearButton = id === isolatedItem;
   const showFilterTrailingButton = !isolatedItem;
+  const textFieldInvalid = !isolatedItem && invalid;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -54,6 +56,7 @@ function TextFieldItemImpl({
       {...props}>
       <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
         <LocationSelector.Items.TextFieldItem.TextField
+          invalid={textFieldInvalid}
           value={value}
           onValueChange={handleValueChange}>
           <TextField.InputGroup>
@@ -71,15 +74,25 @@ function TextFieldItemImpl({
             )}
             {showFilterTrailingButton && <FilterTrailingButton type={id} />}
           </TextField.InputGroup>
+          {textFieldInvalid && (
+            <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+              {invalidReason}
+            </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+          )}
         </LocationSelector.Items.TextFieldItem.TextField>
       </LocationSelector.Items.TextFieldItem.Trigger>
     </LocationSelector.Items.TextFieldItem>
   );
 }
 
-export function TextFieldItem({ defaultValue, id, ...props }: SelectLocationSelectorItemProps) {
+export function TextFieldItem({
+  defaultValue,
+  id,
+  validate,
+  ...props
+}: SelectLocationSelectorItemProps) {
   return (
-    <TextFieldItemProvider id={id} defaultValue={defaultValue}>
+    <TextFieldItemProvider id={id} defaultValue={defaultValue} validate={validate}>
       <TextFieldItemImpl id={id} {...props} />
     </TextFieldItemProvider>
   );
