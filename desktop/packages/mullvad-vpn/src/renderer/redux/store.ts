@@ -81,6 +81,9 @@ function composeEnhancers(): StoreEnhancer {
 }
 
 // This hook adds type to state to make use simpler.
-export function useSelector<R>(fn: (state: IReduxState) => R): R {
-  return useReduxSelector(fn);
+export function useSelector<R>(
+  fn: (state: IReduxState) => R,
+  equalityFn?: Parameters<typeof useReduxSelector>[1],
+): R {
+  return useReduxSelector(fn, equalityFn);
 }
