@@ -66,7 +66,10 @@ import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
-import { convertSettingsToRelaySelectorQueries } from './utils';
+import {
+  convertSettingsToRelaySelectorQueries,
+  filterRelayLocationsFilteredUpdateByKey,
+} from './utils';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -671,7 +674,7 @@ export default class AppRenderer {
   };
 
   public updateRelayLocationsFiltered = async (ignoreCache: boolean = false) => {
-    const state = this.reduxStore.getState();
+    let state = this.reduxStore.getState();
     const relaySelectorQueries = convertSettingsToRelaySelectorQueries(state.settings);
     if (relaySelectorQueries) {
       const relaySelectorQueriesWithKey = relaySelectorQueries
@@ -688,16 +691,15 @@ export default class AppRenderer {
             predicate,
           };
         })
-        .filter(({ context, key }) => {
-          if (ignoreCache || !(context in state.settings.relayLocationsFiltered)) {
-            return true;
-          }
+        .filter(({ context, key }) =>
+          filterRelayLocationsFilteredUpdateByKey({
+            context,
+            ignoreCache,
+            key,
+            relayLocationsFiltered: state.settings.relayLocationsFiltered,
+          }),
+        );
 
-          const relayLocationsFilteredContextKey =
-            state.settings.relayLocationsFiltered[context].key;
-
-          return key !== relayLocationsFilteredContextKey;
-        });
       if (relaySelectorQueriesWithKey.length > 0) {
         const relaySelectorQueryResults = await Promise.all(
           relaySelectorQueriesWithKey.map(async ({ context, key, predicate }) => {
@@ -711,7 +713,18 @@ export default class AppRenderer {
           }),
         );
 
-        const relayLocationsFiltered = relaySelectorQueryResults.reduce(
+        state = this.reduxStore.getState();
+        const relaySelectorQueryResultsFiltered = relaySelectorQueryResults.filter(
+          ({ context, key }) =>
+            filterRelayLocationsFilteredUpdateByKey({
+              context,
+              ignoreCache,
+              key,
+              relayLocationsFiltered: state.settings.relayLocationsFiltered,
+            }),
+        );
+
+        const relayLocationsFiltered = relaySelectorQueryResultsFiltered.reduce(
           (allRelayLocationsFiltered, { context, relayPartitions, key }) => ({
             ...allRelayLocationsFiltered,
             [context]: {
