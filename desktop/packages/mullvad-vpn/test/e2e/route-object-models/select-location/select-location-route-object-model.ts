@@ -73,8 +73,10 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.automaticLocation();
   }
 
-  getFilterChip(label: string) {
-    return this.selectors.filterChip(label);
+  getAutomaticEntryMultihopModeToAlwaysButton() {
+    return this.selectors.entryAutomaticMultihopModeToAlwaysButton();
+  }
+
   }
 
   getAllLocationsSection() {
