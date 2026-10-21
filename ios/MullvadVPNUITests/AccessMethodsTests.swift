@@ -93,6 +93,15 @@ class AccessMethodsTests: LoggedOutUITestCase {
             .tap()
 
         EditAccessMethodPage(app)
+            .tapEnableMethodSwitch()
+            .tapBackButton()
+
+        APIAccessPage(app)
+            .getAccessMethodCell(
+                accessibilityId: AccessibilityIdentifier.accessMethodDomainFrontingCell
+            )
+            .tap()
+        EditAccessMethodPage(app)
             .verifySwitchDisabled()
     }
 }
