@@ -385,6 +385,14 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     });
   };
 
+  const mockDisconnectTunnel = async (location: ILocation) => {
+    await utils.ipc.tunnel[''].notify({
+      state: 'disconnected',
+      lockedDown: false,
+      location,
+    });
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -408,6 +416,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     mockRecents,
     mockEntryAndExitLocations,
     mockConnectTunnel,
+    mockDisconnectTunnel,
   };
 };
 
