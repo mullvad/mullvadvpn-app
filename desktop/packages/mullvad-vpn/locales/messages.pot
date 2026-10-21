@@ -3501,6 +3501,9 @@ msgstr ""
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr ""
 
+msgid "A shortcut for connecting or disconnecting to the most recent tunnel."
+msgstr ""
+
 msgid "API reachable, adding method..."
 msgstr ""
 
@@ -3532,6 +3535,9 @@ msgid "Add DNS server"
 msgstr ""
 
 msgid "Add locations"
+msgstr ""
+
+msgid "Add tile to quick settings panel"
 msgstr ""
 
 msgid "Add time"
@@ -3616,6 +3622,9 @@ msgid "By attaching your account token it links this report to your account, whi
 msgstr ""
 
 msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr ""
+
+msgid "Can’t add tile shortcut. Please try again later. Error %d"
 msgstr ""
 
 msgid "Can’t connect?"
@@ -3772,6 +3781,9 @@ msgid "External link"
 msgstr ""
 
 msgid "FAILED TO CONNECT"
+msgstr ""
+
+msgid "Failed to add tile to quick settings panel"
 msgstr ""
 
 msgid "Failed to apply patch"
@@ -4143,6 +4155,9 @@ msgstr ""
 msgid "System network settings"
 msgstr ""
 
+msgid "System not responding. Please add the tile manually from your quick settings panel."
+msgstr ""
+
 msgid "TCP"
 msgstr ""
 
@@ -4216,6 +4231,12 @@ msgid "This might be due to censorship or network issues. Please try to:"
 msgstr ""
 
 msgid "This will be indicated by the %1$s symbol."
+msgstr ""
+
+msgid "Tile already added to quick settings panel."
+msgstr ""
+
+msgid "Tile was added to quick settings panel."
 msgstr ""
 
 msgid "Time added"
