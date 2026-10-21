@@ -100,3 +100,13 @@ reason = "pqcrypto-internals has been archived."
 id = "RUSTSEC-2026-0162"
 ignoreUntil = 2027-06-05
 reason = "pqcrypto-traits has been archived."
+
+# basic-toml is unmaintained.
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0374"
+ignoreUntil = 2027-01-21
+reason = """
+basic-toml is unmaintained. askama depends on it (via uniffi_bindgen). It is fixed upstream in
+https://github.com/askama-rs/askama/pull/771 but not yet released. It is only used at build
+time to parse askama's template config, which is trusted input.
+"""
