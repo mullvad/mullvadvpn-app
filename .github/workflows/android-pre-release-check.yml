@@ -16,7 +16,7 @@ permissions: {}
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
-  check-changelog:
+  check-upcoming-version:
     runs-on: android-build
     steps:
       - name: Checkout repository
