@@ -154,6 +154,7 @@
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar conta</string>
     <string name="delete_account_cant_be_undone">A eliminação da sua conta não pode ser revertida.</string>
+    <string name="delete_account_complete_subtitle">Obrigado por fazer parte da nossa comunidade.\nA privacidade é para todos!</string>
     <string name="delete_account_confirm_first_item"><b>Esta ação não pode ser anulada.</b></string>
     <string name="delete_account_confirm_second_item"><b>Irá perder o acesso a esta conta em todos os dispositivos.</b></string>
     <string name="delete_account_confirm_third_item"><b>A recuperação da conta não será possível.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">As boas-vindas, este dispositivo tem agora o nome <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOVO DISPOSITIVO CRIADO</string>
     <string name="new_list">Nova lista</string>
+    <string name="new_multihop_modes_first_paragraph">O multihop está agora dividido em três modos: Quando necessário, Sempre e Nunca.\nProporciona maior flexibilidade nas suas preferências de ligação.</string>
     <string name="new_multihop_modes_off_to_always">A sua definição de multihop foi migrada de \"Desativada\" para \"Sempre\".</string>
     <string name="new_multihop_modes_off_to_never">A sua definição de multihop foi migrada de \"Desativada\" para \"Nunca\".</string>
     <string name="new_multihop_modes_off_to_when_needed">A sua definição de multihop foi migrada de \"Desativada\" para \"Quando necessário\".</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Novos modos multihop</string>
     <string name="new_multihop_nodes_always_description">O multihop está ativado. A sua ligação é encaminhada através de um servidor de entrada antes de sair pela localização selecionada.</string>
     <string name="new_multihop_nodes_never_description">O multihop está desativado. A localização selecionada tem de suportar todas as definições ativas para estabelecer uma ligação.</string>
+    <string name="new_multihop_nodes_when_needed_description">Para garantir que as suas definições atuais funcionam com a localização selecionada, e para evitar o bloqueio da sua ligação, a aplicação poderá fazer multihop automaticamente em vários passos através de um servidor de entrada diferente.\nIsto será indicado pelo símbolo %1$s.</string>
     <string name="next">Seguinte</string>
     <string name="next_with_icon">Seguinte %1$s</string>
     <string name="no_custom_lists_available">Nenhuma lista personalizada disponível</string>

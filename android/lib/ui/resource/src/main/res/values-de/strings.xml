@@ -154,6 +154,7 @@
     <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
     <string name="delete_account_cant_be_undone">Die Löschung Ihres Kontos kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_account_complete_subtitle">Danke, dass Sie Teil unserer Gemeinschaft sind.\nDie Privatsphäre gehört den Menschen!</string>
     <string name="delete_account_confirm_first_item"><b>Diese Aktion kann nicht rückgängig gemacht werden.</b></string>
     <string name="delete_account_confirm_second_item"><b>Sie verlieren den Zugriff auf dieses Konto auf allen Geräten.</b></string>
     <string name="delete_account_confirm_third_item"><b>Das Konto kann nicht wiederhergestellt werden.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Willkommen, dieses Gerät heißt jetzt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NEUES GERÄT ERSTELLT</string>
     <string name="new_list">Neue Liste</string>
+    <string name="new_multihop_modes_first_paragraph">Multihop ist nun in drei Modi unterteilt: „Bei Bedarf“, „Immer“ und „Nie“.\nDies bietet Ihnen mehr Flexibilität bei Ihren Verbindungseinstellungen.</string>
     <string name="new_multihop_modes_off_to_always">Ihre Multihop-Einstellung wurde von „Aus“ zu „Immer“ migriert</string>
     <string name="new_multihop_modes_off_to_never">Ihre Multihop-Einstellung wurde von „Aus“ zu „Nie“ migriert</string>
     <string name="new_multihop_modes_off_to_when_needed">Ihre Multihop-Einstellung wurde von „Aus“ zu „Bei Bedarf“ migriert</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Neue Multihop-Modi</string>
     <string name="new_multihop_nodes_always_description">Multihop ist aktiviert. Ihre Verbindung wird über einen Eingangsserver geleitet, bevor sie über den ausgewählten Standort weitergeleitet wird.</string>
     <string name="new_multihop_nodes_never_description">Multihop ist deaktiviert. Der von Ihnen gewählte Standort muss alle aktiven Einstellungen unterstützen, damit eine Verbindung hergestellt werden kann.</string>
+    <string name="new_multihop_nodes_when_needed_description">Um sicherzustellen, dass Ihre aktuellen Einstellungen an dem von Ihnen gewählten Standort funktionieren, und um zu verhindern, dass Ihre Verbindung blockiert wird, kann die App automatisch über einen anderen Eingangsserver umleiten.\nDies wird durch das Symbol %1$s angezeigt.</string>
     <string name="next">Weiter</string>
     <string name="next_with_icon">Weiter %1$s</string>
     <string name="no_custom_lists_available">Keine eigenen Listen verfügbar</string>

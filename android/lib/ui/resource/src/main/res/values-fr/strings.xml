@@ -154,6 +154,7 @@
     <string name="delete">Supprimer</string>
     <string name="delete_account">Supprimer le compte</string>
     <string name="delete_account_cant_be_undone">La suppression de votre compte est irréversible.</string>
+    <string name="delete_account_complete_subtitle">Merci de faire partie de notre communauté.\nLa confidentialité appartient au peuple !</string>
     <string name="delete_account_confirm_first_item"><b>Cette action est irréversible.</b></string>
     <string name="delete_account_confirm_second_item"><b>Vous perdrez l\'accès à ce compte sur tous les appareils.</b></string>
     <string name="delete_account_confirm_third_item"><b>La récupération du compte ne sera pas possible.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
+    <string name="new_multihop_modes_first_paragraph">Le multihop est désormais divisé en trois modes : « Quand nécessaire », « Toujours » et « Jamais ».\nCela vous offre davantage de flexibilité quant à vos préférences de connexion.</string>
     <string name="new_multihop_modes_off_to_always">Votre configuration multihop a été migrée de « Désactivé » vers « Toujours »</string>
     <string name="new_multihop_modes_off_to_never">Votre configuration multihop a été migrée de « Désactivé » vers « Jamais »</string>
     <string name="new_multihop_modes_off_to_when_needed">Votre configuration multihop a été migrée de « Désactivé » vers « Quand nécessaire »</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Nouveaux modes de multihop</string>
     <string name="new_multihop_nodes_always_description">Le multihop est activé. Votre connexion transite par un serveur d\'entrée avant de sortir via la localisation sélectionnée.</string>
     <string name="new_multihop_nodes_never_description">Le multihop est désactivé. La localisation que vous avez sélectionnée doit prendre en charge tous les paramètres actifs pour pouvoir établir une connexion.</string>
+    <string name="new_multihop_nodes_when_needed_description">Pour vous assurer que vos paramètres actuels fonctionnent avec votre emplacement sélectionné, et pour éviter de bloquer votre connexion, l\'application peut automatiquement effectuer un multihop vers un serveur d\'entrée différent.\nCela sera indiqué par le symbole %1$s.</string>
     <string name="next">Suivant</string>
     <string name="next_with_icon">Suivant %1$s</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>

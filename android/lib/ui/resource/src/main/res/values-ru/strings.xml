@@ -154,6 +154,7 @@
     <string name="delete">Удалить</string>
     <string name="delete_account">Удалить учетную запись</string>
     <string name="delete_account_cant_be_undone">После удаления учетной записи вы не сможете вернуть ее.</string>
+    <string name="delete_account_complete_subtitle">Спасибо, что были частью нашего сообщества.\nКонфиденциальность — право каждого!</string>
     <string name="delete_account_confirm_first_item"><b>Это действие нельзя отменить.</b></string>
     <string name="delete_account_confirm_second_item"><b>Вы потеряете доступ к этой учетной записи на всех устройствах.</b></string>
     <string name="delete_account_confirm_third_item"><b>Восстановить учетную запись будет невозможно.</b></string>
@@ -361,6 +362,7 @@
     <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется <b>%1$s</b>.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
+    <string name="new_multihop_modes_first_paragraph">Для многократного перехода теперь есть три режима: «При необходимости», «Всегда» и «Никогда».\nЭто позволяет более гибко настраивать параметры подключения.</string>
     <string name="new_multihop_modes_off_to_always">Настройка многократного перехода изменена с «Выкл.» на «Всегда»</string>
     <string name="new_multihop_modes_off_to_never">Настройка многократного перехода изменена с «Выкл.» на «Никогда»</string>
     <string name="new_multihop_modes_off_to_when_needed">Настройка многократного перехода изменена с «Выкл.» на «При необходимости»</string>
@@ -368,6 +370,7 @@
     <string name="new_multihop_modes_title">Новые режимы многократного перехода</string>
     <string name="new_multihop_nodes_always_description">Многократный переход включен. Ваш трафик сначала проходит через сервер входа, а затем — через сервер в выбранном местоположении.</string>
     <string name="new_multihop_nodes_never_description">Многократный переход отключен. Чтобы установить соединение, выбранное местоположение должно поддерживать все активные настройки.</string>
+    <string name="new_multihop_nodes_when_needed_description">Чтобы обеспечить совместимость текущих настроек с выбранным местоположением и избежать блокировки подключения, приложение может автоматически использовать многократный переход через другой сервер входа.\nВ этом случае отображается значок %1$s.</string>
     <string name="next">Далее</string>
     <string name="next_with_icon">Далее %1$s</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
