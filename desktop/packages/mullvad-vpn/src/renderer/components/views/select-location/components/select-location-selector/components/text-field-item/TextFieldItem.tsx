@@ -54,12 +54,12 @@ function TextFieldItemImpl({
       inputRef={inputRef}
       triggerRef={triggerRef}
       {...props}>
-      <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
-        <LocationSelector.Items.TextFieldItem.TextField
-          invalid={textFieldInvalid}
-          value={value}
-          onValueChange={handleValueChange}>
-          <TextField.InputGroup>
+      <LocationSelector.Items.TextFieldItem.TextField
+        invalid={textFieldInvalid}
+        value={value}
+        onValueChange={handleValueChange}>
+        <TextField.InputGroup>
+          <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
             <StyledInput
               placeholder={placeholder}
               onFocus={handleFocus}
@@ -72,15 +72,15 @@ function TextFieldItemImpl({
                 aria-label={messages.pgettext('accessibility', 'Clear search')}
               />
             )}
-            {showFilterTrailingButton && <FilterTrailingButton type={id} />}
-          </TextField.InputGroup>
-          {textFieldInvalid && (
-            <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
-              {invalidReason}
-            </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
-          )}
-        </LocationSelector.Items.TextFieldItem.TextField>
-      </LocationSelector.Items.TextFieldItem.Trigger>
+          </LocationSelector.Items.TextFieldItem.Trigger>
+          {showFilterTrailingButton && <FilterTrailingButton type={id} />}
+        </TextField.InputGroup>
+        {textFieldInvalid && (
+          <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+            {invalidReason}
+          </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+        )}
+      </LocationSelector.Items.TextFieldItem.TextField>
     </LocationSelector.Items.TextFieldItem>
   );
 }
