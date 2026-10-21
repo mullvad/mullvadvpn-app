@@ -5,6 +5,7 @@ import { LocationType } from '../../../../src/renderer/features/locations/types'
 import {
   type Constraint,
   type CustomLists,
+  type ILocation,
   IRelayList,
   IRelayListCity,
   IRelayListCountry,
@@ -365,6 +366,25 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
+  const mockConnectTunnel = async (location: ILocation) => {
+    await utils.ipc.tunnel[''].notify({
+      state: 'connected',
+      details: {
+        endpoint: {
+          entryEndpoint: {
+            address: '',
+            transportProtocol: 'tcp',
+          },
+          address: '',
+          daita: false,
+          protocol: 'tcp',
+          quantumResistant: false,
+        },
+        location,
+      },
+    });
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -387,6 +407,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     mockCustomLists,
     mockRecents,
     mockEntryAndExitLocations,
+    mockConnectTunnel,
   };
 };
 
