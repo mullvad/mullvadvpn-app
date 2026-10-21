@@ -184,19 +184,41 @@ test.describe('Select location', () => {
     });
 
     test('Should display entry and exit when multihop mode is "when-needed" and has automatic entry', async () => {
-      await helpers.mockSettings({
-        multihop: 'when-needed',
-        entryLocation: {
-          only: {
-            country: 'se',
-          },
+      // Need to set up all the circumstances that makes the Automatic entry appear
+      settings = await helpers.mockSettings(
+        {
+          multihop: 'when-needed',
         },
+        settings,
+      );
+
+      await helpers.mockConnectTunnel({
+        ...mockData.location,
+        entryHostname: relayList.countries[0].cities[0].relays[0].hostname,
       });
 
-      const entryInput = routes.selectLocation.getEntryInput();
+      await helpers.mockEntryAndExitLocations(
+        {
+          entryLocation: {
+            only: {
+              country: relayList.countries[0].code,
+            },
+          },
+          exitLocation: {
+            only: {
+              country: relayList.countries[0].code,
+            },
+          },
+        },
+        settings,
+      );
+
+      const entryAutomaticButton = routes.selectLocation.getEntryAutomaticButton(
+        relayList.countries[0].name,
+      );
       const exitInput = routes.selectLocation.getExitInput();
 
-      await expect(entryInput).toBeVisible();
+      await expect(entryAutomaticButton).toBeVisible();
       await expect(exitInput).toBeVisible();
     });
   });
