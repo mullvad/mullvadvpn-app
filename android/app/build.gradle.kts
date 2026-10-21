@@ -66,7 +66,7 @@ android {
             checkAllWarnings = true
             warningsAsErrors = true
             checkDependencies = true
-            configureMissingTranslationCheck(appVersion)
+            configureMissingTranslationCheck(project, appVersion)
         }
     }
 

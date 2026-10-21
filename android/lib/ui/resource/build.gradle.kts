@@ -27,7 +27,7 @@ android {
         }
     }
 
-    lint { configureMissingTranslationCheck(appVersion) }
+    lint { configureMissingTranslationCheck(project, appVersion) }
 }
 
 dependencies {
