@@ -1,7 +1,8 @@
 import SwiftUI
 
-struct MullvadAlert: Identifiable {
+struct MullvadAlert: Identifiable, Equatable {
     enum AlertType {
+        case none
         case info
         case warning
         case error
@@ -34,24 +35,31 @@ struct MullvadAlert: Identifiable {
 
     let id = UUID()
     let type: AlertType
+    let title: LocalizedStringKey?
     let messages: [LocalizedStringKey]
     let customView: AnyView?
     let actions: [Action]
 
     init(
         type: AlertType,
+        title: LocalizedStringKey? = nil,
         messages: [LocalizedStringKey] = [],
         customView: AnyView? = nil,
         actions: [Action] = []
     ) {
         self.type = type
+        self.title = title
         self.messages = messages
         self.customView = customView
         self.actions = actions
     }
+
+    static func == (lhs: MullvadAlert, rhs: MullvadAlert) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
-struct MullvadInputAlert: Identifiable {
+struct MullvadInputAlert: Identifiable, Equatable {
     struct Action {
         let type: MullvadButton.Style
         let title: LocalizedStringKey
@@ -65,20 +73,36 @@ struct MullvadInputAlert: Identifiable {
     let action: Action
     let validate: ((String) -> Bool)?
     let dismissButtonTitle: LocalizedStringKey
+
+    static func == (lhs: MullvadInputAlert, rhs: MullvadInputAlert) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 struct AlertModifier: ViewModifier {
     @Binding var alert: MullvadAlert?
     @State var loading = false
+    @State private var internalAlert: MullvadAlert?
     @State private var scrollViewHeight: CGFloat = 0
+
+    func showWithoutAnimation() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            internalAlert = alert
+        }
+    }
 
     func body(content: Content) -> some View {
         content
-            .fullScreenCover(item: $alert) { alert in
+            .fullScreenCover(item: $internalAlert) { alert in
                 alertView(for: alert)
             }
-            .transaction {
-                $0.disablesAnimations = true
+            .onChange(of: alert) {
+                showWithoutAnimation()
+            }
+            .onAppear {
+                showWithoutAnimation()
             }
     }
 
@@ -99,6 +123,7 @@ struct AlertModifier: ViewModifier {
     private func alertContent(for alert: MullvadAlert) -> some View {
         VStack(spacing: 16) {
             alertIcon(for: alert.type)
+            alertTitle(for: alert.title)
             alertMessage(alert.messages, customView: alert.customView)
             VStack(spacing: 16) {
                 ForEach(alert.actions) { action in
@@ -106,7 +131,9 @@ struct AlertModifier: ViewModifier {
                 }
             }
         }
-        .padding()
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+        .padding(.top, 24)
         .background(Color.mullvadBackground)
         .cornerRadius(8)
     }
@@ -114,6 +141,8 @@ struct AlertModifier: ViewModifier {
     @ViewBuilder
     private func alertIcon(for type: MullvadAlert.AlertType) -> some View {
         switch type {
+        case .none:
+            EmptyView()
         case .info:
             Image.mullvadIconInfo
                 .resizable()
@@ -122,6 +151,18 @@ struct AlertModifier: ViewModifier {
             Image.mullvadIconAlert
                 .resizable()
                 .frame(width: 48, height: 48)
+        }
+    }
+
+    @ViewBuilder
+    private func alertTitle(for title: LocalizedStringKey?) -> some View {
+        if let title {
+            HStack {
+                Text(title)
+                    .font(.mullvadSmallSemiBold)
+                    .foregroundStyle(Color.mullvadTextPrimary)
+                Spacer()
+            }
         }
     }
 
@@ -168,16 +209,28 @@ struct InputAlertModifier: ViewModifier {
     @Binding var alert: MullvadInputAlert?
     @State var loading = false
     @State var text = ""
+    @State private var internalAlert: MullvadInputAlert?
+
+    func showWithoutAnimation() {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            internalAlert = alert
+        }
+    }
 
     func body(content: Content) -> some View {
         content
-            .fullScreenCover(item: $alert) { alert in
+            .fullScreenCover(item: $internalAlert) { alert in
                 InputAlertContent(alert: alert) {
                     self.alert = nil
                 }
             }
-            .transaction {
-                $0.disablesAnimations = true
+            .onChange(of: alert) {
+                showWithoutAnimation()
+            }
+            .onAppear {
+                showWithoutAnimation()
             }
     }
 }
@@ -246,6 +299,38 @@ private struct InputAlertContent: View {
     }
 }
 
+struct SpinnerModifier: ViewModifier {
+    let isPresented: Bool
+    @State private var isPresentedInternal: Bool
+    init(isPresented: Bool) {
+        self.isPresented = isPresented
+        self.isPresentedInternal = isPresented
+    }
+    func body(content: Content) -> some View {
+        content
+            .fullScreenCover(isPresented: $isPresentedInternal) {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .progressViewStyle(MullvadProgressViewStyle())
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .background(ClearBackgroundView())
+            }
+            .onChange(of: isPresented) {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    isPresentedInternal = isPresented
+                }
+            }
+    }
+}
+
 extension View {
     func mullvadAlert(item: Binding<MullvadAlert?>) -> some View {
         modifier(AlertModifier(alert: item))
@@ -253,6 +338,12 @@ extension View {
 
     func mullvadInputAlert(item: Binding<MullvadInputAlert?>) -> some View {
         modifier(InputAlertModifier(alert: item))
+    }
+
+    func mullvadLoadingSpinner(isPresented: Bool) -> some View {
+        modifier(
+            SpinnerModifier(isPresented: isPresented)
+        )
     }
 }
 
@@ -263,6 +354,7 @@ extension View {
                 .constant(
                     .init(
                         type: .warning,
+                        title: "Title",
                         messages: ["Something needs to be done"],
                         actions: [
                             .init(
@@ -300,4 +392,9 @@ extension View {
                     )
                 )
         )
+}
+
+#Preview {
+    Text("Hello, World!")
+        .mullvadLoadingSpinner(isPresented: true)
 }

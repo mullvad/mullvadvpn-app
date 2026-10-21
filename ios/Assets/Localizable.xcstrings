@@ -3389,6 +3389,7 @@
       }
     },
     "Account deletion" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -19938,6 +19939,7 @@
       }
     },
     "Debug options" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

@@ -14,7 +14,7 @@ class AccountPage: PaymentPage {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.accountView]
+        self.pageElement = app.scrollViews[.accountView]
         waitForPageToBeShown()
     }
 
@@ -30,6 +30,11 @@ class AccountPage: PaymentPage {
 
     @discardableResult func tapDeleteAccountButton() -> Self {
         app.buttons[AccessibilityIdentifier.deleteButton.asString].tap()
+        return self
+    }
+
+    @discardableResult func tapToolbarMenuButton() -> Self {
+        app.buttons[AccessibilityIdentifier.accountToolbarMenuButton.asString].tap()
         return self
     }
 
@@ -60,6 +65,12 @@ class AccountPage: PaymentPage {
 
     @discardableResult func waitForPaidUntil(_ date: Date) -> Self {
         app.staticTexts[date.formattedDateString].wait()
+
+        return self
+    }
+
+    @discardableResult func verifyOutOfTime() -> Self {
+        app.staticTexts["OUT OF TIME"].wait()
 
         return self
     }
