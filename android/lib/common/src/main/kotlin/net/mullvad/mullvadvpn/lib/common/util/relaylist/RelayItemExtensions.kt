@@ -73,6 +73,7 @@ fun RelayMetadataMap.merge(other: RelayMetadataMap): RelayMetadataMap {
 data class RelayMetadata(
     val needsOtherEntry: Boolean? = null,
     val titleHighlights: List<IntRange>? = null,
+    val connectedRelay: Boolean? = null,
 ) {
     /// Merges two metadata objects into a new one. Keys in other (if set) will overwrite keys
     /// in this.
@@ -80,6 +81,7 @@ data class RelayMetadata(
         RelayMetadata(
             needsOtherEntry = other.needsOtherEntry ?: this.needsOtherEntry,
             titleHighlights = other.titleHighlights ?: this.titleHighlights,
+            connectedRelay = other.connectedRelay ?: this.connectedRelay,
         )
 }
 

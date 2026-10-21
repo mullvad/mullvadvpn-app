@@ -998,16 +998,6 @@ export class GeoIpLocation extends jspb.Message {
     getMullvadExitIp(): boolean;
     setMullvadExitIp(value: boolean): GeoIpLocation;
 
-    hasHostname(): boolean;
-    clearHostname(): void;
-    getHostname(): string | undefined;
-    setHostname(value: string): GeoIpLocation;
-
-    hasEntryHostname(): boolean;
-    clearEntryHostname(): void;
-    getEntryHostname(): string | undefined;
-    setEntryHostname(value: string): GeoIpLocation;
-
     hasEntryCity(): boolean;
     clearEntryCity(): void;
     getEntryCity(): string | undefined;
@@ -1017,6 +1007,16 @@ export class GeoIpLocation extends jspb.Message {
     clearEntryCountry(): void;
     getEntryCountry(): string | undefined;
     setEntryCountry(value: string): GeoIpLocation;
+
+    hasEntryLocation(): boolean;
+    clearEntryLocation(): void;
+    getEntryLocation(): GeographicLocationConstraint | undefined;
+    setEntryLocation(value?: GeographicLocationConstraint): GeoIpLocation;
+
+    hasLocation(): boolean;
+    clearLocation(): void;
+    getLocation(): GeographicLocationConstraint | undefined;
+    setLocation(value?: GeographicLocationConstraint): GeoIpLocation;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GeoIpLocation.AsObject;
@@ -1037,10 +1037,10 @@ export namespace GeoIpLocation {
         latitude: number,
         longitude: number,
         mullvadExitIp: boolean,
-        hostname?: string,
-        entryHostname?: string,
         entryCity?: string,
         entryCountry?: string,
+        entryLocation?: GeographicLocationConstraint.AsObject,
+        location?: GeographicLocationConstraint.AsObject,
     }
 }
 
