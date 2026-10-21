@@ -95,6 +95,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetMigrationEventError
+import net.mullvad.mullvadvpn.lib.model.GetPersonalVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -288,12 +289,6 @@ class ManagementService(
                         launch {
                             val channel = grpc.EventsListen().executeIn(this, Unit)
                             channel.receiveAsFlow().collect(::handleEvent)
-                        }
-                        launch {
-                            val channel = grpc.GetPersonalVpnStats().executeIn(this, Unit)
-                            channel.receiveAsFlow().collect { stats ->
-                                _mutableTunnelStats.value = stats.toDomain()
-                            }
                         }
 
                         getInitialServiceState()
@@ -999,6 +994,11 @@ class ManagementService(
         Either.catch { grpc.ClearMigrationMessage().execute(Unit) }
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
+
+    suspend fun getPersonalVpnStats(): Either<GetPersonalVpnConfigError, ModelTunnelStats> =
+        Either.catch { grpc.GetPersonalVpnStats().execute(Unit).toDomain() }
+            .onLeft { Logger.e("Get personal vpn event error") }
+            .mapLeft { GetPersonalVpnConfigError.Unknown }
 
     suspend fun togglePersonalVpn(enable: Boolean): Either<SetPersonalVpnConfigError, Unit> =
         Either.catch { grpc.SetPersonalVpnConfigStatus().execute(enable.toBoolValue()) }

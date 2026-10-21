@@ -251,6 +251,8 @@ impl TunnelState for ErrorState {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                 SameState(self)
             }
+            #[cfg(feature = "personal-vpn")]
+            Some(TunnelCommand::PersonalVpnStats(_)) => SameState(self),
         }
     }
 }

@@ -5,9 +5,14 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.right
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,13 +20,16 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -47,13 +55,21 @@ class PersonalVpnViewModel(
     private val _formData = MutableStateFlow<PersonalVpnFormData?>(null)
     private val formErrors = MutableStateFlow<List<FormDataError>>(emptyList())
 
+    fun personalVpnTunnelStats(): Flow<TunnelStats> = flow {
+        while (currentCoroutineContext().isActive) {
+            val stats = managementService.getPersonalVpnStats().getOrNull()
+            if (stats != null) emit(stats)
+            delay(1.seconds)
+        }
+    }
+
     val uiState: StateFlow<Lc<Boolean, PersonalVpnUiState>> =
         combine(
                 settingsRepository.settingsUpdates
                     .filterNotNull()
                     .onFirst { _formData.value = PersonalVpnFormData.from(it.personalVpnConfig) }
                     .map { it.personalVpnEnabled },
-                managementService.tunnelStats.onStart { emit(TunnelStats()) },
+                personalVpnTunnelStats().onStart { emit(TunnelStats()) },
                 _formData.filterNotNull(),
                 formErrors,
                 _formData.map { it != PersonalVpnFormData() },

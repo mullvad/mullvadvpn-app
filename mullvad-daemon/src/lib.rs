@@ -107,6 +107,8 @@ use talpid_core::{
 };
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
+#[cfg(feature = "personal-vpn")]
+use talpid_types::Stats;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
@@ -482,6 +484,9 @@ pub enum DaemonCommand {
     /// Enable or disable the personal VPN
     #[cfg(feature = "personal-vpn")]
     SetPersonalVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
+    /// Get personal VPN stats
+    #[cfg(feature = "personal-vpn")]
+    GetPersonalVpnStats(oneshot::Sender<Stats>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -515,9 +520,9 @@ pub(crate) enum InternalDaemonEvent {
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
     /// A network leak was detected.
     LeakDetected(LeakInfo),
-    /// Personal VPN stats update.
-    #[cfg(feature = "personal-vpn")]
-    PersonalVpnUpdate(talpid_types::Stats),
+    // /// Personal VPN stats update.
+    // #[cfg(feature = "personal-vpn")]
+    // PersonalVpnUpdate(talpid_types::Stats),
 }
 
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -781,10 +786,6 @@ impl Daemon {
             )
         };
 
-        #[cfg(feature = "personal-vpn")]
-        let (personal_vpn_stats_tx, mut personal_vpn_stats_rx) =
-            tokio::sync::mpsc::channel::<talpid_types::Stats>(32);
-
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
@@ -966,22 +967,6 @@ impl Daemon {
         .await
         .map_err(Error::RouteManager)?;
 
-        #[cfg(feature = "personal-vpn")]
-        {
-            // Keep track of personal VPN tunnel handshake
-            let internal_event_tx = internal_event_tx.clone();
-            tokio::spawn(async move {
-                while let Some(stats) = personal_vpn_stats_rx.recv().await {
-                    if internal_event_tx
-                        .send(InternalDaemonEvent::PersonalVpnUpdate(stats))
-                        .is_err()
-                    {
-                        break;
-                    }
-                }
-            });
-        }
-
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -1005,8 +990,6 @@ impl Daemon {
             config.resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
-            #[cfg(feature = "personal-vpn")]
-            Some(personal_vpn_stats_tx),
             route_manager.clone(),
             #[cfg(target_os = "windows")]
             volume_update_rx,
@@ -1296,21 +1279,6 @@ impl Daemon {
                 log::warn!("Network leak detected! Please contact Mullvad support.");
                 log::warn!("{leak_info:?}");
                 self.handle_leak_event(leak_info)
-            }
-            #[cfg(feature = "personal-vpn")]
-            PersonalVpnUpdate(stats) => {
-                let enabled = self.settings.personal_vpn_enabled
-                    && self.settings.personal_vpn_config.is_some();
-                let new_handshake = enabled.then_some(stats.last_handshake_time).flatten();
-                if self.last_personal_handshake != new_handshake {
-                    self.last_personal_handshake = new_handshake;
-                    self.update_feature_indicators_on_settings_changed();
-                }
-                if enabled {
-                    self.management_interface
-                        .notifier()
-                        .notify_personal_vpn_stats(stats);
-                }
             }
         }
         should_stop
@@ -1742,6 +1710,8 @@ impl Daemon {
             SetPersonalVpnConfigStatus(tx, enabled) => {
                 self.on_set_personal_vpn_config_status(tx, enabled).await
             }
+            #[cfg(feature = "personal-vpn")]
+            GetPersonalVpnStats(tx) => self.on_get_personal_vpn_stats(tx),
         }
     }
 
@@ -2831,6 +2801,11 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(err), "set_personal_vpn_config_status");
             }
         }
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    fn on_get_personal_vpn_stats(&self, tx: oneshot::Sender<Stats>) {
+        self.send_tunnel_command(TunnelCommand::PersonalVpnStats(tx));
     }
 
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {

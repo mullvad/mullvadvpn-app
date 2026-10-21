@@ -145,9 +145,6 @@ pub async fn spawn(
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
-    #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
-        tokio::sync::mpsc::Sender<talpid_types::Stats>,
-    >,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -174,8 +171,6 @@ pub async fn spawn(
         settings: initial_settings,
         command_tx: weak_command_tx,
         offline_state_tx: offline_state_listener,
-        #[cfg(feature = "personal-vpn")]
-        personal_vpn_stats_tx,
         tunnel_parameters_generator,
         tun_provider,
         log_dir,
@@ -247,6 +242,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    #[cfg(feature = "personal-vpn")]
+    /// Get the stats for how much data has been sent/received over the custom VPN.
+    PersonalVpnStats(oneshot::Sender<talpid_types::Stats>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -345,7 +343,7 @@ struct TunnelStateMachine {
     shared_values: SharedTunnelStateValues,
 }
 
-/// Tunnel state machine initialization arguments arguments
+/// Tunnel state machine initialization arguments
 struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     settings: InitialTunnelState,
     command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
@@ -355,8 +353,6 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
-    #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats_tx: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
@@ -474,8 +470,6 @@ impl TunnelStateMachine {
             dns_monitor,
             route_manager: args.route_manager,
             _offline_monitor: offline_monitor,
-            #[cfg(feature = "personal-vpn")]
-            personal_vpn_stats_tx: args.personal_vpn_stats_tx,
             allow_lan: args.settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: args.settings.lockdown_mode,
@@ -568,8 +562,6 @@ struct SharedTunnelStateValues {
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManagerHandle,
-    #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats_tx: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
     _offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,

@@ -9,7 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_tunnel::{EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{
+    EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, TunnelMonitorCommand,
+};
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::{
     AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
@@ -47,7 +49,7 @@ pub struct ConnectingState {
     tunnel_metadata: Option<TunnelMetadata>,
     allowed_tunnel_traffic: AllowedTunnelTraffic,
     tunnel_close_event: TunnelCloseEvent,
-    tunnel_close_tx: oneshot::Sender<()>,
+    command_tx: mpsc::UnboundedSender<TunnelMonitorCommand>,
     retry_attempt: u32,
 }
 
@@ -152,8 +154,6 @@ impl ConnectingState {
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
-                        #[cfg(feature = "personal-vpn")]
-                        shared_values.personal_vpn_stats_tx.clone(),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -237,9 +237,6 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
-        #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
-            tokio::sync::mpsc::Sender<talpid_types::Stats>,
-        >,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
@@ -248,7 +245,7 @@ impl ConnectingState {
         let log_dir = log_dir.clone();
         let resource_dir = resource_dir.to_path_buf();
 
-        let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
+        let (command_tx, command_rx) = mpsc::unbounded();
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         let tunnel_parameters = parameters.clone();
@@ -263,12 +260,10 @@ impl ConnectingState {
                 runtime,
                 resource_dir: &resource_dir,
                 event_hook,
-                tunnel_close_rx,
+                command_rx,
                 tun_provider,
                 retry_attempt,
                 route_manager,
-                #[cfg(feature = "personal-vpn")]
-                personal_vpn_stats: personal_vpn_stats_tx,
             };
 
             #[cfg(target_os = "windows")]
@@ -332,7 +327,7 @@ impl ConnectingState {
             tunnel_metadata: None,
             allowed_tunnel_traffic: INITIAL_ALLOWED_TUNNEL_TRAFFIC,
             tunnel_close_event: tunnel_close_event_rx.fuse(),
-            tunnel_close_tx,
+            command_tx,
             retry_attempt,
         }
     }
@@ -396,7 +391,7 @@ impl ConnectingState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            self.tunnel_close_tx,
+            self.command_tx,
             self.tunnel_close_event,
             after_disconnect,
         ))
@@ -554,6 +549,8 @@ impl ConnectingState {
                 }
                 SameState(self)
             }
+            #[cfg(feature = "personal-vpn")]
+            Some(TunnelCommand::PersonalVpnStats(_)) => SameState(self),
         }
     }
 
@@ -636,7 +633,7 @@ impl ConnectingState {
                     self.tunnel_events,
                     tunnel_parameters,
                     self.tunnel_close_event,
-                    self.tunnel_close_tx,
+                    self.command_tx,
                 ))
             }
             Some((TunnelEvent::Down, _)) => {
