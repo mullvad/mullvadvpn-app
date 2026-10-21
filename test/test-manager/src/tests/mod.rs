@@ -192,29 +192,33 @@ pub async fn prepare_daemon(
     client
 }
 
-/// Printing mullvad-daemon process' open fd count.
-const DAEMON_FD_COUNT_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
-     if [ -n \"$pid\" ]; then \
-         lsof=$(command -v lsof || true); \
-         [ -z \"$lsof\" ] && [ -x /usr/sbin/lsof ] && lsof=/usr/sbin/lsof; \
-         if [ -n \"$lsof\" ]; then \
-             \"$lsof\" -a -p \"$pid\" 2>/dev/null | wc -l; \
-         else \
-             ls /proc/$pid/fd 2>/dev/null | wc -l; \
-         fi; \
+/// Snapshot the daemon's open fds in a single lsof reading: print the count,
+/// and when it exceeds the replacement threshold (the fd burst builds and
+/// drains within seconds, so a second lsof invocation would only see the
+/// aftermath) also emit an aggregate by fd type and the top fd names, all
+/// from the same snapshot. Numeric ports (`-P -n`) keep the port numbers
+/// readable.
+const DAEMON_FD_SNAPSHOT_CMD_TEMPLATE: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
+     [ -n \"$pid\" ] || exit 0; \
+     snapshot=$(lsof -a -P -n -p \"$pid\" 2>/dev/null); \
+     count=$(printf '%s\\n' \"$snapshot\" | tail -n +2 | wc -l); \
+     echo \"fd-count: daemon has $count open fds\"; \
+     if [ \"$count\" -gt FD_COUNT_BREAKDOWN_THRESHOLD ]; then \
+         echo '== fd types =='; \
+         printf '%s\\n' \"$snapshot\" | tail -n +2 | awk '{print $5}' | sort | uniq -c | sort -rn; \
+         echo '== top fd names =='; \
+         printf '%s\\n' \"$snapshot\" | tail -n +2 \
+             | awk '{print $5, $9}' | sort | uniq -c | sort -rn | head -40; \
      fi";
 
-/// Print an fd breakdown of the daemon's open fds: first an aggregate by
-/// type (a burst of sockets with unique ports would otherwise collapse into
-/// count-1 lines hidden below any output cap), then the top fd names with
-/// numeric ports (`-P -n`) so the port distribution hints at what allocated
-/// them.
-const DAEMON_FD_BREAKDOWN_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
-     [ -n \"$pid\" ] && lsof -a -P -n -p \"$pid\" 2>/dev/null \
-         | awk 'NR>1 {print $5}' | sort | uniq -c | sort -rn; \
-     [ -n \"$pid\" ] && lsof -a -P -n -p \"$pid\" 2>/dev/null \
-         | awk 'NR>1 {print $5, $9}' | sort | uniq -c | sort -rn \
-         | awk '{$1=$1; print}' | sort -rn | head -40";
+/// Above this many open fds, the count snapshot also emits an fd breakdown,
+/// both here and when preparing the daemon fails.
+const FD_COUNT_BREAKDOWN_THRESHOLD: u32 = 100;
+
+fn daemon_fd_snapshot_cmd(threshold: u32) -> String {
+    DAEMON_FD_SNAPSHOT_CMD_TEMPLATE
+        .replace("FD_COUNT_BREAKDOWN_THRESHOLD", &threshold.to_string())
+}
 
 /// Run a snippet through /bin/sh on the test VM and return its trimmed stdout.
 async fn exec_shell(rpc: &ServiceClient, command: &str) -> anyhow::Result<String> {
@@ -224,34 +228,23 @@ async fn exec_shell(rpc: &ServiceClient, command: &str) -> anyhow::Result<String
 
 /// Log the daemon's open file-descriptor count before a test. The daemon is
 /// only restarted on version mismatch, so per-test counts form a step function
-/// that points at the test leaking or hogging fds. Best-effort: failures only
+/// that points at the test leaking or hogging fds, and the count is sampled
+/// from the same snapshot as the breakdown below. Best-effort: failures only
 /// log a warning.
 pub async fn log_daemon_fd_count(rpc: &ServiceClient, test_name: &str) {
-    match exec_shell(rpc, DAEMON_FD_COUNT_CMD).await {
-        Ok(count) if !count.is_empty() => {
-            log::info!("fd-count: daemon has {count} open fds before {test_name}");
-            if let Ok(count) = count.parse::<u32>() {
-                if count > FD_COUNT_BREAKDOWN_THRESHOLD {
-                    log::error!(
-                        "fd-count: {count} open fds exceeds \
-                         {FD_COUNT_BREAKDOWN_THRESHOLD} before {test_name}"
-                    );
-                    log_daemon_fd_breakdown(rpc).await;
-                }
-            }
+    match exec_shell(rpc, &daemon_fd_snapshot_cmd(FD_COUNT_BREAKDOWN_THRESHOLD)).await {
+        Ok(output) if !output.is_empty() => {
+            log::info!("fd snapshot before {test_name}:\n{output}");
         }
         Ok(_) => log::warn!("fd-count: could not determine daemon pid"),
         Err(error) => log::warn!("fd-count: failed to query daemon fd count: {error}"),
     }
 }
 
-/// Above this many open fds, the per-test fd count triggers a full breakdown
-/// dump even when the test would succeed.
-const FD_COUNT_BREAKDOWN_THRESHOLD: u32 = 100;
-
-/// Dump an fd info.
+/// Dump an fd breakdown (type histogram and top names) at abort time. Always
+/// dumps, regardless of count.
 pub async fn log_daemon_fd_breakdown(rpc: &ServiceClient) {
-    match exec_shell(rpc, DAEMON_FD_BREAKDOWN_CMD).await {
+    match exec_shell(rpc, &daemon_fd_snapshot_cmd(0)).await {
         Ok(breakdown) if !breakdown.is_empty() => {
             log::error!("fd-breakdown of daemon at abort:\n{breakdown}");
         }
