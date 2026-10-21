@@ -1,4 +1,5 @@
 import utilities.appVersionProvider
+import utilities.configureMissingTranslationCheck
 
 plugins {
     alias(libs.plugins.mullvad.android.library)
@@ -25,6 +26,8 @@ android {
             }
         }
     }
+
+    lint { configureMissingTranslationCheck(appVersion) }
 }
 
 dependencies {
