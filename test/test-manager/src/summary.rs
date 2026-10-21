@@ -225,7 +225,9 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
             .iter()
             .filter(|summary| summary.passed().len() == summary.results.len())
             .collect();
-        if oses_passed.len() == summaries.len() {
+        if summaries.is_empty() {
+            "⚠️ No test results ⚠️".to_string()
+        } else if oses_passed.len() == summaries.len() {
             "🎉 All Platforms passed 🎉".to_string()
         } else {
             let failed: usize = summaries
@@ -275,8 +277,10 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
         println!("<td style='text-align: center;'>");
         print!(
             "{}",
-            if failed_platforms.is_empty() {
-                TestResult::PASS_STR.to_string()
+            if summaries.is_empty() {
+                TestResult::Unknown.to_string()
+            } else if failed_platforms.is_empty() {
+                TestResult::Pass.to_string()
             } else {
                 failed_platforms.join(", ")
             }
