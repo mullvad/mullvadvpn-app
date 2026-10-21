@@ -7,6 +7,7 @@ import arrow.core.right
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -22,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.Notification
+import net.mullvad.mullvadvpn.lib.model.NotificationAction
 import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
@@ -31,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferences
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.BeforeEach
@@ -41,10 +44,12 @@ class TunnelStateNotificationProviderTest {
     private lateinit var mockContext: Context
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var tunnelPauseRepository: TunnelPauseRepository
     private lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private lateinit var tunnelStateFlow: MutableStateFlow<TunnelState>
     private lateinit var deviceStateFlow: MutableStateFlow<DeviceState>
+    private lateinit var pausedUntilFlow: MutableStateFlow<Instant?>
     private lateinit var preferencesFlow: MutableStateFlow<UserPreferences>
 
     private val testNotificationId = NotificationId(2)
@@ -71,6 +76,7 @@ class TunnelStateNotificationProviderTest {
         mockContext = mockk()
         connectionProxy = mockk()
         deviceRepository = mockk()
+        tunnelPauseRepository = mockk()
         userPreferencesRepository = mockk()
         val userPreferences = mockk<UserPreferences>()
         every { userPreferences.showLocationInSystemNotification } returns false
@@ -78,11 +84,13 @@ class TunnelStateNotificationProviderTest {
         // Setup controllable StateFlows
         tunnelStateFlow = MutableStateFlow(TunnelState.Disconnected(null))
         deviceStateFlow = MutableStateFlow(DeviceState.LoggedIn(testAccountNumber, testDevice))
+        pausedUntilFlow = MutableStateFlow(null)
         preferencesFlow = MutableStateFlow(userPreferences)
 
         // Link flows to repository mocks
         every { connectionProxy.tunnelState } returns tunnelStateFlow
         every { deviceRepository.deviceState } returns deviceStateFlow
+        every { tunnelPauseRepository.pausedUntil } returns pausedUntilFlow
         every { userPreferencesRepository.preferencesFlow() } returns preferencesFlow
 
         // Default behavior for prepareSafe()
@@ -94,6 +102,7 @@ class TunnelStateNotificationProviderTest {
                 context = mockContext,
                 connectionProxy = connectionProxy,
                 deviceRepository = deviceRepository,
+                tunnelPauseRepository = tunnelPauseRepository,
                 preferences = userPreferencesRepository,
                 channelId = testChannelId,
                 scope = CoroutineScope(UnconfinedTestDispatcher()),
@@ -144,6 +153,7 @@ class TunnelStateNotificationProviderTest {
                 context = mockContext,
                 connectionProxy = connectionProxy,
                 deviceRepository = deviceRepository,
+                tunnelPauseRepository = tunnelPauseRepository,
                 preferences = userPreferencesRepository,
                 channelId = testChannelId,
                 scope = CoroutineScope(UnconfinedTestDispatcher()),
@@ -210,6 +220,43 @@ class TunnelStateNotificationProviderTest {
                 )
             }
         }
+
+    @Test
+    fun `should emit paused notification with connect action when paused and disconnected`() =
+        runTest {
+            val resumeAt = Instant.parse("2026-01-01T12:05:00Z")
+
+            provider.notifications.test {
+                awaitItem() // Skip initial emission
+
+                // When the tunnel is paused
+                pausedUntilFlow.value = resumeAt
+
+                // Then an ongoing Paused notification update is emitted
+                val update = awaitItem() as NotificationUpdate.Notify<Notification.Tunnel>
+                assertEquals(NotificationTunnelState.Paused(resumeAt), update.value.state)
+                assertEquals(listOf(NotificationAction.Tunnel.Connect), update.value.actions)
+                assertTrue(update.value.ongoing)
+            }
+        }
+
+    @Test
+    fun `should not emit paused notification while the tunnel is not disconnected`() = runTest {
+        // Given the tunnel is still connected when the pause starts
+        tunnelStateFlow.value = TunnelState.Connected(mockk(), null, emptyList())
+
+        provider.notifications.test {
+            val update = awaitItem()
+            assertTrue(update is NotificationUpdate.Notify)
+            assertTrue(update.value.state is NotificationTunnelState.Connected)
+
+            // When the tunnel is paused
+            pausedUntilFlow.value = Instant.parse("2026-01-01T12:05:00Z")
+
+            // Then the connected notification is left as it is
+            expectNoEvents()
+        }
+    }
 
     companion object {
         const val VPN_SERVICE_UTILS = "net.mullvad.mullvadvpn.lib.common.util.VpnServiceUtilsKt"

@@ -98,6 +98,7 @@ val appModule = module {
             get(),
             get(),
             get(),
+            get(),
             get<NotificationChannel.TunnelUpdates>().id,
             MainScope(),
         )

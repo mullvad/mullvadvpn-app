@@ -3984,6 +3984,9 @@ msgstr ""
 msgid "Recents disabled and history cleared"
 msgstr ""
 
+msgid "Reconnects at %s"
+msgstr ""
+
 msgid "Recursion limit"
 msgstr ""
 
