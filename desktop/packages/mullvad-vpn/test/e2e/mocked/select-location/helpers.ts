@@ -12,6 +12,7 @@ import {
   IRelayListHostname,
   ISettings,
   MultihopMode,
+  ObfuscationType,
   Ownership,
   type Recents,
   type RelayLocation,
@@ -393,6 +394,19 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     });
   };
 
+  const mockAntiCensorship = async (obfuscationType: ObfuscationType, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    if ('normal' in settings.relaySettings) {
+      settings.obfuscationSettings.selectedObfuscation = obfuscationType;
+    }
+    await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -417,6 +431,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     mockEntryAndExitLocations,
     mockConnectTunnel,
     mockDisconnectTunnel,
+    mockAntiCensorship,
   };
 };
 
