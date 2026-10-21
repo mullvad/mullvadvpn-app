@@ -6,8 +6,8 @@ import type { LocationSelectorTextFieldItemProps } from '../../../../../../../li
 import { TextField } from '../../../../../../../lib/components/text-field';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import {
+  useHandleBlur,
   useHandleClearButtonClick,
-  useHandleFocusExit,
   useHandleInputKeyDown,
   useHandleValueChange,
 } from './hooks';
@@ -39,7 +39,7 @@ function TextFieldItemImpl({
   const handleClearButtonClick = useHandleClearButtonClick();
 
   const handleKeyDown = useHandleInputKeyDown();
-  const handleFocusExit = useHandleFocusExit();
+  const handleBlur = useHandleBlur();
   const handleValueChange = useHandleValueChange();
 
   const showClearButton = id === isolatedItem;
@@ -50,11 +50,10 @@ function TextFieldItemImpl({
       inputRef={inputRef}
       triggerRef={triggerRef}
       {...props}>
-      <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel}>
+      <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
         <TextField.InputGroup>
           <LocationSelector.Items.TextFieldItem.TextField
             value={value}
-            onFocusExit={handleFocusExit}
             onValueChange={handleValueChange}>
             <StyledInput
               placeholder={placeholder}
