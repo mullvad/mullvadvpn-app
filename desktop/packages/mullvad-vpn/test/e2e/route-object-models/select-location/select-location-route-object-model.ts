@@ -109,9 +109,18 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.deleteCustomListButton();
   }
 
-  async gotoFilter() {
-    await this.selectors.selectLocationMenuButton().click();
-    await this.selectors.filterMenuOption().click();
+  async gotoEntryFilter() {
+    await this.selectors.filterEntryButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoEntryAutomaticFilter() {
+    await this.selectors.filterEntryAutomaticButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoExitFilter() {
+    await this.selectors.filterExitButton().click();
     await this.utils.expectRoute(RoutePath.filter);
   }
 }
