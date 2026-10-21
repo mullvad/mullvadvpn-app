@@ -2,7 +2,10 @@ use super::{
     cancellation::RequestCancelHandle, do_request, response::ApiResponse, retry_request,
     retry_strategy::RetryStrategy,
 };
-use crate::api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper};
+use crate::{
+    api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper},
+    type_bridges::AnyError,
+};
 use chrono::{DateTime, Utc};
 use mullvad_api::{
     ApiProxy, RelayListProxy,
@@ -13,26 +16,19 @@ use std::sync::Arc;
 
 #[uniffi::export]
 impl ApiContext {
-    pub fn get_addresses(
+    pub async fn get_addresses(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| match get_addresses_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(ApiResponse::rest_error(err));
-                }
-            },
-        )
+    ) -> Result<ApiResponse, AnyError> {
+        TokioBridge::spawn(async move {
+            let api = Arc::new(ApiProxy::new(self.rest_handle()));
+
+            let future_factory = || api.get_api_addrs_response();
+            do_request(*retry_strategy, future_factory).await
+        })
+        .await
+        .map_err(AnyError::from)
+        .inspect_err(|e| log::error!("get_addresses failed: {e}"))
     }
 
     pub fn api_addrs_available(
@@ -119,17 +115,6 @@ impl ApiContext {
             },
         )
     }
-}
-
-async fn get_addresses_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-) -> Result<ApiResponse, rest::Error> {
-    let api = ApiProxy::new(rest_client);
-
-    let future_factory = || api.get_api_addrs_response();
-
-    do_request(retry_strategy, future_factory).await
 }
 
 async fn get_relays_inner(

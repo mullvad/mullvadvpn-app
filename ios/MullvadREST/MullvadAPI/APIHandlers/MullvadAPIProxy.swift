@@ -14,9 +14,8 @@ import Operations
 
 public protocol APIQuerying: Sendable {
     func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> [AnyIPEndpoint]
 
     func getRelays(
         sigsum: (String, Int64)?,
@@ -51,35 +50,29 @@ public protocol APIQuerying: Sendable {
 
 extension REST {
     public final class MullvadAPIProxy: APIQuerying, @unchecked Sendable {
+        let apiContext: ApiContext
         let transportProvider: APITransportProviderProtocol
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
 
         public init(
+            apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
             responseDecoder: JSONDecoder
         ) {
+            self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
         }
 
         public func getAddressList(
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
-        ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: [AnyIPEndpoint].self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .getAddressList(retryStrategy),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+            retryStrategy: REST.RetryStrategy
+        ) async throws -> [AnyIPEndpoint] {
+            let response = try await apiContext.getAddresses(retryStrategy: retryStrategy.toRustStrategy())
+            return try decode(decoding: [AnyIPEndpoint].self, responseDecoder: responseDecoder, response: response)
         }
 
         public func getRelays(

@@ -127,10 +127,10 @@ class MullvadAPIWrapper: @unchecked Sendable {
     }
 
     /// Add another device to specified account. A dummy WireGuard key will be generated.
-    func addDevice(_ account: String) {
+    func addDevice(_ account: String) async {
         let requestCompletedExpectation = XCTestExpectation(description: "Add device request completed")
 
-        throttle {
+        await throttle {
             let devicePublicKey = self.generateMockWireGuardKey()
 
             do {
@@ -142,14 +142,14 @@ class MullvadAPIWrapper: @unchecked Sendable {
             requestCompletedExpectation.fulfill()
         }
 
-        let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        let waitResult = await XCTWaiter().fulfillment(of: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Add device request completed")
     }
 
     /// Add multiple devices to specified account. Dummy WireGuard keys will be generated.
-    func addDevices(_ numberOfDevices: Int, account: String) {
+    func addDevices(_ numberOfDevices: Int, account: String) async {
         for i in 0..<numberOfDevices {
-            self.addDevice(account)
+            await self.addDevice(account)
             print("Created \(i + 1) devices")
         }
     }
@@ -175,11 +175,11 @@ class MullvadAPIWrapper: @unchecked Sendable {
         return accountExpiryDate
     }
 
-    func getDevices(_ account: String) throws -> [Device] {
+    func getDevices(_ account: String) async throws -> [Device] {
         nonisolated(unsafe) var devices: [Device] = []
         let requestCompletedExpectation = XCTestExpectation(description: "Get devices request completed")
 
-        throttle {
+        await throttle {
             do {
                 devices = try self.mullvadAPI.listDevices(forAccount: account)
             } catch {
@@ -189,7 +189,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
             requestCompletedExpectation.fulfill()
         }
 
-        let waitResult = XCTWaiter.wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        let waitResult = await XCTWaiter.fulfillment(of: [requestCompletedExpectation], timeout: throttleWaitTimeout)
         XCTAssertEqual(waitResult, .completed, "Get devices request completed")
 
         return devices

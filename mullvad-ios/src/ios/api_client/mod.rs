@@ -297,7 +297,9 @@ where
     F: Fn() -> T,
     T: Future<Output = Result<(), rest::Error>>,
 {
+    log::error!("doing request");
     retry_request(retry_strategy, future_factory).await?;
+    log::error!("request done");
     Ok(ApiResponse::ok())
 }
 

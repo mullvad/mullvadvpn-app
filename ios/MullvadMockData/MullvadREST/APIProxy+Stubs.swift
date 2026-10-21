@@ -24,11 +24,9 @@ struct APIProxyStub: APIQuerying {
     var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
 
     func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable {
-        completionHandler(getAddressListResult)
-        return AnyCancellable()
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> [AnyIPEndpoint] {
+        return try getAddressListResult.get()
     }
 
     func getRelays(

@@ -108,7 +108,7 @@ class AccountTests: LoggedOutUITestCase {
         let otherDevicesCount = 2
         // Setup
         let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
-        mullvadAPIWrapper.addDevices(otherDevicesCount, account: temporaryAccountNumber)
+        await mullvadAPIWrapper.addDevices(otherDevicesCount, account: temporaryAccountNumber)
 
         // Teardown
         addTeardownBlock {
@@ -167,7 +167,7 @@ class AccountTests: LoggedOutUITestCase {
     func testLoginToAccountWithTooManyDevices() async throws {
         // Setup
         let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
-        mullvadAPIWrapper.addDevices(5, account: temporaryAccountNumber)
+        await mullvadAPIWrapper.addDevices(5, account: temporaryAccountNumber)
 
         // Teardown
         addTeardownBlock {
@@ -188,7 +188,8 @@ class AccountTests: LoggedOutUITestCase {
     func testLogOut() async throws {
         let newAccountNumber = await createTemporaryAccountWithoutTime()
         login(accountNumber: newAccountNumber)
-        XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 1, "Account has one device")
+        let count1 = try await mullvadAPIWrapper.getDevices(newAccountNumber).count
+        XCTAssertEqual(count1, 1, "Account has one device")
 
         HeaderBar(app)
             .tapAccountButton()
@@ -198,7 +199,8 @@ class AccountTests: LoggedOutUITestCase {
 
         LoginPage(app)
 
-        XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 0, "Account has 0 devices")
+        let count2 = try await mullvadAPIWrapper.getDevices(newAccountNumber).count
+        XCTAssertEqual(count2, 0, "Account has 0 devices")
         await mullvadAPIWrapper.deleteAccount(newAccountNumber)
     }
 

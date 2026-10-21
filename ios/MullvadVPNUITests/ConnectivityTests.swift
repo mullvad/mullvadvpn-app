@@ -90,7 +90,7 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         LoginPage(app)
 
-        verifyDeviceHasBeenRemoved(deviceName: deviceName, accountNumber: hasTimeAccountNumber)
+        await verifyDeviceHasBeenRemoved(deviceName: deviceName, accountNumber: hasTimeAccountNumber)
     }
 
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
@@ -207,9 +207,9 @@ class ConnectivityTests: LoggedOutUITestCase {
         try Networking.verifyCanAccessLocalNetwork()
     }
 
-    private func verifyDeviceHasBeenRemoved(deviceName: String, accountNumber: String) {
+    private func verifyDeviceHasBeenRemoved(deviceName: String, accountNumber: String) async {
         do {
-            let devices = try MullvadAPIWrapper().getDevices(accountNumber)
+            let devices = try await MullvadAPIWrapper().getDevices(accountNumber)
 
             for device in devices where device.name == deviceName {
                 XCTFail("Device has not been removed which tells us that the logout was not successful")
