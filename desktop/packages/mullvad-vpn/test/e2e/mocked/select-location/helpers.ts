@@ -200,6 +200,46 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
+  const updateMockEntryRelayFilter = async (
+    {
+      ownership,
+      providers,
+    }: {
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    return updateMockRelayFilter(
+      {
+        ownership,
+        providers,
+        locationType: LocationType.entry,
+      },
+      settings,
+    );
+  };
+
+  const updateMockExitRelayFilter = async (
+    {
+      ownership,
+      providers,
+    }: {
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    return updateMockRelayFilter(
+      {
+        ownership,
+        providers,
+        locationType: LocationType.exit,
+      },
+      settings,
+    );
+  };
+
   const mockSettings = async (
     {
       daita,
@@ -316,6 +356,8 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetToFilterView,
     resetToSelectLocationView,
     updateMockRelayFilter,
+    updateMockEntryRelayFilter,
+    updateMockExitRelayFilter,
     mockSettings,
     mockEntryLocation,
     mockExitLocation,
