@@ -342,6 +342,29 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return newSettings;
   };
 
+  const mockEntryAndExitLocations = async (
+    {
+      entryLocation,
+      exitLocation,
+    }: {
+      entryLocation: Constraint<RelayLocation>;
+      exitLocation: Constraint<RelayLocation>;
+    },
+    settings?: ISettings,
+  ) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    if ('normal' in settings.relaySettings) {
+      settings.relaySettings.normal.location = exitLocation;
+      settings.relaySettings.normal.wireguardConstraints.entryLocation = entryLocation;
+    }
+    await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -363,6 +386,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     mockExitLocation,
     mockCustomLists,
     mockRecents,
+    mockEntryAndExitLocations,
   };
 };
 
