@@ -563,5 +563,71 @@ test.describe('Select location', () => {
         await expect(buttons).toHaveCount(relays.length);
       });
     });
+
+    test.describe('multihop: never', () => {
+      let settings = getDefaultSettings();
+
+      test.beforeEach(async () => {
+        settings = getDefaultSettings();
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'never',
+          },
+          settings,
+        );
+        await helpers.resetToSelectLocationView();
+      });
+
+      test('Should go to "Exit Filter" view when clicking exit locations filter button', async () => {
+        await routes.selectLocation.gotoExitFilter();
+
+        await expect(routes.filter.getHeading('Exit filter')).toBeVisible();
+      });
+
+      test('Should display QUIC filter when it is selected when viewing locations', async () => {
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic);
+
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+        await expect(quicFilterChip).toBeVisible();
+      });
+
+      test('Should display LWO filter when it is selected when viewing locations', async () => {
+        await helpers.mockAntiCensorship(ObfuscationType.lwo);
+
+        const lwoFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: LWO');
+        await expect(lwoFilterChip).toBeVisible();
+      });
+
+      test('Should display locations filter when viewing locations', async () => {
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+        await routes.selectLocation.gotoExitLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        settings = await helpers.updateMockExitRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          settings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        settings = await helpers.updateMockExitRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          settings,
+        );
+
+        const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+      });
+    });
   });
 });
