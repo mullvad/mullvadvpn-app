@@ -204,9 +204,15 @@ const DAEMON_FD_COUNT_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
          fi; \
      fi";
 
-/// Print an fd-type breakdown of the daemon's open fds.
+/// Print an fd breakdown of the daemon's open fds: first an aggregate by
+/// type (a burst of sockets with unique ports would otherwise collapse into
+/// count-1 lines hidden below any output cap), then the top fd names with
+/// numeric ports (`-P -n`) so the port distribution hints at what allocated
+/// them.
 const DAEMON_FD_BREAKDOWN_CMD: &str = "pid=$(pgrep -x mullvad-daemon | head -1); \
-     [ -n \"$pid\" ] && lsof -a -p \"$pid\" 2>/dev/null \
+     [ -n \"$pid\" ] && lsof -a -P -n -p \"$pid\" 2>/dev/null \
+         | awk 'NR>1 {print $5}' | sort | uniq -c | sort -rn; \
+     [ -n \"$pid\" ] && lsof -a -P -n -p \"$pid\" 2>/dev/null \
          | awk 'NR>1 {print $5, $9}' | sort | uniq -c | sort -rn \
          | awk '{$1=$1; print}' | sort -rn | head -40";
 
@@ -224,11 +230,24 @@ pub async fn log_daemon_fd_count(rpc: &ServiceClient, test_name: &str) {
     match exec_shell(rpc, DAEMON_FD_COUNT_CMD).await {
         Ok(count) if !count.is_empty() => {
             log::info!("fd-count: daemon has {count} open fds before {test_name}");
+            if let Ok(count) = count.parse::<u32>() {
+                if count > FD_COUNT_BREAKDOWN_THRESHOLD {
+                    log::error!(
+                        "fd-count: {count} open fds exceeds \
+                         {FD_COUNT_BREAKDOWN_THRESHOLD} before {test_name}"
+                    );
+                    log_daemon_fd_breakdown(rpc).await;
+                }
+            }
         }
         Ok(_) => log::warn!("fd-count: could not determine daemon pid"),
         Err(error) => log::warn!("fd-count: failed to query daemon fd count: {error}"),
     }
 }
+
+/// Above this many open fds, the per-test fd count triggers a full breakdown
+/// dump even when the test would succeed.
+const FD_COUNT_BREAKDOWN_THRESHOLD: u32 = 100;
 
 /// Dump an fd info.
 pub async fn log_daemon_fd_breakdown(rpc: &ServiceClient) {
