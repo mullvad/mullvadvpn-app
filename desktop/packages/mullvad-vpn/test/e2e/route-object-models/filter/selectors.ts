@@ -12,6 +12,10 @@ export const createSelectors = (page: Page) => ({
       has: page.locator('div', { hasText: label }),
     }),
   providersOption: (label: string) => page.getByRole('checkbox', { name: label }),
+  heading: (title: string) =>
+    page.getByRole('heading', {
+      name: title,
+    }),
 });
 
 export type FilterSelectors = ReturnType<typeof createSelectors>;
