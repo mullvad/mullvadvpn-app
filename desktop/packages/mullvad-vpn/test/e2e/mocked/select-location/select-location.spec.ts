@@ -629,5 +629,134 @@ test.describe('Select location', () => {
         await expect(ownerFilterChip).toBeVisible();
       });
     });
+
+    test.describe('multihop: always', () => {
+      let settings = getDefaultSettings();
+
+      test.beforeEach(async () => {
+        settings = getDefaultSettings();
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+        await helpers.resetToSelectLocationView();
+      });
+
+      test('Should go to "Exit Filter" view when clicking exit locations filter button', async () => {
+        await routes.selectLocation.gotoExitFilter();
+
+        await expect(routes.filter.getHeading('Exit filter')).toBeVisible();
+      });
+
+      test('Should go to "Entry Filter" view when clicking entry locations filter button', async () => {
+        await routes.selectLocation.gotoEntryFilter();
+
+        await expect(routes.filter.getHeading('Entry filter')).toBeVisible();
+      });
+
+      test('Should display locations exit filter when viewing exit locations', async () => {
+        settings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await routes.selectLocation.gotoExitLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        await helpers.updateMockExitRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          settings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        settings = await helpers.updateMockExitRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          settings,
+        );
+
+        const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+      });
+
+      test('Should display locations entry filter when viewing entry locations', async () => {
+        settings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+        await routes.selectLocation.gotoEntryLocations();
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        settings = await helpers.updateMockEntryRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          settings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        await helpers.updateMockEntryRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          settings,
+        );
+
+        const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
+        await expect(ownerFilterChip).toBeVisible();
+      });
+
+      test('Should display separate locations filters when viewing entry and exit locations', async () => {
+        let initialSettings: ISettings = getDefaultSettings();
+        initialSettings = await helpers.mockSettings({
+          multihop: 'always',
+        });
+
+        // Entry filters
+        await routes.selectLocation.gotoEntryLocations();
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        initialSettings = await helpers.updateMockEntryRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          initialSettings,
+        );
+
+        const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
+        await expect(providerFilterChip).toBeVisible();
+
+        // Exit filters
+        await routes.selectLocation.gotoExitLocations();
+
+        await helpers.updateMockExitRelayFilter(
+          {
+            providers: [],
+          },
+          initialSettings,
+        );
+
+        await expect(providerFilterChip).not.toBeVisible();
+      });
+
+      test('Should display QUIC filter when viewing entry locations and not when viewing exit locations', async () => {
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+
+        // Present on entry
+        await routes.selectLocation.gotoEntryLocations();
+        await expect(quicFilterChip).toBeVisible();
+
+        // Not present on exit
+        await routes.selectLocation.gotoExitLocations();
+        await expect(quicFilterChip).not.toBeVisible();
+      });
+    });
   });
 });
