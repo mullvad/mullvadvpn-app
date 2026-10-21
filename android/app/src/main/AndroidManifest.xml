@@ -104,6 +104,9 @@
                 <action android:name="net.mullvad.mullvadvpn.disconnect_action" />
             </intent-filter>
             <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.pause_action" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="net.mullvad.mullvadvpn.quit_action" />
             </intent-filter>
         </service>

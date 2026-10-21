@@ -7,5 +7,6 @@ enum class DisconnectReason(val logString: String) {
     USER_INITIATED_GO_TO_LOGIN("user-initiated-go-to-login"),
     USER_INITIATED_OUT_OF_TIME("user-initiated-out-of-time"),
     USER_INITIATED_WELCOME("user-initiated-welcome"),
+    USER_INITIATED_PAUSE("user-initiated-pause"),
     SYSTEM_REVOKE("system-revoke"),
 }

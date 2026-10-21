@@ -10,6 +10,10 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
 import co.touchlab.kermit.Logger
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
@@ -20,6 +24,8 @@ import net.mullvad.mullvadvpn.app.service.notifications.ForegroundNotificationMa
 import net.mullvad.mullvadvpn.di.vpnServiceModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_PAUSE_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_PAUSE_DURATION_SECONDS
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_RECONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
@@ -28,6 +34,8 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.PauseResult
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -42,7 +50,10 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
+    private lateinit var tunnelPauseRepository: TunnelPauseRepository
     private lateinit var daemonConfig: DaemonConfig
+
+    private var pauseJob: Job? = null
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -69,6 +80,7 @@ class MullvadVpnService : TalpidVpnService() {
             migrateSplitTunneling = get()
             apiEndpointFromIntentHolder = get()
             connectionProxy = get()
+            tunnelPauseRepository = get()
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
@@ -141,9 +153,36 @@ class MullvadVpnService : TalpidVpnService() {
                     foregroundNotificationHandler.stopForeground()
                 }
             }
+
+            intent?.action == KEY_PAUSE_ACTION -> {
+                val duration = intent.getLongExtra(KEY_PAUSE_DURATION_SECONDS, 0).seconds
+                if (duration.isPositive()) {
+                    // Stay in the foreground during the pause, the system unbinds when the tunnel
+                    // is disconnected and the app might not be bound either.
+                    foregroundNotificationHandler.startForeground()
+                    pause(duration)
+                } else {
+                    Logger.w("Ignoring pause with invalid duration: $duration")
+                }
+            }
         }
 
         return startResult
+    }
+
+    private fun pause(duration: Duration) {
+        val previousPause = pauseJob
+        pauseJob = lifecycleScope.launch {
+            previousPause?.cancelAndJoin()
+            when (tunnelPauseRepository.pause(duration)) {
+                // The tunnel is, or will soon be, connected, which keeps us in the foreground.
+                PauseResult.Resumed,
+                PauseResult.ResumedByUser,
+                is PauseResult.DisconnectFailed -> {}
+                PauseResult.LoggedOut,
+                is PauseResult.ReconnectFailed -> foregroundNotificationHandler.stopForeground()
+            }
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -204,7 +243,10 @@ class MullvadVpnService : TalpidVpnService() {
         // Foreground?
         if (intent.isFromSystem()) {
             Logger.i("onUnbind from system")
-            foregroundNotificationHandler.stopForeground()
+            // The tunnel was disconnected by a pause, stay in the foreground until it is over.
+            if (tunnelPauseRepository.pausedUntil.value == null) {
+                foregroundNotificationHandler.stopForeground()
+            }
         }
 
         return true
