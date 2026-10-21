@@ -24,9 +24,11 @@ public struct MullvadApiRequestFactory: Sendable {
         switch request {
         case let .getAddressList(retryStrategy):
             return MullvadApiCancellable(
-                handle: apiContext.getAddresses(
-                    retryStrategy: retryStrategy.toRustStrategy()
-                ))
+                task: {
+                    try await apiContext.getAddresses(
+                        retryStrategy: retryStrategy.toRustStrategy()
+                    )
+                })
 
         case let .getRelayList(retryStrategy, digest, timestamp):
             return MullvadApiCancellable(
