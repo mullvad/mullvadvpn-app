@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
     <string name="automatic">Automatisch</string>
     <string name="automatic_entry_description">Als dit is geselecteerd, kiest de app automatisch een willekeurige server, waarbij voor betere prestaties de voorkeur wordt gegeven aan servers die zich dichter bij de uitgangslocatie bevinden.</string>
+    <string name="automatic_entry_extra_info">Er wordt een extra server gebruikt om uw instellingen af te stemmen op de door u geselecteerde locatie</string>
     <string name="automatic_entry_info_first_paragraph">Kiest een geschikte locatie op basis van uw uitgangslocatie. Hierbij wordt rekening gehouden met een aantal verschillende factoren, zoals afstand, provider en serverbelasting.</string>
     <string name="automatic_entry_warning">Let op: hierdoor worden de filterinstellingen genegeerd voor de server die als ingangspunt wordt gebruikt.</string>
     <string name="automatic_with_country">Automatisch (%1$s)</string>
@@ -344,6 +345,11 @@
     <string name="mtu_x">Waarde: %1$s</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Wanneer nodig</b>\nNiet al onze locaties/servers ondersteunen alle functies in de app. Indien de door u geselecteerde locatie/server de functies die u heeft ingeschakeld niet ondersteunt, multihopt de app automatisch via een compatibele server.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Dit zorgt ervoor dat uw verbinding niet wordt geblokkeerd als gevolg van incompatibele instellingen.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Dit wordt aangegeven met het symbool %1$s.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Altijd</b>\nMultihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Nooit</b>\nMultihop is uitgeschakeld. De door u geselecteerde locatie moet alle actieve instellingen ondersteunen om een verbinding tot stand te kunnen brengen.</string>
     <string name="multihop_entry_disabled_description">Ere wordt momenteel automatisch een ingangsserver geselecteerd als dat nodig is om voor een werkende verbinding te zorgen. Als u handmatig een ingangsserver wilt selecteren, zet de multihopmodus dan op \"Altijd\".</string>
     <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
     <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
@@ -353,6 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Instellingen gemigreerd</string>
     <string name="multihop_mode">Multihopmodus</string>
     <string name="multihop_when_needed">Multihop wanneer nodig</string>
+    <string name="multihop_when_needed_info_first_paragraph">De app maakt alleen gebruik van Multihop als er geen verbinding kan worden gemaakt met de door u geselecteerde locatie. Dit kan gebeuren als de server op die locatie de door u ingeschakelde functies niet ondersteunt. In dat geval leidt de app uw verkeer automatisch via een server die deze functies wel ondersteunt, voordat het de door u geselecteerde locatie bereikt.</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
     <string name="navigate">Navigeren</string>

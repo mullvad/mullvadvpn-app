@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
     <string name="automatic">Otomatik</string>
     <string name="automatic_entry_description">Seçildiğinde uygulama otomatik olarak rastgele bir sunucu seçer ve daha iyi performans için çıkış konumuna daha yakın olanlara öncelik verir.</string>
+    <string name="automatic_entry_extra_info">Seçtiğiniz konuma uygun ayarlarla eşleşen ek bir sunucu kullanılır</string>
     <string name="automatic_entry_info_first_paragraph">Çıkış konumunuza göre uygun bir konum seçer. Bu seçim; mesafe, sağlayıcı ve sunucu yükü gibi çeşitli etkenlere göre yapılır.</string>
     <string name="automatic_entry_warning">Dikkat: Bu işlem, giriş noktası olarak kullanılan sunucunun filtre ayarlarını yoksayacaktır.</string>
     <string name="automatic_with_country">Otomatik (%1$s)</string>
@@ -189,8 +190,8 @@
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
     <string name="direct">Doğrudan</string>
     <string name="direct_only_removed_first_paragraph">DAITA\'nın \"Yalnızca doğrudan\" alt ayarı kaldırıldı ve bağlantıların engellenmesini önlemek için yapı basitleştirildi. Bunun yerine DAITA etkinken bu seçimi çoklu geçiş ayarı üzerinden yapabilirsiniz.</string>
-    <string name="direct_only_removed_second_paragraph">Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir.</string>
-    <string name="direct_only_removed_third_paragraph">Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir.</string>
+    <string name="direct_only_removed_second_paragraph">Çoklu geçiş \"Gerektiğinde\" olarak ayarlandığında uygulama, DAITA kullanarak seçtiğiniz konuma bağlandığınızdan emin olmak için ek bir sunucu kullanabilir.</string>
+    <string name="direct_only_removed_third_paragraph">Çoklu geçiş, \"Her zaman\" veya \"Asla\" olarak ayarlandığında bir DAITA sunucusunu manuel olarak seçmeniz gerekir.</string>
     <string name="direct_only_removed_title">“Yalnızca doğrudan” seçimi kaldırıldı</string>
     <string name="disable_multihop">Çoklu geçişi devre dışı bırak</string>
     <string name="disable_recents">Son filtreleri devre dışı bırak</string>
@@ -235,7 +236,7 @@
     <string name="entry_and_exit_are_same">Giriş aktarıcısı çıkış aktarıcısıyla aynı</string>
     <string name="entry_filter">Giriş filtresi</string>
     <string name="entry_filters_overridden_info">Otomatik konum kullanıldığında filtreler geçersiz kılınır</string>
-    <string name="entry_set_to_automatic_first_paragraph">Çoklu geçişteki “Her zaman” modu artık giriş sunucusu seçimi için \"Otomatik\" konum seçeneğini içeriyor.</string>
+    <string name="entry_set_to_automatic_first_paragraph">Çoklu geçişteki \"Her zaman\" modu artık giriş sunucusu seçimi için \"Otomatik\" konum seçeneğini içeriyor.</string>
     <string name="entry_set_to_automatic_title">Çoklu geçiş girişi \"Otomatik\" olarak ayarlandı</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">BAĞLANTI KURULAMADI</string>
@@ -344,6 +345,11 @@
     <string name="mtu_x">Değer: %1$s</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Gerektiğinde</b>\nBazı konumlarımız/sunucularımız, uygulamadaki her özelliği desteklemez. Seçtiğiniz konum/sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa uygulama, uyumlu bir sunucu üzerinden otomatik olarak çoklu geçiş yapar.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Bu, uyumsuz ayarlar nedeniyle bağlantınızın engellenmesini önler.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Bu  %1$s simgesiyle gösterilir.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Her zaman</b>\nÇoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Asla</b>\nÇoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir.</string>
     <string name="multihop_entry_disabled_description">Şu anda, bağlantının çalışmasını sağlamak için gerektiğinde bir giriş sunucusu otomatik olarak seçiliyor. Giriş sunucusunu manuel olarak seçmek için lütfen çoklu geçiş modunu “Her zaman” olarak değiştirin.</string>
     <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
     <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
@@ -353,6 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Ayarlar Aktarıldı</string>
     <string name="multihop_mode">Çoklu geçiş modu</string>
     <string name="multihop_when_needed">Gerektiğinde çoklu geçiş</string>
+    <string name="multihop_when_needed_info_first_paragraph">Uygulama yalnızca seçtiğiniz konuma bağlanamadığında çoklu geçiş yapar. Bu durum, o konumdaki sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa ortaya çıkabilir. Böyle bir durumda uygulama, trafiğinizi önce bu özellikleri destekleyen bir sunucu üzerinden, ardından seçtiğiniz konuma otomatik olarak yönlendirir.</string>
     <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
     <string name="navigate">Git</string>
@@ -497,7 +504,7 @@
     <string name="submit_button">Gönder</string>
     <string name="suggested_action_button">“Gerektiğinde” olarak değiştir</string>
     <string name="suggested_action_first_paragraph">Bağlantınızın engellenmesini önlemek için çoklu geçiş modunu “Gerektiğinde” olarak ayarlamanızı öneririz.</string>
-    <string name="suggested_action_second_paragraph">Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmas için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır.</string>
+    <string name="suggested_action_second_paragraph">Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışması için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır.</string>
     <string name="suggested_action_title">Önerilen işlem</string>
     <string name="suggested_action_warning">Dikkat: Bu modda ek sunucu için filtreler dikkate alınmaz.</string>
     <string name="suggested_multihop_entry_button">Girişi “Otomatik” olarak ayarla</string>

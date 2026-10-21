@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-26 08:28\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -248,7 +248,7 @@ msgstr "端口"
 #. This refers to the quantum resistance setting in the WireGuard settings view.
 #. This is displayed when the feature is on.
 msgid "Quantum resistance"
-msgstr "量子阻力"
+msgstr "抗量子"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -682,7 +682,7 @@ msgstr "本地 SOCKS5 服务器"
 
 msgctxt "api-access-methods-view"
 msgid "Manage and add custom methods to access the Mullvad API."
-msgstr "管理和添加访问 Mulvad API 的自定义方法。"
+msgstr "管理和添加访问 Mullvad API 的自定义方法。"
 
 msgctxt "api-access-methods-view"
 msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
@@ -736,13 +736,27 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "无法使用“%(name)s”方法访问 API。"
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "此应用通过%(domainFronting)s与 Mullvad API 服务器通信。"
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "该应用需要远程服务器详细信息，您的本地 SOCKS5 服务器将在远程服务器中转发您的流量。"
 
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
-msgstr "该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。"
+msgstr "该应用需要与 Mullvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "所使用的 CDN 为 Datapacket 的 CDN77。该 CDN 仅能观察所代理的 TLS 流量，而无法查看具体内容。"
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -755,6 +769,12 @@ msgstr "本地 SOCKS5 服务器正在侦听的 TCP 端口。"
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "如果 API 被审查，但 Mullvad 的桥接服务器没有被审查，此方法可能很有用。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "当直接访问和其他方法被审查阻止时，此方法可能会派上用场。"
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -774,7 +794,7 @@ msgstr "传输协议"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
-msgstr "使用“直接”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。"
+msgstr "使用“直接”方法，应用将直接与 Mullvad API 服务器通信，无需任何中间代理。"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
@@ -783,6 +803,14 @@ msgstr "利用“加密 DNS 代理”方法，应用将通过代理地址与我�
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "使用“Mullvad 桥接”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "采用%(domainFronting)s访问方法时，应用会通过 CDN 访问 Mullvad API，将流量与大量其他网络流量混合在一起，从而加大审查难度。"
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -1135,11 +1163,11 @@ msgstr "%(relay)s，经由 %(entry)s"
 
 msgctxt "connection-info"
 msgid "In"
-msgstr "内部"
+msgstr "入站"
 
 msgctxt "connection-info"
 msgid "Out"
-msgstr "外部"
+msgstr "出站"
 
 #. Label for disabled menu option when a location has already been added to a custom list.
 #. Available placeholders:
@@ -1305,7 +1333,7 @@ msgstr "该设备将从列表中移除并退出登录。"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
+msgstr "这是为设备分配的名称。每台登录 Mullvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1330,7 +1358,7 @@ msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "一个 Mulvad 帐户最多可以登录 5 台设备。"
+msgstr "一个 Mullvad 帐户最多可以登录 5 台设备。"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -2074,8 +2102,8 @@ msgstr "始终"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "点击位置上的“+“以将其添加到列表"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "点击位置上的“...“以将其添加到列表"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3058,6 +3086,9 @@ msgstr "90 天已添加到您的帐户中。"
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>帐户将无法恢复</b>。"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>始终</b>\\n多跳已启用。您的连接会先经过入口服务器，再通过所选位置传出。"
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>注意：DNS 设置可能不会立即生效</b>。"
 
@@ -3073,6 +3104,9 @@ msgstr "<b>注意</b>：应用将自动关闭，在选择新的图标和标题�
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNS 内容阻止程序</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>从不</b>\\n多跳已禁用。您的所选位置必须支持所有有效设置才能建立连接。"
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。</b>"
 
@@ -3087,6 +3121,9 @@ msgstr "<b>这可能会影响您的匿名性</b>。请避免在公共或不可�
 
 msgid "<b>Warning:</b>"
 msgstr "<b>警告</b>："
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>按需</b>\\n并非我们的所有位置/服务器都支持应用中的每项功能。如果您的所选位置/服务器不支持已启用的功能，应用将自动通过兼容的服务器进行多跳。"
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>您将在所有设备上失去此帐户的访问权限</b>。"
@@ -3136,9 +3173,6 @@ msgstr "正在添加方法…"
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "在 Android 16 上更新 VPN 应用后，设备可能会出现 VPN 应用无法连接互联网的情况。"
 
-msgid "Agree and continue"
-msgstr "同意并继续"
-
 msgid "All"
 msgstr "所有"
 
@@ -3153,6 +3187,9 @@ msgstr "“始终开启 VPN”已分配给 %s"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "“始终开启 VPN”已分配给其他 VPN"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "系统将使用附加服务器来匹配您所选位置的设置"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "为确保连接正常工作，系统目前会按需自动选择入口服务器。要手动选择入口服务器，请将多跳模式切换为“始终”。"
@@ -3442,17 +3479,11 @@ msgstr "图标和标题"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "如果 App 关闭后图标和标题仍未更改，请尝试重新启动设备。"
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "如果使用分割隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在分割隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "如果上述步骤无效，请使用下方的按钮发送邮件给支持团队。电子邮件将自动附加经过匿名化处理的日志。"
 
 msgid "If you have any issues"
 msgstr "如果您有任何问题"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "如果您的当前位置不支持您的偏好设置，例如反审查方法、筛选器和/或 DAITA，系统将自动使用多跳，以通过兼容的服务器连接到该位置。这将用 %1$s 符号表示。"
 
 msgid "Import new overrides by"
 msgstr "导入新覆盖设置的方式"
@@ -3515,7 +3546,7 @@ msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "确保设备始终位于 VPN 隧道上。"
 
 msgid "Migrated settings"
-msgstr "迁移的设置"
+msgstr "已迁移的设置"
 
 msgid "More actions"
 msgstr "更多操作"
@@ -3540,6 +3571,9 @@ msgstr "多跳已启用。您的连接会先经过入口服务器，再通过所
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "多跳现在分为三种模式：按需、始终、从不。\\n这为您的连接偏好设置提供了更大的灵活性。"
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而增加追踪难度。这会导致延迟增加，但会提高在线匿名性。多跳提供三种不同模式供您选择：\\n“按需”、“始终”和“从不”。"
 
 msgid "Multihop when needed"
 msgstr "按需多跳"
@@ -3664,9 +3698,6 @@ msgstr "端口超出范围"
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。"
 
-msgid "Privacy"
-msgstr "隐私"
-
 msgid "Privacy policy"
 msgstr "隐私政策"
 
@@ -3758,7 +3789,7 @@ msgid "Shows reminders when the account time is about to expire"
 msgstr "在帐户时间即将到期时显示提醒"
 
 msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "您的部分设置已迁移，请检查更改内容并解决任何问题。"
+msgstr "您的部分设置已迁移，请检查更改内容并解决所有问题。"
 
 msgid "Some of your settings have been migrated, please review the changes."
 msgstr "您的部分设置已迁移，请检查更改内容。"
@@ -3820,6 +3851,9 @@ msgstr "由于无法访问 Mullvad API，应用无法创建帐户。"
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "由于无法访问 Mullvad API，应用无法登录。"
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "应用只有在无法连接到您的所选位置时才会进行多跳。如果所选位置的服务器不支持已启用的功能，就可能发生这种情况。此时，应用会先自动将流量路由至支持这些功能的服务器，再连接到您所选的位置。"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
@@ -3835,6 +3869,9 @@ msgstr "这些方法在您无法连接到 Mullvad 时可能会有所帮助。选
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "这可以确保您的连接不会因不兼容的设置而被阻止。"
+
 msgid "This field is required"
 msgstr "此字段为必填项"
 
@@ -3848,7 +3885,10 @@ msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "这可能由审查或网络问题造成。请尝试："
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "此模式允许 App 在需要时自动通过附加服务器进行多跳，以确保您当前的设置与所选位置兼容。"
+msgstr "此模式允许应用在需要时自动通过其他服务器进行多跳，以确保您当前的设置与所选位置兼容。"
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "这将通过 %1$s 符号进行指示。"
 
 msgid "Time added"
 msgstr "时间已添加"
@@ -3870,9 +3910,6 @@ msgstr "要删除 Mullvad VPN 帐户，请在下方输入您的帐号。"
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "为了确保您当前的设置适用于您选择的位置，并避免阻止您的连接，该应用可能会自动通过不同的入口服务器进行多跳。\\n这将用 %1$s 符号表示。"
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。"
 
 msgid "Toggle VPN"
 msgstr "切换 VPN"
@@ -3998,13 +4035,13 @@ msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "欢迎，此设备现已命名为 <b>%s</b>。"
 
 msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
-msgstr "当多跳设为“始终”或“从不”时，您必须手动选择一个 DAITA 服务器。"
+msgstr "当多跳设为“始终”或“从不”时，您必须手动选择 DAITA 服务器。"
 
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
-msgstr "当多跳设为“按需”时，App 可能会使用附加服务器，以确保您能使用 DAITA 连接到所选位置。"
+msgstr "当多跳设为“按需”时，应用可能会使用附加服务器，以确保您能使用 DAITA 连接到所选位置。"
 
 msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "选中后，App 会自动挑选一个随机服务器，优先选择距离出口位置较近的服务器以获得更佳性能。"
+msgstr "选中后，应用会自动挑选一个随机服务器，优先选择距离出口位置较近的服务器以获得更佳性能。"
 
 msgid "WireGuard port"
 msgstr "WireGuard 端口"
