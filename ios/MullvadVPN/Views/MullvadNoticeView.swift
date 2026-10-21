@@ -90,7 +90,7 @@ struct MullvadNoticeView: View {
             }
             VStack(spacing: 0) {
                 Spacer()
-                Group {
+                VStack(spacing: 8) {
                     ForEach(viewModel.actions) { action in
                         ActionButton(action: action)
                     }
