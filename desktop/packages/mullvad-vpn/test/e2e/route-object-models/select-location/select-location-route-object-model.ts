@@ -1,5 +1,6 @@
 import { type Locator, Page } from 'playwright';
 
+import { LocationType } from '../../../../src/renderer/features/locations/types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
@@ -35,6 +36,14 @@ export class SelectLocationRouteObjectModel {
     await this.page.waitForFunction(() =>
       document.getAnimations().every((animation) => animation.playState === 'finished'),
     );
+  }
+
+  async gotoLocations(locationType: LocationType) {
+    if (locationType === LocationType.exit) {
+      await this.gotoExitLocations();
+    } else {
+      await this.gotoEntryLocations();
+    }
   }
 
   getEntryInput() {
