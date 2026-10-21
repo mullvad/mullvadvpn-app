@@ -11,11 +11,11 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashSet,
-    fmt, iter,
+    fmt,
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{IpVersion, TransportProtocol, obfuscation::Obfuscators};
+use talpid_types::net::{IpVersion, TransportProtocol};
 
 /// Specifies a specific endpoint or [`RelayConstraints`] to use when `mullvad-daemon` selects a
 /// relay.
@@ -390,7 +390,7 @@ impl fmt::Display for GeographicLocationConstraint {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct TransportPort {
     pub protocol: TransportProtocol,
     pub port: Constraint<u16>,
@@ -618,21 +618,6 @@ pub enum SelectedObfuscation {
     Lwo,
 }
 
-impl Intersection for SelectedObfuscation {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        match (self, other) {
-            (left, SelectedObfuscation::Auto) => Some(left),
-            (SelectedObfuscation::Auto, right) => Some(right),
-            (left, right) if left == right => Some(left),
-            _ => None,
-        }
-    }
-}
-
 impl fmt::Display for SelectedObfuscation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -762,71 +747,6 @@ impl Default for ObfuscationConstraint {
             shadowsocks: Some(Default::default()),
             lwo: Some(Default::default()),
         }
-    }
-}
-
-/// Represents a specific obfuscation method (or explicit "off").
-///
-/// This enum does *not* have an `Auto` variant — that role is played by
-/// `Constraint::Any` on the wrapping `Constraint<ObfuscationMode>`.
-#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
-pub enum ObfuscationMode {
-    Off,
-    Port(WireguardPortSettings),
-    Udp2tcp(Udp2TcpObfuscationSettings),
-    Shadowsocks(ShadowsocksSettings),
-    Quic,
-    Lwo(LwoSettings),
-}
-
-impl ObfuscationMode {
-    pub fn into_settings(self) -> ObfuscationSettings {
-        let selected_obfuscation = match self {
-            ObfuscationMode::Off => SelectedObfuscation::Off,
-            ObfuscationMode::Quic => SelectedObfuscation::Quic,
-            ObfuscationMode::Lwo(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Lwo,
-                    lwo: settings,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Port(wireguard_port) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::WireguardPort,
-                    wireguard_port,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Udp2tcp(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-                    udp2tcp: settings,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Shadowsocks(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
-                    shadowsocks: settings,
-                    ..Default::default()
-                };
-            }
-        };
-        ObfuscationSettings {
-            selected_obfuscation,
-            ..Default::default()
-        }
-    }
-}
-
-pub fn obfuscation_to_settings(constraint: Constraint<ObfuscationMode>) -> ObfuscationSettings {
-    match constraint {
-        Constraint::Any => ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Auto,
-            ..Default::default()
-        },
-        Constraint::Only(mode) => mode.into_settings(),
     }
 }
 

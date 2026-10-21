@@ -6,7 +6,6 @@
 use talpid_types::net::IpVersion;
 
 use crate::{
-    Intersection,
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
     relay_constraints::{

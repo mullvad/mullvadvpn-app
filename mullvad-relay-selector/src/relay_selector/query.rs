@@ -11,9 +11,7 @@
 //! [`RelayQuery`] is built either from the user's [`Settings`] (via [From]) or with the
 //! [`builder::RelayQueryBuilder`] fluent API used in tests.
 
-pub use mullvad_types::relay_constraints::{
-    ObfuscationMode, obfuscation_constraint_from_settings, obfuscation_to_settings,
-};
+pub use mullvad_types::relay_constraints::obfuscation_constraint_from_settings;
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
@@ -23,7 +21,6 @@ use mullvad_types::{
         ResolvedLocationConstraint,
     },
     settings::Settings,
-    wireguard::QuantumResistantState,
 };
 use talpid_types::net::{IpAvailability, IpVersion};
 
@@ -39,7 +36,6 @@ pub struct RelayQuery {
     // Only this field affects relay selection.
     pub hops: Hops,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub quantum_resistant: Constraint<QuantumResistantState>,
 }
 
 /// The multihop variant and corresponding constraints on each hop.
@@ -208,9 +204,6 @@ impl From<Settings> for RelayQuery {
         RelayQuery {
             hops,
             allowed_ips: wg.allowed_ips.clone(),
-            quantum_resistant: Constraint::Only(
-                settings.tunnel_options.wireguard.quantum_resistant,
-            ),
         }
     }
 }
@@ -222,7 +215,6 @@ impl Default for RelayQuery {
         Self {
             hops: Hops::Single(EntryConstraints::default()),
             allowed_ips: Constraint::Any,
-            quantum_resistant: Constraint::Any,
         }
     }
 }
@@ -387,7 +379,6 @@ pub mod builder {
             RelayQuery {
                 hops,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
             }
         }
     }
