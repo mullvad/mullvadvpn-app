@@ -26,7 +26,7 @@ jobs:
           if [[ "$BRANCH_NAME" =~ ^android[-/](.+)$ ]]; then
             version="${BASH_REMATCH[1]}"
           else
-            version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName")
+            version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName" | tr -d '\r')
           fi
           echo "Detected version: $version"
           echo "version=$version" >> "$GITHUB_ENV"
