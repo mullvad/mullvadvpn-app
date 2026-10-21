@@ -31,6 +31,13 @@ export class SelectLocationRouteObjectModel {
     );
   }
 
+  async gotoEntryAutomatic(country: string) {
+    await this.getEntryAutomaticButton(country).click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
+  }
+
   async gotoExitLocations() {
     await this.getExitInput().click();
     await this.page.waitForFunction(() =>
@@ -48,6 +55,10 @@ export class SelectLocationRouteObjectModel {
 
   getEntryInput() {
     return this.selectors.entryInput();
+  }
+
+  getEntryAutomaticButton(country: string) {
+    return this.selectors.entryAutomaticButton(country);
   }
 
   getExitInput() {
