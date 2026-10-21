@@ -43,9 +43,8 @@ public protocol APIQuerying: Sendable {
 
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
-        accessMethod: PersistentAccessMethod,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
-    ) -> Cancellable
+        accessMethod: PersistentAccessMethod
+    ) async throws -> Bool
 }
 
 extension REST {
@@ -118,18 +117,14 @@ extension REST {
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
             accessMethod: PersistentAccessMethod,
-            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
-        ) -> Cancellable {
+        ) async throws -> Bool {
             let responseHandler = rustEmptyResponseHandler()
-            return createNetworkOperation(
-                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
-                responseHandler: responseHandler
-            ) { result in
-                if case let .failure(err) = result {
-                    completion(.failure(err))
-                } else {
-                    completion(.success(true))
-                }
+            let response = try await apiContext.apiAddrsAvailable(
+                retryStrategy: retryStrategy.toRustStrategy(), accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!)
+            if case .error = response {
+                return false
+            } else {
+                return true
             }
         }
 

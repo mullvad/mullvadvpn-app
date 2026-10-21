@@ -67,10 +67,8 @@ struct APIProxyStub: APIQuerying {
 
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
-        accessMethod: PersistentAccessMethod,
-        completion: @escaping ProxyCompletionHandler<Bool>
-    ) -> any MullvadTypes.Cancellable {
-        completion(checkApiAvailabilityResult)
-        return AnyCancellable()
+        accessMethod: PersistentAccessMethod
+    ) async throws -> Bool {
+        return try checkApiAvailabilityResult.get()
     }
 }

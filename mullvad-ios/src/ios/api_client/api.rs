@@ -1,10 +1,7 @@
-use super::{
-    cancellation::RequestCancelHandle, do_request, response::ApiResponse, retry_request,
-    retry_strategy::RetryStrategy,
-};
+use super::{do_request, response::ApiResponse, retry_request, retry_strategy::RetryStrategy};
 use crate::{
     api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper},
-    type_bridges::AnyError,
+    type_bridges::{AnyError, TokioBridge},
 };
 use chrono::{DateTime, Utc};
 use mullvad_api::{
@@ -31,89 +28,69 @@ impl ApiContext {
         .inspect_err(|e| log::error!("get_addresses failed: {e}"))
     }
 
-    pub fn api_addrs_available(
+    pub async fn api_addrs_available(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         access_method_setting: Arc<AccessMethodSettingWrapper>,
-    ) -> Arc<RequestCancelHandle> {
-        let access_method_setting = access_method_setting.inner.clone();
+    ) -> Result<ApiResponse, AnyError> {
+        TokioBridge::spawn(async move {
+            let access_method_setting = access_method_setting.inner.clone();
 
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| match api_context
+            let resolved_connection_mode = self
                 .access_mode_handler
                 .resolve(access_method_setting.clone())
-                .await
-            {
-                Ok(Some(resolved_connection_mode)) => {
-                    let oneshot_client = api_context
-                        .api_client
-                        .mullvad_rest_handle(resolved_connection_mode.connection_mode);
+                .await?;
+            let Some(resolved_connection_mode) = resolved_connection_mode else {
+                log::error!("Invalid access method configuration, {access_method_setting:?}");
+                return Err(AnyError::from(mullvad_api::access_mode::Error::Resolve {
+                    access_method: access_method_setting.access_method,
+                }));
+            };
 
-                    match api_addrs_available_inner(oneshot_client, retry_strategy).await {
-                        Ok(_) => completion_handler.finish(ApiResponse::ok()),
-                        Err(err) => {
-                            log::error!("{err:?}");
-                            completion_handler.finish(ApiResponse::rest_error(err));
-                        }
-                    }
-                }
-                Ok(None) => {
-                    log::error!("Invalid access method configuration, {access_method_setting:?}");
-                    completion_handler.finish(ApiResponse::access_method_error(
-                        mullvad_api::access_mode::Error::Resolve {
-                            access_method: access_method_setting.access_method,
-                        },
-                    ));
-                }
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(ApiResponse::access_method_error(err));
-                }
-            },
-        )
+            let oneshot_client = self
+                .api_client
+                .mullvad_rest_handle(resolved_connection_mode.connection_mode);
+
+            let api = ApiProxy::new(oneshot_client);
+
+            let future_factory = || api.api_addrs_available();
+
+            retry_request(*retry_strategy, future_factory)
+                .await
+                .map(|_| ApiResponse::ok())
+                .map_err(AnyError::from)
+        })
+        .await
+        .inspect_err(|e| log::error!("api_addrs_available failed: {e}"))
     }
 
-    pub fn get_relays(
+    pub async fn get_relays(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         digest: Option<String>,
         digest_timestamp: Option<i64>,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| {
-                let digest = if let Some(digest) = digest {
-                    match RelayListDigest::try_from(digest) {
-                        Ok(digest) => Some(digest),
-                        Err(err) => {
-                            log::error!("bad relay digest: {err:?}");
-                            completion_handler.finish(ApiResponse::cancelled());
-                            return;
-                        }
-                    }
-                } else {
-                    None
-                };
-
-                match get_relays_inner(
-                    api_context.rest_handle(),
-                    retry_strategy,
-                    digest,
-                    digest_timestamp.and_then(DateTime::from_timestamp_millis),
-                )
-                .await
-                {
-                    Ok(response) => completion_handler.finish(response),
-                    Err(err) => {
-                        log::error!("{err:?}");
-                        completion_handler.finish(ApiResponse::rest_error(err));
-                    }
+    ) -> Result<ApiResponse, AnyError> {
+        let digest = if let Some(digest) = digest {
+            match RelayListDigest::try_from(digest) {
+                Ok(digest) => Some(digest),
+                Err(err) => {
+                    log::error!("bad relay digest: {err:?}");
+                    return Ok(ApiResponse::cancelled());
                 }
-            },
+            }
+        } else {
+            None
+        };
+
+        get_relays_inner(
+            self.rest_handle(),
+            *retry_strategy,
+            digest,
+            digest_timestamp.and_then(DateTime::from_timestamp_millis),
         )
+        .await
+        .map_err(AnyError::from)
+        .inspect_err(|e| log::error!("get_addresses failed: {e}"))
     }
 }
 
@@ -133,14 +110,4 @@ async fn get_relays_inner(
 
     let response = retry_request(retry_strategy, future_factory).await?;
     ApiResponse::with_sigsum_verified_body(response)
-}
-
-async fn api_addrs_available_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-) -> Result<bool, rest::Error> {
-    let api = ApiProxy::new(rest_client);
-
-    let future_factory = || api.api_addrs_available();
-    retry_request(retry_strategy, future_factory).await
 }

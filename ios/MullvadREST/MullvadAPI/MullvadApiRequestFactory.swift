@@ -67,12 +67,6 @@ public struct MullvadApiRequestFactory: Sendable {
                     accountNumber: accountNumber,
                     publicKey: request.publicKey.rawValue
                 ))
-        case let .checkApiAvailability(retryStrategy, accessMethod):
-            return MullvadApiCancellable(
-                handle: apiContext.apiAddrsAvailable(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!
-                ))
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber

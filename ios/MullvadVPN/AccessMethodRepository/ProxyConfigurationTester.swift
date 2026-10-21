@@ -23,12 +23,12 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
         self.apiProxy = apiProxy
     }
 
-    func start(configuration: PersistentAccessMethod, completion: @escaping @Sendable (Error?) -> Void) {
-        cancellable = apiProxy.checkApiAvailability(retryStrategy: .noRetry, accessMethod: configuration) { success in
-            switch success {
-            case .success: completion(nil)
-            case let .failure(error): completion(error)
-            }
+    func start(configuration: PersistentAccessMethod) async -> Error? {
+        do {
+            _ = try await apiProxy.checkApiAvailability(retryStrategy: .noRetry, accessMethod: configuration)
+            return nil
+        } catch {
+            return error
         }
     }
 

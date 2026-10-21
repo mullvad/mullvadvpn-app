@@ -63,14 +63,16 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     }
 
     func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
-        guard let config = try? subject.value.intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers) else {
-            return
-        }
+        Task {
+            guard let config = try? subject.value.intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers)
+            else {
+                return
+            }
 
-        let subject = subject
-        subject.value.testingStatus = .inProgress
+            let subject = subject
+            subject.value.testingStatus = .inProgress
 
-        proxyConfigurationTester.start(configuration: config) { error in
+            let error = await proxyConfigurationTester.start(configuration: config)
             let succeeded = error == nil
 
             subject.value.testingStatus = succeeded ? .succeeded : .failed

@@ -1121,7 +1121,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func getAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
-    func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper)  -> RequestCancelHandle
+    func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) async throws  -> ApiResponse
     
     func getAddresses(retryStrategy: RetryStrategy) async throws  -> ApiResponse
     
@@ -1324,14 +1324,21 @@ open func getAccount(retryStrategy: RetryStrategy, accountNumber: String)async t
         )
 }
     
-open func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_api_addrs_available(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterTypeAccessMethodSettingWrapper_lower(accessMethodSetting),$0
-    )
-})
+open func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_api_addrs_available(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterTypeAccessMethodSettingWrapper_lower(accessMethodSetting)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func getAddresses(retryStrategy: RetryStrategy)async throws  -> ApiResponse  {
@@ -4141,7 +4148,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 9768) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_api_addrs_available() != 37698) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_api_addrs_available() != 34148) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_addresses() != 54543) {
