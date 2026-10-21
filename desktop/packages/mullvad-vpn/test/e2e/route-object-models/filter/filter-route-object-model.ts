@@ -66,6 +66,10 @@ export class FilterRouteObjectModel {
     await this.selectors.ownershipOption(ownership).click();
   }
 
+  getHeading(title: string) {
+    return this.selectors.heading(title);
+  }
+
   private async isExpanded(locator: Locator): Promise<boolean> {
     const ariaExpanded = await locator.getAttribute('aria-expanded');
     return ariaExpanded === 'true';
