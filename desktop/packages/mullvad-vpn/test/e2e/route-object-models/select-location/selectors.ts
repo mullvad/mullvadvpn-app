@@ -32,6 +32,10 @@ export const createSelectors = (page: Page) => ({
     page
       .getByRole('button', { name: 'Configure filters for exit location', exact: true })
       .filter({ visible: true }),
+  filterChipLink: (label: string) => {
+    return page.locator('a', { hasText: label }).filter({ visible: true });
+  },
+  filterChipButton: (label: string) => {
     return page.locator('button', { hasText: label }).filter({ visible: true });
   },
   accordionButton: (label: string) => {
