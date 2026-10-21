@@ -221,6 +221,46 @@ test.describe('Select location', () => {
       await expect(entryAutomaticButton).toBeVisible();
       await expect(exitInput).toBeVisible();
     });
+
+    test('Should switch multihop mode to "always" when clicking button in automatic entry selected view', async () => {
+      // Need to set up all the circumstances that makes the Automatic entry appear
+      settings = await helpers.mockSettings(
+        {
+          multihop: 'when-needed',
+        },
+        settings,
+      );
+
+      settings = await helpers.mockEntryAndExitLocations(
+        {
+          entryLocation: {
+            only: {
+              country: relayList.countries[0].code,
+            },
+          },
+          exitLocation: {
+            only: {
+              country: relayList.countries[0].code,
+            },
+          },
+        },
+        settings,
+      );
+
+      await helpers.mockConnectTunnel({
+        ...mockData.location,
+        entryHostname: relayList.countries[0].cities[0].relays[0].hostname,
+      });
+
+      // Then we can click the button to go to automatic entry view
+      await routes.selectLocation.gotoEntryAutomatic(relayList.countries[0].name);
+
+      // Then we can click the button to update multihop mode
+      await Promise.all([
+        util.ipc.settings.setRelaySettings.expect(),
+        routes.selectLocation.getAutomaticEntryMultihopModeToAlwaysButton().click(),
+      ]);
+    });
   });
 
   test.describe('Recents', () => {
