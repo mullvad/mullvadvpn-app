@@ -1,6 +1,7 @@
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
+import { LocationType } from '../../../../src/renderer/features/locations/types';
 import {
   type Constraint,
   type CustomLists,
@@ -133,30 +134,52 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     await routes.filter.collapseProviders();
   };
 
-  const resetView = async () => {
+  const resetToFilterView = async (locationType: LocationType) => {
     const currentRoute = await utils.getCurrentRoute();
     if (currentRoute === RoutePath.selectLocation) {
-      await routes.selectLocation.gotoFilter();
+      if (locationType === LocationType.exit) {
+        await routes.selectLocation.gotoExitFilter();
+      } else {
+        await routes.selectLocation.gotoEntryFilter();
+      }
     }
   };
 
-  const updateMockRelayFilter = async ({
-    ownership,
-    providers,
-  }: {
-    ownership?: Ownership;
-    providers?: string[];
-  }) => {
-    const settings = getDefaultSettings();
+  const updateMockRelayFilter = async (
+    {
+      ownership,
+      providers,
+      locationType,
+    }: {
+      locationType: LocationType;
+      ownership?: Ownership;
+      providers?: string[];
+    },
+    settings?: ISettings,
+  ) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
     if ('normal' in settings.relaySettings) {
       if (ownership) {
-        settings.relaySettings.normal.ownership = ownership;
+        if (locationType === LocationType.exit) {
+          settings.relaySettings.normal.ownership = ownership;
+        } else {
+          settings.relaySettings.normal.wireguardConstraints.entryOwnership = ownership;
+        }
       }
       if (providers) {
-        settings.relaySettings.normal.providers = providers;
+        if (locationType === LocationType.exit) {
+          settings.relaySettings.normal.providers = providers;
+        } else {
+          settings.relaySettings.normal.wireguardConstraints.entryProviders = providers;
+        }
       }
     }
     await utils.ipc.settings[''].notify(settings);
+
+    return settings;
   };
 
   const mockSettings = async (
@@ -271,7 +294,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     getRelaysByObfuscation,
     resetOwnership,
     resetProviders,
-    resetView,
+    resetToFilterView,
     updateMockRelayFilter,
     mockSettings,
     mockEntryLocation,
