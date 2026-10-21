@@ -5,6 +5,7 @@ import { LocationSelector } from '../../../../../../../lib/components/location-s
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
 import { TextField } from '../../../../../../../lib/components/text-field';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
+import { FilterTrailingButton } from '../filter-trailing-button';
 import {
   useHandleBlur,
   useHandleClearButtonClick,
@@ -43,6 +44,7 @@ function TextFieldItemImpl({
   const handleValueChange = useHandleValueChange();
 
   const showClearButton = id === isolatedItem;
+  const showFilterTrailingButton = !isolatedItem;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -51,10 +53,10 @@ function TextFieldItemImpl({
       triggerRef={triggerRef}
       {...props}>
       <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel} onBlur={handleBlur}>
-        <TextField.InputGroup>
-          <LocationSelector.Items.TextFieldItem.TextField
-            value={value}
-            onValueChange={handleValueChange}>
+        <LocationSelector.Items.TextFieldItem.TextField
+          value={value}
+          onValueChange={handleValueChange}>
+          <TextField.InputGroup>
             <StyledInput
               placeholder={placeholder}
               onFocus={handleFocus}
@@ -67,8 +69,9 @@ function TextFieldItemImpl({
                 aria-label={messages.pgettext('accessibility', 'Clear search')}
               />
             )}
-          </LocationSelector.Items.TextFieldItem.TextField>
-        </TextField.InputGroup>
+            {showFilterTrailingButton && <FilterTrailingButton type={id} />}
+          </TextField.InputGroup>
+        </LocationSelector.Items.TextFieldItem.TextField>
       </LocationSelector.Items.TextFieldItem.Trigger>
     </LocationSelector.Items.TextFieldItem>
   );
