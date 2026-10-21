@@ -9,13 +9,14 @@ on:
   push:
     tags:
       - 'android/**'
+      - '!android/test*'
 
 permissions: {}
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
-  check-changelog:
+  check-upcoming-version:
     runs-on: android-build
     steps:
       - name: Checkout repository
@@ -25,9 +26,13 @@ jobs:
           if [[ "$BRANCH_NAME" =~ ^android[-/](.+)$ ]]; then
             version="${BASH_REMATCH[1]}"
           else
-            version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName")
+            version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName" | tr -d '\r')
           fi
           echo "Detected version: $version"
           echo "version=$version" >> "$GITHUB_ENV"
       - name: Check changelog
         run: android/scripts/check-changelog.sh "$version"
+      - name: Run lint
+        run: |
+          ./building/container-run.sh android "android/gradlew -p android --console plain \
+            -Pmullvad.app.config.override.versionName=$version lint"
