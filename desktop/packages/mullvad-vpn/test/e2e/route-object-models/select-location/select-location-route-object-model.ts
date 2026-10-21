@@ -65,6 +65,10 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.exitInput();
   }
 
+  getNonMatchingFilterErrorMessage() {
+    return this.selectors.nonMatchingFilterErrorMessage();
+  }
+
   getLocationsMatching(relayNames: string[]) {
     return this.selectors.locationsMatching(relayNames);
   }
