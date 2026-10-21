@@ -20,6 +20,8 @@ const StyledLocationSelectorButton = styled.button<{
   ${({ $selected }) => {
     return css`
       position: relative;
+      display: flex;
+      align-items: center;
       height: 32px;
       border-radius: ${Radius.radius12};
       width: 100%;
@@ -54,7 +56,6 @@ const StyledLocationSelectorButton = styled.button<{
 
       & > ${StyledText} {
         padding-left: calc(18px + ${spacings.tiny});
-        align-self: center;
       }
     `;
   }}
