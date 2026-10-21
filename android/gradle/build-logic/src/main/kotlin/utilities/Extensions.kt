@@ -1,5 +1,6 @@
 package utilities
 
+import com.android.build.api.dsl.Lint
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
@@ -19,3 +20,11 @@ fun DependencyHandler.leakCanaryImplementation(dependencyNotation: Any): Depende
 
 fun DependencyHandler.playImplementation(dependencyNotation: Any): Dependency? =
     add("playImplementation", dependencyNotation)
+
+fun Lint.configureMissingTranslationCheck(appVersion: AppVersion) {
+    if (appVersion.isStable) {
+        fatal += "MissingTranslation"
+    } else {
+        disable += "MissingTranslation"
+    }
+}

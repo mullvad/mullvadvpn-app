@@ -9,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.configureMissingTranslationCheck
 import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
@@ -65,6 +66,7 @@ android {
             checkAllWarnings = true
             warningsAsErrors = true
             checkDependencies = true
+            configureMissingTranslationCheck(appVersion)
         }
     }
 
