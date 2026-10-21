@@ -756,7 +756,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ccc2776f0c61eca1ca32528f85548abd1a4be8fb53d1b21c013e4f18da1e7090"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -1276,9 +1276,9 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "gotatun"
-version = "0.10.0"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e31e2d412ef328861e4e777b5c8e5e2dae0d241b0e76aec498f18522efb9ce6d"
+checksum = "5e37c2134d46523ed5b3c4bbdb578225e2e7379d03aea65baef41584725b1991"
 dependencies = [
  "aead 0.5.2",
  "aws-lc-rs",
