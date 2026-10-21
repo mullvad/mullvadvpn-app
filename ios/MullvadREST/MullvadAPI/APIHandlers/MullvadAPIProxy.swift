@@ -15,7 +15,7 @@ import Operations
 public protocol APIQuerying: Sendable {
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
+        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
     func getRelays(
@@ -51,16 +51,19 @@ public protocol APIQuerying: Sendable {
 
 extension REST {
     public final class MullvadAPIProxy: APIQuerying, @unchecked Sendable {
+        let apiContext: ApiContext
         let transportProvider: APITransportProviderProtocol
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
 
         public init(
+            apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
             responseDecoder: JSONDecoder
         ) {
+            self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
@@ -70,16 +73,17 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: [AnyIPEndpoint].self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .getAddressList(retryStrategy),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+            Task {
+                do {
+                    let response = try await apiContext.getAddresses(
+                        retryStrategy: retryStrategy.toRustStrategy())
+                    let data = try response.get().body
+                    let addresses = try responseDecoder.decode([AnyIPEndpoint].self, from: data)
+                    completionHandler(.success(addresses))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func getRelays(
