@@ -858,5 +858,46 @@ test.describe('Select location', () => {
         await expect(providerFilterChip).toBeVisible();
       });
     });
+
+    test.describe('Filter error messages', () => {
+      let settings = getDefaultSettings();
+
+      test.beforeEach(async () => {
+        settings = getDefaultSettings();
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+        await helpers.resetToSelectLocationView();
+      });
+
+      test('Show error message when location does not match filter settings', async () => {
+        settings = await helpers.updateMockEntryRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          settings,
+        );
+
+        const relays = helpers.getRelaysByOwner(relayList, false);
+        settings = await helpers.mockEntryAndExitLocations(
+          {
+            entryLocation: 'any',
+            exitLocation: {
+              only: {
+                country: relays.countries[0].name,
+                city: relays.countries[0].cities[0].name,
+                hostname: relays.countries[0].cities[0].relays[0].hostname,
+              },
+            },
+          },
+          settings,
+        );
+
+        await expect(routes.selectLocation.getNonMatchingFilterErrorMessage()).toBeVisible();
+      });
+    });
   });
 });
