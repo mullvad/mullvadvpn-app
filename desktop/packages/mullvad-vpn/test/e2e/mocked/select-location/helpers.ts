@@ -68,6 +68,14 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     };
   };
 
+  const getProvidersFromRelayList = (relayList: IRelayList) => {
+    const providersList = relayList.countries.flatMap(({ cities }) =>
+      cities.flatMap((city) => city.relays.flatMap((relay) => relay.provider)),
+    );
+
+    return [...new Set(providersList)];
+  };
+
   const getRelaysByProvider = (relayList: IRelayList, provider: string): IRelayList => {
     return {
       countries: relayList.countries
@@ -302,6 +310,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     getRelaysByOwner,
     getRelaysByProvider,
     getRelaysByObfuscation,
+    getProvidersFromRelayList,
     resetOwnership,
     resetProviders,
     resetToFilterView,
