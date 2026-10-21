@@ -174,6 +174,22 @@ impl<F: UdpTransportFactory> IngressSession<F> {
         handshake(&self.device, config.handshake_timeout).await
     }
 
+    /// Use [`NegotiationConfig::ingress_timer_params`] for the ingress relay.
+    async fn set_timer_params(
+        &mut self,
+        config: &NegotiationConfig,
+    ) -> Result<(), NegotiationError> {
+        let relay_pubkey = config.relays.ingress().pubkey();
+        let timer_params = config.ingress_timer_params.clone();
+        self.device
+            .modify_peer(&relay_pubkey, |peer| {
+                peer.dangerously_set_timer_params(timer_params)
+            })
+            .await
+            .map(|_| ())
+            .map_err(NegotiationError::Device)
+    }
+
     /// Stop the device.
     pub async fn stop(self) {
         self.device.stop().await
@@ -266,9 +282,14 @@ pub async fn negotiate_ephemeral_peers_over<F: UdpTransportFactory, G: UdpTransp
 async fn negotiate_with_ingress<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
-    ingress: IngressSession<F>,
+    mut ingress: IngressSession<F>,
     ephemeral_key: &PrivateKey,
 ) -> Result<EphemeralPeer, NegotiationError> {
+    if let Err(err) = ingress.set_timer_params(config).await {
+        ingress.stop().await;
+        return Err(err);
+    }
+
     let handshake_result = handshake(&ingress.device, config.handshake_timeout).await;
     if let Err(err) = handshake_result {
         ingress.stop().await;
