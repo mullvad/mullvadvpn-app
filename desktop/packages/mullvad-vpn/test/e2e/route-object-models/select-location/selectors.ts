@@ -7,6 +7,10 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('button', {
       name: `Automatic (${country})`,
     }),
+  entryAutomaticMultihopModeToAlwaysButton: () =>
+    page.getByRole('button', {
+      name: 'Set multihop to "Always"',
+    }),
   exitInput: () =>
     page.getByPlaceholder('Search exit location or server').filter({ visible: true }),
   selectLocationMenuButton: () =>
