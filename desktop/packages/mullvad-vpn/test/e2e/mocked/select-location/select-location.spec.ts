@@ -40,10 +40,10 @@ test.describe('Select location', () => {
   });
 
   test.describe('Multihop', () => {
-    let initialSettings: ISettings = getDefaultSettings();
+    let settings: ISettings = getDefaultSettings();
 
     test.beforeEach(async () => {
-      initialSettings = await helpers.mockSettings({
+      settings = await helpers.mockSettings({
         multihop: 'always',
       });
       await routes.selectLocation.gotoEntryLocations();
@@ -106,7 +106,7 @@ test.describe('Select location', () => {
       const firstRelaySelectionPath = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, [firstHostname]),
       )[0];
-      await helpers.mockEntryLocation(firstRelaySelectionPath, initialSettings);
+      settings = await helpers.mockEntryLocation(firstRelaySelectionPath, settings);
 
       // Find same location in exit list and check that it is disabled
       await helpers.expandLocatedRelays([firstRelaySelectionPath]);
@@ -121,7 +121,7 @@ test.describe('Select location', () => {
       const firstRelaySelectionPath = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, [firstHostname]),
       )[0];
-      await helpers.mockExitLocation(firstRelaySelectionPath, initialSettings);
+      settings = await helpers.mockExitLocation(firstRelaySelectionPath, settings);
 
       // Find same location in entry list and check that it is disabled
       await helpers.expandLocatedRelays([firstRelaySelectionPath]);
@@ -132,10 +132,16 @@ test.describe('Select location', () => {
   });
 
   test.describe('Location selector', () => {
+    let settings = getDefaultSettings();
+
     test.beforeEach(async () => {
-      await helpers.mockSettings({
-        multihop: 'always',
-      });
+      settings = getDefaultSettings();
+      settings = await helpers.mockSettings(
+        {
+          multihop: 'always',
+        },
+        settings,
+      );
       await routes.selectLocation.gotoExitLocations();
     });
 
@@ -148,9 +154,12 @@ test.describe('Select location', () => {
     });
 
     test('Should only display exit when multihop mode is "never"', async () => {
-      await helpers.mockSettings({
-        multihop: 'never',
-      });
+      settings = await helpers.mockSettings(
+        {
+          multihop: 'never',
+        },
+        settings,
+      );
 
       const entryInput = routes.selectLocation.getEntryInput();
       const exitInput = routes.selectLocation.getExitInput();
@@ -160,9 +169,12 @@ test.describe('Select location', () => {
     });
 
     test('Should display only exit when multihop mode is "when-needed" and has no automatic entry', async () => {
-      await helpers.mockSettings({
-        multihop: 'when-needed',
-      });
+      settings = await helpers.mockSettings(
+        {
+          multihop: 'when-needed',
+        },
+        settings,
+      );
 
       const entryInput = routes.selectLocation.getEntryInput();
       const exitInput = routes.selectLocation.getExitInput();
@@ -190,12 +202,12 @@ test.describe('Select location', () => {
   });
 
   test.describe('Recents', () => {
-    let initialSettings: ISettings = getDefaultSettings();
+    let settings: ISettings = getDefaultSettings();
 
     test.beforeEach(async () => {
-      let settings = await helpers.mockRecents(recents);
+      settings = await helpers.mockRecents(recents, settings);
       settings = await helpers.mockCustomLists(customLists, settings);
-      initialSettings = await helpers.mockSettings(
+      settings = await helpers.mockSettings(
         {
           multihop: 'always',
         },
@@ -205,10 +217,13 @@ test.describe('Select location', () => {
     });
 
     test('Should show empty recent section when enabled and no recents', async () => {
-      await helpers.mockRecents({
-        entries: [],
-        exits: [],
-      });
+      settings = await helpers.mockRecents(
+        {
+          entries: [],
+          exits: [],
+        },
+        settings,
+      );
 
       const recentSection = routes.selectLocation.getRecentsSection();
       await expect(recentSection).toBeVisible();
@@ -242,11 +257,11 @@ test.describe('Select location', () => {
     });
 
     test('Should show recents section for exits when recents is enabled', async () => {
-      await helpers.mockSettings(
+      settings = await helpers.mockSettings(
         {
           multihop: 'never',
         },
-        initialSettings,
+        settings,
       );
 
       const recentLocations = routes.selectLocation.getLocationsInRecents();
@@ -254,11 +269,11 @@ test.describe('Select location', () => {
     });
 
     test('Should show recents section for entries when recents is enabled', async () => {
-      await helpers.mockSettings(
+      settings = await helpers.mockSettings(
         {
           multihop: 'always',
         },
-        initialSettings,
+        settings,
       );
 
       const recentLocations = routes.selectLocation.getLocationsInRecents();
@@ -277,9 +292,9 @@ test.describe('Select location', () => {
     });
 
     test('Should be able to add recent geographical location to custom list', async () => {
-      const settings = await helpers.mockCustomLists(customLists, initialSettings);
+      settings = await helpers.mockCustomLists(customLists, settings);
 
-      await helpers.mockSettings(
+      settings = await helpers.mockSettings(
         {
           multihop: 'never',
         },
@@ -310,7 +325,7 @@ test.describe('Select location', () => {
     });
 
     test('Should be able to edit or delete recent custom list', async () => {
-      const settings = await helpers.mockCustomLists(customLists, initialSettings);
+      settings = await helpers.mockCustomLists(customLists, settings);
 
       await helpers.mockSettings(
         {
