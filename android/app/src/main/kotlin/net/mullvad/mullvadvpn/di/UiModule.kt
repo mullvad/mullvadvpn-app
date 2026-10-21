@@ -344,6 +344,7 @@ val uiModule = module {
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
             hasShownNotificationPromptRepository = get(),
+            tunnelPauseRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }

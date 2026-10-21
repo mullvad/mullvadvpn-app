@@ -3933,6 +3933,9 @@ msgstr ""
 msgid "Patch not matching specification"
 msgstr ""
 
+msgid "Pause VPN"
+msgstr ""
+
 msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
 msgstr ""
 
@@ -3985,6 +3988,9 @@ msgid "Recents disabled and history cleared"
 msgstr ""
 
 msgid "Reconnects at %s"
+msgstr ""
+
+msgid "Reconnects in %s"
 msgstr ""
 
 msgid "Recursion limit"
@@ -4347,6 +4353,9 @@ msgstr ""
 msgid "Your multihop setting was migrated from “On” to “Always”"
 msgstr ""
 
+msgid "Your traffic is not protected while the VPN is paused. It reconnects automatically when the time is up."
+msgstr ""
+
 msgid "\"%s\" was created"
 msgstr ""
 
@@ -4379,8 +4388,18 @@ msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d location"
 msgid_plural "%d locations"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%d minute"
+msgid_plural "%d minutes"
 msgstr[0] ""
 msgstr[1] ""
 

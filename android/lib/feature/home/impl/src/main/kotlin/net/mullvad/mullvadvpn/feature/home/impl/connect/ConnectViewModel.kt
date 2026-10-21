@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
@@ -66,6 +68,7 @@ class ConnectViewModel(
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
     private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
+    private val tunnelPauseRepository: TunnelPauseRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -89,6 +92,7 @@ class ConnectViewModel(
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
                 multihopGuideMigrationHintUseCase(),
+                tunnelPauseRepository.pausedUntil,
             ) {
                 connectionPath,
                 relayList,
@@ -98,7 +102,8 @@ class ConnectViewModel(
                 lastKnownDisconnectedLocation,
                 accountData,
                 deviceName,
-                showMigrationGuideNotificationDot ->
+                showMigrationGuideNotificationDot,
+                pausedUntil ->
                 ConnectUiState(
                     internetLocation =
                         when (tunnelState) {
@@ -133,6 +138,12 @@ class ConnectViewModel(
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
                     isPlayBuild = isPlayBuild,
                     showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
+                    pausedUntil =
+                        if (tunnelState is TunnelState.Disconnected) {
+                            pausedUntil
+                        } else {
+                            null
+                        },
                 )
             }
             .onStart {
@@ -196,6 +207,12 @@ class ConnectViewModel(
                     UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase())
                 )
             }
+        }
+    }
+
+    fun onPauseClick(duration: Duration) {
+        tunnelPauseRepository.requestPause(duration).onLeft {
+            viewModelScope.launch { _uiSideEffect.send(UiSideEffect.ConnectError.Generic) }
         }
     }
 

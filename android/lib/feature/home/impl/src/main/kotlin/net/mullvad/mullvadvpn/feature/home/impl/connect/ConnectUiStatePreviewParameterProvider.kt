@@ -73,5 +73,6 @@ private val otherStates =
                 daysLeftUntilExpiry = 42,
                 isPlayBuild = true,
                 showMigrationGuideNotificationDot = false,
+                pausedUntil = null,
             )
         }

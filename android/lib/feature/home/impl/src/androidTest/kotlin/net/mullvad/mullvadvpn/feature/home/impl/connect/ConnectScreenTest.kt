@@ -31,7 +31,9 @@ import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEXT_ACTION_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.PAUSE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_COUNTDOWN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -65,6 +67,7 @@ class ConnectScreenTest {
         onReconnectClick: () -> Unit = {},
         onConnectClick: () -> Unit = {},
         onCancelClick: () -> Unit = {},
+        onPauseClick: () -> Unit = {},
         onSwitchLocationClick: () -> Unit = {},
         onOpenAppListing: () -> Unit = {},
         onManageAccountClick: () -> Unit = {},
@@ -87,6 +90,7 @@ class ConnectScreenTest {
                 onReconnectClick = onReconnectClick,
                 onConnectClick = onConnectClick,
                 onCancelClick = onCancelClick,
+                onPauseClick = onPauseClick,
                 onSwitchLocationClick = onSwitchLocationClick,
                 onOpenAppListing = onOpenAppListing,
                 onManageAccountClick = onManageAccountClick,
@@ -134,6 +138,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -164,6 +169,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -191,6 +197,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -219,6 +226,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -250,6 +258,7 @@ class ConnectScreenTest {
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -282,6 +291,7 @@ class ConnectScreenTest {
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -311,6 +321,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -340,6 +351,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -370,6 +382,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onSwitchLocationClick = mockedClickHandler,
             )
@@ -401,6 +414,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onDisconnectClick = mockedClickHandler,
             )
@@ -432,6 +446,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onReconnectClick = mockedClickHandler,
             )
@@ -462,6 +477,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onConnectClick = mockedClickHandler,
             )
@@ -492,6 +508,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onCancelClick = mockedClickHandler,
             )
@@ -501,6 +518,66 @@ class ConnectScreenTest {
 
             // Assert
             verify { mockedClickHandler.invoke() }
+        }
+    }
+
+    @Test
+    fun testOnPauseClick() {
+        composeExtension.use {
+            // Arrange
+            val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
+            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+            initScreen(
+                state =
+                    ConnectUiState(
+                        internetLocation = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
+                    ),
+                onPauseClick = mockedClickHandler,
+            )
+
+            // Act
+            onNodeWithTag(PAUSE_BUTTON_TEST_TAG).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke() }
+        }
+    }
+
+    @Test
+    fun testPausedState() {
+        composeExtension.use {
+            // Arrange
+            initScreen(
+                state =
+                    ConnectUiState(
+                        internetLocation = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Disconnected(),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
+                        pausedUntil = Instant.now().plus(Duration.ofMinutes(5)),
+                    )
+            )
+
+            // Assert
+            onNodeWithTag(RECONNECT_COUNTDOWN_TEST_TAG).assertExists()
+            onNodeWithTag(PAUSE_BUTTON_TEST_TAG).assertDoesNotExist()
+            onNodeWithText("Connect").assertExists()
         }
     }
 
@@ -547,6 +624,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -584,6 +662,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -617,6 +696,7 @@ class ConnectScreenTest {
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -647,6 +727,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
             )
 
@@ -681,6 +762,7 @@ class ConnectScreenTest {
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
             )
 
@@ -711,6 +793,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.NewVersionChangelog,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
             )
 
@@ -779,6 +862,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -840,6 +924,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     )
             )
 
@@ -893,6 +978,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
+                        pausedUntil = null,
                     ),
                 onNavigateToFeature = mockClickHandler,
             )

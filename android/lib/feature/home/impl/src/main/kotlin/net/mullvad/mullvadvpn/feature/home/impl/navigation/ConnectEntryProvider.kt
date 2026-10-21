@@ -27,5 +27,6 @@ fun EntryProviderScope<NavKey2>.homeEntry(navigator: Navigator) {
     deviceRevokedEntry(navigator)
     deviceNameInfoEntry(navigator)
     outOfTimeEntry(navigator)
+    pauseVpnEntry(navigator)
     welcomeEntry(navigator)
 }

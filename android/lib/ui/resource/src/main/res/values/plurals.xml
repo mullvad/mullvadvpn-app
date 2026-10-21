@@ -32,4 +32,12 @@
         <item quantity="one">You will lose your remaining day.</item>
         <item quantity="other">You will lose your remaining %d days.</item>
     </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 </resources>

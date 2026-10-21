@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import java.time.Instant
 import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
@@ -17,6 +18,8 @@ data class ConnectUiState(
     val daysLeftUntilExpiry: Long?,
     val isPlayBuild: Boolean,
     val showMigrationGuideNotificationDot: Boolean,
+    // Set while the VPN is paused, holds the time at which it will be reconnected.
+    val pausedUntil: Instant?,
 ) {
 
     val showLoading =
@@ -35,6 +38,7 @@ data class ConnectUiState(
                 daysLeftUntilExpiry = null,
                 isPlayBuild = false,
                 showMigrationGuideNotificationDot = false,
+                pausedUntil = null,
             )
     }
 }
