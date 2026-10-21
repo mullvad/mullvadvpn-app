@@ -521,49 +521,6 @@ test.describe('Select location', () => {
       });
     });
 
-    test.describe('Filter by obfuscation', () => {
-      test('Should apply filter when QUIC obfuscation is selected', async () => {
-        const settings = getDefaultSettings();
-        if ('normal' in settings.relaySettings) {
-          settings.obfuscationSettings.selectedObfuscation = ObfuscationType.quic;
-        }
-        await util.ipc.settings[''].notify(settings);
-
-        const relaySelectionPaths = helpers.toSelectionPaths(
-          helpers.getRelaysByObfuscation(relayList, (relay) => 'quic' in relay),
-        );
-        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
-        const relayNames = relays.map((relay) => relay.hostname);
-
-        await helpers.expandLocatedRelays(relaySelectionPaths);
-
-        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
-
-        // Expect all filtered relays to have a button
-        await expect(buttons).toHaveCount(relays.length);
-      });
-
-      test('Should apply filter when LWO obfuscation is selected', async () => {
-        const settings = getDefaultSettings();
-        if ('normal' in settings.relaySettings) {
-          settings.obfuscationSettings.selectedObfuscation = ObfuscationType.lwo;
-        }
-        await util.ipc.settings[''].notify(settings);
-
-        const relaySelectionPaths = helpers.toSelectionPaths(
-          helpers.getRelaysByObfuscation(relayList, (relay) => relay.lwo),
-        );
-        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
-        const relayNames = relays.map((relay) => relay.hostname);
-
-        await helpers.expandLocatedRelays(relaySelectionPaths);
-        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
-
-        // Expect all filtered relays to have a button
-        await expect(buttons).toHaveCount(relays.length);
-      });
-    });
-
     test.describe('multihop: never', () => {
       let settings = getDefaultSettings();
 
@@ -584,18 +541,44 @@ test.describe('Select location', () => {
         await expect(routes.filter.getHeading('Exit filter')).toBeVisible();
       });
 
-      test('Should display QUIC filter when it is selected when viewing locations', async () => {
-        settings = await helpers.mockAntiCensorship(ObfuscationType.quic);
+      test('Should apply filter when QUIC when viewing locations', async () => {
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
         const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
         await expect(quicFilterChip).toBeVisible();
+
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => 'quic' in relay),
+        );
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        await helpers.expandLocatedRelays(relaySelectionPaths);
+
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
       });
 
       test('Should display LWO filter when it is selected when viewing locations', async () => {
-        await helpers.mockAntiCensorship(ObfuscationType.lwo);
+        settings = await helpers.mockAntiCensorship(ObfuscationType.lwo, settings);
 
         const lwoFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: LWO');
         await expect(lwoFilterChip).toBeVisible();
+
+        const relaySelectionPaths = helpers.toSelectionPaths(
+          helpers.getRelaysByObfuscation(relayList, (relay) => relay.lwo),
+        );
+        const relays = relaySelectionPaths.map((locatedRelay) => locatedRelay.relay);
+        const relayNames = relays.map((relay) => relay.hostname);
+
+        await helpers.expandLocatedRelays(relaySelectionPaths);
+
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
+
+        // Expect all filtered relays to have a button
+        await expect(buttons).toHaveCount(relays.length);
       });
 
       test('Should display locations filter when viewing locations', async () => {
