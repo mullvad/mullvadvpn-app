@@ -145,6 +145,16 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     }
   };
 
+  const resetToSelectLocationView = async () => {
+    const currentRoute = await utils.getCurrentRoute();
+    if (currentRoute === RoutePath.filter) {
+      await routes.filter.gotoSelectLocation();
+      // TODO: Remove gotoExitLocations when the Filter view selects
+      // the appropriate exit or entry locations automatically
+      await routes.selectLocation.gotoExitLocations();
+    }
+  };
+
   const updateMockRelayFilter = async (
     {
       ownership,
@@ -295,6 +305,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetOwnership,
     resetProviders,
     resetToFilterView,
+    resetToSelectLocationView,
     updateMockRelayFilter,
     mockSettings,
     mockEntryLocation,
