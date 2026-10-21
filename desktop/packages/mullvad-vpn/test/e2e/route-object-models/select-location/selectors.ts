@@ -3,6 +3,10 @@ import { type Locator, Page } from 'playwright';
 export const createSelectors = (page: Page) => ({
   entryInput: () =>
     page.getByPlaceholder('Search entry location or server').filter({ visible: true }),
+  entryAutomaticButton: (country: string) =>
+    page.getByRole('button', {
+      name: `Automatic (${country})`,
+    }),
   exitInput: () =>
     page.getByPlaceholder('Search exit location or server').filter({ visible: true }),
   selectLocationMenuButton: () =>
