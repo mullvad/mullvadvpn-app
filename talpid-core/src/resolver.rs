@@ -28,7 +28,7 @@ use hickory_server::{
     Server,
     net::{DnsError, runtime::Time},
     proto::{
-        op::{Header, MessageType, OpCode},
+        op::{Header, MessageType, OpCode, ResponseCode},
         rr::{RData, Record, domain::Name, rdata},
     },
     resolver::{
@@ -51,6 +51,7 @@ use talpid_routing::data::RouteSocketMessage;
 use talpid_types::drop_guard::{OnDrop, on_drop};
 use tokio::{
     net::{self, UdpSocket},
+    sync::Semaphore,
     task::JoinHandle,
 };
 
@@ -112,6 +113,14 @@ const TTL_SECONDS: u32 = 3;
 /// An IP address to be used in the DNS response to the captive domain query. The address itself
 /// belongs to the documentation range so should never be reachable.
 const RESOLVED_ADDR: Ipv4Addr = Ipv4Addr::new(198, 51, 100, 1);
+
+/// Maximum number of concurrently forwarded DNS queries.
+///
+/// hickory-dns creates new UDP sockets for each DNS query. This can result in the
+/// file descriptor limit being hit. For that reason, bound it here.
+///
+/// Any query past the limit is answered with SERVFAIL.
+const FORWARD_QUERY_LIMIT: usize = 64;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct LocalResolverConfig {
@@ -208,6 +217,8 @@ enum Resolver {
     Forwarding {
         resolver: Box<TokioResolver>,
         filter_out_aaaa: bool,
+        /// Bounds the number of concurrently forwarded queries
+        limit: Arc<Semaphore>,
     },
 }
 
@@ -224,13 +235,25 @@ impl Resolver {
             Resolver::Forwarding {
                 resolver,
                 filter_out_aaaa,
+                limit,
             } => {
                 let resolver = resolver.clone();
+                let limit = Arc::clone(limit);
                 let filter_out_aaaa = *filter_out_aaaa && !*NEVER_FILTER_AAAA_QUERIES;
                 tokio::spawn(async move {
+                    let permit = match limit.try_acquire() {
+                        Ok(permit) => permit,
+                        _ => {
+                            let _ = tx.send(Err(NetError::Dns(DnsError::ResponseCode(
+                                ResponseCode::ServFail,
+                            ))));
+                            return;
+                        }
+                    };
                     let lookup = Self::resolve_forward(*resolver, query, filter_out_aaaa)
                         .await
                         .map(Box::new);
+                    drop(permit);
                     let _ = tx.send(lookup);
                 });
             }
@@ -621,6 +644,7 @@ impl LocalResolver {
         self.inner_resolver = Resolver::Forwarding {
             resolver: Box::new(resolver),
             filter_out_aaaa,
+            limit: Arc::new(Semaphore::new(FORWARD_QUERY_LIMIT)),
         };
         Ok(())
     }
