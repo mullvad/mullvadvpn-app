@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">här</string>
     <string name="automatic">Automatisk</string>
     <string name="automatic_entry_description">När det är valt väljer appen automatiskt en slumpmässig server och prioriterar dem som är närmare utgångsplatsen för bättre prestanda.</string>
+    <string name="automatic_entry_extra_info">En extra server används för att anpassa inställningarna till din valda plats</string>
     <string name="automatic_entry_info_first_paragraph">Väljer en lämplig plats baserat på din utgångsplats. Detta baseras på olika faktorer som avstånd, leverantör och serverbelastning.</string>
     <string name="automatic_entry_warning">Obs! Detta ignorerar filterinställningarna för servern som används som startpunkt.</string>
     <string name="automatic_with_country">Automatisk (%1$s)</string>
@@ -188,7 +189,7 @@
     <string name="device_name_info_second_paragraph">Upp till fem enheter kan vara inloggade på ett Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct">Direkt</string>
-    <string name="direct_only_removed_first_paragraph">Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika blockerade anslutningar. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen.</string>
+    <string name="direct_only_removed_first_paragraph">Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika att anslutningarna blockeras. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen.</string>
     <string name="direct_only_removed_second_paragraph">När multihopp är inställt på \"Vid behov\" kan appen använda en extra server för att se till att du ansluter till din valda plats via DAITA.</string>
     <string name="direct_only_removed_third_paragraph">När multihopp är inställt på \"Alltid\" eller \"Aldrig\" måste du välja DAITA-server manuellt.</string>
     <string name="direct_only_removed_title">\"Endast direkt\" har tagits bort</string>
@@ -344,6 +345,11 @@
     <string name="mtu_x">Värde: %1$s</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Vid behov</b>\nDet är inte alla våra platser/servrar som har stöd för varje funktion i appen. Om din valda plats/server inte har stöd för funktionerna du har aktiverat kommer appen automatiskt att multihoppa via en kompatibel server.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Det säkerställer att din anslutning inte blockeras på grund av inkompatibla inställningar.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Detta anges med symbolen %1$s.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Alltid</b>\nMultihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Aldrig</b>\nMultihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning.</string>
     <string name="multihop_entry_disabled_description">En ingångsserver väljs för närvarande automatiskt om det behövs för att säkerställa en fungerande anslutning. Byt multihoppläget till \"Alltid\" om du vill välja en ingångsserver manuellt.</string>
     <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
     <string name="multihop_is_enabled">Multihopp är aktiverat</string>
@@ -353,6 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Inställningarna har migrerats</string>
     <string name="multihop_mode">Multihoppläge</string>
     <string name="multihop_when_needed">Multihopp vid behov</string>
+    <string name="multihop_when_needed_info_first_paragraph">Appen använder bara multihopp om den inte kan ansluta till din valda plats. Det kan inträffa om servern på den platsen inte har stöd för funktionerna som du har aktiverat. I så fall leder appen automatiskt trafiken via en server som har stöd för dessa funktioner innan du når din valda plats.</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="navigate">Navigera</string>
@@ -368,7 +375,7 @@
     <string name="new_multihop_modes_off_to_when_needed">Din multihoppinställning har migrerats från \"Av\" till \"Vid behov\"</string>
     <string name="new_multihop_modes_on_to_always">Din multihoppinställning har migrerats från \"På\" till \"Alltid\"</string>
     <string name="new_multihop_modes_title">Nya multihopplägen</string>
-    <string name="new_multihop_nodes_always_description">Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen.</string>
+    <string name="new_multihop_nodes_always_description">Multihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen.</string>
     <string name="new_multihop_nodes_never_description">Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning.</string>
     <string name="new_multihop_nodes_when_needed_description">Appen kanske multihoppar automatiskt via en annan ingångsserver för att garantera att dina nuvarande inställningar fungerar samt för att undvika att anslutningen blockeras.\nDetta anges av symbolen %1$s.</string>
     <string name="next">Nästa</string>
@@ -499,7 +506,7 @@
     <string name="suggested_action_first_paragraph">För att undvika att blockeras rekommenderar vi att du ställer in multihoppläget \"Vid behov\".</string>
     <string name="suggested_action_second_paragraph">Det här läget ger appen möjlighet att vid behov automatiskt multihoppa via en extra server för att säkerställa att dina nuvarande inställningar fungerar med din valda plats.</string>
     <string name="suggested_action_title">Föreslagen åtgärd</string>
-    <string name="suggested_action_warning">Obs! I det här läget ignoreras filtren för extra server.</string>
+    <string name="suggested_action_warning">Obs! I det här läget ignoreras filtren för den extra servern.</string>
     <string name="suggested_multihop_entry_button">Ange ingång som \"Automatisk\"</string>
     <string name="suggested_multihop_entry_first_paragraph">För att undvika att ändra ingångsservern manuellt rekommenderar vi att du ställer in ingångsservern för multihopp som \"Automatisk\".</string>
     <string name="suggested_multihop_entry_title">Föreslagen multihoppingång</string>
@@ -508,7 +515,7 @@
     <string name="system_default">Systemstandard</string>
     <string name="system_network_settings">Systemets nätverksinställningar</string>
     <string name="tcp">TCP</string>
-    <string name="test_method">Testmetod</string>
+    <string name="test_method">Testa metod</string>
     <string name="testing">Testar ...</string>
     <string name="testing_name">Testar %1$s ...</string>
     <string name="this_field_is_required">Fältet är obligatoriskt</string>

@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">тут</string>
     <string name="automatic">Автоматично</string>
     <string name="automatic_entry_description">Якщо вибрано цей режим, застосунок автоматично вибирає випадковий сервер, віддаючи перевагу серверам, що розташовані ближче до місця виходу, для підвищення продуктивності.</string>
+    <string name="automatic_entry_extra_info">Для забезпечення сумісності ваших налаштувань з обраним місцем розташування використовується додатковий сервер</string>
     <string name="automatic_entry_info_first_paragraph">Вибирає оптимальне розташування на основі вашого вихідного розташування з урахуванням різних чинників, як-от відстань, постачальник і навантаження на сервер.</string>
     <string name="automatic_entry_warning">Увага: фільтри не застосовуватимуться до сервера, який установлено як сервер входу.</string>
     <string name="automatic_with_country">Автоматично (%1$s)</string>
@@ -344,6 +345,11 @@
     <string name="mtu_x">Значення: %1$s</string>
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>За потреби</b>\nНе всі розташування та сервери підтримують повний функціонал застосунку. Якщо вибране вами розташування або сервер не підтримують деякі ввімкнені функції, застосунок автоматично використовуватиме подвійний VPN із застосуванням сумісного сервера.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Це дозволяє запобігти блокуванню підключення через несумісні налаштування.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Позначається символом %1$s.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Завжди</b>\nПодвійний VPN ввімкнено. Ваше підключення проходить через сервер входу, а потім — через сервер у вибраному розташуванні.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Ніколи</b>\nПодвійний VPN вимкнено. Щоб установити зʼєднання, вибране розташування повинно підтримувати всі активні параметри.</string>
     <string name="multihop_entry_disabled_description">Наразі сервер входу автоматично вибирається за потреби, щоб забезпечити стабільне з’єднання. Щоб вибрати сервер входу вручну, установіть для подвійного VPN значення «Завжди».</string>
     <string name="multihop_is_disabled">Подвійний VPN вимкнено</string>
     <string name="multihop_is_enabled">Подвійний VPN увімкнено</string>
@@ -353,6 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Параметри перенесено</string>
     <string name="multihop_mode">Режим подвійного VPN</string>
     <string name="multihop_when_needed">Подвійний VPN за потреби</string>
+    <string name="multihop_when_needed_info_first_paragraph">Застосунок використовуватиме подвійний VPN лише тоді, коли не зможе підключитися до вибраного розташування. Таке може статися, якщо сервер у вибраному розташуванні не підтримує ввімкнені вами функції. У такому разі застосунок автоматично спрямовуватиме ваш трафік через сервер, який підтримує ці функції, перш ніж він досягне вибраного вами розташування.</string>
     <string name="name">Ім’я</string>
     <string name="name_was_changed_to">Ім’я змінено на %1$s</string>
     <string name="navigate">Перейти</string>
