@@ -45,7 +45,7 @@ public protocol APIQuerying: Sendable {
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
         accessMethod: PersistentAccessMethod,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+        completion: @escaping ProxyCompletionHandler<Bool>
     ) -> Cancellable
 }
 
@@ -132,19 +132,19 @@ extension REST {
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
             accessMethod: PersistentAccessMethod,
-            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+            completion: @escaping ProxyCompletionHandler<Bool>
         ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-            return createNetworkOperation(
-                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
-                responseHandler: responseHandler
-            ) { result in
-                if case let .failure(err) = result {
-                    completion(.failure(err))
-                } else {
+            Task {
+                do {
+                    let response = try await apiContext.apiAddrsAvailable(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!)
+                    _ = try response.get()
                     completion(.success(true))
+                } catch {
+                    completion(.failure(error))
                 }
-            }
+            }.cancellable
         }
 
         public func initStoreKitPayment(
