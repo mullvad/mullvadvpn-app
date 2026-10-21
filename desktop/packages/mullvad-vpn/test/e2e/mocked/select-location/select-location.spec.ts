@@ -858,5 +858,46 @@ test.describe('Select location', () => {
         await expect(providerFilterChip).toBeVisible();
       });
     });
+
+    test.describe('Filter error messages', () => {
+      let settings = getDefaultSettings();
+
+      test.beforeEach(async () => {
+        settings = getDefaultSettings();
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+        await helpers.resetToSelectLocationView();
+      });
+
+      test('Show error message when location does not match filter settings', async () => {
+        settings = await helpers.updateMockEntryRelayFilter(
+          {
+            ownership: Ownership.rented,
+          },
+          settings,
+        );
+
+        // TODO: Remove these hard coded values to instead lookup the specific relay
+        settings = await helpers.mockEntryAndExitLocations(
+          {
+            entryLocation: 'any',
+            exitLocation: {
+              only: {
+                country: 'se',
+                city: 'got',
+                hostname: 'another-provider-wireguard-1',
+              },
+            },
+          },
+          settings,
+        );
+
+        await expect(routes.selectLocation.getNonMatchingFilterErrorMessage()).toBeVisible();
+      });
+    });
   });
 });
