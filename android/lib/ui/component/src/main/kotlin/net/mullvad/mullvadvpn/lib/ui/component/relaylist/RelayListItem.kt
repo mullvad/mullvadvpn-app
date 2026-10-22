@@ -69,6 +69,7 @@ sealed interface RelayListItem {
         val needsOtherEntry: Boolean = false,
         override val item: RelayItem.Location,
         override val expanded: Boolean,
+        override val connected: Boolean,
         override val hierarchy: Hierarchy,
         override val state: RelayListItemState? = null,
         override val highlights: List<IntRange>? = null,
@@ -78,7 +79,6 @@ sealed interface RelayListItem {
 
         // Can't be displayed as selected
         override val isSelected: Boolean = false
-        override val connected: Boolean = false
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ENTRY_ITEM
         override val canExpand: Boolean = item.hasChildren
     }
