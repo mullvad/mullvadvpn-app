@@ -60,6 +60,9 @@ public enum AccessibilityIdentifier: Equatable {
     case startUsingTheAppButton
     case problemReportAppLogsButton
     case problemReportSendButton
+    case problemReportFailureEditMessageButton
+    case problemReportFailureViewLogsButton
+    case problemReportFailureRetryButton
     case relayStatusCollapseButton
     case settingsDoneButton
     case addNewCustomListButton
@@ -175,6 +178,7 @@ public enum AccessibilityIdentifier: Equatable {
     case vpnSettingsTableView
     case connectionView
     case problemReportView
+    case problemReportLogView
     case problemReportSendingView
     case problemReportSubmittedView
     case problemReportFailureView
