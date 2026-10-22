@@ -165,6 +165,7 @@ import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.wireguardPort
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
@@ -1001,6 +1002,14 @@ class ManagementService(
     private fun socketClient(rpcSocketFile: File): OkHttpClient {
         return OkHttpClient.Builder()
             .socketFactory(socketFactory = UnixDomainSocketFactory(rpcSocketFile))
+            .dispatcher(
+                Dispatcher().apply {
+                    // Explicitly set maxRequests and maxRequestsPerHost to the same value
+                    // since all traffic will be to the same dummy host.
+                    maxRequests = MAX_GRPC_REQUESTS
+                    maxRequestsPerHost = MAX_GRPC_REQUESTS
+                }
+            )
             .callTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .readTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .connectTimeout(timeout = 0, TimeUnit.MILLISECONDS)
@@ -1036,6 +1045,10 @@ class ManagementService(
         private const val BASE_URL = "http://127.0.0.1/"
 
         private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
+        // Explicit GRPC dispatcher request limit set to the same value as the default global max value.
+        // In our case we set the same global max and per-host max (which is 5 by default).
+        // https://github.com/lysine-dev/okhttp/blob/c3179301fc7d0266c5bf154870c2b0b9da01e7e7/okhttp/src/commonJvmAndroid/kotlin/okhttp3/Dispatcher.kt#L53
+        private const val MAX_GRPC_REQUESTS = 64
 
         private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
     }
