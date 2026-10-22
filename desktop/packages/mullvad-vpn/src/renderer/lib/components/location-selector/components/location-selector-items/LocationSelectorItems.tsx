@@ -2,8 +2,8 @@ import { AnimatePresence, type AnimatePresenceProps, motion } from 'motion/react
 import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
-import type { LocationSelectorVariant } from '../../LocationSelector';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
+import type { LocationSelectorVariant } from '../../types';
 import { LocationSelectorLine } from '../location-selector-line';
 import { LocationSelectorButtonItem, LocationSelectorTextFieldItem } from './components';
 
