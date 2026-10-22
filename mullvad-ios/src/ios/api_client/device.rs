@@ -52,40 +52,26 @@ impl ApiContext {
     }
 
     /// create device via the Mullvad API client.
-    pub fn create_device(
+    pub async fn create_device(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         public_key: &[u8],
-    ) -> Arc<RequestCancelHandle> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
-            return RequestCancelHandle::new(
-                self,
-                Arc::new(RetryStrategy::never()),
-                async |_, _, completion_handler| {
-                    completion_handler.finish(ApiResponse::bad_public_key_size());
-                },
-            );
+            return Ok(ApiResponse::bad_public_key_size());
         };
 
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| match create_device_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-                PublicKey::from(pub_key),
-            )
+        let rest_client = self.rest_handle();
+        let retry_strategy = *retry_strategy;
+
+        let pub_key = PublicKey::from(pub_key);
+        let api = DevicesProxy::new(rest_client);
+        let future_factory = move || api.create_response(account_number.clone(), pub_key.clone());
+
+        TokioBridge::spawn(do_request(retry_strategy, future_factory))
             .await
-            {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(ApiResponse::rest_error(err));
-                }
-            },
-        )
+            .map_err(ApiContextError::from)
     }
 
     /// Delete device via the Mullvad API client.
@@ -181,19 +167,6 @@ async fn rotate_device_key_inner(
 
     let future_factory =
         || api.replace_wg_key_response(account_number.clone(), identifier.clone(), pub_key.clone());
-
-    do_request(retry_strategy, future_factory).await
-}
-
-async fn create_device_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    account_number: String,
-    pub_key: wireguard::PublicKey,
-) -> Result<ApiResponse, rest::Error> {
-    let api = DevicesProxy::new(rest_client);
-
-    let future_factory = || api.create_response(account_number.clone(), pub_key.clone());
 
     do_request(retry_strategy, future_factory).await
 }
