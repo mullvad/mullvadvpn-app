@@ -100,14 +100,12 @@ class MullvadApi {
             accountNumber: account)
     }
 
-    func addDevice(forAccount: String, publicKey: Data) throws {
-        try makeRequest { strategy in
-            context.createDevice(
-                retryStrategy: strategy,
-                accountNumber: forAccount,
-                publicKey: publicKey
-            )
-        }
+    func addDevice(forAccount: String, publicKey: Data) async throws {
+        _ = try await context.createDevice(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy(),
+            accountNumber: forAccount,
+            publicKey: publicKey
+        )
     }
 
     func getExpiry(forAccount: String) async throws -> UInt64 {

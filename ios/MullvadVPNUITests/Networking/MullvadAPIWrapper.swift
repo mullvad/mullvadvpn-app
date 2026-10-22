@@ -134,7 +134,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
             let devicePublicKey = self.generateMockWireGuardKey()
 
             do {
-                try self.mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
+                try await self.mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
             } catch {
                 XCTFail("Failed to add device with error: \(error.localizedDescription)")
             }

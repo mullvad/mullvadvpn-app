@@ -45,13 +45,6 @@ public struct MullvadApiRequestFactory: Sendable {
                     identifier: identifier,
                     publicKey: publicKey.rawValue
                 ))
-        case let .createDevice(retryStrategy, accountNumber, request):
-            return MullvadApiCancellable(
-                handle: apiContext.createDevice(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber,
-                    publicKey: request.publicKey.rawValue
-                ))
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber
