@@ -104,7 +104,7 @@ impl RelaySelectorIO {
     /// Return a list of next relays to connect to, in order. The list has multiple entries if
     /// obfuscation is used, indicating the relays which to connect to in order of preference.
     /// The list is empty if no relays match the query.
-    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> Vec<GetRelay> {
+    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> std::vec::IntoIter<GetRelay> {
         let mut relays = vec![];
 
         // First, we make a WireGuard-only attempt before using any obfuscations
@@ -122,7 +122,7 @@ impl RelaySelectorIO {
             relays.push(relay);
         }
 
-        relays
+        relays.into_iter()
     }
 }
 

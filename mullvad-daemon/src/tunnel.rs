@@ -49,7 +49,7 @@ struct InnerParametersGenerator {
     account_manager: AccountManagerHandle,
 
     last_generated_relays: Option<LastSelectedRelays>,
-    next_relays: Vec<GetRelay>,
+    next_relays: std::vec::IntoIter<GetRelay>,
 }
 
 impl ParametersGenerator {
@@ -66,7 +66,7 @@ impl ParametersGenerator {
             custom_endpoint: relay_settings.as_custom_tunnel_endpoint().cloned(),
             account_manager,
             last_generated_relays: None,
-            next_relays: vec![],
+            next_relays: Default::default(),
         })))
     }
 
@@ -74,7 +74,7 @@ impl ParametersGenerator {
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
         let mut inner = self.0.lock().await;
         inner.tunnel_options = tunnel_options.clone();
-        inner.next_relays = vec![]; // Reset relays
+        inner.next_relays = Default::default(); // Reset relays
     }
 
     /// Updates generator state from full settings and keeps relay-selector config in sync.
@@ -82,7 +82,7 @@ impl ParametersGenerator {
         let mut inner = self.0.lock().await;
         inner.custom_endpoint = settings.relay_settings.as_custom_tunnel_endpoint().cloned();
         inner.relay_selector.set_config(settings);
-        inner.next_relays = vec![]; // Reset relays
+        inner.next_relays = Default::default(); // Reset relays
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
@@ -203,21 +203,18 @@ impl InnerParametersGenerator {
 
         let data = self.device().await?;
 
-        if retry_attempt == 0 {
-            self.next_relays.clear();
-        }
-
-        let selected_relay: GetRelay = if let Some(relay) = self.next_relays.pop() {
+        let selected_relay: GetRelay = if retry_attempt != 0
+            && let Some(relay) = self.next_relays.next()
+        {
             relay
         } else {
             let mut user_query = self.relay_selector.query().clone();
             user_query.apply_ip_availability(ip_availability)?;
 
             // Regenerate next relays.
-            // TODO: Make sure this can't return empty list?
             self.next_relays = self.relay_selector.get_next_relays(user_query.clone());
             self.next_relays
-                .pop()
+                .next()
                 .ok_or_else(|| mullvad_relay_selector::Error::NoRelay(Box::new(user_query)))?
         };
 
