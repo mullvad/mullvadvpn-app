@@ -196,7 +196,7 @@ class ManagementService(
             .client(client)
             // GrpcClient.Build requires a base url, but the actual url is not used since we use a
             // UDS instead.
-            .baseUrl("http://127.0.0.1/")
+            .baseUrl(BASE_URL)
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(RelaySelectorServiceClient::class)
@@ -217,7 +217,7 @@ class ManagementService(
             .client(client)
             // GrpcClient.Build requires a base url, but the actual url is not used since we use a
             // UDS instead.
-            .baseUrl("http://127.0.0.1/")
+            .baseUrl(BASE_URL)
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(ManagementServiceClient::class)
@@ -1033,6 +1033,8 @@ class ManagementService(
     private fun GrpcException.isTooManyRequests() = grpcMessage == TOO_MANY_REQUESTS
 
     companion object {
+        private const val BASE_URL = "http://127.0.0.1/"
+
         private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
 
         private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
