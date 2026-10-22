@@ -1145,7 +1145,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     /**
      * Get devices info via the Mullvad API client.
      */
-    func getDevices(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func getDevices(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
     /**
      * Rotate device key via the Mullvad API client.
@@ -1426,14 +1426,21 @@ open func getDevice(retryStrategy: RetryStrategy, accountNumber: String, identif
     /**
      * Get devices info via the Mullvad API client.
      */
-open func getDevices(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_devices(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func getDevices(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_devices(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
     /**
@@ -4172,7 +4179,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_device() != 1170) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_devices() != 15065) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_devices() != 55726) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 10270) {

@@ -420,7 +420,7 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_device(uint64_t ptr, uint64
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_DEVICES
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_DEVICES
-uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_devices(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_devices(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_ROTATE_DEVICE_KEY

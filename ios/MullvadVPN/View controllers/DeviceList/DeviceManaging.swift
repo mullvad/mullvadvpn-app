@@ -34,11 +34,17 @@ class DeviceManagementInteractor: DeviceManaging, @unchecked Sendable {
 
     @discardableResult
     func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
-        devicesProxy.getDevices(
-            accountNumber: accountNumber,
-            retryStrategy: .default,
-            completion: completionHandler
-        )
+        Task {
+            do {
+                let devices = try await devicesProxy.getDevices(
+                    accountNumber: accountNumber,
+                    retryStrategy: .default
+                )
+                completionHandler(.success(devices))
+            } catch {
+                completionHandler(.failure(error))
+            }
+        }.cancellable
     }
 
     @discardableResult

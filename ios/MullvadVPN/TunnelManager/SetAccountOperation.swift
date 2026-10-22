@@ -389,7 +389,14 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         publicKey: WireGuard.PublicKey,
         completion: @escaping @Sendable (Result<Device?, Error>) -> Void
     ) {
-        let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
+        let task = Task {
+            let result: Result<[Device], Error>
+            do {
+                let devices = try await devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default)
+                result = .success(devices)
+            } catch {
+                result = .failure(error)
+            }
             dispatchQueue.async { [self] in
                 let result =
                     result
@@ -407,7 +414,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             }
         }
 
-        tasks.append(task)
+        tasks.append(task.cancellable)
     }
 
     /// Struct that holds a private key that was used for creating a new device on the API along with the successful

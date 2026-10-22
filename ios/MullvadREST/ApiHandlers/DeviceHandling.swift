@@ -27,12 +27,6 @@ public protocol DeviceHandling: Sendable {
 
     func getDevices(
         accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<[Device]>
-    ) -> Cancellable
-
-    func getDevices(
-        accountNumber: String,
         retryStrategy: REST.RetryStrategy
     ) async throws -> [Device]
 

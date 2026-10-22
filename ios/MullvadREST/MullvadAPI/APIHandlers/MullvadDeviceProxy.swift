@@ -68,30 +68,15 @@ extension REST {
         func getDevices(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<[Device]>
-        ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: [Device].self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .getDevices(retryStrategy, accountNumber: accountNumber),
-                responseHandler: responseHandler,
-                completionHandler: completion
-            )
-        }
-
-        func getDevices(
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy
         ) async throws -> [Device] {
-            try await executeRequest(
-                .getDevices(
-                    retryStrategy,
-                    accountNumber: accountNumber
-                )
-            )
+            let response = try await apiContext.getDevices(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber)
+
+            return try decode(
+                decoding: [Device].self,
+                responseDecoder: responseDecoder,
+                response: response)
         }
 
         func createDevice(
