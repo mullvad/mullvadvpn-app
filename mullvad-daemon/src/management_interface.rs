@@ -1359,7 +1359,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::DeleteMultihopMigration)?;
         Ok(Response::new(()))
     }
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn set_personal_vpn_config(
         &self,
         request: Request<types::PersonalVpnConfig>,
@@ -1380,7 +1380,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(types::PersonalVpnConfigError { error }))
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
         log::debug!("set_personal_vpn_config_status({})", enabled);
@@ -1390,7 +1390,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn import_personal_vpn_config(
         &self,
         request: Request<String>,
@@ -1408,7 +1408,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(types::PersonalVpnConfigError { error }))
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn get_personal_vpn_stats(
         &self,
         _: Request<()>,
@@ -1434,7 +1434,7 @@ impl ManagementService for ManagementServiceImpl {
         })
     }
 
-    #[cfg(not(feature = "personal-vpn"))]
+    #[cfg(not(feature = "custom-vpn"))]
     async fn set_personal_vpn_config(
         &self,
         _request: Request<types::PersonalVpnConfig>,
@@ -1445,14 +1445,14 @@ impl ManagementService for ManagementServiceImpl {
         }))
     }
 
-    #[cfg(not(feature = "personal-vpn"))]
+    #[cfg(not(feature = "custom-vpn"))]
     async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
         log::debug!("set_personal_vpn_config_status({})", enabled);
         Ok(Response::new(()))
     }
 
-    #[cfg(not(feature = "personal-vpn"))]
+    #[cfg(not(feature = "custom-vpn"))]
     async fn import_personal_vpn_config(
         &self,
         _request: Request<String>,
@@ -1463,7 +1463,7 @@ impl ManagementService for ManagementServiceImpl {
         }))
     }
 
-    #[cfg(not(feature = "personal-vpn"))]
+    #[cfg(not(feature = "custom-vpn"))]
     async fn get_personal_vpn_stats(
         &self,
         _: Request<()>,

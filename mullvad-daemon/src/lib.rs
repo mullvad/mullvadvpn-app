@@ -107,7 +107,7 @@ use talpid_core::{
 };
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 use talpid_types::Stats;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
@@ -476,16 +476,16 @@ pub enum DaemonCommand {
     /// After this event, GetMultihopMigration will indefinitely return a None-value.
     DeleteMultihopMigration,
     /// Set personal VPN configuration
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     SetPersonalVpnConfig(
         oneshot::Sender<String>,
         Option<talpid_types::net::wireguard::PersonalVpnConfig>,
     ),
     /// Enable or disable the personal VPN
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     SetPersonalVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
     /// Get personal VPN stats
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     GetPersonalVpnStats(oneshot::Sender<Stats>),
 }
 
@@ -694,7 +694,7 @@ impl<E> DaemonEventSender<E> {
 
 pub struct Daemon {
     tunnel_state: TunnelState,
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     last_personal_handshake: Option<std::time::SystemTime>,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
@@ -921,7 +921,7 @@ impl Daemon {
             relay_selector.clone(),
             settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             settings
                 .personal_vpn_config
                 .clone()
@@ -1096,7 +1096,7 @@ impl Daemon {
                 #[cfg(not(target_os = "android"))]
                 locked_down: settings.lockdown_mode,
             },
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             last_personal_handshake: None,
             target_state,
             #[cfg(target_os = "linux")]
@@ -1305,7 +1305,7 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
-                    #[cfg(feature = "personal-vpn")]
+                    #[cfg(feature = "custom-vpn")]
                     self.last_personal_handshake,
                 );
                 TunnelState::Connecting {
@@ -1319,7 +1319,7 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
-                    #[cfg(feature = "personal-vpn")]
+                    #[cfg(feature = "custom-vpn")]
                     self.last_personal_handshake,
                 );
                 TunnelState::Connected {
@@ -1330,7 +1330,7 @@ impl Daemon {
             }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 // Reset personal VPN handshake if not connected
-                #[cfg(feature = "personal-vpn")]
+                #[cfg(feature = "custom-vpn")]
                 {
                     self.last_personal_handshake = None;
                 }
@@ -1501,7 +1501,7 @@ impl Daemon {
                     self.settings.settings(),
                     endpoint,
                     ip_override,
-                    #[cfg(feature = "personal-vpn")]
+                    #[cfg(feature = "custom-vpn")]
                     self.last_personal_handshake,
                 );
                 // Update and broadcast the new feature indicators if they have changed
@@ -1701,13 +1701,13 @@ impl Daemon {
             DeleteAccount(tx) => self.on_delete_account(tx),
             GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
             DeleteMultihopMigration => self.on_delete_multihop_migration().await,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             SetPersonalVpnConfig(tx, config) => self.on_set_personal_vpn_config(tx, config).await,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             SetPersonalVpnConfigStatus(tx, enabled) => {
                 self.on_set_personal_vpn_config_status(tx, enabled).await
             }
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             GetPersonalVpnStats(tx) => self.on_get_personal_vpn_stats(tx),
         }
     }
@@ -2736,7 +2736,7 @@ impl Daemon {
         }
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn on_set_personal_vpn_config(
         &mut self,
         tx: oneshot::Sender<String>,
@@ -2767,7 +2767,7 @@ impl Daemon {
         }
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn on_set_personal_vpn_config_status(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2800,7 +2800,7 @@ impl Daemon {
         }
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     fn on_get_personal_vpn_stats(&self, tx: oneshot::Sender<Stats>) {
         self.send_tunnel_command(TunnelCommand::PersonalVpnStats(tx));
     }

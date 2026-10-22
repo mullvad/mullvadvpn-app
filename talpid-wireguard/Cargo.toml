@@ -61,14 +61,14 @@ widestring = { workspace = true }
 windows-sys = { workspace = true }
 
 [features]
-multihop-pcap = ["gotatun/pcap"]
-personal-vpn = [
-  "talpid-types/personal-vpn",
-  "talpid-tunnel/personal-vpn",
+custom-vpn = [
   "dep:either",
   "dep:ip_network",
   "dep:ip_network_table",
+  "talpid-tunnel/custom-vpn",
+  "talpid-types/custom-vpn",
 ]
+multihop-pcap = ["gotatun/pcap"]
 
 [lints]
 workspace = true

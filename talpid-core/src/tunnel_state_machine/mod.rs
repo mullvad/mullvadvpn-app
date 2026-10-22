@@ -242,7 +242,7 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     /// Get the stats for how much data has been sent/received over the custom VPN.
     PersonalVpnStats(oneshot::Sender<talpid_types::Stats>),
 }

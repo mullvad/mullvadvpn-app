@@ -20,7 +20,7 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     pub personal_vpn: Option<PersonalVpnConfig>,
 }
 
@@ -59,7 +59,7 @@ impl TunnelParameters {
     pub fn use_userspace_wg(&self) -> bool {
         // Personal VPN requires the gotatun device graph; the kernel backend has no such path.
         let pvpn = cfg_select! {
-            feature = "personal-vpn" => self.personal_vpn.is_some(),
+            feature = "custom-vpn" => self.personal_vpn.is_some(),
             _ => false,
         };
 
@@ -349,7 +349,7 @@ impl fmt::Debug for PresharedKey {
 /// `ips` carries one or more interface addresses (typically one IPv4 and/or
 /// one IPv6, matching a wg-quick `Address = ...` line). Must be non-empty;
 /// construction/parsing from proto and wg-quick both reject an empty list.
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PersonalVpnTunnelConfig {
     pub private_key: PrivateKey,
@@ -357,7 +357,7 @@ pub struct PersonalVpnTunnelConfig {
 }
 
 /// Personal VPN peer configuration (WireGuard-based).
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PersonalVpnPeerConfig {
     pub public_key: PublicKey,
@@ -366,7 +366,7 @@ pub struct PersonalVpnPeerConfig {
 }
 
 /// Personal VPN configuration (WireGuard-based).
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PersonalVpnConfig {
     pub tunnel: PersonalVpnTunnelConfig,

@@ -18,7 +18,7 @@ use futures::{
     },
 };
 use talpid_routing::RouteManagerHandle;
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 use talpid_types::Stats;
 use talpid_types::net::{AllowedTunnelTraffic, obfuscation::ObfuscatorConfig};
 use tun_provider::TunProvider;
@@ -58,7 +58,7 @@ pub enum TunnelMonitorCommand {
     /// Shut down tunnel monitor
     Close,
     /// Get personal VPN stats
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     PersonalVpnStats(oneshot::Sender<Stats>),
 }
 

@@ -24,7 +24,7 @@ insta = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [features]
-personal-vpn = []
+custom-vpn = []
 
 [lints]
 workspace = true

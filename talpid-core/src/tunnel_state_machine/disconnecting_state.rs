@@ -128,7 +128,7 @@ impl DisconnectingState {
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
             }
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             Some(TunnelCommand::PersonalVpnStats(_)) => (),
         };
 

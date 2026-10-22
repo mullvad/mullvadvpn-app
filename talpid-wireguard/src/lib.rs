@@ -38,7 +38,7 @@ use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex as AsyncMutex;
 use tokio::task::JoinHandle;
 
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 use {std::sync::Weak, tokio::sync::Mutex};
 
 mod gotatun;
@@ -49,7 +49,7 @@ mod connectivity;
 mod ephemeral;
 mod logging;
 mod obfuscation;
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 mod personal_vpn_stats;
 mod stats;
 #[cfg(target_os = "linux")]
@@ -351,7 +351,7 @@ impl WireguardMonitor {
                     // the outer encapsulation. Inner-routed traffic needs an extra wireguard
                     // layer of headroom, so subtract that overhead when applying the result.
                     let extra_overhead = cfg_select! {
-                        feature = "personal-vpn" => {
+                        feature = "custom-vpn" => {
                             config
                                 .personal_vpn
                                 .as_ref()
@@ -461,7 +461,7 @@ impl WireguardMonitor {
             args.command_rx,
             monitor_handle,
             close_obfs_sender,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             Arc::downgrade(&monitor.tunnel),
         ));
 
@@ -661,7 +661,7 @@ impl WireguardMonitor {
             args.command_rx,
             monitor_handle,
             close_obfs_sender,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             tunnel_weak,
         ));
 
@@ -672,7 +672,7 @@ impl WireguardMonitor {
         mut rx: UnboundedReceiver<TunnelMonitorCommand>,
         monitor_handle: JoinHandle<()>,
         close_obfs_sender: Sender<CloseMsg>,
-        #[cfg(feature = "personal-vpn")] tunnel_weak: Weak<Mutex<Option<TunnelType>>>,
+        #[cfg(feature = "custom-vpn")] tunnel_weak: Weak<Mutex<Option<TunnelType>>>,
     ) {
         while let Ok(command) = rx.recv().await {
             match command {
@@ -680,7 +680,7 @@ impl WireguardMonitor {
                     monitor_handle.abort();
                     let _ = close_obfs_sender.send(CloseMsg::Stop);
                 }
-                #[cfg(feature = "personal-vpn")]
+                #[cfg(feature = "custom-vpn")]
                 TunnelMonitorCommand::PersonalVpnStats(tx) => {
                     if let Some(stats) = personal_vpn_stats::get_stats(tunnel_weak.clone()).await {
                         let _ = tx.send(stats);
@@ -1170,7 +1170,7 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn get_personal_vpn_stats(&self) -> std::result::Result<stats::Stats, TunnelError> {
         Ok(stats::Stats::default())
     }
@@ -1248,7 +1248,7 @@ pub enum TunnelError {
     GotaTunDevice(::gotatun::device::Error),
 
     /// The personal VPN cannot be set up with the given configuration
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     #[error("Invalid personal VPN configuration: {0}")]
     InvalidPersonalVpnConfig(&'static str),
 
@@ -1323,7 +1323,7 @@ fn calculate_tunnel_mtu(
         overhead += wireguard_overhead(exit_peer.endpoint.ip());
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     if let Some(personal) = &params.personal_vpn {
         overhead += wireguard_overhead(personal.peer.endpoint.ip());
     }

@@ -42,7 +42,7 @@ features = [
 ]
 
 [features]
-personal-vpn = []
+custom-vpn = []
 
 [lints]
 workspace = true

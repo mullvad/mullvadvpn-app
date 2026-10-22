@@ -67,7 +67,7 @@ pub struct TunConfig {
     /// Networks routed into the inner (personal VPN) tunnel. On Android these take precedence
     /// over LAN sharing so that private IP ranges reachable via the personal VPN are not
     /// excluded from the tun device.
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     pub personal_vpn_allowed_ips: Vec<IpNetwork>,
 
     /// Exclude private IPs from the tunnel
@@ -119,7 +119,7 @@ impl TunConfig {
         self.ipv6_gateway = blocking_config.ipv6_gateway;
         self.routes = blocking_config.routes;
         self.dns_servers = blocking_config.dns_servers;
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         {
             self.personal_vpn_allowed_ips = blocking_config.personal_vpn_allowed_ips;
         }
@@ -146,7 +146,7 @@ pub fn blocking_config(
         ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
         ipv6_gateway: None,
         routes: DEFAULT_ROUTES.to_vec(),
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         personal_vpn_allowed_ips: vec![],
         allow_lan: false,
         #[cfg(target_os = "android")]

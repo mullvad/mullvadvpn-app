@@ -341,7 +341,7 @@ impl VpnServiceConfig {
         // otherwise LAN sharing would route them outside the tunnel and break the personal
         // VPN's connectivity to those networks.
         let personal_vpn_allowed_ips: &[IpNetwork] = cfg_select! {
-            feature = "personal-vpn" => &config.personal_vpn_allowed_ips,
+            feature = "custom-vpn" => &config.personal_vpn_allowed_ips,
             _ => &[],
         };
 

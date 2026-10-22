@@ -192,7 +192,7 @@ enum Cli {
     CustomList(custom_list::CustomList),
 
     /// Manage a personal WireGuard VPN configuration
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     #[clap(subcommand)]
     PersonalVpn(personal_vpn::PersonalVpn),
 
@@ -247,7 +247,7 @@ async fn main() -> Result<()> {
         Cli::SplitTunnel(cmd) => cmd.handle().await,
         Cli::Status { cmd, args } => status::handle(cmd, args).await,
         Cli::CustomList(cmd) => cmd.handle().await,
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         Cli::PersonalVpn(cmd) => cmd.handle().await,
         Cli::ImportSettings { file } => patch::import(file).await,
         Cli::ExportSettings { file } => patch::export(file).await,

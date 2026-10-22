@@ -548,7 +548,7 @@ impl ConnectingState {
                 }
                 SameState(self)
             }
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             Some(TunnelCommand::PersonalVpnStats(_)) => SameState(self),
         }
     }

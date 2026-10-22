@@ -1,4 +1,4 @@
-#![cfg(feature = "personal-vpn")]
+#![cfg(feature = "custom-vpn")]
 
 use anyhow::{Context, Result};
 use clap::Subcommand;

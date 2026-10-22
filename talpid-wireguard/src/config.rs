@@ -40,7 +40,7 @@ pub struct Config {
     /// IPs.
     pub routes: Vec<IpNetwork>,
     /// Personal VPN configuration
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     pub personal_vpn: Option<wireguard::PersonalVpnConfig>,
 }
 
@@ -70,7 +70,7 @@ impl Config {
             &params.obfuscation,
             default_mtu,
             obfuscation_mtu,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             params.personal_vpn.clone(),
         )
     }
@@ -83,7 +83,7 @@ impl Config {
         obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
         obfuscation_mtu: u16,
-        #[cfg(feature = "personal-vpn")] personal_vpn: Option<wireguard::PersonalVpnConfig>,
+        #[cfg(feature = "custom-vpn")] personal_vpn: Option<wireguard::PersonalVpnConfig>,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
 
@@ -116,7 +116,7 @@ impl Config {
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
             routes: Vec::new(),
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             personal_vpn,
         };
 

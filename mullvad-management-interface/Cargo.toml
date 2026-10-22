@@ -34,8 +34,8 @@ tonic-prost-build = { workspace = true, features = ["transport"] }
 [target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["fs", "user"] }
 
+[features]
+custom-vpn = ["mullvad-types/custom-vpn", "talpid-types/custom-vpn"]
+
 [lints]
 workspace = true
-
-[features]
-personal-vpn = ["mullvad-types/personal-vpn", "talpid-types/personal-vpn"]

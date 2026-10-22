@@ -50,7 +50,11 @@ features = [
 ]
 
 [features]
-personal-vpn = ["mullvad-types/personal-vpn", "talpid-types/personal-vpn", "mullvad-management-interface/personal-vpn"]
+custom-vpn = [
+  "mullvad-management-interface/custom-vpn",
+  "mullvad-types/custom-vpn",
+  "talpid-types/custom-vpn"
+]
 
 [lints]
 workspace = true

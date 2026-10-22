@@ -15,7 +15,7 @@ use super::{
     TunnelStateTransition,
 };
 use crate::firewall::FirewallPolicy;
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 use crate::mpsc::Sender;
 #[cfg(target_os = "macos")]
 use crate::resolver::LOCAL_DNS_RESOLVER;
@@ -401,7 +401,7 @@ impl ConnectedState {
                 }
                 SameState(self)
             }
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             Some(TunnelCommand::PersonalVpnStats(tx)) => {
                 if self
                     .command_tx

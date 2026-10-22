@@ -36,12 +36,12 @@ use gotatun::tun::{
     pcap::{PcapSniffer, PcapStream},
 };
 
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 use personal_vpn::{PersonalVpn, TunRx, TunTx};
 
 mod conversions;
 mod obfuscation;
-#[cfg(feature = "personal-vpn")]
+#[cfg(feature = "custom-vpn")]
 mod personal_vpn;
 mod source_filter;
 
@@ -50,9 +50,9 @@ pub use obfuscation::{TransportFactory, lwo_timer_params, lwo_version, transport
 use source_filter::SourceFilter;
 
 /// Everything read from the TUN device passes the source filter before it enters the tunnel.
-#[cfg(not(feature = "personal-vpn"))]
+#[cfg(not(feature = "custom-vpn"))]
 type TunRx = SourceFilter<GotaTunDevice>;
-#[cfg(not(feature = "personal-vpn"))]
+#[cfg(not(feature = "custom-vpn"))]
 type TunTx = GotaTunDevice;
 
 type SinglehopDevice = Device<(TransportFactory, TunTx, TunRx)>;
@@ -111,14 +111,14 @@ struct TunIo {
     rx: TunRx,
     /// Overhead added to packets read from the TUN device before they reach the device.
     overhead: u16,
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     personal_vpn: Option<PersonalVpn>,
 }
 
 impl TunIo {
-    #[cfg_attr(not(feature = "personal-vpn"), expect(clippy::unused_async))]
+    #[cfg_attr(not(feature = "custom-vpn"), expect(clippy::unused_async))]
     async fn new(config: &Config, tun_dev: &GotaTunDevice) -> Result<Self, TunnelError> {
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         if let Some(personal_vpn) = &config.personal_vpn {
             // Note: the inner personal VPN device is only (re)built here. A change in personal
             // VPN config must trigger a full tunnel reconnect.
@@ -136,15 +136,15 @@ impl TunIo {
         let filter = SourceFilter::new(tun_dev.clone(), config.tunnel_ipv4(), config.tunnel_ipv6());
         Ok(Self {
             tx: cfg_select! {
-                feature = "personal-vpn" => TunTx::Tun(tun_dev.clone()),
+                feature = "custom-vpn" => TunTx::Tun(tun_dev.clone()),
                 _ => tun_dev.clone(),
             },
             rx: cfg_select! {
-                feature = "personal-vpn" => TunRx::Tun(filter),
+                feature = "custom-vpn" => TunRx::Tun(filter),
                 _ => filter,
             },
             overhead: 0,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             personal_vpn: None,
         })
     }
@@ -152,7 +152,7 @@ impl TunIo {
 
 struct Singlehop {
     device: SinglehopDevice,
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     personal_vpn: Option<PersonalVpn>,
 }
 
@@ -171,7 +171,7 @@ impl Singlehop {
     }
 
     async fn stop(self) {
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         if let Some(personal_vpn) = self.personal_vpn {
             personal_vpn.stop().await;
         }
@@ -182,7 +182,7 @@ impl Singlehop {
 struct Multihop {
     entry_device: EntryDevice,
     exit_device: ExitDevice,
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     personal_vpn: Option<PersonalVpn>,
 }
 
@@ -215,10 +215,10 @@ impl Multihop {
         let Multihop {
             entry_device,
             exit_device,
-            #[cfg(feature = "personal-vpn")]
+            #[cfg(feature = "custom-vpn")]
             personal_vpn,
         } = self;
-        #[cfg(feature = "personal-vpn")]
+        #[cfg(feature = "custom-vpn")]
         if let Some(personal_vpn) = personal_vpn {
             personal_vpn.stop().await;
         }
@@ -235,7 +235,7 @@ impl Devices {
         }
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     fn personal_vpn(&self) -> Option<&PersonalVpn> {
         match self {
             Devices::Singlehop(device) => device.personal_vpn.as_ref(),
@@ -434,7 +434,7 @@ impl Tunnel for GotaTun {
         Ok(stats)
     }
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     async fn get_personal_vpn_stats(&self) -> Result<Stats, TunnelError> {
         let stats = match self.devices.personal_vpn() {
             Some(personal_vpn) => get_stats(&personal_vpn.inner_device)
@@ -531,7 +531,7 @@ async fn create_devices(
             let mut devices = Multihop {
                 entry_device,
                 exit_device,
-                #[cfg(feature = "personal-vpn")]
+                #[cfg(feature = "custom-vpn")]
                 personal_vpn: tun_io.personal_vpn,
             };
             devices.configure(config, exit_peer, daita).await?;
@@ -546,7 +546,7 @@ async fn create_devices(
                 .await?;
             let mut device = Singlehop {
                 device,
-                #[cfg(feature = "personal-vpn")]
+                #[cfg(feature = "custom-vpn")]
                 personal_vpn: tun_io.personal_vpn,
             };
             device.configure(config, daita).await?;
@@ -661,7 +661,7 @@ pub fn get_tunnel_for_userspace(
         vec!["0.0.0.0/0".parse().unwrap()]
     };
 
-    #[cfg(feature = "personal-vpn")]
+    #[cfg(feature = "custom-vpn")]
     {
         tun_config.personal_vpn_allowed_ips = config
             .personal_vpn
