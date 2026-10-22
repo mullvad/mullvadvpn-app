@@ -107,11 +107,14 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
         case let .createDevice(retryStrategy, accountNumber, request):
             return MullvadApiCancellable(
-                handle: apiContext.createDevice(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber,
-                    publicKey: request.publicKey.rawValue
-                ))
+                task: {
+                    try await apiContext.createDevice(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber,
+                        publicKey: request.publicKey.rawValue
+                    )
+                }
+            )
         case let .checkApiAvailability(retryStrategy, accessMethod):
             return MullvadApiCancellable(
                 task: {
