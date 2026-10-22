@@ -165,6 +165,7 @@ import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.wireguardPort
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
@@ -1001,6 +1002,12 @@ class ManagementService(
     private fun socketClient(rpcSocketFile: File): OkHttpClient {
         return OkHttpClient.Builder()
             .socketFactory(socketFactory = UnixDomainSocketFactory(rpcSocketFile))
+            .dispatcher(
+                Dispatcher().apply {
+                    maxRequests = MAX_REQUESTS
+                    maxRequestsPerHost = MAX_REQUESTS
+                }
+            )
             .callTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .readTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .connectTimeout(timeout = 0, TimeUnit.MILLISECONDS)
@@ -1038,6 +1045,7 @@ class ManagementService(
 
     companion object {
         private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
+        private const val MAX_REQUESTS = 64
 
         private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
 
