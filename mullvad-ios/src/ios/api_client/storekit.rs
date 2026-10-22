@@ -4,9 +4,11 @@ use mullvad_api::{
     AccountsProxy,
     rest::{self, MullvadRestHandle},
 };
-use mullvad_types::account::AccountNumber;
 
-use crate::api_client::ApiContext;
+use crate::{
+    api_client::ApiContext,
+    type_bridges::{AnyError, TokioBridge},
+};
 
 use super::{
     cancellation::RequestCancelHandle, do_request, response::ApiResponse,
@@ -15,30 +17,19 @@ use super::{
 
 #[uniffi::export]
 impl ApiContext {
-    pub fn init_storekit_payment(
+    pub async fn init_storekit_payment(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| {
-                match init_storekit_payment_inner(
-                    api_context.rest_handle(),
-                    retry_strategy,
-                    account_number,
-                )
-                .await
-                {
-                    Ok(response) => completion_handler.finish(response),
-                    Err(err) => {
-                        log::error!("{err:?}");
-                        completion_handler.finish(ApiResponse::rest_error(err));
-                    }
-                }
-            },
-        )
+    ) -> Result<ApiResponse, AnyError> {
+        TokioBridge::spawn(async move {
+            let account_proxy = AccountsProxy::new(self.rest_handle());
+            let future_factory = || account_proxy.init_storekit_payment(account_number.clone());
+            do_request(*retry_strategy, future_factory).await
+        })
+        .await
+        .map_err(AnyError::from)
+        .inspect_err(|e| log::error!("init_storekit_payment failed: {e}"))
     }
 
     pub fn check_storekit_payment(
@@ -62,18 +53,6 @@ impl ApiContext {
             },
         )
     }
-}
-
-async fn init_storekit_payment_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    account_number: AccountNumber,
-) -> Result<ApiResponse, rest::Error> {
-    let account_proxy = AccountsProxy::new(rest_client);
-
-    let future_factory = || account_proxy.init_storekit_payment(account_number.clone());
-
-    do_request(retry_strategy, future_factory).await
 }
 
 async fn check_storekit_payment_inner(

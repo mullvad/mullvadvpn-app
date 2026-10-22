@@ -33,7 +33,7 @@ public protocol APIQuerying: Sendable {
     func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<UUID>
+        completionHandler: @escaping ProxyCompletionHandler<UUID>
     ) -> Cancellable
 
     func checkStoreKitPayment(
@@ -162,17 +162,21 @@ extension REST {
                 let paymentToken: UUID
             }
 
-            let responseHandler = rustResponseHandler(
-                decoding: InitStorekitPaymentResponse.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request:
-                    .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
-                responseHandler: responseHandler,
-                completionHandler: { completionHandler($0.map { $0.paymentToken }) }
-            )
+            return Task {
+                do {
+                    let response = try await apiContext.initStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber)
+                    let data = try response.get().body
+                    let token = try responseDecoder.decode(
+                        InitStorekitPaymentResponse.self,
+                        from: data
+                    ).paymentToken
+                    completionHandler(.success(token))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func checkStoreKitPayment(

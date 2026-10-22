@@ -12,13 +12,10 @@ import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
     // Account Proxy
-    case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
     case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
 
     var name: String {
         switch self {
-        case .initStorekitPayment:
-            "init-storekit-payment"
         case .checkStorekitPayment:
             "check-storekit-payment"
         }
@@ -26,8 +23,7 @@ public enum APIRequest: Codable, Sendable {
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case let .initStorekitPayment(strategy, _),
-            let .checkStorekitPayment(strategy, _):
+        case let .checkStorekitPayment(strategy, _):
             strategy
         }
     }
