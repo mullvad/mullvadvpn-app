@@ -53,17 +53,20 @@ extension REST {
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
         let responseDecoder: JSONDecoder
+        let encoder: JSONEncoder
 
         public init(
             apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
-            responseDecoder: JSONDecoder
+            responseDecoder: JSONDecoder,
+            encoder: JSONEncoder
         ) {
             self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
+            self.encoder = encoder
         }
 
         public func getAddressList(
@@ -180,17 +183,25 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-
-            return createNetworkOperation(
-                request:
-                    .checkStorekitPayment(
-                        retryStrategy: retryStrategy,
-                        transaction: transaction
-                    ),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+            return Task {
+                do {
+                    let response = try await apiContext.checkStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        body: encoder.encode(transaction))
+                    switch response {
+                    case .body:
+                        completionHandler(.success(()))
+                    case .error(let statusCode, let errorDescription, let serverResponseCode):
+                        completionHandler(.failure(
+                            APIError(
+                                statusCode: Int(statusCode),
+                                errorDescription: errorDescription ?? "",
+                                serverResponseCode: serverResponseCode)))
+                    }
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         private func createNetworkOperation<Success>(

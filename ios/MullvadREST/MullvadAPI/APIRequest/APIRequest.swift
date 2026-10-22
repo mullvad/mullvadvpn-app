@@ -10,22 +10,16 @@
 import MullvadRustRuntime
 import MullvadTypes
 
+// TODO: this can be removed
 public enum APIRequest: Codable, Sendable {
-    // Account Proxy
-    case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
+    case empty
 
     var name: String {
-        switch self {
-        case .checkStorekitPayment:
-            "check-storekit-payment"
-        }
+        "empty"
     }
 
     var retryStrategy: REST.RetryStrategy {
-        switch self {
-        case let .checkStorekitPayment(strategy, _):
-            strategy
-        }
+        .apiRequest
     }
 }
 

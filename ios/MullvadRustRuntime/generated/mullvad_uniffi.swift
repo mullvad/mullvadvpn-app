@@ -1159,7 +1159,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
      */
     func sendProblemReport(retryStrategy: RetryStrategy, problemReportRequest: ProblemReportRequest) async throws  -> ApiResponse
     
-    func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)  -> RequestCancelHandle
+    func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) async throws  -> ApiResponse
     
     func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
@@ -1512,14 +1512,21 @@ open func sendProblemReport(retryStrategy: RetryStrategy, problemReportRequest: 
         )
 }
     
-open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_check_storekit_payment(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterData.lower(body),$0
-    )
-})
+open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_check_storekit_payment(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterData.lower(body)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
@@ -4222,7 +4229,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 64382) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 52986) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 16271) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment() != 1105) {
