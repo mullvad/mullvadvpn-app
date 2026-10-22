@@ -196,7 +196,7 @@ class ManagementService(
             .client(client)
             // GrpcClient.Build requires a base url, but the actual url is not used since we use a
             // UDS instead.
-            .baseUrl("http://localhost/")
+            .baseUrl("http://127.0.0.1/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(RelaySelectorServiceClient::class)
@@ -217,7 +217,7 @@ class ManagementService(
             .client(client)
             // GrpcClient.Build requires a base url, but the actual url is not used since we use a
             // UDS instead.
-            .baseUrl("http://localhost/")
+            .baseUrl("http://127.0.0.1/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
             .create(ManagementServiceClient::class)
@@ -1011,10 +1011,6 @@ class ManagementService(
             // We need to disable proxy for the okhttp client, otherwise it will try to use the
             // system proxy settings, which can interfere with calls to the daemon.
             .proxy(Proxy.NO_PROXY)
-            // We need to disable DNS resolution for the okhttp client as it is not required and can
-            // cause issues if the system network configuration is not set up correctly.
-            .dns { listOf(InetAddress.getByAddress(it, LOCAL_HOST_IP_ADDRESS)) }
-            .retryOnConnectionFailure(false)
             .addInterceptor(
                 HttpLoggingInterceptor { message -> Logger.withTag("grpc").d(message) }
                     // BODY level must not be used with gRPC streaming calls: HttpLoggingInterceptor
@@ -1040,8 +1036,6 @@ class ManagementService(
         private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
 
         private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
-
-        private val LOCAL_HOST_IP_ADDRESS = byteArrayOf(127, 0, 0, 1)
     }
 }
 
