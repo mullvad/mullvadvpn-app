@@ -440,14 +440,13 @@ private fun createGeoLocationEntry(
     isLast: Boolean,
 ): List<RelayListItem.GeoLocationItem> = buildList {
     val expanded = isExpanded(item.id.expandKey())
-    val selected = selectedByThisEntryExitList == item.id
 
     add(
         RelayListItem.GeoLocationItem(
             item = item,
-            isSelected = selected,
+            isSelected = selectedByThisEntryExitList == item.id,
             // We do not want to show a relay as connected if it is selected
-            connected = relayMetadata[item.id]?.connectedRelay ?: false && !selected,
+            connected = relayMetadata[item.id]?.connectedRelay ?: false,
             state =
                 item.createState(
                     relayListType = relayListType,
