@@ -20,6 +20,11 @@ pub enum Obfuscators {
     },
 }
 
+pub enum Transport {
+    Direct(SocketAddr),
+    Obfusacation(ObfuscatorConfig),
+}
+
 #[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 pub enum ObfuscatorConfig {
     Udp2Tcp {

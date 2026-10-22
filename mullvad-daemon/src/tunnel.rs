@@ -1,6 +1,6 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use mullvad_types::CustomTunnelEndpoint;
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::net::{Ipv4Addr, Ipv6Addr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
 

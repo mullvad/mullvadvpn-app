@@ -77,6 +77,7 @@ pub fn settings_from_config(
             direct,
             configs: (first_obfs, remaining_obfs),
         } => {
+            // TODO: This code decides the internal ordering of the multiplexer. Which should be done in the relay selector. 
             let mut transports = vec![];
             if let Some(direct) = direct {
                 transports.push(multiplexer::Transport::Direct(*direct));

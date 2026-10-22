@@ -161,10 +161,10 @@ impl EntryConstraints {
         self
     }
 
-    // pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
-    //     self.entry_specific.obfuscation = Constraint::Only(mode);
-    //     self
-    // }
+    pub fn obfuscation(mut self, mode: ObfuscationConstraint) -> Self {
+        self.entry_specific.obfuscation = mode;
+        self
+    }
 
     pub fn ip_version(mut self, ip_version: IpVersion) -> Self {
         self.entry_specific.ip_version = Constraint::Only(ip_version);
