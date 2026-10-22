@@ -44,13 +44,19 @@ final class AppResetManagerReal {
         self.launchArguments = launchArguments
         self.tunnelManager = tunnelManager
         self.settingsManager = settingsManager
-        guard launchArguments.target.isUITest else { return }
-        observeReadiness()
-        addObserver()
     }
 
     func start() {
-        guard launchArguments.target.isUITest else { return }
+        observeReadiness()
+        addObserver()
+
+        // Outside of UI tests there is no reset flow to wait for, so the app is
+        // considered ready as soon as the tunnel configuration has loaded.
+        guard launchArguments.target.isUITest else {
+            isAppReady.send(true)
+            return
+        }
+
         Task {
             async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
             async let setupTask: () = setup()
@@ -77,7 +83,7 @@ final class AppResetManagerReal {
                 self?.isConfigurationLoaded.send(true)
             },
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
-                guard let self else { return }
+                guard let self, launchArguments.target.isUITest else { return }
                 if tunnelStatus.observedState != .disconnected {
                     tunnelManager.stopTunnel()
                 } else if case .disconnected = tunnelStatus.observedState {
@@ -89,6 +95,11 @@ final class AppResetManagerReal {
         )
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
+
+        // If configuration has already finished loading, let the readiness check catch up manually.
+        if tunnelManager.isConfigurationLoaded {
+            isConfigurationLoaded.send(true)
+        }
     }
 
     private func setup() async {
@@ -162,15 +173,33 @@ final class AppResetManagerReal {
 
 @MainActor
 final class AppResetManagerNoOp {
+    private let tunnelManager: TunnelManager
+    private var tunnelObserver: TunnelObserver!
+
     var onAppReady: (@Sendable @MainActor () -> Void)?
 
     init(
         launchArguments: LaunchArguments,
         tunnelManager: TunnelManager,
         settingsManager: SettingsManager
-    ) {}
+    ) {
+        self.tunnelManager = tunnelManager
+    }
 
-    func start() {}
+    func start() {
+        let tunnelObserver = TunnelBlockObserver(
+            didLoadConfiguration: { [weak self] _ in
+                self?.onAppReady?()
+            }
+        )
+        tunnelManager.addObserver(tunnelObserver)
+        self.tunnelObserver = tunnelObserver
+
+        // If configuration has already finished loading, let UI catch up manually.
+        if tunnelManager.isConfigurationLoaded {
+            onAppReady?()
+        }
+    }
 }
 
 extension UITestSettingsKey {
