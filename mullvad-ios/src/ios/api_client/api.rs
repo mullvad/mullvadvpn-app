@@ -3,11 +3,10 @@ use crate::{
     api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper},
     type_bridges::{AnyError, TokioBridge},
 };
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use mullvad_api::{
     ApiProxy, RelayListProxy,
     relay_list_transparency::{RelayListDigest, SigsumPayload},
-    rest::{self, MullvadRestHandle},
 };
 use std::sync::Arc;
 
@@ -82,32 +81,22 @@ impl ApiContext {
             None
         };
 
-        get_relays_inner(
-            self.rest_handle(),
-            *retry_strategy,
-            digest,
-            digest_timestamp.and_then(DateTime::from_timestamp_millis),
-        )
+        let digest_timestamp = digest_timestamp.and_then(DateTime::from_timestamp_millis);
+
+        TokioBridge::spawn(async move {
+            let api = RelayListProxy::new(self.rest_handle());
+
+            let sigsum_payload = digest
+                .zip(digest_timestamp)
+                .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
+
+            let future_factory = || api.relay_list_response(sigsum_payload.clone());
+
+            let response = retry_request(*retry_strategy, future_factory).await?;
+            ApiResponse::with_sigsum_verified_body(response)
+        })
         .await
         .map_err(AnyError::from)
         .inspect_err(|e| log::error!("get_addresses failed: {e}"))
     }
-}
-
-async fn get_relays_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    digest: Option<RelayListDigest>,
-    digest_timestamp: Option<DateTime<Utc>>,
-) -> Result<ApiResponse, rest::Error> {
-    let api = RelayListProxy::new(rest_client);
-
-    let sigsum_payload = digest
-        .zip(digest_timestamp)
-        .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
-
-    let future_factory = || api.relay_list_response(sigsum_payload.clone());
-
-    let response = retry_request(retry_strategy, future_factory).await?;
-    ApiResponse::with_sigsum_verified_body(response)
 }

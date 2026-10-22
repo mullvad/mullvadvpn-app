@@ -1125,7 +1125,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func getAddresses(retryStrategy: RetryStrategy) async throws  -> ApiResponse
     
-    func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?)  -> RequestCancelHandle
+    func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?) async throws  -> ApiResponse
     
     /**
      * create device via the Mullvad API client.
@@ -1358,15 +1358,21 @@ open func getAddresses(retryStrategy: RetryStrategy)async throws  -> ApiResponse
         )
 }
     
-open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_relays(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterOptionString.lower(digest),
-        FfiConverterOptionInt64.lower(digestTimestamp),$0
-    )
-})
+open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_relays(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterOptionString.lower(digest),FfiConverterOptionInt64.lower(digestTimestamp)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
     /**
@@ -4154,7 +4160,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_addresses() != 54543) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 15144) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 31518) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 4233) {

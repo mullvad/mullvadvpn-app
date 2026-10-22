@@ -241,10 +241,17 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
             if let cachedRelays, let digest = cachedRelays.digest, let timestamp = cachedRelays.timestamp {
                 sigsum = (digest, timestamp)
             }
-            return self.apiProxy.getRelays(sigsum: sigsum, retryStrategy: .noRetry) { result in
-                // If the API gave us an okay but empty response we return it as not modified
-                finish(self.handleResponse(result: result.map({ $0 ?? .notModified })))
+            let result = Task {
+                let response: Result<REST.ServerRelaysCacheResponse, Error>
+                do {
+                    let relays = try await self.apiProxy.getRelays(sigsum: sigsum, retryStrategy: .noRetry)
+                    response = .success(relays ?? .notModified)
+                } catch {
+                    response = .failure(error)
+                }
+                finish(self.handleResponse(result: response))
             }
+            return result.cancellable
         }
 
         operation.addObserver(

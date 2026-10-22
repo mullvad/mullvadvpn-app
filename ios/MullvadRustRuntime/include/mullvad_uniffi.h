@@ -400,7 +400,7 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_addresses(uint64_t ptr, uin
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_RELAYS
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_RELAYS
-uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_relays(uint64_t ptr, uint64_t retry_strategy, RustBuffer digest, RustBuffer digest_timestamp, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_relays(uint64_t ptr, uint64_t retry_strategy, RustBuffer digest, RustBuffer digest_timestamp
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_CREATE_DEVICE

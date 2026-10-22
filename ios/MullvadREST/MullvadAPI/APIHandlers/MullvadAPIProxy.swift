@@ -20,8 +20,7 @@ public protocol APIQuerying: Sendable {
     func getRelays(
         sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
-    ) -> Cancellable
+    ) async throws -> REST.ServerRelaysCacheResponse?
 
     func sendProblemReport(
         _ body: ProblemReportRequest,
@@ -77,8 +76,7 @@ extension REST {
         public func getRelays(
             sigsum: (String, Int64)?,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
-        ) -> Cancellable {
+        ) async throws -> REST.ServerRelaysCacheResponse? {
             // An unchanged sigsum digest yields an empty body.
             let responseHandler = rustCustomResponseHandler { data, digest, timestamp in
                 data.isEmpty
@@ -92,14 +90,23 @@ extension REST {
                 sigsumDigest = digest
                 sigsumTimestamp = timestamp
             }
-            return createNetworkOperation(
-                request: .getRelayList(
-                    retryStrategy,
-                    digest: sigsumDigest,
-                    timestamp: sigsumTimestamp),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+            let response = try await apiContext.getRelays(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                digest: sigsumDigest,
+                digestTimestamp: sigsumTimestamp)
+            switch response {
+            case .body(let body, let statusCode, let sigsumDigest, let sigsumTimestamp):
+                if body.isEmpty {
+                    return REST.ServerRelaysCacheResponse.notModified
+                } else {
+                    return REST.ServerRelaysCacheResponse.newContent(sigsumDigest, sigsumTimestamp, body)
+                }
+            case .error(let statusCode, let errorDescription, let serverResponseCode):
+                throw APIError(
+                    statusCode: Int(statusCode),
+                    errorDescription: errorDescription ?? "",
+                    serverResponseCode: serverResponseCode)
+            }
         }
 
         public func sendProblemReport(

@@ -22,14 +22,6 @@ public struct MullvadApiRequestFactory: Sendable {
 
     public func makeRequest(_ request: APIRequest) throws -> MullvadApiCancellable {
         switch request {
-        case let .getRelayList(retryStrategy, digest, timestamp):
-            return MullvadApiCancellable(
-                handle: apiContext.getRelays(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    digest: digest,
-                    digestTimestamp: timestamp
-                ))
-
         case let .sendProblemReport(retryStrategy, problemReportRequest):
             return MullvadApiCancellable(
                 handle: apiContext.sendProblemReport(
