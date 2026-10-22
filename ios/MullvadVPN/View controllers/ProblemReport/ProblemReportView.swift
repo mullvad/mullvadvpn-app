@@ -41,7 +41,7 @@ struct ProblemReportView: View {
     var body: some View {
         Group {
             if let modalState = viewModel.modalState {
-                ModalOverlay(state: modalState)
+                ModalOverlay(state: modalState, doPostFailureAction: viewModel.doPostFailureAction)
                     .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
                 mainForm

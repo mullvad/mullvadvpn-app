@@ -13,6 +13,7 @@ import SwiftUI
 extension ProblemReportView {
     struct ModalOverlay: View {
         let state: ProblemReportViewModel.ModalState
+        let doPostFailureAction: ((ProblemReportViewModel.PostFailureAction) -> Void)
 
         let supportEmail = "support@mullvadvpn.net"
 
@@ -80,15 +81,24 @@ extension ProblemReportView {
                             actions: [
                                 .init(
                                     style: .primary,
-                                    state: .init(kind: .idle, message: NSLocalizedString("Edit message", comment: ""))
+                                    state: .init(kind: .idle, message: NSLocalizedString("Edit message", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.edit)
+                                    }
                                 ),
                                 .init(
                                     style: .primary,
-                                    state: .init(kind: .idle, message: NSLocalizedString("View app logs", comment: ""))
+                                    state: .init(kind: .idle, message: NSLocalizedString("View app logs", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.viewLogs)
+                                    }
                                 ),
                                 .init(
                                     style: .success,
-                                    state: .init(kind: .idle, message: NSLocalizedString("Try again", comment: ""))
+                                    state: .init(kind: .idle, message: NSLocalizedString("Try again", comment: "")),
+                                    onTap: {
+                                        doPostFailureAction(.retry)
+                                    }
                                 ),
                             ])
                     )
@@ -101,13 +111,13 @@ extension ProblemReportView {
 }
 
 #Preview("sending") {
-    ProblemReportView.ModalOverlay(state: .sending)
+    ProblemReportView.ModalOverlay(state: .sending, doPostFailureAction: { _ in })
 }
 
 #Preview("sent") {
-    ProblemReportView.ModalOverlay(state: .success)
+    ProblemReportView.ModalOverlay(state: .success, doPostFailureAction: { _ in })
 }
 
 #Preview("error") {
-    ProblemReportView.ModalOverlay(state: .failure)
+    ProblemReportView.ModalOverlay(state: .failure, doPostFailureAction: { _ in })
 }
