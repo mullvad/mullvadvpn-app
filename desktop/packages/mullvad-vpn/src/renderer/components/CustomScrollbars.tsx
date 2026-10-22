@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import { Scheduler } from '../../shared/scheduler';
+import { durations } from '../lib/foundations';
 import { useSelector } from '../redux/store';
 
 const StyledScrollableContent = styled.div({
@@ -38,7 +39,7 @@ const StyledTrack = styled.div<{ $canScroll: boolean; $show: boolean }>((props) 
   width: '16px',
   backgroundColor: props.$show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
   borderRadius: '8px',
-  transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
+  transition: `width ${durations.faster} ease-in-out, background-color ${durations.normal} ease-in-out`,
   zIndex: 99,
   pointerEvents: props.$canScroll ? 'auto' : 'none',
 }));
@@ -50,8 +51,7 @@ const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: bo
     right: 0,
     borderRadius: props.$wide ? '6px' : '4px',
     width: props.$wide ? '12px' : '8px',
-    transition:
-      'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
+    transition: `width ${durations.normal} ease-in-out, border-radius ${durations.normal} ease-in-out, height ${durations.normal} ease-in-out, opacity ${durations.normal} ease-in-out, background-color ${durations.faster} ease-in-out`,
     opacity: props.$show ? 1 : 0,
     backgroundColor: props.$isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
     '&:hover': {

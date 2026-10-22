@@ -4,6 +4,7 @@ import { createGlobalStyle } from 'styled-components';
 import {
   colorPrimitives,
   colors,
+  durationVariables,
   fontFamilies,
   fontSizes,
   fontWeights,
@@ -24,6 +25,7 @@ const GlobalStyle = createGlobalStyle`
       ...fontSizes,
       ...fontWeights,
       ...lineHeights,
+      ...durationVariables,
     }).reduce((styleString, [key, value]) => ({ ...styleString, [key]: value }), {})}
 
     // Keep the app's own theme under Windows forced-colors (high contrast) mode, since it

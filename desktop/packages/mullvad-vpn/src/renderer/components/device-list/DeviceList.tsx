@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { IDevice } from '../../../shared/daemon-rpc-types';
 import { AnimatedList } from '../../lib/components/animated-list';
 import { StyledListItemItem } from '../../lib/components/list-item/components';
+import { durations } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { DeviceListItem } from '../device-list-item';
 
@@ -18,7 +19,7 @@ const StyledAnimatedList = styled(AnimatedList)`
 const StyledAnimatedListItemRoot = styled(AnimatedList.Item)``;
 const StyledAnimatedListItem = styled(StyledAnimatedListItemRoot)`
   ${StyledListItemItem} {
-    transition: border-radius 0.15s ease-out;
+    transition: border-radius ${durations.fast} ease-out;
   }
   // If preceded by another item, remove the top border radius
   ${StyledAnimatedListItemRoot} + & {

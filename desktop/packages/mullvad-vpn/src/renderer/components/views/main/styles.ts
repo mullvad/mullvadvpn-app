@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 
+import { durations } from '../../../lib/foundations';
 import Accordion from '../../Accordion';
 
 export const ConnectionPanelAccordion = styled(Accordion)({
-  transition: 'height 300ms ease-out',
+  transition: `height ${durations.normal} ease-out`,
 });

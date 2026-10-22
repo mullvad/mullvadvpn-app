@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { IconButton } from '../../../../../lib/components';
-import { colors } from '../../../../../lib/foundations';
+import { colors, durations } from '../../../../../lib/foundations';
 import { useBoolean } from '../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../redux/store';
 import CustomScrollbars from '../../../../CustomScrollbars';
@@ -36,11 +36,11 @@ const StyledConnectionPanel = styled.div<{ $expanded: boolean }>((props) => ({
   backgroundColor: props.$expanded ? colors.darkerBlue10Alpha80 : colors.darkerBlue10Alpha40,
   backdropFilter: 'blur(6px)',
 
-  transition: 'background-color 300ms ease-out',
+  transition: `background-color ${durations.normal} ease-out`,
 }));
 
 const StyledConnectionButtonContainer = styled.div({
-  transition: 'margin-top 300ms ease-out',
+  transition: `margin-top ${durations.normal} ease-out`,
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
@@ -66,7 +66,7 @@ const StyledConnectionStatusContainer = styled.div<{
   marginBottom: props.$expanded && props.$hasFeatureIndicators ? '16px' : 0,
   borderBottom: props.$expanded ? `1px ${colors.whiteAlpha20} solid` : 'none',
   transitionProperty: 'margin-bottom, padding-bottom',
-  transitionDuration: '300ms',
+  transitionDuration: durations.normal,
   transitionTimingFunction: 'ease-out',
 }));
 
