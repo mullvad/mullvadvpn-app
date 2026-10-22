@@ -1130,7 +1130,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     /**
      * create device via the Mullvad API client.
      */
-    func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data)  -> RequestCancelHandle
+    func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) async throws  -> ApiResponse
     
     /**
      * Delete device via the Mullvad API client.
@@ -1378,15 +1378,21 @@ open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimesta
     /**
      * create device via the Mullvad API client.
      */
-open func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_create_device(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterData.lower(publicKey),$0
-    )
-})
+open func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_create_device(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterData.lower(publicKey)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
     /**
@@ -4170,7 +4176,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 31518) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 4233) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 58564) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_delete_device() != 65370) {
