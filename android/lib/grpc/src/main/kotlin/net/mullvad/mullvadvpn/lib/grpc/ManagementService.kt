@@ -1013,7 +1013,7 @@ class ManagementService(
             .proxy(Proxy.NO_PROXY)
             // We need to disable DNS resolution for the okhttp client as it is not required and can
             // cause issues if the system network configuration is not set up correctly.
-            .dns { listOf(InetAddress.getByAddress(it, byteArrayOf(127, 0, 0, 1))) }
+            .dns { listOf(InetAddress.getByAddress(it, LOCAL_HOST_IP_ADDRESS)) }
             .retryOnConnectionFailure(false)
             .addInterceptor(
                 HttpLoggingInterceptor { message -> Logger.withTag("grpc").d(message) }
@@ -1040,6 +1040,8 @@ class ManagementService(
         private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
 
         private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
+
+        private val LOCAL_HOST_IP_ADDRESS = byteArrayOf(127, 0, 0, 1)
     }
 }
 
