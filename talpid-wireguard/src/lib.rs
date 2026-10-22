@@ -39,7 +39,7 @@ use tokio::sync::Mutex as AsyncMutex;
 use tokio::task::JoinHandle;
 
 #[cfg(feature = "personal-vpn")]
-use {std::sync::Weak, talpid_types::net::wireguard::PublicKey, tokio::sync::Mutex};
+use {std::sync::Weak, tokio::sync::Mutex};
 
 mod gotatun;
 
@@ -245,11 +245,7 @@ impl WireguardMonitor {
         let moved_tunnel = monitor.tunnel.clone();
         let runtime = args.runtime.clone();
         let tun_provider = args.tun_provider.clone();
-        #[cfg(feature = "personal-vpn")]
-        let peer_pubkey = config
-            .personal_vpn
-            .as_ref()
-            .map(|pvpn| pvpn.peer.public_key.clone());
+
         #[cfg(target_os = "windows")]
         let resource_dir = args.resource_dir.to_owned();
         let log_path = _log_path.map(Path::to_owned);
@@ -461,15 +457,13 @@ impl WireguardMonitor {
             let _ = close_sender.send(close_msg);
         });
 
-        Self::handle_commands(
+        tokio::spawn(Self::handle_commands(
             args.command_rx,
             monitor_handle,
             close_obfs_sender,
             #[cfg(feature = "personal-vpn")]
-            tunnel_weak,
-            #[cfg(feature = "personal-vpn")]
-            peer_pubkey,
-        );
+            Arc::downgrade(&monitor.tunnel),
+        ));
 
         Ok(monitor)
     }
@@ -535,11 +529,6 @@ impl WireguardMonitor {
         let is_new_tun = tun.is_new();
         let route_manager = args.route_manager;
         let tun_provider = Arc::clone(&args.tun_provider);
-        #[cfg(feature = "personal-vpn")]
-        let peer_pubkey = config
-            .personal_vpn
-            .as_ref()
-            .map(|pvpn| pvpn.peer.public_key.clone());
 
         let tunnel = Arc::new(AsyncMutex::new(None));
         let tunnel_weak = Arc::downgrade(&tunnel);
@@ -668,48 +657,37 @@ impl WireguardMonitor {
             let _ = close_sender.send(close_msg);
         });
 
-        Self::handle_commands(
+        tokio::spawn(Self::handle_commands(
             args.command_rx,
             monitor_handle,
             close_obfs_sender,
             #[cfg(feature = "personal-vpn")]
             tunnel_weak,
-            #[cfg(feature = "personal-vpn")]
-            peer_pubkey,
-        );
+        ));
 
         Ok(monitor)
     }
 
-    fn handle_commands(
+    async fn handle_commands(
         mut rx: UnboundedReceiver<TunnelMonitorCommand>,
         monitor_handle: JoinHandle<()>,
         close_obfs_sender: Sender<CloseMsg>,
         #[cfg(feature = "personal-vpn")] tunnel_weak: Weak<Mutex<Option<TunnelType>>>,
-        #[cfg(feature = "personal-vpn")] peer_pubkey: Option<PublicKey>,
     ) {
-        tokio::spawn(async move {
-            while let Ok(command) = rx.recv().await {
-                match command {
-                    TunnelMonitorCommand::Close => {
-                        monitor_handle.abort();
-                        let _ = close_obfs_sender.send(CloseMsg::Stop);
-                    }
-                    #[cfg(feature = "personal-vpn")]
-                    TunnelMonitorCommand::PersonalVpnStats(tx) => {
-                        if let Some(pubkey) = peer_pubkey.as_ref()
-                            && let Some(stats) = personal_vpn_stats::get_stats(
-                                pubkey.as_bytes(),
-                                tunnel_weak.clone(),
-                            )
-                            .await
-                        {
-                            let _ = tx.send(stats);
-                        }
+        while let Ok(command) = rx.recv().await {
+            match command {
+                TunnelMonitorCommand::Close => {
+                    monitor_handle.abort();
+                    let _ = close_obfs_sender.send(CloseMsg::Stop);
+                }
+                #[cfg(feature = "personal-vpn")]
+                TunnelMonitorCommand::PersonalVpnStats(tx) => {
+                    if let Some(stats) = personal_vpn_stats::get_stats(tunnel_weak.clone()).await {
+                        let _ = tx.send(stats);
                     }
                 }
             }
-        });
+        }
     }
 
     /// Wait for the tunnel device to be configured, including its IP addresses, by
@@ -1008,10 +986,10 @@ impl WireguardMonitor {
             ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
             gateway_node.clone(),
         ))
-        // same but ipv6
-        .chain(config.ipv6_gateway.map(|gateway| {
-            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
-        }));
+            // same but ipv6
+            .chain(config.ipv6_gateway.map(|gateway| {
+                RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
+            }));
 
         // e.g. utun4 and utun4
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
@@ -1193,8 +1171,8 @@ pub(crate) trait Tunnel: Send + Sync {
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
     #[cfg(feature = "personal-vpn")]
-    async fn get_personal_vpn_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError> {
-        Ok(stats::StatsMap::default())
+    async fn get_personal_vpn_stats(&self) -> std::result::Result<stats::Stats, TunnelError> {
+        Ok(stats::Stats::default())
     }
 }
 

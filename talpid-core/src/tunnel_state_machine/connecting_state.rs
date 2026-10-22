@@ -228,7 +228,6 @@ impl ConnectingState {
             })
     }
 
-    #[cfg_attr(feature = "personal-vpn", expect(clippy::too_many_arguments))]
     fn start_tunnel(
         runtime: tokio::runtime::Handle,
         parameters: TunnelParameters,

@@ -3301,6 +3301,7 @@ dependencies = [
  "clap_complete",
  "clap_complete_nushell",
  "futures",
+ "ipnetwork",
  "itertools 0.14.0",
  "mullvad-management-interface",
  "mullvad-types",

@@ -520,9 +520,6 @@ pub(crate) enum InternalDaemonEvent {
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
     /// A network leak was detected.
     LeakDetected(LeakInfo),
-    // /// Personal VPN stats update.
-    // #[cfg(feature = "personal-vpn")]
-    // PersonalVpnUpdate(talpid_types::Stats),
 }
 
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]

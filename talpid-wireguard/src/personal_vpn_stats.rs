@@ -4,33 +4,22 @@ use crate::TunnelType;
 use std::sync::Weak;
 use tokio::sync::Mutex;
 
-pub async fn get_stats(
-    peer_pubkey: &[u8; 32],
-    tunnel: Weak<Mutex<Option<TunnelType>>>,
-) -> Option<talpid_types::Stats> {
-    let Some(tunnel) = tunnel.upgrade() else {
-        return None;
-    };
-    let peers = {
+pub async fn get_stats(tunnel: Weak<Mutex<Option<TunnelType>>>) -> Option<talpid_types::Stats> {
+    let tunnel = tunnel.upgrade()?;
+    let stats = {
         let lock = tunnel.lock().await;
-        let Some(tunnel) = lock.as_ref() else {
-            return None;
-        };
+        let tunnel = lock.as_ref()?;
         tunnel.get_personal_vpn_stats().await
     };
-    let stats = match peers {
-        Ok(peers) => match peers.get(peer_pubkey) {
-            Some(stats) => talpid_types::Stats {
-                last_handshake_time: stats.last_handshake_time,
-                rx_bytes: stats.rx_bytes,
-                tx_bytes: stats.tx_bytes,
-            },
-            None => return None,
-        },
+    match stats {
+        Ok(stats) => Some(talpid_types::Stats {
+            last_handshake_time: stats.last_handshake_time,
+            rx_bytes: stats.rx_bytes,
+            tx_bytes: stats.tx_bytes,
+        }),
         Err(err) => {
             log::error!("Failed to get personal VPN stats: {err:#?}");
-            return None;
+            None
         }
-    };
-    Some(stats)
+    }
 }

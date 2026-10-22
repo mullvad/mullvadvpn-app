@@ -435,10 +435,14 @@ impl Tunnel for GotaTun {
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn get_personal_vpn_stats(&self) -> Result<StatsMap, TunnelError> {
+    async fn get_personal_vpn_stats(&self) -> Result<Stats, TunnelError> {
         let stats = match self.devices.personal_vpn() {
-            Some(personal_vpn) => get_stats(&personal_vpn.inner_device).await,
-            None => StatsMap::default(),
+            Some(personal_vpn) => get_stats(&personal_vpn.inner_device)
+                .await
+                .into_values()
+                .next()
+                .unwrap_or_default(),
+            None => Stats::default(),
         };
         Ok(stats)
     }
