@@ -12,7 +12,9 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
-import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
+import net.mullvad.mullvadvpn.feature.location.impl.data.RELAY_COUNTRY_NORWAY
+import net.mullvad.mullvadvpn.feature.location.impl.data.RELAY_COUNTRY_SWEDEN
+import net.mullvad.mullvadvpn.feature.location.impl.relayListItems
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -20,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
@@ -315,43 +316,14 @@ class SelectLocationListViewModelTest {
 
     companion object {
         private const val RELAY_ITEM_LIST_CREATOR_CLASS =
-            "net.mullvad.mullvadvpn.feature.location.impl.search.RelayItemListCreatorKt"
+            "net.mullvad.mullvadvpn.feature.location.impl.RelayItemListCreatorKt"
         private const val LOCATION_UTIL_CLASS =
             "net.mullvad.mullvadvpn.lib.common.util.LocationUtilKt"
 
         private val testCountries =
             listOf(
-                RelayItem.Location.Country(
-                    id = GeoLocationId.Country("se"),
-                    "Sweden",
-                    listOf(
-                        RelayItem.Location.City(
-                            id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
-                            "Gothenburg",
-                            LatLong(0f, 0f),
-                            listOf(
-                                RelayItem.Location.Relay(
-                                    id =
-                                        GeoLocationId.Hostname(
-                                            GeoLocationId.City(GeoLocationId.Country("se"), "got"),
-                                            "wg-got-001",
-                                        ),
-                                    active = true,
-                                    latLong = mockk(relaxed = true),
-                                    ownership = mockk(relaxed = true),
-                                    provider = mockk(relaxed = true),
-                                    countryName = "Sweden",
-                                    cityName = "Gothenburg",
-                                    daita = false,
-                                    quic = null,
-                                    lwo = false,
-                                )
-                            ),
-                            countryName = "Sweden",
-                        )
-                    ),
-                ),
-                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList()),
+                RELAY_COUNTRY_SWEDEN,
+                RELAY_COUNTRY_NORWAY,
             )
     }
 }

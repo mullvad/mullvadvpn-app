@@ -1,6 +1,6 @@
 @file:Suppress("LongParameterList")
 
-package net.mullvad.mullvadvpn.feature.location.impl.search
+package net.mullvad.mullvadvpn.feature.location.impl
 
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -388,6 +388,7 @@ private fun createCustomListEntry(
                     Position.Middle
                 },
             needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
+            connected = relayMetadata[item.id]?.connectedRelay ?: false,
         )
     )
 
@@ -444,6 +445,7 @@ private fun createGeoLocationEntry(
         RelayListItem.GeoLocationItem(
             item = item,
             isSelected = selectedByThisEntryExitList == item.id,
+            // We do not want to show a relay as connected if it is selected
             connected = relayMetadata[item.id]?.connectedRelay ?: false,
             state =
                 item.createState(
