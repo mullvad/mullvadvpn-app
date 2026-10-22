@@ -41,6 +41,11 @@ ignore = [
   "RUSTSEC-2026-0162",  # pqcrypto-traits
   "RUSTSEC-2026-0163",  # pqcrypto-internals
   "RUSTSEC-2026-0168",  # pqcrypto-hqc
+
+  # basic-toml is unmaintained. It is only used at build time by askama (via uniffi_bindgen)
+  # to parse template config. Fixed upstream in https://github.com/askama-rs/askama/pull/771,
+  # but not yet released.
+  "RUSTSEC-2026-0374",
 ]
 
 # This section is considered when running `cargo deny check licenses`
