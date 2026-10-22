@@ -1150,7 +1150,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     /**
      * Rotate device key via the Mullvad API client.
      */
-    func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data)  -> RequestCancelHandle
+    func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) async throws  -> ApiResponse
     
     func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy) async throws  -> AmIMullvadResponse
     
@@ -1458,16 +1458,21 @@ open func getDevices(retryStrategy: RetryStrategy, accountNumber: String)async t
     /**
      * Rotate device key via the Mullvad API client.
      */
-open func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterString.lower(identifier),
-        FfiConverterData.lower(publicKey),$0
-    )
-})
+open func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterString.lower(identifier),FfiConverterData.lower(publicKey)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy)async throws  -> AmIMullvadResponse  {
@@ -4194,7 +4199,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_devices() != 55726) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 10270) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 39293) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad() != 38253) {

@@ -18,20 +18,10 @@ public enum APIRequest: Codable, Sendable {
     case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
     case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
 
-    // Device Proxy
-    case rotateDeviceKey(
-        _ retryStrategy: REST.RetryStrategy,
-        accountNumber: String,
-        identifier: String,
-        publicKey: WireGuard.PublicKey
-    )
-
     var name: String {
         switch self {
         case .sendProblemReport:
             "send-problem-report"
-        case .rotateDeviceKey:
-            "rotate-device-key"
         case .initStorekitPayment:
             "init-storekit-payment"
         case .checkStorekitPayment:
@@ -42,7 +32,6 @@ public enum APIRequest: Codable, Sendable {
     var retryStrategy: REST.RetryStrategy {
         switch self {
         case let .sendProblemReport(strategy, _),
-            let .rotateDeviceKey(strategy, _, _, _),
             let .initStorekitPayment(strategy, _),
             let .checkStorekitPayment(strategy, _):
             strategy
