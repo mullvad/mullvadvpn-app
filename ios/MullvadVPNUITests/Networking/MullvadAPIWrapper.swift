@@ -181,7 +181,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
 
         throttle {
             do {
-                devices = try self.mullvadAPI.listDevices(forAccount: account)
+                devices = try await self.mullvadAPI.listDevices(forAccount: account)
             } catch {
                 XCTFail("Failed to get devices with error: \(error.localizedDescription)")
             }

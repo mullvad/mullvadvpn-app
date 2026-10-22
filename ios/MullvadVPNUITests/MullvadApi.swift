@@ -121,12 +121,10 @@ class MullvadApi {
         return UInt64(decoded.expiry.timeIntervalSince1970)
     }
 
-    func listDevices(forAccount: String) throws -> [Device] {
-        let response = try makeRequest { strategy in
-            context.getDevices(
-                retryStrategy: strategy,
-                accountNumber: forAccount)
-        }
+    func listDevices(forAccount: String) async throws -> [Device] {
+        let response = try await context.getDevices(
+            retryStrategy: REST.RetryStrategy.apiRequest.toRustStrategy(),
+            accountNumber: forAccount)
         let data = try requireBody(response)
         let deviceResponses = try JSONDecoder().decode([DeviceResponse].self, from: data)
         return deviceResponses.compactMap { (d: DeviceResponse) -> Device? in
