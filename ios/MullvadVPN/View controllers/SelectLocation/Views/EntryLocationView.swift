@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
-    @ObservedObject var viewModel: ViewModel
+    @Bindable var viewModel: ViewModel
+    @Binding var customListSheetType: CustomListSheetType?
     let onScrollVisibilityChange: (Bool) -> Void
 
     var body: some View {
@@ -10,6 +11,7 @@ struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
         } else {
             ExitLocationView(
                 viewModel: viewModel, context: $viewModel.entryContext,
+                customListSheetType: $customListSheetType,
                 onScrollVisibilityChange: onScrollVisibilityChange)
         }
     }

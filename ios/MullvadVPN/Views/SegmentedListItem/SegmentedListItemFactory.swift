@@ -244,7 +244,9 @@ struct SegmentedListItemFactory {
 
     private func trailingItemViews(for items: [TrailingItem]) -> some View {
         HStack(alignment: .center, spacing: 0) {
-            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+            ForEach(Array(items.enumerated()), id: \.offset) {
+                _,
+                item in
                 switch item {
                 case .breadcrumb(let breadcrumb):
                     breadcrumb.image
@@ -276,9 +278,28 @@ struct SegmentedListItemFactory {
                         image
                     }
                 case .input(let placeholder, let text):
-                    ConfigurableTextField(
-                        placeholder: LocalizedStringKey(placeholder), text: text,
-                        borderStyle: .constant(.none))
+                    TextField(
+                        "",
+                        text: text,
+                        prompt: Text("Custom list")
+                            .foregroundStyle(
+                                Color.MullvadTextField.inputPlaceholder
+                            )
+                    )
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                    .multilineTextAlignment(.trailing)
+                    .foregroundStyle(Color.MullvadTextField.textInput)
+
+                //                    ConfigurableTextField(
+                //                        placeholder: LocalizedStringKey(placeholder),
+                //                        text: text,
+                //                        borderStyle: .constant(.none),
+                //                        appearance: .init(
+                //                            backgroundColor: Color.clear,
+                //                            height: 44.0
+                //                        )
+                //                    )
                 case .padding(let width):
                     Spacer()
                         .frame(width: width)

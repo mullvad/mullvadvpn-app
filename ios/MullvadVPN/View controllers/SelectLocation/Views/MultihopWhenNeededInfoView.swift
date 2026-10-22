@@ -1,8 +1,8 @@
 import MullvadSettings
 import SwiftUI
 
-struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
-    @ObservedObject var viewModel: ViewModel
+struct MultihopWhenNeededInfoView: View {
+    var viewModel: SelectLocationViewModel
     @State private var multihopWarningAlert: MullvadAlert?
 
     var body: some View {

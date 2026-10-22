@@ -14,7 +14,7 @@ class CustomListPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.newCustomListView]
+        self.pageElement = app.scrollViews[.newCustomListView]
         waitForPageToBeShown()
     }
 
@@ -36,16 +36,15 @@ class CustomListPage: Page {
     }
 
     @discardableResult func renameCustomList(name: String) -> Self {
-        let editCustomListNameCell = app.cells[.customListEditNameFieldCell]
-        let textField = editCustomListNameCell.textFields.firstMatch
+        let textField = app.textFields.firstMatch
         textField.clearText(app: app)
-        editCustomListNameCell.typeText(name)
+        enterText(name)
         return self
     }
 
     @discardableResult func deleteCustomList(named customListName: String) -> Self {
-        let deleteCustomListCell = app.cells[.customListEditDeleteListCell]
-        deleteCustomListCell.tap()
+        let deleteCustomListButton = app.buttons[.customListEditDeleteListCell]
+        deleteCustomListButton.tap()
 
         app.buttons[AccessibilityIdentifier.confirmDeleteCustomListButton].tapWhenHittable()
 
@@ -53,7 +52,7 @@ class CustomListPage: Page {
     }
 
     @discardableResult func addOrEditLocations() -> Self {
-        app.cells[.customListEditAddOrEditLocationCell].tap()
+        app.buttons[.customListEditAddOrEditLocationCell].tap()
         return self
     }
 }

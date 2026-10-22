@@ -14,7 +14,7 @@ class ListCustomListsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.listCustomListsView]
+        self.pageElement = app.scrollViews[.listCustomListsView]
         waitForPageToBeShown()
     }
 
@@ -24,7 +24,7 @@ class ListCustomListsPage: Page {
     /// No scrolling will be attempted to scroll to find a custom list
     /// - Parameter customListName: The custom list to edit
     @discardableResult func selectCustomListToEdit(named customListName: String) -> Self {
-        app.tables[.listCustomListsTableView].staticTexts[customListName].tap()
+        app.buttons[.editCustomListListItem(customListName)].tap()
         return self
     }
 

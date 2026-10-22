@@ -70,7 +70,7 @@ public enum AccessibilityIdentifier: Equatable {
     case saveCreateCustomListButton
     case confirmDeleteCustomListButton
     case cancelDeleteCustomListButton
-    case customListLocationCheckmarkButton
+    case customListLocationCheckmarkButton(String)
     case listCustomListDoneButton
     case selectLocationFilterPill
     case selectLocationEntryFilterButton
@@ -86,6 +86,7 @@ public enum AccessibilityIdentifier: Equatable {
     case disableRecentConnectionsButton
     case recentListItem(String)
     case accountToolbarMenuButton
+    case editCustomListListItem(String)
 
     // Cells
     case deviceCell

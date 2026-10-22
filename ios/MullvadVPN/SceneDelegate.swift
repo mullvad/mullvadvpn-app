@@ -227,6 +227,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         // Forces all navigation bar titles to be white. This is needed since SwiftUI does not provide a way to change the title color.
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.primaryTextColor]
         UINavigationBar.appearance().largeTitleTextAttributes = UINavigationBar.appearance().titleTextAttributes
+        window?.overrideUserInterfaceStyle = .dark
 
         window?.makeKeyAndVisible()
         addTunnelObserver()

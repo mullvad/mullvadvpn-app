@@ -2,8 +2,15 @@ import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
-struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
-    @ObservedObject var viewModel: ViewModel
+enum CustomListSheetType: Hashable, Identifiable {
+    var id: Self { self }
+    case add
+    case list
+    case edit(CustomListLocationNode)
+}
+
+struct SelectLocationView<ViewModel: SelectLocationViewModel>: View {
+    @State var viewModel: ViewModel
     @State private var isScrolledToTop: Bool = true
     @State private var disablingRecentConnectionsAlert: MullvadAlert?
     @State private var multihopWarningAlert: MullvadAlert?
@@ -12,6 +19,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @State private var headerHeight: CGFloat = 0
     @State private var floatingBarHeight: CGFloat = 0
     @ScaledMetric(relativeTo: .body) private var listBottomInset: CGFloat = 56
+    @State private var customListSheetType: CustomListSheetType?
 
     private var headerIsExpanded: Bool {
         switch viewModel.multihopContext {
@@ -82,6 +90,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         ExitLocationView(
                             viewModel: viewModel,
                             context: $viewModel.exitContext,
+                            customListSheetType: $customListSheetType,
                             onScrollVisibilityChange: {
                                 expandHeader in
                                 if viewModel.multihopContext == .exit {
@@ -103,6 +112,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         }
                         EntryLocationView(
                             viewModel: viewModel,
+                            customListSheetType: $customListSheetType,
                             onScrollVisibilityChange: {
                                 expandHeader in
                                 if viewModel.multihopContext == .entry {
@@ -232,6 +242,9 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
         .mullvadAlert(item: $multihopWarningAlert)
+        .sheet(item: $customListSheetType) { type in
+            CustomListRootView(viewModel: viewModel, type: type)
+        }
     }
 
     private func activeFilterView(locationContext: LocationContext) -> some View {

@@ -18,42 +18,58 @@ class EditCustomListLocationsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.editCustomListEditLocationsView]
+        self.pageElement = app.scrollViews[.editCustomListEditLocationsView]
         waitForPageToBeShown()
     }
 
-    @discardableResult func scrollToLocationWith(identifier: String) -> Self {
-        let tableView = app.tables[.editCustomListEditLocationsTableView]
-        tableView.cells[identifier].tap()
-        return self
-    }
-
-    @discardableResult func toggleLocationCheckmarkWith(identifier: String) -> Self {
-        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
-        locationCell.buttons[.customListLocationCheckmarkButton].tap()
-        return self
-    }
-
-    @discardableResult func unfoldLocationwith(identifier: String) -> Self {
-        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
-        let expandCellButton = locationCell.buttons["expandButton"]
-        if expandCellButton.exists {
-            expandCellButton.tap()
+    @discardableResult func toggleLocationCheckmarkWith(identifier: String, scrollUpwards: Bool = false) -> Self {
+        let button = app.switches[.customListLocationCheckmarkButton(identifier)]
+        if scrollUpwards {
+            app.scrollUpToElement(element: button)
+        } else {
+            app.scrollDownToElement(element: button)
         }
+        button.tap()
         return self
     }
 
-    @discardableResult func collapseLocationwith(identifier: String) -> Self {
-        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
-        let collapseCellButton = locationCell.buttons["collapseButton"]
-        if collapseCellButton.exists {
-            collapseCellButton.tap()
+    @discardableResult func tapLocationCellExpandButton(withName name: String, scrollUpwards: Bool = false) -> Self {
+        let button = app.switches[AccessibilityIdentifier.customListLocationCheckmarkButton(name)]
+        if scrollUpwards {
+            app.scrollUpToElement(element: button)
+        } else {
+            app.scrollDownToElement(element: button)
         }
+        button.wait(for: .hittable)
+
+        // The expand chevron is a fixed-width button at the trailing edge of the
+        // row. Because .accessibilityElement(children: .combine) merges children
+        // into a single element, the chevron cannot be queried individually.
+        // Calculate the tap position dynamically from the cell's actual width so
+        // it works on any device size.
+        let chevronCenter = 1.0 - (28.0 / button.frame.width)
+
+        // Retry the tap if the cell didn't expand — the first tap after a scroll
+        // can be absorbed by scroll deceleration.
+        for _ in 0..<3 {
+            button.coordinate(withNormalizedOffset: CGVector(dx: chevronCenter, dy: 0.5)).tap()
+
+            // Poll for the accessibility value to update after the expand animation.
+            let deadline = Date().addingTimeInterval(2)
+            while Date() < deadline {
+                if button.value as? String == "Expanded" {
+                    return self
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            }
+        }
+
+        XCTFail("Failed to expand location cell '\(name)' after multiple attempts")
         return self
     }
 
-    @discardableResult func tapBackButton() -> Self {
-        app.navigationBars["Locations"].buttons.firstMatch.tap()
+    @discardableResult func tapBackButton(title: String) -> Self {
+        app.navigationBars[title].buttons.firstMatch.tap()
         return self
     }
 }

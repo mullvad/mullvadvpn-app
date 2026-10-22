@@ -207,4 +207,19 @@ protocol SettingsUpdating {
     var settings: LatestTunnelSettings { get }
 }
 
+class SettingsUpdatingMock: SettingsUpdating {
+    var updateCalled = false
+    func updateSettings(
+        _ updates: [MullvadSettings.TunnelSettingsUpdate],
+        completionHandler: (@Sendable () -> Void)?
+    ) {
+        for update in updates {
+            update.apply(to: &settings)
+        }
+        updateCalled = true
+    }
+
+    var settings = LatestTunnelSettings()
+}
+
 extension TunnelManager: SettingsUpdating {}

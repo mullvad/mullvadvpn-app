@@ -7,8 +7,9 @@
 //   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
 // SPDX-License-Identifier: GPL-3.0-only
+import Foundation
 
-protocol TextFormatting {
+protocol TextFormatting: Formatter {
     func format(_ text: String) -> String
 }
 
@@ -26,8 +27,17 @@ extension GroupedTextFormatter {
     }
 }
 
-struct GroupedTextFormatter: TextFormatting {
+final class GroupedTextFormatter: Formatter, TextFormatting, @unchecked Sendable {
     let configuration: FormatterConfiguration
+
+    init(configuration: FormatterConfiguration) {
+        self.configuration = configuration
+        super.init()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private var maximumCharacters: Int {
         Int(configuration.groupSize * configuration.maxGroups)
