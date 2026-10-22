@@ -21,7 +21,7 @@ enum MullvadAPIError: Error {
 
 class MullvadAPIWrapper: @unchecked Sendable {
     private var mullvadAPI: MullvadApi
-    private let throttleQueue = DispatchQueue(label: "MullvadAPIWrapperThrottleQueue", qos: .userInitiated)
+    private let throttleQueue = DispatchQueue(label: "MullvadAPIWrapperThrottleQueue")
     private var lastCallDate: Date?
     private let throttleDelay: TimeInterval = 0.25
     private let throttleWaitTimeout: TimeInterval = 5.0
