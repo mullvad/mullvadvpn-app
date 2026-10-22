@@ -18,6 +18,8 @@ use std::{
     ops::RangeInclusive,
 };
 
+use either::Either;
+use itertools::Itertools;
 use rand::{
     Rng,
     seq::{IndexedRandom, IteratorRandom},
@@ -220,28 +222,76 @@ impl RelayEndpointSet {
     // It should also support disabling wireguard, and only multiplexing obfuscators
     pub fn get_wireguard_obfuscator(
         &self,
+        obfuscation_constraint: &ObfuscationConstraint,
+        ip_constraint: Constraint<IpVersion>,
+    ) -> Result<(SocketAddr, Option<Obfuscators>), Error> {
+        let mut wg_ip_versions = vec![];
+        let mut obf_ipversions = vec![];
+        // TODO: are we reintroducing this regression? https://github.com/mullvad/mullvadvpn-app/pull/10711
+        for ip_version in match ip_constraint {
+            Constraint::Any => Either::Left([IpVersion::V4, IpVersion::V6].into_iter()),
+            Constraint::Only(ip_version) => Either::Right([ip_version].into_iter()),
+        } {
+            let wireguard_ip = self.wireguard.select_ip(ip_version);
+
+            let wireguard_endpoint = match obfuscation_constraint.direct {
+                Some(port) => Some(SocketAddr::new(
+                    wireguard_ip.ok_or(Error::NoMatchingAddresses)?,
+                    random_port_in_ranges(&self.wireguard.port_ranges, port.get())
+                        .ok_or(Error::NoMatchingPort)?,
+                )),
+                None => None,
+            };
+            wg_ip_versions.extend(wireguard_endpoint);
+
+            // TODO: Add back the IPv6-preferred retries
+            let configs = self.valid_configs(obfuscation_constraint, ip_version, wireguard_ip);
+            obf_ipversions.push(configs);
+        }
+        let configs = match &obf_ipversions[..] {
+            [obf_v4, obf_v6] => Itertools::interleave(obf_v4.iter(), obf_v6)
+                .cloned()
+                .collect_vec(),
+            [obf] => obf.clone(),
+            _ => vec![],
+        };
+
+        let wireguard_endpoint = wg_ip_versions.first().cloned();
+
+        let obfuscator_config = match &configs[..] {
+            [] => None,
+            [single_conf] => Some(Obfuscators::Single(single_conf.clone())),
+            [first, remaining @ ..] => Some(Obfuscators::Multiplexer {
+                direct: wireguard_endpoint,
+                configs: (first.clone(), remaining.to_vec()),
+            }),
+        };
+
+        Ok((
+            // For now we must have exactly one WG endpoint.
+            // TODO: support having zero, one or two wg endpoints.
+            wireguard_endpoint.unwrap_or_else(|| {
+                self.wireguard
+                    .random_endpoint(IpVersion::V4, Constraint::Any)
+                    .expect("There's always an IPv4 wg addr")
+            }),
+            obfuscator_config,
+        ))
+    }
+
+    fn valid_configs(
+        &self,
         ObfuscationConstraint {
-            direct,
+            direct: _,
             quic,
             udp2tcp,
             shadowsocks,
             lwo,
         }: &ObfuscationConstraint,
-        ip_version: Constraint<IpVersion>,
-    ) -> Result<(SocketAddr, Option<Obfuscators>), Error> {
-        // TODO: are we reintroducing this regression? https://github.com/mullvad/mullvadvpn-app/pull/10711
-        let wireguard_ip = self.wireguard.select_ip(ip_version);
-
-        let wireguard_endpoint = match *direct {
-            Some(port) => Some(SocketAddr::new(
-                wireguard_ip.ok_or(Error::NoMatchingAddresses)?,
-                random_port_in_ranges(&self.wireguard.port_ranges, port.get())
-                    .ok_or(Error::NoMatchingPort)?,
-            )),
-            None => None,
-        };
-        // TODO: Add back the IPv6-preferred retries
-        let configs: Vec<ObfuscatorConfig> = [
+        ip_version: IpVersion,
+        wireguard_ip: Option<IpAddr>,
+    ) -> Vec<ObfuscatorConfig> {
+        [
             lwo.zip(wireguard_ip)
                 .and_then(|(conf, ip)| self.lwo_config(ip, conf.port).ok()),
             udp2tcp
@@ -258,23 +308,7 @@ impl RelayEndpointSet {
         ]
         .into_iter()
         .flatten()
-        .collect();
-
-        let obfuscator_config = match &configs[..] {
-            [] => None,
-            [single_conf] if wireguard_endpoint.is_none() => {
-                Some(Obfuscators::Single(single_conf.clone()))
-            }
-            [first, remaining @ ..] => Some(Obfuscators::Multiplexer {
-                direct: wireguard_endpoint,
-                configs: (first.clone(), remaining.to_vec()),
-            }),
-        };
-
-        Ok((
-            wireguard_endpoint.expect("TODO: Support no wireguard"),
-            obfuscator_config,
-        ))
+        .collect()
     }
 
     /// Build a Udp2Tcp obfuscator config, or return `None` if udp2tcp is unsupported or no
@@ -313,7 +347,7 @@ impl RelayEndpointSet {
     /// endpoint satisfies the constraints.
     fn shadowsocks_config(
         &self,
-        ip_version: Constraint<IpVersion>,
+        ip_version: IpVersion,
         port: Constraint<u16>,
     ) -> Result<ObfuscatorConfig, Error> {
         let ss = self.shadowsocks.as_ref().ok_or(Error::MissingSupport)?;
@@ -325,7 +359,7 @@ impl RelayEndpointSet {
 
     /// Build a QUIC obfuscator config, or return `None` if unsupported or no endpoint
     /// matches `ip_version`.
-    fn quic_config(&self, ip_version: Constraint<IpVersion>) -> Result<ObfuscatorConfig, Error> {
+    fn quic_config(&self, ip_version: IpVersion) -> Result<ObfuscatorConfig, Error> {
         let quic = self.quic.as_ref().ok_or(Error::MissingSupport)?;
         let endpoint = quic
             .random_endpoint(ip_version)
@@ -341,7 +375,11 @@ impl RelayEndpointSet {
 impl WireguardEndpoints {
     /// Whether the WireGuard endpoint supports the given IP version.
     fn supports_ip_version(&self, ip_version: Constraint<IpVersion>) -> bool {
-        self.select_ip(ip_version).is_some()
+        match ip_version {
+            Constraint::Any => true,
+            Constraint::Only(IpVersion::V4) => true,
+            Constraint::Only(IpVersion::V6) => self.ipv6.is_some(),
+        }
     }
 
     /// Whether the WireGuard endpoint supports the given port.
@@ -349,11 +387,7 @@ impl WireguardEndpoints {
         port_in_ranges(&self.port_ranges, port)
     }
 
-    fn random_endpoint(
-        &self,
-        ip_version: Constraint<IpVersion>,
-        port: Constraint<u16>,
-    ) -> Option<SocketAddr> {
+    fn random_endpoint(&self, ip_version: IpVersion, port: Constraint<u16>) -> Option<SocketAddr> {
         let ip = self.select_ip(ip_version)?;
         let port = random_port_in_ranges(&self.port_ranges, port)?;
         Some(SocketAddr::new(ip, port))
@@ -361,10 +395,10 @@ impl WireguardEndpoints {
 
     /// Select an address for the requested IP version, if available.
     /// IPv4 is always available. IPv6 depends on the relay.
-    fn select_ip(&self, ip_version: Constraint<IpVersion>) -> Option<IpAddr> {
+    fn select_ip(&self, ip_version: IpVersion) -> Option<IpAddr> {
         match ip_version {
-            Constraint::Any | Constraint::Only(IpVersion::V4) => Some(self.ipv4.into()),
-            Constraint::Only(IpVersion::V6) => self.ipv6.map(|ip| ip.into()),
+            IpVersion::V4 => Some(self.ipv4.into()),
+            IpVersion::V6 => self.ipv6.map(|ip| ip.into()),
         }
     }
 }
@@ -410,17 +444,14 @@ impl ShadowsocksEndpoints {
     fn random_endpoint(
         &self,
         wg: &WireguardEndpoints,
-        ip_version: Constraint<IpVersion>,
+        ip_version: IpVersion,
         port: Constraint<u16>,
     ) -> Option<SocketAddr> {
         // Try dedicated addresses first (any port is valid).
         if let Some(ip) = self
             .dedicated_addrs
             .iter()
-            .filter(|&&ip| match ip_version {
-                Constraint::Any => true,
-                Constraint::Only(ip_version) => IpVersion::from(ip) == ip_version,
-            })
+            .filter(|&&ip| IpVersion::from(ip) == ip_version)
             .choose(&mut rand::rng())
         {
             let port = port.unwrap_or_else(|| rand::rng().random_range(1u16..=u16::MAX));
@@ -504,18 +535,13 @@ impl QuicEndpoints {
     ///
     /// `Constraint::Any` prefers IPv4 but falls back to IPv6 if the relay has no IPv4 QUIC
     /// addresses. Returns `None` if no QUIC addresses match the requested IP version.
-    fn random_endpoint(&self, ip_version: Constraint<IpVersion>) -> Option<SocketAddr> {
-        let ipv4 = self.ipv4.iter().copied().map(IpAddr::V4);
-        let ipv6 = self.ipv6.iter().copied().map(IpAddr::V6);
+    fn random_endpoint(&self, ip_version: IpVersion) -> Option<SocketAddr> {
+        let ips = match ip_version {
+            IpVersion::V4 => self.ipv4.iter().copied().map(IpAddr::V4).collect_vec(),
+            IpVersion::V6 => self.ipv6.iter().copied().map(IpAddr::V6).collect_vec(),
+        };
+        let ip = *ips.choose(&mut rand::rng())?;
 
-        let ip = match ip_version {
-            Constraint::Only(IpVersion::V4) => ipv4.choose(&mut rand::rng()),
-            Constraint::Only(IpVersion::V6) => ipv6.choose(&mut rand::rng()),
-            // Prefer IPv4, but fall back to IPv6 if the relay has no IPv4 QUIC addresses.
-            Constraint::Any => ipv4
-                .choose(&mut rand::rng())
-                .or_else(|| ipv6.choose(&mut rand::rng())),
-        }?;
         Some(SocketAddr::from((ip, Quic::port())))
     }
 }
@@ -645,7 +671,7 @@ mod tests {
 
         // Any port → picks within the WG port ranges.
         let addr = ss
-            .random_endpoint(&wg, Constraint::Any, Constraint::Any)
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Any)
             .expect("should find a valid endpoint without a port constraint");
         assert_eq!(addr.ip(), IpAddr::V4(WG_IPV4));
         assert!(
@@ -656,13 +682,13 @@ mod tests {
 
         // Within-range port → uses that exact port on the WG address.
         let addr = ss
-            .random_endpoint(&wg, Constraint::Any, Constraint::Only(100))
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Only(100))
             .expect("should find endpoint for within-range port");
         assert_eq!(addr.ip(), IpAddr::V4(WG_IPV4));
         assert_eq!(addr.port(), 100);
 
         // Out-of-range port → falls through both paths, returns None.
-        let result = ss.random_endpoint(&wg, Constraint::Any, Constraint::Only(1));
+        let result = ss.random_endpoint(&wg, IpVersion::V4, Constraint::Only(1));
         assert!(
             result.is_none(),
             "expected None for out-of-range port, got {result:?}"
@@ -680,7 +706,7 @@ mod tests {
 
         // Any port → selects a dedicated address (not the WG address).
         let addr = ss
-            .random_endpoint(&wg, Constraint::Any, Constraint::Any)
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Any)
             .expect("should find endpoint without port constraint");
         assert!(
             dedicated.contains(&addr.ip()),
@@ -690,7 +716,7 @@ mod tests {
 
         // Port outside the WG ranges is still valid on dedicated addresses.
         let addr = ss
-            .random_endpoint(&wg, Constraint::Any, Constraint::Only(1))
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Only(1))
             .expect("dedicated addrs accept any port");
         assert!(
             dedicated.contains(&addr.ip()),
@@ -711,7 +737,7 @@ mod tests {
 
         // Any port → falls back to the WG IPv4 address (dedicated addr is wrong family).
         let addr = ss
-            .random_endpoint(&wg, Constraint::Only(IpVersion::V4), Constraint::Any)
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Any)
             .expect("should fall back to WG address");
         assert_eq!(
             addr.ip(),
@@ -720,7 +746,7 @@ mod tests {
         );
 
         // Out-of-range port → WG fallback cannot satisfy it either → None.
-        let result = ss.random_endpoint(&wg, Constraint::Only(IpVersion::V4), Constraint::Only(1));
+        let result = ss.random_endpoint(&wg, IpVersion::V4, Constraint::Only(1));
         assert!(
             result.is_none(),
             "expected None for out-of-range port with wrong-family dedicated addr"
@@ -728,7 +754,7 @@ mod tests {
 
         // Within-range port → WG fallback satisfies it.
         let addr = ss
-            .random_endpoint(&wg, Constraint::Only(IpVersion::V4), Constraint::Only(100))
+            .random_endpoint(&wg, IpVersion::V4, Constraint::Only(100))
             .expect("WG fallback should handle within-range port");
         assert_eq!(addr.ip(), IpAddr::V4(WG_IPV4));
         assert_eq!(addr.port(), 100);
