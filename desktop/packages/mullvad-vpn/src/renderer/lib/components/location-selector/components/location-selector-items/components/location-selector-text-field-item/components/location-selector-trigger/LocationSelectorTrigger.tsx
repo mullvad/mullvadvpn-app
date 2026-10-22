@@ -29,34 +29,35 @@ export function LocationSelectorTrigger({
   const { inputRef, triggerRef, setFocusInsideTrigger } = useLocationSelectorTextFieldItemContext();
   const [tabIndex, setTabIndex] = React.useState(-1);
 
+  const triggerFocusChange = React.useCallback(() => {
+    setFocusInsideTrigger(true);
+    inputRef.current?.focus();
+    setTabIndex(-1);
+  }, [inputRef, setFocusInsideTrigger]);
+
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent) => {
-      if (document.activeElement !== triggerRef.current) {
-        return;
-      }
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        setFocusInsideTrigger(true);
-        inputRef.current?.focus();
-        setTabIndex(-1);
+      if (document.activeElement === triggerRef.current) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          triggerFocusChange();
+        }
       }
     },
-    [inputRef, setFocusInsideTrigger, triggerRef],
+    [triggerFocusChange, triggerRef],
   );
 
   const handleMouseDown = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      // Move focus to the input when trigger is clicked, if it does not already
-      // have the focus, as that would make it always run its focus logic on
-      // mouse clicks.
+      // Move focus to the input when trigger is interacted with, but only
+      // if it is not already focused, as otherwise that would make it
+      // always run its focus logic when interacted with.
       if (document.activeElement !== inputRef.current) {
         event.preventDefault();
-        setFocusInsideTrigger(true);
-        inputRef.current?.focus();
-        setTabIndex(-1);
+        triggerFocusChange();
       }
     },
-    [inputRef, setFocusInsideTrigger],
+    [triggerFocusChange, inputRef],
   );
 
   React.useEffect(() => {
