@@ -6,18 +6,6 @@ id = "CVE-2024-21528"  # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-12-24  # The vulnerability is ignored for 4 months as no patch for the affected library exists and we can not address the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
 
-# brace-expansion: Denial of service via unbounded expansion length causing an out-of-memory process crash
-[[IgnoredVulns]]
-id = "GHSA-mh99-v99m-4gvg"  # CVE-2026-14257
-ignoreUntil = 2026-10-28
-reason = """
-brace-expansion is a development-only dependency, reached exclusively through minimatch.
-The crash requires attacker-influenced input to reach `expand()`.
-Every pattern in our build comes from files we control in this repository, so a hostile file name
-in the build tree cannot trigger it. The worst case is a crashed build on a developer machine or CI
-runner.
-"""
-
 # sprintf-js: sprintf-js vulnerable to denial of service through unbounded precision specifiers
 [[IgnoredVulns]]
 id = "CVE-2026-97058"  # GHSA-hp3w-g68c-fv3c
