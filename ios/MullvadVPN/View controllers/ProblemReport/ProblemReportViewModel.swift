@@ -20,6 +20,13 @@ import SwiftUI
         var id: ModalState { self }
     }
 
+    // Actions the user can perform in the event of failure
+    enum PostFailureAction {
+        case edit
+        case viewLogs
+        case retry
+    }
+
     var email: String = ""
     var message: String = ""
     var includeAccountTokenInLogs: Bool = false
@@ -105,6 +112,17 @@ import SwiftUI
             } catch {
                 modalState = .failure
             }
+        }
+    }
+
+    func doPostFailureAction(_ action: PostFailureAction) {
+        switch action {
+        case .edit:
+            modalState = nil
+        case .viewLogs:
+            doShowLog()
+        case .retry:
+            doSend()
         }
     }
 }
