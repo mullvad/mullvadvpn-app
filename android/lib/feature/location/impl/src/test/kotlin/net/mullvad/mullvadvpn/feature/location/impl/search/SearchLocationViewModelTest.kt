@@ -7,12 +7,12 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.location.impl.data.RELAY_COUNTRY_NORWAY
+import net.mullvad.mullvadvpn.feature.location.impl.data.RELAY_COUNTRY_SWEDEN
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -146,22 +146,6 @@ class SearchLocationViewModelTest {
     }
 
     companion object {
-        private val testCountries =
-            listOf(
-                RelayItem.Location.Country(
-                    id = GeoLocationId.Country("se"),
-                    "Sweden",
-                    listOf(
-                        RelayItem.Location.City(
-                            id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
-                            "Gothenburg",
-                            latLong = LatLong(0f, 0f),
-                            emptyList(),
-                            countryName = "Sweden",
-                        )
-                    ),
-                ),
-                RelayItem.Location.Country(id = GeoLocationId.Country("no"), "Norway", emptyList()),
-            )
+        private val testCountries = listOf(RELAY_COUNTRY_SWEDEN, RELAY_COUNTRY_NORWAY)
     }
 }
