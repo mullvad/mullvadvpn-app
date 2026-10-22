@@ -184,7 +184,7 @@ private fun Content(
             state = relayListItem.state,
             colors.headlineColor(enabled = active, selected = selected),
         )
-        if (relayListItem.connected) {
+        if (relayListItem.connected && !selected) {
             Subtitle(
                 text = stringResource(R.string.connected_server),
                 color = colors.subtitleColor(active),

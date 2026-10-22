@@ -12,7 +12,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
+import net.mullvad.mullvadvpn.feature.location.impl.expandKey
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandMap
+import net.mullvad.mullvadvpn.feature.location.impl.relayListItemsSearching
+import net.mullvad.mullvadvpn.feature.location.impl.selectedByOtherEntryExitList
+import net.mullvad.mullvadvpn.feature.location.impl.selectedByThisEntryExitList
 import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.feature.location.impl.withHighlights
 import net.mullvad.mullvadvpn.lib.common.Lce
