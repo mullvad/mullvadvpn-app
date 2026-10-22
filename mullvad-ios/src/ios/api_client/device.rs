@@ -78,30 +78,22 @@ impl ApiContext {
     }
 
     /// Delete device via the Mullvad API client.
-    pub fn delete_device(
+    pub async fn delete_device(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         identifier: String,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| match delete_device_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-                identifier,
-            )
+    ) -> Result<ApiResponse, AnyError> {
+        let rest_client = self.rest_handle();
+        let retry_strategy = *retry_strategy;
+
+        let api = DevicesProxy::new(rest_client);
+        let future_factory = move || api.remove(account_number.clone(), identifier.clone());
+
+        TokioBridge::spawn(do_request_with_empty_body(retry_strategy, future_factory))
             .await
-            {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(ApiResponse::rest_error(err));
-                }
-            },
-        )
+            .map_err(AnyError::from)
+            .inspect_err(|e| log::error!("delete_device failed: {e}"))
     }
 
     /// Rotate device key via the Mullvad API client.
@@ -144,19 +136,6 @@ impl ApiContext {
             },
         )
     }
-}
-
-async fn delete_device_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    account_number: String,
-    identifier: String,
-) -> Result<ApiResponse, rest::Error> {
-    let api = DevicesProxy::new(rest_client);
-
-    let future_factory = || api.remove(account_number.clone(), identifier.clone());
-
-    do_request_with_empty_body(retry_strategy, future_factory).await
 }
 
 async fn rotate_device_key_inner(

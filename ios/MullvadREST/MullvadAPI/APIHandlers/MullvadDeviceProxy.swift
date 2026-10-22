@@ -133,18 +133,17 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Bool>
         ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-
-            return createNetworkOperation(
-                request: .deleteDevice(retryStrategy, accountNumber: accountNumber, identifier: identifier),
-                responseHandler: responseHandler
-            ) { result in
-                if case let .failure(err) = result {
-                    completion(.failure(err))
-                } else {
-                    completion(.success(true))
+            Task {
+                do {
+                    let success = try await deleteDevice(
+                        accountNumber: accountNumber,
+                        identifier: identifier,
+                        retryStrategy: retryStrategy)
+                    completion(.success(success))
+                } catch {
+                    completion(.failure(error))
                 }
-            }
+            }.cancellable
         }
 
         func deleteDevice(
@@ -152,13 +151,13 @@ extension REST {
             identifier: String,
             retryStrategy: REST.RetryStrategy
         ) async throws -> Bool {
-            try await executeRequest(
-                .deleteDevice(
-                    retryStrategy,
-                    accountNumber: accountNumber,
-                    identifier: identifier
-                )
-            )
+            let response = try await apiContext.deleteDevice(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber,
+                identifier: identifier)
+            _ = try response.get()
+
+            return true
         }
 
         func rotateDeviceKey(
