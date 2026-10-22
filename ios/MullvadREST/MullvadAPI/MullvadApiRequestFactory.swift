@@ -134,10 +134,12 @@ public struct MullvadApiRequestFactory: Sendable {
             accountNumber: accountNumber
         ):
             return MullvadApiCancellable(
-                handle: apiContext.initStorekitPayment(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber
-                ))
+                task: {
+                    try await apiContext.initStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber
+                    )
+                })
         case let .checkStorekitPayment(
             retryStrategy: retryStrategy,
             transaction: transaction
