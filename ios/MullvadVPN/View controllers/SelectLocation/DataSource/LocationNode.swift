@@ -96,6 +96,9 @@ extension LocationNode {
     var asAutomaticLocationNode: AutomaticLocationNode? {
         self as? AutomaticLocationNode
     }
+    var asCustomListSelectableLocationNode: CustomListSelectableLocationNode? {
+        self as? CustomListSelectableLocationNode
+    }
 
     var userSelectedRelays: UserSelectedRelays {
         var customListSelection: UserSelectedRelays.CustomListSelection?

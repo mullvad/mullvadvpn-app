@@ -10,7 +10,7 @@ extension ExitLocationView {
             case let location as CustomListLocationNode:
                 Section(LocalizedStringKey(location.name)) {
                     Button {
-                        viewModel.showEditCustomList(name: location.name)
+                        customListSheetType = .edit(location)
                     } label: {
                         HStack {
                             Text("Edit list")
@@ -20,26 +20,15 @@ extension ExitLocationView {
                     }
 
                     Button(role: .destructive) {
-                        alert = .init(
-                            type: .warning,
-                            messages: ["Do you want to delete the list **\(location.name)**?"],
-                            actions: [
-                                .init(
-                                    type: .destructivePrimary,
-                                    title: "Delete list",
-                                    handler: {
-                                        viewModel.delete(customList: location.customList)
-                                        alert = nil
-                                    }
-                                ),
-                                .init(
-                                    type: .secondary,
-                                    title: "Cancel",
-                                    handler: {
-                                        alert = nil
-                                    }
-                                ),
-                            ]
+                        alert = .deleteCustomListAlert(
+                            customList: location,
+                            onDelete: {
+                                viewModel.delete(customList: location.customList)
+                                alert = nil
+                            },
+                            onCancel: {
+                                alert = nil
+                            }
                         )
                     } label: {
                         HStack {

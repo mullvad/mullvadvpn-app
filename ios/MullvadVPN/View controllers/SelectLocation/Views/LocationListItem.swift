@@ -43,13 +43,23 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             isLastInList: isLastInList,
             userInteraction: isCustomList && isDisabled
                 ? .inactive : (isDisabled ? .disabled : .enabled),
-            accessibilityIdentifier: .locationListItem(location.name),
+            accessibilityIdentifier: (location as? CustomListSelectableLocationNode) != nil
+                ? .customListLocationCheckmarkButton(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
             leading: {
-                itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
-                    .contextMenu {
-                        contextMenu(location)
-                    }
+                if let location = location as? CustomListSelectableLocationNode {
+                    @Bindable var location = location
+                    itemFactory
+                        .leading(
+                            for: .customListLocation(
+                                node: location, level: level, isSelected: $location.isCustomListSelected)
+                        )
+                } else {
+                    itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
+                        .contextMenu {
+                            contextMenu(location)
+                        }
+                }
             },
             segment: {
                 if hasChildren {

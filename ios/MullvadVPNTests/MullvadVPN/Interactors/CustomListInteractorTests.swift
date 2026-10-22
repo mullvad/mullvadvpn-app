@@ -274,18 +274,3 @@ struct CustomListInteractorTests {
         )
     }
 }
-
-private class SettingsUpdatingMock: SettingsUpdating {
-    var updateCalled = false
-    func updateSettings(
-        _ updates: [MullvadSettings.TunnelSettingsUpdate],
-        completionHandler: (@Sendable () -> Void)?
-    ) {
-        for update in updates {
-            update.apply(to: &settings)
-        }
-        updateCalled = true
-    }
-
-    var settings = LatestTunnelSettings()
-}

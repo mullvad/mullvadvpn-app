@@ -276,9 +276,18 @@ struct SegmentedListItemFactory {
                         image
                     }
                 case .input(let placeholder, let text):
-                    ConfigurableTextField(
-                        placeholder: LocalizedStringKey(placeholder), text: text,
-                        borderStyle: .constant(.none))
+                    TextField(
+                        "",
+                        text: text,
+                        prompt: Text(placeholder)
+                            .foregroundStyle(
+                                Color.MullvadTextField.inputPlaceholder
+                            )
+                    )
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                    .multilineTextAlignment(.trailing)
+                    .foregroundStyle(Color.MullvadTextField.textInput)
                 case .padding(let width):
                     Spacer()
                         .frame(width: width)
