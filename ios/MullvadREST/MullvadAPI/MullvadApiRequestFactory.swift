@@ -92,11 +92,13 @@ public struct MullvadApiRequestFactory: Sendable {
 
         case let .deleteDevice(retryStrategy, accountNumber, identifier):
             return MullvadApiCancellable(
-                handle: apiContext.deleteDevice(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber,
-                    identifier: identifier
-                ))
+                task: {
+                    try await apiContext.deleteDevice(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber,
+                        identifier: identifier
+                    )
+                })
         case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
             return MullvadApiCancellable(
                 handle: apiContext.rotateDeviceKey(
