@@ -18,6 +18,7 @@ use std::{
 use futures::{
     SinkExt, StreamExt,
     channel::{mpsc, oneshot},
+    future,
 };
 
 use hickory_proto::{
@@ -32,11 +33,10 @@ use hickory_server::{
         rr::{RData, Record, domain::Name, rdata},
     },
     resolver::{
-        //ResolveError, ResolveErrorKind, TokioResolver,
-        TokioResolver,
-        config::{ConnectionConfig, NameServerConfig, ResolverConfig},
+        ConnectionProvider, PoolContext, Resolver as HickoryResolver,
+        config::{ConnectionConfig, NameServerConfig, ProtocolConfig, ResolverConfig},
         lookup::Lookup,
-        net::{NetError, runtime::TokioRuntimeProvider},
+        net::{NetError, runtime::TokioRuntimeProvider, udp::UdpClientStream, xfer::DnsExchange},
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     zone_handler::{
@@ -219,7 +219,7 @@ enum Resolver {
 
     /// Forward DNS queries to a configured server
     Forwarding {
-        resolver: Box<TokioResolver>,
+        resolver: Box<ForwardingResolver>,
         filter_out_aaaa: bool,
         /// Bounds the number of concurrently forwarded queries
         limit: Arc<Semaphore>,
@@ -313,7 +313,7 @@ impl Resolver {
 
     /// Forward DNS queries to the specified DNS resolver.
     async fn resolve_forward(
-        resolver: TokioResolver,
+        resolver: ForwardingResolver,
         query: LowerQuery,
         filter_out_aaaa: bool,
     ) -> Result<AuthLookup, NetError> {
@@ -656,9 +656,11 @@ impl LocalResolver {
             .collect();
 
         let forward_config = ResolverConfig::from_parts(None, vec![], forward_server_config);
-        let resolver =
-            TokioResolver::builder_with_config(forward_config, TokioRuntimeProvider::default())
-                .build()?;
+        let resolver = ForwardingResolver::builder_with_config(
+            forward_config,
+            SingleSocketUdpProvider::default(),
+        )
+        .build()?;
 
         let cancel = CancellationToken::new();
         self.inner_resolver = Resolver::Forwarding {
@@ -669,6 +671,46 @@ impl LocalResolver {
             cancel,
         };
         Ok(())
+    }
+}
+
+type ForwardingResolver = HickoryResolver<SingleSocketUdpProvider>;
+
+/// A [ConnectionProvider] that sends each UDP query on a single socket.
+///
+/// Since 0.26, hickory resends a UDP query on a _new_ socket every few hundred milliseconds, up to
+/// three times. When the upstream server is slow or unreachable, this triples the number of file
+/// descriptors used by forwarded queries. This impl reuses a single socket instead.
+#[derive(Clone, Default)]
+struct SingleSocketUdpProvider(TokioRuntimeProvider);
+
+impl ConnectionProvider for SingleSocketUdpProvider {
+    type Conn = DnsExchange<TokioRuntimeProvider>;
+    type FutureConn = <TokioRuntimeProvider as ConnectionProvider>::FutureConn;
+    type RuntimeProvider = TokioRuntimeProvider;
+
+    fn new_connection(
+        &self,
+        ip: IpAddr,
+        config: &ConnectionConfig,
+        cx: &PoolContext,
+    ) -> Result<Self::FutureConn, NetError> {
+        let ProtocolConfig::Udp = config.protocol else {
+            return self.0.new_connection(ip, config, cx);
+        };
+        // Same as the default provider, except for `with_max_retries`
+        let exchange = UdpClientStream::builder(SocketAddr::new(ip, config.port), self.0.clone())
+            .with_timeout(Some(cx.options.timeout))
+            .with_os_port_selection(cx.options.os_port_selection)
+            .avoid_local_ports(cx.options.avoid_local_udp_ports.clone())
+            .with_bind_addr(config.bind_addr)
+            .with_max_retries(1)
+            .exchange();
+        Ok(Box::pin(future::ready(Ok(exchange))))
+    }
+
+    fn runtime_provider(&self) -> &Self::RuntimeProvider {
+        &self.0
     }
 }
 
@@ -848,7 +890,10 @@ impl RequestHandler for ResolverImpl {
 #[cfg(test)]
 mod test {
     use super::*;
-    use hickory_server::resolver::config::{NameServerConfig, ResolverConfig};
+    use hickory_server::resolver::{
+        TokioResolver,
+        config::{NameServerConfig, ResolverConfig},
+    };
     use std::{net::UdpSocket, sync::Mutex, thread};
     use typed_builder::TypedBuilder;
 
