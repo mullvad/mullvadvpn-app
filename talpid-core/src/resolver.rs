@@ -54,6 +54,7 @@ use tokio::{
     sync::Semaphore,
     task::JoinHandle,
 };
+use tokio_util::sync::{CancellationToken, DropGuard};
 
 /// If a local DNS resolver should be used at all times.
 ///
@@ -166,6 +167,9 @@ struct LocalResolver {
     inner_resolver: Resolver,
     /// Which IP+port the local resolver is bound to.
     bound_to: SocketAddr,
+    /// Bounds the number of concurrently forwarded queries. This is shared by all forwarding
+    /// resolvers, so that the bound holds across config changes.
+    forward_limit: Arc<Semaphore>,
 }
 
 /// A message to [LocalResolver]
@@ -219,6 +223,10 @@ enum Resolver {
         filter_out_aaaa: bool,
         /// Bounds the number of concurrently forwarded queries
         limit: Arc<Semaphore>,
+        /// Cancelled when this resolver is replaced, so that queries still in flight to the old
+        /// servers release their sockets immediately instead of waiting for a timeout.
+        cancel: CancellationToken,
+        _cancel_on_drop: DropGuard,
     },
 }
 
@@ -236,9 +244,12 @@ impl Resolver {
                 resolver,
                 filter_out_aaaa,
                 limit,
+                cancel,
+                ..
             } => {
                 let resolver = resolver.clone();
                 let limit = Arc::clone(limit);
+                let cancel = cancel.clone();
                 let filter_out_aaaa = *filter_out_aaaa && !*NEVER_FILTER_AAAA_QUERIES;
                 tokio::spawn(async move {
                     let permit = match limit.try_acquire() {
@@ -250,9 +261,16 @@ impl Resolver {
                             return;
                         }
                     };
-                    let lookup = Self::resolve_forward(*resolver, query, filter_out_aaaa)
-                        .await
-                        .map(Box::new);
+                    let lookup = tokio::select! {
+                        lookup = Self::resolve_forward(*resolver, query, filter_out_aaaa) => {
+                            lookup.map(Box::new)
+                        }
+                        // Respond with SERVFAIL so that the client retries against the new
+                        // config instead of waiting for its own timeout
+                        () = cancel.cancelled() => Err(NetError::Dns(DnsError::ResponseCode(
+                            ResponseCode::ServFail,
+                        ))),
+                    };
                     drop(permit);
                     let _ = tx.send(lookup);
                 });
@@ -431,6 +449,7 @@ impl LocalResolver {
             dns_server_task,
             bound_to: resolver_addr,
             inner_resolver: Resolver::Blocking,
+            forward_limit: Arc::new(Semaphore::new(FORWARD_QUERY_LIMIT)),
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, resolver_addr)))
@@ -641,10 +660,13 @@ impl LocalResolver {
             TokioResolver::builder_with_config(forward_config, TokioRuntimeProvider::default())
                 .build()?;
 
+        let cancel = CancellationToken::new();
         self.inner_resolver = Resolver::Forwarding {
             resolver: Box::new(resolver),
             filter_out_aaaa,
-            limit: Arc::new(Semaphore::new(FORWARD_QUERY_LIMIT)),
+            limit: Arc::clone(&self.forward_limit),
+            _cancel_on_drop: cancel.clone().drop_guard(),
+            cancel,
         };
         Ok(())
     }
