@@ -1,11 +1,12 @@
 import SwiftUI
 
-struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
-    @ObservedObject var viewModel: ViewModel
+struct ExitLocationView: View {
+    let viewModel: SelectLocationViewModel
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var multihopWarningAlert: MullvadAlert?
     @State var alert: MullvadAlert?
+    @Binding var customListSheetType: CustomListSheetType?
     private let topAnchor = "topAnchor"
     let onScrollVisibilityChange: (Bool) -> Void
 
@@ -148,8 +149,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     face: .icon(.iconAdd), accessibilityId: .addNewCustomListButton,
                     accessibilityLabel: "Create new custom list", accessibilityHint: nil,
                     action: {
-                        viewModel.showAddCustomListView(
-                            locations: context.customListAvailableLocations)
+                        customListSheetType = .add
                     })
             ]
             if !context.customLists.isEmpty {
@@ -158,9 +158,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         face: .icon(.iconEdit), accessibilityId: .editCustomListButton,
                         accessibilityLabel: "Edit custom lists", accessibilityHint: nil,
                         action: {
-                            viewModel.showEditCustomListView(
-                                locations: context.customListAvailableLocations
-                            )
+                            customListSheetType = .list
                         })
                 )
             }
@@ -242,6 +240,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.exitContext,
         newCustomListAlert: nil,
         alert: nil,
+        customListSheetType: .constant(nil),
         onScrollVisibilityChange: { _ in }
     )
     .background(Color.mullvadBackground)
@@ -254,6 +253,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         context: $viewModel.entryContext,
         newCustomListAlert: nil,
         alert: nil,
+        customListSheetType: .constant(nil),
         onScrollVisibilityChange: { _ in }
     )
     .background(Color.mullvadBackground)
