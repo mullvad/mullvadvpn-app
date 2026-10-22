@@ -148,6 +148,7 @@ impl RelayEndpointSet {
         })
     }
 
+    /// Whether the relay satisfies the query's obfuscation and IP-version constraints.
     pub(crate) fn obfuscation_verdict(
         &self,
         EntrySpecificConstraints {
@@ -172,31 +173,30 @@ impl RelayEndpointSet {
                 self.wireguard
                     .supports_port(port.get())
                     .if_false(Reason::Port),
-            ]))
+            ]));
         }
-        if let Some(settings) = udp2tcp {
-            verdicts.push(match &self.udp2tcp_ports {
-                None => Verdict::reject(Reason::Obfuscation),
-                Some(ports) => Verdict::all([
-                    settings
-                        .port
-                        .is_any_or(|p| ports.contains(&p))
-                        .if_false(Reason::Port),
-                    self.wireguard
-                        .supports_ip_version(*ip_version)
-                        .if_false(Reason::IpVersion),
-                ]),
-            });
-        }
-        if let Some(settings) = shadowsocks {
-            verdicts.push(match &self.shadowsocks {
-                None => Verdict::reject(Reason::Obfuscation),
-                Some(ss) => ss.verdict(&self.wireguard, *ip_version, settings.port),
-            });
-        }
-        if let Some(settings) = lwo {
+        if let Some(settings) = udp2tcp
+            && let Some(ports) = &self.udp2tcp_ports
+        {
             verdicts.push(Verdict::all([
-                self.lwo.is_some().if_false(Reason::Obfuscation),
+                settings
+                    .port
+                    .is_any_or(|p| ports.contains(&p))
+                    .if_false(Reason::Port),
+                self.wireguard
+                    .supports_ip_version(*ip_version)
+                    .if_false(Reason::IpVersion),
+            ]));
+        }
+        if let Some(settings) = shadowsocks
+            && let Some(ss) = &self.shadowsocks
+        {
+            verdicts.push(ss.verdict(&self.wireguard, *ip_version, settings.port));
+        }
+        if let Some(settings) = lwo
+            && self.lwo.is_some()
+        {
+            verdicts.push(Verdict::all([
                 self.wireguard
                     .supports_port(settings.port)
                     .if_false(Reason::Port),
@@ -205,15 +205,16 @@ impl RelayEndpointSet {
                     .if_false(Reason::IpVersion),
             ]));
         }
-        if *quic {
-            verdicts.push(match &self.quic {
-                None => Verdict::reject(Reason::Obfuscation),
-                Some(quic) => quic
-                    .supports_ip_version(*ip_version)
+        if *quic && let Some(quic) = &self.quic {
+            verdicts.push(
+                quic.supports_ip_version(*ip_version)
                     .if_false(Reason::IpVersion),
-            });
+            );
         }
 
+        if verdicts.is_empty() {
+            return Verdict::reject(Reason::Obfuscation);
+        }
         Verdict::any(verdicts)
     }
 
