@@ -27,7 +27,7 @@ public protocol APIQuerying: Sendable {
     func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable
 
     func initStoreKitPayment(
@@ -122,11 +122,17 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            createNetworkOperation(
-                request: .sendProblemReport(retryStrategy, problemReportRequest: body),
-                responseHandler: rustEmptyResponseHandler(),
-                completionHandler: completionHandler
-            )
+            Task {
+                do {
+                    let response = try await apiContext.sendProblemReport(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        problemReportRequest: body)
+                    _ = try response.get()
+                    completionHandler(.success(()))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func checkApiAvailability(
