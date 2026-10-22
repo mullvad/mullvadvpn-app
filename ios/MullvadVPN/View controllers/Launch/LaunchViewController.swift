@@ -40,8 +40,7 @@ class LaunchViewController: UIViewController {
         .lightContent
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    func start() {
         appResetManager.start()
     }
 

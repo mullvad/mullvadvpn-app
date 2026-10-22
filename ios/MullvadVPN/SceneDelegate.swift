@@ -53,9 +53,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
-            didLoadConfiguration: { [weak self] _ in
-                self?.configureScene()
-            },
             didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.deviceStateDidChange(deviceState)
             }
@@ -215,8 +212,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             settingsManager: settingsManager)
 
         launchViewController.onAppReady = { [weak self] in
-            guard let self = self else { return }
-            configureScene()
+            self?.configureScene()
         }
 
         window = UIWindow(windowScene: windowScene)
@@ -234,6 +230,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         addTunnelObserver()
 
         configureScene()
+        launchViewController.start()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
