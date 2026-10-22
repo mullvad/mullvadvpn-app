@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -87,23 +88,21 @@ class ConnectViewModel(
                 relayListRepository.relayList,
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
-                connectionProxy.tunnelState.withPrev(),
+                tunnelStateWithPause(),
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
                 multihopGuideMigrationHintUseCase(),
-                tunnelPauseRepository.pausedUntil,
             ) {
                 connectionPath,
                 relayList,
                 selectedRelayItemTitle,
                 notifications,
-                (tunnelState, prevTunnelState),
+                (tunnelState, prevTunnelState, pausedUntil),
                 lastKnownDisconnectedLocation,
                 accountData,
                 deviceName,
-                showMigrationGuideNotificationDot,
-                pausedUntil ->
+                showMigrationGuideNotificationDot ->
                 ConnectUiState(
                     internetLocation =
                         when (tunnelState) {
@@ -138,12 +137,7 @@ class ConnectViewModel(
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
                     isPlayBuild = isPlayBuild,
                     showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
-                    pausedUntil =
-                        if (tunnelState is TunnelState.Disconnected) {
-                            pausedUntil
-                        } else {
-                            null
-                        },
+                    pausedUntil = pausedUntil,
                 )
             }
             .onStart {
@@ -212,8 +206,12 @@ class ConnectViewModel(
 
     fun onPauseClick(duration: Duration) {
         tunnelPauseRepository.requestPause(duration).onLeft {
-            viewModelScope.launch { _uiSideEffect.send(UiSideEffect.ConnectError.Generic) }
+            viewModelScope.launch { _uiSideEffect.send(UiSideEffect.PauseFailed) }
         }
+    }
+
+    fun onCancelPauseClick() {
+        tunnelPauseRepository.cancel()
     }
 
     fun onCancelClick() {
@@ -261,6 +259,19 @@ class ConnectViewModel(
         hasShownNotificationPromptRepository.setHasShowNotificationPrompt(true)
     }
 
+    // The pause is only shown while the tunnel is disconnected, the tunnel state is updated a bit
+    // before the pause ends.
+    private fun tunnelStateWithPause() =
+        connectionProxy.tunnelState.withPrev().combine(tunnelPauseRepository.pausedUntil) {
+            (tunnelState, prevTunnelState),
+            pausedUntil ->
+            Triple(
+                tunnelState,
+                prevTunnelState,
+                pausedUntil.takeIf { tunnelState is TunnelState.Disconnected },
+            )
+        }
+
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
@@ -284,6 +295,8 @@ class ConnectViewModel(
         data object RevokedDevice : UiSideEffect
 
         data class NotPrepared(val prepareError: PrepareError) : UiSideEffect
+
+        data object PauseFailed : UiSideEffect
 
         sealed interface ConnectError : UiSideEffect {
             data object Generic : ConnectError

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.BuildConfig
@@ -27,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_PAUSE_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_PAUSE_DURATION_SECONDS
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_RECONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_RESUME_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
@@ -111,6 +113,17 @@ class MullvadVpnService : TalpidVpnService() {
                 .filter { !it.errorState.isBlocking }
                 .collect { foregroundNotificationHandler.stopForeground() }
         }
+
+        lifecycleScope.launch {
+            // Stay in the foreground during the pause, the system unbinds when the tunnel is
+            // disconnected and the app might not be bound either.
+            tunnelPauseRepository.pausedUntil.filterNotNull().collect {
+                foregroundNotificationHandler.startForeground()
+            }
+        }
+
+        // The process might have been killed during a pause.
+        pauseJob = lifecycleScope.launch { tunnelPauseRepository.restore()?.let(::onPauseEnded) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -123,6 +136,9 @@ class MullvadVpnService : TalpidVpnService() {
         // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
         // where the service would potentially otherwise be too slow running `startForeground`.
         when {
+            // The device is usually locked when the pause runs out.
+            intent?.action == KEY_RESUME_ACTION -> tunnelPauseRepository.onAlarm()
+
             keyguardManager.isKeyguardLocked -> {
                 Logger.i("Keyguard is locked, ignoring command")
             }
@@ -143,6 +159,7 @@ class MullvadVpnService : TalpidVpnService() {
                 // system
                 // requirements.
                 foregroundNotificationHandler.startForeground()
+                tunnelPauseRepository.cancel()
                 lifecycleScope.launch {
                     connectionProxy.disconnect(DisconnectReason.USER_INITIATED_NOTIFICATION_TILE)
                 }
@@ -157,9 +174,6 @@ class MullvadVpnService : TalpidVpnService() {
             intent?.action == KEY_PAUSE_ACTION -> {
                 val duration = intent.getLongExtra(KEY_PAUSE_DURATION_SECONDS, 0).seconds
                 if (duration.isPositive()) {
-                    // Stay in the foreground during the pause, the system unbinds when the tunnel
-                    // is disconnected and the app might not be bound either.
-                    foregroundNotificationHandler.startForeground()
                     pause(duration)
                 } else {
                     Logger.w("Ignoring pause with invalid duration: $duration")
@@ -174,14 +188,20 @@ class MullvadVpnService : TalpidVpnService() {
         val previousPause = pauseJob
         pauseJob = lifecycleScope.launch {
             previousPause?.cancelAndJoin()
-            when (tunnelPauseRepository.pause(duration)) {
-                // The tunnel is, or will soon be, connected, which keeps us in the foreground.
-                PauseResult.Resumed,
-                PauseResult.ResumedByUser,
-                is PauseResult.DisconnectFailed -> {}
-                PauseResult.LoggedOut,
-                is PauseResult.ReconnectFailed -> foregroundNotificationHandler.stopForeground()
-            }
+            onPauseEnded(tunnelPauseRepository.pause(duration))
+        }
+    }
+
+    private fun onPauseEnded(result: PauseResult) {
+        when (result) {
+            // The tunnel is, or will soon be, connected, which keeps us in the foreground.
+            PauseResult.Resumed,
+            PauseResult.ResumedByUser,
+            is PauseResult.DisconnectFailed -> {}
+            PauseResult.Cancelled,
+            PauseResult.NotConnected,
+            PauseResult.LoggedOut,
+            is PauseResult.ReconnectFailed -> foregroundNotificationHandler.stopForeground()
         }
     }
 

@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
+import net.mullvad.mullvadvpn.lib.ui.tag.CANCEL_PAUSE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
@@ -68,6 +69,7 @@ class ConnectScreenTest {
         onConnectClick: () -> Unit = {},
         onCancelClick: () -> Unit = {},
         onPauseClick: () -> Unit = {},
+        onCancelPauseClick: () -> Unit = {},
         onSwitchLocationClick: () -> Unit = {},
         onOpenAppListing: () -> Unit = {},
         onManageAccountClick: () -> Unit = {},
@@ -91,6 +93,7 @@ class ConnectScreenTest {
                 onConnectClick = onConnectClick,
                 onCancelClick = onCancelClick,
                 onPauseClick = onPauseClick,
+                onCancelPauseClick = onCancelPauseClick,
                 onSwitchLocationClick = onSwitchLocationClick,
                 onOpenAppListing = onOpenAppListing,
                 onManageAccountClick = onManageAccountClick,
@@ -578,6 +581,37 @@ class ConnectScreenTest {
             onNodeWithTag(RECONNECT_COUNTDOWN_TEST_TAG).assertExists()
             onNodeWithTag(PAUSE_BUTTON_TEST_TAG).assertDoesNotExist()
             onNodeWithText("Connect").assertExists()
+        }
+    }
+
+    @Test
+    fun testOnCancelPauseClick() {
+        composeExtension.use {
+            // Arrange
+            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+            initScreen(
+                state =
+                    ConnectUiState(
+                        internetLocation = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Disconnected(),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
+                        pausedUntil = Instant.now().plus(Duration.ofMinutes(5)),
+                    ),
+                onCancelPauseClick = mockedClickHandler,
+            )
+
+            // Act
+            onNodeWithTag(CANCEL_PAUSE_BUTTON_TEST_TAG).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke() }
         }
     }
 

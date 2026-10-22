@@ -222,7 +222,7 @@ class TunnelStateNotificationProviderTest {
         }
 
     @Test
-    fun `should emit paused notification with connect action when paused and disconnected`() =
+    fun `should emit paused notification with connect and cancel actions when paused and disconnected`() =
         runTest {
             val resumeAt = Instant.parse("2026-01-01T12:05:00Z")
 
@@ -235,7 +235,10 @@ class TunnelStateNotificationProviderTest {
                 // Then an ongoing Paused notification update is emitted
                 val update = awaitItem() as NotificationUpdate.Notify<Notification.Tunnel>
                 assertEquals(NotificationTunnelState.Paused(resumeAt), update.value.state)
-                assertEquals(listOf(NotificationAction.Tunnel.Connect), update.value.actions)
+                assertEquals(
+                    listOf(NotificationAction.Tunnel.Connect, NotificationAction.Tunnel.Cancel),
+                    update.value.actions,
+                )
                 assertTrue(update.value.ongoing)
             }
         }

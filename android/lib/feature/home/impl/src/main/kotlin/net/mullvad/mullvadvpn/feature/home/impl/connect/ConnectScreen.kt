@@ -72,7 +72,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
@@ -172,6 +172,7 @@ private fun PreviewAccountScreen(
             onConnectClick = {},
             onCancelClick = {},
             onPauseClick = {},
+            onCancelPauseClick = {},
             onSwitchLocationClick = {},
             onOpenAppListing = {},
             onManageAccountClick = {},
@@ -264,6 +265,11 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                     message = resources.getString(R.string.error_occurred)
                 )
 
+            ConnectViewModel.UiSideEffect.PauseFailed ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.pause_vpn_failed)
+                )
+
             is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -320,7 +326,7 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
     }
 
     LocalResultStore.current.consumeResult<PauseVpnNavResult> { result ->
-        connectViewModel.onPauseClick(result.minutes.minutes)
+        connectViewModel.onPauseClick(result.seconds.seconds)
     }
 
     CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
@@ -332,6 +338,7 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
             onConnectClick = connectViewModel::onConnectClick,
             onCancelClick = connectViewModel::onCancelClick,
             onPauseClick = dropUnlessResumed { navigator.navigate(PauseVpnNavKey) },
+            onCancelPauseClick = connectViewModel::onCancelPauseClick,
             onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationNavKey) },
             onOpenAppListing = connectViewModel::openAppListing,
             onManageAccountClick = connectViewModel::onManageAccountClick,
@@ -381,6 +388,7 @@ fun ConnectScreen(
     onConnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onSwitchLocationClick: () -> Unit,
     onOpenAppListing: () -> Unit,
     onManageAccountClick: () -> Unit,
@@ -409,6 +417,7 @@ fun ConnectScreen(
                 onConnectClick = onConnectClick,
                 onCancelClick = onCancelClick,
                 onPauseClick = onPauseClick,
+                onCancelPauseClick = onCancelPauseClick,
                 onSwitchLocationClick = onSwitchLocationClick,
                 onOpenAppListing = onOpenAppListing,
                 onManageAccountClick = onManageAccountClick,
@@ -472,6 +481,7 @@ private fun Content(
     onConnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onSwitchLocationClick: () -> Unit,
     onOpenAppListing: () -> Unit,
     onManageAccountClick: () -> Unit,
@@ -550,6 +560,7 @@ private fun Content(
                 onReconnectClick = onReconnectClick,
                 onCancelClick = onCancelClick,
                 onPauseClick = onPauseClick,
+                onCancelPauseClick = onCancelPauseClick,
                 onConnectClick = onConnectClick,
                 onNavigateToFeature = onNavigateToFeature,
             )
@@ -607,6 +618,7 @@ private fun ConnectionCard(
     onReconnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onConnectClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
@@ -631,6 +643,7 @@ private fun ConnectionCard(
                 location = state.internetLocation,
                 isWhenNeededMultihop = isWhenNeededMultihop,
                 expanded = expanded,
+                onCancelPauseClick = onCancelPauseClick,
             ) {
                 expanded = !expanded
             }
@@ -675,6 +688,7 @@ private fun ConnectionCardHeader(
     location: GeoIpLocation?,
     expanded: Boolean,
     isWhenNeededMultihop: Boolean,
+    onCancelPauseClick: () -> Unit,
     onToggleExpand: () -> Unit,
 ) {
     Column(
@@ -744,7 +758,11 @@ private fun ConnectionCardHeader(
 
         AnimatedContent(state.pausedUntil, label = "paused_until") {
             if (it != null) {
-                ReconnectCountdown(resumeAt = it, modifier = Modifier.fillMaxWidth())
+                ReconnectCountdown(
+                    resumeAt = it,
+                    onCancelClick = onCancelPauseClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         }
     }
@@ -885,7 +903,7 @@ private fun ButtonPanel(
             cancelClick = onCancelClick,
             connectClick = { handleThrottledAction(onConnectClick) },
             pauseClick = onPauseClick,
-            isPauseButtonEnabled =
+            showPauseButton =
                 state.tunnelState is TunnelState.Connected ||
                     state.tunnelState is TunnelState.Connecting,
             pauseButtonTestTag = PAUSE_BUTTON_TEST_TAG,

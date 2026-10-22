@@ -22,7 +22,8 @@ class ConnectionProxy(
 ) {
     private val _connectionRequests = MutableStateFlow(0L)
 
-    // Tracks attempts even when the daemon skips or conflates intermediate tunnel states.
+    // Counts connect requests that changed the target state, also when the daemon skips or
+    // conflates intermediate tunnel states.
     val connectionRequests: StateFlow<Long> = _connectionRequests.asStateFlow()
 
     val tunnelState =
@@ -55,16 +56,15 @@ class ConnectionProxy(
         connectWithoutPermissionCheck().bind()
     }
 
-    suspend fun connectWithoutPermissionCheck(): Either<ConnectError, Boolean> {
-        _connectionRequests.update { it + 1 }
-        return managementService.connect()
-    }
+    suspend fun connectWithoutPermissionCheck(): Either<ConnectError, Boolean> =
+        managementService.connect().onRight { changed ->
+            if (changed) {
+                _connectionRequests.update { it + 1 }
+            }
+        }
 
     suspend fun disconnect(disconnectReason: DisconnectReason) =
         managementService.disconnect(disconnectReason)
 
-    suspend fun reconnect(): Either<ConnectError, Boolean> {
-        _connectionRequests.update { it + 1 }
-        return managementService.reconnect()
-    }
+    suspend fun reconnect(): Either<ConnectError, Boolean> = managementService.reconnect()
 }

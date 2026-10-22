@@ -55,7 +55,7 @@ private fun PreviewConnectionButton(
                 disconnectClick = {},
                 cancelClick = {},
                 connectClick = {},
-                isPauseButtonEnabled = true,
+                showPauseButton = true,
             )
         }
     }
@@ -69,7 +69,7 @@ fun ConnectionButton(
     cancelClick: () -> Unit,
     connectClick: () -> Unit,
     pauseClick: () -> Unit = {},
-    isPauseButtonEnabled: Boolean = false,
+    showPauseButton: Boolean = false,
     pauseButtonTestTag: String = "",
 ) {
 
@@ -120,7 +120,7 @@ fun ConnectionButton(
             else -> disconnectClick
         }
 
-    if (isPauseButtonEnabled) {
+    if (showPauseButton) {
         ConnectionButtonWithPause(
             modifier = modifier,
             text = buttonText,

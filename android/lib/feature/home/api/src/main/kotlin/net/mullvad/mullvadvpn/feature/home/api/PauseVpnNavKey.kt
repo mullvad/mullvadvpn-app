@@ -6,4 +6,4 @@ import net.mullvad.mullvadvpn.core.NavResult
 
 @Parcelize object PauseVpnNavKey : NavKey2
 
-@Parcelize data class PauseVpnNavResult(val minutes: Int) : NavResult
+@Parcelize data class PauseVpnNavResult(val seconds: Long) : NavResult

@@ -68,9 +68,7 @@ fun PauseVpnBottomSheet(navigator: Navigator) {
             onBackgroundColor = onBackgroundColor,
             onDurationClick =
                 dropUnlessResumed { duration: Duration ->
-                    navigator.goBack(
-                        result = PauseVpnNavResult(minutes = duration.inWholeMinutes.toInt())
-                    )
+                    navigator.goBack(result = PauseVpnNavResult(seconds = duration.inWholeSeconds))
                 },
         )
     }
@@ -125,8 +123,8 @@ private fun PauseVpnBottomSheetContent(
 private fun Duration.toText(): String =
     if (this < 1.hours) {
         val minutes = inWholeMinutes.toInt()
-        pluralStringResource(id = R.plurals.minutes, count = minutes, minutes)
+        pluralStringResource(id = R.plurals.pause_vpn_minutes, count = minutes, minutes)
     } else {
         val hours = inWholeHours.toInt()
-        pluralStringResource(id = R.plurals.hours, count = hours, hours)
+        pluralStringResource(id = R.plurals.pause_vpn_hours, count = hours, hours)
     }

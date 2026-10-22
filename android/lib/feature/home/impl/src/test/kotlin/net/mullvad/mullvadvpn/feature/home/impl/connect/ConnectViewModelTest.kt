@@ -334,7 +334,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun `given pause request fails onPauseClick should emit generic connect error`() = runTest {
+    fun `given pause request fails onPauseClick should emit PauseFailed`() = runTest {
         // Arrange
         every { mockTunnelPauseRepository.requestPause(any()) } returns RuntimeException().left()
 
@@ -343,8 +343,20 @@ class ConnectViewModelTest {
 
         // Assert
         viewModel.uiSideEffect.test {
-            assertEquals(ConnectViewModel.UiSideEffect.ConnectError.Generic, awaitItem())
+            assertEquals(ConnectViewModel.UiSideEffect.PauseFailed, awaitItem())
         }
+    }
+
+    @Test
+    fun `onCancelPauseClick should cancel the pause`() = runTest {
+        // Arrange
+        every { mockTunnelPauseRepository.cancel() } just Runs
+
+        // Act
+        viewModel.onCancelPauseClick()
+
+        // Assert
+        verify { mockTunnelPauseRepository.cancel() }
     }
 
     @Test

@@ -119,8 +119,10 @@ class TunnelStateNotificationProvider(
                         listOf(NotificationAction.Tunnel.RequestVpnProfile)
                 }
             }
-            NotificationTunnelState.Disconnecting,
-            is NotificationTunnelState.Paused -> listOf(NotificationAction.Tunnel.Connect)
+            NotificationTunnelState.Disconnecting -> listOf(NotificationAction.Tunnel.Connect)
+            // Cancel ends the pause and leaves the tunnel disconnected.
+            is NotificationTunnelState.Paused ->
+                listOf(NotificationAction.Tunnel.Connect, NotificationAction.Tunnel.Cancel)
             NotificationTunnelState.Error.Blocked,
             NotificationTunnelState.Blocking,
             NotificationTunnelState.Error.DeviceOffline,

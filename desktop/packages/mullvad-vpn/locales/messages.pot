@@ -4203,6 +4203,9 @@ msgstr ""
 msgid "Unable to parse patch"
 msgstr ""
 
+msgid "Unable to pause VPN"
+msgstr ""
+
 msgid "Unable to reach API"
 msgstr ""
 

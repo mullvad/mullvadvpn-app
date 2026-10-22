@@ -3,11 +3,13 @@ package net.mullvad.mullvadvpn.feature.home.impl.connect
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -16,7 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import java.time.Duration
 import java.time.Instant
 import kotlinx.coroutines.delay
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.CANCEL_PAUSE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_COUNTDOWN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
@@ -25,13 +29,20 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 private fun PreviewReconnectCountdown() {
     AppTheme {
         Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
-            ReconnectCountdown(resumeAt = Instant.now().plusSeconds(PREVIEW_SECONDS))
+            ReconnectCountdown(
+                resumeAt = Instant.now().plusSeconds(PREVIEW_SECONDS),
+                onCancelClick = {},
+            )
         }
     }
 }
 
 @Composable
-fun ReconnectCountdown(resumeAt: Instant, modifier: Modifier = Modifier) {
+fun ReconnectCountdown(
+    resumeAt: Instant,
+    onCancelClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val secondsLeft by
         produceState(initialValue = secondsUntil(resumeAt), resumeAt) {
             while (value > 0) {
@@ -41,14 +52,21 @@ fun ReconnectCountdown(resumeAt: Instant, modifier: Modifier = Modifier) {
             }
         }
 
-    Text(
-        modifier = modifier.testTag(RECONNECT_COUNTDOWN_TEST_TAG),
-        text = stringResource(R.string.reconnects_in, DateUtils.formatElapsedTime(secondsLeft)),
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            modifier = Modifier.weight(1f).testTag(RECONNECT_COUNTDOWN_TEST_TAG),
+            text = stringResource(R.string.reconnects_in, DateUtils.formatElapsedTime(secondsLeft)),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        PrimaryTextButton(
+            onClick = onCancelClick,
+            text = stringResource(R.string.cancel),
+            modifier = Modifier.testTag(CANCEL_PAUSE_BUTTON_TEST_TAG),
+        )
+    }
 }
 
 // Rounded up, so that the countdown only shows zero once the time is actually up.
