@@ -68,19 +68,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 showFilterView: { [weak self] multihopContext in
                     self?.navigateToFilter(multihopContext: multihopContext)
                 },
-                showEditCustomListView: { [weak self] locations, customList in
-                    if let customList {
-                        self?.showEditCustomList(
-                            list: customList,
-                            nodes: locations
-                        )
-                    } else {
-                        self?.showEditCustomLists(nodes: locations)
-                    }
-                },
-                showAddCustomListView: { [weak self] locations in
-                    self?.showAddCustomList(nodes: locations)
-                },
                 didSelectExitRelayLocations: { [weak self] constraint in
                     guard let self else { return }
                     self.didSelectExitRelays(constraint)
@@ -103,78 +90,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         hostingController.view.setAccessibilityIdentifier(.selectLocationView)
 
         navigationController.pushViewController(hostingController, animated: false)
-    }
-
-    private func showAddCustomList(nodes: [LocationNode]) {
-        let coordinator = AddCustomListCoordinator(
-            navigationController: CustomNavigationController(),
-            interactor: selectLocationViewModel,
-            nodes: nodes
-        )
-
-        coordinator.didFinish = { [weak self] addCustomListCoordinator in
-            addCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.customListsChanged()
-        }
-
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-    }
-
-    private func showEditCustomLists(nodes: [LocationNode]) {
-        let coordinator = ListCustomListCoordinator(
-            navigationController: InterceptibleNavigationController(),
-            interactor: selectLocationViewModel,
-            tunnelManager: tunnelManager,
-            nodes: nodes,
-        )
-
-        coordinator.didFinish = { [weak self] listCustomListCoordinator, action in
-            guard let self else { return }
-            listCustomListCoordinator.dismiss(animated: true)
-
-            switch action {
-            case .didDelete(let list):
-                self.selectLocationViewModel.delete(customList: list)
-            case .didSave(let list):
-                try? self.selectLocationViewModel.save(list: list)
-            case .noAction:
-                self.selectLocationViewModel.customListsChanged()
-            }
-        }
-
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-
-        coordinator.presentedViewController.presentationController?.delegate = self
-    }
-
-    private func showEditCustomList(list: CustomList, nodes: [LocationNode]) {
-        let coordinator = EditCustomListCoordinator(
-            navigationController: InterceptibleNavigationController(),
-            customListInteractor: selectLocationViewModel,
-            customList: list,
-            nodes: nodes
-        )
-
-        coordinator.didFinish = { [weak self] editCustomListCoordinator, _ in
-            editCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.customListsChanged()
-        }
-
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-
-        coordinator.presentedViewController.presentationController?.delegate = self
-    }
-
-}
-
-// Intercept dismissal (by down swipe) of ListCustomListCoordinator and apply custom actions.
-// See showEditCustomLists() above.
-extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        selectLocationViewModel?.customListsChanged()
     }
 }
 
