@@ -87,6 +87,8 @@
 		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
 		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
+		440118B1308A5B0A000601B2 /* ProblemReportFailurePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440118B0308A5B02000601B2 /* ProblemReportFailurePage.swift */; };
+		440118B3308A5F1E000601B2 /* ProblemReportLogPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440118B2308A5F14000601B2 /* ProblemReportLogPage.swift */; };
 		440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
 		440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
 		440866A9304B5E6500EEDEFE /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */; };
@@ -1890,6 +1892,8 @@
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		38693EC430458CF000BC154A /* mullvad_uniffi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = mullvad_uniffi.swift; path = generated/mullvad_uniffi.swift; sourceTree = "<group>"; };
 		38693EC630458CFD00BC154A /* mullvad_uniffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mullvad_uniffi.h; path = include/mullvad_uniffi.h; sourceTree = "<group>"; };
+		440118B0308A5B02000601B2 /* ProblemReportFailurePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportFailurePage.swift; sourceTree = "<group>"; };
+		440118B2308A5F14000601B2 /* ProblemReportLogPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportLogPage.swift; sourceTree = "<group>"; };
 		440866A5304AFED900EEDEFE /* ActionThrottle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionThrottle.swift; sourceTree = "<group>"; };
 		440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
@@ -4976,7 +4980,9 @@
 				852969322B4E9232007EAD4C /* Page.swift */,
 				7A4ED7B52ECCC09C00E0DC51 /* PaymentPage.swift */,
 				855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */,
+				440118B2308A5F14000601B2 /* ProblemReportLogPage.swift */,
 				8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */,
+				440118B0308A5B02000601B2 /* ProblemReportFailurePage.swift */,
 				8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */,
 				8542F7522BCFBD050035C042 /* SelectLocationFilterPage.swift */,
 				850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */,
@@ -7533,8 +7539,10 @@
 				85021CAE2BDBC4290098B400 /* AppLogsPage.swift in Sources */,
 				4495ECD12D0B170700A7358B /* UDPOverTCPObfuscationSettingsPage.swift in Sources */,
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,
+				440118B3308A5F1E000601B2 /* ProblemReportLogPage.swift in Sources */,
 				7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */,
 				F0AF89502F55A8F400DE9740 /* UITestSettingsResetPolicy.swift in Sources */,
+				440118B1308A5B0A000601B2 /* ProblemReportFailurePage.swift in Sources */,
 				7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */,
 				7AA564522F30E033001D1FB9 /* LwoObfuscationSettingsPage.swift in Sources */,
 				852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */,

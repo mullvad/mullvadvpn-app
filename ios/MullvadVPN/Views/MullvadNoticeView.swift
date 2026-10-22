@@ -157,6 +157,7 @@ extension MullvadNoticeView {
         let id = UUID()
         @Published var state: ActionState
         let style: MullvadButton.Style
+        var accessibilityIdentifier: AccessibilityIdentifier?
         var onTap: (() -> Void)
 
         var displayedTitle: String {
@@ -182,10 +183,12 @@ extension MullvadNoticeView {
         init(
             style: MullvadButton.Style,
             state: ActionState,
+            accessibilityIdentifier: AccessibilityIdentifier? = nil,
             onTap: @escaping (() -> Void) = {}
         ) {
             self.style = style
             self.state = state
+            self.accessibilityIdentifier = accessibilityIdentifier
             self.onTap = onTap
         }
     }
@@ -321,6 +324,7 @@ private struct ActionButton: View {
         MullvadButton(
             text: "\(action.displayedTitle)",
             style: action.style,
+            mainAccessibilityIdentifier: action.accessibilityIdentifier,
             leadingAccessory: action.state.kind.icon.map { .icon($0) }
         ) {
             action.onTap()

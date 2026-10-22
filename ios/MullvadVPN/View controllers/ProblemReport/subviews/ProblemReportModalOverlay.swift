@@ -87,6 +87,7 @@ extension ProblemReportView {
                                 .init(
                                     style: .primary,
                                     state: .init(kind: .idle, message: NSLocalizedString("Edit message", comment: "")),
+                                    accessibilityIdentifier: .problemReportFailureEditMessageButton,
                                     onTap: {
                                         doPostFailureAction(.edit)
                                     }
@@ -94,6 +95,7 @@ extension ProblemReportView {
                                 .init(
                                     style: .primary,
                                     state: .init(kind: .idle, message: NSLocalizedString("View app logs", comment: "")),
+                                    accessibilityIdentifier: .problemReportFailureViewLogsButton,
                                     onTap: {
                                         doPostFailureAction(.viewLogs)
                                     }
@@ -101,6 +103,7 @@ extension ProblemReportView {
                                 .init(
                                     style: .success,
                                     state: .init(kind: .idle, message: NSLocalizedString("Try again", comment: "")),
+                                    accessibilityIdentifier: .problemReportFailureRetryButton,
                                     onTap: {
                                         doPostFailureAction(.retry)
                                     }
