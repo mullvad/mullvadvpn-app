@@ -22,13 +22,6 @@ public struct MullvadApiRequestFactory: Sendable {
 
     public func makeRequest(_ request: APIRequest) throws -> MullvadApiCancellable {
         switch request {
-        case let .sendProblemReport(retryStrategy, problemReportRequest):
-            return MullvadApiCancellable(
-                handle: apiContext.sendProblemReport(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    request: problemReportRequest
-                ))
-
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber

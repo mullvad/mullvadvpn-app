@@ -1157,7 +1157,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     /**
      * Send a problem report via the Mullvad API client.
      */
-    func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest)  -> RequestCancelHandle
+    func sendProblemReport(retryStrategy: RetryStrategy, problemReportRequest: ProblemReportRequest) async throws  -> ApiResponse
     
     func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)  -> RequestCancelHandle
     
@@ -1495,14 +1495,21 @@ open func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy)async throws  -> A
     /**
      * Send a problem report via the Mullvad API client.
      */
-open func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterTypeProblemReportRequest_lower(request),$0
-    )
-})
+open func sendProblemReport(retryStrategy: RetryStrategy, problemReportRequest: ProblemReportRequest)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterTypeProblemReportRequest_lower(problemReportRequest)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) -> RequestCancelHandle  {
@@ -4205,7 +4212,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad() != 38253) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 59490) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 64382) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 52986) {

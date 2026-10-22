@@ -114,11 +114,26 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            createNetworkOperation(
-                request: .sendProblemReport(retryStrategy, problemReportRequest: body),
-                responseHandler: rustEmptyResponseHandler(),
-                completionHandler: completionHandler
-            )
+            Task {
+                do {
+                    let response = try await apiContext.sendProblemReport(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        problemReportRequest: body)
+                    switch response {
+                    case .body:
+                        completionHandler(.success(()))
+                    case .error(let statusCode, let errorDescription, let serverResponseCode):
+                        completionHandler(
+                            .failure(
+                                APIError(
+                                    statusCode: Int(statusCode),
+                                    errorDescription: errorDescription ?? "",
+                                    serverResponseCode: serverResponseCode)))
+                    }
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func checkApiAvailability(
