@@ -167,21 +167,18 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: Device.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request: .rotateDeviceKey(
-                    retryStrategy,
-                    accountNumber: accountNumber,
-                    identifier: identifier,
-                    publicKey: publicKey
-                ),
-                responseHandler: responseHandler,
-                completionHandler: completion
-            )
+            Task {
+                do {
+                    let device = try await rotateDeviceKey(
+                        accountNumber: accountNumber,
+                        identifier: identifier,
+                        publicKey: publicKey,
+                        retryStrategy: retryStrategy)
+                    completion(.success(device))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.cancellable
         }
 
         func rotateDeviceKey(
@@ -190,14 +187,14 @@ extension REST {
             publicKey: WireGuard.PublicKey,
             retryStrategy: REST.RetryStrategy,
         ) async throws -> Device {
-            try await executeRequest(
-                .rotateDeviceKey(
-                    retryStrategy,
-                    accountNumber: accountNumber,
-                    identifier: identifier,
-                    publicKey: publicKey
-                )
-            )
+            let response = try await apiContext.rotateDeviceKey(
+                retryStrategy: retryStrategy.toRustStrategy(),
+                accountNumber: accountNumber,
+                identifier: identifier,
+                publicKey: publicKey.rawValue)
+            let data = try response.get().body
+            let device = try responseDecoder.decode(Device.self, from: data)
+            return device
         }
 
         private func createNetworkOperation<Success: Any>(

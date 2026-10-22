@@ -30,14 +30,6 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
 
         // Device Proxy
-        case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
-            return MullvadApiCancellable(
-                handle: apiContext.rotateDeviceKey(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    accountNumber: accountNumber,
-                    identifier: identifier,
-                    publicKey: publicKey.rawValue
-                ))
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber
