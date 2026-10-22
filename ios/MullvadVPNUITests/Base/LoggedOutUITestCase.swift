@@ -42,4 +42,49 @@ class LoggedOutUITestCase: BaseUITestCase {
             .tapDoneButton()
     }
 
+    /// make the internet unreachable, by adding a broken access method and disabling everything else
+    func breakConnectivity() {
+        let customAccessMethodName = "Disable-access-dummy"
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapAPIAccessCell()
+
+        APIAccessPage(app)
+            .tapAddButton()
+
+        allowLocalNetworkAccessIfAsked()
+
+        AddAccessMethodPage(app)
+            .tapNameCell()
+            .enterText(customAccessMethodName)
+            .tapTypeCell()
+            .tapSOCKS5TypeValueCell()
+            .tapServerCell()
+            .enterText("123.123.123.123")
+            .dismissKeyboard()
+            .tapPortCell()
+            .enterText("123")
+            .dismissKeyboard()
+            .tapAddButton()
+            .waitForAPIUnreachableLabel()
+
+        AddAccessMethodAPIUnreachableAlert(app)
+            .tapSaveButton()
+
+        var accessMethods = APIAccessPage(app).getAccessMethodCells()
+        accessMethods.removeLast()
+        for cell in accessMethods {
+            cell.tap()
+            EditAccessMethodPage(app)
+                .tapEnableMethodSwitch()
+                .tapBackButton()
+        }
+
+        SettingsPage(app)
+            .swipeDownToDismissModal()
+
+    }
+
 }
