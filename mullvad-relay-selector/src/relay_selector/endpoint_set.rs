@@ -234,13 +234,13 @@ impl RelayEndpointSet {
         } {
             let wireguard_ip = self.wireguard.select_ip(ip_version);
 
-            let wireguard_endpoint = match obfuscation_constraint.direct {
-                Some(port) => Some(SocketAddr::new(
-                    wireguard_ip.ok_or(Error::NoMatchingAddresses)?,
+            let wireguard_endpoint = match (obfuscation_constraint.direct, wireguard_ip) {
+                (Some(port), Some(ip)) => Some(SocketAddr::new(
+                    ip,
                     random_port_in_ranges(&self.wireguard.port_ranges, port.get())
                         .ok_or(Error::NoMatchingPort)?,
                 )),
-                None => None,
+                _ => None,
             };
             wg_ip_versions.extend(wireguard_endpoint);
 

@@ -615,7 +615,7 @@ mod test {
         }
 
         /// When obfuscation is set to automatic in [`ObfuscationSettings`], the query should
-        /// convert to `Constraint::Any`.
+        /// enable every method, with the per-method ports preserved.
         #[test]
         fn test_auto_obfuscation_settings(port1 in constraint(proptest::arbitrary::any::<u16>()), port2 in constraint(proptest::arbitrary::any::<u16>())) {
             let query = super::obfuscation_constraint_from_settings(ObfuscationSettings {
@@ -629,7 +629,13 @@ mod test {
                 wireguard_port: port1.into(),
                 lwo: LwoSettings { port: port1 },
             });
-            assert_eq!(query, ObfuscationConstraint::default());
+            assert_eq!(query, ObfuscationConstraint {
+                direct: Some(port1.into()),
+                quic: true,
+                udp2tcp: Some(Udp2TcpObfuscationSettings { port: port1 }),
+                shadowsocks: Some(ShadowsocksSettings { port: port2 }),
+                lwo: Some(LwoSettings { port: port1 }),
+            });
         }
     }
 }

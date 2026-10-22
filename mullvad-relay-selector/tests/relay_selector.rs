@@ -234,6 +234,18 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     get_result.endpoint
 }
 
+/// All obfuscator configs of the returned [`Obfuscators`], whether a single one or a multiplexer.
+fn obfuscator_configs(obfuscator: Option<Obfuscators>) -> Vec<ObfuscatorConfig> {
+    match obfuscator {
+        Some(Obfuscators::Single(config)) => vec![config],
+        Some(Obfuscators::Multiplexer {
+            configs: (first, rest),
+            ..
+        }) => std::iter::once(first).chain(rest).collect(),
+        None => panic!("Relay selector should have picked an obfuscator"),
+    }
+}
+
 fn default_relay_selector() -> RelaySelector {
     RelaySelector::new(RELAYS.clone(), BRIDGES.clone())
 }
@@ -414,10 +426,11 @@ mod relay_selection {
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Shadowsocks { .. })
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Shadowsocks { .. }))
+        }));
     }
 
     /// Test whether extra Shadowsocks IPs are selected when available
@@ -440,15 +453,19 @@ mod relay_selection {
                 "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
             )
         };
-        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
-        else {
-            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-        };
-        assert!(!exit.overridden_ipv4);
-        assert!(!exit.overridden_ipv6);
-        assert!(
-            SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
-            "{endpoint} is not an additional IP"
+        // One Shadowsocks config per IP family, each with a dedicated extra address.
+        let configs = obfuscator_configs(obfuscator);
+        let endpoints: HashSet<IpAddr> = configs
+            .iter()
+            .map(|config| match config {
+                ObfuscatorConfig::Shadowsocks { endpoint } => endpoint.ip(),
+                _ => panic!("expected Shadowsocks, got: {config:?}"),
+            })
+            .collect();
+        assert!(!exit.overridden_ipv4 && !exit.overridden_ipv6, "{exit:#?}");
+        assert_eq!(
+            endpoints,
+            SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied().collect()
         );
     }
 
@@ -475,6 +492,8 @@ mod relay_selection {
         assert_eq!(endpoint.ip(), IpAddr::V6(Ipv6Addr::LOCALHOST));
     }
 
+    // TODO: Remove this test? It asserted relay.endpoint.peer.endpoint.ip() being IPv6,
+    // which is no longer something we want to guarantee.
     #[test]
     fn test_selecting_over_shadowsocks_ipv6_keeps_wireguard_ipv6_when_available() {
         let wireguard_ipv6 = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1);
@@ -493,10 +512,6 @@ mod relay_selection {
             .build();
 
         let relay = relay_selector.get_relay_by_query(&query).unwrap();
-        assert_eq!(
-            relay.endpoint.peer.endpoint.ip(),
-            IpAddr::V6(wireguard_ipv6)
-        );
 
         let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) =
             relay.obfuscator
@@ -521,10 +536,11 @@ mod relay_selection {
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Quic { .. }))
+        }));
     }
 
     #[test]
@@ -571,10 +587,6 @@ mod relay_selection {
             .build();
 
         let relay = relay_selector.get_relay_by_query(&query).unwrap();
-        assert_eq!(
-            relay.endpoint.peer.endpoint.ip(),
-            IpAddr::V6(wireguard_ipv6)
-        );
 
         let Some(Obfuscators::Single(ObfuscatorConfig::Quic { endpoint, .. })) = relay.obfuscator
         else {
@@ -598,10 +610,11 @@ mod relay_selection {
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Lwo { .. }))
+        }));
     }
 
     /// The LWO version a relay advertises is the one the obfuscator is configured with.
@@ -745,10 +758,11 @@ mod relay_selection {
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { .. })
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Udp2Tcp { .. }))
+        }));
     }
 
     /// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
@@ -794,14 +808,21 @@ mod relay_selection {
                     relay.inner
                 )
             };
-            let Some(obfuscator) = relay.obfuscator else {
-                panic!("Relay selector should have picked an obfuscator")
-            };
-            assert_matches!(
-                obfuscator,
-                Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
-                    TCP2UDP_PORTS.contains(&endpoint.port())
-            );
+            // One config per IP family, each with a valid port.
+            let configs = obfuscator_configs(relay.obfuscator);
+            assert_eq!(configs.len(), 2);
+            let mut families = HashSet::new();
+            for config in configs {
+                let ObfuscatorConfig::Udp2Tcp { endpoint } = config else {
+                    panic!("expected Udp2Tcp, got: {config:?}")
+                };
+                assert!(
+                    TCP2UDP_PORTS.contains(&endpoint.port()),
+                    "{endpoint} is not in {TCP2UDP_PORTS:?}"
+                );
+                families.insert(endpoint.is_ipv4());
+            }
+            assert_eq!(families, HashSet::from([true, false]));
         }
     }
 

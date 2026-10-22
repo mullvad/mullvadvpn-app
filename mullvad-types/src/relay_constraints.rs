@@ -738,34 +738,50 @@ pub struct ObfuscationConstraint {
 }
 
 impl ObfuscationConstraint {
+    /// Disable all obfuscation methods. Not a valid state for the type, but used below for convenience.
+    fn disabled() -> Self {
+        Self {
+            direct: None,
+            quic: false,
+            udp2tcp: None,
+            shadowsocks: None,
+            lwo: None,
+        }
+    }
+
+    /// Enable only direct (plain WireGuard) with the given port settings.
     pub fn direct(settings: WireguardPortSettings) -> Self {
         Self {
             direct: Some(settings),
-            ..Default::default()
+            ..Self::disabled()
         }
     }
+    /// Enable only QUIC.
     pub fn quic() -> Self {
         Self {
             quic: true,
-            ..Default::default()
+            ..Self::disabled()
         }
     }
+    /// Enable only UDP-over-TCP.
     pub fn udp2tcp(settings: Udp2TcpObfuscationSettings) -> Self {
         Self {
             udp2tcp: Some(settings),
-            ..Default::default()
+            ..Self::disabled()
         }
     }
+    /// Enable only Shadowsocks.
     pub fn shadowsocks(settings: ShadowsocksSettings) -> Self {
         Self {
             shadowsocks: Some(settings),
-            ..Default::default()
+            ..Self::disabled()
         }
     }
+    /// Enable only LWO.
     pub fn lwo(settings: LwoSettings) -> Self {
         Self {
             lwo: Some(settings),
-            ..Default::default()
+            ..Self::disabled()
         }
     }
 }
@@ -783,12 +799,11 @@ impl Default for ObfuscationConstraint {
     }
 }
 
-/// Convert [`ObfuscationSettings`] into a `Constraint<ObfuscationMode>`.
+/// Convert [`ObfuscationSettings`] into an [`ObfuscationConstraint`].
 ///
-/// `SelectedObfuscation::Auto` maps to `Constraint::Any`.
-///
-/// Note: this drops protocol-specific constraints from [`ObfuscationSettings`]
-/// when the selected obfuscation type is auto.
+/// `SelectedObfuscation::Auto` enables every method, preserving the protocol-specific
+/// constraints from [`ObfuscationSettings`]. Any other selection enables only the chosen
+/// method.
 pub fn obfuscation_constraint_from_settings(
     obfuscation: ObfuscationSettings,
 ) -> ObfuscationConstraint {
