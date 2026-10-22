@@ -159,17 +159,20 @@ extension REST {
                 let paymentToken: UUID
             }
 
-            let responseHandler = rustResponseHandler(
-                decoding: InitStorekitPaymentResponse.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request:
-                    .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
-                responseHandler: responseHandler,
-                completionHandler: { completionHandler($0.map { $0.paymentToken }) }
-            )
+            return Task {
+                do {
+                    let response = try await apiContext.initStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        accountNumber: accountNumber)
+                    let decoded = try decode(
+                        decoding: InitStorekitPaymentResponse.self,
+                        responseDecoder: responseDecoder,
+                        response: response)
+                    completionHandler(.success(decoded.paymentToken))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func checkStoreKitPayment(

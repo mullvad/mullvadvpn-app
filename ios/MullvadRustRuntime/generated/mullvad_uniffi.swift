@@ -1161,7 +1161,7 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)  -> RequestCancelHandle
     
-    func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
 }
 open class ApiContext: ApiContextProtocol, @unchecked Sendable {
@@ -1522,14 +1522,21 @@ open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) -> Requ
 })
 }
     
-open func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_init_storekit_payment(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_init_storekit_payment(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeAnyError__as_error_lift
+        )
 }
     
 
@@ -4218,7 +4225,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 52986) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment() != 63152) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment() != 1105) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_shadowsocksbridgeprovider_bridge() != 3536) {
