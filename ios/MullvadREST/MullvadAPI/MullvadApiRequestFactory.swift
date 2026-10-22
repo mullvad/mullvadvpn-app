@@ -145,10 +145,12 @@ public struct MullvadApiRequestFactory: Sendable {
             transaction: transaction
         ):
             return MullvadApiCancellable(
-                handle: apiContext.checkStorekitPayment(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    body: try encoder.encode(transaction)
-                ))
+                task: {
+                    try await apiContext.checkStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        body: try encoder.encode(transaction)
+                    )
+                })
         }
     }
 }
