@@ -410,7 +410,7 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_create_device(uint64_t ptr, uin
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_DELETE_DEVICE
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_DELETE_DEVICE
-uint64_t uniffi_mullvad_ios_fn_method_apicontext_delete_device(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustBuffer identifier, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_delete_device(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustBuffer identifier
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_GET_DEVICE

@@ -19,7 +19,6 @@ public enum APIRequest: Codable, Sendable {
     case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
 
     // Device Proxy
-    case deleteDevice(_ retryStrategy: REST.RetryStrategy, accountNumber: String, identifier: String)
     case rotateDeviceKey(
         _ retryStrategy: REST.RetryStrategy,
         accountNumber: String,
@@ -31,8 +30,6 @@ public enum APIRequest: Codable, Sendable {
         switch self {
         case .sendProblemReport:
             "send-problem-report"
-        case .deleteDevice:
-            "delete-device"
         case .rotateDeviceKey:
             "rotate-device-key"
         case .initStorekitPayment:
@@ -45,7 +42,6 @@ public enum APIRequest: Codable, Sendable {
     var retryStrategy: REST.RetryStrategy {
         switch self {
         case let .sendProblemReport(strategy, _),
-            let .deleteDevice(strategy, _, _),
             let .rotateDeviceKey(strategy, _, _, _),
             let .initStorekitPayment(strategy, _),
             let .checkStorekitPayment(strategy, _):
