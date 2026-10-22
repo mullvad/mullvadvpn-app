@@ -37,7 +37,7 @@ class SettingsLoggedOutTests: LoggedOutUITestCase {
                 This is a problem report from an iOS app test.
                 """
             )
-            .tapKeyboardDoneButton()
+            .dismissMessageEditingOverlay()
             .tapSendButton()
 
         ProblemReportSubmittedPage(app)

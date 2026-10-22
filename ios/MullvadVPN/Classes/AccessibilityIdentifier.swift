@@ -175,7 +175,9 @@ public enum AccessibilityIdentifier: Equatable {
     case vpnSettingsTableView
     case connectionView
     case problemReportView
+    case problemReportSendingView
     case problemReportSubmittedView
+    case problemReportFailureView
     case revokedDeviceView
     case welcomeView
     case setUpAccountCompletedView

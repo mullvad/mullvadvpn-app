@@ -27,8 +27,14 @@ class ProblemReportPage: Page {
     }
 
     @discardableResult func tapMessageTextView() -> Self {
-        app.textViews[AccessibilityIdentifier.problemReportMessageTextView]
+        app.buttons[AccessibilityIdentifier.problemReportMessageTextView]
             .tap()
+
+        return self
+    }
+
+    @discardableResult func dismissMessageEditingOverlay() -> Self {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
 
         return self
     }

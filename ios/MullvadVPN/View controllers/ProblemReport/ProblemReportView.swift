@@ -42,7 +42,6 @@ struct ProblemReportView: View {
         Group {
             if let modalState = viewModel.modalState {
                 ModalOverlay(state: modalState, doPostFailureAction: viewModel.doPostFailureAction)
-                    .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
                 mainForm
             }
@@ -86,6 +85,7 @@ struct ProblemReportView: View {
                 placeholder: "Enter your email",
                 text: $viewModel.email,
                 isFocused: $emailIsFocused,
+                accessibilityIdentifier: .problemReportEmailTextField,
                 borderStyle: .constant(.normal))
             messageEditInlinePlaceholder
             if viewModel.showAccountTokenNotice {
@@ -116,6 +116,8 @@ struct ProblemReportView: View {
             }
             .disabled(!viewModel.canSend)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(.problemReportView)
         .padding(UIMetrics.padding16)
         .scrollable(fill: .vertical, alignment: .top)
         .background(Color.mullvadBackground)
@@ -166,6 +168,7 @@ struct ProblemReportView: View {
                     )
                 )
             }
+            .accessibilityIdentifier(.problemReportMessageTextView)
         }
     }
 }
