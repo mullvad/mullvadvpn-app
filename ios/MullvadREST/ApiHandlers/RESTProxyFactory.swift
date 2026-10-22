@@ -51,6 +51,7 @@ extension REST {
                 apiContext: apiContext,
                 transportProvider: apiTransportProvider,
                 dispatchQueue: DispatchQueue(label: "MullvadAPIProxy.dispatchQueue"),
+                requestEncoder: Coding.makeJSONEncoder(),
                 responseDecoder: Coding.makeJSONDecoder()
             )
         }

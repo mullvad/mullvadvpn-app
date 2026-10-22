@@ -39,7 +39,7 @@ public protocol APIQuerying: Sendable {
     func checkStoreKitPayment(
         transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable
 
     func checkApiAvailability(
@@ -55,17 +55,20 @@ extension REST {
         let transportProvider: APITransportProviderProtocol
         let dispatchQueue: DispatchQueue
         let operationQueue = AsyncOperationQueue()
+        let requestEncoder: JSONEncoder
         let responseDecoder: JSONDecoder
 
         public init(
             apiContext: ApiContext,
             transportProvider: APITransportProviderProtocol,
             dispatchQueue: DispatchQueue,
+            requestEncoder: JSONEncoder,
             responseDecoder: JSONDecoder
         ) {
             self.apiContext = apiContext
             self.transportProvider = transportProvider
             self.dispatchQueue = dispatchQueue
+            self.requestEncoder = requestEncoder
             self.responseDecoder = responseDecoder
         }
 
@@ -184,17 +187,17 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-
-            return createNetworkOperation(
-                request:
-                    .checkStorekitPayment(
-                        retryStrategy: retryStrategy,
-                        transaction: transaction
-                    ),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+            Task {
+                do {
+                    let response = try await apiContext.checkStorekitPayment(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        body: try requestEncoder.encode(transaction))
+                    _ = try response.get()
+                    completionHandler(.success(()))
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         private func createNetworkOperation<Success>(
