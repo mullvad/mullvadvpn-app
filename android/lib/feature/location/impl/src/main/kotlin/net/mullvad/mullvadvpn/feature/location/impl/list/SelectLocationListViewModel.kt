@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
 import net.mullvad.mullvadvpn.feature.location.impl.connectedLocationIn
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandSet
-import net.mullvad.mullvadvpn.feature.location.impl.search.emptyLocationsRelayListItems
-import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
-import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByOtherEntryExitList
-import net.mullvad.mullvadvpn.feature.location.impl.search.selectedByThisEntryExitList
+import net.mullvad.mullvadvpn.feature.location.impl.emptyLocationsRelayListItems
+import net.mullvad.mullvadvpn.feature.location.impl.relayListItems
+import net.mullvad.mullvadvpn.feature.location.impl.selectedByOtherEntryExitList
+import net.mullvad.mullvadvpn.feature.location.impl.selectedByThisEntryExitList
 import net.mullvad.mullvadvpn.feature.location.impl.withConnectedRelay
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT

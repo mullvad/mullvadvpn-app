@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
-import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
+import net.mullvad.mullvadvpn.feature.location.impl.relayListItems
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists

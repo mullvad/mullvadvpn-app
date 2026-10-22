@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.location.impl
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import net.mullvad.mullvadvpn.feature.location.impl.search.expandKey
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 

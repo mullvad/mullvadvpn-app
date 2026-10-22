@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.location.impl
 import io.mockk.mockk
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -59,9 +58,7 @@ class RelayItemListCreatorTest {
         )
         assertEquals(
             2,
-            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().count {
-                it.connected
-            },
+            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().count { it.connected },
         )
     }
 

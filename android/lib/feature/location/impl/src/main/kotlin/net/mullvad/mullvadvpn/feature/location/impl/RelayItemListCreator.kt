@@ -1,6 +1,6 @@
 @file:Suppress("LongParameterList")
 
-package net.mullvad.mullvadvpn.feature.location.impl.search
+package net.mullvad.mullvadvpn.feature.location.impl
 
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.model.CustomListId
