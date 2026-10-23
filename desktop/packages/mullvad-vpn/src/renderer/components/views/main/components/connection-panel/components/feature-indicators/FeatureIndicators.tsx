@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { FeatureIndicator, Text } from '../../../../../../../lib/components';
+import { Text } from '../../../../../../../lib/components';
 import { colors, durations } from '../../../../../../../lib/foundations';
 import { useStyledRef } from '../../../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../../../redux/store';
@@ -161,15 +161,8 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {sortedIndicators.map((indicator) => {
-              const feature = featureIndicatorMap[indicator];
-              return (
-                <FeatureIndicator
-                  key={indicator.toString()}
-                  data-testid="feature-indicator"
-                  onClick={feature.onClick}>
-                  <FeatureIndicator.Text>{feature.label}</FeatureIndicator.Text>
-                </FeatureIndicator>
-              );
+              const featureIndicator = featureIndicatorMap[indicator];
+              return <React.Fragment key={indicator.toString()}>{featureIndicator}</React.Fragment>;
             })}
           </StyledFeatureIndicatorsWrapper>
           <StyledEllipsisSpacer
