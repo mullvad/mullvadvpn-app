@@ -3,13 +3,39 @@ import { type Locator, Page } from 'playwright';
 export const createSelectors = (page: Page) => ({
   entryInput: () =>
     page.getByPlaceholder('Search entry location or server').filter({ visible: true }),
+  entryAutomaticButton: (country: string) =>
+    page.getByRole('button', {
+      name: `Automatic (${country})`,
+    }),
+  entryAutomaticMultihopModeToAlwaysButton: () =>
+    page.getByRole('button', {
+      name: 'Set multihop to "Always"',
+    }),
   exitInput: () =>
     page.getByPlaceholder('Search exit location or server').filter({ visible: true }),
   selectLocationMenuButton: () =>
     page.getByRole('button', { name: 'Open select location menu' }).filter({ visible: true }),
   filterMenuOption: () =>
     page.getByRole('link', { name: 'Filters', exact: true }).filter({ visible: true }),
-  filterChip: (label: string) => {
+  filterEntryButton: () =>
+    page
+      .getByRole('button', { name: 'Configure filters for entry location', exact: true })
+      .filter({ visible: true }),
+  filterEntryAutomaticButton: () =>
+    page
+      .getByRole('button', {
+        name: 'Entry location filters are overridden due to use of Automatic entry location',
+        exact: true,
+      })
+      .filter({ visible: true }),
+  filterExitButton: () =>
+    page
+      .getByRole('button', { name: 'Configure filters for exit location', exact: true })
+      .filter({ visible: true }),
+  filterChipLink: (label: string) => {
+    return page.locator('a', { hasText: label }).filter({ visible: true });
+  },
+  filterChipButton: (label: string) => {
     return page.locator('button', { hasText: label }).filter({ visible: true });
   },
   accordionButton: (label: string) => {
@@ -50,4 +76,6 @@ export const createSelectors = (page: Page) => ({
   deleteCustomListButton() {
     return page.getByRole('button', { name: 'Delete' });
   },
+  nonMatchingFilterErrorMessage: () =>
+    page.getByText('Selection does not match filter settings').filter({ visible: true }),
 });
