@@ -1,13 +1,13 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../../../../../../../shared/constants';
-import { FeatureIndicator } from '../../../../../../../../../../shared/daemon-rpc-types';
-import { messages } from '../../../../../../../../../../shared/gettext';
-import { RoutePath } from '../../../../../../../../../../shared/routes';
-import { TransitionType, useHistory } from '../../../../../../../../../lib/history';
+import { strings } from '../../../../../../../../../shared/constants';
+import { FeatureIndicator } from '../../../../../../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../../../../../../shared/gettext';
+import { RoutePath } from '../../../../../../../../../shared/routes';
+import { TransitionType, useHistory } from '../../../../../../../../lib/history';
 
-export const useGetFeatureIndicator = () => {
+export const useGetFeatureIndicatorMap = () => {
   const history = useHistory();
 
   const gotoEnableDaitaFeature = React.useCallback(() => {
@@ -133,7 +133,7 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
-  const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
+  const featureIndicatorMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
     [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoEnableDaitaFeature },
     [FeatureIndicator.multihopAuto]: {
       label: sprintf(
@@ -210,5 +210,5 @@ export const useGetFeatureIndicator = () => {
     },
   };
 
-  return featureMap;
+  return featureIndicatorMap;
 };
