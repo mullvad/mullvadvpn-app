@@ -34,6 +34,7 @@ included_folders=(
     "MullvadSettings"
     "MullvadTypes"
     "MullvadVPN"
+    "MullvadVPNtvOS"
     "MullvadVPNTests"
     "MullvadVPNUITests"
     "Operations"

@@ -12,9 +12,38 @@ import SwiftUI
 
 @main
 struct MullvadVPNtvOSApp: App {
+    @State private var navigation = Navigation()
+    @State var dependencies: DependencyManager?
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if let dependencies {
+                    switch navigation.state {
+                    case .loggedIn:
+                        MapView()
+                    case .loggedOut:
+                        RootView(viewModel: dependencies.makeLoginViewModel())
+                    }
+                } else {
+                    Text("Loading")
+                }
+            }
+            .task {
+                if dependencies == nil {
+                    dependencies = await DependencyManager.live()
+                }
+            }
+            .fullScreenCover(item: $navigation.fullScreenCover) { item in
+                switch item {
+                case .account:
+                    AccountView()
+                case .settings:
+                    EmptyView()
+                }
+            }
+            .environment(navigation)
+            .environment(dependencies)
         }
     }
 }
