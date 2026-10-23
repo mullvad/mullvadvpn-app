@@ -5,8 +5,8 @@ import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../lib/components/flex-column';
 import { formatHtml } from '../../../../lib/html-formatter';
+import { useSettingsCustomLists } from '../../../../redux/hooks';
 import type { GeographicalLocation } from '../../../locations/types';
-import { useCustomLists } from '../../hooks';
 import { AddLocationToCustomListListItem } from './components';
 import { useLocationTypeMessage } from './hooks';
 
@@ -19,7 +19,7 @@ export function AddLocationToCustomListDialog({
   onOpenChange,
   open,
 }: AddToCustomListDialog) {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
 
   const handleClickCancel = React.useCallback(() => {
     onOpenChange?.(false);

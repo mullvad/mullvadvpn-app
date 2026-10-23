@@ -76,8 +76,10 @@
                 <LocationSelector.Items.TextFieldItem.TextField
                   value={placeholderData[item]}
                   onValueChange={handleOnValueChange}>
-                  <LocationSelector.Items.TextFieldItem.TextField.Input placeholder={'Location ' + item} />
-                  <LocationSelector.Items.TextFieldItem.TextField.ClearButton />
+                  <LocationSelector.Items.TextFieldItem.TextField.Trigger>
+                    <LocationSelector.Items.TextFieldItem.TextField.Input placeholder={'Location ' + item} />
+                    <LocationSelector.Items.TextFieldItem.TextField.ClearButton />
+                  </LocationSelector.Items.TextFieldItem.TextField.Trigger>
                 </LocationSelector.Items.TextFieldItem.TextField>
                 <LocationSelector.Items.TextFieldItem.TrailingButton visible={isolatedItem === undefined}>
                   <LocationSelector.Items.TextFieldItem.TrailingButton.Icon icon="filter" />
