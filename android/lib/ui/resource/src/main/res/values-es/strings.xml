@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="direct">Directo</string>
+    <string name="direct_info_message_part1">Con el método «Directo», la aplicación se comunica con un servidor de API de Mullvad directamente sin ningún proxy intermediario.</string>
+    <string name="direct_info_message_part2">Esto puede resultar útil cuando no se vea afectado por la censura.</string>
     <string name="direct_only_removed_first_paragraph">El ajuste secundario de DAITA «Conexión directa» se ha eliminado y la función se ha simplificado para evitar el bloqueo de conexiones. En su lugar, con DAITA activado, se puede usar esta opción con el ajuste de salto múltiple.</string>
     <string name="direct_only_removed_second_paragraph">Cuando el salto múltiple se establece en «Cuando sea necesario», es posible que la aplicación use un servidor adicional para garantizar que pueda conectarse mediante DAITA a la ubicación seleccionada.</string>
     <string name="direct_only_removed_third_paragraph">Cuando el salto múltiple se establece en «Siempre» o «Nunca», tendrá que seleccionar de forma manual un servidor DAITA.</string>

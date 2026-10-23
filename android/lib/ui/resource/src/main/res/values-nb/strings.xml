@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn.</string>
     <string name="direct">Direkte</string>
+    <string name="direct_info_message_part1">Med «Direkte»-metoden kan appen kommunisere direkte med en Mullvad API-server uten proxyer mellom.</string>
+    <string name="direct_info_message_part2">Dette kan være nyttig når du ikke er berørt av sensur.</string>
     <string name="direct_only_removed_first_paragraph">DAITA-underinnstillingen «Kun direkte» er fjernet og forenklet for å unngå at tilkoblinger blokkeres. Når DAITA er aktivert, velger du i stedet dette alternativet via multihopp-innstillingen.</string>
     <string name="direct_only_removed_second_paragraph">Når multihopp er satt til «Når nødvendig», kan appen bruke en ekstra server for å sikre at du kobler deg til den valgte plasseringen via DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Når multihopp er satt til «Alltid» eller «Aldri», må du velge en DAITA-server manuelt.</string>

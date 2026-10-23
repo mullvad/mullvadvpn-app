@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</string>
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
     <string name="direct">တိုက်ရိုက်</string>
+    <string name="direct_info_message_part1">\"တိုက်ရိုက်\" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် ကြားခံ ပရောက်စီများ မပါဘဲ Mullvad API ဆာဗာနှင့် တိုက်ရိုက် ဆက်သွယ်ပါသည်။</string>
+    <string name="direct_info_message_part2">သင့်အပေါ် စိစစ်ဖြတ်တောက်မှု၏ အကျိုးသက်ရောက်ခြင်း မရှိသည့်အခါ ၎င်းသည် အသုံးဝင်နိုင်ပါသည်။</string>
     <string name="direct_only_removed_first_paragraph">ချိတ်ဆက်မှုများ ပိတ်ဆို့ခံရခြင်းမရှိစေရန် DAITA ဆက်တင်အခွဲ “တိုက်ရိုက်သာ” ကို ဖယ်ရှားပြီး ရိုးရှင်းအောင် ပြုလုပ်ထားသည်။ ယင်းအစား DAITA ကို ဖွင့်ထားပါက multihop ဆက်တင်ဖြင့် ဤရွေးချယ်မှုကို ပြုလုပ်နိုင်သည်။</string>
     <string name="direct_only_removed_second_paragraph">multihop ကို “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်” ဟု သတ်မှတ်ထားချိန်တွင် သင်ရွေးချယ်ထားသော တည်နေရာသို့ DAITA အသုံးပြု၍ ချိတ်ဆက်ထားကြောင်း သေချာစေရန် အက်ပ်က ထပ်ဆောင်းဆာဗာကို အသုံးပြုနိုင်သည်။</string>
     <string name="direct_only_removed_third_paragraph">multihop ကို “အမြဲတမ်း” သို့မဟုတ် “ဘယ်တော့မှ” ဟု သတ်မှတ်ထားချိန်တွင် DAITA ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရမည်။</string>

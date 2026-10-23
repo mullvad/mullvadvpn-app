@@ -21,5 +21,7 @@ fun EntryProviderScope<NavKey2>.apiAccessEntry(navigator: Navigator) {
     deleteApiAccessEntry(navigator)
     discardApiAccessChangesEntry(navigator)
     encryptedDnsProxyAccessEntry(navigator)
+    domainFrontingEntry(navigator)
+    directEntry(navigator)
     saveApiAccessMethodEntry(navigator)
 }

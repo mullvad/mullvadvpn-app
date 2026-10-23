@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
     <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
     <string name="direct">ダイレクト</string>
+    <string name="direct_info_message_part1">「ダイレクト」方法の場合、アプリは中間プロキシを使わずにMullvad APIサーバーと直接通信します。</string>
+    <string name="direct_info_message_part2">これは、検閲による影響を受けていない場合に便利な場合があります。</string>
     <string name="direct_only_removed_first_paragraph">DAITAのサブ設定「ダイレクトのみ」は、接続のブロックを防ぐため削除され、よりシンプルになりました。今後はDAITAを有効にすると、マルチホップ設定でこのオプションを選択できます。</string>
     <string name="direct_only_removed_second_paragraph">マルチホップの設定が「必要時」の場合、DAITAを使用して選択したロケーションに確実に接続するため、アプリは追加のサーバーを使用することがあります。</string>
     <string name="direct_only_removed_third_paragraph">マルチホップが「常に有効」または「無効」の場合は、DAITAサーバーを手動で選択する必要があります。</string>

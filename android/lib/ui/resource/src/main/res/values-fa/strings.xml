@@ -186,6 +186,8 @@
     <string name="device_name_info_second_paragraph">شما می‌توانید حداکثر 5 دستگاه را هم‌زمان در یک حساب Mullvad وارد کنید.</string>
     <string name="device_name_info_third_paragraph">اگر خارج شوید، دستگاه و نام آن حذف می‌شوند. وقتی دوباره وارد شوید، دستگاه نام جدیدی خواهد گرفت.</string>
     <string name="direct">مستقیم</string>
+    <string name="direct_info_message_part1">با روش «مستقیم»، اپلیکیشن بدون هیچ پراکسی واسطه‌ای، مستقیماً با سرور API مربوط به Mullvad ارتباط برقرار می‌کند.</string>
+    <string name="direct_info_message_part2">این می‌تواند زمانی مفید باشد که تحت تأثیر سانسور نباشید.</string>
     <string name="direct_only_removed_title">«فقط مستقیم» حذف شد</string>
     <string name="disable_multihop">غیرفعال کردن مولتی‌هاپ</string>
     <string name="disable_recents">غیرفعال کردن موارد اخیر</string>
