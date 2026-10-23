@@ -806,6 +806,21 @@ test.describe('Select location', () => {
         await routes.selectLocation.gotoExitLocations();
         await expect(quicFilterChip).not.toBeVisible();
       });
+
+      test('Should display QUIC filter chip when viewing entry filters and not when viewing exit filters', async () => {
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+
+        // Present on entry
+        await routes.selectLocation.gotoEntryFilter();
+        await expect(quicFilterChip).toBeVisible();
+        await routes.filter.gotoSelectLocation();
+
+        // Not present on exit
+        await routes.selectLocation.gotoExitFilter();
+        await expect(quicFilterChip).not.toBeVisible();
+      });
     });
 
     test.describe('multihop: when-needed', () => {
