@@ -760,8 +760,7 @@ internal fun FeatureIndicator.toDomain() =
         FeatureIndicator.LWO -> ModelFeatureIndicator.LWO
         FeatureIndicator.WIREGUARD_PORT -> ModelFeatureIndicator.WIREGUARD_PORT
         FeatureIndicator.LOCKDOWN_MODE,
-        FeatureIndicator.CUSTOM_VPN,
-        FeatureIndicator.CUSTOM_VPN_ACTIVE -> error("Feature not supported ${this.name}")
+        FeatureIndicator.CUSTOM_VPN -> error("Feature not supported ${this.name}")
     }
 
 internal fun IpVersion.toDomain() =
