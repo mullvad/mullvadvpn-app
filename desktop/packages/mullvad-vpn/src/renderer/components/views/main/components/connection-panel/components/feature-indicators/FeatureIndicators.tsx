@@ -9,7 +9,7 @@ import { useStyledRef } from '../../../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
 import { ConnectionPanelAccordion } from '../../../../styles';
-import { useGetFeatureIndicator } from './hooks';
+import { useGetFeatureIndicatorMap } from './hooks';
 
 const LINE_HEIGHT = 22;
 const GAP = 8;
@@ -82,7 +82,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
   const featureIndicatorsContainerRef = useStyledRef<HTMLDivElement>();
-  const featureMap = useGetFeatureIndicator();
+  const featureIndicatorMap = useGetFeatureIndicatorMap();
 
   const featureIndicatorsVisible =
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
@@ -161,7 +161,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {sortedIndicators.map((indicator) => {
-              const feature = featureMap[indicator];
+              const feature = featureIndicatorMap[indicator];
               return (
                 <FeatureIndicator
                   key={indicator.toString()}
