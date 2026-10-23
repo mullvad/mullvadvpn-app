@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
     <string name="device_name_info_third_paragraph">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
     <string name="direct">Bezpośredni</string>
+    <string name="direct_info_message_part1">Dzięki metodzie „Direct” aplikacja komunikuje się z serwerem API Mullvad bezpośrednio, bez pośredniczących serwerów proxy.</string>
+    <string name="direct_info_message_part2">Może to być przydatne, gdy cenzura Cię nie dotyczy.</string>
     <string name="direct_only_removed_first_paragraph">Ustawienia DAITA zostały uproszczone, a jego opcję „Tylko bezpośrednie” usunięto, aby uniknąć blokowania połączeń. Zamiast tego przy włączonej funkcji DAITA można wybrać tę opcję w ustawieniu wielokrotnych przeskoków.</string>
     <string name="direct_only_removed_second_paragraph">Gdy tryb wielokrotnych przeskoków jest ustawiony na „W razie potrzeby”, aplikacja może użyć dodatkowego serwera, aby zapewnić połączenie z wybraną lokalizacją za pomocą DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Gdy tryb wielokrotnych przeskoków jest ustawiony na „Zawsze” lub „Nigdy”, musisz ręcznie wybrać serwer DAITA.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Uwaga: ustawienia usługi DNS mogą nie zostać zastosowane natychmiast.</b></string>
     <string name="dns_settings_issues_first_paragraph">Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast.</string>
     <string name="dns_settings_issues_second_paragraph">Wyłącz w obszarze %1$s opcję Prywatny DNS, ponieważ może ona kolidować z ustawieniami DNS serwisu Mullvad.</string>
+    <string name="domain_fronting_info_message_part1">Dzięki metodzie dostępu %1$s aplikacja łączy się z interfejsem API Mullvad za pośrednictwem sieci CDN, mieszając ruch z ogromną ilością innych danych przesyłanych w Internecie. Utrudnia to cenzurowanie.</string>
+    <string name="domain_fronting_info_message_part2">Może to być przydatne, gdy bezpośredni dostęp i inne metody są blokowane przez cenzurę.</string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_custom_lists">Edytuj listy niestandardowe</string>
     <string name="edit_list">Edytuj listę</string>

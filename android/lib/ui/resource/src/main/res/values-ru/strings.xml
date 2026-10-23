@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
     <string name="direct">Напрямую</string>
+    <string name="direct_info_message_part1">При использовании метода «Напрямую» приложение взаимодействует с сервером Mullvad API напрямую, без каких-либо промежуточных прокси-серверов.</string>
+    <string name="direct_info_message_part2">Это может быть полезно, если цензура отсутствует.</string>
     <string name="direct_only_removed_first_paragraph">Опция DAITA «Только напрямую» была удалена, чтобы упростить настройку и избежать блокировки подключений. Теперь при включенной функции DAITA нужное соединение настраивается с помощью режима многократного перехода.</string>
     <string name="direct_only_removed_second_paragraph">Если для многократного перехода задан режим «При необходимости», приложение может задействовать дополнительный сервер, чтобы обеспечить подключение к выбранному местоположению с использованием функции DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Если для многократного перехода задан режим «Всегда» или «Никогда», сервер DAITA нужно выбрать вручную.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Внимание: настройки DNS могут примениться не сразу.</b></string>
     <string name="dns_settings_issues_first_paragraph">Настройки DNS могут не сразу вступить в силу.</string>
     <string name="dns_settings_issues_second_paragraph">Отключите частный DNS-сервер в разделе «%1$s», так как он может конфликтовать с настройками DNS в Mullvad.</string>
+    <string name="domain_fronting_info_message_part1">При использовании способа доступа «%1$s» приложение подключается к API Mullvad через CDN. При этом его трафик смешивается с большим объемом другого интернет-трафика, что затрудняет его блокировку.</string>
+    <string name="domain_fronting_info_message_part2">Этот метод может быть полезен, если прямой доступ и другие способы подключения заблокированы из-за цензуры.</string>
     <string name="duplicate_address_warning">Этот адрес уже введен.</string>
     <string name="edit_custom_lists">Изменение своих списков</string>
     <string name="edit_list">Изменение списка</string>

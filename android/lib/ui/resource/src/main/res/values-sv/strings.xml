@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Upp till fem enheter kan vara inloggade på ett Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct">Direkt</string>
+    <string name="direct_info_message_part1">Med metoden \"Direkt\" kommunicerar appen med en Mullvad API-server direkt utan mellanliggande proxyservrar.</string>
+    <string name="direct_info_message_part2">Detta kan vara användbart när du inte påverkas av censurering.</string>
     <string name="direct_only_removed_first_paragraph">Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika att anslutningarna blockeras. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen.</string>
     <string name="direct_only_removed_second_paragraph">När multihopp är inställt på \"Vid behov\" kan appen använda en extra server för att se till att du ansluter till din valda plats via DAITA.</string>
     <string name="direct_only_removed_third_paragraph">När multihopp är inställt på \"Alltid\" eller \"Aldrig\" måste du välja DAITA-server manuellt.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Obs! DNS-inställningarna kanske inte börjar gälla direkt.</b></string>
     <string name="dns_settings_issues_first_paragraph">DNS-inställningarna kanske inte börjar gälla direkt.</string>
     <string name="dns_settings_issues_second_paragraph">Stäng av Privat DNS i %1$s eftersom det kan störa Mullvads DNS-inställningar.</string>
+    <string name="domain_fronting_info_message_part1">Med åtkomstmetoden %1$s når appen Mullvads API via en CDN och blandar trafiken med annan internettrafik, vilket gör att den blir svårare att censurera.</string>
+    <string name="domain_fronting_info_message_part2">Det kan vara användbart när direktåtkomst och andra metoder blockeras på grund av censur.</string>
     <string name="duplicate_address_warning">Adressen har redan angetts.</string>
     <string name="edit_custom_lists">Redigera anpassade listor</string>
     <string name="edit_list">Redigera lista</string>
