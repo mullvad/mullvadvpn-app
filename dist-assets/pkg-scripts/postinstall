@@ -70,7 +70,7 @@ DAEMON_PLIST=$(cat <<-EOM
                 <key>SoftResourceLimits</key>
                 <dict>
                         <key>NumberOfFiles</key>
-                        <integer>1024</integer>
+                        <integer>4096</integer>
                 </dict>
 
                 <key>AssociatedBundleIdentifiers</key>
