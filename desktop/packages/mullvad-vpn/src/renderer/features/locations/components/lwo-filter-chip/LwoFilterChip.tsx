@@ -1,15 +1,15 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../../../../../shared/constants';
-import { messages } from '../../../../../../shared/gettext';
-import { RoutePath } from '../../../../../../shared/routes';
-import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
-import { TransitionType, useHistory } from '../../../../../lib/history';
+import { strings } from '../../../../../shared/constants';
+import { messages } from '../../../../../shared/gettext';
+import { RoutePath } from '../../../../../shared/routes';
+import { FilterChip, type FilterChipProps } from '../../../../lib/components';
+import { TransitionType, useHistory } from '../../../../lib/history';
 
-export type QuicFilterChipProps = FilterChipProps;
+export type LwoFilterChipProps = FilterChipProps;
 
-export function QuicFilterChip(props: QuicFilterChipProps) {
+export function LwoFilterChip(props: LwoFilterChipProps) {
   const history = useHistory();
 
   const gotoAntiCensorship = React.useCallback(() => {
@@ -40,7 +40,7 @@ export function QuicFilterChip(props: QuicFilterChipProps) {
           // TRANSLATORS: Available placeholders:
           // TRANSLATORS: %(obfuscation)s - type of obfuscation in use
           messages.pgettext('select-location-view', 'Obfuscation: %(obfuscation)s'),
-          { obfuscation: strings.quic },
+          { obfuscation: strings.lwo },
         )}
       </FilterChip.Text>
     </FilterChip>
