@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
     <string name="automatic">Automatisch</string>
     <string name="automatic_entry_description">Wenn diese Option ausgewählt ist, wählt die App automatisch einen zufälligen Server aus und priorisiert dabei diejenigen, die näher am Standort des Benutzers liegen, um eine bessere Leistung zu erzielen.</string>
+    <string name="automatic_entry_extra_info">Ein zusätzlicher Server wird verwendet, um Ihre Einstellungen an den von Ihnen gewählten Standort anzupassen</string>
     <string name="automatic_entry_info_first_paragraph">Wählt anhand Ihres Ausgangsstandorts einen geeigneten Standort aus. Dabei werden verschiedene Faktoren wie Entfernung, Anbieter und Serverauslastung berücksichtigt.</string>
     <string name="automatic_entry_warning">Achtung: Diese Option ignoriert die Filtereinstellungen für den als Einstiegspunkt verwendeten Server.</string>
     <string name="automatic_with_country">Automatisch (%1$s)</string>
@@ -274,7 +275,7 @@
     <string name="import_overrides_bottom_sheet_override_warning">Der Import neuer Überschreibungen kann einige zuvor importierte Überschreibungen ersetzen.</string>
     <string name="import_overrides_empty_text_error">Geben Sie bitte einen IP-Überschreibungstext ein</string>
     <string name="import_overrides_import">Importieren</string>
-    <string name="import_overrides_text_title">Import via Text</string>
+    <string name="import_overrides_text_title">Per Text importieren</string>
     <string name="in_app_products_unavailable">In-App-Produkte nicht verfügbar, bitte vergewissern Sie sich, dass sie die neueste Version von Google Play haben.</string>
     <string name="include_account_token_checkbox_text">Meinen Konto-Token hinzufügen, um schnellere Hilfe bei Zahlungen oder kontobezogenen Problemen zu erhalten</string>
     <string name="include_account_token_warning_message_first">Durch Anhängen Ihres Konto-Tokens wird diese Meldung mit Ihrem Konto verknüpft, wodurch wir Ihr Problem schneller lösen können. Alle Meldungen werden nach einiger Zeit automatisch gelöscht.</string>
@@ -344,6 +345,11 @@
     <string name="mtu_x">Wert: %1$s</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Bei Bedarf</b>\nNicht alle unsere Standorte/Server unterstützen alle Funktionen der App. Wenn der von Ihnen gewählte Standort/Server die von Ihnen aktivierten Funktionen nicht unterstützt, leitet die App den Datenverkehr automatisch über einen kompatiblen Server weiter.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Dadurch wird sichergestellt, dass Ihre Verbindung nicht aufgrund inkompatibler Einstellungen blockiert wird.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Dies wird durch das Symbol %1$s angezeigt.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Immer</b>\nMultihop ist aktiviert. Ihre Verbindung wird über einen Eingangsserver geleitet, bevor sie über den ausgewählten Standort weitergeleitet wird.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Nie</b>\nMultihop ist deaktiviert. Der von Ihnen gewählte Standort muss alle aktiven Einstellungen unterstützen, damit eine Verbindung hergestellt werden kann.</string>
     <string name="multihop_entry_disabled_description">Derzeit wird automatisch ein Eingangsserver ausgewählt, wenn es für eine funktionierende Verbindung erforderlich ist. Wenn Sie einen Eingangsserver manuell auswählen möchten, stellen Sie den Multihop-Modus auf „Immer“ ein.</string>
     <string name="multihop_is_disabled">Multihop ist deaktiviert</string>
     <string name="multihop_is_enabled">Multihop ist aktiviert</string>
@@ -353,6 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Einstellungen migriert</string>
     <string name="multihop_mode">Multihop-Modus</string>
     <string name="multihop_when_needed">Multihop bei Bedarf</string>
+    <string name="multihop_when_needed_info_first_paragraph">Die App verwendet Multihop nur, wenn sie keine Verbindung zu dem von Ihnen ausgewählten Standort herstellen kann. Das kann vorkommen, wenn der Server an diesem Standort die von Ihnen aktivierten Funktionen nicht unterstützt. In diesem Fall leitet die App Ihren Traffic automatisch über einen Server, der diese Funktionen unterstützt, bevor er den von Ihnen ausgewählten Standort erreicht.</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
     <string name="navigate">Navigieren</string>
@@ -362,15 +369,15 @@
     <string name="new_device_notification_message">Willkommen, dieses Gerät heißt jetzt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NEUES GERÄT ERSTELLT</string>
     <string name="new_list">Neue Liste</string>
+    <string name="new_multihop_modes_always_description">Multihop ist aktiviert. Ihre Verbindung wird über einen Eingangsserver geleitet, bevor sie über den ausgewählten Standort weitergeleitet wird.</string>
     <string name="new_multihop_modes_first_paragraph">Multihop ist nun in drei Modi unterteilt: „Bei Bedarf“, „Immer“ und „Nie“.\nDies bietet Ihnen mehr Flexibilität bei Ihren Verbindungseinstellungen.</string>
+    <string name="new_multihop_modes_never_description">Multihop ist deaktiviert. Der von Ihnen gewählte Standort muss alle aktiven Einstellungen unterstützen, damit eine Verbindung hergestellt werden kann.</string>
     <string name="new_multihop_modes_off_to_always">Ihre Multihop-Einstellung wurde von „Aus“ zu „Immer“ migriert</string>
     <string name="new_multihop_modes_off_to_never">Ihre Multihop-Einstellung wurde von „Aus“ zu „Nie“ migriert</string>
     <string name="new_multihop_modes_off_to_when_needed">Ihre Multihop-Einstellung wurde von „Aus“ zu „Bei Bedarf“ migriert</string>
     <string name="new_multihop_modes_on_to_always">Ihre Multihop-Einstellung wurde von „An“ zu „Immer“ migriert</string>
     <string name="new_multihop_modes_title">Neue Multihop-Modi</string>
-    <string name="new_multihop_nodes_always_description">Multihop ist aktiviert. Ihre Verbindung wird über einen Eingangsserver geleitet, bevor sie über den ausgewählten Standort weitergeleitet wird.</string>
-    <string name="new_multihop_nodes_never_description">Multihop ist deaktiviert. Der von Ihnen gewählte Standort muss alle aktiven Einstellungen unterstützen, damit eine Verbindung hergestellt werden kann.</string>
-    <string name="new_multihop_nodes_when_needed_description">Um sicherzustellen, dass Ihre aktuellen Einstellungen an dem von Ihnen gewählten Standort funktionieren, und um zu verhindern, dass Ihre Verbindung blockiert wird, kann die App automatisch über einen anderen Eingangsserver umleiten.\nDies wird durch das Symbol %1$s angezeigt.</string>
+    <string name="new_multihop_modes_when_needed_description">Um sicherzustellen, dass Ihre aktuellen Einstellungen an dem von Ihnen gewählten Standort funktionieren, und um zu verhindern, dass Ihre Verbindung blockiert wird, kann die App automatisch über einen anderen Eingangsserver umleiten.\nDies wird durch das Symbol %1$s angezeigt.</string>
     <string name="next">Weiter</string>
     <string name="next_with_icon">Weiter %1$s</string>
     <string name="no_custom_lists_available">Keine eigenen Listen verfügbar</string>
@@ -453,7 +460,7 @@
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
-    <string name="separate_filters_title">Filter trennen</string>
+    <string name="separate_filters_title">Getrennte Filter</string>
     <string name="separate_filters_title_first_paragraph">Filter können nun separat für Eingangs- und Ausgangsstandorte eingestellt werden.</string>
     <string name="separate_filters_title_second_paragraph">Ihre aktuellen Filter werden sowohl auf den Eingangs- als auch auf den Ausgangsstandort angewendet.</string>
     <string name="server">Server</string>

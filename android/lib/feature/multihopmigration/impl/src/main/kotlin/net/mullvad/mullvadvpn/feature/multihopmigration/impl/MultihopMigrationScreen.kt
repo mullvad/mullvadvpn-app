@@ -217,7 +217,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
     MultihopMigrationPage(title = stringResource(R.string.new_multihop_modes_title)) {
         val whenNeededMessage =
             stringResourceWithIcons(
-                id = R.string.new_multihop_nodes_when_needed_description,
+                id = R.string.new_multihop_modes_when_needed_description,
                 DescribedIcon(
                     icon = MultihopWhenNeeded,
                     contentDescription = stringResource(R.string.multihop_when_needed),
@@ -239,7 +239,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_on_to_always),
                                 newMode = stringResource(R.string.always),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_always_description)
+                                    stringResource(R.string.new_multihop_modes_always_description)
                                         .toAnnotatedString(),
                             )
                         }
@@ -249,7 +249,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_off_to_never),
                                 newMode = stringResource(R.string.never),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_never_description)
+                                    stringResource(R.string.new_multihop_modes_never_description)
                                         .toAnnotatedString(),
                             )
                         }
@@ -267,7 +267,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_off_to_always),
                                 newMode = stringResource(R.string.always),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_always_description)
+                                    stringResource(R.string.new_multihop_modes_always_description)
                                         .toAnnotatedString(),
                             )
                         }
