@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
     <string name="direct">다이렉트</string>
+    <string name="direct_info_message_part1">\"직접\" 방법을 사용하면 앱이 중간 프록시 없이 Mullvad API 서버와 직접 통신합니다.</string>
+    <string name="direct_info_message_part2">검열의 영향을 받지 않는 경우 유용할 수 있습니다.</string>
     <string name="direct_only_removed_first_paragraph">연결 차단을 방지하기 위해 DAITA 하위 설정 \"직접 전용\"이 제거 및 간소화되었습니다. 대신 DAITA가 활성화된 상태에서 멀티홉 설정으로 이 옵션을 만들 수 있습니다.</string>
     <string name="direct_only_removed_second_paragraph">멀티홉을 \"필요 시\"로 설정할 경우 사용자가 DAITA를 사용해 선택한 위치에 연결되도록 보장하기 위해 앱에서 추가 서버를 사용할 수 있습니다.</string>
     <string name="direct_only_removed_third_paragraph">멀티홉을 \"항상\" 또는 \"안 함\"으로 설정할 경우 수동으로 DAITA 서버를 선택해야 합니다.</string>

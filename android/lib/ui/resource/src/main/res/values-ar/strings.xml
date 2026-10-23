@@ -186,6 +186,8 @@
     <string name="device_name_info_second_paragraph">يمكنك تسجيل الدخول إلى ما يصل إلى 5 أجهزة على حساب Mullvad واحد.</string>
     <string name="device_name_info_third_paragraph">عند تسجيل الخروج، سيتم حذف الجهاز واسمه. وعند تسجيل الدخول مجددًا، سيحصل الجهاز على اسم جديد.</string>
     <string name="direct">مباشر</string>
+    <string name="direct_info_message_part1">باستخدام طريقة الوصول \"المباشر\"، يتواصل التطبيق مع خادم Mullvad API مباشرةً دون أي خوادم وكيلة وسيطة.</string>
+    <string name="direct_info_message_part2">قد يكون هذا مفيدًا عندما لا تؤثر عليك الرقابة.</string>
     <string name="direct_only_removed_title">تمت إزالة \"مباشر فقط\"</string>
     <string name="disable_multihop">إيقاف القفز المتعدد</string>
     <string name="disable_recents">إيقاف المواقع الحديثة</string>

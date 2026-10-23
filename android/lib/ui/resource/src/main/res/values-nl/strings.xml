@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
     <string name="direct">Rechtstreeks</string>
+    <string name="direct_info_message_part1">Met de \"Rechtstreekse\" methode communiceert de app rechtstreeks met een Mullvad-API-server zonder tussenliggende proxy\'s.</string>
+    <string name="direct_info_message_part2">Dit kan nuttig zijn als u niet wordt gecensureerd.</string>
     <string name="direct_only_removed_first_paragraph">De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihopinstelling.</string>
     <string name="direct_only_removed_second_paragraph">Wanneer multihop is ingesteld op \"Indien nodig\", kan de app mogelijk een extra server gebruiken om ervoor te zorgen dat u via DAITA verbinding maakt met de door u geselecteerde locatie.</string>
     <string name="direct_only_removed_third_paragraph">Wanneer multihop is ingesteld op \"Altijd\" of \"Nooit\", moet u handmatig een DAITA-server selecteren.</string>

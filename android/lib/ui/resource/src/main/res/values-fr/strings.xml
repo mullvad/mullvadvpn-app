@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct">Direct</string>
+    <string name="direct_info_message_part1">Avec le mode « Direct », l\'application communique directement avec un serveur d\'API Mullvad, sans passer par des proxys intermédiaires.</string>
+    <string name="direct_info_message_part2">Cela peut être utile lorsque vous n\'êtes pas concerné par la censure.</string>
     <string name="direct_only_removed_first_paragraph">Le sous-paramètre « Directe uniquement » de DAITA a été supprimé et simplifié afin d\'éviter le blocage des connexions. Désormais, lorsque DAITA est activé, cette option se configure via le paramètre de multihop.</string>
     <string name="direct_only_removed_second_paragraph">Lorsque le multihop est réglé sur « Quand nécessaire », l\'application peut utiliser un serveur supplémentaire pour assurer que vous vous connectiez à la localisation de votre choix via DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Lorsque le multihop est réglé sur « Toujours » ou « Jamais », vous devez sélectionner manuellement un serveur DAITA.</string>

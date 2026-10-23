@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
     <string name="direct">Doğrudan</string>
+    <string name="direct_info_message_part1">“Direkt” yöntemiyle uygulama herhangi bir ara proxy olmadan Mullvad API sunucusuyla doğrudan iletişim kurar.</string>
+    <string name="direct_info_message_part2">Bu özellik sansürden etkilenmediğiniz durumlarda kullanışlı olabilir.</string>
     <string name="direct_only_removed_first_paragraph">DAITA\'nın \"Yalnızca doğrudan\" alt ayarı kaldırıldı ve bağlantıların engellenmesini önlemek için yapı basitleştirildi. Bunun yerine DAITA etkinken bu seçimi çoklu geçiş ayarı üzerinden yapabilirsiniz.</string>
     <string name="direct_only_removed_second_paragraph">Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir.</string>
     <string name="direct_only_removed_third_paragraph">Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir.</string>

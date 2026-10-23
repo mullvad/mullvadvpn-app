@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Pode ter até 5 dispositivos com sessão iniciada numa só conta Mullvad.</string>
     <string name="device_name_info_third_paragraph">Se terminar a sessão, o dispositivo e o nome do dispositivo são removidos. Quando voltar a iniciar sessão, o dispositivo recebe um novo nome.</string>
     <string name="direct">Direto</string>
+    <string name="direct_info_message_part1">Com o método \"Direto\", a app comunica diretamente com um servidor da Mullvad API sem quaisquer proxies intermédios.</string>
+    <string name="direct_info_message_part2">Isto pode ser útil quando não é afetado pela censura.</string>
     <string name="direct_only_removed_first_paragraph">A subdefinição \"Apenas direto\" do DAITA foi removida e simplificada para evitar o bloqueio de ligações. Agora, com o DAITA ativado, esta opção passa a ser definida através da definição de multihop.</string>
     <string name="direct_only_removed_second_paragraph">Quando o multihop está definido como \"Quando necessário\", a aplicação pode utilizar um servidor adicional para garantir que se liga à localização selecionada utilizando o DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Quando o multihop está definido como \"Sempre\" ou \"Nunca\", tem de selecionar manualmente um servidor DAITA.</string>

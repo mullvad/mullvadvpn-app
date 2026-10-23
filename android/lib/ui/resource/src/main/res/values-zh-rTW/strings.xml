@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
     <string name="direct">直接</string>
+    <string name="direct_info_message_part1">使用「直接」方式，應用程式將直接與 Mulvad API 伺服器通訊，而不經過任何中間代理伺服器。</string>
+    <string name="direct_info_message_part2">當您不受審查影響時，此方式可能會很有用。</string>
     <string name="direct_only_removed_first_paragraph">為避免封鎖連線，DAITA 子設定「僅限直接連線」已移除並簡化。現在啟用 DAITA 後，您可以透過多點跳躍設定選擇這個選項。</string>
     <string name="direct_only_removed_second_paragraph">若多點跳躍設為「必要時」，應用程式可能會使用其他伺服器，以確保您使用 DAITA 連至所選位置。</string>
     <string name="direct_only_removed_third_paragraph">若多點跳躍設為「一律」或「從不」，您必須手動選擇 DAITA 伺服器。</string>

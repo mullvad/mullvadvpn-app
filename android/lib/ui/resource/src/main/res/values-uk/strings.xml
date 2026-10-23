@@ -188,6 +188,8 @@
     <string name="device_name_info_second_paragraph">Ви одночасно можете ввійти у свій обліковий запис Mullvad на 5 пристроях.</string>
     <string name="device_name_info_third_paragraph">Якщо ви вийдете з облікового запису, пристрій і його ім’я будуть видалені. Після повторного входу пристрій отримає нове ім’я.</string>
     <string name="direct">Напряму</string>
+    <string name="direct_info_message_part1">Під час використання методу «Напряму» застосунок напряму підключається до API-сервера Mullvad без використання проміжних проксі-серверів.</string>
+    <string name="direct_info_message_part2">Це може бути корисно, якщо цензура відсутня.</string>
     <string name="direct_only_removed_first_paragraph">Опцію DAITA «Тільки напряму» видалено, щоб спростити налаштування та уникнути блокування підключень. Тепер, коли функція DAITA увімкнена, потрібне підключення налаштовується за допомогою режиму подвійного входу.</string>
     <string name="direct_only_removed_second_paragraph">Якщо для подвійного входу вибрано режим «За потреби», застосунок може використовувати додатковий сервер, щоб забезпечити підключення до вибраного розташування за допомогою DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Якщо для подвійного входу вибрано режим «Завжди» або «Ніколи», сервер DAITA необхідно вибрати вручну.</string>
