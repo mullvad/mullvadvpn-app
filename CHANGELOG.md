@@ -76,6 +76,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix "Failed to open named pipe" error.
 
+#### macOS
+- Prevent local DNS resolver from hitting file descriptor limit when hundreds of DNS queries are
+  in-flight. This could cause several other issues like firewall state failing.
+
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
 - Do not reset metadata version counter when the app has been upgraded. This addresses the advisory
