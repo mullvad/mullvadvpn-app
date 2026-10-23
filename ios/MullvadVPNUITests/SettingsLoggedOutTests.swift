@@ -12,6 +12,22 @@ import Foundation
 import XCTest
 
 class SettingsLoggedOutTests: LoggedOutUITestCase {
+
+    private func fillInAndSendProblemReportForm() {
+        ProblemReportPage(app)
+            .tapEmailTextField()
+            .enterText("cookie@mullvad.net")
+            .tapMessageTextView()
+            .enterText(
+                """
+                Dear support
+                This is a problem report from an iOS app test.
+                """
+            )
+            .dismissMessageEditingOverlay()
+            .tapSendButton()
+    }
+
     func testSendProblemReport() throws {
         #if MULLVAD_ENVIRONMENT_STAGING
             let shouldSkipTest = false
@@ -27,20 +43,40 @@ class SettingsLoggedOutTests: LoggedOutUITestCase {
         SettingsPage(app)
             .tapReportAProblemCell()
 
-        ProblemReportPage(app)
-            .tapEmailTextField()
-            .enterText("cookie@mullvad.net")
-            .tapMessageTextView()
-            .enterText(
-                """
-                Dear support
-                This is a problem report from an iOS app test.
-                """
-            )
-            .tapKeyboardDoneButton()
-            .tapSendButton()
+        fillInAndSendProblemReportForm()
 
         ProblemReportSubmittedPage(app)
+    }
+
+    func testSendProblemReportFailure() throws {
+        #if MULLVAD_ENVIRONMENT_STAGING
+            let shouldSkipTest = false
+        #else
+            let shouldSkipTest = true
+        #endif
+
+        try XCTSkipIf(shouldSkipTest, "This test should only run in the staging environment")
+
+        breakConnectivity()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapReportAProblemCell()
+
+        fillInAndSendProblemReportForm()
+
+        ProblemReportFailurePage(app)
+            .tapViewLogsButton()
+
+        ProblemReportLogPage(app)
+            .swipeDownToDismissModal()
+
+        ProblemReportFailurePage(app)
+            .tapEditMessageButton()
+
+        ProblemReportPage(app)
     }
 }
 

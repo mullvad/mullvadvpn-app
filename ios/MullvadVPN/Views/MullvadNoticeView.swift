@@ -25,6 +25,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
     @Published var style: MullvadNoticeView.Style
     let title: MullvadNoticeView.TextItem
     let banner: Image?
+    let verticalAlignment: VerticalAlignment
     let details: [MullvadNoticeView.TextItem]
     let explanation: MullvadNoticeView.TextItem?
     let actions: [MullvadNoticeView.ActionItem]
@@ -33,6 +34,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
         style: MullvadNoticeView.Style,
         title: MullvadNoticeView.TextItem,
         banner: Image? = nil,
+        verticalAlignment: VerticalAlignment = .center,
         details: [MullvadNoticeView.TextItem] = [],
         explanation: MullvadNoticeView.TextItem? = nil,
         actions: [MullvadNoticeView.ActionItem] = []
@@ -40,6 +42,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
         self.style = style
         self.title = title
         self.banner = banner
+        self.verticalAlignment = verticalAlignment
         self.details = details
         self.explanation = explanation
         self.actions = actions
@@ -57,8 +60,10 @@ struct MullvadNoticeView: View {
                 ZStack {
                     Spacer().containerRelativeFrame([.horizontal, .vertical])
                     VStack(spacing: 0) {
-                        Spacer()
-                        StateView(state: viewModel.style)
+                        if viewModel.verticalAlignment == .center {
+                            Spacer()
+                        }
+                        EmblemView(state: viewModel.style)
                             .padding(.bottom, Layout.sectionSpacing)
 
                         StyledTextView(item: viewModel.title)
@@ -83,9 +88,9 @@ struct MullvadNoticeView: View {
                     .padding(.bottom, actionHeight)
                 }
             }
-            VStack(spacing: 12) {
+            VStack(spacing: 0) {
                 Spacer()
-                Group {
+                VStack(spacing: 8) {
                     ForEach(viewModel.actions) { action in
                         ActionButton(action: action)
                     }
@@ -112,7 +117,13 @@ extension MullvadNoticeView {
         case loading
         case error
         case success
+        case fail
         case custom(CustomImage)
+    }
+
+    enum VerticalAlignment {
+        case top
+        case center
     }
 
     // MARK: - Text Item
@@ -121,6 +132,7 @@ extension MullvadNoticeView {
         let text: String
         var symbols: [Image] = []
         let style: MullvadNoticeView.Style.Text
+        var isMarkdown: Bool = false
     }
 
     // MARK: - Action State
@@ -145,6 +157,7 @@ extension MullvadNoticeView {
         let id = UUID()
         @Published var state: ActionState
         let style: MullvadButton.Style
+        var accessibilityIdentifier: AccessibilityIdentifier?
         var onTap: (() -> Void)
 
         var displayedTitle: String {
@@ -170,10 +183,12 @@ extension MullvadNoticeView {
         init(
             style: MullvadButton.Style,
             state: ActionState,
+            accessibilityIdentifier: AccessibilityIdentifier? = nil,
             onTap: @escaping (() -> Void) = {}
         ) {
             self.style = style
             self.state = state
+            self.accessibilityIdentifier = accessibilityIdentifier
             self.onTap = onTap
         }
     }
@@ -194,6 +209,7 @@ extension MullvadNoticeView.Style {
         let emphasis: Emphasis
         let font: Font
         let color: Color
+        let tintColor: Color
         let alignment: TextAlignment
         let padding: EdgeInsets
 
@@ -201,6 +217,7 @@ extension MullvadNoticeView.Style {
             emphasis: Emphasis = .none,
             font: Font,
             color: Color,
+            tintColor: Color,
             alignment: TextAlignment = .leading,
             padding: EdgeInsets = EdgeInsets(
                 top: 0,
@@ -212,6 +229,7 @@ extension MullvadNoticeView.Style {
             self.emphasis = emphasis
             self.font = font
             self.color = color
+            self.tintColor = tintColor
             self.alignment = alignment
             self.padding = padding
         }
@@ -229,6 +247,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextPrimary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -244,6 +263,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextPrimary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -259,6 +279,7 @@ extension MullvadNoticeView.Style.Text {
             emphasis: emphasis,
             font: font,
             color: .mullvadTextSecondary,
+            tintColor: .mullvadTextPrimary,
             alignment: alignment,
             padding: padding
         )
@@ -303,6 +324,7 @@ private struct ActionButton: View {
         MullvadButton(
             text: "\(action.displayedTitle)",
             style: action.style,
+            mainAccessibilityIdentifier: action.accessibilityIdentifier,
             leadingAccessory: action.state.kind.icon.map { .icon($0) }
         ) {
             action.onTap()
@@ -336,13 +358,15 @@ private struct StyledTextView: View {
     private var textContent: Text {
         buildText(
             from: item.text,
-            symbols: item.symbols
+            symbols: item.symbols,
+            isMarkdown: item.isMarkdown
         )
     }
 
     private func buildText(
         from template: String,
-        symbols: [Image]
+        symbols: [Image],
+        isMarkdown: Bool
     ) -> Text {
 
         let parts = template.components(separatedBy: "%@")
@@ -358,8 +382,13 @@ private struct StyledTextView: View {
                     "\(symbols[index].renderingMode(.template))"
                 )
             }()
-
-            return result + Text(part) + symbolText
+            let partText =
+                if isMarkdown, let attrPart = try? AttributedString(markdown: part) {
+                    Text(attrPart)
+                } else {
+                    Text(part)
+                }
+            return result + partText + symbolText
         }
     }
 }
@@ -371,6 +400,7 @@ private struct TextStyleModifier: ViewModifier {
         content
             .font(style.font)
             .foregroundStyle(style.color)
+            .tint(style.tintColor)
             .multilineTextAlignment(style.alignment)
             .frame(
                 maxWidth: .infinity,
@@ -418,7 +448,7 @@ extension TextAlignment {
 }
 
 // MARK: - State Icon View
-private struct StateView: View {
+private struct EmblemView: View {
     let state: MullvadNoticeView.Style
 
     private let size = 48.0
@@ -447,6 +477,12 @@ private struct StateView: View {
         case .error:
             ResizableImageView(
                 image: Image.mullvadIconError,
+                dimension: .width(size)
+            )
+
+        case .fail:
+            ResizableImageView(
+                image: Image.mullvadIconFail,
                 dimension: .width(size)
             )
 

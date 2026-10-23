@@ -15,7 +15,7 @@ class ProblemReportSubmittedPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.problemReportSubmittedView]
+        self.pageElement = app.descendants(matching: .any)[.problemReportSubmittedView]
         waitForPageToBeShown()
     }
 }
