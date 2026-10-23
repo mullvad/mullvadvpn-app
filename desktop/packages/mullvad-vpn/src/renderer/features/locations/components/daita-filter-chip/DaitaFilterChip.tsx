@@ -1,10 +1,10 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../shared/gettext';
-import { RoutePath } from '../../../../../../shared/routes';
-import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
-import { TransitionType, useHistory } from '../../../../../lib/history';
+import { messages } from '../../../../../shared/gettext';
+import { RoutePath } from '../../../../../shared/routes';
+import { FilterChip, type FilterChipProps } from '../../../../lib/components';
+import { TransitionType, useHistory } from '../../../../lib/history';
 
 export type DaitaFilterChipProps = FilterChipProps;
 
