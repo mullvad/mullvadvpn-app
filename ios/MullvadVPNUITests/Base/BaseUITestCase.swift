@@ -222,9 +222,7 @@ class BaseUITestCase: XCTestCase {
 
     func agreeToTermsOfServiceIfShown() {
         let timeout: XCUIElement.Timeout =
-            Self.authenticationState == .forceLoggedOut && isLoggedIn()
-            ? .longerThanMullvadAPITimeout
-            : .short
+            Self.authenticationState == .forceLoggedOut && loginViewIsShown() ? .short : .longerThanMullvadAPITimeout
 
         if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: timeout) {
             TermsOfServicePage(app)
@@ -240,11 +238,11 @@ class BaseUITestCase: XCTestCase {
     }
 
     /// Check if currently logged on to an account. Note that it is assumed that we are logged in if login view isn't currently shown.
-    func isLoggedIn() -> Bool {
+    func loginViewIsShown() -> Bool {
         return
-            !app
+            app
             .otherElements[.loginView]
-            .existsAfterWait(timeout: .short)
+            .existsAfterWait()
     }
 
     func isPresentingSettings() -> Bool {
@@ -314,7 +312,7 @@ class BaseUITestCase: XCTestCase {
     }
 
     func logoutIfLoggedIn() {
-        if isLoggedIn() {
+        if loginViewIsShown() {
             // First dismiss settings modal if presented
             if isPresentingSettings() {
                 SettingsPage(app)

@@ -23,7 +23,7 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
 
     override func setUp() async throws {
         try await super.setUp()
-        guard !isLoggedIn() else { return }
+        guard loginViewIsShown() else { return }
 
         let accountNumber = await getAccountWithTime()
         login(accountNumber: accountNumber)

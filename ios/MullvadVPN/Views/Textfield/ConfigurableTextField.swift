@@ -33,6 +33,9 @@ struct ConfigurableTextField: View {
     private var externalFocus: FocusState<Bool>.Binding?
     @State private var animatedMessage: MessageView.Message?
     @State private var animatedSuggestions: [String] = []
+    #if NEVER_IN_PRODUCTION
+        @State private var updateTextTask: Task<Void, Never>?
+    #endif
 
     init<Leading: View, Trailing: View>(
         title: LocalizedStringKey? = nil,
@@ -162,18 +165,30 @@ struct ConfigurableTextField: View {
         .onSubmit {
             configuration.submitConfiguration?.action()
         }
-        .onChange(
-            of: text,
-            { _, newValue in
-                if let formatter = configuration.formatter {
-                    let formatted = formatter.format(newValue)
-                    if formatted != newValue {
-                        text = formatted
-                    }
-                }
-            }
-        )
+        .onChange(of: text, { onChangeOfText($1) })
         .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    func onChangeOfText(_ newValue: String) {
+        #if NEVER_IN_PRODUCTION
+            // Debounce text updates for the UITest harness types too fast for slow phones
+            updateTextTask?.cancel()
+            updateTextTask = Task {
+                guard Task.isCancelled == false else { return }
+                formatText(newValue)
+            }
+        #else
+            formatText(newValue)
+        #endif
+    }
+
+    func formatText(_ newValue: String) {
+        if let formatter = configuration.formatter {
+            let formatted = formatter.format(newValue)
+            if formatted != newValue {
+                text = formatted
+            }
+        }
     }
 
     @ViewBuilder private var clearButton: some View {
