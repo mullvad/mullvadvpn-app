@@ -4,11 +4,13 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -38,6 +40,7 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
@@ -66,6 +69,7 @@ class ConnectViewModel(
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
     private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
+    private val tunnelPauseRepository: TunnelPauseRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -84,7 +88,7 @@ class ConnectViewModel(
                 relayListRepository.relayList,
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
-                connectionProxy.tunnelState.withPrev(),
+                tunnelStateWithPause(),
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
@@ -94,7 +98,7 @@ class ConnectViewModel(
                 relayList,
                 selectedRelayItemTitle,
                 notifications,
-                (tunnelState, prevTunnelState),
+                (tunnelState, prevTunnelState, pausedUntil),
                 lastKnownDisconnectedLocation,
                 accountData,
                 deviceName,
@@ -133,6 +137,7 @@ class ConnectViewModel(
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
                     isPlayBuild = isPlayBuild,
                     showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
+                    pausedUntil = pausedUntil,
                 )
             }
             .onStart {
@@ -199,6 +204,16 @@ class ConnectViewModel(
         }
     }
 
+    fun onPauseClick(duration: Duration) {
+        tunnelPauseRepository.requestPause(duration).onLeft {
+            viewModelScope.launch { _uiSideEffect.send(UiSideEffect.PauseFailed) }
+        }
+    }
+
+    fun onCancelPauseClick() {
+        tunnelPauseRepository.cancel()
+    }
+
     fun onCancelClick() {
         viewModelScope.launch {
             connectionProxy.disconnect(DisconnectReason.USER_INITIATED_CANCEL_BUTTON).onLeft {
@@ -244,6 +259,19 @@ class ConnectViewModel(
         hasShownNotificationPromptRepository.setHasShowNotificationPrompt(true)
     }
 
+    // The pause is only shown while the tunnel is disconnected, the tunnel state is updated a bit
+    // before the pause ends.
+    private fun tunnelStateWithPause() =
+        connectionProxy.tunnelState.withPrev().combine(tunnelPauseRepository.pausedUntil) {
+            (tunnelState, prevTunnelState),
+            pausedUntil ->
+            Triple(
+                tunnelState,
+                prevTunnelState,
+                pausedUntil.takeIf { tunnelState is TunnelState.Disconnected },
+            )
+        }
+
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
@@ -267,6 +295,8 @@ class ConnectViewModel(
         data object RevokedDevice : UiSideEffect
 
         data class NotPrepared(val prepareError: PrepareError) : UiSideEffect
+
+        data object PauseFailed : UiSideEffect
 
         sealed interface ConnectError : UiSideEffect {
             data object Generic : ConnectError

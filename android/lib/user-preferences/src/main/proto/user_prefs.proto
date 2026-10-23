@@ -13,4 +13,5 @@ message UserPreferences {
   bool has_seen_multihop_migration_guide = 7;
   bool has_dismissed_multihop_migration_guide_banner = 8;
   optional string latest_successful_purchase = 9;
+  int64 paused_until_unix_time_millis = 10;
 }

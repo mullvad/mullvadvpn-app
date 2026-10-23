@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import arrow.core.left
 import arrow.core.right
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -12,9 +13,11 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -35,6 +38,7 @@ class ConnectionProxyTest {
     @BeforeEach
     fun setup() {
         mockkStatic(VPN_SERVICE_UTILS)
+        coEvery { mockManagementService.connect() } returns true.right()
     }
 
     @Test
@@ -42,6 +46,7 @@ class ConnectionProxyTest {
         every { mockContext.prepareVpnSafe() } returns Prepared.right()
         connectionProxy.connect()
         coVerify(exactly = 1) { mockManagementService.connect() }
+        assertEquals(1L, connectionProxy.connectionRequests.value)
     }
 
     @Test
@@ -50,18 +55,44 @@ class ConnectionProxyTest {
             every { mockContext.prepareVpnSafe() } returns PrepareError.NotPrepared(Intent()).left()
             connectionProxy.connect()
             coVerify(exactly = 0) { mockManagementService.connect() }
+            assertEquals(0L, connectionProxy.connectionRequests.value)
         }
+
+    @Test
+    fun `connect without permission check should track each connection request`() = runTest {
+        connectionProxy.connectWithoutPermissionCheck()
+        connectionProxy.connectWithoutPermissionCheck()
+        coVerify(exactly = 2) { mockManagementService.connect() }
+        assertEquals(2L, connectionProxy.connectionRequests.value)
+    }
+
+    @Test
+    fun `connect that does not change the target state should not be tracked`() = runTest {
+        coEvery { mockManagementService.connect() } returns false.right()
+        connectionProxy.connectWithoutPermissionCheck()
+        assertEquals(0L, connectionProxy.connectionRequests.value)
+    }
+
+    @Test
+    fun `failed connect should not be tracked`() = runTest {
+        coEvery { mockManagementService.connect() } returns
+            ConnectError.Unknown(RuntimeException()).left()
+        connectionProxy.connectWithoutPermissionCheck()
+        assertEquals(0L, connectionProxy.connectionRequests.value)
+    }
 
     @Test
     fun `disconnect should call managementService disconnect`() = runTest {
         connectionProxy.disconnect(mockk())
         coVerify(exactly = 1) { mockManagementService.disconnect(any()) }
+        assertEquals(0L, connectionProxy.connectionRequests.value)
     }
 
     @Test
     fun `reconnect should call managementService reconnect`() = runTest {
         connectionProxy.reconnect()
         coVerify(exactly = 1) { mockManagementService.reconnect() }
+        assertEquals(0L, connectionProxy.connectionRequests.value)
     }
 
     @AfterEach

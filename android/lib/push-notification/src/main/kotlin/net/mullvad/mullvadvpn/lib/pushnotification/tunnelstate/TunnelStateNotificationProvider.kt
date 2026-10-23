@@ -21,12 +21,15 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
+@Suppress("LongParameterList")
 class TunnelStateNotificationProvider(
     context: Context,
     connectionProxy: ConnectionProxy,
     deviceRepository: DeviceRepository,
+    tunnelPauseRepository: TunnelPauseRepository,
     preferences: UserPreferencesRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope,
@@ -37,18 +40,23 @@ class TunnelStateNotificationProvider(
         combine(
                 connectionProxy.tunnelState,
                 deviceRepository.deviceState,
+                tunnelPauseRepository.pausedUntil,
                 preferences.preferencesFlow(),
-            ) { tunnelState, deviceState, prefs ->
+            ) { tunnelState, deviceState, pausedUntil, prefs ->
                 if (
                     deviceState is DeviceState.LoggedOut && tunnelState is TunnelState.Disconnected
                 ) {
                     return@combine NotificationUpdate.Cancel(notificationId)
                 }
                 val notificationTunnelState =
-                    tunnelState.toNotificationTunnelState(
-                        prepareError = context.prepareVpnSafe().leftOrNull(),
-                        showLocation = prefs.showLocationInSystemNotification,
-                    )
+                    if (pausedUntil != null && tunnelState is TunnelState.Disconnected) {
+                        NotificationTunnelState.Paused(resumeAt = pausedUntil)
+                    } else {
+                        tunnelState.toNotificationTunnelState(
+                            prepareError = context.prepareVpnSafe().leftOrNull(),
+                            showLocation = prefs.showLocationInSystemNotification,
+                        )
+                    }
 
                 return@combine NotificationUpdate.Notify(
                     notificationId,
@@ -56,7 +64,9 @@ class TunnelStateNotificationProvider(
                         channelId = channelId,
                         state = notificationTunnelState,
                         actions = notificationTunnelState.toActions(),
-                        ongoing = notificationTunnelState is NotificationTunnelState.Connected,
+                        ongoing =
+                            notificationTunnelState is NotificationTunnelState.Connected ||
+                                notificationTunnelState is NotificationTunnelState.Paused,
                     ),
                 )
             }
@@ -110,6 +120,9 @@ class TunnelStateNotificationProvider(
                 }
             }
             NotificationTunnelState.Disconnecting -> listOf(NotificationAction.Tunnel.Connect)
+            // Cancel ends the pause and leaves the tunnel disconnected.
+            is NotificationTunnelState.Paused ->
+                listOf(NotificationAction.Tunnel.Connect, NotificationAction.Tunnel.Cancel)
             NotificationTunnelState.Error.Blocked,
             NotificationTunnelState.Blocking,
             NotificationTunnelState.Error.DeviceOffline,

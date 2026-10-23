@@ -104,6 +104,12 @@
                 <action android:name="net.mullvad.mullvadvpn.disconnect_action" />
             </intent-filter>
             <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.pause_action" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.resume_action" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="net.mullvad.mullvadvpn.quit_action" />
             </intent-filter>
         </service>
@@ -150,6 +156,14 @@
         </receiver>
         <receiver
                 android:name=".receiver.ScheduleNotificationBootCompletedReceiver"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+                android:name=".receiver.TunnelPauseBootCompletedReceiver"
                 android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />

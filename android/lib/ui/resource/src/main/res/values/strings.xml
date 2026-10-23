@@ -596,4 +596,9 @@
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
     <string name="connected_server">Connected server</string>
+    <string name="pause_vpn">Pause VPN</string>
+    <string name="pause_vpn_failed">Unable to pause VPN</string>
+    <string name="pause_vpn_warning">Your traffic is not protected while the VPN is paused. It reconnects automatically when the time is up.</string>
+    <string name="reconnects_in">Reconnects in %s</string>
+    <string name="reconnects_at">Reconnects at %s</string>
 </resources>

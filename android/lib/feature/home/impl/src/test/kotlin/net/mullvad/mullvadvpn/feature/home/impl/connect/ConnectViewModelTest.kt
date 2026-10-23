@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.home.impl.connect
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.left
 import arrow.core.right
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -10,10 +11,13 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import io.mockk.verify
+import java.time.Instant
 import kotlin.collections.emptyList
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
@@ -103,6 +108,10 @@ class ConnectViewModelTest {
 
     private val mockMultihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase = mockk()
 
+    // Tunnel pause
+    private val mockTunnelPauseRepository: TunnelPauseRepository = mockk()
+    private val pausedUntil = MutableStateFlow<Instant?>(null)
+
     @BeforeEach
     fun setup() {
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -128,6 +137,8 @@ class ConnectViewModelTest {
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
 
         every { mockMultihopGuideMigrationHintUseCase() } returns flowOf(false)
+
+        every { mockTunnelPauseRepository.pausedUntil } returns pausedUntil
         viewModel =
             ConnectViewModel(
                 accountRepository = mockAccountRepository,
@@ -148,6 +159,7 @@ class ConnectViewModelTest {
                 connectionPath = mockConnectionPathUseCase,
                 multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
                 hasShownNotificationPromptRepository = mockk(relaxed = true),
+                tunnelPauseRepository = mockTunnelPauseRepository,
             )
     }
 
@@ -306,6 +318,76 @@ class ConnectViewModelTest {
 
         // Assert
         coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
+    }
+
+    @Test
+    fun `onPauseClick should request a pause from TunnelPauseRepository`() = runTest {
+        // Arrange
+        val duration = 15.minutes
+        every { mockTunnelPauseRepository.requestPause(any()) } returns Unit.right()
+
+        // Act
+        viewModel.onPauseClick(duration)
+
+        // Assert
+        verify { mockTunnelPauseRepository.requestPause(duration) }
+    }
+
+    @Test
+    fun `given pause request fails onPauseClick should emit PauseFailed`() = runTest {
+        // Arrange
+        every { mockTunnelPauseRepository.requestPause(any()) } returns RuntimeException().left()
+
+        // Act
+        viewModel.onPauseClick(5.minutes)
+
+        // Assert
+        viewModel.uiSideEffect.test {
+            assertEquals(ConnectViewModel.UiSideEffect.PauseFailed, awaitItem())
+        }
+    }
+
+    @Test
+    fun `onCancelPauseClick should cancel the pause`() = runTest {
+        // Arrange
+        every { mockTunnelPauseRepository.cancel() } just Runs
+
+        // Act
+        viewModel.onCancelPauseClick()
+
+        // Assert
+        verify { mockTunnelPauseRepository.cancel() }
+    }
+
+    @Test
+    fun `given paused and disconnected uiState should emit pausedUntil`() = runTest {
+        // Arrange
+        val resumeAt = Instant.parse("2026-01-01T12:05:00Z")
+
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(ConnectUiState.INITIAL, awaitItem())
+            pausedUntil.emit(resumeAt)
+            assertEquals(resumeAt, awaitItem().pausedUntil)
+        }
+    }
+
+    @Test
+    fun `given tunnel connects while paused uiState should not emit pausedUntil`() = runTest {
+        // Arrange
+        val resumeAt = Instant.parse("2026-01-01T12:05:00Z")
+        val connected = TunnelState.Connected(mockk(relaxed = true), null, emptyList())
+
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(ConnectUiState.INITIAL, awaitItem())
+            pausedUntil.emit(resumeAt)
+            awaitItem()
+            tunnelState.emit(connected)
+            val result = awaitItem()
+            assertEquals(connected, result.tunnelState)
+            assertNull(result.pausedUntil)
+        }
     }
 
     @Test

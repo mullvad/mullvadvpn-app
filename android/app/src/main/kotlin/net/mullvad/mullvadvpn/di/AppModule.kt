@@ -30,10 +30,12 @@ import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseC
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.AlarmManagerPauseAlarm
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
+import net.mullvad.mullvadvpn.lib.repository.TunnelPauseRepository
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferences
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesMigration
@@ -68,6 +70,15 @@ val appModule = module {
     single { DeviceRepository(get()) }
     single { UserPreferencesRepository(get(), get()) }
     single { ConnectionProxy(androidContext(), get(), get()) }
+    single {
+        TunnelPauseRepository(
+            androidContext(),
+            get(),
+            get(),
+            get(),
+            AlarmManagerPauseAlarm(androidContext()),
+        )
+    }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
@@ -90,6 +101,7 @@ val appModule = module {
     single {
         TunnelStateNotificationProvider(
             androidContext(),
+            get(),
             get(),
             get(),
             get(),

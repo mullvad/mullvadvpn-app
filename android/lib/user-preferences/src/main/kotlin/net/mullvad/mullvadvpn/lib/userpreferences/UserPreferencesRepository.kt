@@ -56,6 +56,27 @@ class UserPreferencesRepository(
             Instant.ofEpochSecond(expiryTime).atZone(ZoneId.systemDefault())
         }
 
+    suspend fun setPausedUntil(pausedUntil: Instant) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setPausedUntilUnixTimeMillis(pausedUntil.toEpochMilli()).build()
+        }
+    }
+
+    suspend fun clearPausedUntil() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().clearPausedUntilUnixTimeMillis().build()
+        }
+    }
+
+    // Returns the time at which a paused tunnel should be reconnected or null if there is no
+    // pause.
+    suspend fun pausedUntil(): Instant? =
+        preferences().let { prefs ->
+            val pausedUntil = prefs.pausedUntilUnixTimeMillis
+            if (pausedUntil == 0L) return null
+            Instant.ofEpochMilli(pausedUntil)
+        }
+
     suspend fun setShowAndroid16ConnectWarning(show: Boolean) =
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setShowAndroid16ConnectWarning(show).build()

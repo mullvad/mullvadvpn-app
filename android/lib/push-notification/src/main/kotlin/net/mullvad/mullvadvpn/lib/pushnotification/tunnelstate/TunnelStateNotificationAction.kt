@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.text.format.DateFormat
 import androidx.core.app.NotificationCompat
+import java.util.Date
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_RECONNECT_ACTION
@@ -25,6 +27,15 @@ fun Notification.Tunnel.toNotification(context: Context) =
         .apply { actions.forEach { addAction(it.toCompatAction(context)) } }
         .setOngoing(ongoing)
         .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+        .apply {
+            // Count down to the reconnect in the notification header
+            (state as? NotificationTunnelState.Paused)?.let {
+                setWhen(it.resumeAt.toEpochMilli())
+                setShowWhen(true)
+                setUsesChronometer(true)
+                setChronometerCountDown(true)
+            }
+        }
         .build()
 
 private fun Notification.Tunnel.contentIntent(context: Context): PendingIntent {
@@ -50,6 +61,7 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
             }
         }
         NotificationTunnelState.Disconnecting -> context.getString(R.string.disconnecting)
+        is NotificationTunnelState.Paused -> context.getString(R.string.disconnected)
         NotificationTunnelState.Blocking -> context.getString(R.string.blocking)
         NotificationTunnelState.Error.Blocked -> context.getString(R.string.blocking_internet)
         is NotificationTunnelState.Error.Critical -> context.getString(R.string.critical_error)
@@ -64,6 +76,10 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
     }
 
 private fun NotificationTunnelState.contentText(context: Context): CharSequence? {
+    if (this is NotificationTunnelState.Paused) {
+        val time = DateFormat.getTimeFormat(context).format(Date.from(resumeAt))
+        return context.getString(R.string.reconnects_at, time)
+    }
     val location =
         when (this) {
             is NotificationTunnelState.Connected -> location

@@ -72,6 +72,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
@@ -84,6 +85,8 @@ import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.home.api.Android16UpgradeInfoNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
+import net.mullvad.mullvadvpn.feature.home.api.PauseVpnNavKey
+import net.mullvad.mullvadvpn.feature.home.api.PauseVpnNavResult
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ConnectionDetailPanel
@@ -136,6 +139,7 @@ import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.PAUSE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -167,6 +171,8 @@ private fun PreviewAccountScreen(
             onReconnectClick = {},
             onConnectClick = {},
             onCancelClick = {},
+            onPauseClick = {},
+            onCancelPauseClick = {},
             onSwitchLocationClick = {},
             onOpenAppListing = {},
             onManageAccountClick = {},
@@ -259,6 +265,11 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                     message = resources.getString(R.string.error_occurred)
                 )
 
+            ConnectViewModel.UiSideEffect.PauseFailed ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.pause_vpn_failed)
+                )
+
             is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -314,6 +325,10 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
         }
     }
 
+    LocalResultStore.current.consumeResult<PauseVpnNavResult> { result ->
+        connectViewModel.onPauseClick(result.seconds.seconds)
+    }
+
     CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
         ConnectScreen(
             state = state,
@@ -322,6 +337,8 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
             onReconnectClick = connectViewModel::onReconnectClick,
             onConnectClick = connectViewModel::onConnectClick,
             onCancelClick = connectViewModel::onCancelClick,
+            onPauseClick = dropUnlessResumed { navigator.navigate(PauseVpnNavKey) },
+            onCancelPauseClick = connectViewModel::onCancelPauseClick,
             onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationNavKey) },
             onOpenAppListing = connectViewModel::openAppListing,
             onManageAccountClick = connectViewModel::onManageAccountClick,
@@ -370,6 +387,8 @@ fun ConnectScreen(
     onReconnectClick: () -> Unit,
     onConnectClick: () -> Unit,
     onCancelClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onSwitchLocationClick: () -> Unit,
     onOpenAppListing: () -> Unit,
     onManageAccountClick: () -> Unit,
@@ -397,6 +416,8 @@ fun ConnectScreen(
                 onReconnectClick = onReconnectClick,
                 onConnectClick = onConnectClick,
                 onCancelClick = onCancelClick,
+                onPauseClick = onPauseClick,
+                onCancelPauseClick = onCancelPauseClick,
                 onSwitchLocationClick = onSwitchLocationClick,
                 onOpenAppListing = onOpenAppListing,
                 onManageAccountClick = onManageAccountClick,
@@ -459,6 +480,8 @@ private fun Content(
     onReconnectClick: () -> Unit,
     onConnectClick: () -> Unit,
     onCancelClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onSwitchLocationClick: () -> Unit,
     onOpenAppListing: () -> Unit,
     onManageAccountClick: () -> Unit,
@@ -536,6 +559,8 @@ private fun Content(
                 onDisconnectClick = onDisconnectClick,
                 onReconnectClick = onReconnectClick,
                 onCancelClick = onCancelClick,
+                onPauseClick = onPauseClick,
+                onCancelPauseClick = onCancelPauseClick,
                 onConnectClick = onConnectClick,
                 onNavigateToFeature = onNavigateToFeature,
             )
@@ -592,6 +617,8 @@ private fun ConnectionCard(
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
     onCancelClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onCancelPauseClick: () -> Unit,
     onConnectClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
@@ -616,6 +643,7 @@ private fun ConnectionCard(
                 location = state.internetLocation,
                 isWhenNeededMultihop = isWhenNeededMultihop,
                 expanded = expanded,
+                onCancelPauseClick = onCancelPauseClick,
             ) {
                 expanded = !expanded
             }
@@ -648,6 +676,7 @@ private fun ConnectionCard(
                 onReconnectClick,
                 onCancelClick,
                 onConnectClick,
+                onPauseClick,
             )
         }
     }
@@ -659,6 +688,7 @@ private fun ConnectionCardHeader(
     location: GeoIpLocation?,
     expanded: Boolean,
     isWhenNeededMultihop: Boolean,
+    onCancelPauseClick: () -> Unit,
     onToggleExpand: () -> Unit,
 ) {
     Column(
@@ -722,6 +752,16 @@ private fun ConnectionCardHeader(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        AnimatedContent(state.pausedUntil, label = "paused_until") {
+            if (it != null) {
+                ReconnectCountdown(
+                    resumeAt = it,
+                    onCancelClick = onCancelPauseClick,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -825,6 +865,7 @@ private fun ButtonPanel(
     onReconnectClick: () -> Unit,
     onCancelClick: () -> Unit,
     onConnectClick: () -> Unit,
+    onPauseClick: () -> Unit,
 ) {
     var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
 
@@ -861,6 +902,11 @@ private fun ButtonPanel(
             disconnectClick = onDisconnectClick,
             cancelClick = onCancelClick,
             connectClick = { handleThrottledAction(onConnectClick) },
+            pauseClick = onPauseClick,
+            showPauseButton =
+                state.tunnelState is TunnelState.Connected ||
+                    state.tunnelState is TunnelState.Connecting,
+            pauseButtonTestTag = PAUSE_BUTTON_TEST_TAG,
         )
     }
 }

@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import java.time.Instant
+
 sealed interface NotificationTunnelState {
     data class Disconnected(val prepareError: PrepareError?) : NotificationTunnelState
 
@@ -10,6 +12,8 @@ sealed interface NotificationTunnelState {
     data object Blocking : NotificationTunnelState
 
     data object Disconnecting : NotificationTunnelState
+
+    data class Paused(val resumeAt: Instant) : NotificationTunnelState
 
     sealed interface Error : NotificationTunnelState {
         data object DeviceOffline : Error
