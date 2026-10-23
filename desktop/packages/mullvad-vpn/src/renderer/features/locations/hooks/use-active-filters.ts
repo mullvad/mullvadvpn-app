@@ -12,6 +12,8 @@ export function useActiveFilters(locationType: LocationType) {
   const isLwoFilterActive = useIsLwoFilterActive(locationType);
   const isDaitaFilterActive = useIsDaitaFilterActive(locationType);
 
+  const isAnySettingsFilterActive = isDaitaFilterActive || isLwoFilterActive || isQuicFilterActive;
+
   const isAnyFilterActive =
     isOwnershipFilterActive ||
     isProvidersFilterActive ||
@@ -21,6 +23,7 @@ export function useActiveFilters(locationType: LocationType) {
 
   return {
     isAnyFilterActive,
+    isAnySettingsFilterActive,
     isOwnershipFilterActive,
     isProvidersFilterActive,
     isDaitaFilterActive,
