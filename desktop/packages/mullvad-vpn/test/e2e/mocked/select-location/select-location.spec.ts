@@ -582,6 +582,31 @@ test.describe('Select location', () => {
         await expect(routes.filter.getHeading('Exit filter')).toBeVisible();
       });
 
+      test('Should show filter chips for active VPN settings in "Exit Filter" view', async () => {
+        await routes.selectLocation.gotoExitFilter();
+
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'never',
+            daita: true,
+          },
+          settings,
+        );
+
+        const daitaFilterChip = routes.filter.getFilterChipLink('DAITA');
+        await expect(daitaFilterChip).toBeVisible();
+
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+        await expect(quicFilterChip).toBeVisible();
+
+        settings = await helpers.mockAntiCensorship(ObfuscationType.lwo, settings);
+
+        const lwoFilterChip = routes.filter.getFilterChipLink('Obfuscation: LWO');
+        await expect(lwoFilterChip).toBeVisible();
+      });
+
       test('Should apply filter when QUIC when viewing locations', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
