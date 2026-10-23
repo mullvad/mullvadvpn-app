@@ -40,10 +40,7 @@ export function FilterChips() {
       }
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{
-        opacity: { duration: durationTokens.fast, ease: 'easeOut' },
-        layout: { duration: durationTokens.fast, ease: 'easeOut' },
-      }}>
+      transition={{ duration: durationTokens.fast, ease: 'easeOut' }}>
       {isOwnershipFilterActive && (
         <li>
           <OwnershipFilterChip />
