@@ -131,6 +131,7 @@ struct AccountView: View {
             MullvadListSectionHeader(title: "Device name")
             HStack {
                 Text(viewModel.deviceName)
+                    .accessibilityIdentifier(.accountPageDeviceNameLabel)
                 Spacer()
                 Button {
                     presentedSheet = .deviceManagement

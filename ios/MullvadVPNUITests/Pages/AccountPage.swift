@@ -44,7 +44,7 @@ class AccountPage: PaymentPage {
     }
 
     func getDeviceName() throws -> String {
-        let deviceNameLabel = app.otherElements[AccessibilityIdentifier.accountPageDeviceNameLabel]
+        let deviceNameLabel = app.staticTexts[AccessibilityIdentifier.accountPageDeviceNameLabel]
         return try XCTUnwrap(deviceNameLabel.value as? String, "Failed to read device name from label")
     }
 
