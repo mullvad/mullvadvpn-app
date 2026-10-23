@@ -32,11 +32,13 @@ public struct MullvadApiRequestFactory: Sendable {
 
         case let .getRelayList(retryStrategy, digest, timestamp):
             return MullvadApiCancellable(
-                handle: apiContext.getRelays(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    digest: digest,
-                    digestTimestamp: timestamp
-                ))
+                task: {
+                    try await apiContext.getRelays(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        digest: digest,
+                        digestTimestamp: timestamp
+                    )
+                })
 
         case let .sendProblemReport(retryStrategy, problemReportRequest):
             return MullvadApiCancellable(

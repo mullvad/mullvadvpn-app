@@ -74,72 +74,35 @@ impl ApiContext {
         )
     }
 
-    pub fn get_relays(
+    pub async fn get_relays(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         digest: Option<String>,
         digest_timestamp: Option<i64>,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| {
-                let digest = if let Some(digest) = digest {
-                    match RelayListDigest::try_from(digest) {
-                        Ok(digest) => Some(digest),
-                        Err(err) => {
-                            log::error!("bad relay digest: {err:?}");
-                            completion_handler.finish(ApiResponse::cancelled());
-                            return;
-                        }
-                    }
-                } else {
-                    None
-                };
-
-                match get_relays_inner(
-                    api_context.rest_handle(),
-                    retry_strategy,
-                    digest,
-                    digest_timestamp.and_then(DateTime::from_timestamp_millis),
-                )
-                .await
-                {
-                    Ok(response) => completion_handler.finish(response),
+    ) -> Result<ApiResponse, ApiContextError> {
+        TokioBridge::spawn(async move {
+            let digest = if let Some(digest) = digest {
+                match RelayListDigest::try_from(digest) {
+                    Ok(digest) => Some(digest),
                     Err(err) => {
-                        log::error!("{err:?}");
-                        completion_handler.finish(ApiResponse::rest_error(err));
+                        log::error!("bad relay digest: {err:?}");
+                        return Ok(ApiResponse::cancelled());
                     }
                 }
-            },
-        )
+            } else {
+                None
+            };
+
+            let digest_timestamp = digest_timestamp.and_then(DateTime::from_timestamp_millis);
+            let sigsum_payload = digest
+                .zip(digest_timestamp)
+                .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
+
+            let api = RelayListProxy::new(self.rest_handle());
+            let future_factory = || api.relay_list_response(sigsum_payload.clone());
+            let response = retry_request(*retry_strategy, future_factory).await?;
+            Ok(ApiResponse::with_sigsum_verified_body(response)?)
+        })
+        .await
     }
-}
-
-async fn get_relays_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-    digest: Option<RelayListDigest>,
-    digest_timestamp: Option<DateTime<Utc>>,
-) -> Result<ApiResponse, rest::Error> {
-    let api = RelayListProxy::new(rest_client);
-
-    let sigsum_payload = digest
-        .zip(digest_timestamp)
-        .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
-
-    let future_factory = || api.relay_list_response(sigsum_payload.clone());
-
-    let response = retry_request(retry_strategy, future_factory).await?;
-    ApiResponse::with_sigsum_verified_body(response)
-}
-
-async fn api_addrs_available_inner(
-    rest_client: MullvadRestHandle,
-    retry_strategy: RetryStrategy,
-) -> Result<bool, rest::Error> {
-    let api = ApiProxy::new(rest_client);
-
-    let future_factory = || api.api_addrs_available();
-    retry_request(retry_strategy, future_factory).await
 }
