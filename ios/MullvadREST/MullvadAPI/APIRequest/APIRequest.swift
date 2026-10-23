@@ -12,7 +12,6 @@ import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
     // Api Proxy
-    case getRelayList(_ retryStrategy: REST.RetryStrategy, digest: String?, timestamp: Int64?)
     case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
     case checkApiAvailability(_ retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod)
 
@@ -33,8 +32,6 @@ public enum APIRequest: Codable, Sendable {
 
     var name: String {
         switch self {
-        case .getRelayList:
-            "get-relay-list"
         case .sendProblemReport:
             "send-problem-report"
         case .getDevices:
@@ -56,8 +53,7 @@ public enum APIRequest: Codable, Sendable {
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case let .getRelayList(strategy, _, _),
-            let .sendProblemReport(strategy, _),
+        case let .sendProblemReport(strategy, _),
             let .createDevice(strategy, _, _),
             let .getDevices(strategy, _),
             let .deleteDevice(strategy, _, _),

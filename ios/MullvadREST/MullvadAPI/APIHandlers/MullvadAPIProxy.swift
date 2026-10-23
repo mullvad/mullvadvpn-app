@@ -91,27 +91,30 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
         ) -> Cancellable {
-            // An unchanged sigsum digest yields an empty body.
-            let responseHandler = rustCustomResponseHandler { data, digest, timestamp in
-                data.isEmpty
-                    ? REST.ServerRelaysCacheResponse.notModified
-                    : REST.ServerRelaysCacheResponse.newContent(digest, timestamp, data)
-            }
+            Task {
+                var sigsumDigest: String? = nil
+                var sigsumTimestamp: Int64? = nil
+                if let (digest, timestamp) = sigsum {
+                    sigsumDigest = digest
+                    sigsumTimestamp = timestamp
+                }
 
-            var sigsumDigest: String? = nil
-            var sigsumTimestamp: Int64? = nil
-            if let (digest, timestamp) = sigsum {
-                sigsumDigest = digest
-                sigsumTimestamp = timestamp
-            }
-            return createNetworkOperation(
-                request: .getRelayList(
-                    retryStrategy,
-                    digest: sigsumDigest,
-                    timestamp: sigsumTimestamp),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
+                do {
+                    let response = try await apiContext.getRelays(
+                        retryStrategy: retryStrategy.toRustStrategy(),
+                        digest: sigsumDigest,
+                        digestTimestamp: sigsumTimestamp)
+                    let (body, _, digest, timestamp) = try response.get()
+
+                    if body.isEmpty {
+                        completionHandler(.success(.notModified))
+                    } else {
+                        completionHandler(.success(.newContent(digest, timestamp, body)))
+                    }
+                } catch {
+                    completionHandler(.failure(error))
+                }
+            }.cancellable
         }
 
         public func sendProblemReport(

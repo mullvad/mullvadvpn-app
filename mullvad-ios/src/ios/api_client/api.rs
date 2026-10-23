@@ -75,45 +75,33 @@ impl ApiContext {
         )
     }
 
-    pub fn get_relays(
+    pub async fn get_relays(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         digest: Option<String>,
         digest_timestamp: Option<i64>,
-    ) -> Arc<RequestCancelHandle> {
-        RequestCancelHandle::new(
-            self,
-            retry_strategy,
-            async move |api_context, retry_strategy, completion_handler| {
-                let digest = if let Some(digest) = digest {
-                    match RelayListDigest::try_from(digest) {
-                        Ok(digest) => Some(digest),
-                        Err(err) => {
-                            log::error!("bad relay digest: {err:?}");
-                            completion_handler.finish(ApiResponse::cancelled());
-                            return;
-                        }
-                    }
-                } else {
-                    None
-                };
-
-                match get_relays_inner(
-                    api_context.rest_handle(),
-                    retry_strategy,
-                    digest,
-                    digest_timestamp.and_then(DateTime::from_timestamp_millis),
-                )
-                .await
-                {
-                    Ok(response) => completion_handler.finish(response),
-                    Err(err) => {
-                        log::error!("{err:?}");
-                        completion_handler.finish(ApiResponse::rest_error(err));
-                    }
+    ) -> Result<ApiResponse, AnyError> {
+        let digest = if let Some(digest) = digest {
+            match RelayListDigest::try_from(digest) {
+                Ok(digest) => Some(digest),
+                Err(err) => {
+                    log::error!("bad relay digest: {err:?}");
+                    return Ok(ApiResponse::cancelled());
                 }
-            },
+            }
+        } else {
+            None
+        };
+
+        get_relays_inner(
+            self.rest_handle(),
+            *retry_strategy,
+            digest,
+            digest_timestamp.and_then(DateTime::from_timestamp_millis),
         )
+        .await
+        .map_err(AnyError::from)
+        .inspect_err(|e| log::error!("get_addresses failed: {e}"))
     }
 }
 
