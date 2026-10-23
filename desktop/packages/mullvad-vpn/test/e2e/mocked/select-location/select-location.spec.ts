@@ -414,6 +414,13 @@ test.describe('Select location', () => {
 
   test.describe('Filter', () => {
     test.describe('Filter view', () => {
+      let settings = getDefaultSettings();
+
+      test.beforeEach(async () => {
+        settings = getDefaultSettings();
+        await helpers.resetToSelectLocationView();
+      });
+
       const testCases = [
         {
           title: 'Exit filter',
@@ -426,8 +433,6 @@ test.describe('Select location', () => {
       ];
       testCases.forEach(({ title, locationType }) => {
         test.describe(`${title}`, () => {
-          let settings = getDefaultSettings();
-
           test.beforeEach(async () => {
             // Use multihop: always to ensure both entry and exit filter buttons are visible
             settings = await helpers.mockSettings(
@@ -516,6 +521,42 @@ test.describe('Select location', () => {
                 ownerFilterChip.click(),
               ]);
             });
+          });
+
+          test('Should display filter overridden info when using an automatic location', async () => {
+            // Need to set up all the circumstances that makes the Automatic entry appear
+            settings = await helpers.mockSettings(
+              {
+                multihop: 'when-needed',
+              },
+              settings,
+            );
+
+            settings = await helpers.mockEntryAndExitLocations(
+              {
+                entryLocation: 'any',
+                exitLocation: 'any',
+              },
+              settings,
+            );
+
+            await helpers.mockConnectTunnel({
+              ...mockData.location,
+              entryHostname: relayList.countries[0].cities[0].relays[0].hostname,
+            });
+
+            // Then we can verify that the info text appears.
+            await expect(routes.filter.getFilterOverriddenText()).toBeVisible();
+
+            // And verify that text is still present when using `multihop: always`
+            settings = await helpers.mockSettings(
+              {
+                multihop: 'always',
+              },
+              settings,
+            );
+
+            await expect(routes.filter.getFilterOverriddenText()).toBeVisible();
           });
         });
       });
