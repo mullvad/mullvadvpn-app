@@ -3732,7 +3732,6 @@ export enum FeatureIndicator {
     DAITA = 14,
     MULTIHOP_AUTO = 15,
     CUSTOM_VPN = 16,
-    CUSTOM_VPN_ACTIVE = 17,
 }
 
 export enum Ownership {

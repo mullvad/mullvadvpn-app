@@ -28366,8 +28366,7 @@ proto.mullvad_daemon.management_interface.FeatureIndicator = {
   CUSTOM_MTU: 13,
   DAITA: 14,
   MULTIHOP_AUTO: 15,
-  CUSTOM_VPN: 16,
-  CUSTOM_VPN_ACTIVE: 17
+  CUSTOM_VPN: 16
 };
 
 /**

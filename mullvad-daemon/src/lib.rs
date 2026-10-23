@@ -694,8 +694,6 @@ impl<E> DaemonEventSender<E> {
 
 pub struct Daemon {
     tunnel_state: TunnelState,
-    #[cfg(feature = "custom-vpn")]
-    last_custom_handshake: Option<std::time::SystemTime>,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -1096,8 +1094,6 @@ impl Daemon {
                 #[cfg(not(target_os = "android"))]
                 locked_down: settings.lockdown_mode,
             },
-            #[cfg(feature = "custom-vpn")]
-            last_custom_handshake: None,
             target_state,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunneling_pid_manager,
@@ -1305,8 +1301,6 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
-                    #[cfg(feature = "custom-vpn")]
-                    self.last_custom_handshake,
                 );
                 TunnelState::Connecting {
                     endpoint,
@@ -1319,8 +1313,6 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
-                    #[cfg(feature = "custom-vpn")]
-                    self.last_custom_handshake,
                 );
                 TunnelState::Connected {
                     endpoint,
@@ -1329,12 +1321,6 @@ impl Daemon {
                 }
             }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
-                // Reset custom VPN handshake if not connected
-                #[cfg(feature = "custom-vpn")]
-                {
-                    self.last_custom_handshake = None;
-                }
-
                 TunnelState::Disconnecting(after_disconnect)
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
@@ -1497,13 +1483,8 @@ impl Daemon {
                 let ip_override = feature_indicators
                     .active_features()
                     .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
-                let new_feature_indicators = compute_feature_indicators(
-                    self.settings.settings(),
-                    endpoint,
-                    ip_override,
-                    #[cfg(feature = "custom-vpn")]
-                    self.last_custom_handshake,
-                );
+                let new_feature_indicators =
+                    compute_feature_indicators(self.settings.settings(), endpoint, ip_override);
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
