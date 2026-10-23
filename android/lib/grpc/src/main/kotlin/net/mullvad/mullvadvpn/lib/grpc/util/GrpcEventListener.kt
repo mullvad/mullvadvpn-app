@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import okhttp3.Call
 import okhttp3.Connection
+import okhttp3.Dispatcher
 import okhttp3.EventListener
 import okhttp3.Protocol
 import okhttp3.internal.http2.StreamResetException
@@ -47,5 +48,18 @@ internal class GrpcEventListener : EventListener() {
         }
 
         _connectionState.update { GrpcConnectivityState.Failed }
+    }
+
+    // Only invoked when a call can't be executed immediately because the dispatcher's
+    // maxRequests or maxRequestsPerHost limit has been reached.
+    override fun dispatcherQueueStart(call: Call, dispatcher: Dispatcher) {
+        fun Call.rpcName(): String = request().url.pathSegments.last()
+
+        val runningCalls = dispatcher.runningCalls().map { it.rpcName() }
+
+        Logger.w(
+            "gRPC call ${call.rpcName()} queued (running=${runningCalls.size}, " +
+                "queue=${dispatcher.queuedCallsCount()}). Running: $runningCalls"
+        )
     }
 }
