@@ -85,9 +85,7 @@ pub enum FeatureIndicator {
     ServerIpOverride,
     CustomMtu,
     Daita,
-
     CustomVpn,
-    CustomVpnActive,
 }
 
 impl FeatureIndicator {
@@ -110,7 +108,6 @@ impl FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::Daita => "DAITA",
             FeatureIndicator::CustomVpn => "Custom VPN",
-            FeatureIndicator::CustomVpnActive => "Custom VPN: Active",
         }
     }
 }
@@ -133,7 +130,6 @@ pub fn compute_feature_indicators(
     settings: &Settings,
     endpoint: &TunnelEndpoint,
     server_ip_override: bool,
-    #[cfg(feature = "custom-vpn")] custom_vpn_handshake: Option<std::time::SystemTime>,
 ) -> FeatureIndicators {
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     let split_tunneling = settings.split_tunnel.enable_exclusions;
@@ -172,22 +168,6 @@ pub fn compute_feature_indicators(
     #[cfg(feature = "custom-vpn")]
     let custom_vpn = settings.custom_vpn_enabled && settings.custom_vpn_config.is_some();
 
-    // How long before the custom VPN session is considered idle.
-    #[cfg(feature = "custom-vpn")]
-    const CUSTOM_VPN_ACTIVE_HANDSHAKE_WINDOW: std::time::Duration =
-        std::time::Duration::from_secs(150);
-
-    #[cfg(feature = "custom-vpn")]
-    let custom_vpn_active = if custom_vpn {
-        custom_vpn_handshake.is_some_and(|time| {
-            time.elapsed()
-                .map(|t| t < CUSTOM_VPN_ACTIVE_HANDSHAKE_WINDOW)
-                .unwrap_or(false)
-        })
-    } else {
-        false
-    };
-
     let daita = endpoint.daita;
 
     let (multihop, multihop_auto) = match &settings.relay_settings {
@@ -221,12 +201,7 @@ pub fn compute_feature_indicators(
         (mtu, FeatureIndicator::CustomMtu),
         (daita, FeatureIndicator::Daita),
         #[cfg(feature = "custom-vpn")]
-        (
-            custom_vpn && !custom_vpn_active,
-            FeatureIndicator::CustomVpn,
-        ),
-        #[cfg(feature = "custom-vpn")]
-        (custom_vpn_active, FeatureIndicator::CustomVpnActive),
+        (custom_vpn, FeatureIndicator::CustomVpn),
     ];
 
     // use the booleans to filter into a list of only the active features
@@ -248,13 +223,7 @@ mod tests {
 
     /// Compute the feature indicators without a server IP override or custom VPN handshake.
     fn compute(settings: &Settings, endpoint: &TunnelEndpoint) -> FeatureIndicators {
-        compute_feature_indicators(
-            settings,
-            endpoint,
-            false,
-            #[cfg(feature = "custom-vpn")]
-            None,
-        )
+        compute_feature_indicators(settings, endpoint, false)
     }
 
     #[test]
@@ -399,7 +368,6 @@ mod tests {
             FeatureIndicator::CustomMtu => {}
             FeatureIndicator::Daita => {}
             FeatureIndicator::CustomVpn => {}
-            FeatureIndicator::CustomVpnActive => {}
         }
     }
 }
