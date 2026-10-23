@@ -104,7 +104,13 @@ final class AppResetManagerReal {
 
     private func setup() async {
         do {
-            guard try await isTunnelActive() == false else { return }
+            guard try await isTunnelActive() == false else {
+                // Don't just wait for a status change that may never come if the tunnel is
+                // already sitting in a stable connected/connecting state - actively stop it so
+                // `didUpdateTunnelStatus` eventually reports `.disconnected` and triggers `reset()`.
+                tunnelManager.stopTunnel()
+                return
+            }
             await reset()
         } catch {
             logger.error("Unexpected tunnel error: \(error.localizedDescription)")
