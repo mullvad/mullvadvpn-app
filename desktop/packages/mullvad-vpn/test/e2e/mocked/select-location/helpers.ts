@@ -261,11 +261,10 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       if (multihop !== undefined) {
         settings.relaySettings.normal.wireguardConstraints.multihop = multihop;
       }
-      if (settings.tunnelOptions.daita) {
-        if (daita !== undefined) {
-          settings.tunnelOptions.daita = daita;
-        }
+      if (daita !== undefined) {
+        settings.tunnelOptions.daita = daita;
       }
+
       if (entryLocation) {
         settings.relaySettings.normal.wireguardConstraints.entryLocation = entryLocation;
       }
