@@ -16,6 +16,8 @@ export const createSelectors = (page: Page) => ({
     page.getByRole('heading', {
       name: title,
     }),
+  filterOverriddenText: () =>
+    page.getByText('Filters are overridden when using an automatic location'),
 });
 
 export type FilterSelectors = ReturnType<typeof createSelectors>;
