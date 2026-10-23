@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct">Direct</string>
+    <string name="direct_info_message_part1">Avec le mode « Direct », l\'application communique directement avec un serveur d\'API Mullvad, sans passer par des proxys intermédiaires.</string>
+    <string name="direct_info_message_part2">Cela peut être utile lorsque vous n\'êtes pas concerné par la censure.</string>
     <string name="direct_only_removed_first_paragraph">Le sous-paramètre « Directe uniquement » de DAITA a été supprimé et simplifié afin d\'éviter le blocage des connexions. Désormais, lorsque DAITA est activé, cette option se configure via le paramètre de multihop.</string>
     <string name="direct_only_removed_second_paragraph">Lorsque le multihop est réglé sur « Quand nécessaire », l\'application peut utiliser un serveur supplémentaire pour assurer que vous vous connectiez à la localisation de votre choix via DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Lorsque le multihop est réglé sur « Toujours » ou « Jamais », vous devez sélectionner manuellement un serveur DAITA.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Attention : les paramètres DNS peuvent ne pas être immédiatement pris en compte.</b></string>
     <string name="dns_settings_issues_first_paragraph">Les paramètres DNS peuvent ne pas être immédiatement pris en compte.</string>
     <string name="dns_settings_issues_second_paragraph">Désactivez le DNS privé dans %1$s, car il pourrait interférer avec les paramètres DNS de Mullvad.</string>
+    <string name="domain_fronting_info_message_part1">Avec la méthode d\'accès %1$s, l\'application accède à l\'API de Mullvad par le biais d\'un CDN. Cela mélange le trafic à une quantité importante d\'autre trafic sur Internet, rendant la censure plus difficile.</string>
+    <string name="domain_fronting_info_message_part2">Cela peut être utile lorsque la censure bloque l\'accès direct et les autres méthodes.</string>
     <string name="duplicate_address_warning">Cette adresse a déjà été saisie.</string>
     <string name="edit_custom_lists">Modifier les listes personnalisées</string>
     <string name="edit_list">Modifier la liste</string>

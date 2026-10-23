@@ -596,4 +596,8 @@
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
     <string name="connected_server">Connected server</string>
+    <string name="direct_info_message_part1">With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.</string>
+    <string name="direct_info_message_part2">This can be useful when you are not affected by censorship.</string>
+    <string name="domain_fronting_info_message_part1">With the %s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor.</string>
+    <string name="domain_fronting_info_message_part2">This can be useful when direct access and other methods are blocked by censorship.</string>
 </resources>

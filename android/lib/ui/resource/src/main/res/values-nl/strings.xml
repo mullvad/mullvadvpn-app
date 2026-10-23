@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
     <string name="direct">Rechtstreeks</string>
+    <string name="direct_info_message_part1">Met de \"Rechtstreekse\" methode communiceert de app rechtstreeks met een Mullvad-API-server zonder tussenliggende proxy\'s.</string>
+    <string name="direct_info_message_part2">Dit kan nuttig zijn als u niet wordt gecensureerd.</string>
     <string name="direct_only_removed_first_paragraph">De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihopinstelling.</string>
     <string name="direct_only_removed_second_paragraph">Wanneer multihop is ingesteld op \"Indien nodig\", kan de app mogelijk een extra server gebruiken om ervoor te zorgen dat u via DAITA verbinding maakt met de door u geselecteerde locatie.</string>
     <string name="direct_only_removed_third_paragraph">Wanneer multihop is ingesteld op \"Altijd\" of \"Nooit\", moet u handmatig een DAITA-server selecteren.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Let op: De DNS-instellingen worden mogelijk niet onmiddellijk van kracht.</b></string>
     <string name="dns_settings_issues_first_paragraph">DNS-instellingen worden mogelijk niet onmiddellijk van kracht.</string>
     <string name="dns_settings_issues_second_paragraph">Schakel Privé-DNS in %1$s uit, aangezien dit de DNS-instellingen van Mullvad kan verstoren.</string>
+    <string name="domain_fronting_info_message_part1">Met de %1$s-toegangsmethode krijgt de app toegang tot de Mullvad-API via een CDN, waarbij het verkeer wordt vermengd met veel ander internetverkeer, waardoor het moeilijker te censureren is.</string>
+    <string name="domain_fronting_info_message_part2">Dit kan handig zijn wanneer rechtstreekse toegang en andere methoden door censuur worden geblokkeerd.</string>
     <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
     <string name="edit_custom_lists">Aangepaste lijsten bewerken</string>
     <string name="edit_list">Lijst bewerken</string>

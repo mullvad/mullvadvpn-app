@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Puoi avere fino a 5 dispositivi registrati su un account Mullvad.</string>
     <string name="device_name_info_third_paragraph">Se ti disconnetti, il dispositivo e il relativo nome verranno rimossi. Quando accedi nuovamente, il dispositivo assumerà un nuovo nome.</string>
     <string name="direct">Diretto</string>
+    <string name="direct_info_message_part1">Con il metodo \"Diretto\", l\'app comunica direttamente con un server API Mullvad senza proxy intermedi.</string>
+    <string name="direct_info_message_part2">Questo può essere utile quando la censura non ti riguarda.</string>
     <string name="direct_only_removed_first_paragraph">La sottoimpostazione \"Solo diretto\" di DAITA è stata rimossa e semplificata per evitare il blocco delle connessioni. Ora, con DAITA attivato, questa opzione si imposta tramite l\'impostazione Multihop.</string>
     <string name="direct_only_removed_second_paragraph">Quando Multihop è impostato su \"Quando necessario\", l\'app potrebbe utilizzare un server aggiuntivo per assicurare la connessione alla posizione selezionata tramite DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Quando Multihop è impostato su \"Sempre\" o \"Mai\", devi selezionare manualmente un server DAITA.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Attenzione: le impostazioni DNS potrebbero non avere effetto immediato.</b></string>
     <string name="dns_settings_issues_first_paragraph">Le impostazioni DNS potrebbero non avere effetto immediato.</string>
     <string name="dns_settings_issues_second_paragraph">Disattiva il DNS privato in %1$s, perché potrebbe interferire con le impostazioni DNS di Mullvad.</string>
+    <string name="domain_fronting_info_message_part1">Con il metodo di accesso %1$s, l\'app raggiunge l\'API di Mullvad tramite una CDN, mescolando il traffico con quello di molti altri utenti Internet e rendendo più difficile la censura.</string>
+    <string name="domain_fronting_info_message_part2">Questo metodo può essere utile quando l\'accesso diretto e altri metodi sono bloccati dalla censura.</string>
     <string name="duplicate_address_warning">Questo indirizzo è già stato inserito.</string>
     <string name="edit_custom_lists">Modifica elenchi personalizzati</string>
     <string name="edit_list">Modifica elenco</string>

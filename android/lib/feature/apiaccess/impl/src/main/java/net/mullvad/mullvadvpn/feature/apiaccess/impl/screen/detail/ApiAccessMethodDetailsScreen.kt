@@ -42,6 +42,8 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodConfirmedNavResult
 import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DirectInfoNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DomainFrontingInfoNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.EncryptedDnsProxyInfoNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.component.TestMethodButton
@@ -88,6 +90,8 @@ private fun PreviewApiAccessMethodDetailsScreen(
             onUseMethodClicked = {},
             onDeleteApiAccessMethodClicked = {},
             onNavigateToEncryptedDnsInfoDialog = {},
+            onNavigateToDomainFrontingInfoDialog = {},
+            onNavigateToDirectInfoDialog = {},
             onBackClicked = {},
         )
     }
@@ -180,6 +184,9 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
         onDeleteApiAccessMethodClicked = { navigator.navigate(DeleteApiAccessMethodNavKey(it)) },
         onNavigateToEncryptedDnsInfoDialog =
             dropUnlessResumed { navigator.navigate(EncryptedDnsProxyInfoNavKey) },
+        onNavigateToDirectInfoDialog = dropUnlessResumed { navigator.navigate(DirectInfoNavKey) },
+        onNavigateToDomainFrontingInfoDialog =
+            dropUnlessResumed { navigator.navigate(DomainFrontingInfoNavKey) },
         onBackClicked = navigator::goBack,
     )
 }
@@ -194,6 +201,8 @@ fun ApiAccessMethodDetailsScreen(
     onUseMethodClicked: () -> Unit,
     onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit,
     onNavigateToEncryptedDnsInfoDialog: () -> Unit,
+    onNavigateToDirectInfoDialog: () -> Unit,
+    onNavigateToDomainFrontingInfoDialog: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
     ScaffoldWithSmallTopBar(
@@ -231,6 +240,8 @@ fun ApiAccessMethodDetailsScreen(
                         onTestMethodClicked = onTestMethodClicked,
                         onUseMethodClicked = onUseMethodClicked,
                         onNavigateToEncryptedDnsInfoDialog = onNavigateToEncryptedDnsInfoDialog,
+                        onNavigateToDirectInfoDialog = onNavigateToDirectInfoDialog,
+                        onNavigateToDomainFrontingInfoDialog = onNavigateToDomainFrontingInfoDialog,
                     )
             }
         }
@@ -250,6 +261,8 @@ private fun Content(
     onTestMethodClicked: () -> Unit,
     onUseMethodClicked: () -> Unit,
     onNavigateToEncryptedDnsInfoDialog: () -> Unit,
+    onNavigateToDirectInfoDialog: () -> Unit,
+    onNavigateToDomainFrontingInfoDialog: () -> Unit,
 ) {
     if (state.isEditable) {
         NavigationListItem(
@@ -268,10 +281,10 @@ private fun Content(
         onInfoClicked =
             when (state.apiAccessMethod) {
                 ApiAccessMethod.EncryptedDns -> onNavigateToEncryptedDnsInfoDialog
+                ApiAccessMethod.Direct -> onNavigateToDirectInfoDialog
+                ApiAccessMethod.DomainFronting -> onNavigateToDomainFrontingInfoDialog
                 ApiAccessMethod.Bridges,
-                is ApiAccessMethod.CustomProxy,
-                ApiAccessMethod.Direct,
-                ApiAccessMethod.DomainFronting -> null
+                is ApiAccessMethod.CustomProxy -> null
             },
         position =
             if (state.isEditable) {
