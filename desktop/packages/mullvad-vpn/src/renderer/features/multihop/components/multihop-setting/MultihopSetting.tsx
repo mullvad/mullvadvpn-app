@@ -8,6 +8,7 @@ import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import userInterface from '../../../../redux/userinterface/actions';
 import { LocationType } from '../../../locations/types';
 import { useMultihop } from '../../hooks';
+import { AlwaysOption, NeverOption, WhenNeededOption } from './components';
 
 export function MultihopSetting() {
   const { multihop, setMultihop } = useMultihop();
@@ -37,27 +38,9 @@ export function MultihopSetting() {
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.Options.BaseOption value="when-needed" disabled={unavailable}>
-          {
-            // TRANSLATORS: Label for the Multihop mode setting's option to use the multihop
-            // TRANSLATORS: feature when it is needed.
-            messages.pgettext('wireguard-settings-view', 'When needed')
-          }
-        </SettingsListbox.Options.BaseOption>
-        <SettingsListbox.Options.BaseOption value="always" disabled={unavailable}>
-          {
-            // TRANSLATORS: Label for the Multihop mode setting's option to always use the multihop
-            // TRANSLATORS: feature.
-            messages.pgettext('wireguard-settings-view', 'Always')
-          }
-        </SettingsListbox.Options.BaseOption>
-        <SettingsListbox.Options.BaseOption value="never" disabled={unavailable}>
-          {
-            // TRANSLATORS: Label for the Multihop mode setting's option to never use the multihop
-            // TRANSLATORS: feature.
-            messages.pgettext('wireguard-settings-view', 'Never')
-          }
-        </SettingsListbox.Options.BaseOption>
+        <WhenNeededOption disabled={unavailable} />
+        <AlwaysOption disabled={unavailable} />
+        <NeverOption disabled={unavailable} />
       </SettingsListbox.Options>
     </SettingsListbox>
   );
