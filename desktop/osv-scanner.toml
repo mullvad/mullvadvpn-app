@@ -6,14 +6,20 @@ id = "CVE-2024-21528"  # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-12-24  # The vulnerability is ignored for 4 months as no patch for the affected library exists and we can not address the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
 
-# brace-expansion: Denial of service via unbounded expansion length causing an out-of-memory process crash
+# sprintf-js: sprintf-js vulnerable to denial of service through unbounded precision specifiers
 [[IgnoredVulns]]
-id = "GHSA-mh99-v99m-4gvg"  # CVE-2026-14257
-ignoreUntil = 2026-10-28
-reason = """
-brace-expansion is a development-only dependency, reached exclusively through minimatch.
-The crash requires attacker-influenced input to reach `expand()`.
-Every pattern in our build comes from files we control in this repository, so a hostile file name
-in the build tree cannot trigger it. The worst case is a crashed build on a developer machine or CI
-runner.
-"""
+id = "CVE-2026-97058"  # GHSA-hp3w-g68c-fv3c
+ignoreUntil = 2026-11-23  # This vulnerability will cause a Denial of service (DoS) if toFixed, toExponential or toPrecision methods are used with an unbounded precision specifier. We are the only ones who can inject values.
+reason = "First, we do not let anyone else than ourselves inject values to be formatted by sprintf-js, and second this CVE has been marked as rejected and will probably be delisted given a few weeks time."
+
+# braces: braces vulnerable to stack-exhaustion denial of service through deeply nested patterns
+[[IgnoredVulns]]
+id = "CVE-2026-93687"  # GHSA-vfj7-8cjw-p6xm
+ignoreUntil = 2026-11-23  # This is a non-issue as this dependency is only used in development for linting
+reason = "This dependency is only used in development for linting and a Denial of Service (DoS) exploit would have very limited impact and can be worked around easily by a downgrade."
+
+# http-cache-semantics: http-cache-semantics max-stale handling can disclose cross-user cached responses
+[[IgnoredVulns]]
+id = "CVE-2026-93748"  # GHSA-ch52-4w7c-c8xp
+ignoreUntil = 2026-11-23  # This is a non-issue as this dependency is only used to download electron binaries in `electron-builder` (by use of `@electron/get`)
+reason = "This original vulnerability is being disputed by the http-cache-semantics maintainer who argues this behavior is according to spec. Either way, this vulnerability does not apply to us as we are not hosting a server that caches responses with this dependency."
