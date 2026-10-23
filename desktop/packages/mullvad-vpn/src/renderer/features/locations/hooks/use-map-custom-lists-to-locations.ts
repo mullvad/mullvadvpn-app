@@ -1,5 +1,5 @@
 import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
-import { useCustomLists } from '../../custom-lists/hooks';
+import { useSettingsCustomLists } from '../../../redux/hooks';
 import {
   type CountryLocation,
   type CustomListLocation,
@@ -19,7 +19,7 @@ export function useMapCustomListsToLocations(
   searchTerm: string,
   selectedLocation?: RelayLocation,
 ): CustomListLocation[] {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
     const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);

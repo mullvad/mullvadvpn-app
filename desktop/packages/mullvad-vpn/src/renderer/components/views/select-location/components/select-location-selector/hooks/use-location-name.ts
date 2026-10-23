@@ -1,5 +1,4 @@
 import type { LiftedConstraint, RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
-import { useCustomLists } from '../../../../../../features/custom-lists/hooks';
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import {
   findCity,
@@ -11,11 +10,12 @@ import {
   isCustomList,
   isRelay,
 } from '../../../../../../features/locations/utils';
+import { useSettingsCustomLists } from '../../../../../../redux/hooks';
 import { useAutomaticLocationName } from './use-automatic-location-name';
 
 export function useLocationName(location: LiftedConstraint<RelayLocation>): string | undefined {
   const { relayLocations } = useRelayLocations();
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
   const automaticName = useAutomaticLocationName();
 
   if (location === 'any') {

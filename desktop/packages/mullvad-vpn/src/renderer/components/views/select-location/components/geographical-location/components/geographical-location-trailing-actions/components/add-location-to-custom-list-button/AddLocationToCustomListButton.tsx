@@ -1,16 +1,16 @@
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../../../../../features/custom-lists/hooks';
 import type { GeographicalLocation } from '../../../../../../../../../features/locations/types';
 import { IconButton, type IconButtonProps } from '../../../../../../../../../lib/components';
+import { useSettingsCustomLists } from '../../../../../../../../../redux/settings/hooks';
 
 export type AddToCustomListButtonProps = IconButtonProps & {
   location: GeographicalLocation;
 };
 
 export function AddLocationToCustomListButton({ location, ...props }: AddToCustomListButtonProps) {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
   const disabled = customLists.length === 0;
 
   return (
