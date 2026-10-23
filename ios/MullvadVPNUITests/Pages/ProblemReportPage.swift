@@ -34,7 +34,7 @@ class ProblemReportPage: Page {
     }
 
     @discardableResult func dismissMessageEditingOverlay() -> Self {
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons.firstMatch.tap()
 
         return self
     }
