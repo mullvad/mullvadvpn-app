@@ -1,5 +1,6 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use mullvad_types::CustomTunnelEndpoint;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
 
@@ -43,7 +44,7 @@ pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 
 struct InnerParametersGenerator {
     relay_selector: RelaySelectorIO,
-    relay_settings: RelaySettings,
+    custom_endpoint: Option<CustomTunnelEndpoint>,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
 
@@ -61,7 +62,7 @@ impl ParametersGenerator {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
-            relay_settings,
+            custom_endpoint: relay_settings.as_custom_tunnel_endpoint().cloned(),
             account_manager,
             last_generated_relays: None,
         })))
@@ -69,13 +70,15 @@ impl ParametersGenerator {
 
     /// Sets the tunnel options to use when generating new tunnel parameters.
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
-        self.0.lock().await.tunnel_options = tunnel_options.clone();
+        let mut inner = self.0.lock().await;
+        inner.tunnel_options = tunnel_options.clone();
+        inner.relay_selector.clear_relay_queue();
     }
 
     /// Updates generator state from full settings and keeps relay-selector config in sync.
     pub async fn set_settings(&self, settings: Settings) {
         let mut inner = self.0.lock().await;
-        inner.relay_settings = settings.relay_settings.clone();
+        inner.custom_endpoint = settings.relay_settings.as_custom_tunnel_endpoint().cloned();
         inner.relay_selector.set_config(settings);
     }
 
@@ -185,7 +188,7 @@ impl InnerParametersGenerator {
         ip_availability: IpAvailability,
     ) -> Result<TunnelParameters, Error> {
         // Custom tunnel endpoints bypass relay selection entirely.
-        if let RelaySettings::CustomTunnelEndpoint(ref endpoint) = self.relay_settings {
+        if let Some(endpoint) = self.custom_endpoint.as_ref() {
             self.last_generated_relays = None;
             return endpoint
                 .to_tunnel_parameters(self.tunnel_options.clone())
@@ -196,26 +199,16 @@ impl InnerParametersGenerator {
         }
 
         let data = self.device().await?;
-        let selected_relay = self
-            .relay_selector
-            .get_relay(retry_attempt as usize, ip_availability)?;
 
+        if retry_attempt == 0 {
+            self.relay_selector.clear_relay_queue();
+        }
         let GetRelay {
             endpoint,
             obfuscator,
             inner,
-        } = selected_relay;
-
-        let server_override = {
-            let first_relay = match &inner {
-                WireguardConfig::Singlehop { exit } => exit,
-                WireguardConfig::Multihop { exit: _, entry } => entry,
-            };
-            match endpoint.peer.endpoint {
-                SocketAddr::V4(_) => first_relay.overridden_ipv4,
-                SocketAddr::V6(_) => first_relay.overridden_ipv6,
-            }
-        };
+            server_override,
+        } = self.relay_selector.next_relay()?;
 
         self.last_generated_relays = Some(LastSelectedRelays {
             config: inner,

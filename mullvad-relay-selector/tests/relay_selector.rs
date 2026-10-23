@@ -16,7 +16,7 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     Error, GetRelay, MultihopConstraints, Predicate, Reason, RelaySelector, WireguardConfig,
-    query::{Hops, ObfuscationMode, builder::RelayQueryBuilder},
+    query::{Hops, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
     endpoint::MullvadEndpoint,
@@ -234,6 +234,18 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     get_result.endpoint
 }
 
+/// All obfuscator configs of the returned [`Obfuscators`], whether a single one or a multiplexer.
+fn obfuscator_configs(obfuscator: Option<Obfuscators>) -> Vec<ObfuscatorConfig> {
+    match obfuscator {
+        Some(Obfuscators::Single(config)) => vec![config],
+        Some(Obfuscators::Multiplexer {
+            configs: (first, rest),
+            ..
+        }) => std::iter::once(first).chain(rest).collect(),
+        None => panic!("Relay selector should have picked an obfuscator"),
+    }
+}
+
 fn default_relay_selector() -> RelaySelector {
     RelaySelector::new(RELAYS.clone(), BRIDGES.clone())
 }
@@ -245,6 +257,8 @@ fn supports_daita(relay: &WireguardRelay) -> bool {
 /// Tests that exercise the full relay-selection pipeline via
 /// [`RelaySelector::get_relay`] and [`RelaySelector::get_relay_by_query`].
 mod relay_selection {
+    use mullvad_types::relay_constraints::ObfuscationConstraint;
+
     use crate::relay_list_builder::RelayListBuilder;
 
     use super::*;
@@ -341,7 +355,7 @@ mod relay_selection {
                 .entry(specific_location.clone())
                 .build();
 
-            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
             let WireguardConfig::Multihop { exit, entry } = relay.inner else {
                 panic!(
                     "Relay selector returned unexpected relay: {:?}",
@@ -364,7 +378,7 @@ mod relay_selection {
                 .entry(general_location.clone())
                 .build();
 
-            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
             let WireguardConfig::Multihop { exit, entry } = relay.inner else {
                 panic!(
                     "Relay selector returned unexpected relay: {:?}",
@@ -385,7 +399,7 @@ mod relay_selection {
 
         for _ in 0..100 {
             let query = RelayQueryBuilder::new().multihop().build();
-            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
             assert_matches!(
                 relay,
                 GetRelay {
@@ -405,17 +419,18 @@ mod relay_selection {
         let query = RelayQueryBuilder::new().shadowsocks().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
             panic!(
                 "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {:?}",
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Shadowsocks { .. })
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Shadowsocks { .. }))
+        }));
     }
 
     /// Test whether extra Shadowsocks IPs are selected when available
@@ -429,7 +444,7 @@ mod relay_selection {
             .build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let GetRelay {
             inner, obfuscator, ..
         } = relay;
@@ -438,15 +453,19 @@ mod relay_selection {
                 "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
             )
         };
-        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
-        else {
-            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-        };
-        assert!(!exit.overridden_ipv4);
-        assert!(!exit.overridden_ipv6);
-        assert!(
-            SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
-            "{endpoint} is not an additional IP"
+        // One Shadowsocks config per IP family, each with a dedicated extra address.
+        let configs = obfuscator_configs(obfuscator);
+        let endpoints: HashSet<IpAddr> = configs
+            .iter()
+            .map(|config| match config {
+                ObfuscatorConfig::Shadowsocks { endpoint } => endpoint.ip(),
+                _ => panic!("expected Shadowsocks, got: {config:?}"),
+            })
+            .collect();
+        assert!(!exit.overridden_ipv4 && !exit.overridden_ipv6, "{exit:#?}");
+        assert_eq!(
+            endpoints,
+            SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied().collect()
         );
     }
 
@@ -464,7 +483,7 @@ mod relay_selection {
             .shadowsocks()
             .build();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) =
             relay.obfuscator
         else {
@@ -473,6 +492,8 @@ mod relay_selection {
         assert_eq!(endpoint.ip(), IpAddr::V6(Ipv6Addr::LOCALHOST));
     }
 
+    // TODO: Remove this test? It asserted relay.endpoint.peer.endpoint.ip() being IPv6,
+    // which is no longer something we want to guarantee.
     #[test]
     fn test_selecting_over_shadowsocks_ipv6_keeps_wireguard_ipv6_when_available() {
         let wireguard_ipv6 = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1);
@@ -490,11 +511,7 @@ mod relay_selection {
             .shadowsocks()
             .build();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        assert_eq!(
-            relay.endpoint.peer.endpoint.ip(),
-            IpAddr::V6(wireguard_ipv6)
-        );
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
 
         let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) =
             relay.obfuscator
@@ -512,17 +529,18 @@ mod relay_selection {
         let query = RelayQueryBuilder::new().quic().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
             panic!(
                 "Relay selector expected a singlehop relay with Quic obfuscation, got: {:?}",
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Quic { .. }))
+        }));
     }
 
     #[test]
@@ -540,7 +558,7 @@ mod relay_selection {
             .quic()
             .build();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let Some(Obfuscators::Single(ObfuscatorConfig::Quic { endpoint, .. })) = relay.obfuscator
         else {
             panic!("Relay selector expected QUIC obfuscation")
@@ -568,11 +586,7 @@ mod relay_selection {
             .quic()
             .build();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        assert_eq!(
-            relay.endpoint.peer.endpoint.ip(),
-            IpAddr::V6(wireguard_ipv6)
-        );
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
 
         let Some(Obfuscators::Single(ObfuscatorConfig::Quic { endpoint, .. })) = relay.obfuscator
         else {
@@ -589,17 +603,18 @@ mod relay_selection {
         let query = RelayQueryBuilder::new().lwo().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
             panic!(
                 "Relay selector expected a singlehop relay with LWO obfuscation, got: {:?}",
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Lwo { .. }))
+        }));
     }
 
     /// The LWO version a relay advertises is the one the obfuscator is configured with.
@@ -615,7 +630,7 @@ mod relay_selection {
             let relay_selector = RelaySelector::from(relay_list);
 
             let query = RelayQueryBuilder::new().lwo().build();
-            let selected = relay_selector.get_relay_by_query(query);
+            let selected = relay_selector.get_relay_by_query(&query);
 
             match selected {
                 Ok(relay) => assert_matches!(
@@ -636,7 +651,7 @@ mod relay_selection {
         relay_list.add_relay("no_lwo");
         let relay_selector = RelaySelector::from(relay_list);
         let query = RelayQueryBuilder::new().lwo().build();
-        let selected = relay_selector.get_relay_by_query(query);
+        let selected = relay_selector.get_relay_by_query(&query);
         selected.unwrap_err();
     }
 
@@ -660,7 +675,7 @@ mod relay_selection {
             .build();
         assert!(!matches!(query_v4.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query_v4).unwrap();
         let GetRelay {
             inner, obfuscator, ..
         } = relay;
@@ -698,7 +713,7 @@ mod relay_selection {
             .build();
         assert!(!matches!(query_v6.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query_v6).unwrap();
         let GetRelay {
             inner, obfuscator, ..
         } = relay;
@@ -722,7 +737,7 @@ mod relay_selection {
         let relay_selector = default_relay_selector();
         for port in [53, 51820] {
             let query = RelayQueryBuilder::new().port(port).build();
-            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
             assert_eq!(relay.endpoint.peer.endpoint.port(), port);
         }
     }
@@ -736,37 +751,43 @@ mod relay_selection {
         let query = RelayQueryBuilder::new().udp2tcp().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
             panic!(
                 "Relay selector returned unexpected relay: {:?}",
                 relay.inner
             )
         };
-        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-            obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { .. })
-        )));
+        assert!(relay.obfuscator.is_some_and(|obfuscator| {
+            obfuscator_configs(Some(obfuscator))
+                .iter()
+                .all(|config| matches!(config, ObfuscatorConfig::Udp2Tcp { .. }))
+        }));
     }
 
     /// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
-    /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
-    /// obfuscator config.
+    /// multihop is explicitly turned off.
     ///
-    /// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
-    #[cfg(not(feature = "staggered-obfuscation"))]
+    /// The relay selector returns a multiplexer config.
     #[test]
     fn test_selecting_endpoint_with_auto_obfuscation() {
-        use mullvad_types::constraints::Constraint;
-
         let relay_selector = default_relay_selector();
 
         let query = RelayQueryBuilder::new().build();
-        assert_eq!(query.entry_specific().obfuscation, Constraint::Any);
+        assert_eq!(
+            query.entry_specific().obfuscation,
+            ObfuscationConstraint::default()
+        );
 
         for _ in 0..100 {
-            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-            assert!(relay.obfuscator.is_none());
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
+            // The multiplexer config may be `None` for a relay that supports no obfuscation
+            // method at all, and `Multiplexer` otherwise. `Single` never appears for an
+            // auto-obfuscation query.
+            assert!(matches!(
+                relay.obfuscator,
+                None | Some(Obfuscators::Multiplexer { .. })
+            ));
         }
     }
 
@@ -780,21 +801,28 @@ mod relay_selection {
         let query = RelayQueryBuilder::new().udp2tcp().build();
 
         for _ in 0..1000 {
-            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+            let relay = relay_selector.get_relay_by_query(&query).unwrap();
             let WireguardConfig::Singlehop { .. } = relay.inner else {
                 panic!(
                     "Relay selector returned unexpected relay: {:?}",
                     relay.inner
                 )
             };
-            let Some(obfuscator) = relay.obfuscator else {
-                panic!("Relay selector should have picked an obfuscator")
-            };
-            assert_matches!(
-                obfuscator,
-                Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
-                    TCP2UDP_PORTS.contains(&endpoint.port())
-            );
+            // One config per IP family, each with a valid port.
+            let configs = obfuscator_configs(relay.obfuscator);
+            assert_eq!(configs.len(), 2);
+            let mut families = HashSet::new();
+            for config in configs {
+                let ObfuscatorConfig::Udp2Tcp { endpoint } = config else {
+                    panic!("expected Udp2Tcp, got: {config:?}")
+                };
+                assert!(
+                    TCP2UDP_PORTS.contains(&endpoint.port()),
+                    "{endpoint} is not in {TCP2UDP_PORTS:?}"
+                );
+                families.insert(endpoint.is_ipv4());
+            }
+            assert_eq!(families, HashSet::from([true, false]));
         }
     }
 
@@ -808,7 +836,7 @@ mod relay_selection {
         // Collect the range of unique relay ports and IP addresses over a large number of queries.
         let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
         // Execute the query
-        .map(|query| relay_selector.get_relay_by_query(query).unwrap())
+        .map(|query| relay_selector.get_relay_by_query(&query).unwrap())
         // Perform some plumbing ..
         .map(unwrap_endpoint)
         .map(|endpoint| endpoint.to_endpoint().address)
@@ -837,7 +865,7 @@ mod relay_selection {
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
         assert_matches!(
-            relay_selector.get_relay_by_query(RelayQueryBuilder::new().build()),
+            relay_selector.get_relay_by_query(&RelayQueryBuilder::new().build()),
             Err(Error::NoRelay(_))
         );
 
@@ -853,7 +881,7 @@ mod relay_selection {
             .build();
         let relay = unwrap_relay(
             relay_selector
-                .get_relay_by_query(hostname_query)
+                .get_relay_by_query(&hostname_query)
                 .expect("hostname-targeted include_in_country=false relay must be selectable"),
         );
         assert_eq!(relay.hostname, target_hostname);
@@ -870,7 +898,7 @@ mod relay_selection {
 
         let relay = unwrap_relay(
             relay_selector
-                .get_relay_by_query(country_query)
+                .get_relay_by_query(&country_query)
                 .expect("expected match"),
         );
 
@@ -890,7 +918,7 @@ mod relay_selection {
 
         // Only pick relays that support DAITA
         let query = RelayQueryBuilder::new().daita().build();
-        let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
+        let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(&query).unwrap());
         assert!(
             supports_daita(&relay),
             "Selector supported relay that does not support DAITA: {relay:?}"
@@ -902,7 +930,7 @@ mod relay_selection {
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         relay_selector
-            .get_relay_by_query(query)
+            .get_relay_by_query(&query)
             .expect_err("Expected to find no matching relay");
 
         // Should be able to connect to non-DAITA relay with autohop
@@ -912,7 +940,7 @@ mod relay_selection {
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
-            .get_relay_by_query(query)
+            .get_relay_by_query(&query)
             .expect("Expected to find a relay with autohop");
         match relay {
             GetRelay {
@@ -931,7 +959,7 @@ mod relay_selection {
             .location(DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
-            .get_relay_by_query(query)
+            .get_relay_by_query(&query)
             .expect("Expected to find a relay with autohop");
         match relay {
             GetRelay {
@@ -950,7 +978,7 @@ mod relay_selection {
             .location(DAITA_RELAY_LOCATION.clone())
             .build();
         relay_selector
-            .get_relay_by_query(query)
+            .get_relay_by_query(&query)
             .expect("Expected DAITA-supporting relay to work without DAITA");
 
         // Non DAITA-supporting relays can be picked when it is disabled
@@ -958,12 +986,12 @@ mod relay_selection {
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         relay_selector
-            .get_relay_by_query(query)
+            .get_relay_by_query(&query)
             .expect("Expected DAITA-supporting relay to work without DAITA");
 
         // Entry relay must support daita
         let query = RelayQueryBuilder::new().daita().multihop().build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         match relay {
             GetRelay {
                 inner: WireguardConfig::Multihop { exit: _, entry },
@@ -980,7 +1008,7 @@ mod relay_selection {
             .multihop()
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector.get_relay_by_query(&query).unwrap();
         match relay {
             GetRelay {
                 inner: WireguardConfig::Multihop { exit, entry: _ },
@@ -1107,12 +1135,12 @@ mod relay_selection {
         // Country-level multihop must fail: only one relay (`se-sto-wg-204`) is
         // selectable at country level, so no entry/exit pair can be formed.
         assert_matches!(
-            relay_selector.get_relay_by_query(country_query),
+            relay_selector.get_relay_by_query(&country_query),
             Err(Error::NoRelay(_) | Error::NoRelayEntry(_) | Error::NoRelayExit(_))
         );
 
         // Hostname-level multihop targeting both relays explicitly must succeed.
-        relay_selector.get_relay_by_query(hostname_query)?;
+        relay_selector.get_relay_by_query(&hostname_query)?;
         Ok(())
     }
 }
@@ -1130,7 +1158,7 @@ mod partition_relays {
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
     use mullvad_types::constraints::Constraint;
-    use mullvad_types::relay_constraints::ShadowsocksSettings;
+    use mullvad_types::relay_constraints::{ObfuscationConstraint, ShadowsocksSettings};
     use mullvad_types::relay_selector::ResolvedLocationConstraint;
     use std::collections::HashSet;
 
@@ -1384,7 +1412,7 @@ mod partition_relays {
 
         // Quic with Ipv4 constraint
         let constraints = EntryConstraints::default()
-            .obfuscation(ObfuscationMode::Quic)
+            .obfuscation(ObfuscationConstraint::quic())
             .ip_version(IpVersion::V4);
         let RelayPartitions {
             matches, discards, ..
@@ -1402,8 +1430,9 @@ mod partition_relays {
         }
 
         // Plain shadowsocks matches all relays
-        let constraints = EntryConstraints::default()
-            .obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings::default()));
+        let constraints = EntryConstraints::default().obfuscation(
+            ObfuscationConstraint::shadowsocks(ShadowsocksSettings::default()),
+        );
         let RelayPartitions {
             matches: _,
             discards,
@@ -1413,11 +1442,11 @@ mod partition_relays {
 
         // Shadowsocks with a port outside the configured port ranges (100..=200):
         let out_of_range_port = 999; // outside 100..=200
-        let constraints = EntryConstraints::default().obfuscation(ObfuscationMode::Shadowsocks(
-            ShadowsocksSettings {
+        let constraints = EntryConstraints::default().obfuscation(
+            ObfuscationConstraint::shadowsocks(ShadowsocksSettings {
                 port: Constraint::Only(out_of_range_port),
-            },
-        ));
+            }),
+        );
         let RelayPartitions {
             matches, discards, ..
         } = relay_selector.partition_relays(Predicate::Singlehop(constraints));
@@ -1441,7 +1470,7 @@ mod partition_relays {
 
         // Shadowsocks with ip_version=V4 and a port outside the configured port ranges:
         let constraints = EntryConstraints::default()
-            .obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings {
+            .obfuscation(ObfuscationConstraint::shadowsocks(ShadowsocksSettings {
                 port: Constraint::Only(out_of_range_port),
             }))
             .ip_version(IpVersion::V4);
@@ -1500,7 +1529,7 @@ mod partition_relays {
     fn shadowsocks_runtime_ipv4_unavailable() {
         let constraints = EntryConstraints::default()
             .ip_version(IpVersion::V6)
-            .obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings {
+            .obfuscation(ObfuscationConstraint::shadowsocks(ShadowsocksSettings {
                 port: Constraint::Only(1337), // Port only usable with dedicated shadowsocks IP
             }));
         let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
@@ -1631,7 +1660,7 @@ mod partition_relays {
             (Reason::Daita, EntryConstraints::default().daita(true)),
             (
                 Reason::Obfuscation,
-                EntryConstraints::default().obfuscation(ObfuscationMode::Quic),
+                EntryConstraints::default().obfuscation(ObfuscationConstraint::quic()),
             ),
             (
                 Reason::Ownership,
@@ -1643,7 +1672,7 @@ mod partition_relays {
             ),
             (
                 Reason::Port,
-                EntryConstraints::default().obfuscation(ObfuscationMode::Shadowsocks(
+                EntryConstraints::default().obfuscation(ObfuscationConstraint::shadowsocks(
                     ShadowsocksSettings {
                         port: Constraint::Only(123),
                     },
@@ -1944,7 +1973,7 @@ mod partition_relays {
         #[test]
         fn singlehop_quic() {
             insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
-                EntryConstraints::default().obfuscation(ObfuscationMode::Quic)
+                EntryConstraints::default().obfuscation(ObfuscationConstraint::quic())
             )));
         }
 
@@ -1952,15 +1981,16 @@ mod partition_relays {
         fn singlehop_lwo() {
             insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
                 EntryConstraints::default()
-                    .obfuscation(ObfuscationMode::Lwo(LwoSettings::default()))
+                    .obfuscation(ObfuscationConstraint::lwo(LwoSettings::default()))
             )));
         }
 
         #[test]
         fn singlehop_shadowsocks_any_port() {
             insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
-                EntryConstraints::default()
-                    .obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings::default()))
+                EntryConstraints::default().obfuscation(ObfuscationConstraint::shadowsocks(
+                    ShadowsocksSettings::default()
+                ))
             )));
         }
 

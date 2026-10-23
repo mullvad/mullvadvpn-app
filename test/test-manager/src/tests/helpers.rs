@@ -14,15 +14,16 @@ use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
     ExitConstraints, GetRelay, Predicate, WireguardConfig,
-    query::{Hops, RelayQuery, obfuscation_to_settings},
+    query::{Hops, RelayQuery},
 };
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
     custom_list::CustomList,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, Multihop, ObfuscationSettings,
-        RelayConstraints, RelaySettings, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, Multihop, ObfuscationConstraint,
+        ObfuscationSettings, RelayConstraints, RelaySettings, SelectedObfuscation,
+        WireguardConstraints,
     },
     relay_list::{BridgeList, Relay, WireguardRelay},
     relay_selector::{MultihopConstraints, ResolvedLocationConstraint},
@@ -816,7 +817,7 @@ async fn get_single_relay_location_constraint(
     let relay_list = mullvad_client.get_relay_locations().await?;
     let bridge_list = mullvad_client.get_bridges().await?;
     let relay_selector = get_daemon_relay_selector(settings, relay_list, bridge_list);
-    let relay = relay_selector.get_relay_by_query(query.clone())?;
+    let relay = relay_selector.get_relay_by_query(&query)?;
     convert_to_relay_constraints(query, relay, entry_location)
 }
 
@@ -1370,12 +1371,93 @@ pub async fn find_custom_list(
         .ok_or(anyhow!("List '{name}' not found"))
 }
 
+/// The inverse of [`mullvad_types::relay_constraints::obfuscation_constraint_from_settings`]:
+/// returns the obfuscation settings that make the daemon's relay selection match the given
+/// query constraint.
+///
+/// Since `SelectedObfuscation` describes a single method (or all of them), only all-methods
+/// and single-method constraints can be expressed as settings, rest will cause a panic.
+fn obfuscation_to_settings(constraint: ObfuscationConstraint) -> ObfuscationSettings {
+    match constraint {
+        ObfuscationConstraint {
+            direct: Some(wireguard_port),
+            quic: true,
+            udp2tcp: Some(udp2tcp),
+            shadowsocks: Some(shadowsocks),
+            lwo: Some(lwo),
+        } => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            udp2tcp,
+            shadowsocks,
+            wireguard_port,
+            lwo,
+        },
+        ObfuscationConstraint {
+            direct: Some(wireguard_port),
+            quic: false,
+            udp2tcp: None,
+            shadowsocks: None,
+            lwo: None,
+        } => ObfuscationSettings {
+            selected_obfuscation: if wireguard_port.get().is_any() {
+                SelectedObfuscation::Off
+            } else {
+                SelectedObfuscation::WireguardPort
+            },
+            wireguard_port,
+            ..ObfuscationSettings::default()
+        },
+        ObfuscationConstraint {
+            direct: None,
+            quic: true,
+            udp2tcp: None,
+            shadowsocks: None,
+            lwo: None,
+        } => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Quic,
+            ..ObfuscationSettings::default()
+        },
+        ObfuscationConstraint {
+            direct: None,
+            quic: false,
+            udp2tcp: Some(udp2tcp),
+            shadowsocks: None,
+            lwo: None,
+        } => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            udp2tcp,
+            ..ObfuscationSettings::default()
+        },
+        ObfuscationConstraint {
+            direct: None,
+            quic: false,
+            udp2tcp: None,
+            shadowsocks: Some(shadowsocks),
+            lwo: None,
+        } => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Shadowsocks,
+            shadowsocks,
+            ..ObfuscationSettings::default()
+        },
+        ObfuscationConstraint {
+            direct: None,
+            quic: false,
+            udp2tcp: None,
+            shadowsocks: None,
+            lwo: Some(lwo),
+        } => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Lwo,
+            lwo,
+            ..ObfuscationSettings::default()
+        },
+        constraint => panic!(
+            "obfuscation constraint {constraint:?} cannot be expressed as obfuscation settings"
+        ),
+    }
+}
+
 pub fn into_settings(
-    RelayQuery {
-        hops,
-        allowed_ips,
-        quantum_resistant: _,
-    }: RelayQuery,
+    RelayQuery { hops, allowed_ips }: RelayQuery,
 ) -> (RelayConstraints, ObfuscationSettings) {
     let location = |exit: &ExitConstraints, not: Option<&GeographicLocationConstraint>| {
         let Constraint::Only(locations) = exit.location.as_ref() else {
