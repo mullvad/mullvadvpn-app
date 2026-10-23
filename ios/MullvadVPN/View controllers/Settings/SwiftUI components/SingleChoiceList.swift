@@ -52,7 +52,7 @@ import SwiftUI
   */
 
 struct SingleChoiceList<Value>: View where Value: Equatable {
-    let title: String
+    let title: String?
     private let options: [OptionSpec]
     var value: Binding<Value>
     @State var initialValue: Value?
@@ -101,7 +101,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
     // an internal constructor, building the element from basics
     fileprivate init(
-        title: String,
+        title: String? = nil,
         optionSpecs: [OptionSpec.OptValue],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String?,
@@ -124,7 +124,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - options:  A list of `Value`s to be presented.
     ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation.
     init(
-        title: String,
+        title: String? = nil,
         options: [Value],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String? = nil,
@@ -156,7 +156,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - customInputMaxLength: An optional maximum length to which input is truncated
     ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
-        title: String,
+        title: String? = nil,
         options: [Value],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String? = nil,
@@ -334,12 +334,14 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
     var body: some View {
         VStack(spacing: UIMetrics.TableView.separatorHeight) {
-            HStack {
-                Text(title).fontWeight(.semibold)
-                Spacer()
+            if let title {
+                HStack {
+                    Text(title).fontWeight(.semibold)
+                    Spacer()
+                }
+                .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
+                .background(Color(UIColor.Cell.Background.normal))
             }
-            .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-            .background(Color(UIColor.Cell.Background.normal))
             List {
                 Section {
                     ForEach(options) { opt in

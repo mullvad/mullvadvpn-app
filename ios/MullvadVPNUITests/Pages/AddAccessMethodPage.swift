@@ -14,7 +14,7 @@ import XCTest
 class AddAccessMethodPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.tables[.addAccessMethodTableView]
+        self.pageElement = app.otherElements[.addAccessMethodTableView]
         waitForPageToBeShown()
     }
 
@@ -41,13 +41,13 @@ class AddAccessMethodPage: Page {
     }
 
     @discardableResult func tapServerCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5ServerCell]
+        app.cells[AccessibilityIdentifier.addAccessMethodServerCell]
             .tap()
         return self
     }
 
     @discardableResult func tapPortCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5PortCell]
+        app.cells[AccessibilityIdentifier.addAccessMethodPortCell]
             .tap()
         return self
     }

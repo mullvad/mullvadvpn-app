@@ -1,0 +1,1271 @@
+{
+  "excluded" : {
+    "macroItems" : [
+
+    ],
+    "mainTypes" : [
+
+    ],
+    "objcItems" : [
+
+    ],
+    "overrides" : [
+
+    ],
+    "protocolImplementations" : [
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ListCellContentConfiguration.swift",
+        "id" : 8,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ListCellContentConfiguration"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ListCellContentConfiguration.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1727,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "updated",
+            "parameterLabels" : [
+              "for"
+            ],
+            "parameterTypes" : [
+              "UIConfigurationState"
+            ],
+            "resultType" : "Self",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 58,
+        "name" : "updated",
+        "parentType" : "ListCellContentConfiguration",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentConfiguration.swift",
+        "id" : 9,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ButtonCellContentConfiguration"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentConfiguration.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1212,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "updated",
+            "parameterLabels" : [
+              "for"
+            ],
+            "parameterTypes" : [
+              "UIConfigurationState"
+            ],
+            "resultType" : "Self",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 40,
+        "name" : "updated",
+        "parentType" : "ButtonCellContentConfiguration",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentView.swift",
+        "id" : 10,
+        "identity" : {
+          "enclosingTypePath" : [
+            "SwitchCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1167,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "supports",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UIContentConfiguration"
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 36,
+        "name" : "supports",
+        "parentType" : "SwitchCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentView.swift",
+        "id" : 11,
+        "identity" : {
+          "enclosingTypePath" : [
+            "SwitchCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 4960,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "accessibilityActivate",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 153,
+        "name" : "accessibilityActivate",
+        "parentType" : "SwitchCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentConfiguration.swift",
+        "id" : 12,
+        "identity" : {
+          "enclosingTypePath" : [
+            "SwitchCellContentConfiguration"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/SwitchCellContentConfiguration.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1304,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "updated",
+            "parameterLabels" : [
+              "for"
+            ],
+            "parameterTypes" : [
+              "UIConfigurationState"
+            ],
+            "resultType" : "Self",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 44,
+        "name" : "updated",
+        "parentType" : "SwitchCellContentConfiguration",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentView.swift",
+        "id" : 13,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ButtonCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 592,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "tableViewCellCornerRadius",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "CGFloat",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 18,
+        "name" : "tableViewCellCornerRadius",
+        "parentType" : "ButtonCellContentView",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentView.swift",
+        "id" : 14,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ButtonCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ButtonCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1200,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "supports",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UIContentConfiguration"
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 38,
+        "name" : "supports",
+        "parentType" : "ButtonCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentConfiguration.swift",
+        "id" : 15,
+        "identity" : {
+          "enclosingTypePath" : [
+            "TextCellContentConfiguration"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentConfiguration.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1423,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "updated",
+            "parameterLabels" : [
+              "for"
+            ],
+            "parameterTypes" : [
+              "UIConfigurationState"
+            ],
+            "resultType" : "Self",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 46,
+        "name" : "updated",
+        "parentType" : "TextCellContentConfiguration",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ListCellContentView.swift",
+        "id" : 16,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ListCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/ListCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1424,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "supports",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UIContentConfiguration"
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 41,
+        "name" : "supports",
+        "parentType" : "ListCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/EditAccessMethodCoordinator.swift",
+        "id" : 17,
+        "identity" : {
+          "enclosingTypePath" : [
+            "EditAccessMethodCoordinator"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/EditAccessMethodCoordinator.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1020,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "presentationContext",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "UIViewController",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 27,
+        "name" : "presentationContext",
+        "parentType" : "EditAccessMethodCoordinator",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/AccessMethodCellReuseIdentifier.swift",
+        "id" : 18,
+        "identity" : {
+          "enclosingTypePath" : [
+            "AccessMethodCellReuseIdentifier"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/AccessMethodCellReuseIdentifier.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1012,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "cellClass",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "AnyClass",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 33,
+        "name" : "cellClass",
+        "parentType" : "AccessMethodCellReuseIdentifier",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentView.swift",
+        "id" : 19,
+        "identity" : {
+          "enclosingTypePath" : [
+            "TextCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 1209,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "supports",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UIContentConfiguration"
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 37,
+        "name" : "supports",
+        "parentType" : "TextCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentView.swift",
+        "id" : 20,
+        "identity" : {
+          "enclosingTypePath" : [
+            "TextCellContentView"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Cells\/TextCellContentView.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 5972,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "textFieldShouldReturn",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UITextField"
+            ],
+            "resultType" : "Bool",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 161,
+        "name" : "textFieldShouldReturn",
+        "parentType" : "TextCellContentView",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/AccessMethodHeaderFooterReuseIdentifier.swift",
+        "id" : 21,
+        "identity" : {
+          "enclosingTypePath" : [
+            "AccessMethodHeaderFooterReuseIdentifier"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/AccessMethodHeaderFooterReuseIdentifier.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 604,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "headerFooterClass",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "AnyClass",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 17,
+        "name" : "headerFooterClass",
+        "parentType" : "AccessMethodHeaderFooterReuseIdentifier",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Add\/AddAccessMethodCoordinator.swift",
+        "id" : 22,
+        "identity" : {
+          "enclosingTypePath" : [
+            "AddAccessMethodCoordinator"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Add\/AddAccessMethodCoordinator.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 752,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "proxyConfigurationTester",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "ProxyConfigurationTesterProtocol",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : true,
+        "line" : 22,
+        "name" : "proxyConfigurationTester",
+        "parentType" : "AddAccessMethodCoordinator",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Add\/AddAccessMethodCoordinator.swift",
+        "id" : 23,
+        "identity" : {
+          "enclosingTypePath" : [
+            "AddAccessMethodCoordinator"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Add\/AddAccessMethodCoordinator.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 867,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "presentedViewController",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "UIViewController",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 25,
+        "name" : "presentedViewController",
+        "parentType" : "AddAccessMethodCoordinator",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Pickers\/ListItemPickerViewController.swift",
+        "id" : 24,
+        "identity" : {
+          "enclosingTypePath" : [
+            "CellIdentifier"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Pickers\/ListItemPickerViewController.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 4534,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "cellClass",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "AnyClass",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 135,
+        "name" : "cellClass",
+        "parentType" : "CellIdentifier",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/AboutViewController.swift",
+        "id" : 25,
+        "identity" : {
+          "enclosingTypePath" : [
+            "AboutViewController"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/AboutViewController.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 2996,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : true,
+            "isThrowing" : false,
+            "kind" : "function",
+            "name" : "presentWithNavigationController",
+            "parameterLabels" : [
+              "_"
+            ],
+            "parameterTypes" : [
+              "UINavigationController"
+            ],
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 98,
+        "name" : "presentWithNavigationController",
+        "parentType" : "AboutViewController",
+        "type" : "function"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/List\/ListAccessMethodCoordinator.swift",
+        "id" : 26,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ListAccessMethodCoordinator"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/List\/ListAccessMethodCoordinator.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 791,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "property",
+            "name" : "presentedViewController",
+            "parameterLabels" : [
+
+            ],
+            "parameterTypes" : [
+
+            ],
+            "resultType" : "UIViewController",
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 23,
+        "name" : "presentedViewController",
+        "parentType" : "ListAccessMethodCoordinator",
+        "type" : "variable"
+      },
+      {
+        "exclusionReason" : "unresolvedProtocol",
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/List\/ListAccessMethodCoordinator.swift",
+        "id" : 27,
+        "identity" : {
+          "enclosingTypePath" : [
+            "ListAccessMethodCoordinator"
+          ],
+          "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/List\/ListAccessMethodCoordinator.swift",
+          "isTypeMember" : true,
+          "lexicalScope" : [
+
+          ],
+          "offset" : 936,
+          "signature" : {
+            "defaultParameterIndices" : [
+
+            ],
+            "genericParameters" : [
+
+            ],
+            "isAsync" : false,
+            "isStatic" : false,
+            "isThrowing" : false,
+            "kind" : "initializer",
+            "name" : "init",
+            "parameterLabels" : [
+              "navigationController",
+              "accessMethodRepository",
+              "proxyConfigurationTester",
+              "breadcrumbsProvider",
+              "route"
+            ],
+            "parameterTypes" : [
+              "UINavigationController",
+              "AccessMethodRepositoryProtocol",
+              "ProxyConfigurationTesterProtocol",
+              "BreadcrumbsProvider",
+              "AppRoute"
+            ],
+            "variadicParameterIndices" : [
+
+            ]
+          }
+        },
+        "isWriteOnly" : false,
+        "line" : 29,
+        "name" : "init",
+        "parentType" : "ListAccessMethodCoordinator",
+        "type" : "function"
+      }
+    ]
+  },
+  "generatedAt" : "2026-10-15T12:49:31Z",
+  "options" : {
+    "includeObjc" : false,
+    "includeOverrides" : false,
+    "includeProtocols" : false,
+    "includeTests" : false,
+    "showExcluded" : false
+  },
+  "summary" : {
+    "testFilesExcluded" : 5,
+    "totalExcluded" : 20
+  },
+  "unused" : [
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Publisher+PreviousValue.swift",
+      "id" : 1,
+      "identity" : {
+        "enclosingTypePath" : [
+          "Publisher"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Publisher+PreviousValue.swift",
+        "isTypeMember" : true,
+        "lexicalScope" : [
+
+        ],
+        "offset" : 593,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "function",
+          "name" : "withPreviousValue",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "some Publisher<(Output?,Output),Failure>",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 18,
+      "name" : "withPreviousValue",
+      "parentType" : "Publisher",
+      "type" : "function"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Models\/AccessMethodValidationError.swift",
+      "id" : 2,
+      "identity" : {
+        "enclosingTypePath" : [
+          "AccessMethodFieldValidationError",
+          "Field"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Models\/AccessMethodValidationError.swift",
+        "isTypeMember" : true,
+        "lexicalScope" : [
+
+        ],
+        "offset" : 1042,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "property",
+          "name" : "description",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "String",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 30,
+      "name" : "description",
+      "parentType" : "AccessMethodFieldValidationError.Field",
+      "type" : "variable"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Models\/AccessMethodValidationError.swift",
+      "id" : 3,
+      "identity" : {
+        "enclosingTypePath" : [
+          "AccessMethodFieldValidationError",
+          "Context"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Models\/AccessMethodValidationError.swift",
+        "isTypeMember" : true,
+        "lexicalScope" : [
+
+        ],
+        "offset" : 1243,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "property",
+          "name" : "description",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "String",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 39,
+      "name" : "description",
+      "parentType" : "AccessMethodFieldValidationError.Context",
+      "type" : "variable"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/ShadowsocksSectionHandler.swift",
+      "id" : 4,
+      "identity" : {
+        "enclosingTypePath" : [
+          "ShadowsocksSectionHandler"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/ShadowsocksSectionHandler.swift",
+        "isTypeMember" : true,
+        "lexicalScope" : [
+
+        ],
+        "offset" : 570,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "property",
+          "name" : "tableStyle",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "UITableView.Style",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 19,
+      "name" : "tableStyle",
+      "parentType" : "ShadowsocksSectionHandler",
+      "type" : "variable"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/SocksSectionHandler.swift",
+      "id" : 5,
+      "identity" : {
+        "enclosingTypePath" : [
+          "SocksSectionHandler"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Common\/SocksSectionHandler.swift",
+        "isTypeMember" : true,
+        "lexicalScope" : [
+
+        ],
+        "offset" : 557,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "property",
+          "name" : "tableStyle",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "UITableView.Style",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 19,
+      "name" : "tableStyle",
+      "parentType" : "SocksSectionHandler",
+      "type" : "variable"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/MethodSettings\/MethodSettingsCellConfiguration.swift",
+      "id" : 6,
+      "identity" : {
+        "enclosingTypePath" : [
+          "MethodSettingsCellConfiguration"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/MethodSettings\/MethodSettingsCellConfiguration.swift",
+        "isTypeMember" : false,
+        "lexicalScope" : [
+          5038
+        ],
+        "offset" : 5118,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "parameter",
+          "name" : "itemIdentifier",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "MethodSettingsItemIdentifier",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 140,
+      "name" : "itemIdentifier",
+      "parentType" : "MethodSettingsCellConfiguration.configureValidationError",
+      "type" : "parameter"
+    },
+    {
+      "exclusionReason" : "none",
+      "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/MethodSettings\/MethodSettingsCellConfiguration.swift",
+      "id" : 7,
+      "identity" : {
+        "enclosingTypePath" : [
+          "MethodSettingsCellConfiguration"
+        ],
+        "file" : "\/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Old\/Edit\/MethodSettings\/MethodSettingsCellConfiguration.swift",
+        "isTypeMember" : false,
+        "lexicalScope" : [
+          6864
+        ],
+        "offset" : 6925,
+        "signature" : {
+          "defaultParameterIndices" : [
+
+          ],
+          "genericParameters" : [
+
+          ],
+          "isAsync" : false,
+          "isStatic" : false,
+          "isThrowing" : false,
+          "kind" : "parameter",
+          "name" : "itemIdentifier",
+          "parameterLabels" : [
+
+          ],
+          "parameterTypes" : [
+
+          ],
+          "resultType" : "MethodSettingsItemIdentifier",
+          "variadicParameterIndices" : [
+
+          ]
+        }
+      },
+      "isWriteOnly" : false,
+      "line" : 183,
+      "name" : "itemIdentifier",
+      "parentType" : "MethodSettingsCellConfiguration.configureTestingStatus",
+      "type" : "parameter"
+    }
+  ],
+  "version" : "2.0",
+  "warnings" : [
+    "Cannot resolve inherited type or protocol 'CellIdentifierProtocol' for 'AccessMethodCellReuseIdentifier'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'CellIdentifierProtocol' for 'CellIdentifier'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Coordinator' for 'AddAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Coordinator' for 'EditAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Coordinator' for 'ListAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'HeaderFooterIdentifierProtocol' for 'AccessMethodHeaderFooterReuseIdentifier'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Presentable' for 'AddAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Presentable' for 'ListAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Presenting' for 'AddAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Presenting' for 'EditAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'Presenting' for 'ListAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'SettingsChildCoordinator' for 'ListAccessMethodCoordinator'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentConfiguration' for 'ButtonCellContentConfiguration'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentConfiguration' for 'ListCellContentConfiguration'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentConfiguration' for 'SwitchCellContentConfiguration'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentConfiguration' for 'TextCellContentConfiguration'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentView' for 'ButtonCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentView' for 'ListCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentView' for 'SwitchCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIContentView' for 'TextCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIGestureRecognizerDelegate' for 'TextCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITableViewCell' for 'BasicCell'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITableViewController' for 'ListItemPickerViewController'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITableViewController' for 'MethodSettingsViewController'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITableViewDelegate' for 'EditAccessMethodViewController'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITextFieldDelegate' for 'ListCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITextFieldDelegate' for 'SwitchCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UITextFieldDelegate' for 'TextCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIView' for 'ButtonCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIView' for 'ListCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIView' for 'SwitchCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIView' for 'TextCellContentView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIViewController' for 'AboutViewController'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'UIViewController' for 'EditAccessMethodViewController'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'View' for 'AboutView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'View' for 'EditAccessMethodView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Cannot resolve inherited type or protocol 'View' for 'ListAccessMethodView'. Potentially required members are excluded from unused results to avoid false positives.",
+    "Protocol requirements for 'CustomCellDisclosureHandling' used by 'BasicCell' are incomplete. Members that may satisfy missing requirements are excluded from unused results to avoid false positives.",
+    "Protocol requirements for 'DynamicBackgroundConfiguration' used by 'BasicCell' are incomplete. Members that may satisfy missing requirements are excluded from unused results to avoid false positives.",
+    "Unsupported attached macro @Observable at \/Users\/mojgan\/Documents\/mullvadvpn-app\/ios\/MullvadVPN\/Coordinators\/Settings\/APIAccess\/Direct\/EditAccessMethodViewModel.swift:44; cannot resolve expansion dependencies for attached declaration and possible direct members."
+  ]
+}

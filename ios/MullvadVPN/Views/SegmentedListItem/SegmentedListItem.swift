@@ -26,7 +26,7 @@ struct SegmentedListItem<Leading: View>: View {
     let segment: AnyView?
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
-    var footer: MullvadInfoView?
+    var footer: InlineLinkText?
     let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
@@ -43,7 +43,7 @@ struct SegmentedListItem<Leading: View>: View {
         @ViewBuilder trailing: () -> Trailing = { EmptyView() },
         @ViewBuilder segment: () -> Segment = { EmptyView() },
         @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
-        footer: MullvadInfoView? = nil,
+        footer: InlineLinkText? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -78,6 +78,11 @@ struct SegmentedListItem<Leading: View>: View {
                 Spacer()
                 trailing
             }
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    onSelect?()
+                }
+            )
         } else {
             leading()
             Spacer()
@@ -196,11 +201,12 @@ struct SegmentedListItem<Leading: View>: View {
                     ])
                 )
             },
-            footer: MullvadInfoView(
-                bodyText: "Some text. ",
-                link: "A link",
-                onTapLink: { print("onLinkTap") }
-            )
+            footer: InlineLinkText(
+                text: "Some body text ",
+                linkTitle: "A link"
+            ) {
+                print("onTapLink")
+            }
         )
 
         Spacer()

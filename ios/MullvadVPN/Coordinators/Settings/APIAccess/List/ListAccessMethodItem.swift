@@ -9,6 +9,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadSettings
 
 /// A concrete implementation of an API access list item.
 struct ListAccessMethodItem: Hashable, Identifiable, Equatable {
@@ -23,4 +24,19 @@ struct ListAccessMethodItem: Hashable, Identifiable, Equatable {
 
     /// Whether method is enabled or not.
     let isEnabled: Bool
+
+    var accessibilityIdentifier: AccessibilityIdentifier? {
+        switch id {
+        case AccessMethodRepository.directId:
+            AccessibilityIdentifier.accessMethodDirectCell
+        case AccessMethodRepository.bridgeId:
+            AccessibilityIdentifier.accessMethodBridgesCell
+        case AccessMethodRepository.encryptedDNSId:
+            AccessibilityIdentifier.accessMethodEncryptedDNSCell
+        case AccessMethodRepository.domainFrontingId:
+            AccessibilityIdentifier.accessMethodDomainFrontingCell
+        default:
+            nil
+        }
+    }
 }

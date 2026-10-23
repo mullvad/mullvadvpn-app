@@ -14,7 +14,7 @@ struct MullvadListNavigationItem: Hashable, Identifiable {
             case .inUse:
                 NSLocalizedString("In use", comment: "")
             case .warning(let message), .error(let message):
-                NSLocalizedString(message, comment: "")
+                NSLocalizedString(message, commelslont: "")
             }
         }
     }

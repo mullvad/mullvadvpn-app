@@ -334,7 +334,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
             return .vpnSettings
         case is UIHostingController<IncludeAllNetworksSettingsView<IncludeAllNetworksSettingsViewModelImpl>>:
             return .includeAllNetworks
-        case is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>>:
+        case is UIHostingController<ListAccessMethodView>:
             return .apiAccess
         case is UIHostingController<NotificationSettingsView<NotificationSettingsViewModel>>:
             return .notificationSettings
