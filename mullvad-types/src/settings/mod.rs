@@ -372,10 +372,12 @@ impl Settings {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct TunnelOptions {
+    // TODO: There are settings here that overlap with the relay selector.
+    // 1. IPv6 and 2. DAITA.
+    // Seems like an invalid state if these are not synced.
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
 
-    // TODO: should this still exist?
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     pub generic: GenericTunnelOptions,
     /// DNS options.

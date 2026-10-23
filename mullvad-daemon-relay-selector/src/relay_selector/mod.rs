@@ -5,6 +5,7 @@ use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::vec::IntoIter;
 
 use mullvad_relay_selector::query::RelayQuery;
 use mullvad_relay_selector::{GetRelay, RelaySelector};
@@ -24,6 +25,48 @@ use crate::relay_list;
 pub struct RelaySelectorIO {
     inner: RelaySelector,
     config: Config,
+    next_relays: NextRelays,
+}
+
+#[derive(Clone)]
+struct NextRelays(Arc<Mutex<IntoIter<GetRelay>>>);
+
+impl NextRelays {
+    /// Iterator over the next relays to connect to, in order. It has multiple entries if
+    /// obfuscation is used, indicating the relays which to connect to in order of preference.
+    /// It is empty if no relays match the query.
+    fn arm(&self, relay_selector: &RelaySelector, mut user_query: RelayQuery) {
+        let mut relays = vec![];
+
+        // First, we make a WireGuard-only attempt before using any obfuscations
+        if let Some(wg_query) = user_query.clone().wireguard_only()
+            && let Ok(wg_relay) = relay_selector.get_relay_by_query(&wg_query)
+        {
+            // TODO: We could remove `direct` from the user query here to be more consistent
+            // There might be some benefit to including it in the obfuscation attempt, though.
+            relays.push(wg_relay);
+        }
+
+        // Then, append relays until we have covered all obfuscation methods included in the user query
+        while let Ok(relay) = relay_selector.get_relay_by_query(&user_query) {
+            remove_supported_obfuscations(&mut user_query, &relay);
+            relays.push(relay);
+        }
+
+        *self.0.lock().unwrap() = relays.into_iter();
+    }
+
+    fn empty() -> Self {
+        Self(Arc::new(Mutex::new(Default::default())))
+    }
+
+    fn clear(&self) {
+        *self.0.lock().unwrap() = Default::default();
+    }
+
+    fn next(&self) -> Option<GetRelay> {
+        self.0.lock().unwrap().next()
+    }
 }
 
 impl Deref for RelaySelectorIO {
@@ -43,7 +86,11 @@ impl RelaySelectorIO {
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
         let config = Config::from(custom_lists);
-        RelaySelectorIO { inner, config }
+        RelaySelectorIO {
+            inner,
+            config,
+            next_relays: NextRelays::empty(),
+        }
     }
 
     /// Try to initialize [RelaySelectorIO] from cached relay list.
@@ -60,7 +107,11 @@ impl RelaySelectorIO {
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
         let config = Config::from(custom_lists);
-        Ok(RelaySelectorIO { inner, config })
+        Ok(RelaySelectorIO {
+            inner,
+            config,
+            next_relays: NextRelays::empty(),
+        })
     }
 
     /// Try to initialize [RelaySelectorIO] from cached relay list. If that fails, fall back to
@@ -81,7 +132,15 @@ impl RelaySelectorIO {
     ) -> RelaySelectorIO {
         let config = Config::from(settings);
         let inner = RelaySelector::new(relays, bridges);
-        RelaySelectorIO { inner, config }
+        RelaySelectorIO {
+            inner,
+            config,
+            next_relays: NextRelays::empty(),
+        }
+    }
+
+    pub fn clear_relay_queue(&self) {
+        self.next_relays.clear();
     }
 
     /// Update the relay selector config.
@@ -89,6 +148,7 @@ impl RelaySelectorIO {
         let config = &self.config;
         *config.custom_lists.lock().unwrap() = settings.custom_lists.clone();
         *config.query.lock().unwrap() = RelayQuery::from(settings);
+        self.clear_relay_queue();
     }
 
     pub fn query(&self) -> impl Deref<Target = RelayQuery> {
@@ -99,30 +159,20 @@ impl RelaySelectorIO {
     pub fn set_custom_lists(&self, custom_lists: CustomListsSettings) {
         let config = &self.config;
         *config.custom_lists.lock().unwrap() = custom_lists;
+        self.clear_relay_queue();
     }
 
-    /// Return a list of next relays to connect to, in order. The list has multiple entries if
-    /// obfuscation is used, indicating the relays which to connect to in order of preference.
-    /// The list is empty if no relays match the query.
-    pub fn get_next_relays(&self, mut user_query: RelayQuery) -> std::vec::IntoIter<GetRelay> {
-        let mut relays = vec![];
-
-        // First, we make a WireGuard-only attempt before using any obfuscations
-        if let Some(wg_query) = user_query.clone().wireguard_only()
-            && let Ok(wg_relay) = self.get_relay_by_query(&wg_query)
-        {
-            // TODO: We could remove `direct` from the user query here to be more consistent
-            // There might be some benefit to including it in the obfuscation attempt, though.
-            relays.push(wg_relay);
+    // TODO: Docs
+    pub fn next_relay(&self) -> Result<GetRelay, mullvad_relay_selector::Error> {
+        if let Some(relay) = self.next_relays.next() {
+            return Ok(relay);
         }
+        let query = self.query().clone();
+        self.next_relays.arm(&self.inner, query.clone());
 
-        // Then, append relays until we have covered all obfuscation methods included in the user query
-        while let Ok(relay) = self.get_relay_by_query(&user_query) {
-            remove_supported_obfuscations(&mut user_query, &relay);
-            relays.push(relay);
-        }
-
-        relays.into_iter()
+        self.next_relays
+            .next()
+            .ok_or_else(|| mullvad_relay_selector::Error::NoRelay(Box::new(query)))
     }
 }
 
