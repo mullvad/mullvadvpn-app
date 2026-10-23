@@ -5,5 +5,4 @@ export * from './use-get-custom-list-by-id';
 export * from './use-get-custom-list-by-id';
 export * from './use-is-custom-list-name-valid';
 export * from './use-remove-location-from-custom-list';
-export * from './use-custom-lists';
 export * from './use-update-custom-list-name';
