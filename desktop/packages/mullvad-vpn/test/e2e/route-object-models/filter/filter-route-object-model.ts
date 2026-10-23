@@ -70,6 +70,10 @@ export class FilterRouteObjectModel {
     return this.selectors.heading(title);
   }
 
+  getFilterOverriddenText() {
+    return this.selectors.filterOverriddenText();
+  }
+
   private async isExpanded(locator: Locator): Promise<boolean> {
     const ariaExpanded = await locator.getAttribute('aria-expanded');
     return ariaExpanded === 'true';
