@@ -7,6 +7,8 @@ pub mod api_access;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod custom_list;
+#[cfg(feature = "custom-vpn")]
+pub mod custom_vpn;
 pub mod debug;
 pub mod dns;
 pub mod lan;

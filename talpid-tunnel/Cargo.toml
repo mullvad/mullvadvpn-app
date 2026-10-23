@@ -41,5 +41,8 @@ features = [
   "Win32_Networking_WinSock",
 ]
 
+[features]
+custom-vpn = []
+
 [lints]
 workspace = true

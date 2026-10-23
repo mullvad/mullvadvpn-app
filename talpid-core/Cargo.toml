@@ -102,6 +102,7 @@ features = [
 
 [features]
 cgroup2 = []
+custom-vpn = ["talpid-wireguard/custom-vpn"]
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
 
 [lints]
