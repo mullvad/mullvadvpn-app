@@ -70,6 +70,10 @@ export class FilterRouteObjectModel {
     return this.selectors.heading(title);
   }
 
+  getFilterChipLink(label: string) {
+    return this.selectors.filterChipLink(label);
+  }
+
   getFilterOverriddenText() {
     return this.selectors.filterOverriddenText();
   }

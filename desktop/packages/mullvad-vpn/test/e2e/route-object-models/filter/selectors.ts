@@ -18,6 +18,9 @@ export const createSelectors = (page: Page) => ({
     }),
   filterOverriddenText: () =>
     page.getByText('Filters are overridden when using an automatic location'),
+  filterChipLink: (label: string) => {
+    return page.locator('a', { hasText: label });
+  },
 });
 
 export type FilterSelectors = ReturnType<typeof createSelectors>;
