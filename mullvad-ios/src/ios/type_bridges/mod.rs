@@ -3,6 +3,9 @@ use std::net::IpAddr;
 mod error;
 pub use error::AnyError;
 
+mod tokio_bridge;
+pub use tokio_bridge::TokioBridge;
+
 pub struct UniIpAddr(pub IpAddr);
 uniffi::custom_type!(UniIpAddr, String, {
     lower: |time_interval| time_interval.0.to_string(),
