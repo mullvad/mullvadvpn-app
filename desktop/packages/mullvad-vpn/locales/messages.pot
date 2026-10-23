@@ -1527,6 +1527,11 @@ msgctxt "filter-view"
 msgid "All providers"
 msgstr ""
 
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr ""
+
 msgctxt "filter-view"
 msgid "Mullvad owned only"
 msgstr ""
@@ -3832,9 +3837,6 @@ msgid "File"
 msgstr ""
 
 msgid "Filter"
-msgstr ""
-
-msgid "Filters are overridden when using an automatic location"
 msgstr ""
 
 msgid "Filters can now be set separately for entry and exit locations."
