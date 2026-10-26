@@ -14,7 +14,7 @@ import { getConnectedRelay, getOutIpv4, reconnectWith } from '../lib/tunnel-help
 const exec = promisify(execAsync);
 
 // This test expects the daemon to be logged into an account that has time left and to be
-// disconnected.
+// disconnected. Auto-connect must be disabled.
 
 function formatInAddress(relay: ConnectedRelay) {
   // The app shows IPv6 addresses in brackets

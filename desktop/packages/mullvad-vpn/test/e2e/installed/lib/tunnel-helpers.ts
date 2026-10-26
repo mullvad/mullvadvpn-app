@@ -34,7 +34,7 @@ export async function getConnectedRelay(): Promise<ConnectedRelay> {
   return {
     // The hostname is part of the relay's `GeographicLocationConstraint`, which serializes as
     // `{"hostname": [country, city, hostname]}`.
-    hostname: location.location.constraint.hostname[2],
+    hostname: location.location.hostname[2],
     inIp,
     inPort: Number(inPort),
     inProtocol: inEndpoint.protocol,
