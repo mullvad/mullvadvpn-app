@@ -8,11 +8,11 @@ use crate::{
     tests::helpers::{ConnChecker, geoip_lookup_with_retries, login_with_retries},
 };
 
-use anyhow::{Context, ensure};
+use anyhow::{Context, bail, ensure};
 use duplicate::duplicate_item;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-use mullvad_types::wireguard;
+use mullvad_types::{constraints::Constraint, states::TunnelState, wireguard};
 use std::{
     assert_matches,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -611,4 +611,97 @@ pub async fn test_establish_tunnel_without_api(
     connect_and_wait(&mut mullvad_client).await?;
     // Profit
     Ok(())
+}
+
+/// This tests whether the daemon can establish a tunnel connection in a somewhat censored network.
+/// Note that this doesn't verify that the outgoing traffic is of any particular shape, just that
+/// the tunnel works.
+///
+/// FIXME: This test assumes a daemon built with the `staggered-obfuscation` feature enabled.
+#[duplicate_item(
+      VX     test_auto_obfuscation_when_udp_blocked_ipvx;
+    [ V4 ] [ test_auto_obfuscation_when_udp_blocked_ipv4 ];
+    [ V6 ] [ test_auto_obfuscation_when_udp_blocked_ipv6 ];
+)]
+#[test_function(target_os = "linux", target_os = "windows")]
+pub async fn test_auto_obfuscation_when_udp_blocked_ipvx(
+    _: TestContext,
+    _: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // HACK: This never runs on macOS anyway.
+    #[cfg(target_os = "linux")]
+    let _nft_guard = setup_nftables_drop_udp_egress().await?;
+    let query = RelayQueryBuilder::new()
+        // LWO is UDP-based.
+        .lwo()
+        .ip_version(IpVersion::VX)
+        .build();
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+    ensure!(
+        connect_and_wait(&mut mullvad_client).await.is_err(),
+        "UDP must be blocked"
+    );
+    disconnect_and_wait(&mut mullvad_client).await?;
+    // Enable auto-obfuscation. Exercise the multiplexer / staggered obfuscation.
+    // We should now be able to circumvent censorship.
+    let query = RelayQueryBuilder::new().ip_version(IpVersion::VX).build();
+    // Multiplexer is used if constraint is `Any` (there is no explicit "Multiplexer" obfuscation
+    // method (yet)).
+    assert_eq!(query.hops.obfuscation(), Constraint::Any);
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+    let TunnelState::Connected { endpoint, .. } = connect_and_wait(&mut mullvad_client).await?
+    else {
+        bail!("expected connected state");
+    };
+    // Verify that _some_ obfuscation method worked.
+    ensure!(
+        endpoint.obfuscation.is_some(),
+        "Obfuscation must be used if UDP is blocked"
+    );
+    Ok(())
+}
+
+/// Set up nftables rules to drop outgoing UDP packets. Simulate a censored network.
+#[cfg(target_os = "linux")]
+async fn setup_nftables_drop_udp_egress()
+-> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
+    fn log_ruleset() {
+        let output = std::process::Command::new("nft")
+            .args(["list", "ruleset"])
+            .output()
+            .unwrap();
+
+        log::debug!(
+            "Set nftables ruleset to:\n{}",
+            String::from_utf8(output.stdout).unwrap()
+        );
+
+        let exit_status = output.status;
+        assert_eq!(exit_status.code(), Some(0));
+    }
+    // Set nftables ruleset
+    let (interface, _) = crate::vm::network::bridge()?;
+    let rule = format!(
+        "table inet DropUdp {{
+                chain postrouting {{
+                    type filter hook postrouting priority 0; policy accept;
+                    iif \"{interface}\" meta l4proto udp drop;
+                }}
+            }}",
+    );
+    crate::vm::network::linux::run_nft(&rule).await.unwrap();
+    log_ruleset();
+
+    let defer = scopeguard::guard((), |()| {
+        let mut cmd = std::process::Command::new("nft");
+        cmd.args(["delete", "table", "inet", "DropUdp"]);
+        let output = cmd.output().unwrap();
+        if !output.status.success() {
+            panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
+        }
+        log_ruleset();
+    });
+
+    Ok(defer)
 }

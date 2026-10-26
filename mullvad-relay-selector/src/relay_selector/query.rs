@@ -53,6 +53,21 @@ pub enum Hops {
     Multi(MultihopConstraints),
 }
 
+impl Hops {
+    pub const fn obfuscation(&self) -> Constraint<&ObfuscationMode> {
+        match self {
+            Hops::Single(entry_constraints) | Hops::Auto(entry_constraints) => {
+                entry_constraints.entry_specific.obfuscation.as_ref()
+            }
+            Hops::Multi(multihop_constraints) => multihop_constraints
+                .entry
+                .entry_specific
+                .obfuscation
+                .as_ref(),
+        }
+    }
+}
+
 impl RelayQuery {
     /// Tighten `self`'s entry-specific constraints by intersecting them with `retry`.
     ///
