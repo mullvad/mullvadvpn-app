@@ -53,17 +53,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
-            didLoadConfiguration: { [weak self] _ in
-                guard let self, appDelegate.launchArguments.target != .uiTests else { return }
-                configureScene()
-            },
             didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.deviceStateDidChange(deviceState)
             }
         )
 
         self.tunnelObserver = tunnelObserver
-
         tunnelManager.addObserver(tunnelObserver)
     }
 
@@ -180,7 +175,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             }
         }
         if shouldUpdateDeviceData {
-            deviceUpdateThrottle?.requestAction(force: forceUpdate)
+            Task {
+                await deviceUpdateThrottle?.requestAction(force: forceUpdate)
+            }
         }
     }
 
@@ -188,7 +185,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        deviceUpdateThrottle?.reset()
+        Task {
+            await deviceUpdateThrottle?.reset()
+        }
     }
 
     // MARK: - UIWindowSceneDelegate
@@ -213,8 +212,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             settingsManager: settingsManager)
 
         launchViewController.onAppReady = { [weak self] in
-            guard let self = self else { return }
-            configureScene()
+            self?.configureScene()
         }
 
         window = UIWindow(windowScene: windowScene)
@@ -230,6 +228,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         window?.makeKeyAndVisible()
         addTunnelObserver()
+
+        configureScene()
+        launchViewController.start()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
@@ -252,9 +253,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     // MARK: - SettingsMigrationUIHandler
 
-    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+    func showMigrationError(_ error: Error) {
         guard let appCoordinator else {
-            completionHandler()
             return
         }
 
@@ -265,10 +265,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default,
-                    handler: {
-                        completionHandler()
-                    }
+                    style: .default
                 )
             ]
         )

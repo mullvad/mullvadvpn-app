@@ -39,19 +39,7 @@ final class VPNSettingsInteractor {
         tunnelManager.addObserver(tunnelObserver)
     }
 
-    func updateSettings(_ changes: [TunnelSettingsUpdate], completion: (@Sendable () -> Void)? = nil) {
-        tunnelManager.updateSettings(changes, completionHandler: completion)
-    }
-
-    func setPort(_ port: UInt16?, completion: (@Sendable () -> Void)? = nil) {
-        var relayConstraints = tunnelManager.settings.relayConstraints
-
-        if let port {
-            relayConstraints.port = .only(port)
-        } else {
-            relayConstraints.port = .any
-        }
-
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
+    func updateSettings(_ changes: [TunnelSettingsUpdate]) {
+        tunnelManager.updateSettings(changes)
     }
 }
