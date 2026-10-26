@@ -181,7 +181,7 @@ workspace = true
 features = ["Win32_System_SystemServices"]
 
 [features]
-default = ["default-allocator"]
+default = ["default-allocator", "staggered-obfuscation"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
