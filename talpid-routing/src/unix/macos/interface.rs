@@ -258,10 +258,15 @@ impl PrimaryInterfaceMonitor {
     /// Iterate through active interfaces in network service order and return a suggested route for
     /// the first one with a valid IP and gateway.
     pub fn get_route_by_service_order(&self, family: Family) -> Option<DefaultRoute> {
-        self.network_services(family)
+        let route = self
+            .network_services(family)
             .into_iter()
             .filter_map(|service| self.route_from_service(&service))
-            .next()
+            .next();
+        if route.is_none() {
+            log::debug!("No network service in the service order has a usable route ({family})");
+        }
+        route
     }
 
     pub fn route_from_service(&self, service: &NetworkServiceDetails) -> Option<DefaultRoute> {
