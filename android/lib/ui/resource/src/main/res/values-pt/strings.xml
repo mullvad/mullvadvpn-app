@@ -108,7 +108,7 @@
     <string name="connect_panel_connection_details">Detalhes da ligação</string>
     <string name="connected">Ligado</string>
     <string name="connecting">A ligar...</string>
-    <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mulvad...</string>
+    <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mullvad...</string>
     <string name="connection_details_in">Entrada</string>
     <string name="connection_details_out">Saída</string>
     <string name="cont">Continuar</string>

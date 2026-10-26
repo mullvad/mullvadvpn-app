@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-10-26 09:29\n"
 
 msgid "%(amount)d more..."
 msgstr "Mais %(amount)d..."
@@ -1616,7 +1616,7 @@ msgstr "ERRO NA VERIFICAÇÃO"
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
-msgstr "A ligar-se ao serviço de sistema Mulvad..."
+msgstr "A ligar-se ao serviço de sistema Mullvad..."
 
 #. Button label for opening dialog with troubleshooting details.
 msgctxt "launch-view"
