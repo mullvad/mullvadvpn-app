@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,6 +21,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InApp
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.daysLeft
+import net.mullvad.mullvadvpn.lib.common.util.launchOnStart
 import net.mullvad.mullvadvpn.lib.common.util.withPrev
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -135,11 +135,7 @@ class ConnectViewModel(
                     showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                 )
             }
-            .onStart {
-                viewModelScope.launch {
-                    accountRepository.refreshAccountData(ignoreTimeout = false)
-                }
-            }
+            .launchOnStart { accountRepository.refreshAccountData(ignoreTimeout = false) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
