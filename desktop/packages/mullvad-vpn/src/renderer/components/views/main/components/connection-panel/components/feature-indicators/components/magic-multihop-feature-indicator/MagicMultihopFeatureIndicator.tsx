@@ -22,13 +22,8 @@ export function MagicMultihopFeatureIndicator() {
 
   return (
     <FeatureIndicator data-testid="feature-indicator" onClick={gotoMultihopFeature}>
-      <FeatureIndicator.Text>
-        {
-          // TRANSLATORS: This is used as a feature indicator to show that multihop is used
-          // TRANSLATORS: to enable the connection.
-          messages.pgettext('connect-view', 'Automatic multihop')
-        }
-      </FeatureIndicator.Text>
+      <FeatureIndicator.Icon icon="magic-multihop" aria-label={messages.gettext('Magic')} />
+      <FeatureIndicator.Text>{messages.gettext('Multihop')}</FeatureIndicator.Text>
     </FeatureIndicator>
   );
 }
