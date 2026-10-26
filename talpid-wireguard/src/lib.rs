@@ -221,12 +221,14 @@ impl WireguardMonitor {
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
 
+            let connection = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            let endpoint_addr = connection.endpoint_addr();
             let IngressConnection {
                 mut config,
                 obfuscation,
                 selected_obfuscation,
                 daita,
-            } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            } = connection;
 
             // Adjust MTU to make room for the selected obfuscation method.
             // This will only make room for the actually-selected obfuscation method.
@@ -279,7 +281,6 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let endpoint_addr = ingress_endpoint_addr(&config);
             let routes =
                 Self::get_pre_tunnel_routes(&metadata.interface, &config, userspace_wireguard)
                     .chain(Self::get_endpoint_route(endpoint_addr))
@@ -948,22 +949,6 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
     }
 }
 
-/// The address that the tunnel reaches the ingress relay at.
-///
-/// `config` must be the config returned by [connect_to_ingress], which has committed to a single
-/// transport.
-#[cfg(not(target_os = "android"))]
-fn ingress_endpoint_addr(config: &Config) -> IpAddr {
-    use talpid_types::net::obfuscation::Obfuscators;
-    match &config.obfuscator_config {
-        Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
-        Some(Obfuscators::Multiplexer { .. }) => {
-            unreachable!("connect_to_ingress commits to a single transport")
-        }
-        None => config.entry_peer.endpoint.ip(),
-    }
-}
-
 /// Return the tunnel MTU of `config`, adjusted to make room for its obfuscation.
 ///
 /// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
@@ -989,6 +974,24 @@ struct IngressConnection {
     selected_obfuscation: Option<talpid_tunnel::SelectedObfuscation>,
     /// The DAITA settings negotiated with the ingress relay.
     daita: Option<talpid_tunnel_config_client::DaitaSettings>,
+}
+
+#[cfg(not(target_os = "android"))]
+impl IngressConnection {
+    /// The address that the tunnel reaches the ingress relay at.
+    ///
+    /// `self` must have been constructed by [connect_to_ingress], which has committed to a single
+    /// transport.
+    pub fn endpoint_addr(&self) -> IpAddr {
+        use talpid_types::net::obfuscation::Obfuscators;
+        match &self.config.obfuscator_config {
+            Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
+            Some(Obfuscators::Multiplexer { .. }) => {
+                unreachable!("connect_to_ingress commits to a single transport")
+            }
+            None => self.config.entry_peer.endpoint.ip(),
+        }
+    }
 }
 
 /// Establish a way to reach the ingress relay, and then negotiate ephemeral peers through it.
