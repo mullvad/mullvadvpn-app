@@ -167,5 +167,5 @@ fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {
  * canceled when the stateIn stops, in this case 5 seconds after the last subscriber leaves because
  * of SharingStarted.WhileSubscribed(5_000).
  */
-fun <T> Flow<T>.launchOnStart(action: suspend FlowCollector<T>.() -> Unit): Flow<T> =
+fun <T> Flow<T>.launchOnStart(action: suspend () -> Unit): Flow<T> =
     this.onStart { CoroutineScope(currentCoroutineContext()).launch { action() } }
