@@ -140,7 +140,7 @@ talpid-logging = { path = "./talpid-logging" }
 tempfile = "3.27.0"
 thiserror = "2.0"
 tipsy = "0.7.0"
-tokio = { version = "1.44" }
+tokio = { version = "1.54" }
 tokio-util = "0.7"
 tonic = "0.14.6"
 tonic-prost = "0.14.6"

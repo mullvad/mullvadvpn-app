@@ -44,7 +44,7 @@ surge-ping = "0.8"
 tarpc = { version = "0.38", features = ["serde-transport", "serde1", "tokio1"] }
 thiserror = "2.0"
 tipsy = "0.7.0"
-tokio = { version = "1.44", default-features = false }
+tokio = { version = "1.54", default-features = false }
 tokio-serial = "5.4.1"
 tonic = "0.14.6"
 tower = "0.5.1"
