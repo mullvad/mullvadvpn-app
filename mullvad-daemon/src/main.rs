@@ -101,7 +101,7 @@ async fn run() -> Result<(), String> {
                 eprintln!("Note: This command may not work on non-notarized builds.");
             }
 
-            std::process::exit(macos_launch_daemon::get_status() as i32);
+            std::process::exit(macos_launch_daemon::status() as i32);
         }
     }
 }
