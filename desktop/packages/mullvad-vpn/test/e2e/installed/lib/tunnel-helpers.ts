@@ -31,15 +31,10 @@ export async function getConnectedRelay(): Promise<ConnectedRelay> {
   const inEndpoint = obfuscation?.endpoint ?? endpoint.entry_endpoint ?? endpoint;
   const [, inIp, inPort] = /^\[?(.*?)\]?:(\d+)$/.exec(inEndpoint.address)!;
 
-  // The hostname is part of the relay's `GeographicLocationConstraint`, which serializes as
-  // `{"hostname": [country, city, hostname]}`.
-  const getHostname = (constraint: { hostname?: unknown } | undefined) => {
-    const hostname = constraint?.hostname;
-    return Array.isArray(hostname) ? (hostname[2] as string) : undefined;
-  };
-
   return {
-    hostname: getHostname(location.location)!,
+    // The hostname is part of the relay's `GeographicLocationConstraint`, which serializes as
+    // `{"hostname": [country, city, hostname]}`.
+    hostname: location.location.constraint.hostname[2],
     inIp,
     inPort: Number(inPort),
     inProtocol: inEndpoint.protocol,
