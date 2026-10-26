@@ -40,7 +40,7 @@ pub enum Error {
     #[error("Failed to start 'ip'")]
     IpStart(io::Error),
     #[error("'ip' command failed: {0}")]
-    IpFailed(i32),
+    IpFailed(String),
     #[error("Failed to start 'sysctl'")]
     SysctlStart(io::Error),
     #[error("'sysctl' failed: {0}")]
@@ -78,8 +78,11 @@ async fn fix_ipv6() -> Result<()> {
     let gateway = "fd00::2"; // slirp2netns gateway
     let _dns = "fd00::3"; // slirp2netns dns
 
-    run_ip_cmd(["-6", "addr", "add", addr, "dev", tap]).await?;
-    run_ip_cmd(["-6", "route", "add", "default", "via", gateway, "dev", tap]).await?;
+    run_ip_cmd(["-6", "addr", "replace", addr, "dev", tap]).await?;
+    run_ip_cmd([
+        "-6", "route", "replace", "default", "via", gateway, "dev", tap,
+    ])
+    .await?;
     Ok(())
 }
 
@@ -232,11 +235,29 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
+    let args: Vec<_> = args
+        .into_iter()
+        .map(|arg| arg.as_ref().to_owned())
+        .collect();
     let mut cmd = Command::new("ip");
-    cmd.args(args);
+    cmd.args(&args);
     let output = cmd.output().await.map_err(Error::IpStart)?;
     if !output.status.success() {
-        return Err(Error::IpFailed(output.status.code().unwrap()));
+        let exit_status = output.status.code().unwrap_or(-1);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stderr = stderr.trim();
+        let stderr = if stderr.is_empty() {
+            "<no stderr>"
+        } else {
+            stderr
+        };
+        return Err(Error::IpFailed(format!(
+            "ip {}: {stderr} (exit status {exit_status})",
+            args.iter()
+                .map(|arg| arg.to_string_lossy())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )));
     }
     Ok(())
 }
