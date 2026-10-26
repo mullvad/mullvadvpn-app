@@ -46,7 +46,7 @@ compose-constraintlayout = "1.1.2"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
 cyclonedx-bom = "3.5.1"
-dependency-versions = "0.65.0"
+dependency-versions = "0.66.0"
 detekt = "2.0.0-alpha.6"
 accompanist = "0.37.3"
 # Only used to override the vulnerable version (2.22.2) used by the CycloneDX plugin.
