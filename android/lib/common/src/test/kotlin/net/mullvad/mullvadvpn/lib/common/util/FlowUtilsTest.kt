@@ -5,11 +5,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -84,11 +86,15 @@ class FlowUtilsTest {
     fun `launch on start should be executed once per collector`() = runTest {
         // Arrange
         val mockFunction: suspend () -> Unit = mockk(relaxed = true)
-        val flow = flowOf(1).launchOnStart { mockFunction() }
+        val flow = flow {
+            emit(1)
+            delay(1.seconds)
+        }
+            .launchOnStart { mockFunction() }
 
         // Act
-        flow.collect {}
-        flow.collect {}
+        launch { flow.collect {} }
+        launch { flow.collect {} }
         // Required to properly check if mockFunction was called.
         runCurrent()
 
