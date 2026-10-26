@@ -3,8 +3,9 @@ use crate::{
     migrations::multihop::scenario::Scenario,
 };
 use futures::{
-    StreamExt,
+    FutureExt, StreamExt,
     channel::{mpsc, oneshot},
+    select,
 };
 use mullvad_api::{StatusCode, rest::Error as RestError};
 use mullvad_daemon_relay_selector::relay_selector::{
@@ -1170,16 +1171,21 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
         tokio::spawn(async move {
             loop {
-                match log_stream.recv().await {
-                    Ok(log) => {
-                        let _ = tx.send(Ok(types::LogMessage { message: log }));
-                    }
+                let result = select! {
+                    _ = tx.closed().fuse() => break,
+                    result = log_stream.recv().fuse() => result,
+                };
+
+                let message = match result {
+                    Ok(log) => Ok(types::LogMessage { message: log }),
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
-                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
+                        Err(Status::internal(format!("{n} lagged messages")))
                     }
-                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                        break;
-                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                };
+
+                if tx.send(message).is_err() {
+                    break;
                 }
             }
         });
