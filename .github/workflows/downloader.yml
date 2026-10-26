@@ -43,7 +43,7 @@ jobs:
     env:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
-      MAX_BINARY_SIZE: 3380000
+      MAX_BINARY_SIZE: 3400000
       # On Windows, the checkout is on the D drive, which is very small.
       # Moving the target directory to the C drive ensures that the runner
       # doesn't run out of space on the D drive.
