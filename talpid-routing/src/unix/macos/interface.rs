@@ -66,7 +66,6 @@ impl Family {
 
 pub struct PrimaryInterfaceMonitor {
     store: SCDynamicStore,
-    prefs: SCPreferences,
 }
 
 // FIXME: Implement Send on SCDynamicStore, if it's safe
@@ -154,12 +153,11 @@ impl From<DefaultRoute> for RouteMessage {
 impl PrimaryInterfaceMonitor {
     pub fn new() -> Option<(Self, UnboundedReceiver<Vec<InterfaceEvent>>)> {
         let store = SCDynamicStoreBuilder::new("talpid-routing").build()?;
-        let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
 
         let (tx, rx) = mpsc::unbounded();
         Self::start_listener(tx);
 
-        Some((Self { store, prefs }, rx))
+        Some((Self { store }, rx))
     }
 
     fn start_listener(tx: UnboundedSender<Vec<InterfaceEvent>>) {
@@ -318,8 +316,13 @@ impl PrimaryInterfaceMonitor {
         get_network_service(&self.store, service_id, family)
     }
 
+    /// Return the network services of the current network set (location), in service order.
     fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
-        SCNetworkSet::new(&self.prefs)
+        // `SCPreferences` caches the preferences when they are first read. A long-lived instance
+        // would keep returning the services of the location that was active back then, even
+        // after the user has switched to another one. So the preferences are re-read every time.
+        let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
+        SCNetworkSet::new(&prefs)
             .service_order()
             .iter()
             .filter_map(|service_id| self.get_network_service(&service_id.to_string(), family))
