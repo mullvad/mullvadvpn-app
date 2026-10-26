@@ -78,8 +78,11 @@ async fn fix_ipv6() -> Result<()> {
     let gateway = "fd00::2"; // slirp2netns gateway
     let _dns = "fd00::3"; // slirp2netns dns
 
-    run_ip_cmd(["-6", "addr", "add", addr, "dev", tap]).await?;
-    run_ip_cmd(["-6", "route", "add", "default", "via", gateway, "dev", tap]).await?;
+    run_ip_cmd(["-6", "addr", "replace", addr, "dev", tap]).await?;
+    run_ip_cmd([
+        "-6", "route", "replace", "default", "via", gateway, "dev", tap,
+    ])
+    .await?;
     Ok(())
 }
 
