@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-19 06:47\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -742,6 +742,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "%(name)s yöntemiyle API'ye erişilemedi."
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "Uygulama %(domainFronting)s üzerinden Mullvad API sunucusu ile iletişim kuruyor."
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "Uygulama için yerel SOCKS5 sunucunuzun trafiğinizi yönlendireceği uzak sunucu ayrıntıları gerekir."
@@ -749,6 +757,12 @@ msgstr "Uygulama için yerel SOCKS5 sunucunuzun trafiğinizi yönlendireceği uz
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "Kullanılan CDN, Datapacket’in CDN77 hizmetidir. CDN yalnızca proxy üzerinden iletilen TLS trafiğini görebilir ancak trafiğin içeriğini göremez."
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -761,6 +775,12 @@ msgstr "Yerel SOCKS5 sunucunuz TCP portu noktasını dinliyor."
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "Bu, API'nin sansürlendiği ancak Mullvad'ın köprü sunucularının sansürlenmediği durumlarda kullanışlı olabilir."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "Bu özellik, doğrudan erişimin ve diğer yöntemlerin sansür nedeniyle engellendiği durumlarda kullanışlı olabilir."
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -789,6 +809,14 @@ msgstr "\"Şifreli DNS proxy'si\" yönteminde, uygulama bir proxy adresi üzerin
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Uygulama, \"Mullvad köprüleri\" yöntemiyle Mullvad köprü sunucusu üzerinden Mullvad API sunucusuyla Shadowsocks tarafından gizlenen trafiği göndererek iletişim kurar."
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "Uygulama, %(domainFronting)s erişim yöntemi sayesinde bir CDN üzerinden Mullvad API’sine ulaşır. Uygulama trafiği bu sırada yoğun internet trafiğine karıştığından trafiğin sansürlenmesi zorlaşır."
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2080,8 +2108,8 @@ msgstr "Her zaman"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "Bir konumu listeye eklemek için \"+\" simgesine tıklayın"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "Bir konumu listeye eklemek için o konumdaki “…” simgesine tıklayın"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3064,6 +3092,9 @@ msgstr "Hesabınıza 90 gün eklendi."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Hesap kurtarma mümkün olmayacaktır.</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>Her zaman</b>\\nÇoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir."
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Dikkat: DNS ayarları hemen geçerli olmayabilir.</b>"
 
@@ -3079,6 +3110,9 @@ msgstr "<b>Dikkat:</b> Uygulama otomatik olarak kapanacağı için yeni bir simg
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNS içerik engelleyiciler</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>Asla</b>\\nÇoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir."
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b>"
 
@@ -3093,6 +3127,9 @@ msgstr "<b>Bu durum anonimliğinizi etkileyebilir.</b> Cihazınız başkaları t
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Uyarı:</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>Gerektiğinde</b>\\nBazı konumlarımız/sunucularımız, uygulamadaki her özelliği desteklemez. Seçtiğiniz konum/sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa uygulama, uyumlu bir sunucu üzerinden otomatik olarak çoklu geçiş yapar."
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz.</b>"
@@ -3142,9 +3179,6 @@ msgstr "Yöntem ekleniyor..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "Android 16'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN uygulamalarının artık internete erişemediği bir duruma geçebilir."
 
-msgid "Agree and continue"
-msgstr "Kabul et ve devam et"
-
 msgid "All"
 msgstr "Tümü"
 
@@ -3159,6 +3193,9 @@ msgstr "Her zaman açık VPN %s uygulamasına atandı"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Her zaman açık VPN diğer VPN'e atandı"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "Seçtiğiniz konuma uygun ayarlarla eşleşen ek bir sunucu kullanılır"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "Şu anda, bağlantının çalışmasını sağlamak için gerektiğinde bir giriş sunucusu otomatik olarak seçiliyor. Giriş sunucusunu manuel olarak seçmek için lütfen çoklu geçiş modunu “Her zaman” olarak değiştirin."
@@ -3448,17 +3485,11 @@ msgstr "Simge ve başlık"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "Uygulama kapatıldıktan sonra simge ve başlık hâlâ değişmediyse lütfen cihazı yeniden başlatmayı deneyin."
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez."
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "Bu adımlar işe yaramazsa, lütfen aşağıdaki düğmeyi kullanarak destek ekibine bir e-posta gönderin. Anonimleştirilmiş kayıtlar otomatik olarak eklenerek gönderilir."
 
 msgid "If you have any issues"
 msgstr "Sorun yaşarsanız"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "Mevcut konumunuz sansürü aşma yöntemi, filtreler ve/veya DAITA gibi tercihlerinizi desteklemiyorsa bu konuma uyumlu bir sunucu üzerinden bağlanmak için çoklu geçiş otomatik olarak kullanılır. Bu durum %1$s simgesiyle gösterilir."
 
 msgid "Import new overrides by"
 msgstr "Şuradaki yeni geçersiz kılmaları içe aktar"
@@ -3546,6 +3577,9 @@ msgstr "Çoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkı�
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "Çoklu geçiş artık üç moda ayrıldı: Gerektiğinde, Her zaman ve Asla.\\nBu sayede bağlantı tercihlerinizi daha esnek bir şekilde ayarlamanızı sağlar."
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır. Çoklu geçişte seçebileceğiniz üç farklı mod vardır:\\nGerektiğinde, Her zaman ve Asla."
 
 msgid "Multihop when needed"
 msgstr "Gerektiğinde çoklu geçiş"
@@ -3669,9 +3703,6 @@ msgstr "Port aralık dışında"
 
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Cihazın, reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adları veya web siteleriyle iletişim kurmasını engeller."
-
-msgid "Privacy"
-msgstr "Gizlilik"
 
 msgid "Privacy policy"
 msgstr "Gizlilik politikası"
@@ -3826,11 +3857,14 @@ msgstr "Uygulama, Mullvad API'ye erişemediği için hesap oluşturulamadı."
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "Uygulama, Mullvad API'ye erişemediği için giriş yapılamıyor."
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "Uygulama yalnızca seçtiğiniz konuma bağlanamadığında çoklu geçiş yapar. Bu durum, o konumdaki sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa ortaya çıkabilir. Böyle bir durumda uygulama, trafiğinizi önce bu özellikleri destekleyen bir sunucu üzerinden, ardından seçtiğiniz konuma otomatik olarak yönlendirir."
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu etkinleşmez."
 
 msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
-msgstr "Çoklu geçişteki “Her zaman” modu artık giriş sunucusu seçimi için \"Otomatik\" konum seçeneğini içeriyor."
+msgstr "Çoklu geçişteki \"Her zaman\" modu artık giriş sunucusu seçimi için \"Otomatik\" konum seçeneğini içeriyor."
 
 msgid "The selected %s port is not supported, please change it under"
 msgstr "Seçilen %s portu desteklenmiyor, lütfen portu değiştirin:"
@@ -3840,6 +3874,9 @@ msgstr "Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı ola
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
+
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "Bu, uyumsuz ayarlar nedeniyle bağlantınızın engellenmesini önler."
 
 msgid "This field is required"
 msgstr "Bu alan gereklidir"
@@ -3854,7 +3891,10 @@ msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "Bu, sansür veya ağ sorunlarından kaynaklanıyor olabilir. Lütfen şunları deneyin:"
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmas için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır."
+msgstr "Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışması için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır."
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "Bu  %1$s simgesiyle gösterilir."
 
 msgid "Time added"
 msgstr "Süre eklendi"
@@ -3876,9 +3916,6 @@ msgstr "Mullvad VPN hesabınızı silmek için lütfen aşağıya hesap numaran�
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "Mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmasını sağlamak ve bağlantınızın engellenmesini önlemek için uygulama, farklı bir giriş sunucusu üzerinden otomatik olarak çoklu geçiş yapabilir.\\nBu durum %1$s simgesiyle gösterilir."
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
 
 msgid "Toggle VPN"
 msgstr "VPN'i aç/kapat"
@@ -4004,10 +4041,10 @@ msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "Hoş geldiniz, bu cihazın yeni adı artık <b>%s</b>."
 
 msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
-msgstr "Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir."
+msgstr "Çoklu geçiş, \"Her zaman\" veya \"Asla\" olarak ayarlandığında bir DAITA sunucusunu manuel olarak seçmeniz gerekir."
 
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
-msgstr "Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir."
+msgstr "Çoklu geçiş \"Gerektiğinde\" olarak ayarlandığında uygulama, DAITA kullanarak seçtiğiniz konuma bağlandığınızdan emin olmak için ek bir sunucu kullanabilir."
 
 msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
 msgstr "Seçildiğinde uygulama otomatik olarak rastgele bir sunucu seçer ve daha iyi performans için çıkış konumuna daha yakın olanlara öncelik verir."

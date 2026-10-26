@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ที่นี่</string>
     <string name="automatic">อัตโนมัติ</string>
     <string name="automatic_entry_description">เมื่อเลือกรายการนี้ แอปจะสุ่มเลือกเซิร์ฟเวอร์โดยอัตโนมัติ โดยให้ความสำคัญกับเซิร์ฟเวอร์ที่อยู่ใกล้กับตำแหน่งขาออกเพื่อประสิทธิภาพที่ดีขึ้น</string>
+    <string name="automatic_entry_extra_info">มีการใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้ตรงกับการตั้งค่าของคุณสำหรับตำแหน่งที่เลือก</string>
     <string name="automatic_entry_info_first_paragraph">เลือกตำแหน่งที่เหมาะสมตามตำแหน่งทางออกของคุณ โดยขึ้นอยู่กับปัจจัยต่างๆ เช่น ระยะทาง ผู้ให้บริการ และภาระของเซิร์ฟเวอร์</string>
     <string name="automatic_entry_warning">ข้อควรระวัง: การดำเนินการนี้จะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ที่ถูกใช้เป็นจุดทางเข้า</string>
     <string name="automatic_with_country">อัตโนมัติ (%1$s)</string>
@@ -154,6 +155,7 @@
     <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
     <string name="delete_account_cant_be_undone">การลบบัญชีไม่สามารถย้อนกลับได้</string>
+    <string name="delete_account_complete_subtitle">ขอบคุณที่เป็นส่วนหนึ่งของชุมชนเรา\nความเป็นส่วนตัวคือสิทธิของทุกคน!</string>
     <string name="delete_account_confirm_first_item"><b>การดำเนินการนี้ไม่สามารถย้อนกลับได้</b></string>
     <string name="delete_account_confirm_second_item"><b>คุณจะสูญเสียการเข้าถึงบัญชีนี้บนทุกอุปกรณ์</b></string>
     <string name="delete_account_confirm_third_item"><b>ไม่สามารถกู้คืนบัญชีได้</b></string>
@@ -343,7 +345,11 @@
     <string name="mtu_x">ค่า: %1$s</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
-    <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>เมื่อจำเป็น</b>\nไม่ใช่ทุกตำแหน่งหรือเซิร์ฟเวอร์ของเราที่จะรองรับทุกฟีเจอร์ในแอป หากตำแหน่ง/เซิร์ฟเวอร์ที่คุณเลือกไม่รองรับฟีเจอร์ที่คุณเปิดใช้งานไว้ แอปจะเชื่อมต่อแบบมัลติฮอปผ่านเซิร์ฟเวอร์ที่รองรับโดยอัตโนมัติ</string>
+    <string name="multihop_description_slide_2_second_paragraph">นี่จะช่วยให้มั่นใจได้ว่าการเชื่อมต่อของคุณจะไม่ถูกบล็อก เนื่องจากการตั้งค่าที่ไม่เข้ากัน</string>
+    <string name="multihop_description_slide_2_third_paragraph">รายการนี้จะแสดงด้วยสัญลักษณ์ %1$s</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>ตลอดเวลา</b>\nมัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>ไม่เลย</b>\nมัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ</string>
     <string name="multihop_entry_disabled_description">ปัจจุบันเซิร์ฟเวอร์ขาเข้าจะถูกเลือกโดยอัตโนมัติเมื่อจำเป็น เพื่อให้แน่ใจว่าการเชื่อมต่อสามารถใช้งานได้ หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น \"ตลอดเวลา”</string>
     <string name="multihop_is_disabled">ปิดใช้งาน Multihop แล้ว</string>
     <string name="multihop_is_enabled">เปิดใช้งาน Multihop แล้ว</string>
@@ -353,7 +359,7 @@
     <string name="multihop_migration_in_app_message_title">ย้ายข้อมูลการตั้งค่าแล้ว</string>
     <string name="multihop_mode">โหมดมัลติฮอป</string>
     <string name="multihop_when_needed">มัลติฮอป เมื่อจำเป็น</string>
-    <string name="multihop_when_needed_info_first_paragraph">หากตำแหน่งปัจจุบันของคุณไม่รองรับการตั้งค่าที่คุณต้องการ เช่น วิธีการป้องกันการเซ็นเซอร์ ตัวกรอง และ/หรือ DAITA ระบบจะใช้มัลติฮอปโดยอัตโนมัติเพื่อเชื่อมต่อไปยังตำแหน่งดังกล่าวผ่านเซิร์ฟเวอร์ที่รองรับ ซึ่งจะแสดงด้วยสัญลักษณ์ %1$s</string>
+    <string name="multihop_when_needed_info_first_paragraph">แอปจะทำการมัลติฮอปก็ต่อเมื่อไม่สามารถเชื่อมต่อไปยังตำแหน่งที่ตั้งที่คุณเลือกได้ ซึ่งอาจเกิดขึ้นหากเซิร์ฟเวอร์ในตำแหน่งที่ตั้งนั้นไม่รองรับฟีเจอร์ที่คุณเปิดใช้งาน ในกรณีนี้ แอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณผ่านเซิร์ฟเวอร์ที่รองรับฟีเจอร์เหล่านั้นโดยอัตโนมัติก่อนที่จะไปถึงตำแหน่งที่ตั้งที่คุณเลือก</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="navigate">นำทาง</string>
@@ -363,13 +369,15 @@
     <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า <b>%1$s</b> แล้ว</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="new_list">รายการใหม่</string>
+    <string name="new_multihop_modes_always_description">มัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก</string>
+    <string name="new_multihop_modes_first_paragraph">ขณะนี้ มัลติฮอปถูกแบ่งออกเป็น 3 โหมด: เมื่อจำเป็น ตลอดเวลา และไม่เลย\nสิ่งนี้จะช่วยให้คุณมีความยืดหยุ่นในการตั้งค่าการเชื่อมต่อของคุณมากขึ้น</string>
+    <string name="new_multihop_modes_never_description">มัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ</string>
     <string name="new_multihop_modes_off_to_always">การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “ตลอดเวลา”</string>
     <string name="new_multihop_modes_off_to_never">การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “ไม่เลย”</string>
     <string name="new_multihop_modes_off_to_when_needed">การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “เมื่อจำเป็น”</string>
     <string name="new_multihop_modes_on_to_always">การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “เปิด” เป็น “ตลอดเวลา”</string>
     <string name="new_multihop_modes_title">โหมดมัลติฮอปใหม่</string>
-    <string name="new_multihop_nodes_always_description">มัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก</string>
-    <string name="new_multihop_nodes_never_description">มัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ</string>
+    <string name="new_multihop_modes_when_needed_description">แอปอาจทำมัลติฮอปอัตโนมัติผ่านเซิร์ฟเวอร์ขาเข้าอื่น เพื่อให้แน่ใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่คุณเลือกได้ และเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อของคุณ\nนี่จะแสดงด้วยสัญลักษณ์ %1$s</string>
     <string name="next">ถัดไป</string>
     <string name="next_with_icon">ถัดไป %1$s</string>
     <string name="no_custom_lists_available">ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน</string>
@@ -453,7 +461,7 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="separate_filters_title">แยกตัวกรอง</string>
-    <string name="separate_filters_title_first_paragraph">ชสามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งขาเข้าและขาออกได้แล้วในขณะนี้</string>
+    <string name="separate_filters_title_first_paragraph">สามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งขาเข้าและขาออกได้แล้วในขณะนี้</string>
     <string name="separate_filters_title_second_paragraph">ตัวกรองปัจจุบันของคุณถูกนำไปใช้กับทั้งตำแหน่งขาเข้าและขาออก</string>
     <string name="server">เซิร์ฟเวอร์</string>
     <string name="server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>

@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">her</string>
     <string name="automatic">Automatisk</string>
     <string name="automatic_entry_description">Når dette er valgt, velger appen automatisk en tilfeldig server, og den prioriterer de nærmest utgangsplasseringen for å oppnå bedre ytelse.</string>
+    <string name="automatic_entry_extra_info">Det brukes en ekstra server for å tilpasse innstillingene dine til den valgte plasseringen</string>
     <string name="automatic_entry_info_first_paragraph">Velger en passende plassering ut fra hvor du befinner deg, basert på en rekke ulike faktorer som avstand, leverandør og serverbelastning.</string>
     <string name="automatic_entry_warning">Obs: Dette vil se bort fra filterinnstillingene til serveren som brukes som inngangspunkt.</string>
     <string name="automatic_with_country">Automatisk (%1$s)</string>
@@ -154,6 +155,7 @@
     <string name="delete">Slett</string>
     <string name="delete_account">Slett konto</string>
     <string name="delete_account_cant_be_undone">Sletting av kontoen kan ikke angres.</string>
+    <string name="delete_account_complete_subtitle">Takk for at du er en del av fellesskapet.\nPersonvern er for folket!</string>
     <string name="delete_account_confirm_first_item"><b>Denne handlingen kan ikke angres.</b></string>
     <string name="delete_account_confirm_second_item"><b>Du vil miste tilgang til denne kontoen på alle enheter.</b></string>
     <string name="delete_account_confirm_third_item"><b>Kontogjenoppretting vil ikke være mulig.</b></string>
@@ -343,7 +345,11 @@
     <string name="mtu_x">Verdi: %1$s</string>
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="multihop">Multihopp</string>
-    <string name="multihop_description">Multihopp dirigerer trafikken din inn på én WireGuard-server og ut på en annen, noe som gjør det vanskeligere å spore den. Dette resulterer i økt ventetid, men øker anonymiteten på nettet.</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Når nødvendig</b>\nIkke alle våre plasseringer/servere støtter alle funksjonene i appen. Hvis den plasseringen/serveren ikke støtter funksjonene du har aktivert, vil appen automatisk omdirigere forbindelsen via en kompatibel server.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Dette sørger for at tilkoblingen ikke blir blokkert på grunn av inkompatible innstillinger.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Dette vil bli angitt med symbolet %1$s.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Alltid</b>\nMultihopp er aktivert. Tilkoblingen din dirigeres via en inngangsserver før den går ut via den valgte plasseringen.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Aldri</b>\nMultihopp er deaktivert. Den valgte plasseringen må støtte alle aktive innstillinger for at det skal være mulig å opprette en tilkobling.</string>
     <string name="multihop_entry_disabled_description">En inngangsserver velges for øyeblikket automatisk når det er nødvendig for å sikre en fungerende tilkobling. For å velge en inngangsserver manuelt må du sette multihopp-modusen til «Alltid».</string>
     <string name="multihop_is_disabled">Multihopp er deaktivert</string>
     <string name="multihop_is_enabled">Multihopp er aktivert</string>
@@ -353,7 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Innstillinger migrert</string>
     <string name="multihop_mode">Multihopp-modus</string>
     <string name="multihop_when_needed">Multihopp når nødvendig</string>
-    <string name="multihop_when_needed_info_first_paragraph">Hvis din nåværende plassering ikke støtter innstillingene, for eksempel sensurmetoder, filtre og/eller DAITA, vil multihopp bli brukt automatisk for å koble deg til den plasseringen via en kompatibel server. Dette vil bli angitt med symbolet %1$s.</string>
+    <string name="multihop_when_needed_info_first_paragraph">Appen vil kun bruke multihopp hvis den ikke klarer å koble seg til det valgte stedet. Dette kan skje hvis serveren på det stedet ikke støtter funksjonene du har aktivert. I så fall vil appen automatisk omdirigere trafikken din via en server som støtter disse funksjonene, før den når det valgte stedet.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navn ble endret til %1$s</string>
     <string name="navigate">Navigér</string>
@@ -363,13 +369,15 @@
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="new_list">Ny liste</string>
+    <string name="new_multihop_modes_always_description">Multihopp er aktivert. Tilkoblingen din dirigeres via en inngangsserver før den går ut via den valgte plasseringen.</string>
+    <string name="new_multihop_modes_first_paragraph">Multihopp er nå delt inn i tre moduser: «Når nødvendig», «Alltid» og «Aldri».\nDette gir deg større fleksibilitet når det gjelder tilkoblingsinnstillingene.</string>
+    <string name="new_multihop_modes_never_description">Multihopp er deaktivert. Den valgte plasseringen må støtte alle aktive innstillinger for at det skal være mulig å opprette en tilkobling.</string>
     <string name="new_multihop_modes_off_to_always">Innstillingen for multihopp ble overført fra «Av» til «Alltid».</string>
     <string name="new_multihop_modes_off_to_never">Innstillingen for multihopp ble overført fra «Av» til «Aldri».</string>
     <string name="new_multihop_modes_off_to_when_needed">Innstillingen for multihopp ble overført fra «Av» til «Når nødvendig».</string>
     <string name="new_multihop_modes_on_to_always">Innstillingen for multihopp ble overført fra «På» til «Alltid».</string>
     <string name="new_multihop_modes_title">Nye multihopp-moduser</string>
-    <string name="new_multihop_nodes_always_description">Multihopp er aktivert. Tilkoblingen din dirigeres via en inngangsserver før den går ut via den valgte plasseringen.</string>
-    <string name="new_multihop_nodes_never_description">Multihopp er deaktivert. Den valgte plasseringen må støtte alle aktive innstillinger for at det skal være mulig å opprette en tilkobling.</string>
+    <string name="new_multihop_modes_when_needed_description">For å sikre at de gjeldende innstillingene dine fungerer med den valgte plasseringen, og for å unngå at tilkoblingen din blokkeres, kan appen automatisk multihoppe via en annen inngangsserver.\nDette vil bli angitt med symbolet %1$s.</string>
     <string name="next">Neste</string>
     <string name="next_with_icon">Neste %1$s</string>
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>

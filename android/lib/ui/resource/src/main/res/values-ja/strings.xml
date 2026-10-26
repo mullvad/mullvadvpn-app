@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">こちらをご覧ください。</string>
     <string name="automatic">自動</string>
     <string name="automatic_entry_description">選択すると、パフォーマンス向上のため、出口ロケーションに近いサーバーが優先的に自動選択されます。</string>
+    <string name="automatic_entry_extra_info">選択したロケーションの設定に合わせるため、追加のサーバーが使用されます</string>
     <string name="automatic_entry_info_first_paragraph">出口の場所を基準に最適な場所を自動選択します。距離、プロバイダー、サーバーの負荷などのさまざまな要因を考慮して決定されます。</string>
     <string name="automatic_entry_warning">注意: これにより、入口に使用されるサーバーのフィルター設定は無視されます。</string>
     <string name="automatic_with_country">自動 (%1$s)</string>
@@ -154,6 +155,7 @@
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除する</string>
     <string name="delete_account_cant_be_undone">アカウントを削除すると元に戻すことはできません。</string>
+    <string name="delete_account_complete_subtitle">ご利用いただきありがとうございました。\nプライバシーをすべての人に！</string>
     <string name="delete_account_confirm_first_item"><b>この操作は取り消すことができません。</b></string>
     <string name="delete_account_confirm_second_item"><b>すべてのデバイスでこのアカウントへのアクセス権が失われます。</b></string>
     <string name="delete_account_confirm_third_item"><b>アカウントの復旧はできません。</b></string>
@@ -343,7 +345,11 @@
     <string name="mtu_x">値: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
-    <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>必要時</b>\nすべてのロケーションやサーバーが、アプリのすべての機能に対応しているわけではありません。選択したロケーションやサーバーが有効にした機能に対応していない場合、アプリは対応するサーバーを経由して自動的にマルチホップ接続を行います。</string>
+    <string name="multihop_description_slide_2_second_paragraph">これにより、互換性のない設定によって接続がブロックされるのを防ぎます。</string>
+    <string name="multihop_description_slide_2_third_paragraph">この状態は%1$sアイコンで示されます。</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>常に有効</b>\nマルチホップが有効になります。通信は入口サーバーを経由し、選択したロケーションから送信されます。</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>無効</b>\nマルチホップが無効になります。接続を確立するには、選択したロケーションが有効になっているすべての設定に対応している必要があります。</string>
     <string name="multihop_entry_disabled_description">安定した接続を確保するため、必要に応じて入口サーバーが自動的に選択されます。入口サーバーを手動で選択するには、マルチホップモードを「常に有効」に切り替えてください。</string>
     <string name="multihop_is_disabled">マルチホップは無効です</string>
     <string name="multihop_is_enabled">マルチホップは有効です</string>
@@ -353,7 +359,7 @@
     <string name="multihop_migration_in_app_message_title">設定が移行されました</string>
     <string name="multihop_mode">マルチホップモード</string>
     <string name="multihop_when_needed">必要時にマルチホップ</string>
-    <string name="multihop_when_needed_info_first_paragraph">現在の場所で検閲回避方法、フィルター、DAITAなどの設定がサポートされていない場合、互換性のあるサーバーを経由してその場所に接続するためにマルチホップが自動的に使用されます。この場合、%1$sマークが表示されます。</string>
+    <string name="multihop_when_needed_info_first_paragraph">アプリは、選択したロケーションに接続できない場合にのみ、マルチホップ接続を行います。これは、選択したロケーションのサーバーが有効にした機能に対応していない場合に発生することがあります。その場合、アプリはそれらの機能に対応するサーバーを経由し、選択したロケーションに通信を自動的にルーティングします。</string>
     <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
     <string name="navigate">移動</string>
@@ -363,13 +369,15 @@
     <string name="new_device_notification_message">ようこそ。このデバイス名は<b>%1$s</b>です。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="new_list">新規リスト</string>
+    <string name="new_multihop_modes_always_description">マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。</string>
+    <string name="new_multihop_modes_first_paragraph">マルチホップが「必要時」「常に有効」「無効」の3つのモードに分かれました。\nこれにより、接続設定をより柔軟に選択できるようになっています。</string>
+    <string name="new_multihop_modes_never_description">マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。</string>
     <string name="new_multihop_modes_off_to_always">マルチホップ設定が「オフ」から「常に有効」に移行されました</string>
     <string name="new_multihop_modes_off_to_never">マルチホップ設定が「オフ」から「無効」に移行されました</string>
     <string name="new_multihop_modes_off_to_when_needed">マルチホップ設定が「オフ」から「必要時」に移行されました</string>
     <string name="new_multihop_modes_on_to_always">マルチホップ設定が「オン」から「常に有効」に移行されました</string>
     <string name="new_multihop_modes_title">新しいマルチホップモード</string>
-    <string name="new_multihop_nodes_always_description">マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。</string>
-    <string name="new_multihop_nodes_never_description">マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。</string>
+    <string name="new_multihop_modes_when_needed_description">現在の設定を選択した場所で正常に機能させ、接続のブロックを防ぐため、アプリが別の入口サーバーを経由して自動的にマルチホップを行う場合があります。\nこの場合、%1$sマークが表示されます。</string>
     <string name="next">次へ</string>
     <string name="next_with_icon">次へ %1$s</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>

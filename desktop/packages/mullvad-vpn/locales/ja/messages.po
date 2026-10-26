@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-10-15 07:52\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -736,6 +736,14 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr "%(name)sの方法ではAPIにアクセスできませんでした。"
 
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
+msgstr "アプリは%(domainFronting)sを経由してMullvad APIサーバーと通信します。"
+
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr "アプリにリモートサーバーの詳細が必要です。これはローカルSOCKS5サーバーがトラフィックを転送する宛先です。"
@@ -743,6 +751,12 @@ msgstr "アプリにリモートサーバーの詳細が必要です。これは
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
 msgstr "アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgstr "使用されるCDNはDatapacketのCDN77です。CDNはプロキシ経由のTLSトラフィックを観測できますが、その内容を確認することはできません。"
 
 msgctxt "api-access-methods-view"
 msgid "The in use API access method will change."
@@ -755,6 +769,12 @@ msgstr "ローカルSOCKS5サーバーがリッスンしているTCPポートで
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
 msgstr "これは、APIが検閲されていてもMullvadのブリッジサーバーが検閲されていない場合に便利な場合があります。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+msgctxt "api-access-methods-view"
+msgid "This can be useful when direct access and other methods are blocked by censorship."
+msgstr "直接アクセスや他の接続方式が検閲によってブロックされている場合に役立ちます。"
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful when you are not affected by censorship."
@@ -783,6 +803,14 @@ msgstr "[暗号化DNSプロキシ] 方式を使用すると、アプリはプロ
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "「Mullvadブリッジ」方法の場合、アプリはMullvadブリッジサーバーを経由してMullvad APIサーバーと通信します。この通信では、Shadowsocksによって難読化されたトラフィックが送信されます。"
+
+#. Part of a description of the 'Domain fronting' API access method
+#. which the app uses to reach Mullvad's API servers
+#. Available placeholders:
+#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
+msgctxt "api-access-methods-view"
+msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
+msgstr "「%(domainFronting)s」アクセス方式では、アプリはCDNを経由してMullvad APIにアクセスします。これにより、通信が他の大量のインターネットトラフィックに紛れるため、検閲が難しくなります。"
 
 #. Title of the app info view.
 msgctxt "app-info-view"
@@ -2074,8 +2102,8 @@ msgstr "常に有効"
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "Click “+“ on a location to add it to a list"
-msgstr "場所の「+」をクリックして、リストに追加してください"
+msgid "Click “...“ on a location to add it to a list"
+msgstr "ロケーションの「...」をクリックすると、リストに追加できます"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -3058,6 +3086,9 @@ msgstr "アカウントに90日分が追加されました。"
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>アカウントの復旧はできません。</b>"
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "<b>常に有効</b>\\nマルチホップが有効になります。通信は入口サーバーを経由し、選択したロケーションから送信されます。"
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>注意：DNS設定はすぐに反映されない場合があります。</b>"
 
@@ -3073,6 +3104,9 @@ msgstr "<b>注意：</b>新しいアイコンとタイトルを選択すると�
 msgid "<b>DNS content blockers</b>"
 msgstr "<b>DNSコンテンツブロッカー</b>"
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "<b>無効</b>\\nマルチホップが無効になります。接続を確立するには、選択したロケーションが有効になっているすべての設定に対応している必要があります。"
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b>"
 
@@ -3087,6 +3121,9 @@ msgstr "<b>匿名性が損なわれる可能性があります。</b> 公共の�
 
 msgid "<b>Warning:</b>"
 msgstr "<b>警告：</b>"
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "<b>必要時</b>\\nすべてのロケーションやサーバーが、アプリのすべての機能に対応しているわけではありません。選択したロケーションやサーバーが有効にした機能に対応していない場合、アプリは対応するサーバーを経由して自動的にマルチホップ接続を行います。"
 
 msgid "<b>You will lose access to this account on all devices.</b>"
 msgstr "<b>すべてのデバイスでこのアカウントへのアクセス権が失われます。</b>"
@@ -3136,9 +3173,6 @@ msgstr "方法を追加しています..."
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr "Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。"
 
-msgid "Agree and continue"
-msgstr "同意して続行"
-
 msgid "All"
 msgstr "すべて"
 
@@ -3153,6 +3187,9 @@ msgstr "Always-on VPNは%sに割り当てられました"
 
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Always-on VPNは他のVPNに割り当てられました"
+
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "選択したロケーションの設定に合わせるため、追加のサーバーが使用されます"
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "安定した接続を確保するため、必要に応じて入口サーバーが自動的に選択されます。入口サーバーを手動で選択するには、マルチホップモードを「常に有効」に切り替えてください。"
@@ -3442,17 +3479,11 @@ msgstr "アイコンとタイトル"
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr "アプリを終了してもアイコンとタイトルが変更されない場合は、デバイスを再起動してみてください。"
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "これらの手順で問題が解決しない場合には、以下のボタンを使ってサポートまでメールをお送りください。匿名化されたログが自動で添付されます。"
 
 msgid "If you have any issues"
 msgstr "問題が発生した場合"
-
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr "現在の場所で検閲回避方法、フィルター、DAITAなどの設定がサポートされていない場合、互換性のあるサーバーを経由してその場所に接続するためにマルチホップが自動的に使用されます。この場合、%1$sマークが表示されます。"
 
 msgid "Import new overrides by"
 msgstr "新しいオーバーライドのインポート"
@@ -3540,6 +3571,9 @@ msgstr "マルチホップは有効です。接続は入口サーバーを経由
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "マルチホップが「必要時」「常に有効」「無効」の3つのモードに分かれました。\\nこれにより、接続設定をより柔軟に選択できるようになっています。"
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "マルチホップは、通信を1つのWireGuardサーバー経由で別のサーバーから送信することで、追跡を困難にします。これにより、遅延は増加しますが、オンラインでの匿名性が高まります。マルチホップには、次の3つのモードがあります。\\n「必要時」「常に有効」「無効」"
 
 msgid "Multihop when needed"
 msgstr "必要時にマルチホップ"
@@ -3663,9 +3697,6 @@ msgstr "ポートが範囲外です"
 
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "広告、マルウェア、トラッカーなどを配信する特定のドメインやウェブサイトへの接続を防ぎます。"
-
-msgid "Privacy"
-msgstr "プライバシー"
 
 msgid "Privacy policy"
 msgstr "プライバシーポリシー"
@@ -3820,6 +3851,9 @@ msgstr "アプリがMullvad APIに接続できず、アカウントを作成で�
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr "アプリがMullvad APIに接続できず、ログインできませんでした。"
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr "アプリは、選択したロケーションに接続できない場合にのみ、マルチホップ接続を行います。これは、選択したロケーションのサーバーが有効にした機能に対応していない場合に発生することがあります。その場合、アプリはそれらの機能に対応するサーバーを経由し、選択したロケーションに通信を自動的にルーティングします。"
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。"
 
@@ -3835,6 +3869,9 @@ msgstr "これらの方式は、Mullvadへの接続がブロックされてい�
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "これにより、互換性のない設定によって接続がブロックされるのを防ぎます。"
+
 msgid "This field is required"
 msgstr "このフィールドは必須です"
 
@@ -3849,6 +3886,9 @@ msgstr "検閲やネットワークの問題が原因である可能性があり
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
 msgstr "このモードでは、現在選択しているサーバーと設定が正常に動作するよう、必要に応じてアプリが自動的に別のサーバーを経由してマルチホップ接続を行います。"
+
+msgid "This will be indicated by the %1$s symbol."
+msgstr "この状態は%1$sアイコンで示されます。"
 
 msgid "Time added"
 msgstr "時間が追加されました"
@@ -3870,9 +3910,6 @@ msgstr "Mullvad VPNアカウントを削除するには、以下にアカウン�
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr "現在の設定を選択した場所で正常に機能させ、接続のブロックを防ぐため、アプリが別の入口サーバーを経由して自動的にマルチホップを行う場合があります。\\nこの場合、%1$sマークが表示されます。"
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
-msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。"
 
 msgid "Toggle VPN"
 msgstr "VPNの切り替え"

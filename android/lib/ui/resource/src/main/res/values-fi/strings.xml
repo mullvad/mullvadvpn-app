@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">täältä</string>
     <string name="automatic">Automaattinen</string>
     <string name="automatic_entry_description">Kun tämä valitaan, sovellus valitsee automaattisesti satunnaisen palvelimen priorisoiden poistumissijaintia lähimpänä olevat palvelimet suorituskyvyn parantamiseksi.</string>
+    <string name="automatic_entry_extra_info">Lisäpalvelinta käytetään sovittamaan asetuksesi valitsemaasi sijaintiin</string>
     <string name="automatic_entry_info_first_paragraph">Valitsee sopivan sijainnin poistumissijaintisi perusteella. Tämä perustuu useisiin eri tekijöihin, kuten etäisyyteen, palveluntarjoajaan ja palvelimen kuormitukseen.</string>
     <string name="automatic_entry_warning">Huomio: tämä ohittaa suodatinasetukset sisääntuloreittinä käytettävän tulopalvelimen osalta.</string>
     <string name="automatic_with_country">Automaattinen (%1$s)</string>
@@ -154,6 +155,7 @@
     <string name="delete">Poista</string>
     <string name="delete_account">Poista tili</string>
     <string name="delete_account_cant_be_undone">Tilisi poistamista ei voi kumota.</string>
+    <string name="delete_account_complete_subtitle">Kiitos, kun olit osa yhteisöämme.\nYksityisyys on ihmisiä varten!</string>
     <string name="delete_account_confirm_first_item"><b>Tätä toimintoa ei voi kumota.</b></string>
     <string name="delete_account_confirm_second_item"><b>Menetät pääsyn tälle tilille kaikilla laitteilla.</b></string>
     <string name="delete_account_confirm_third_item"><b>Tilin palauttaminen ei ole mahdollista.</b></string>
@@ -343,7 +345,11 @@
     <string name="mtu_x">Arvo: %1$s</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
-    <string name="multihop_description">Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa.</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Tarvittaessa</b>\nKaikki sijaintimme ja palvelimemme eivät tue kaikkia sovelluksen ominaisuuksia. Jos valitsemasi sijainti tai palvelin ei tue ominaisuuksia, jotka olet ottanut käyttöön, sovellus käyttää automaattisesti multihopia yhteensopivan palvelimen kautta.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Tämä varmistaa, ettei yhteyttäsi estetä yhteensopimattomien asetusten takia.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Tämä ilmaistaan symbolilla %1$s.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Aina</b>\nMultihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Ei koskaan</b>\nMultihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden.</string>
     <string name="multihop_entry_disabled_description">Toimivan yhteyden varmistamiseksi tulopalvelin valitaan tällä hetkellä automaattisesti ja tarvittaessa. Jos haluat valita tulopalvelimen manuaalisesti, vaihda multihop-tilaksi \"aina\".</string>
     <string name="multihop_is_disabled">Multihop ei ole käytössä</string>
     <string name="multihop_is_enabled">Multihop on käytössä</string>
@@ -353,7 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Asetukset siirretty</string>
     <string name="multihop_mode">Multihop-tila</string>
     <string name="multihop_when_needed">Multihop tarvittaessa</string>
-    <string name="multihop_when_needed_info_first_paragraph">Jos nykyinen sijaintisi ei tue asetuksiasi, kuten sensuurin vastaista menetelmää, suodattimia tai DAITAa, multihopia käytetään automaattisesti yhteyden muodostamiseen kyseiseen sijaintiin yhteensopivan palvelimen kautta. Tämä ilmaistaan ​​symbolilla %1$s.</string>
+    <string name="multihop_when_needed_info_first_paragraph">Sovellus käyttää multihopia vain, jos se ei voi muodostaa yhteyttä valitsemaasi sijaintiin. Näin voi tapahtua, jos tämän sijainnin palvelin ei tue valitsemiasi ominaisuuksia. Tässä tapauksessa sovellus ohjaa liikenteesi näitä ominaisuuksia tukevan palvelimen kautta ennen kuin se saavuttaa valitsemasi sijainnin.</string>
     <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
     <string name="navigate">Siirry</string>
@@ -363,13 +369,15 @@
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
+    <string name="new_multihop_modes_always_description">Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta.</string>
+    <string name="new_multihop_modes_first_paragraph">Multihop on nyt jaettu kolmeen tilaan: tarvittaessa, aina ja ei koskaan.\nTämä tarjoaa enemmän joustavuutta yhteysasetuksiisi.</string>
+    <string name="new_multihop_modes_never_description">Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden.</string>
     <string name="new_multihop_modes_off_to_always">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"aina\"-tilaan</string>
     <string name="new_multihop_modes_off_to_never">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"ei koskaan\" -tilaan</string>
     <string name="new_multihop_modes_off_to_when_needed">Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"tarvittaessa\"-tilaan</string>
     <string name="new_multihop_modes_on_to_always">Multihop-asetuksesi siirrettiin \"päällä\" -tilasta \"aina\"-tilaan</string>
     <string name="new_multihop_modes_title">Uudet multihop-tilat</string>
-    <string name="new_multihop_nodes_always_description">Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta.</string>
-    <string name="new_multihop_nodes_never_description">Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden.</string>
+    <string name="new_multihop_modes_when_needed_description">Jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa eikä yhteyttä estettäisi, sovellus saattaa käyttää multihopia automaattisesti eri tulopalvelimen kautta.\nTämä ilmaistaan ​​symbolilla %1$s.</string>
     <string name="next">Seuraava</string>
     <string name="next_with_icon">Seuraava %1$s</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>

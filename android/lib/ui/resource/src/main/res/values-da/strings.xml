@@ -69,6 +69,7 @@
     <string name="auto_connect_carousel_third_slide_top_text_website_link">her</string>
     <string name="automatic">Automatisk</string>
     <string name="automatic_entry_description">Når det er valgt, vælger appen automatisk en tilfældig server og prioriterer dem, der er tættere på udgangsplaceringen, for bedre ydeevne.</string>
+    <string name="automatic_entry_extra_info">En ekstra server bruges til at matche dine indstillinger for din valgte placering</string>
     <string name="automatic_entry_info_first_paragraph">Vælger en egnet placering baseret på din udgangsplacering. Dette er baseret på flere forskellige faktorer såsom afstand, udbyder og serverbelastning.</string>
     <string name="automatic_entry_warning">Bemærk: Dette vil tilsidesætte filterindstillinger for den server, der bruges som et indgangspunkt.</string>
     <string name="automatic_with_country">Automatisk (%1$s)</string>
@@ -154,6 +155,7 @@
     <string name="delete">Slet</string>
     <string name="delete_account">Slet konto</string>
     <string name="delete_account_cant_be_undone">Sletning af din konto kan ikke fortrydes.</string>
+    <string name="delete_account_complete_subtitle">Tak, fordi du er en del af vores fællesskab.\nFor et frit internet!</string>
     <string name="delete_account_confirm_first_item"><b>Denne handling kan ikke fortrydes.</b></string>
     <string name="delete_account_confirm_second_item"><b>Du vil miste adgangen til denne konto på alle enheder.</b></string>
     <string name="delete_account_confirm_third_item"><b>Kontogendannelse er ikke mulig.</b></string>
@@ -240,7 +242,7 @@
     <string name="error_state">KUNNE IKKE OPRETTE FORBINDELSE</string>
     <string name="exclude_applications">Ekskluderede applikationer</string>
     <string name="exit">Udgang</string>
-    <string name="exit_filter">Afslutningsfilter</string>
+    <string name="exit_filter">Udgangsfilter</string>
     <string name="expand">Udvid</string>
     <string name="external_link">Eksternt link</string>
     <string name="failed_to_block_internet">Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport.</string>
@@ -343,7 +345,11 @@
     <string name="mtu_x">Værdi: %1$s</string>
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="multihop">Multihop</string>
-    <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
+    <string name="multihop_description_slide_2_first_paragraph"><b>Efter behov</b>\nIkke alle vores placeringer/servere understøtter alle funktioner i appen. Hvis din valgte placering/server ikke understøtter de funktioner, du har aktiveret, vil appen automatisk multihoppe via en kompatibel server.</string>
+    <string name="multihop_description_slide_2_second_paragraph">Dette sikrer, at din forbindelse ikke blokeres på grund af inkompatible indstillinger.</string>
+    <string name="multihop_description_slide_2_third_paragraph">Dette vil blive angivet med %1$s-symbolet.</string>
+    <string name="multihop_description_slide_3_first_paragraph"><b>Altid</b>\nMultihop er aktiveret. Din forbindelse ledes gennem en indgangsserver, før den ledes ud via den valgte placering.</string>
+    <string name="multihop_description_slide_4_first_paragraph"><b>Aldrig</b>\nMultihop er deaktiveret. Din valgte placering skal understøtte alle aktive indstillinger for at kunne oprette en forbindelse.</string>
     <string name="multihop_entry_disabled_description">En indgangsserver bliver i øjeblikket valgt automatisk, når det er nødvendigt at sikre en fungerende forbindelse. For at vælge en indgangsserver manuelt skal du sætte multihop-tilstanden til \"Altid\".</string>
     <string name="multihop_is_disabled">Multihop er deaktiveret</string>
     <string name="multihop_is_enabled">Multihop er aktiveret</string>
@@ -353,7 +359,7 @@
     <string name="multihop_migration_in_app_message_title">Indstillingerne er migreret</string>
     <string name="multihop_mode">Multihop-tilstand</string>
     <string name="multihop_when_needed">Multihop efter behov</string>
-    <string name="multihop_when_needed_info_first_paragraph">Hvis din nuværende placering ikke understøtter dine præferencer, såsom anti-censurmetode, filtre og/eller DAITA, vil multihop automatisk blive brugt til at oprette forbindelse til den pågældende placering via en kompatibel server. Dette vil blive angivet med %1$s-symbolet.</string>
+    <string name="multihop_when_needed_info_first_paragraph">Appen vil kun anvende multihop, hvis den ikke kan oprette forbindelse til din valgte placering. Dette kan forekomme, hvis serveren på den placering ikke understøtter de funktioner, du har aktiveret. I det tilfælde vil appen automatisk lede din trafik gennem en server, der understøtter disse funktioner, inden den når din valgte placering.</string>
     <string name="name">Navn</string>
     <string name="name_was_changed_to">Navnet blev ændret til %1$s</string>
     <string name="navigate">Naviger</string>
@@ -363,13 +369,15 @@
     <string name="new_device_notification_message">Velkommen, denne enhed har nu fået navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
     <string name="new_list">Ny liste</string>
+    <string name="new_multihop_modes_always_description">Multihop er aktiveret. Din forbindelse ledes gennem en indgangsserver, før den ledes ud via den valgte placering.</string>
+    <string name="new_multihop_modes_first_paragraph">Multihop inddeles nu i tre tilstande: Efter behov, Altid og Aldrig.\nDette giver dig mere fleksibilitet, hvad angår dine forbindelsespræferencer.</string>
+    <string name="new_multihop_modes_never_description">Multihop er deaktiveret. Din valgte placering skal understøtte alle aktive indstillinger for at kunne oprette en forbindelse.</string>
     <string name="new_multihop_modes_off_to_always">Din multihop-indstilling blev migreret fra \"Fra\" til \"Altid\"</string>
     <string name="new_multihop_modes_off_to_never">Din multihop-indstilling blev migreret fra \"Fra\" til \"Aldrig\"</string>
     <string name="new_multihop_modes_off_to_when_needed">Din multihop-indstilling blev migreret fra \"Fra\" til \"Efter behov\"</string>
     <string name="new_multihop_modes_on_to_always">Din multihop-indstilling blev migreret fra \"Til\" til \"Altid\"</string>
     <string name="new_multihop_modes_title">Nye multihop-tilstande</string>
-    <string name="new_multihop_nodes_always_description">Multihop er aktiveret. Din forbindelse ledes gennem en indgangsserver, før den ledes ud via den valgte placering.</string>
-    <string name="new_multihop_nodes_never_description">Multihop er deaktiveret. Din valgte placering skal understøtte alle aktive indstillinger for at kunne oprette en forbindelse.</string>
+    <string name="new_multihop_modes_when_needed_description">For at sikre at dine nuværende indstillinger fungerer med din valgte placering og for at undgå at blokere din forbindelse, vil appen muligvis automatisk overføre data med multihop via en anden indgangsserver.\nDette angives med %1$s-symbolet.</string>
     <string name="next">Næste</string>
     <string name="next_with_icon">Næste %1$s</string>
     <string name="no_custom_lists_available">Ingen brugerdefinerede lister tilgængelige</string>
