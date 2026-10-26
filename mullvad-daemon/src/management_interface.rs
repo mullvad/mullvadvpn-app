@@ -1170,16 +1170,16 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
         tokio::spawn(async move {
             loop {
-                match log_stream.recv().await {
-                    Ok(log) => {
-                        let _ = tx.send(Ok(types::LogMessage { message: log }));
-                    }
+                let message = match log_stream.recv().await {
+                    Ok(log) => Ok(types::LogMessage { message: log }),
                     Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
-                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
+                        Err(Status::internal(format!("{n} lagged messages")))
                     }
-                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                        break;
-                    }
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                };
+
+                if tx.send(message).is_err() {
+                    break;
                 }
             }
         });
