@@ -212,6 +212,9 @@ msgstr ""
 msgid "Lockdown mode"
 msgstr ""
 
+msgid "Magic"
+msgstr ""
+
 msgid "Magic multihop"
 msgstr ""
 
@@ -259,8 +262,6 @@ msgstr ""
 msgid "Port"
 msgstr ""
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr ""
 
@@ -1199,12 +1200,6 @@ msgstr ""
 
 msgctxt "connect-view"
 msgid "Active features"
-msgstr ""
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
 msgstr ""
 
 msgctxt "connect-view"
