@@ -1,11 +1,15 @@
 //! Parsing and address rewriting of IP packets, shared by the custom VPN adapters.
 
+use crate::gotatun::custom_vpn::ipv6;
 use gotatun::packet::{Ip, IpNextProtocol, Ipv4, Ipv4Header, Ipv6, Packet, Udp};
 use std::net::IpAddr;
 use zerocopy::{FromBytes, IntoBytes, big_endian};
 
 /// Offset of the checksum in a TCP header.
 const TCP_CHECKSUM_OFFSET: usize = 16;
+
+/// Offset of the checksum in a ICMPv6 header.
+const ICMPV6_CHECKSUM_OFFSET: usize = 2;
 
 /// The IHL value when no optional fields are present.
 const IPV4_NO_OPTIONAL_FIELDS_IHL: u8 = 5;
@@ -93,8 +97,16 @@ pub fn rewrite_address(
             *address = big_endian::U32::from_bytes(to.octets());
             ipv4.header.header_checksum = ipv4.header.compute_checksum().into();
 
-            let protocol = ipv4.header.next_protocol();
-            update_transport_checksum(&mut ipv4.payload, protocol, &from.octets(), &to.octets());
+            // Only fragment offset 0 contains the L4 header.
+            if ipv4.header.fragment_offset() == 0 {
+                let protocol = ipv4.header.next_protocol();
+                update_transport_checksum(
+                    &mut ipv4.payload,
+                    protocol,
+                    &from.octets(),
+                    &to.octets(),
+                );
+            }
             true
         }
         (6, IpAddr::V6(from), IpAddr::V6(to)) => {
@@ -110,8 +122,16 @@ pub fn rewrite_address(
             }
             *address = big_endian::U128::from_bytes(to.octets());
 
-            let protocol = ipv6.header.next_protocol();
-            update_transport_checksum(&mut ipv6.payload, protocol, &from.octets(), &to.octets());
+            if let Some(transport_info) = ipv6::parse_next_protocol(ipv6)
+                && transport_info.has_l4_header
+            {
+                update_transport_checksum(
+                    &mut ipv6.payload[transport_info.offset..],
+                    transport_info.protocol,
+                    &from.octets(),
+                    &to.octets(),
+                );
+            };
             true
         }
         _ => false,
@@ -131,20 +151,40 @@ fn update_transport_checksum(
             let Ok(udp) = Udp::<[u8]>::ref_from_bytes(transport) else {
                 return;
             };
-            // For UDP, a checksum of 0 means "no checksum"
+            // For UDP, a checksum of 0 means "no checksum" (IPv4 only)
             if udp.header.checksum.get() == 0 {
                 return;
             }
             std::mem::offset_of!(gotatun::packet::UdpHeader, checksum)
         }
-        IpNextProtocol::Tcp => TCP_CHECKSUM_OFFSET,
+        IpNextProtocol::Tcp => {
+            if transport.len() < 20 {
+                return;
+            }
+            TCP_CHECKSUM_OFFSET
+        }
+        IpNextProtocol::Icmpv6 => {
+            // The ICMPv6 checksum includes the IPv6 pseudo-header, so it must be updated
+            if transport.len() < 4 {
+                return;
+            }
+            ICMPV6_CHECKSUM_OFFSET
+        }
         _ => return,
     };
+
     let Some(checksum) = transport.get_mut(offset..offset + 2) else {
         return;
     };
+
     let old_checksum = u16::from_be_bytes([checksum[0], checksum[1]]);
-    let new_checksum = incremental_checksum_update(old_checksum, old, new);
+    let mut new_checksum = incremental_checksum_update(old_checksum, old, new);
+
+    // UDP checksums equal to 0x0000 must be sent as 0xFFFF
+    if protocol == IpNextProtocol::Udp && new_checksum == 0 {
+        new_checksum = 0xFFFF;
+    }
+
     checksum.copy_from_slice(&new_checksum.to_be_bytes());
 }
 
