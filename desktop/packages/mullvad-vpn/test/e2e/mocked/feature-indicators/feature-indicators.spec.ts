@@ -32,7 +32,7 @@ const featureIndicatorWithoutOption: FeatureIndicatorTestOption[] = [
     testId: 'automatic multihop',
     featureIndicator: FeatureIndicator.multihopAuto,
     route: RoutePath.multihopSettings,
-    featureIndicatorLabel: 'Automatic multihop',
+    featureIndicatorLabel: 'Multihop',
   },
   {
     testId: 'split tunneling',
