@@ -28,10 +28,7 @@ class FlowUtilsTest {
     fun `when flow is subscribed, should call launch on start`() = runTest {
         // Arrange
         val mockFunction: () -> Unit = mockk(relaxed = true)
-        val flow =
-            flowOf(1, 2, 3).launchOnStart {
-                mockFunction()
-            }
+        val flow = flowOf(1, 2, 3).launchOnStart { mockFunction() }
 
         // Act
         flow.collect {}
@@ -46,15 +43,10 @@ class FlowUtilsTest {
     fun `launch on start should inherit the coroutine context from the collector`() = runTest {
         // Arrange
         var capturedContext: CoroutineContext? = null
-        val flow =
-            flowOf(1).launchOnStart {
-                capturedContext = currentCoroutineContext()
-            }
+        val flow = flowOf(1).launchOnStart { capturedContext = currentCoroutineContext() }
 
         // Act
-        withContext(CoroutineName("CollectorContext")) {
-            flow.collect {}
-        }
+        withContext(CoroutineName("CollectorContext")) { flow.collect {} }
 
         // Assert
         assertNotNull(capturedContext)
@@ -69,9 +61,7 @@ class FlowUtilsTest {
         // Arrange
         var wasActionCancelled = false
         val flow =
-            flow<Int> {
-                    awaitCancellation()
-                }
+            flow<Int> { awaitCancellation() }
                 .launchOnStart {
                     try {
                         awaitCancellation()
@@ -82,9 +72,7 @@ class FlowUtilsTest {
                 }
 
         // Act
-        val collectionJob = launch {
-            flow.collect {}
-        }
+        val collectionJob = launch { flow.collect {} }
         runCurrent()
         collectionJob.cancelAndJoin()
 
@@ -96,10 +84,7 @@ class FlowUtilsTest {
     fun `launch on start should be executed once per collector`() = runTest {
         // Arrange
         val mockFunction: suspend () -> Unit = mockk(relaxed = true)
-        val flow =
-            flowOf(1).launchOnStart {
-                mockFunction()
-            }
+        val flow = flowOf(1).launchOnStart { mockFunction() }
 
         // Act
         flow.collect {}
