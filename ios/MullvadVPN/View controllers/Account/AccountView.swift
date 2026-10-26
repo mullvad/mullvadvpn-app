@@ -272,10 +272,14 @@ struct AccountView: View {
                 }
             }
             Button("Invalidate Wireguard key".verbatim) {
-                viewModel.invalidateWireguardKey()
+                Task {
+                    await viewModel.invalidateWireguardKey()
+                }
             }
             Button("Use GotaTun".verbatim) {
-                viewModel.toggleGotaTun()
+                Task {
+                    await viewModel.toggleGotaTun()
+                }
             }
         }
     #endif
