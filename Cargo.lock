@@ -3054,6 +3054,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
+name = "macos-utils"
+version = "0.0.0"
+dependencies = [
+ "block2",
+ "neon",
+ "objc2-app-kit",
+ "smappservice-rs",
+]
+
+[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3355,6 +3365,7 @@ dependencies = [
  "rolling-file",
  "serde",
  "serde_json",
+ "smappservice-rs",
  "talpid-core",
  "talpid-dbus",
  "talpid-dns",
@@ -5657,6 +5668,18 @@ name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+
+[[package]]
+name = "smappservice-rs"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52703b97a53101cf5d4580e0737aaa634ce1fdcfc123c16b2a9658e358013488"
+dependencies = [
+ "objc2",
+ "objc2-foundation",
+ "objc2-service-management",
+ "thiserror 2.0.19",
+]
 
 [[package]]
 name = "smawk"
