@@ -12,6 +12,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -19,9 +20,11 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertThrows
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FlowUtilsTest {
@@ -100,5 +103,50 @@ class FlowUtilsTest {
 
         // Assert
         coVerify(exactly = 2) { mockFunction() }
+    }
+
+    @Test
+    fun `launch on start should not block emissions`() = runTest {
+        // Arrange
+        val values = mutableListOf<Int>()
+        val flow = flowOf(1).launchOnStart { awaitCancellation() }
+
+        // Act
+        backgroundScope.launch { flow.collect { values += it } }
+        runCurrent()
+
+        // Assert
+        assertEquals(listOf(1), values)
+    }
+
+    @Test
+    fun `launch on start action should be cancelled when collection stops early`() = runTest {
+        // Arrange
+        var isActionRunning = false
+        val flow =
+            flowOf(1).launchOnStart {
+                isActionRunning = true
+                try {
+                    awaitCancellation()
+                } finally {
+                    isActionRunning = false
+                }
+            }
+
+        // Act
+        flow.first()
+        runCurrent()
+
+        // Assert
+        assertFalse(isActionRunning)
+    }
+
+    @Test
+    fun `launch on start action exception should be thrown from collect`() = runTest {
+        // Arrange
+        val flow = flowOf(1).launchOnStart { error("boom") }
+
+        // Act, Assert
+        assertThrows<IllegalStateException> { flow.collect {} }
     }
 }
