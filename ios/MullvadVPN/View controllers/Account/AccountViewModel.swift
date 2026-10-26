@@ -25,8 +25,8 @@ protocol AccountViewModelProtocol {
     func factoryReset() async
     func finishUnfinishedPurchase() async
     #if NEVER_IN_PRODUCTION
-        func invalidateWireguardKey()
-        func toggleGotaTun()
+        func invalidateWireguardKey() async
+        func toggleGotaTun() async
     #endif
 }
 
@@ -91,7 +91,7 @@ class AccountViewModel: AccountViewModelProtocol {
     }
 
     func factoryReset() async {
-        tunnelManager.updateSettings([.reset])
+        await tunnelManager.updateSettings([.reset])
         UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
         await logout()
         onFinish?(.userLoggedOut)
@@ -102,13 +102,13 @@ class AccountViewModel: AccountViewModelProtocol {
     }
 
     #if NEVER_IN_PRODUCTION
-        func invalidateWireguardKey() {
-            tunnelManager.invalidateWireGuardKey()
+        func invalidateWireguardKey() async {
+            await tunnelManager.invalidateWireGuardKey()
         }
 
-        func toggleGotaTun() {
+        func toggleGotaTun() async {
             PacketTunnelDebugSettings.useGotaTun = !PacketTunnelDebugSettings.useGotaTun
-            tunnelManager.reapplyTunnelConfiguration()
+            await tunnelManager.reapplyTunnelConfiguration()
         }
     #endif
 }

@@ -15,9 +15,9 @@ import NetworkExtension
 import UIKit
 
 #if NEVER_IN_PRODUCTION
-    typealias AppResetManager = AppResetManagerReal
+typealias AppResetManager = AppResetManagerNoOp
 #else
-    typealias AppResetManager = AppResetManagerNoOp
+typealias AppResetManager = AppResetManagerNoOp
 #endif
 
 @MainActor

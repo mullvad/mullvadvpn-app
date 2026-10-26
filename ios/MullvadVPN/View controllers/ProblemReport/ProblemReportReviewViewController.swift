@@ -81,7 +81,7 @@ class ProblemReportReviewViewController: UIViewController {
         // view insets.
         view.layoutIfNeeded()
 
-        loadLogs()
+//        loadLogs()
     }
 
     override func selectAll(_ sender: Any?) {
