@@ -31,19 +31,21 @@ pub fn bump_filehandle_limit() {
         return;
     }
 
-    const INCREASED_FILEHANDLE_LIMIT: u64 = 1024;
+    // setrlimit fails if the soft limit exceeds OPEN_MAX (10240, syslimits.h) or the hard limit
+    const INCREASED_FILEHANDLE_LIMIT: u64 = 4096;
+    let new_limit = INCREASED_FILEHANDLE_LIMIT.min(limits.rlim_max);
     // if file handle limit is already big enough, there's no reason to decrease it.
-    if limits.rlim_cur >= INCREASED_FILEHANDLE_LIMIT {
+    if limits.rlim_cur >= new_limit {
         return;
     }
 
-    limits.rlim_cur = INCREASED_FILEHANDLE_LIMIT;
+    limits.rlim_cur = new_limit;
     // SAFETY: `&limits` is a valid pointer parameter for the getrlimit syscall
     let status = unsafe { libc::setrlimit(libc::RLIMIT_NOFILE, &raw const limits) };
     if status != 0 {
         log::error!(
             "Failed to set file handle limit to {}: {}-{}",
-            INCREASED_FILEHANDLE_LIMIT,
+            new_limit,
             io::Error::from_raw_os_error(status),
             status
         );

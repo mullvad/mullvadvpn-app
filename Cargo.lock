@@ -5909,6 +5909,7 @@ dependencies = [
  "test-log",
  "thiserror 2.0.19",
  "tokio",
+ "tokio-util",
  "tun",
  "typed-builder 0.20.1",
  "wfp",
