@@ -34,8 +34,8 @@
     <string name="anti_censorship_info_first_paragraph">这些方法在您无法连接到 Mullvad 时可能会有所帮助。选择“自动”时，应用将尝试所有方法，直到其中一种方法生效。</string>
     <string name="anti_censorship_info_second_paragraph"><b>请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。</b></string>
     <string name="any">任何</string>
-    <string name="api_access_description">管理和添加访问 Mulvad API 的自定义方法。</string>
-    <string name="api_access_method_info_first_line">该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
+    <string name="api_access_description">管理和添加访问 Mullvad API 的自定义方法。</string>
+    <string name="api_access_method_info_first_line">该应用需要与 Mullvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。</string>
     <string name="api_access_method_info_fourth_line">“当前”方法表示应用用来访问 API 的方法。</string>
     <string name="api_access_method_info_second_line">在某些使用各类审查的网络上，可能无法直接访问 API 服务器。</string>
     <string name="api_access_method_info_third_line">此功能允许您通过代理和类似方法添加访问 API 的自定义方式，从而规避审查。</string>
@@ -185,8 +185,8 @@
     <string name="device_ip_info_second_paragraph">当您了解某个 IP 版本导致的问题时，这会很有用。</string>
     <string name="device_ip_version_title">设备 IP 版本</string>
     <string name="device_name">设备名称</string>
-    <string name="device_name_info_first_paragraph">这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</string>
-    <string name="device_name_info_second_paragraph">一个 Mulvad 帐户最多可以登录 5 台设备。</string>
+    <string name="device_name_info_first_paragraph">这是为设备分配的名称。每台登录 Mullvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</string>
+    <string name="device_name_info_second_paragraph">一个 Mullvad 帐户最多可以登录 5 台设备。</string>
     <string name="device_name_info_third_paragraph">如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。</string>
     <string name="direct">直接</string>
     <string name="direct_only_removed_first_paragraph">DAITA 子设置“仅直连”已被移除并简化，以避免阻止连接。现在，在启用 DAITA 的情况下，您可以通过多跳设置来配置此选项。</string>

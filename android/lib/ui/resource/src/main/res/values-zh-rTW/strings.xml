@@ -35,7 +35,7 @@
     <string name="anti_censorship_info_second_paragraph"><b>請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。</b></string>
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
-    <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
+    <string name="api_access_method_info_first_line">該應用程式需要與 Mullvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
     <string name="api_access_method_info_fourth_line">「目前」方式表示應用程式正用來存取 API 的方式。</string>
     <string name="api_access_method_info_second_line">在某些採用了各類審查制度的網路上，可能無法直接存取 API 伺服器。</string>
     <string name="api_access_method_info_third_line">此功能允許您透過代理伺服器和類似方式來新增存取 API 的自訂方式，從而規避審查。</string>
@@ -185,8 +185,8 @@
     <string name="device_ip_info_second_paragraph">當您知道某個 IP 版本會導致問題時，這項功能可能會有所幫助。</string>
     <string name="device_ip_version_title">裝置 IP 版本</string>
     <string name="device_name">裝置名稱</string>
-    <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
-    <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
+    <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mullvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
+    <string name="device_name_info_second_paragraph">一個 Mullvad 帳戶最多可以登入 5 台裝置。</string>
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
     <string name="direct">直接</string>
     <string name="direct_only_removed_first_paragraph">DAITA 的「僅限直接連線」子設定已移除，並簡化相關設定，以避免連線受阻。啟用 DAITA 後，您可以透過多點跳躍設定決定是否僅使用直接連線。</string>

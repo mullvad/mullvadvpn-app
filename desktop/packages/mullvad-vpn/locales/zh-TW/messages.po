@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-10-26 08:28\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -750,7 +750,7 @@ msgstr "該應用程式需要遠端伺服器詳細資訊，藉此，您的本機
 
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
-msgstr "該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。"
+msgstr "該應用程式需要與 Mullvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。"
 
 #. Part of a description of the 'Domain fronting' API access method
 #. which the app uses to reach Mullvad's API servers
@@ -794,7 +794,7 @@ msgstr "傳輸通訊協定"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
-msgstr "使用「直接」方式，應用程式將直接與 Mulvad API 伺服器通訊，而不經過任何中間代理伺服器。"
+msgstr "使用「直接」方式，應用程式將直接與 Mullvad API 伺服器通訊，而不經過任何中間代理伺服器。"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
@@ -1333,7 +1333,7 @@ msgstr "裝置將從清單中移除並登出。"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。"
+msgstr "這是系統指派給裝置的名稱。每台登入 Mullvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。"
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1358,7 +1358,7 @@ msgstr "檢視並管理所有已登入的裝置。一個帳戶最多能同時登
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "一個 Mulvad 帳戶最多可以登入 5 台裝置。"
+msgstr "一個 Mullvad 帳戶最多可以登入 5 台裝置。"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."

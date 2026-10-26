@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-10-26 08:28\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -682,7 +682,7 @@ msgstr "本地 SOCKS5 服务器"
 
 msgctxt "api-access-methods-view"
 msgid "Manage and add custom methods to access the Mullvad API."
-msgstr "管理和添加访问 Mulvad API 的自定义方法。"
+msgstr "管理和添加访问 Mullvad API 的自定义方法。"
 
 msgctxt "api-access-methods-view"
 msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
@@ -750,7 +750,7 @@ msgstr "该应用需要远程服务器详细信息，您的本地 SOCKS5 服务�
 
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
-msgstr "该应用需要与 Mulvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。"
+msgstr "该应用需要与 Mullvad API 服务器通信，以便您登录、获取服务器列表和执行其他关键操作。"
 
 #. Part of a description of the 'Domain fronting' API access method
 #. which the app uses to reach Mullvad's API servers
@@ -794,7 +794,7 @@ msgstr "传输协议"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
-msgstr "使用“直接”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。"
+msgstr "使用“直接”方法，应用将直接与 Mullvad API 服务器通信，无需任何中间代理。"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
@@ -1333,7 +1333,7 @@ msgstr "该设备将从列表中移除并退出登录。"
 
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
+msgstr "这是为设备分配的名称。每台登录 Mullvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1358,7 +1358,7 @@ msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同
 
 msgctxt "device-management"
 msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "一个 Mulvad 帐户最多可以登录 5 台设备。"
+msgstr "一个 Mullvad 帐户最多可以登录 5 台设备。"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
