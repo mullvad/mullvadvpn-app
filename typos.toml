@@ -45,6 +45,7 @@ superceded = "superceded"  # https://developer.apple.com/documentation/networkex
 # the non-empty form can be automatically fixed by `--bless`.
 atomicaly = "atomically"
 dependy = ""
+mulvad = "mullvad"
 
 [default.extend-identifiers]
 # Allowlist for specific identifiers that should be permitted even though they
