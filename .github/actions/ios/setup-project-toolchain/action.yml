@@ -46,8 +46,34 @@ runs:
       with:
         go-version: 1.21.13
 
+    # Our scripts hard-code `$HOME/cargo/bin` as the expected path for `cargo`,
+    # which is also documented as the default expected path.
+    # Due to https://github.com/actions/runner-images/pull/14990, the path changed
+    # and our Xcode build-scripts fail. This corrects that while waiting for upstream
+    # to resolve it.
+    - name: Install Rustup
+      run: |
+        RUSTUP_VERSION=1.29.2
+        TARGET=aarch64-apple-darwin
+        BASE="https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${TARGET}"
+        curl --proto '=https' --tlsv1.2 -sSfO "$BASE/rustup-init"
+        curl --proto '=https' --tlsv1.2 -sSfO "$BASE/rustup-init.sha256"
+
+        echo "Checking checksum"
+        sha256sum -c rustup-init.sha256
+
+        echo "Installing"
+        chmod +x rustup-init
+        ./rustup-init -y --profile minimal
+        rm -f ./rustup-init*
+
+        echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      shell: bash
+
     - name: Configure Rust
-      run: rustup target add ${{ inputs.ios_rust_target }}
+      run: |
+        which cargo
+        rustup target add ${{ inputs.ios_rust_target }}
       shell: bash
 
     - name: Update brew's internal repository
