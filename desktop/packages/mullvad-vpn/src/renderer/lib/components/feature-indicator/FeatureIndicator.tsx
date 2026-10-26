@@ -1,8 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import { colors, Radius } from '../../foundations';
-import { Flex } from '../flex';
-import { FeatureIndicatorText } from './components';
+import { FeatureIndicatorIcon, FeatureIndicatorText } from './components';
 import { FeatureIndicatorProvider } from './FeatureIndicatorContext';
 
 export type FeatureIndicatorProps = {
@@ -35,6 +34,10 @@ const StyledFeatureIndicator = styled.button<{
     const variant = styles.variants[variantProp];
     return css`
       display: flex;
+      align-items: center;
+      gap: 2px;
+
+      padding: 2px 8px;
 
       border-radius: ${Radius.radius8};
       background: ${variant.backgroundColor};
@@ -65,10 +68,6 @@ const StyledFeatureIndicator = styled.button<{
   }}
 `;
 
-const StyledFlex = styled(Flex)`
-  padding: 2px 8px;
-`;
-
 function FeatureIndicator({
   ref,
   variant,
@@ -88,13 +87,14 @@ function FeatureIndicator({
         disabled={disabled}
         onClick={onClick}
         {...props}>
-        <StyledFlex alignItems="center">{children}</StyledFlex>
+        {children}
       </StyledFeatureIndicator>
     </FeatureIndicatorProvider>
   );
 }
 
 const FeatureIndicatorNamespace = Object.assign(FeatureIndicator, {
+  Icon: FeatureIndicatorIcon,
   Text: FeatureIndicatorText,
 });
 
