@@ -13,7 +13,7 @@ use std::{
     num::NonZero,
     sync::{
         Arc,
-        atomic::{AtomicU64, AtomicUsize, Ordering},
+        atomic::{AtomicUsize, Ordering},
     },
     task::{Context, Poll},
 };
@@ -23,7 +23,8 @@ use tokio::io::ReadBuf;
 /// same relay.
 #[derive(Clone)]
 pub struct Multiplex {
-    send_index: Arc<AtomicU64>,
+    send: Arc<AtomicUsize>,
+    recv: usize,
     multiplexers: Vec<(SocketAddr, SocketMultiplexer)>,
 }
 impl Multiplex {
@@ -47,7 +48,8 @@ impl Multiplex {
         }
 
         Ok(Self {
-            send_index: Default::default(),
+            recv: 0,
+            send: Default::default(),
             multiplexers: pairs,
         })
     }
@@ -69,7 +71,8 @@ impl Multiplex {
         )];
 
         Ok(Self {
-            send_index: Default::default(),
+            recv: 0,
+            send: Default::default(),
             multiplexers: pairs,
         })
     }
@@ -93,10 +96,21 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        for (_, state) in self.multiplexers.iter_mut() {
+        let mut i = self.recv;
+        let poll = loop {
+            let (_, state) = &mut self.multiplexers[i];
+
             if let poll @ Poll::Ready(..) = state.poll_recv(cx, read_buf) {
-                return poll;
+                break Some(poll);
             }
+            i = (i + 1) % self.multiplexers.len();
+            if i == self.recv {
+                break None;
+            }
+        };
+        self.recv = (self.recv + 1) % self.multiplexers.len();
+        if let Some(poll @ Poll::Ready(..)) = poll {
+            return poll;
         }
         Poll::Pending
     }
@@ -120,8 +134,7 @@ impl UdpSend for Multiplex {
     // - figure out less hacky way to pass the additional sockets here
     //   - modifying the trait is one approach, but that is annoying. Gotatun is out-of-tree, which does not help
     async fn send_to(&self, packet: Packet, _destination: SocketAddr) -> io::Result<()> {
-        let index =
-            self.send_index.fetch_add(1, Ordering::SeqCst) as usize % self.multiplexers.len();
+        let index = self.send.fetch_add(1, Ordering::SeqCst) % self.multiplexers.len();
         let (target, state) = &self.multiplexers[index];
         state.send_to(packet, *target).await
     }
