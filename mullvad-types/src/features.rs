@@ -6,7 +6,7 @@ use std::{
 use crate::relay_constraints::Multihop;
 use crate::settings::{DnsState, Settings};
 use serde::{Deserialize, Serialize};
-use talpid_types::net::{ObfuscationInfo, ObfuscationType, TunnelEndpoint};
+use talpid_types::net::{ObfuscationType, TunnelEndpoint};
 
 /// Feature indicators are active settings that should be shown to the user to make them aware of
 /// what is affecting their connection at any given time.
@@ -148,12 +148,12 @@ pub fn compute_feature_indicators(
 
     let quantum_resistant = endpoint.quantum_resistant;
 
-    let has_obfuscation = |obfs| match &endpoint.obfuscation {
-        Some(ObfuscationInfo::Single(endpoint)) => endpoint.obfuscation_type == obfs,
-        Some(ObfuscationInfo::Multiplexer { obfuscators, .. }) => obfuscators
+    let has_obfuscation = |obfs| {
+        endpoint
+            .obfuscation
+            .0
             .iter()
-            .any(|single| single.obfuscation_type == obfs),
-        None => false,
+            .any(|single| single.obfuscation_type == Some(obfs))
     };
     let wireguard_port = matches!(
         settings.obfuscation_settings.selected_obfuscation,
@@ -215,7 +215,7 @@ pub fn compute_feature_indicators(
 mod tests {
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-    use talpid_types::net::{Endpoint, ObfuscationEndpoint, TransportProtocol};
+    use talpid_types::net::{Endpoint, ObfuscationEndpoint, ObfuscationInfo, TransportProtocol};
 
     use crate::relay_constraints::{RelaySettings, SelectedObfuscation};
 
@@ -229,13 +229,17 @@ mod tests {
     #[test]
     fn test_one_indicator_at_a_time() {
         let mut settings = Settings::default();
+        let endpoint = Endpoint {
+            address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
+            protocol: TransportProtocol::Udp,
+        };
         let mut endpoint = TunnelEndpoint {
-            endpoint: Endpoint {
-                address: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080),
-                protocol: TransportProtocol::Udp,
-            },
+            endpoint,
+            obfuscation: ObfuscationInfo(vec1::vec1![ObfuscationEndpoint {
+                endpoint,
+                obfuscation_type: None,
+            }]),
             quantum_resistant: Default::default(),
-            obfuscation: Default::default(),
             entry_endpoint: Default::default(),
             tunnel_interface: Default::default(),
             daita: Default::default(),
@@ -289,19 +293,19 @@ mod tests {
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(compute(&settings, &endpoint), expected_indicators);
 
-        endpoint.obfuscation = Some(ObfuscationInfo::Single(ObfuscationEndpoint {
+        endpoint.obfuscation = ObfuscationInfo(vec1::vec1![ObfuscationEndpoint {
             endpoint: Endpoint {
                 address: SocketAddr::from(([1, 2, 3, 4], 443)),
                 protocol: TransportProtocol::Tcp,
             },
-            obfuscation_type: ObfuscationType::Udp2Tcp,
-        }));
+            obfuscation_type: Some(ObfuscationType::Udp2Tcp),
+        }]);
         expected_indicators.0.insert(FeatureIndicator::Udp2Tcp);
         assert_eq!(compute(&settings, &endpoint), expected_indicators);
-        let Some(ObfuscationInfo::Single(ref mut obfs)) = endpoint.obfuscation else {
+        let [obf] = &mut endpoint.obfuscation.0[..] else {
             unreachable!()
         };
-        obfs.obfuscation_type = ObfuscationType::Shadowsocks;
+        obf.obfuscation_type = Some(ObfuscationType::Shadowsocks);
         expected_indicators.0.remove(&FeatureIndicator::Udp2Tcp);
         expected_indicators.0.insert(FeatureIndicator::Shadowsocks);
         assert_eq!(compute(&settings, &endpoint), expected_indicators);

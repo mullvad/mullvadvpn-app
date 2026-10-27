@@ -240,7 +240,7 @@ impl InnerParametersGenerator {
         &self,
         mut endpoint: MullvadEndpoint,
         data: PrivateAccountAndDevice,
-        obfuscator_config: Option<Obfuscators>,
+        obfuscator_config: Obfuscators,
     ) -> TunnelParameters {
         let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
         let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();

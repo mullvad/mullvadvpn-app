@@ -798,7 +798,8 @@ impl ObfuscationConstraint {
 }
 
 impl Default for ObfuscationConstraint {
-    /// Returns a default `ObfuscationConstraint` with all obfuscation methods enabled.
+    /// Returns a default `ObfuscationConstraint` with all obfuscation methods enabled
+    /// and no port settings.
     fn default() -> Self {
         Self::auto()
     }

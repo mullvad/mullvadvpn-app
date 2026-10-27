@@ -171,8 +171,9 @@ impl WireguardMonitor {
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         // GotaTun applies every obfuscation method itself, so obfuscation requires it.
-        let userspace_wireguard =
-            params.use_userspace_wg() || params.obfuscation.is_some() || *FORCE_USERSPACE_WIREGUARD;
+        let userspace_wireguard = params.use_userspace_wg()
+            || !params.obfuscation.is_direct()
+            || *FORCE_USERSPACE_WIREGUARD;
         assert!(
             !(*FORCE_KERNEL_WIREGUARD && userspace_wireguard),
             "Cannot force kernel WireGuard when userspace is required (DAITA, obfuscation, etc.)"
@@ -1016,12 +1017,23 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
 /// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
 /// transports, since it is not yet known which one will be selected.
 fn mtu_with_obfuscation_overhead(params: &TunnelParameters, config: &Config) -> u16 {
-    match config.obfuscation_settings() {
-        Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
+    // match config.obfuscation_settings() {
+    //     Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
+    //         params,
+    //         config.mtu.saturating_sub(settings.packet_overhead()),
+    //     ),
+    //     _ => config.mtu,
+    // }
+    // TODO: This feels wrong...
+    if params.options.mtu.is_none() {
+        clamp_tunnel_mtu(
             params,
-            config.mtu.saturating_sub(settings.packet_overhead()),
-        ),
-        _ => config.mtu,
+            config
+                .mtu
+                .saturating_sub(config.obfuscation_settings().packet_overhead()),
+        )
+    } else {
+        config.mtu
     }
 }
 
@@ -1045,14 +1057,10 @@ impl IngressConnection {
     /// `self` must have been constructed by [connect_to_ingress], which has committed to a single
     /// transport.
     pub fn endpoint_addr(&self) -> IpAddr {
-        use talpid_types::net::obfuscation::Obfuscators;
-        match &self.config.obfuscator_config {
-            Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
-            Some(Obfuscators::Multiplexer { .. }) => {
-                unreachable!("connect_to_ingress commits to a single transport")
-            }
-            None => self.config.entry_peer.endpoint.ip(),
-        }
+        let [single] = &self.config.obfuscator_config[..] else {
+            unreachable!("connect_to_ingress commits to a single transport")
+        };
+        single.endpoint().address.ip()
     }
 }
 

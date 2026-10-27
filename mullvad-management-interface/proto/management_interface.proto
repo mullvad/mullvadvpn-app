@@ -394,6 +394,7 @@ enum FeatureIndicator {
   CUSTOM_VPN = 16;
 }
 
+// TODO: this shape doesn't map to the inner types anymore. We should likely change it unless that causes large issues.
 message ObfuscationInfo {
   oneof type {
     ObfuscationEndpoint single = 1;

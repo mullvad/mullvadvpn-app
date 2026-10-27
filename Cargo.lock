@@ -6197,6 +6197,7 @@ dependencies = [
  "tokio-util",
  "tun",
  "tunnel-obfuscation",
+ "vec1",
  "widestring",
  "windows-sys 0.61.2",
  "zerocopy",

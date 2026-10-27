@@ -32,7 +32,7 @@ use mullvad_types::{
 };
 use talpid_types::net::{
     IpVersion,
-    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators},
+    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators, TransportConfig},
 };
 use vec1::Vec1;
 
@@ -203,74 +203,60 @@ impl RelayEndpointSet {
         Verdict::any(verdicts)
     }
 
+    // TODO: Add test for this fn
     pub fn get_wireguard_obfuscator(
         &self,
         obfuscation_constraint: &ObfuscationConstraint,
         ip_constraint: Constraint<IpVersion>,
-    ) -> (SocketAddr, Option<Obfuscators>) {
-        let (wireguard_endpoint, mut configs) = match ip_constraint {
+    ) -> Option<Obfuscators> {
+        let configs = match ip_constraint {
             Constraint::Any => {
-                let (wg_v4, obf_v4) =
-                    self.get_wireguard_obfuscator_inner(obfuscation_constraint, IpVersion::V4);
-                let (wg_v6, obf_v6) =
-                    self.get_wireguard_obfuscator_inner(obfuscation_constraint, IpVersion::V6);
+                let v4 = self.get_wireguard_obfuscator_inner(obfuscation_constraint, IpVersion::V4);
+                let v6 = self.get_wireguard_obfuscator_inner(obfuscation_constraint, IpVersion::V6);
 
-                let obf = obf_v4.into_iter().interleave(obf_v6).collect_vec();
-                (wg_v4.or(wg_v6), obf)
+                v4.interleave(v6).collect_vec()
             }
-            Constraint::Only(ip_version) => {
-                self.get_wireguard_obfuscator_inner(obfuscation_constraint, ip_version)
-            }
+            Constraint::Only(ip_version) => self
+                .get_wireguard_obfuscator_inner(obfuscation_constraint, ip_version)
+                .collect(),
         };
+        configs.try_into().ok().map(Obfuscators)
+    }
 
-        let obfuscator_config = configs.pop().map(|last| {
-            if configs.is_empty() {
-                Obfuscators::Single(last)
-            } else {
-                Obfuscators::Multiplexer {
-                    direct: wireguard_endpoint,
-                    configs: Vec1::from_vec_push(configs, last),
-                }
-            }
-        });
-
-        (
-            // For now we must have exactly one WG endpoint.
-            // TODO: support having zero, one or two wg endpoints.
-            wireguard_endpoint.unwrap_or_else(|| {
+    /// The WireGuard address used for the peer config: the first direct transport in
+    /// `obfuscator`, or a random IPv4 WireGuard endpoint when all transports are obfuscated.
+    // TODO: support having zero, one or two direct wg endpoints in the obfuscator list.
+    pub fn wireguard_endpoint_address(&self, obfuscator: &Obfuscators) -> SocketAddr {
+        obfuscator
+            .0
+            .iter()
+            .find_map(|config| match config {
+                TransportConfig::Direct(address) => Some(*address),
+                TransportConfig::Obfuscation(_) => None,
+            })
+            .unwrap_or_else(|| {
                 self.wireguard
                     .random_endpoint(IpVersion::V4, Constraint::Any)
-                    .expect("There's always an IPv4 wg addr")
-            }),
-            obfuscator_config,
-        )
+                    .expect("There is always an IPv4 wireguard endpoint")
+            })
     }
 
     fn get_wireguard_obfuscator_inner(
         &self,
-        obfuscation_constraint: &ObfuscationConstraint,
-        ip_version: IpVersion,
-    ) -> (Option<SocketAddr>, Vec<ObfuscatorConfig>) {
-        let wireguard_endpoint = obfuscation_constraint
-            .direct
-            .and_then(|port| self.wireguard.random_endpoint(ip_version, port.get()));
-
-        let configs = self.valid_obfuscator_configs(obfuscation_constraint, ip_version);
-        (wireguard_endpoint, configs)
-    }
-
-    fn valid_obfuscator_configs(
-        &self,
         ObfuscationConstraint {
-            direct: _,
+            direct,
             quic,
             udp2tcp,
             shadowsocks,
             lwo,
         }: &ObfuscationConstraint,
         ip_version: IpVersion,
-    ) -> Vec<ObfuscatorConfig> {
-        [
+    ) -> impl Iterator<Item = TransportConfig> {
+        let wireguard_endpoint = direct
+            .and_then(|port| self.wireguard.random_endpoint(ip_version, port.get()))
+            .map(TransportConfig::Direct);
+
+        let obfuscation = [
             lwo.and_then(|conf| self.lwo_config(ip_version, conf.port)),
             shadowsocks
                 .as_ref()
@@ -285,7 +271,9 @@ impl RelayEndpointSet {
         ]
         .into_iter()
         .flatten()
-        .collect()
+        .map(TransportConfig::Obfuscation);
+
+        wireguard_endpoint.into_iter().chain(obfuscation)
     }
 
     /// Build a Udp2Tcp obfuscator config, or return `None` if udp2tcp is unsupported or no
