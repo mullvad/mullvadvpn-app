@@ -1366,7 +1366,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("set_custom_vpn_config");
         let request = request.into_inner();
-        let config = if request.peer.is_none() && request.tunnel.is_none() {
+        let config = if request.peers.is_empty() && request.tunnel.is_none() {
             None
         } else {
             Some(
@@ -1378,16 +1378,6 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, config))?;
         let error = self.wait_for_result(rx).await?;
         Ok(Response::new(types::CustomVpnConfigError { error }))
-    }
-
-    #[cfg(feature = "custom-vpn")]
-    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enabled = request.into_inner();
-        log::debug!("set_custom_vpn_config_status({})", enabled);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfigStatus(tx, enabled))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
     }
 
     #[cfg(feature = "custom-vpn")]
@@ -1438,13 +1428,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(types::CustomVpnConfigError {
             error: "".to_string(),
         }))
-    }
-
-    #[cfg(not(feature = "custom-vpn"))]
-    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enabled = request.into_inner();
-        log::debug!("set_custom_vpn_config_status({})", enabled);
-        Ok(Response::new(()))
     }
 
     #[cfg(not(feature = "custom-vpn"))]

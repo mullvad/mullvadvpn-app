@@ -56,16 +56,9 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             recents: settings.recents.clone().map(proto::Recents::from),
             update_default_location: settings.update_default_location,
             #[cfg(feature = "custom-vpn")]
-            custom_vpn_config: settings
-                .custom_vpn_config
-                .as_ref()
-                .map(|config| proto::CustomVpnConfig::from(config.clone())),
+            custom_vpn: Some(proto::CustomVpnSettings::from(settings.custom_vpn.clone())),
             #[cfg(not(feature = "custom-vpn"))]
-            custom_vpn_config: None,
-            #[cfg(feature = "custom-vpn")]
-            custom_vpn_enabled: settings.custom_vpn_enabled,
-            #[cfg(not(feature = "custom-vpn"))]
-            custom_vpn_enabled: false,
+            custom_vpn: None,
         }
     }
 }
@@ -189,12 +182,11 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             recents: Some(mullvad_types::settings::Recents::default()),
             update_default_location: settings.update_default_location,
             #[cfg(feature = "custom-vpn")]
-            custom_vpn_config: settings
-                .custom_vpn_config
-                .map(talpid_types::net::wireguard::CustomVpnConfig::try_from)
-                .transpose()?,
-            #[cfg(feature = "custom-vpn")]
-            custom_vpn_enabled: settings.custom_vpn_enabled,
+            custom_vpn: settings
+                .custom_vpn
+                .map(talpid_types::net::wireguard::CustomVpnSettings::try_from)
+                .transpose()?
+                .unwrap_or_default(),
             // HACK: The daemon should never read this random settings blob from a random client.
             // We should look into separating the serializable settings object that pass across
             // gRPC from the daemon's trusted settings. There are multiple fields that would not be
