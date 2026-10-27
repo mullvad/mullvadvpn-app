@@ -34,7 +34,7 @@ enum FeatureType {
     case localNetworkSharing
     case ipVersion
     #if NEVER_IN_PRODUCTION
-        case gotaTun
+        case wireGuard
     #endif
 
     /// Accessibility identifier of the chip representing this feature, where one is needed
@@ -44,7 +44,7 @@ enum FeatureType {
         case .obfuscation:
             .obfuscationFeatureIndicator
         #if NEVER_IN_PRODUCTION
-            case .gotaTun:
+            case .wireGuard:
                 nil
         #endif
         case .daita, .multihop, .quantumResistance, .dns, .ipOverrides, .includeAllNetworks, .localNetworkSharing,
@@ -236,13 +236,13 @@ struct IPVersionFeature: ChipFeature {
 }
 
 #if NEVER_IN_PRODUCTION
-    struct GotaTunFeature: ChipFeature {
-        let id: FeatureType = .gotaTun
+    struct WireGuardFeature: ChipFeature {
+        let id: FeatureType = .wireGuard
 
         var isEnabled: Bool {
-            PacketTunnelDebugSettings.useGotaTun
+            PacketTunnelDebugSettings.useWireGuard
         }
 
-        let name = "GotaTun"
+        let name = "WireGuard"
     }
 #endif

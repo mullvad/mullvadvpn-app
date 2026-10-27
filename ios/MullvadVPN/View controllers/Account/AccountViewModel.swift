@@ -26,7 +26,7 @@ protocol AccountViewModelProtocol {
     func finishUnfinishedPurchase() async
     #if NEVER_IN_PRODUCTION
         func invalidateWireguardKey()
-        func toggleGotaTun()
+        func toggleWireGuard()
     #endif
 }
 
@@ -106,8 +106,8 @@ class AccountViewModel: AccountViewModelProtocol {
             tunnelManager.invalidateWireGuardKey()
         }
 
-        func toggleGotaTun() {
-            PacketTunnelDebugSettings.useGotaTun = !PacketTunnelDebugSettings.useGotaTun
+        func toggleWireGuard() {
+            PacketTunnelDebugSettings.useWireGuard = !PacketTunnelDebugSettings.useWireGuard
             tunnelManager.reapplyTunnelConfiguration()
         }
     #endif
@@ -142,6 +142,6 @@ class AccountViewModelMock: AccountViewModelProtocol {
 
     func finishUnfinishedPurchase() async {}
 
-    func toggleGotaTun() {}
+    func toggleWireGuard() {}
 
 }
