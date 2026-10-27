@@ -1371,17 +1371,22 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::CustomVpnConfig>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("set_custom_vpn_config");
-        let request = request.into_inner();
-        let config = if request.peers.is_empty() && request.tunnel.is_none() {
-            None
-        } else {
-            Some(
-                talpid_types::net::wireguard::CustomVpnConfig::try_from(request)
-                    .map_err(map_protobuf_type_err)?,
-            )
-        };
+        let config = talpid_types::net::wireguard::CustomVpnConfig::try_from(request.into_inner())
+            .map_err(map_protobuf_type_err)?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, config))?;
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, Some(config)))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::CustomVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn clear_custom_vpn_config(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("clear_custom_vpn_config");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, None))?;
         let error = self.wait_for_result(rx).await?;
         Ok(Response::new(types::CustomVpnConfigError { error }))
     }
@@ -1431,6 +1436,17 @@ impl ManagementService for ManagementServiceImpl {
         _request: Request<types::CustomVpnConfig>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("set_custom_vpn_config");
+        Ok(Response::new(types::CustomVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
+    async fn clear_custom_vpn_config(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("clear_custom_vpn_config");
         Ok(Response::new(types::CustomVpnConfigError {
             error: "".to_string(),
         }))
