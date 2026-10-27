@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="other">%1$d ရက်</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="other">%1$d တည်နေရာများ</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="other">%1$d လ</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="other">ဤအကောင့်တွင် %1$d ရက် ကျန်သည်</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="other">ဤအကောင့်တွင် %1$d နှစ် ကျန်သည်</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="other">%1$d ရက်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</item>
+        <item quantity="other">%d ရက်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="other">%1$d နာရီအကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</item>
+        <item quantity="other">%d နာရီအကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="other">%d ရက်</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">ဤအကောင့်တွင် %d ရက် ကျန်သည်</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
-        <item quantity="other">သင်သည် သင့်လက်ကျန် %1$d ရက်ကို ဆုံးရှုံးပါမည်။</item>
+        <item quantity="other">သင်သည် သင့်လက်ကျန် %d ရက်ကို ဆုံးရှုံးပါမည်။</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%d လ</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%d တည်နေရာများ</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">ဤအကောင့်တွင် %d နှစ် ကျန်သည်</item>
     </plurals>
 </resources>
