@@ -3,9 +3,9 @@
 //!
 //! See [`TunRxRouter`] and [`TunTxRouter`].
 
-use super::packet::UdpPacket;
+use super::{fragment::Ipv6Fragments, packet::UdpPacket};
 use gotatun::{
-    packet::{Ip, Ipv4, Packet, PacketBufPool},
+    packet::{Ip, Ipv4, Ipv6, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher, channel::Ipv4Fragments},
 };
 use ip_network_table::IpNetworkTable;
@@ -105,14 +105,15 @@ impl<R: IpRecv> TunRxRouter<R> {
 /// tunnel's peer from forging packets that appear to come from inside the inner tunnel: such
 /// packets must only ever reach the TUN device through the inner WireGuard device.
 ///
-/// IPv4 fragments from the address of `inner_tun_endpoint` are reassembled before they are
-/// routed, since only the first fragment has the UDP port that tells the two apart.
+/// IP fragments from the address of `inner_tun_endpoint` are reassembled before they are routed,
+/// since only the first fragment has the UDP port.
 pub struct TunTxRouter<Inner, Outer> {
     inner_tx: Inner,
     outer_tx: Outer,
     inner_tun_endpoint: SocketAddr,
     inner_allowed_ips: IpNetworkTable<()>,
-    endpoint_fragments: Ipv4Fragments,
+    endpoint_fragments_v4: Ipv4Fragments,
+    endpoint_fragments_v6: Ipv6Fragments,
     gateways: Vec<IpAddr>,
 }
 
@@ -142,32 +143,42 @@ impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
             outer_tx,
             inner_tun_endpoint,
             inner_allowed_ips: table,
-            endpoint_fragments: Ipv4Fragments::default(),
+            endpoint_fragments_v4: Ipv4Fragments::default(),
+            endpoint_fragments_v6: Ipv6Fragments::default(),
             gateways,
         }
     }
 
-    /// Reassemble `packet` if it is an IPv4 fragment from the inner tunnel endpoint's address.
+    /// Reassemble `packet` if it is an IP fragment from the inner tunnel endpoint's address.
     /// Returns `None` while fragments are missing, and any other packet unchanged.
     ///
     /// A reassembled datagram that turns out not to be for the inner device goes to `outer_tx`
     /// whole, and may exceed its MTU.
     fn reassemble_endpoint_fragment(&mut self, packet: Packet<Ip>) -> Option<Packet<Ip>> {
-        let IpAddr::V4(endpoint_ip) = self.inner_tun_endpoint.ip() else {
-            return Some(packet);
-        };
-        let is_endpoint_fragment =
-            Ipv4::<[u8]>::ref_from_bytes(packet.as_bytes()).is_ok_and(|ipv4| {
-                ipv4.header.source() == endpoint_ip
-                    && (ipv4.header.more_fragments() || ipv4.header.fragment_offset() != 0)
-            });
-        if !is_endpoint_fragment {
-            return Some(packet);
+        match self.inner_tun_endpoint.ip() {
+            IpAddr::V4(endpoint_ip) => {
+                let is_endpoint_fragment = Ipv4::<[u8]>::ref_from_bytes(packet.as_bytes())
+                    .is_ok_and(|ipv4| {
+                        ipv4.header.source() == endpoint_ip
+                            && (ipv4.header.more_fragments() || ipv4.header.fragment_offset() != 0)
+                    });
+                if !is_endpoint_fragment {
+                    return Some(packet);
+                }
+                let fragment = Packet::<Ipv4>::try_from(packet).ok()?;
+                self.endpoint_fragments_v4
+                    .assemble_ipv4_fragment(fragment)
+                    .map(Packet::from)
+            }
+            IpAddr::V6(endpoint_ip) => match Ipv6::<[u8]>::ref_from_bytes(packet.as_bytes()) {
+                Ok(ipv6)
+                    if ipv6.header.source() == endpoint_ip && Ipv6Fragments::is_fragment(ipv6) =>
+                {
+                    self.endpoint_fragments_v6.assemble(ipv6)
+                }
+                _ => Some(packet),
+            },
         }
-        let fragment = Packet::<Ipv4>::try_from(packet).ok()?;
-        self.endpoint_fragments
-            .assemble_ipv4_fragment(fragment)
-            .map(Packet::from)
     }
 }
 
@@ -204,6 +215,7 @@ fn to_table_network(net: &IpNetwork) -> ip_network::IpNetwork {
 #[cfg(test)]
 mod tests {
     use super::super::{
+        fragment::tests::fragment_v6,
         packet::tests::udp_packet,
         test_util::{ChannelIpRecv, ChannelIpSend},
     };
@@ -338,6 +350,51 @@ mod tests {
             &[0xab; 100],
         );
         for fragment in fragment_v4(&other, 64) {
+            router.send(fragment).await.unwrap();
+        }
+        assert!(outer_rx.try_recv().is_ok());
+        assert!(outer_rx.try_recv().is_ok());
+        assert!(inner_rx.try_recv().is_err());
+    }
+
+    /// Like [`tx_router_reassembles_endpoint_fragments`], but for IPv6.
+    #[tokio::test]
+    async fn tx_router_reassembles_ipv6_endpoint_fragments() {
+        let inner_endpoint: SocketAddr = "[2001:db8::1]:51820".parse().unwrap();
+        let (inner_tx, mut inner_rx) = ChannelIpSend::new();
+        let (outer_tx, mut outer_rx) = ChannelIpSend::new();
+        let mut router = TunTxRouter::new(
+            inner_tx,
+            outer_tx,
+            inner_endpoint,
+            &[],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
+        );
+
+        let datagram = udp_packet(
+            inner_endpoint,
+            "[fc00::2]:1234".parse().unwrap(),
+            &[0xab; 100],
+        );
+        for fragment in fragment_v6(&datagram, 1, &[64]).into_iter().rev() {
+            router.send(fragment).await.unwrap();
+        }
+
+        let received = inner_rx
+            .try_recv()
+            .expect("datagram must reach the inner device");
+        assert_eq!(received.as_bytes(), datagram.as_bytes());
+        assert!(inner_rx.try_recv().is_err());
+        assert!(outer_rx.try_recv().is_err());
+
+        // Fragments from another address are left for the OS to reassemble
+        let other = udp_packet(
+            "[2001:db8::2]:51820".parse().unwrap(),
+            "[fc00::2]:1234".parse().unwrap(),
+            &[0xab; 100],
+        );
+        for fragment in fragment_v6(&other, 1, &[64]) {
             router.send(fragment).await.unwrap();
         }
         assert!(outer_rx.try_recv().is_ok());
