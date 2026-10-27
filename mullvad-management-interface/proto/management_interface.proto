@@ -174,7 +174,6 @@ service ManagementService {
 
   // Custom VPN
   rpc SetCustomVpnConfig(CustomVpnConfig) returns (CustomVpnConfigError) {}
-  rpc SetCustomVpnConfigStatus(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   // Parse a wg-quick config file and store it as the custom VPN config.
   rpc ImportCustomVpnConfig(google.protobuf.StringValue) returns (CustomVpnConfigError) {}
   rpc GetCustomVpnStats(google.protobuf.Empty) returns (CustomVpnStats) {}
@@ -591,8 +590,7 @@ message Settings {
   // Warning: This field contains the private key for the custom VPN.
   // This is fine on Android, as only the Mullvad app can access the gRPC socket,
   // but this may not be the case for other platforms.
-  optional CustomVpnConfig custom_vpn_config = 15;
-  bool custom_vpn_enabled = 16;
+  CustomVpnSettings custom_vpn = 15;
 }
 
 message SettingsKeyList { repeated SettingsKey keys = 1; }
@@ -718,9 +716,13 @@ message CustomVpnConfig {
 
   // optional
   TunnelConfig tunnel = 1;
-  // optional
-  PeerConfig peer = 2;
+  // Must be non-empty.
+  repeated PeerConfig peers = 2;
+  bool enabled = 3;
+  optional string name = 4;
 }
+
+message CustomVpnSettings { repeated CustomVpnConfig configs = 1; }
 
 message CustomVpnConfigError { string error = 1; }
 
