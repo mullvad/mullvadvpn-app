@@ -23,6 +23,7 @@ talpid-types.workspace = true
 talpid-wireguard.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
+vec1 = { workspace = true }
 
 [dev-dependencies]
 duplicate.workspace = true

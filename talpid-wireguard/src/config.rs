@@ -1,7 +1,12 @@
 use ipnetwork::IpNetwork;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
+use talpid_types::net::{
+    GenericTunnelOptions,
+    obfuscation::{Obfuscators, TransportConfig},
+    wireguard,
+};
 use tunnel_obfuscation::multiplexer::Transport;
+use vec1::vec1;
 
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]
@@ -30,7 +35,7 @@ pub struct Config {
     #[cfg(target_os = "linux")]
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
-    pub obfuscator_config: Option<Obfuscators>,
+    pub obfuscator_config: Obfuscators,
     /// MTU including obfuscation overhead.
     pub obfuscation_mtu: u16,
     /// Enable quantum-resistant PSK exchange
@@ -81,7 +86,7 @@ impl Config {
         connection: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
-        obfuscator_config: &Option<Obfuscators>,
+        obfuscator_config: &Obfuscators,
         default_mtu: u16,
         obfuscation_mtu: u16,
         #[cfg(feature = "custom-vpn")] custom_vpn: Option<wireguard::CustomVpnConfig>,
@@ -150,15 +155,13 @@ impl Config {
     ///
     /// This is computed on demand so that it always reflects the current
     /// private key (which may change during ephemeral peer negotiation).
-    pub fn obfuscation_settings(&self) -> Option<crate::obfuscation::ObfuscationSettings> {
-        self.obfuscator_config.as_ref().map(|obfuscator_config| {
-            crate::obfuscation::settings_from_config(
-                self.tunnel.private_key.public_key(),
-                self.entry_peer.public_key.clone(),
-                obfuscator_config,
-                self.obfuscation_mtu,
-            )
-        })
+    pub fn obfuscation_settings(&self) -> crate::obfuscation::ObfuscationSettings {
+        crate::obfuscation::settings_from_config(
+            self.tunnel.private_key.public_key(),
+            self.entry_peer.public_key.clone(),
+            &self.obfuscator_config,
+            self.obfuscation_mtu,
+        )
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.
@@ -191,14 +194,18 @@ impl Config {
     ///
     /// This is the single obfuscator of `transport`, or no obfuscation at all if it is direct.
     pub fn with_transport(mut self, transport: &Transport) -> Self {
+        // TODO: Here, we transition from multiplexing to a single transport.
+        // The `self.entry_peer.endpoint` value before this point is meaningless and `obfuscator_config`
+        // must now be a single value. Consider refactoring `Config` into separate types for these states.
         match transport {
             Transport::Direct(endpoint) => {
                 self.entry_peer.endpoint = *endpoint;
-                self.obfuscator_config = None;
+                self.obfuscator_config = Obfuscators(vec1![TransportConfig::Direct(*endpoint)]);
             }
             Transport::Obfuscated(settings) => {
                 let obfuscator_config = crate::obfuscation::config_from_single_settings(settings);
-                self.obfuscator_config = Some(Obfuscators::Single(obfuscator_config));
+                self.obfuscator_config =
+                    Obfuscators(vec1![TransportConfig::Obfuscation(obfuscator_config)]);
             }
         }
         self
