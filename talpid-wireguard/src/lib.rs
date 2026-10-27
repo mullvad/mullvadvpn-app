@@ -346,11 +346,11 @@ impl WireguardMonitor {
                         return;
                     }
 
-                    // With a custom VPN, pings reach the outer gateway directly (bypassing
+                    // TODO: With a custom VPN, pings reach the outer gateway directly (bypassing
                     // the inner custom VPN tunnel), so the detected MTU only accounts for
                     // the outer encapsulation. Inner-routed traffic needs an extra wireguard
                     // layer of headroom, so subtract that overhead when applying the result.
-                    let extra_overhead = cfg_select! {
+                    let _extra_overhead = cfg_select! {
                         feature = "custom-vpn" => {
                             config
                                 .custom_vpn
@@ -365,7 +365,6 @@ impl WireguardMonitor {
                         gateway,
                         iface_name,
                         config.mtu,
-                        extra_overhead,
                         #[cfg(windows)]
                         config.ipv6_gateway.is_some(),
                     )
