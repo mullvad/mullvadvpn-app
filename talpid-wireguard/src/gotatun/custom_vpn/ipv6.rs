@@ -69,9 +69,7 @@ pub fn parse_next_protocol(ipv6: &Ipv6) -> Option<NextProtocolOffset> {
 
 // Returns the length of the extension header in bytes.
 fn get_ext_header_length(protocol: IpNextProtocol, buffer: &[u8]) -> Option<usize> {
-    if buffer.len() < 2 {
-        return None;
-    }
+    let len = *buffer.get(1)? as usize;
 
     match protocol {
         // Fixed Length: Fragment Header is always exactly 8 bytes.
@@ -79,10 +77,7 @@ fn get_ext_header_length(protocol: IpNextProtocol, buffer: &[u8]) -> Option<usiz
 
         // 32-bit word chunks: Authentication Header (AH) (RFC 4302)
         // Length = (Payload Len + 2) * 4 bytes
-        IpNextProtocol::Ah => {
-            let payload_len = buffer[1] as usize;
-            Some((payload_len + 2) * 4)
-        }
+        IpNextProtocol::Ah => Some((len + 2) * 4),
 
         // 64-bit word chunks: Hop-by-Hop (0), Routing (43), Dest Opts (60),
         // Mobility (135), Host Identity (139), Shim6 (140) (RFC 8200)
@@ -92,10 +87,7 @@ fn get_ext_header_length(protocol: IpNextProtocol, buffer: &[u8]) -> Option<usiz
         | IpNextProtocol::Ipv6Opts
         | IpNextProtocol::MobilityHeader
         | IpNextProtocol::Hip
-        | IpNextProtocol::Shim6 => {
-            let hdr_ext_len = buffer[1] as usize;
-            Some((hdr_ext_len + 1) * 8)
-        }
+        | IpNextProtocol::Shim6 => Some((len + 1) * 8),
 
         // Unknown or unsupported extension header
         _ => None,
