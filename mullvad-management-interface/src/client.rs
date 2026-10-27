@@ -678,13 +678,18 @@ impl MullvadProxyClient {
     #[cfg(feature = "custom-vpn")]
     pub async fn set_custom_vpn_config(
         &mut self,
-        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+        config: talpid_types::net::wireguard::CustomVpnConfig,
     ) -> Result<String> {
-        let proto_config = match config {
-            Some(c) => types::CustomVpnConfig::from(c),
-            None => types::CustomVpnConfig::default(),
-        };
-        let response = self.0.set_custom_vpn_config(proto_config).await?;
+        let response = self
+            .0
+            .set_custom_vpn_config(types::CustomVpnConfig::from(config))
+            .await?;
+        Ok(response.into_inner().error)
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    pub async fn clear_custom_vpn_config(&mut self) -> Result<String> {
+        let response = self.0.clear_custom_vpn_config(()).await?;
         Ok(response.into_inner().error)
     }
 
