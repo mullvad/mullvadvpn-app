@@ -1,174 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="Adelaide">أديليد</string>
-    <string name="Albania">ألبانيا</string>
-    <string name="Amsterdam">أمستردام</string>
-    <string name="Argentina">الأرجنتين</string>
-    <string name="Ashburn, VA">آشبورن، ولاية فرجينيا</string>
-    <string name="Athens">أثينا</string>
-    <string name="Atlanta, GA">أتلانتا، ولاية جورجيا</string>
-    <string name="Auckland">أوكلاند</string>
-    <string name="Australia">أستراليا</string>
-    <string name="Austria">النمسا</string>
-    <string name="Bangkok">بانكوك</string>
-    <string name="Barcelona">برشلونة</string>
-    <string name="Belgium">بلجيكا</string>
-    <string name="Belgrade">بلغراد</string>
-    <string name="Berlin">برلين</string>
-    <string name="Bogota">بوجوتا</string>
-    <string name="Bordeaux">بوردو</string>
-    <string name="Boston, MA">بوسطن، ولاية ماساتشوستس</string>
-    <string name="Bratislava">براتيسلافا</string>
-    <string name="Brazil">البرازيل</string>
-    <string name="Brisbane">بريزبن</string>
-    <string name="Brussels">بروكسل</string>
-    <string name="Bucharest">بوخارست</string>
-    <string name="Budapest">بودابست</string>
-    <string name="Buenos Aires">بوينس آيرس</string>
-    <string name="Bulgaria">بلغاريا</string>
-    <string name="Calgary">كالجاري</string>
-    <string name="Canada">كندا</string>
-    <string name="Canberra">كانبرا</string>
-    <string name="Charlotte, NC">شارلوت، ولاية كارولينا الشمالية</string>
-    <string name="Chicago, IL">شيكاغو، ولاية إلينوي</string>
-    <string name="Chile">شيلي</string>
-    <string name="Chisinau">تشيسيناو</string>
-    <string name="Cleveland, OH">كليفلاند، ولاية أوهايو</string>
-    <string name="Colombia">كولومبيا</string>
-    <string name="Copenhagen">كوبنهاغن</string>
-    <string name="Croatia">كرواتيا</string>
-    <string name="Cyprus">قبرص</string>
-    <string name="Czech Republic">جمهورية التشيك</string>
-    <string name="Dallas, TX">دالاس، ولاية تكساس</string>
-    <string name="Denmark">الدنمارك</string>
-    <string name="Denver, CO">دنفر، ولاية كولورادو</string>
-    <string name="Detroit, MI">ديترويت، ولاية ميشيغان</string>
-    <string name="Dubai">دبي</string>
-    <string name="Dublin">دبلن</string>
-    <string name="Dusseldorf">دوسلدروف</string>
-    <string name="Estonia">إستونيا</string>
-    <string name="Finland">فنلندا</string>
-    <string name="Fortaleza">فورتاليزا</string>
-    <string name="France">فرنسا</string>
-    <string name="Frankfurt">فرانكفورت</string>
-    <string name="Germany">ألمانيا</string>
-    <string name="Glasgow">غلازغو</string>
-    <string name="Gothenburg">جوتنبرغ</string>
-    <string name="Greece">اليونان</string>
-    <string name="Helsingborg">هيلسينجبورغ</string>
-    <string name="Helsinki">هلسنكي</string>
-    <string name="Hong Kong">هونغ كونغ</string>
-    <string name="Honolulu, HI">هونولولو، ولاية هاواي</string>
-    <string name="Houston, TX">هيوستن، ولاية تكساس</string>
-    <string name="Hungary">المجر</string>
-    <string name="India">الهند</string>
-    <string name="Indonesia">إندونيسيا</string>
-    <string name="Ireland">أيرلندا</string>
-    <string name="Israel">إسرائيل</string>
-    <string name="Istanbul">اسطنبول</string>
-    <string name="Italy">إيطاليا</string>
-    <string name="Jackson, MS">جاكسون، ولاية ميسيسيبي</string>
-    <string name="Jakarta">جاكرتا</string>
-    <string name="Japan">اليابان</string>
-    <string name="Johannesburg">جوهانسبرغ</string>
-    <string name="Kansas City, MO">كانساس سيتي، ولاية ميزوري</string>
-    <string name="Kiev">كييف</string>
-    <string name="Kuala Lumpur">كوالالمبور</string>
-    <string name="Kyiv">كييف</string>
-    <string name="Lagos">لاغوس</string>
-    <string name="Latvia">لاتفيا</string>
-    <string name="Lima">ليما</string>
-    <string name="Lisbon">لشبونة</string>
-    <string name="Ljubljana">ليوبليانا</string>
-    <string name="London">لندن</string>
-    <string name="Los Angeles, CA">لوس أنجلوس، ولاية كاليفورنيا</string>
-    <string name="Louisville, KY">لويفيل، ولاية كنتاكي</string>
-    <string name="Luxembourg">لوكسمبورغ</string>
-    <string name="Madrid">مدريد</string>
-    <string name="Malaysia">ماليزيا</string>
-    <string name="Malmö">مالمو</string>
-    <string name="Manchester">مانشستر</string>
-    <string name="Manila">مانيلا</string>
-    <string name="Marseille">مارسيليا</string>
-    <string name="McAllen, TX">ماكالين، ولاية تكساس</string>
-    <string name="Melbourne">ملبورن</string>
-    <string name="Mexico">المكسيك</string>
-    <string name="Miami, FL">ميامي، ولاية فلوريدا</string>
-    <string name="Milan">ميلان</string>
-    <string name="Milwaukee, WI">ميلووكي، ولاية ويسكونسن</string>
-    <string name="Minneapolis/St. Paul Apt, MN">مينيابوليس/سانت بول، ولاية مينيسوتا</string>
-    <string name="Moldova">مولدوفا</string>
-    <string name="Montreal">مونتريال</string>
-    <string name="Netherlands">هولندا</string>
-    <string name="New York, NY">نيويورك، ولاية نيويورك</string>
-    <string name="New Zealand">نيوزيلندا</string>
-    <string name="Nicosia">نيقوسيا</string>
-    <string name="Nigeria">نيجيريا</string>
-    <string name="Nis">نيس</string>
-    <string name="North Macedonia">مقدونيا الشمالية</string>
-    <string name="Norway">النرويج</string>
-    <string name="Oklahoma City, OK">أوكلاهوما سيتي، ولاية أوكلاهوما</string>
-    <string name="Osaka">أوساكا</string>
-    <string name="Oslo">أوسلو</string>
-    <string name="Palermo">باليرمو</string>
-    <string name="Paris">باريس</string>
-    <string name="Perth">برث</string>
-    <string name="Peru">بيرو</string>
-    <string name="Philadelphia, PA">فيلادلفيا، ولاية بنسلفانيا</string>
-    <string name="Philippines">الفلبين</string>
-    <string name="Phoenix, AZ">فينيكس، ولاية أريزونا</string>
-    <string name="Piscataway, NJ">بيسكاتاواي، ولاية نيوجيرسي</string>
-    <string name="Poland">بولندا</string>
-    <string name="Portland, OR">بورتلاند، ولاية أوريغون</string>
-    <string name="Portugal">البرتغال</string>
-    <string name="Prague">براغ</string>
-    <string name="Pune">بون</string>
-    <string name="Queretaro">كيريتارو</string>
-    <string name="Raleigh, NC">رالي، ولاية كارولينا الشمالية</string>
-    <string name="Richmond, VA">ريتشموند، ولاية فيرجينيا</string>
-    <string name="Riga">ريغا</string>
-    <string name="Romania">رومانيا</string>
-    <string name="Rome">روما</string>
-    <string name="Salt Lake City, UT">سولت لايك سيتي، ولاية يوتا</string>
-    <string name="San Francisco, CA">سان فرانسيسكو، ولاية كاليفورنيا</string>
-    <string name="San Jose, CA">سان خوسيه، ولاية كاليفورنيا</string>
-    <string name="Santiago">سانتياغو</string>
-    <string name="Sao Paulo">ساو باولو</string>
-    <string name="Seattle, WA">سياتل، ولاية واشنطن</string>
-    <string name="Secaucus, NJ">سيكوكس، ولاية نيوجيرسي</string>
-    <string name="Serbia">صربيا</string>
-    <string name="Singapore">سنغافورة</string>
-    <string name="Sioux Falls, SD">سايوكس فالز، ولاية داكوتا الجنوبية</string>
-    <string name="Skopje">سكوبيه</string>
-    <string name="Slovakia">سلوفاكيا</string>
-    <string name="Slovenia">سلوفينيا</string>
-    <string name="Sofia">صوفيا</string>
-    <string name="South Africa">جنوب أفريقيا</string>
-    <string name="Spain">إسبانيا</string>
-    <string name="St. Louis, MO">سانت لويس، ولاية ميزوري</string>
-    <string name="Stamford, CT">ستامفورد، ولاية كونيتيكت</string>
-    <string name="Stavanger">ستافانجر</string>
-    <string name="Stockholm">ستكهولم</string>
-    <string name="Sweden">السويد</string>
-    <string name="Switzerland">سويسرا</string>
-    <string name="Sydney">سيدني</string>
-    <string name="Tallinn">تالين</string>
-    <string name="Tel Aviv">تل أبيب</string>
-    <string name="Thailand">تايلاند</string>
-    <string name="Tirana">تيرانا</string>
-    <string name="Tokyo">طوكيو</string>
-    <string name="Toronto">تورونتو</string>
-    <string name="Turkey">تركيا</string>
-    <string name="UK">المملكة المتحدة</string>
-    <string name="USA">الولايات المتحدة الأمريكية</string>
-    <string name="Ukraine">أوكرانيا</string>
-    <string name="United Arab Emirates">الإمارات العربية المتحدة</string>
-    <string name="Valencia">فالينسيا</string>
-    <string name="Vancouver">فانكوفر</string>
-    <string name="Vienna">فيينا</string>
-    <string name="Warsaw">وارسو</string>
-    <string name="Washington DC">واشنطن العاصمة</string>
-    <string name="Wien">فيينا</string>
-    <string name="Zagreb">زغرب</string>
-    <string name="Zurich">زيورخ</string>
+  <string name="Adelaide" comment="#. AU ADL">أديليد</string>
+  <string name="Albania" comment="#. AL">ألبانيا</string>
+  <string name="Amsterdam" comment="#. NL AMS">أمستردام</string>
+  <string name="Argentina" comment="#. AR">الأرجنتين</string>
+  <string name="Ashburn, VA" comment="#. US QAS">آشبورن، ولاية فرجينيا</string>
+  <string name="Athens" comment="#. GR ATH">أثينا</string>
+  <string name="Atlanta, GA" comment="#. US ATL">أتلانتا، ولاية جورجيا</string>
+  <string name="Auckland" comment="#. NZ AKL">أوكلاند</string>
+  <string name="Australia" comment="#. AU">أستراليا</string>
+  <string name="Austria" comment="#. AT">النمسا</string>
+  <string name="Bangkok" comment="#. TH BKK">بانكوك</string>
+  <string name="Barcelona" comment="#. ES BCN">برشلونة</string>
+  <string name="Belgium" comment="#. BE">بلجيكا</string>
+  <string name="Belgrade" comment="#. RS BEG">بلغراد</string>
+  <string name="Berlin" comment="#. DE BER">برلين</string>
+  <string name="Bogota" comment="#. CO BOG">بوجوتا</string>
+  <string name="Bordeaux" comment="#. FR BOD">بوردو</string>
+  <string name="Boston, MA" comment="#. US BOS">بوسطن، ولاية ماساتشوستس</string>
+  <string name="Bratislava" comment="#. SK BTS">براتيسلافا</string>
+  <string name="Brazil" comment="#. BR">البرازيل</string>
+  <string name="Brisbane" comment="#. AU BNE">بريزبن</string>
+  <string name="Brussels" comment="#. BE BRU">بروكسل</string>
+  <string name="Bucharest" comment="#. RO BUH">بوخارست</string>
+  <string name="Budapest" comment="#. HU BUD">بودابست</string>
+  <string name="Buenos Aires" comment="#. AR BUE">بوينس آيرس</string>
+  <string name="Bulgaria" comment="#. BG">بلغاريا</string>
+  <string name="Calgary" comment="#. CA YYC">كالجاري</string>
+  <string name="Canada" comment="#. CA">كندا</string>
+  <string name="Canberra" comment="#. AU CBR">كانبرا</string>
+  <string name="Charlotte, NC" comment="#. US CLT">شارلوت، ولاية كارولينا الشمالية</string>
+  <string name="Chicago, IL" comment="#. US CHI">شيكاغو، ولاية إلينوي</string>
+  <string name="Chile" comment="#. CL">شيلي</string>
+  <string name="Chisinau" comment="#. MD KIV">تشيسيناو</string>
+  <string name="Cleveland, OH" comment="#. US CLE">كليفلاند، ولاية أوهايو</string>
+  <string name="Colombia" comment="#. CO">كولومبيا</string>
+  <string name="Copenhagen" comment="#. DK CPH">كوبنهاغن</string>
+  <string name="Croatia" comment="#. HR">كرواتيا</string>
+  <string name="Cyprus" comment="#. CY">قبرص</string>
+  <string name="Czech Republic" comment="#. CZ">جمهورية التشيك</string>
+  <string name="Dallas, TX" comment="#. US DAL">دالاس، ولاية تكساس</string>
+  <string name="Denmark" comment="#. DK">الدنمارك</string>
+  <string name="Denver, CO" comment="#. US DEN">دنفر، ولاية كولورادو</string>
+  <string name="Detroit, MI" comment="#. US DET">ديترويت، ولاية ميشيغان</string>
+  <string name="Dubai" comment="#. AE DXB">دبي</string>
+  <string name="Dublin" comment="#. IE DUB">دبلن</string>
+  <string name="Dusseldorf" comment="#. DE DUS">دوسلدروف</string>
+  <string name="Estonia" comment="#. EE">إستونيا</string>
+  <string name="Finland" comment="#. FI">فنلندا</string>
+  <string name="Fortaleza" comment="#. BR FOR">فورتاليزا</string>
+  <string name="France" comment="#. FR">فرنسا</string>
+  <string name="Frankfurt" comment="#. DE FRA">فرانكفورت</string>
+  <string name="Germany" comment="#. DE">ألمانيا</string>
+  <string name="Glasgow" comment="#. GB GLW">غلازغو</string>
+  <string name="Gothenburg" comment="#. SE GOT">جوتنبرغ</string>
+  <string name="Greece" comment="#. GR">اليونان</string>
+  <string name="Helsingborg" comment="#. SE HEL">هيلسينجبورغ</string>
+  <string name="Helsinki" comment="#. FI HEL">هلسنكي</string>
+  <string name="Hong Kong" comment="#. HK HKG">هونغ كونغ</string>
+  <string name="Honolulu, HI" comment="#. US HNL">هونولولو، ولاية هاواي</string>
+  <string name="Houston, TX" comment="#. US HOU">هيوستن، ولاية تكساس</string>
+  <string name="Hungary" comment="#. HU">المجر</string>
+  <string name="India" comment="#. IN">الهند</string>
+  <string name="Indonesia" comment="#. ID">إندونيسيا</string>
+  <string name="Ireland" comment="#. IE">أيرلندا</string>
+  <string name="Israel" comment="#. IL">إسرائيل</string>
+  <string name="Istanbul" comment="#. TR IST">اسطنبول</string>
+  <string name="Italy" comment="#. IT">إيطاليا</string>
+  <string name="Jackson, MS" comment="#. US JAN">جاكسون، ولاية ميسيسيبي</string>
+  <string name="Jakarta" comment="#. ID JPU">جاكرتا</string>
+  <string name="Japan" comment="#. JP">اليابان</string>
+  <string name="Johannesburg" comment="#. ZA JNB">جوهانسبرغ</string>
+  <string name="Kansas City, MO" comment="#. US MKC">كانساس سيتي، ولاية ميزوري</string>
+  <string name="Kiev" comment="#. UA IEV">كييف</string>
+  <string name="Kuala Lumpur" comment="#. MY KUL">كوالالمبور</string>
+  <string name="Kyiv" comment="#. UA IEV">كييف</string>
+  <string name="Lagos" comment="#. NG LOS">لاغوس</string>
+  <string name="Latvia" comment="#. LV">لاتفيا</string>
+  <string name="Lima" comment="#. PE LIM">ليما</string>
+  <string name="Lisbon" comment="#. PT LIS">لشبونة</string>
+  <string name="Ljubljana" comment="#. SI LJU">ليوبليانا</string>
+  <string name="London" comment="#. GB LON">لندن</string>
+  <string name="Los Angeles, CA" comment="#. US LAX">لوس أنجلوس، ولاية كاليفورنيا</string>
+  <string name="Louisville, KY" comment="#. US LUI">لويفيل، ولاية كنتاكي</string>
+  <string name="Luxembourg" comment="#. LU LUX">لوكسمبورغ</string>
+  <string name="Madrid" comment="#. ES MAD">مدريد</string>
+  <string name="Malaysia" comment="#. MY">ماليزيا</string>
+  <string name="Malmö" comment="#. SE MMA">مالمو</string>
+  <string name="Manchester" comment="#. GB MNC">مانشستر</string>
+  <string name="Manila" comment="#. PH MNL">مانيلا</string>
+  <string name="Marseille" comment="#. FR MRS">مارسيليا</string>
+  <string name="McAllen, TX" comment="#. US TXC">ماكالين، ولاية تكساس</string>
+  <string name="Melbourne" comment="#. AU MEL">ملبورن</string>
+  <string name="Mexico" comment="#. MX">المكسيك</string>
+  <string name="Miami, FL" comment="#. US MIA">ميامي، ولاية فلوريدا</string>
+  <string name="Milan" comment="#. IT MIL">ميلان</string>
+  <string name="Milwaukee, WI" comment="#. US MKE">ميلووكي، ولاية ويسكونسن</string>
+  <string name="Minneapolis/St. Paul Apt, MN" comment="#. US MSP">مينيابوليس/سانت بول، ولاية مينيسوتا</string>
+  <string name="Moldova" comment="#. MD">مولدوفا</string>
+  <string name="Montreal" comment="#. CA MTR">مونتريال</string>
+  <string name="Netherlands" comment="#. NL">هولندا</string>
+  <string name="New York, NY" comment="#. US NYC">نيويورك، ولاية نيويورك</string>
+  <string name="New Zealand" comment="#. NZ">نيوزيلندا</string>
+  <string name="Nicosia" comment="#. CY NIC">نيقوسيا</string>
+  <string name="Nigeria" comment="#. NG">نيجيريا</string>
+  <string name="Nis" comment="#. RS INI">نيس</string>
+  <string name="North Macedonia" comment="#. MK">مقدونيا الشمالية</string>
+  <string name="Norway" comment="#. NO">النرويج</string>
+  <string name="Oklahoma City, OK" comment="#. US OKC">أوكلاهوما سيتي، ولاية أوكلاهوما</string>
+  <string name="Osaka" comment="#. JP OSA">أوساكا</string>
+  <string name="Oslo" comment="#. NO OSL">أوسلو</string>
+  <string name="Palermo" comment="#. IT PMO">باليرمو</string>
+  <string name="Paris" comment="#. FR PAR">باريس</string>
+  <string name="Perth" comment="#. AU PER">برث</string>
+  <string name="Peru" comment="#. PE">بيرو</string>
+  <string name="Philadelphia, PA" comment="#. US PHL">فيلادلفيا، ولاية بنسلفانيا</string>
+  <string name="Philippines" comment="#. PH">الفلبين</string>
+  <string name="Phoenix, AZ" comment="#. US PHX">فينيكس، ولاية أريزونا</string>
+  <string name="Piscataway, NJ" comment="#. US PIL">بيسكاتاواي، ولاية نيوجيرسي</string>
+  <string name="Poland" comment="#. PL">بولندا</string>
+  <string name="Portland, OR" comment="#. US PDX">بورتلاند، ولاية أوريغون</string>
+  <string name="Portugal" comment="#. PT">البرتغال</string>
+  <string name="Prague" comment="#. CZ PRG">براغ</string>
+  <string name="Pune" comment="#. IN PNQ">بون</string>
+  <string name="Queretaro" comment="#. MX QRO">كيريتارو</string>
+  <string name="Raleigh, NC" comment="#. US RAG">رالي، ولاية كارولينا الشمالية</string>
+  <string name="Richmond, VA" comment="#. US RIC">ريتشموند، ولاية فيرجينيا</string>
+  <string name="Riga" comment="#. LV RIX">ريغا</string>
+  <string name="Romania" comment="#. RO">رومانيا</string>
+  <string name="Rome" comment="#. IT ROM">روما</string>
+  <string name="Salt Lake City, UT" comment="#. US SLC">سولت لايك سيتي، ولاية يوتا</string>
+  <string name="San Francisco, CA" comment="#. US SFO">سان فرانسيسكو، ولاية كاليفورنيا</string>
+  <string name="San Jose, CA" comment="#. US SJC">سان خوسيه، ولاية كاليفورنيا</string>
+  <string name="Santiago" comment="#. CL SCL">سانتياغو</string>
+  <string name="Sao Paulo" comment="#. BR SAO">ساو باولو</string>
+  <string name="Seattle, WA" comment="#. US SEA">سياتل، ولاية واشنطن</string>
+  <string name="Secaucus, NJ" comment="#. US UYK">سيكوكس، ولاية نيوجيرسي</string>
+  <string name="Serbia" comment="#. RS">صربيا</string>
+  <string name="Singapore" comment="#. SG SIN">سنغافورة</string>
+  <string name="Sioux Falls, SD" comment="#. US FSD">سايوكس فالز، ولاية داكوتا الجنوبية</string>
+  <string name="Skopje" comment="#. MK SKP">سكوبيه</string>
+  <string name="Slovakia" comment="#. SK">سلوفاكيا</string>
+  <string name="Slovenia" comment="#. SI">سلوفينيا</string>
+  <string name="Sofia" comment="#. BG SOF">صوفيا</string>
+  <string name="South Africa" comment="#. ZA">جنوب أفريقيا</string>
+  <string name="Spain" comment="#. ES">إسبانيا</string>
+  <string name="St. Louis, MO" comment="#. US STL">سانت لويس، ولاية ميزوري</string>
+  <string name="Stamford, CT" comment="#. US XLX">ستامفورد، ولاية كونيتيكت</string>
+  <string name="Stavanger" comment="#. NO SVG">ستافانجر</string>
+  <string name="Stockholm" comment="#. SE STO">ستكهولم</string>
+  <string name="Sweden" comment="#. SE">السويد</string>
+  <string name="Switzerland" comment="#. CH">سويسرا</string>
+  <string name="Sydney" comment="#. AU SYD">سيدني</string>
+  <string name="Tallinn" comment="#. EE TLL">تالين</string>
+  <string name="Tel Aviv" comment="#. IL TLV">تل أبيب</string>
+  <string name="Thailand" comment="#. TH">تايلاند</string>
+  <string name="Tirana" comment="#. AL TIA">تيرانا</string>
+  <string name="Tokyo" comment="#. JP TYO">طوكيو</string>
+  <string name="Toronto" comment="#. CA TOR">تورونتو</string>
+  <string name="Turkey" comment="#. TR">تركيا</string>
+  <string name="UK" comment="#. GB">المملكة المتحدة</string>
+  <string name="USA" comment="#. US">الولايات المتحدة الأمريكية</string>
+  <string name="Ukraine" comment="#. UA">أوكرانيا</string>
+  <string name="United Arab Emirates" comment="#. AE">الإمارات العربية المتحدة</string>
+  <string name="Valencia" comment="#. ES VLC">فالينسيا</string>
+  <string name="Vancouver" comment="#. CA VAN">فانكوفر</string>
+  <string name="Vienna" comment="#. AT VIE">فيينا</string>
+  <string name="Warsaw" comment="#. PL WAW">وارسو</string>
+  <string name="Washington DC" comment="#. US WAS">واشنطن العاصمة</string>
+  <string name="Wien" comment="#. AT VIE">فيينا</string>
+  <string name="Zagreb" comment="#. HR ZAG">زغرب</string>
+  <string name="Zurich" comment="#. CH ZRH">زيورخ</string>
 </resources>
