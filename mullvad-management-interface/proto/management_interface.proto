@@ -711,7 +711,7 @@ message CustomVpnConfig {
     bytes public_key = 1;
     // CIDR
     repeated string allowed_ip = 2;
-    // <ip>:<port>
+    // ip:port
     string endpoint = 3;
   }
 
