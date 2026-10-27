@@ -38,6 +38,8 @@
 	<true/>
 	<key>MainApplicationIdentifier</key>
 	<string>$(APPLICATION_IDENTIFIER)</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>The app needs this to connect and test a new method.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>StartVPNIntent</string>
