@@ -2,12 +2,12 @@
 
 package net.mullvad.mullvadvpn.lib.common.util
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -148,13 +148,13 @@ fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {
 /**
  * Launches [action] in a child coroutine when collection starts.
  *
- * Unlike [onStart], which suspends the flow until its block returns, [action] runs concurrently
- * with the collection. It is canceled when the collection is canceled.
+ * Like [onStart], but [action] is launched instead of awaited, so it runs concurrently with the
+ * collection. It is canceled when the collection is canceled.
  *
  * Typical usage with stateIn in a ViewModel:
  * ```
  * val uiState: StateFlow<UiStateProfile> = repository.observeProfile()
- *     .onStartLaunchChild { repository.refresh() }
+ *     .launchOnStart { repository.refresh() }
  *     .stateIn(
  *         scope = viewModelScope,
  *         started = SharingStarted.WhileSubscribed(5_000),
@@ -166,5 +166,9 @@ fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {
  * canceled when the stateIn stops, in this case 5 seconds after the last subscriber leaves because
  * of SharingStarted.WhileSubscribed(5_000).
  */
-fun <T> Flow<T>.launchOnStart(action: suspend () -> Unit): Flow<T> =
-    this.onStart { CoroutineScope(currentCoroutineContext()).launch { action() } }
+fun <T> Flow<T>.launchOnStart(action: suspend () -> Unit): Flow<T> = flow {
+    coroutineScope {
+        launch { action() }
+        emitAll(this@launchOnStart)
+    }
+}
