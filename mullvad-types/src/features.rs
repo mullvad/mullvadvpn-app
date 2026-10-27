@@ -166,7 +166,7 @@ pub fn compute_feature_indicators(
 
     let mtu = settings.tunnel_options.wireguard.mtu.is_some();
     #[cfg(feature = "custom-vpn")]
-    let custom_vpn = settings.custom_vpn_enabled && settings.custom_vpn_config.is_some();
+    let custom_vpn = settings.custom_vpn.active().is_some();
 
     let daita = endpoint.daita;
 

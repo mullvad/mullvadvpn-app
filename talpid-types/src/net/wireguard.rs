@@ -369,8 +369,33 @@ pub struct CustomVpnPeerConfig {
 #[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnConfig {
+    pub enabled: bool,
+    pub name: Option<String>,
     pub tunnel: CustomVpnTunnelConfig,
-    pub peer: CustomVpnPeerConfig,
+    pub peers: vec1::Vec1<CustomVpnPeerConfig>,
+}
+
+#[cfg(feature = "custom-vpn")]
+impl CustomVpnConfig {
+    /// The peer used by the tunnel. Only a single peer is currently supported.
+    pub fn peer(&self) -> &CustomVpnPeerConfig {
+        self.peers.first()
+    }
+}
+
+/// Custom VPN configs (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnSettings {
+    pub configs: Vec<CustomVpnConfig>,
+}
+
+#[cfg(feature = "custom-vpn")]
+impl CustomVpnSettings {
+    /// The config to use, which is the first enabled config, if any.
+    pub fn active(&self) -> Option<&CustomVpnConfig> {
+        self.configs.iter().find(|config| config.enabled)
+    }
 }
 
 fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>

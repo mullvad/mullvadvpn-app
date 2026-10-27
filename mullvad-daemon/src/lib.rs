@@ -481,9 +481,6 @@ pub enum DaemonCommand {
         oneshot::Sender<String>,
         Option<talpid_types::net::wireguard::CustomVpnConfig>,
     ),
-    /// Enable or disable the custom VPN
-    #[cfg(feature = "custom-vpn")]
-    SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
     /// Get custom VPN stats
     #[cfg(feature = "custom-vpn")]
     GetCustomVpnStats(oneshot::Sender<Stats>),
@@ -920,10 +917,7 @@ impl Daemon {
             settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
             #[cfg(feature = "custom-vpn")]
-            settings
-                .custom_vpn_config
-                .clone()
-                .filter(|_| settings.custom_vpn_enabled),
+            settings.custom_vpn.active().cloned(),
         );
 
         let param_gen = parameters_generator.clone();
@@ -1684,10 +1678,6 @@ impl Daemon {
             DeleteMultihopMigration => self.on_delete_multihop_migration().await,
             #[cfg(feature = "custom-vpn")]
             SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
-            #[cfg(feature = "custom-vpn")]
-            SetCustomVpnConfigStatus(tx, enabled) => {
-                self.on_set_custom_vpn_config_status(tx, enabled).await
-            }
             #[cfg(feature = "custom-vpn")]
             GetCustomVpnStats(tx) => self.on_get_custom_vpn_stats(tx),
         }
@@ -2725,15 +2715,12 @@ impl Daemon {
     ) {
         match self
             .settings
-            .update(move |s| s.custom_vpn_config = config)
+            // Only a single config is currently managed
+            .update(move |s| s.custom_vpn.configs = config.into_iter().collect())
             .await
         {
             Ok(_) => {
-                let effective = if self.settings.settings().custom_vpn_enabled {
-                    self.settings.settings().custom_vpn_config.clone()
-                } else {
-                    None
-                };
+                let effective = self.settings.settings().custom_vpn.active().cloned();
                 self.parameters_generator.set_custom_vpn(effective).await;
                 Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
                 self.reconnect_tunnel();
@@ -2744,39 +2731,6 @@ impl Daemon {
                     err.display_chain_with_msg("Failed to set custom VPN config")
                 );
                 Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
-            }
-        }
-    }
-
-    #[cfg(feature = "custom-vpn")]
-    async fn on_set_custom_vpn_config_status(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        enabled: bool,
-    ) {
-        match self
-            .settings
-            .update(move |s| s.custom_vpn_enabled = enabled)
-            .await
-        {
-            Ok(changed) => {
-                if changed {
-                    let effective = if self.settings.settings().custom_vpn_enabled {
-                        self.settings.settings().custom_vpn_config.clone()
-                    } else {
-                        None
-                    };
-                    self.parameters_generator.set_custom_vpn(effective).await;
-                    self.reconnect_tunnel();
-                }
-                Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");
-            }
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to set custom VPN config status")
-                );
-                Self::oneshot_send(tx, Err(err), "set_custom_vpn_config_status");
             }
         }
     }

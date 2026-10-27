@@ -79,11 +79,19 @@ impl CustomVpn {
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
-        let enabled = BooleanOption::from(settings.custom_vpn_enabled);
-        println!("Personal VPN: {enabled}");
-        match settings.custom_vpn_config {
+        // Show the active config, or the first one if none is enabled
+        let config = settings
+            .custom_vpn
+            .active()
+            .or_else(|| settings.custom_vpn.configs.first());
+        let enabled = BooleanOption::from(config.is_some_and(|c| c.enabled));
+        println!("Custom VPN: {enabled}");
+        match config {
             None => println!("Configuration: none"),
             Some(config) => {
+                if let Some(name) = &config.name {
+                    println!("Name:               {name}");
+                }
                 // TODO: Do not print?
                 println!(
                     "Tunnel private key: {}",
@@ -97,11 +105,13 @@ impl CustomVpn {
                     .collect::<Vec<_>>()
                     .join(", ");
                 println!("Tunnel IPs:         {ips}");
-                println!("Peer public key:    {}", config.peer.public_key.to_base64());
-                for allowed_ip in &config.peer.allowed_ip {
-                    println!("Allowed IP:         {allowed_ip}");
+                for peer in &config.peers {
+                    println!("Peer public key:    {}", peer.public_key.to_base64());
+                    for allowed_ip in &peer.allowed_ip {
+                        println!("Allowed IP:         {allowed_ip}");
+                    }
+                    println!("Endpoint:           {}", peer.endpoint);
                 }
-                println!("Endpoint:           {}", config.peer.endpoint);
             }
         }
         Ok(())
@@ -114,18 +124,23 @@ impl CustomVpn {
         allowed_ip: Vec<IpNetwork>,
         endpoint: String,
     ) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+        // Keep the current enabled state
+        let enabled = settings.custom_vpn.active().is_some();
         let config = CustomVpnConfig {
+            enabled,
+            name: None,
             tunnel: CustomVpnTunnelConfig {
                 private_key,
                 ips: tunnel_ip,
             },
-            peer: CustomVpnPeerConfig {
+            peers: vec1::vec1![CustomVpnPeerConfig {
                 public_key: peer_pubkey,
                 allowed_ip,
                 endpoint: endpoint.parse()?,
-            },
+            }],
         };
-        let mut rpc = MullvadProxyClient::new().await?;
         let error = rpc.set_custom_vpn_config(Some(config)).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
@@ -136,7 +151,15 @@ impl CustomVpn {
 
     async fn enable(state: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_custom_vpn_config_status(*state).await?;
+        let settings = rpc.get_settings().await?;
+        let Some(mut config) = settings.custom_vpn.configs.into_iter().next() else {
+            anyhow::bail!("No custom VPN configuration");
+        };
+        config.enabled = *state;
+        let error = rpc.set_custom_vpn_config(Some(config)).await?;
+        if !error.is_empty() {
+            anyhow::bail!("Daemon returned error: {error}");
+        }
         println!("Custom VPN: {state}");
         Ok(())
     }

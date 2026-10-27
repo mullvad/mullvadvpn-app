@@ -142,10 +142,10 @@ pub async fn build(
     config: &Config,
     tun_dev: &GotaTunDevice,
 ) -> Result<Frontend, TunnelError> {
+    let peer = custom_vpn.peer();
     let outer_v4 = config.tunnel_ipv4();
     let outer_v6 = config.tunnel_ipv6();
-    let (bridge_mtu, overhead) =
-        calculate_mtu_and_overhead(custom_vpn.peer.endpoint.ip(), tun_dev)?;
+    let (bridge_mtu, overhead) = calculate_mtu_and_overhead(peer.endpoint.ip(), tun_dev)?;
     let nat_mappings = resolve_nat_mappings(custom_vpn, outer_v4, outer_v6)?;
 
     // Reads from the system TUN are routed either to the custom VPN or the default outer VPN.
@@ -168,7 +168,7 @@ pub async fn build(
 
     let default_output = router.add_routes(&default_routes, CHANNEL_CAPACITY);
 
-    let pvpn_output = router.add_routes(&custom_vpn.peer.allowed_ip, CHANNEL_CAPACITY);
+    let pvpn_output = router.add_routes(&peer.allowed_ip, CHANNEL_CAPACITY);
     let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
 
     // Channel bridge (inner device UDP <-> outer device TUN). The source addresses must be the
@@ -189,8 +189,8 @@ pub async fn build(
     let outer_ip_send = TunTxRouter::new(
         bridge_tun_tx,
         tun_dev.clone(),
-        custom_vpn.peer.endpoint,
-        &custom_vpn.peer.allowed_ip,
+        peer.endpoint,
+        &peer.allowed_ip,
         config.ipv4_gateway,
         config.ipv6_gateway,
     );
@@ -213,9 +213,9 @@ pub async fn build(
         .with_ip_pair(tun_send, pvpn_recv)
         .with_private_key(StaticSecret::from(custom_vpn.tunnel.private_key.to_bytes()))
         .with_peer(
-            Peer::new((*custom_vpn.peer.public_key.as_bytes()).into())
-                .with_endpoint(custom_vpn.peer.endpoint)
-                .with_allowed_ips(custom_vpn.peer.allowed_ip.iter().cloned()),
+            Peer::new((*peer.public_key.as_bytes()).into())
+                .with_endpoint(peer.endpoint)
+                .with_allowed_ips(peer.allowed_ip.iter().cloned()),
         )
         .build()
         .await

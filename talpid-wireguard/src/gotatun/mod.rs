@@ -666,7 +666,7 @@ pub fn get_tunnel_for_userspace(
         tun_config.custom_vpn_allowed_ips = config
             .custom_vpn
             .as_ref()
-            .map(|custom_vpn| custom_vpn.peer.allowed_ip.clone())
+            .map(|custom_vpn| custom_vpn.peer().allowed_ip.clone())
             .unwrap_or_default();
     }
 

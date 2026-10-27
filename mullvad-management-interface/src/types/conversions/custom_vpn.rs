@@ -3,7 +3,10 @@ use crate::types::{
     conversions::{arg_from_str, bytes_to_privkey, bytes_to_pubkey},
     proto,
 };
-use talpid_types::net::wireguard::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
+use talpid_types::net::wireguard::{
+    CustomVpnConfig, CustomVpnPeerConfig, CustomVpnSettings, CustomVpnTunnelConfig,
+};
+use vec1::Vec1;
 
 fn parse_tunnel_ips(ips: &[String]) -> Result<Vec<std::net::IpAddr>, FromProtobufTypeError> {
     if ips.is_empty() {
@@ -35,10 +38,11 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
                 "missing tunnel config".to_owned(),
             ))??;
 
-        let peer = config
-            .peer
+        let peers = config
+            .peers
+            .into_iter()
             .map(|p| {
-                Ok::<_, FromProtobufTypeError>(CustomVpnPeerConfig {
+                Ok(CustomVpnPeerConfig {
                     public_key: bytes_to_pubkey(&p.public_key)?,
                     allowed_ip: p
                         .allowed_ip
@@ -48,11 +52,43 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
                     endpoint: arg_from_str(&p.endpoint, "invalid endpoint")?,
                 })
             })
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "missing peer config".to_owned(),
-            ))??;
+            .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
+        let peers = Vec1::try_from_vec(peers).map_err(|_| {
+            FromProtobufTypeError::InvalidArgument("missing peer config".to_owned())
+        })?;
 
-        Ok(CustomVpnConfig { tunnel, peer })
+        Ok(CustomVpnConfig {
+            enabled: config.enabled,
+            name: config.name,
+            tunnel,
+            peers,
+        })
+    }
+}
+
+impl TryFrom<proto::CustomVpnSettings> for CustomVpnSettings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: proto::CustomVpnSettings) -> Result<Self, Self::Error> {
+        Ok(CustomVpnSettings {
+            configs: settings
+                .configs
+                .into_iter()
+                .map(CustomVpnConfig::try_from)
+                .collect::<Result<_, _>>()?,
+        })
+    }
+}
+
+impl From<CustomVpnSettings> for proto::CustomVpnSettings {
+    fn from(settings: CustomVpnSettings) -> Self {
+        proto::CustomVpnSettings {
+            configs: settings
+                .configs
+                .into_iter()
+                .map(proto::CustomVpnConfig::from)
+                .collect(),
+        }
     }
 }
 
@@ -63,16 +99,17 @@ impl From<CustomVpnConfig> for proto::CustomVpnConfig {
                 private_key: config.tunnel.private_key.to_bytes().to_vec(),
                 ips: config.tunnel.ips.iter().map(ToString::to_string).collect(),
             }),
-            peer: Some(proto::custom_vpn_config::PeerConfig {
-                public_key: config.peer.public_key.as_bytes().to_vec(),
-                allowed_ip: config
-                    .peer
-                    .allowed_ip
-                    .iter()
-                    .map(|ip| ip.to_string())
-                    .collect(),
-                endpoint: config.peer.endpoint.to_string(),
-            }),
+            peers: config
+                .peers
+                .iter()
+                .map(|peer| proto::custom_vpn_config::PeerConfig {
+                    public_key: peer.public_key.as_bytes().to_vec(),
+                    allowed_ip: peer.allowed_ip.iter().map(|ip| ip.to_string()).collect(),
+                    endpoint: peer.endpoint.to_string(),
+                })
+                .collect(),
+            enabled: config.enabled,
+            name: config.name,
         }
     }
 }
