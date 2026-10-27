@@ -14,6 +14,8 @@ pub struct NextProtocolOffset {
 /// Extracts the final next protocol header and its offset for the IPv6 packet `ipv6`.
 /// This will be the L4 transport protocol if one exists and is not encrypted.
 pub fn parse_next_protocol(ipv6: &Ipv6) -> Option<NextProtocolOffset> {
+    const MAX_HEADER_COUNT: usize = 8;
+
     let mut current_protocol = ipv6.header.next_protocol();
     let mut payload_offset = 0;
     let mut header_count = 0;
@@ -22,7 +24,7 @@ pub fn parse_next_protocol(ipv6: &Ipv6) -> Option<NextProtocolOffset> {
     while is_ipv6_extension_header(current_protocol) {
         // Defend against maliciously deep header chains
         header_count += 1;
-        if header_count > 8 {
+        if header_count > MAX_HEADER_COUNT {
             return None;
         }
 
