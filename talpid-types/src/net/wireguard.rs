@@ -19,7 +19,7 @@ pub struct TunnelParameters {
     pub connection: ConnectionConfig,
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
-    pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    pub obfuscation: super::obfuscation::Obfuscators,
     #[cfg(feature = "custom-vpn")]
     pub custom_vpn: Option<CustomVpnConfig>,
 }
@@ -27,10 +27,7 @@ pub struct TunnelParameters {
 impl TunnelParameters {
     /// Returns the endpoint that will be connected to
     pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
-        self.obfuscation
-            .as_ref()
-            .map(|proxy| proxy.endpoints())
-            .unwrap_or_else(|| vec![self.connection.get_endpoint()])
+        self.obfuscation.endpoints()
     }
 
     pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
@@ -40,7 +37,7 @@ impl TunnelParameters {
                 .connection
                 .get_exit_endpoint()
                 .unwrap_or_else(|| self.connection.get_endpoint()),
-            obfuscation: self.obfuscation.as_ref().map(ObfuscationInfo::from),
+            obfuscation: ObfuscationInfo::from(&self.obfuscation),
             entry_endpoint: self
                 .connection
                 .get_exit_endpoint()

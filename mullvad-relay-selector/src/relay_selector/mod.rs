@@ -26,11 +26,12 @@ use mullvad_types::{
 };
 use std::{
     collections::HashMap,
+    net::IpAddr,
+    ops::Deref,
     sync::{Arc, RwLock},
 };
-use std::{net::SocketAddr, ops::Deref};
 use talpid_types::net::{
-    obfuscation::{ObfuscatorConfig, Obfuscators},
+    obfuscation::{ObfuscatorConfig, Obfuscators, TransportConfig},
     proxy::Shadowsocks,
 };
 
@@ -73,25 +74,18 @@ pub struct RelaySelector {
     bridges: Arc<RwLock<BridgeList>>,
 }
 
-/// Remove the obfuscation methods that the selected relay offers from the query, the return it.
+/// Remove the obfuscation methods that the selected relay offers from the query.
 fn remove_supported_obfuscations(mut query: RelayQuery, relay: &GetRelay) -> RelayQuery {
-    let (direct, obf_configs) = match &relay.obfuscator {
-        None => (true, vec![]),
-        Some(obfuscation) => (
-            obfuscation.direct().is_some(),
-            obfuscation.obfuscator_configs(),
-        ),
-    };
     let obfuscation = &mut query.entry_specific_mut().obfuscation;
-    if direct {
-        obfuscation.direct = None;
-    }
-    for config in obf_configs {
+    for config in &*relay.obfuscator {
         match config {
-            ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
-            ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
-            ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
-            ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+            TransportConfig::Direct(_) => obfuscation.direct = None,
+            TransportConfig::Obfuscation(config) => match config {
+                ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+                ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+                ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+                ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+            },
         }
     }
     query
@@ -101,7 +95,7 @@ fn remove_supported_obfuscations(mut query: RelayQuery, relay: &GetRelay) -> Rel
 #[derive(Clone, Debug)]
 pub struct GetRelay {
     pub endpoint: MullvadEndpoint,
-    pub obfuscator: Option<Obfuscators>,
+    pub obfuscator: Obfuscators,
     pub inner: WireguardConfig,
     pub server_override: bool,
 }
@@ -181,13 +175,17 @@ impl RelaySelector {
             .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
 
         let entry_specific = query.entry_specific();
-        let (wg_addr, obfuscator) = endpoint_set
-            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version);
 
-        let server_override = match wg_addr {
-            SocketAddr::V4(_) => entry.overridden_ipv4,
-            SocketAddr::V6(_) => entry.overridden_ipv6,
-        };
+        let obfuscator = endpoint_set
+            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version)
+            .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
+
+        let server_override = has_overridden_address(entry, &obfuscator);
+
+        // For now the peer config must have exactly one WG endpoint.
+        // TODO: support having zero, one or two wg endpoints in the obfuscator list,
+        // i.e. when multiplexing the direct IPv4 and IPv6 WireGuard connections.
+        let wg_addr = endpoint_set.wireguard_endpoint_address(&obfuscator);
 
         let endpoint = wireguard_endpoint(
             query.allowed_ips.as_ref(),
@@ -251,6 +249,16 @@ impl RelaySelector {
             }
         }
     }
+}
+
+fn has_overridden_address(entry: &WireguardRelay, obfuscator: &Obfuscators) -> bool {
+    obfuscator.0.iter().any(|t| {
+        let ip = t.endpoint().address.ip();
+        let overridden_v4 = entry.overridden_ipv4 && ip == IpAddr::V4(entry.ipv4_addr_in);
+        let overridden_v6 =
+            entry.overridden_ipv6 && entry.ipv6_addr_in.is_some_and(|v6| ip == IpAddr::V6(v6));
+        overridden_v4 || overridden_v6
+    })
 }
 
 /// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.

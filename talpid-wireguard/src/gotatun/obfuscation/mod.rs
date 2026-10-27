@@ -11,7 +11,7 @@ use gotatun::{
     },
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use talpid_types::net::obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators};
+use talpid_types::net::obfuscation::{LwoVersion, ObfuscatorConfig, TransportConfig};
 use tunnel_obfuscation::gotatun_transport::MaybeObfuscatingTransportFactory;
 
 use crate::{config::Config, obfuscation::RunningObfuscation};
@@ -42,8 +42,9 @@ pub fn transport_factory(
 ///
 /// [`LwoVersion::V2`] peers must have [`lwo_timer_params`] applied.
 pub fn lwo_version(config: &Config) -> Option<LwoVersion> {
-    match &config.obfuscator_config {
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { version, .. })) => Some(*version),
+    // TODO: Should we only handle the single obfuscation case?
+    match &config.obfuscator_config[..] {
+        [TransportConfig::Obfuscation(ObfuscatorConfig::Lwo { version, .. })] => Some(*version),
         _ => None,
     }
 }

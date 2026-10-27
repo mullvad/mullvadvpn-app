@@ -15,7 +15,7 @@ use talpid_tunnel::SelectedObfuscation;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::net::{
-    obfuscation::{ObfuscatorConfig, Obfuscators},
+    obfuscation::{ObfuscatorConfig, Obfuscators, TransportConfig},
     wireguard::PublicKey,
 };
 use tunnel_obfuscation::{
@@ -25,35 +25,28 @@ use tunnel_obfuscation::{
 };
 
 pub use tunnel_obfuscation::gotatun_transport::RunningObfuscation;
+use vec1::Vec1;
 
 /// Settings for the local socket obfuscator to run: either a single obfuscator or a multiplexer.
 #[derive(Debug, Clone)]
-pub enum ObfuscationSettings {
-    Single(tunnel_obfuscation::Settings),
-    Multiplexer {
-        transports: Vec<tunnel_obfuscation::multiplexer::Transport>,
-        /// Public key of the local WireGuard instance
-        client_public_key: PublicKey,
-    },
+pub struct ObfuscationSettings {
+    transports: Vec1<tunnel_obfuscation::multiplexer::Transport>,
+    /// Public key of the local WireGuard instance
+    client_public_key: PublicKey,
 }
 
 impl ObfuscationSettings {
     /// Return the settings of the single obfuscator to run, if this is not a multiplexer.
     pub fn single(&self) -> Option<&tunnel_obfuscation::Settings> {
-        match self {
-            ObfuscationSettings::Single(settings) => Some(settings),
-            ObfuscationSettings::Multiplexer { .. } => None,
+        match &self.transports[..] {
+            [Transport::Obfuscated(settings)] => Some(settings),
+            _ => None,
         }
     }
 
     /// The overhead (in bytes) that this obfuscation adds to every packet.
     pub fn packet_overhead(&self) -> u16 {
-        match self {
-            ObfuscationSettings::Single(settings) => settings.packet_overhead(),
-            ObfuscationSettings::Multiplexer { transports, .. } => {
-                multiplexer::packet_overhead(transports)
-            }
-        }
+        multiplexer::packet_overhead(&self.transports)
     }
 }
 
@@ -63,34 +56,21 @@ pub fn settings_from_config(
     obfuscation_config: &Obfuscators,
     mtu: u16,
 ) -> ObfuscationSettings {
-    match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => {
-            ObfuscationSettings::Single(settings_from_single_config(
-                client_public_key,
-                server_public_key,
-                obfuscation_config,
+    let transports = obfuscation_config.mapped_ref(|t| match t {
+        TransportConfig::Direct(addr) => multiplexer::Transport::Direct(*addr),
+        TransportConfig::Obfuscation(obfuscator_config) => {
+            let settings = settings_from_single_config(
+                client_public_key.clone(),
+                server_public_key.clone(),
+                obfuscator_config,
                 mtu,
-            ))
+            );
+            multiplexer::Transport::Obfuscated(settings)
         }
-        Obfuscators::Multiplexer { direct, configs } => {
-            let mut transports = vec![];
-            if let Some(direct) = direct {
-                transports.push(multiplexer::Transport::Direct(*direct));
-            }
-            for obfs_config in configs {
-                let settings = settings_from_single_config(
-                    client_public_key.clone(),
-                    server_public_key.clone(),
-                    obfs_config,
-                    mtu,
-                );
-                transports.push(multiplexer::Transport::Obfuscated(settings));
-            }
-            ObfuscationSettings::Multiplexer {
-                transports,
-                client_public_key,
-            }
-        }
+    });
+    ObfuscationSettings {
+        transports,
+        client_public_key,
     }
 }
 
