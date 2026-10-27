@@ -1303,7 +1303,7 @@ fn calculate_tunnel_mtu(
 
     #[cfg(feature = "custom-vpn")]
     if let Some(custom) = &params.custom_vpn {
-        overhead += wireguard_overhead(custom.peer.endpoint.ip());
+        overhead += wireguard_overhead(custom.peer().endpoint.ip());
     }
 
     clamp_tunnel_mtu(params, link_mtu_for_peer.saturating_sub(overhead))

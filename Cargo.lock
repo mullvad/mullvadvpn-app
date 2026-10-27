@@ -3301,6 +3301,7 @@ dependencies = [
  "clap_complete",
  "clap_complete_nushell",
  "futures",
+ "ipnetwork",
  "itertools 0.14.0",
  "mullvad-management-interface",
  "mullvad-types",
@@ -3312,6 +3313,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.19",
  "tokio",
+ "vec1",
  "windows-sys 0.61.2",
  "winresource",
 ]
@@ -6132,6 +6134,7 @@ dependencies = [
  "serde",
  "shadowsocks-crypto",
  "thiserror 2.0.19",
+ "vec1",
  "x25519-dalek",
  "zeroize",
 ]
