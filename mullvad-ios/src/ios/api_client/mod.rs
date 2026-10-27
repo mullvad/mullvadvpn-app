@@ -1,6 +1,9 @@
-use crate::api_client::{
-    access_method_settings::{ShadowsocksBridgeProvider, SwiftAccessMethodSettingsContext},
-    geoip::AmIMullvadHandles,
+use crate::{
+    api_client::{
+        access_method_settings::{ShadowsocksBridgeProvider, SwiftAccessMethodSettingsContext},
+        geoip::AmIMullvadHandles,
+    },
+    type_bridges::AnyError,
 };
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use futures::{
@@ -34,6 +37,43 @@ mod response;
 mod retry_strategy;
 mod storekit;
 mod swift_data;
+
+#[derive(uniffi::Error, Debug)]
+pub enum ApiContextError {
+    ApiError(u16, String),
+    Other(Arc<AnyError>),
+}
+impl std::fmt::Display for ApiContextError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ApiContextError::ApiError(status_code, description) => {
+                write!(f, "{status_code}: {description}")
+            }
+            ApiContextError::Other(o) => <AnyError as std::fmt::Display>::fmt(o, f),
+        }
+    }
+}
+impl From<AnyError> for ApiContextError {
+    fn from(value: AnyError) -> Self {
+        Self::Other(Arc::new(value))
+    }
+}
+impl From<Arc<AnyError>> for ApiContextError {
+    fn from(value: Arc<AnyError>) -> Self {
+        Self::Other(value)
+    }
+}
+impl From<mullvad_api::rest::Error> for ApiContextError {
+    fn from(value: mullvad_api::rest::Error) -> Self {
+        use mullvad_api::rest::Error;
+        match value {
+            Error::ApiError(status_code, description) => {
+                Self::ApiError(status_code.as_u16(), description)
+            }
+            other => Self::Other(Arc::new(AnyError::from(other))),
+        }
+    }
+}
 
 #[uniffi::export(with_foreign)]
 pub trait AccessMethodChangeCallback: Send + Sync {
