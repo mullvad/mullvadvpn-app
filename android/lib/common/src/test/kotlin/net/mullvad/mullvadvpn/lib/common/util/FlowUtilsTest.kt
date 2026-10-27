@@ -57,7 +57,7 @@ class FlowUtilsTest {
         assertNotNull(capturedContext)
         assertEquals(
             coroutineName,
-            capturedContext[CoroutineName]
+            capturedContext[CoroutineName],
         )
     }
 
