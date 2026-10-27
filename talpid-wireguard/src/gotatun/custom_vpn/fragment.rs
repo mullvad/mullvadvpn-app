@@ -47,7 +47,9 @@ struct Datagram {
 /// A buffer for reassembling IPv6 datagrams from their fragments.
 ///
 /// Only fragments whose Fragment header directly follows the fixed IPv6 header are supported.
-/// This assumes that WireGuard won't add any other extension headers.
+/// This assumes that WireGuard won't add any other extension headers. Nodes along the path may
+/// not insert extension headers either, see
+/// [RFC 8200, section 4](https://www.rfc-editor.org/rfc/rfc8200#section-4).
 #[derive(Default)]
 pub struct Ipv6Fragments {
     /// FIFO queue of datagrams being reassembled, oldest first.
