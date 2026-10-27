@@ -50,13 +50,14 @@ class FlowUtilsTest {
         val flow = flowOf(1).launchOnStart { capturedContext = currentCoroutineContext() }
 
         // Act
-        withContext(CoroutineName("CollectorContext")) { flow.collect {} }
+        val coroutineName = CoroutineName("CollectorContext")
+        withContext(coroutineName) { flow.collect {} }
 
         // Assert
         assertNotNull(capturedContext)
         assertEquals(
-            "CollectorContext",
-            capturedContext[CoroutineName]?.name,
+            coroutineName,
+            capturedContext[CoroutineName]
         )
     }
 
