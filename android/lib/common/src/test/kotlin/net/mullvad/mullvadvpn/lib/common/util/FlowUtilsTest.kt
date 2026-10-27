@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -37,8 +38,6 @@ class FlowUtilsTest {
 
         // Act
         flow.collect {}
-        // Required to properly check if mockFunction was called.
-        runCurrent()
 
         // Assert
         verify(exactly = 1) { mockFunction() }
@@ -122,9 +121,15 @@ class FlowUtilsTest {
     @Test
     fun `launch on start action should be cancelled when collection stops early`() = runTest {
         // Arrange
+        var wasActionStarted = false
         var isActionRunning = false
-        val flow =
-            flowOf(1).launchOnStart {
+        val flow = flow {
+            // Let the launched action start before the first emission.
+            yield()
+            emit(1)
+        }
+            .launchOnStart {
+                wasActionStarted = true
                 isActionRunning = true
                 try {
                     awaitCancellation()
@@ -135,9 +140,9 @@ class FlowUtilsTest {
 
         // Act
         flow.first()
-        runCurrent()
 
         // Assert
+        assertTrue(wasActionStarted)
         assertFalse(isActionRunning)
     }
 
@@ -146,7 +151,10 @@ class FlowUtilsTest {
         // Arrange
         val flow = flowOf(1).launchOnStart { error("boom") }
 
-        // Act, Assert
-        assertThrows<IllegalStateException> { flow.collect {} }
+        // Act
+        val exception = assertThrows<IllegalStateException> { flow.collect {} }
+
+        // Assert
+        assertEquals("boom", exception.message)
     }
 }
