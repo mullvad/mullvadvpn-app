@@ -41,10 +41,6 @@ const MTU_STEP_SIZE: u16 = 20;
 ///
 /// Note: This does not take fragmentation into account, so it should only be used as an extra
 /// safety measure after the normal MTU calculation using header sizes and safety margins.
-///
-/// `extra_overhead` is subtracted from the detected MTU before applying it. Use it when pings
-/// only traverse a subset of the encapsulation layers (e.g. custom VPN, where pings hit the
-/// outer gateway but inner-routed traffic needs extra headroom).
 pub async fn automatic_mtu_correction(
     gateway: std::net::Ipv4Addr,
     iface_name: String,
