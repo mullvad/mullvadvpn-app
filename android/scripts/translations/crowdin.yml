@@ -2,7 +2,7 @@
 # Relay locations are not managed here. They are translated with shared relay-locations.pot.
 #
 
-project_id': '350815'
+project_id: '350815'
 api_token_env: CROWDIN_API_KEY
 base_path: ../../
 base_url: https://api.crowdin.com
