@@ -1,5 +1,5 @@
 use gotatun::packet::{IpNextProtocol, Ipv6};
-use zerocopy::{FromBytes, Immutable, KnownLayout, big_endian};
+use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout, Unaligned, big_endian};
 
 pub struct NextProtocolOffset {
     /// The next protocol e.g. TCP or UDP or ICMP
@@ -103,9 +103,9 @@ pub fn get_next_protocol_from_ext_header(buffer: &[u8]) -> Option<IpNextProtocol
 }
 
 #[repr(C)]
-#[derive(Debug, FromBytes, KnownLayout, Immutable)]
+#[derive(Debug, FromBytes, IntoBytes, KnownLayout, Immutable, Unaligned)]
 pub struct Ipv6FragmentHeader {
-    pub next_header: u8,
+    pub next_header: IpNextProtocol,
     pub reserved: u8,
     /// Contains the 13-bit offset, 2 reserved bits, and 1-bit 'More Fragments' flag
     pub frag_data: big_endian::U16,
@@ -125,6 +125,12 @@ impl Ipv6FragmentHeader {
     #[inline]
     pub fn fragment_offset(&self) -> u16 {
         self.frag_data.get() >> 3
+    }
+
+    /// Extracts the 'More Fragments' flag
+    #[inline]
+    pub fn more_fragments(&self) -> bool {
+        self.frag_data.get() & 1 != 0
     }
 }
 
@@ -335,8 +341,9 @@ mod tests {
         let hdr_bytes = build_fragment_header(6, 42, true, 0xdeadbeef);
 
         let frag = Ipv6FragmentHeader::parse(&hdr_bytes).expect("Should parse");
-        assert_eq!(frag.next_header, 6);
+        assert_eq!(frag.next_header, IpNextProtocol::Tcp);
         assert_eq!(frag.fragment_offset(), 42);
+        assert!(frag.more_fragments());
         assert_eq!(frag.identification.get(), 0xdeadbeef);
 
         // Truncated buffer (< 8 bytes)
