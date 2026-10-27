@@ -372,9 +372,9 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
+      return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.MULTIHOP_AUTO:
       return FeatureIndicator.multihopAuto;
-      return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
       return FeatureIndicator.lockdownMode;
     case grpcTypes.FeatureIndicator.UDP_2_TCP:
