@@ -13,6 +13,9 @@ use zerocopy::IntoBytes;
 /// A datagram cannot exceed 64 KiB, so at most 4 MiB is buffered.
 const MAX_CONCURRENT_DATAGRAMS: usize = 64;
 
+/// The maximum number of fragments in a datagram. A datagram with more fragments is dropped.
+const MAX_FRAGMENTS_PER_DATAGRAM: usize = 64;
+
 #[derive(Debug, PartialEq, Eq)]
 struct FragmentId {
     source: Ipv6Addr,
@@ -139,6 +142,11 @@ impl Ipv6Fragments {
             .is_some_and(|next| fragment.end() > next.offset);
         if overlaps_previous || overlaps_next {
             log::trace!("Overlapping IPv6 fragments for {id:?}, dropping the datagram");
+            self.datagrams.remove(pos);
+            return None;
+        }
+        if fragments.len() >= MAX_FRAGMENTS_PER_DATAGRAM {
+            log::trace!("Too many IPv6 fragments for {id:?}, dropping the datagram");
             self.datagrams.remove(pos);
             return None;
         }
@@ -334,6 +342,32 @@ pub mod tests {
 
         let mut fragments = Ipv6Fragments::default();
         assert!(assemble(&mut fragments, &parts[0]).is_none());
+        assert!(fragments.datagrams.is_empty());
+    }
+
+    #[test]
+    fn too_many_fragments_drops_datagram() {
+        let datagram = udp_packet(
+            "[2001:db8::1]:51820".parse().unwrap(),
+            "[fc00::2]:1234".parse().unwrap(),
+            &[0xab; 1000],
+        );
+
+        // Exactly the maximum number of fragments is reassembled
+        let parts = fragment_v6(&datagram, 1, &[8; MAX_FRAGMENTS_PER_DATAGRAM - 1]);
+        assert_eq!(parts.len(), MAX_FRAGMENTS_PER_DATAGRAM);
+        let mut fragments = Ipv6Fragments::default();
+        let (last, rest) = parts.split_last().unwrap();
+        for part in rest {
+            assert!(assemble(&mut fragments, part).is_none());
+        }
+        assert!(assemble(&mut fragments, last).is_some());
+
+        // One more fragment drops the datagram
+        let parts = fragment_v6(&datagram, 2, &[8; MAX_FRAGMENTS_PER_DATAGRAM]);
+        for part in &parts {
+            assert!(assemble(&mut fragments, part).is_none());
+        }
         assert!(fragments.datagrams.is_empty());
     }
 
