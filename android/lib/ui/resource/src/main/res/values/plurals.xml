@@ -1,12 +1,4 @@
 <resources>
-    <plurals name="years_left">
-        <item quantity="one">1 year left on this account</item>
-        <item quantity="other">%d years left on this account</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 day left on this account</item>
-        <item quantity="other">%d days left on this account</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Account credit expires in a day</item>
         <item quantity="other">Account credit expires in %d days</item>
@@ -19,6 +11,15 @@
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 day left on this account</item>
+        <item quantity="other">%d days left on this account</item>
+    </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="zero">You will lose your remaining time.</item>
+        <item quantity="one">You will lose your remaining day.</item>
+        <item quantity="other">You will lose your remaining %d days.</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%d month</item>
         <item quantity="other">%d months</item>
@@ -27,9 +28,8 @@
         <item quantity="one">%d location</item>
         <item quantity="other">%d locations</item>
     </plurals>
-    <plurals name="delete_account_days_left_warning">
-        <item quantity="zero">You will lose your remaining time.</item>
-        <item quantity="one">You will lose your remaining day.</item>
-        <item quantity="other">You will lose your remaining %d days.</item>
+    <plurals name="years_left">
+        <item quantity="one">1 year left on this account</item>
+        <item quantity="other">%d years left on this account</item>
     </plurals>
 </resources>
