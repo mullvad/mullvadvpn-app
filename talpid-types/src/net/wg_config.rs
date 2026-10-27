@@ -232,17 +232,19 @@ fn finalize(
     let endpoint = peer.endpoint.ok_or(E::MissingField("Endpoint"))?;
 
     Ok(CustomVpnConfig {
+        enabled: false,
+        name: None,
         tunnel: CustomVpnTunnelConfig {
             private_key,
             ips: tunnel_ips,
         },
-        peer: CustomVpnPeerConfig {
+        peers: vec1::vec1![CustomVpnPeerConfig {
             public_key,
             allowed_ip: peer.allowed_ips,
             endpoint: endpoint
                 .parse()
                 .map_err(|_| WgConfigParseError::InvalidEndpoint(endpoint))?,
-        },
+        }],
     })
 }
 
@@ -275,8 +277,9 @@ Endpoint = 1.2.3.4:51820
         let config = CustomVpnConfig::from_str(&sample_config()).unwrap();
         assert_eq!(config.tunnel.ips.len(), 1);
         assert_eq!(config.tunnel.ips[0].to_string(), "10.0.0.2");
-        assert_eq!(config.peer.allowed_ip.len(), 2);
-        assert_eq!(config.peer.endpoint, "1.2.3.4:51820".parse().unwrap());
+        assert_eq!(config.peers.len(), 1);
+        assert_eq!(config.peers[0].allowed_ip.len(), 2);
+        assert_eq!(config.peers[0].endpoint, "1.2.3.4:51820".parse().unwrap());
     }
 
     #[test]
