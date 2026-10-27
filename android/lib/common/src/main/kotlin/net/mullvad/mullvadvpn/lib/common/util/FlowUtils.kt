@@ -149,7 +149,10 @@ fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {
  * Launches [action] in a child coroutine when collection starts.
  *
  * Like [onStart], but [action] is launched instead of awaited, so it runs concurrently with the
- * collection. It is canceled when the collection is canceled.
+ * collection. It is canceled when the collection is canceled or stops early, e.g. with `first()`.
+ *
+ * The returned flow completes only after both the upstream flow and [action] complete. If [action]
+ * throws, the collection is canceled and the exception is rethrown to the collector.
  *
  * Typical usage with stateIn in a ViewModel:
  * ```
