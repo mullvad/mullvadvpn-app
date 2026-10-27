@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">%1$d dag</item>
-        <item quantity="other">%1$d dagen</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d locatie</item>
-        <item quantity="other">%1$d locaties</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d maand</item>
-        <item quantity="other">%1$d maanden</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 dag resterend op dit account</item>
-        <item quantity="other">%1$d dagen resterend op dit account</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">1 jaar resterend op dit account</item>
-        <item quantity="other">%1$d jaar resterend op dit account</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Accountkrediet verloopt over een dag</item>
-        <item quantity="other">Accountkrediet verloopt over %1$d dagen</item>
+        <item quantity="other">Accountkrediet verloopt over %d dagen</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Accountkrediet verloopt over een uur</item>
-        <item quantity="other">Accountkrediet verloopt over %1$d uur</item>
+        <item quantity="other">Accountkrediet verloopt over %d uur</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag resterend op dit account</item>
+        <item quantity="other">%d dagen resterend op dit account</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
         <item quantity="one">U verliest uw resterende dag.</item>
-        <item quantity="other">U verliest uw %1$d resterende dagen.</item>
+        <item quantity="other">U verliest uw %d resterende dagen.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d maand</item>
+        <item quantity="other">%d maanden</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d locatie</item>
+        <item quantity="other">%d locaties</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 jaar resterend op dit account</item>
+        <item quantity="other">%d jaar resterend op dit account</item>
     </plurals>
 </resources>

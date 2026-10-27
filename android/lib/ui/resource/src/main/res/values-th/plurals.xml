@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="other">%1$d วัน</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="other">%1$d ตำแหน่งที่ตั้ง</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="other">%1$d เดือน</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="other">บัญชีนี้เหลือเวลา %1$d วัน</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="other">บัญชีนี้เหลือเวลา %1$d ปี</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %1$d วัน</item>
+        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %d วัน</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %1$d ชั่วโมง</item>
+        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %d ชั่วโมง</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="other">%d วัน</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">บัญชีนี้เหลือเวลา %d วัน</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
-        <item quantity="other">คุณจะสูญเสียจำนวนวันที่เหลืออีก %1$d วัน</item>
+        <item quantity="other">คุณจะสูญเสียจำนวนวันที่เหลืออีก %d วัน</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%d เดือน</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%d ตำแหน่งที่ตั้ง</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">บัญชีนี้เหลือเวลา %d ปี</item>
     </plurals>
 </resources>
