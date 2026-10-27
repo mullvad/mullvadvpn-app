@@ -104,8 +104,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         #if DEBUG
-            if PacketTunnelDebugSettings.useGotaTun {
-                providerLogger.info("Using GotaTun implementation (debug)")
+            if PacketTunnelDebugSettings.useWireGuard {
+                providerLogger.info("Using WireGuard implementation (debug)")
+                implementation = makeWireGuardGoImplementation(
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader,
+                    apiTransportProvider: apiTransportProvider
+                )
+            } else {
                 implementation = GotaTunTunnelImplementation(
                     providerDelegate: GotaTunProviderProxy(provider: self),
                     blockedStateErrorMapper: BlockedStateErrorMapper(),
@@ -120,18 +126,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                         deviceStateAccessor: DeviceStateAccessor(settingsManager: settingsManager)
                     )
                 )
-            } else {
-                implementation = makeWireGuardGoImplementation(
-                    ipOverrideWrapper: ipOverrideWrapper,
-                    settingsReader: settingsReader,
-                    apiTransportProvider: apiTransportProvider
-                )
             }
         #else
-            implementation = makeWireGuardGoImplementation(
+            implementation = GotaTunTunnelImplementation(
+                providerDelegate: GotaTunProviderProxy(provider: self),
+                blockedStateErrorMapper: BlockedStateErrorMapper(),
+                adapterFactory: RustGotaTunAdapterFactory(),
                 ipOverrideWrapper: ipOverrideWrapper,
                 settingsReader: settingsReader,
-                apiTransportProvider: apiTransportProvider
+                deviceChecker: AsyncDeviceChecker(
+                    remoteService: DeviceCheckRemoteService(
+                        accountsProxy: accountsProxy,
+                        devicesProxy: devicesProxy
+                    ),
+                    deviceStateAccessor: DeviceStateAccessor(settingsManager: settingsManager)
+                )
             )
         #endif
 

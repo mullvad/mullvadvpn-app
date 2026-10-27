@@ -77,7 +77,7 @@ class TunnelCoordinator: Coordinator, Presenting {
             case .ipVersion:
                 self?.showFeatureSetting?(.vpnSettings(.ipVersion))
             #if NEVER_IN_PRODUCTION
-                case .gotaTun:
+                case .wireGuard:
                     break
             #endif
             }

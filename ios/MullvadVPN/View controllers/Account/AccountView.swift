@@ -274,9 +274,13 @@ struct AccountView: View {
             Button("Invalidate Wireguard key".verbatim) {
                 viewModel.invalidateWireguardKey()
             }
-            Button("Use GotaTun".verbatim) {
-                viewModel.toggleGotaTun()
+            Button(getTunnelString()) {
+                viewModel.toggleWireGuard()
             }
+        }
+
+        func getTunnelString() -> String {
+            PacketTunnelDebugSettings.useWireGuard ? "Use GotaTun" : "Use WireGuard"
         }
     #endif
 }

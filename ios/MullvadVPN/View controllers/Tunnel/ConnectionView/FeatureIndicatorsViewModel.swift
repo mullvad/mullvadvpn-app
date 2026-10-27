@@ -57,7 +57,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         }
 
         #if NEVER_IN_PRODUCTION
-            features.append(GotaTunFeature())
+            features.append(WireGuardFeature())
         #endif
 
         return
