@@ -39,6 +39,7 @@ final class SettingsViewControllerFactory {
     private let navigationController: UINavigationController
     private let alertPresenter: AlertPresenter
     private var appPreferences: AppPreferencesDataSource
+    private let problemReportViewModel: ProblemReportViewModel
 
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)?
     var didCompleteMigrationWizard: ((Bool) -> Void)?
@@ -52,7 +53,8 @@ final class SettingsViewControllerFactory {
         navigationController: UINavigationController,
         alertPresenter: AlertPresenter,
         relaySelectorWrapper: RelaySelectorWrapper,
-        appPreferences: AppPreferencesDataSource
+        appPreferences: AppPreferencesDataSource,
+        problemReportViewModel: ProblemReportViewModel
     ) {
         self.interactorFactory = interactorFactory
         self.accessMethodRepository = accessMethodRepository
@@ -63,6 +65,7 @@ final class SettingsViewControllerFactory {
         self.relaySelectorWrapper = relaySelectorWrapper
         self.alertPresenter = alertPresenter
         self.appPreferences = appPreferences
+        self.problemReportViewModel = problemReportViewModel
     }
 
     func makeRoute(for route: SettingsNavigationRoute) -> MakeChildResult {
@@ -108,11 +111,20 @@ final class SettingsViewControllerFactory {
     }
 
     private func makeProblemReportViewController() -> MakeChildResult {
+        problemReportViewModel.prepareForReuse()
+        let viewController = UIHostingController(
+            rootView: ProblemReportView(
+                viewModel: problemReportViewModel
+            )
+        )
+        // For reasons known only to the SwiftUI gods, the hosting view's `backgroundColor` is
+        // `.white` by default. Which is not a problem, except during navigation transitions,
+        // where the SwiftUI view is scaled down, jarringly exposing the white backing.
+        // This is mitigated by explicitly setting the colour here.
+        viewController.view.backgroundColor = UIColor.secondaryColor
         return .viewController(
-            ProblemReportViewController(
-                interactor: interactorFactory.makeProblemReportInteractor(),
-                alertPresenter: alertPresenter
-            ))
+            viewController
+        )
     }
 
     private func makeAPIAccessCoordinator() -> MakeChildResult {
