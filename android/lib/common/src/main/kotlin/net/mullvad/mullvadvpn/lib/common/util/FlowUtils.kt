@@ -4,9 +4,13 @@ package net.mullvad.mullvadvpn.lib.common.util
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 inline fun <T> Flow<T>.onFirst(crossinline action: suspend (T) -> Unit): Flow<T> {
     return flow {
@@ -138,5 +142,36 @@ fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {
     collect { curr ->
         emit(curr to prev)
         prev = curr
+    }
+}
+
+/**
+ * Launches [action] in a child coroutine when collection starts.
+ *
+ * Like [onStart], but [action] is launched instead of awaited, so it runs concurrently with the
+ * collection. It is canceled when the collection is canceled or stops early, e.g. with `first()`.
+ *
+ * The returned flow completes only after both the upstream flow and [action] complete. If [action]
+ * throws, the collection is canceled and the exception is rethrown to the collector.
+ *
+ * Typical usage with stateIn in a ViewModel:
+ * ```
+ * val uiState: StateFlow<UiStateProfile> = repository.observeProfile()
+ *     .launchOnStart { repository.refresh() }
+ *     .stateIn(
+ *         scope = viewModelScope,
+ *         started = SharingStarted.WhileSubscribed(5_000),
+ *         initialValue = UiStateProfile.INITIAL,
+ *     )
+ * ```
+ *
+ * The refresh function is launched in viewModelScope with the first subscriber of uiState and is
+ * canceled when the stateIn stops, in this case 5 seconds after the last subscriber leaves because
+ * of SharingStarted.WhileSubscribed(5_000).
+ */
+fun <T> Flow<T>.launchOnStart(action: suspend () -> Unit): Flow<T> = flow {
+    coroutineScope {
+        launch { action() }
+        emitAll(this@launchOnStart)
     }
 }
