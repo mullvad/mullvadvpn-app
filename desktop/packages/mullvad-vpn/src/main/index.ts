@@ -1,4 +1,4 @@
-import { exec, execFile } from 'child_process';
+import { exec } from 'child_process';
 import { app, nativeTheme, powerMonitor, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
@@ -66,7 +66,6 @@ import NotificationController, {
 } from './notification-controller';
 import { isMacOs13OrNewer } from './platform-version';
 import * as problemReport from './problem-report';
-import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import { RelaySelectorRpc } from './relay-selector-rpc';
 import Settings, { SettingsDelegate } from './settings';
@@ -1163,30 +1162,16 @@ class ApplicationMain
     return this.settings.gui.unpinnedWindow && !this.settings.gui.startMinimized;
   }
 
-  private checkMacOsLaunchDaemon(): Promise<void> {
-    const daemonBin = resolveBin('mullvad-daemon');
-    const args = ['--launch-daemon-status'];
-    return new Promise((resolve, _reject) => {
-      execFile(daemonBin, args, { windowsHide: true }, (error, stdout, stderr) => {
-        if (error) {
-          if (error.code === 2) {
-            IpcMainEventChannel.daemon.notifyDaemonAllowed?.(false);
-            this.daemonAllowed = false;
-          } else {
-            log.error(
-              `Error while checking launch daemon authorization status.
-                Status: ${error.code}
-                Stdout: ${stdout.toString()}
-                Stderr: ${stderr.toString()}`,
-            );
-          }
-        } else {
-          IpcMainEventChannel.daemon.notifyDaemonAllowed?.(true);
-          this.daemonAllowed = true;
-        }
-        resolve();
-      });
-    });
+  private async checkMacOsLaunchDaemon() {
+    const { checkLaunchDaemonStatus } = await import('macos-utils');
+      const status_code = checkLaunchDaemonStatus();
+      if (status_code === 2) {
+        IpcMainEventChannel.daemon.notifyDaemonAllowed?.(false);
+        this.daemonAllowed = false;
+      } else {
+        IpcMainEventChannel.daemon.notifyDaemonAllowed?.(true);
+        this.daemonAllowed = true;
+      }
   }
 
   private async updateMacOsScrollbarVisibility(): Promise<void> {

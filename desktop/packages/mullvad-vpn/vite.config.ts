@@ -84,6 +84,7 @@ const viteConfig = defineConfig({
                 /management-interface/,
                 /nseventforwarder/,
                 /windows-utils/,
+                /macos-utils/,
                 // External dependencies which exports common js
                 /node_modules/,
               ],
@@ -97,6 +98,7 @@ const viteConfig = defineConfig({
               external: [
                 // Packages in workspace which can not be bundled
                 'windows-utils',
+                'macos-utils',
                 'nseventforwarder',
                 // External dependencies
                 '@grpc/grpc-js',
