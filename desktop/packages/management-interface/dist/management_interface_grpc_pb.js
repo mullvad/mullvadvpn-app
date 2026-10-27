@@ -1626,16 +1626,16 @@ setCustomVpnConfig: {
     responseSerialize: serialize_mullvad_daemon_management_interface_CustomVpnConfigError,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnConfigError,
   },
-  setCustomVpnConfigStatus: {
-    path: '/mullvad_daemon.management_interface.ManagementService/SetCustomVpnConfigStatus',
+  clearCustomVpnConfig: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ClearCustomVpnConfig',
     requestStream: false,
     responseStream: false,
-    requestType: google_protobuf_wrappers_pb.BoolValue,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_BoolValue,
-    requestDeserialize: deserialize_google_protobuf_BoolValue,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.CustomVpnConfigError,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_CustomVpnConfigError,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnConfigError,
   },
   // Parse a wg-quick config file and store it as the custom VPN config.
 importCustomVpnConfig: {
