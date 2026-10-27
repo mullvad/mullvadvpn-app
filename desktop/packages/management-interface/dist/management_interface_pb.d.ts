@@ -1879,12 +1879,10 @@ export class Settings extends jspb.Message {
     getUpdateDefaultLocation(): boolean;
     setUpdateDefaultLocation(value: boolean): Settings;
 
-    hasCustomVpnConfig(): boolean;
-    clearCustomVpnConfig(): void;
-    getCustomVpnConfig(): CustomVpnConfig | undefined;
-    setCustomVpnConfig(value?: CustomVpnConfig): Settings;
-    getCustomVpnEnabled(): boolean;
-    setCustomVpnEnabled(value: boolean): Settings;
+    hasCustomVpn(): boolean;
+    clearCustomVpn(): void;
+    getCustomVpn(): CustomVpnSettings | undefined;
+    setCustomVpn(value?: CustomVpnSettings): Settings;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Settings.AsObject;
@@ -1911,8 +1909,7 @@ export namespace Settings {
         relayOverridesList: Array<RelayOverride.AsObject>,
         recents?: Recents.AsObject,
         updateDefaultLocation: boolean,
-        customVpnConfig?: CustomVpnConfig.AsObject,
-        customVpnEnabled: boolean,
+        customVpn?: CustomVpnSettings.AsObject,
     }
 }
 
@@ -2365,11 +2362,17 @@ export class CustomVpnConfig extends jspb.Message {
     clearTunnel(): void;
     getTunnel(): CustomVpnConfig.TunnelConfig | undefined;
     setTunnel(value?: CustomVpnConfig.TunnelConfig): CustomVpnConfig;
+    clearPeersList(): void;
+    getPeersList(): Array<CustomVpnConfig.PeerConfig>;
+    setPeersList(value: Array<CustomVpnConfig.PeerConfig>): CustomVpnConfig;
+    addPeers(value?: CustomVpnConfig.PeerConfig, index?: number): CustomVpnConfig.PeerConfig;
+    getEnabled(): boolean;
+    setEnabled(value: boolean): CustomVpnConfig;
 
-    hasPeer(): boolean;
-    clearPeer(): void;
-    getPeer(): CustomVpnConfig.PeerConfig | undefined;
-    setPeer(value?: CustomVpnConfig.PeerConfig): CustomVpnConfig;
+    hasName(): boolean;
+    clearName(): void;
+    getName(): string | undefined;
+    setName(value: string): CustomVpnConfig;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CustomVpnConfig.AsObject;
@@ -2384,7 +2387,9 @@ export class CustomVpnConfig extends jspb.Message {
 export namespace CustomVpnConfig {
     export type AsObject = {
         tunnel?: CustomVpnConfig.TunnelConfig.AsObject,
-        peer?: CustomVpnConfig.PeerConfig.AsObject,
+        peersList: Array<CustomVpnConfig.PeerConfig.AsObject>,
+        enabled: boolean,
+        name?: string,
     }
 
 
@@ -2445,6 +2450,28 @@ export namespace CustomVpnConfig {
         }
     }
 
+}
+
+export class CustomVpnSettings extends jspb.Message { 
+    clearConfigsList(): void;
+    getConfigsList(): Array<CustomVpnConfig>;
+    setConfigsList(value: Array<CustomVpnConfig>): CustomVpnSettings;
+    addConfigs(value?: CustomVpnConfig, index?: number): CustomVpnConfig;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): CustomVpnSettings.AsObject;
+    static toObject(includeInstance: boolean, msg: CustomVpnSettings): CustomVpnSettings.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: CustomVpnSettings, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CustomVpnSettings;
+    static deserializeBinaryFromReader(message: CustomVpnSettings, reader: jspb.BinaryReader): CustomVpnSettings;
+}
+
+export namespace CustomVpnSettings {
+    export type AsObject = {
+        configsList: Array<CustomVpnConfig.AsObject>,
+    }
 }
 
 export class CustomVpnConfigError extends jspb.Message { 
