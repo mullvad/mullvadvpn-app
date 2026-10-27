@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="zero">%1$d يوم</item>
-        <item quantity="one">يوم واحد (%1$d)</item>
-        <item quantity="two">يومان (%1$d)</item>
-        <item quantity="few">%1$d أيام</item>
-        <item quantity="many">%1$d يومًا</item>
-        <item quantity="other">%1$d يوم</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="zero">%1$d موقع</item>
-        <item quantity="one">موقع واحد (%1$d)</item>
-        <item quantity="two">موقعان (%1$d)</item>
-        <item quantity="few">%1$d مواقع</item>
-        <item quantity="many">%1$d موقعًا</item>
-        <item quantity="other">%1$d موقع</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="zero">%1$d شهر</item>
-        <item quantity="one">شهر واحد (%1$d)</item>
-        <item quantity="two">شهران (%1$d)</item>
-        <item quantity="few">%1$d أشهر</item>
-        <item quantity="many">%1$d شهرًا</item>
-        <item quantity="other">%1$d شهر</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="zero">بقي %1$d من الأيام على هذا الحساب</item>
-        <item quantity="one">بقي يوم واحد على هذا الحساب</item>
-        <item quantity="two">بقي %1$d من الأيام على هذا الحساب</item>
-        <item quantity="few">بقي %1$d أيام على هذا الحساب</item>
-        <item quantity="many">بقي %1$d يومًا على هذا الحساب</item>
-        <item quantity="other">بقي %1$d يوم على هذا الحساب</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="zero">بقي %1$d من السنوات على هذا الحساب</item>
-        <item quantity="one">بقيت سنة واحدة على هذا الحساب</item>
-        <item quantity="two">بقي %1$d من السنوات على هذا الحساب</item>
-        <item quantity="few">بقي %1$d سنوات على هذا الحساب</item>
-        <item quantity="many">بقي %1$d سنة على هذا الحساب</item>
-        <item quantity="other">بقي %1$d سنة على هذا الحساب</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %1$d يوم</item>
+        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %d يوم</item>
         <item quantity="one">ستنتهي صلاحية رصيد الحساب بعد يوم واحد</item>
-        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد يومين (%1$d)</item>
-        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %1$d أيام</item>
-        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %1$d يومًا</item>
-        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %1$d يوم</item>
+        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد يومين (%d)</item>
+        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %d أيام</item>
+        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %d يومًا</item>
+        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %d يوم</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
+        <item quantity="zero">ستنتهي صلاحية رصيد الحساب بعد %d ساعة</item>
         <item quantity="one">ستنتهي صلاحية رصيد الحساب بعد ساعة واحدة</item>
-        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد ساعتين (%1$d)</item>
-        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعات</item>
-        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
-        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
+        <item quantity="two">ستنتهي صلاحية رصيد الحساب بعد ساعتين (%d)</item>
+        <item quantity="few">ستنتهي صلاحية رصيد الحساب بعد %d ساعات</item>
+        <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %d ساعة</item>
+        <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %d ساعة</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد (%d)</item>
+        <item quantity="two">يومان (%d)</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="zero">بقي %d من الأيام على هذا الحساب</item>
+        <item quantity="one">بقي يوم واحد على هذا الحساب</item>
+        <item quantity="two">بقي %d من الأيام على هذا الحساب</item>
+        <item quantity="few">بقي %d أيام على هذا الحساب</item>
+        <item quantity="many">بقي %d يومًا على هذا الحساب</item>
+        <item quantity="other">بقي %d يوم على هذا الحساب</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
-        <item quantity="zero">ستفقد %1$d من الأيام المتبقية لك.</item>
-        <item quantity="one">ستفقد %1$d من الأيام المتبقية لك.</item>
-        <item quantity="two">ستفقد %1$d من الأيام المتبقية لك.</item>
-        <item quantity="few">ستفقد %1$d أيام متبقية لك.</item>
-        <item quantity="many">ستفقد %1$d يومًا متبقيًا لك.</item>
-        <item quantity="other">ستفقد %1$d يوم متبق لك.</item>
+        <item quantity="zero">ستفقد %d من الأيام المتبقية لك.</item>
+        <item quantity="one">ستفقد %d من الأيام المتبقية لك.</item>
+        <item quantity="two">ستفقد %d من الأيام المتبقية لك.</item>
+        <item quantity="few">ستفقد %d أيام متبقية لك.</item>
+        <item quantity="many">ستفقد %d يومًا متبقيًا لك.</item>
+        <item quantity="other">ستفقد %d يوم متبق لك.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="zero">%d شهر</item>
+        <item quantity="one">شهر واحد (%d)</item>
+        <item quantity="two">شهران (%d)</item>
+        <item quantity="few">%d أشهر</item>
+        <item quantity="many">%d شهرًا</item>
+        <item quantity="other">%d شهر</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="zero">%d موقع</item>
+        <item quantity="one">موقع واحد (%d)</item>
+        <item quantity="two">موقعان (%d)</item>
+        <item quantity="few">%d مواقع</item>
+        <item quantity="many">%d موقعًا</item>
+        <item quantity="other">%d موقع</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="zero">بقي %d من السنوات على هذا الحساب</item>
+        <item quantity="one">بقيت سنة واحدة على هذا الحساب</item>
+        <item quantity="two">بقي %d من السنوات على هذا الحساب</item>
+        <item quantity="few">بقي %d سنوات على هذا الحساب</item>
+        <item quantity="many">بقي %d سنة على هذا الحساب</item>
+        <item quantity="other">بقي %d سنة على هذا الحساب</item>
     </plurals>
 </resources>

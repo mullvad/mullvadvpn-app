@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">%1$d gün</item>
-        <item quantity="other">%1$d gün</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d konum</item>
-        <item quantity="other">%1$d konum</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d ay</item>
-        <item quantity="other">%1$d ay</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Bu hesapta 1 gün kaldı</item>
-        <item quantity="other">Bu hesapta %1$d gün kaldı</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">Bu hesapta 1 yıl kaldı</item>
-        <item quantity="other">Bu hesapta %1$d yıl kaldı</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Hesap kredisi bir gün içinde sona eriyor</item>
-        <item quantity="other">Hesap kredisi %1$d gün içinde sona eriyor</item>
+        <item quantity="other">Hesap kredisi %d gün içinde sona eriyor</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Hesap kredisi bir saat içinde sona eriyor</item>
-        <item quantity="other">Hesap kredisi %1$d saat içinde sona eriyor</item>
+        <item quantity="other">Hesap kredisi %d saat içinde sona eriyor</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">Bu hesapta 1 gün kaldı</item>
+        <item quantity="other">Bu hesapta %d gün kaldı</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
         <item quantity="one">Kalan günlerinizi kaybedeceksiniz.</item>
-        <item quantity="other">Kalan %1$d gününüzü kaybedeceksiniz.</item>
+        <item quantity="other">Kalan %d gününüzü kaybedeceksiniz.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d ay</item>
+        <item quantity="other">%d ay</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d konum</item>
+        <item quantity="other">%d konum</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">Bu hesapta 1 yıl kaldı</item>
+        <item quantity="other">Bu hesapta %d yıl kaldı</item>
     </plurals>
 </resources>

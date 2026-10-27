@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Срок действия баланса учетной записи истекает через %d день</item>
+        <item quantity="few">Срок действия баланса учетной записи истекает через %d дня</item>
+        <item quantity="many">Срок действия баланса учетной записи истекает через %d дней</item>
+        <item quantity="other">Срок действия баланса учетной записи истекает через %d дня</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Срок действия баланса учетной записи истекает через %d час</item>
+        <item quantity="few">Срок действия баланса учетной записи истекает через %d часа</item>
+        <item quantity="many">Срок действия баланса учетной записи истекает через %d часов</item>
+        <item quantity="other">Срок действия баланса учетной записи истекает через %d часа</item>
+    </plurals>
     <plurals name="days">
-        <item quantity="one">%1$d сутки</item>
-        <item quantity="few">%1$d суток</item>
-        <item quantity="many">%1$d суток</item>
-        <item quantity="other">%1$d суток</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d местоположение</item>
-        <item quantity="few">%1$d местоположения</item>
-        <item quantity="many">%1$d местоположений</item>
-        <item quantity="other">%1$d местоположения</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d месяц</item>
-        <item quantity="few">%1$d месяца</item>
-        <item quantity="many">%1$d месяцев</item>
-        <item quantity="other">%1$d месяца</item>
+        <item quantity="one">%d сутки</item>
+        <item quantity="few">%d суток</item>
+        <item quantity="many">%d суток</item>
+        <item quantity="other">%d суток</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="one">На этой учетной записи остался %1$d день</item>
-        <item quantity="few">На этой учетной записи осталось %1$d дня</item>
-        <item quantity="many">На этой учетной записи осталось %1$d дней</item>
-        <item quantity="other">На этой учетной записи остался %1$d день</item>
+        <item quantity="one">На этой учетной записи остался %d день</item>
+        <item quantity="few">На этой учетной записи осталось %d дня</item>
+        <item quantity="many">На этой учетной записи осталось %d дней</item>
+        <item quantity="other">На этой учетной записи остался %d день</item>
+    </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Вы потеряете %d оставшийся день.</item>
+        <item quantity="few">Вы потеряете %d оставшихся дня.</item>
+        <item quantity="many">Вы потеряете %d оставшихся дней.</item>
+        <item quantity="other">Вы потеряете оставшиеся %d дня.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d месяц</item>
+        <item quantity="few">%d месяца</item>
+        <item quantity="many">%d месяцев</item>
+        <item quantity="other">%d месяца</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d местоположение</item>
+        <item quantity="few">%d местоположения</item>
+        <item quantity="many">%d местоположений</item>
+        <item quantity="other">%d местоположения</item>
     </plurals>
     <plurals name="years_left">
         <item quantity="one">На этой учетной записи остался 1 год</item>
-        <item quantity="few">На этой учетной записи осталось %1$d года</item>
-        <item quantity="many">На этой учетной записи осталось %1$d лет</item>
-        <item quantity="other">На этой учетной записи остался %1$d год</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d день</item>
-        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d дня</item>
-        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d дней</item>
-        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d дня</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d час</item>
-        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d часа</item>
-        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d часов</item>
-        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d часа</item>
-    </plurals>
-    <plurals name="delete_account_days_left_warning">
-        <item quantity="one">Вы потеряете %1$d оставшийся день.</item>
-        <item quantity="few">Вы потеряете %1$d оставшихся дня.</item>
-        <item quantity="many">Вы потеряете %1$d оставшихся дней.</item>
-        <item quantity="other">Вы потеряете оставшиеся %1$d дня.</item>
+        <item quantity="few">На этой учетной записи осталось %d года</item>
+        <item quantity="many">На этой учетной записи осталось %d лет</item>
+        <item quantity="other">На этой учетной записи остался %d год</item>
     </plurals>
 </resources>

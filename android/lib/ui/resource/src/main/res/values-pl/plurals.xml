@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">%1$d dzień</item>
-        <item quantity="few">%1$d dni</item>
-        <item quantity="many">%1$d dni</item>
-        <item quantity="other">%1$d dnia</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d lokalizacja</item>
-        <item quantity="few">%1$d lokalizacje</item>
-        <item quantity="many">%1$d lokalizacji</item>
-        <item quantity="other">%1$d lokalizacji</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d miesiąc</item>
-        <item quantity="few">%1$d miesiące</item>
-        <item quantity="many">%1$d miesięcy</item>
-        <item quantity="other">%1$d miesiąca</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Na tym koncie pozostał 1 dzień</item>
-        <item quantity="few">Na tym koncie pozostały %1$d dni</item>
-        <item quantity="many">Na tym koncie pozostało %1$d dni</item>
-        <item quantity="other">Na tym koncie pozostało %1$d dni</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">Na tym koncie pozostał 1 rok</item>
-        <item quantity="few">Na tym koncie pozostały %1$d lata</item>
-        <item quantity="many">Na tym koncie pozostało %1$d lat</item>
-        <item quantity="other">Na tym koncie pozostało %1$d lat</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Doładowanie konta wygasa za 1 dzień</item>
-        <item quantity="few">Doładowanie konta wygasa za %1$d dni</item>
-        <item quantity="many">Doładowanie konta wygasa za %1$d dni</item>
-        <item quantity="other">Doładowanie konta wygasa za %1$d dnia</item>
+        <item quantity="few">Doładowanie konta wygasa za %d dni</item>
+        <item quantity="many">Doładowanie konta wygasa za %d dni</item>
+        <item quantity="other">Doładowanie konta wygasa za %d dnia</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Doładowanie konta wygasa za 1 godzinę</item>
-        <item quantity="few">Doładowanie konta wygasa za %1$d godziny</item>
-        <item quantity="many">Doładowanie konta wygasa za %1$d godzin</item>
-        <item quantity="other">Doładowanie konta wygasa za %1$d godziny</item>
+        <item quantity="few">Doładowanie konta wygasa za %d godziny</item>
+        <item quantity="many">Doładowanie konta wygasa za %d godzin</item>
+        <item quantity="other">Doładowanie konta wygasa za %d godziny</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d dzień</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dni</item>
+        <item quantity="other">%d dnia</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">Na tym koncie pozostał 1 dzień</item>
+        <item quantity="few">Na tym koncie pozostały %d dni</item>
+        <item quantity="many">Na tym koncie pozostało %d dni</item>
+        <item quantity="other">Na tym koncie pozostało %d dni</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
         <item quantity="one">Utracisz pozostały dzień.</item>
-        <item quantity="few">Utracisz pozostałe %1$d dni.</item>
-        <item quantity="many">Utracisz pozostałych %1$d dni.</item>
-        <item quantity="other">Utracisz pozostałe %1$d dnia.</item>
+        <item quantity="few">Utracisz pozostałe %d dni.</item>
+        <item quantity="many">Utracisz pozostałych %d dni.</item>
+        <item quantity="other">Utracisz pozostałe %d dnia.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d miesiąc</item>
+        <item quantity="few">%d miesiące</item>
+        <item quantity="many">%d miesięcy</item>
+        <item quantity="other">%d miesiąca</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d lokalizacja</item>
+        <item quantity="few">%d lokalizacje</item>
+        <item quantity="many">%d lokalizacji</item>
+        <item quantity="other">%d lokalizacji</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">Na tym koncie pozostał 1 rok</item>
+        <item quantity="few">Na tym koncie pozostały %d lata</item>
+        <item quantity="many">Na tym koncie pozostało %d lat</item>
+        <item quantity="other">Na tym koncie pozostało %d lat</item>
     </plurals>
 </resources>

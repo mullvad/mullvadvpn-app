@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">%1$d dag</item>
-        <item quantity="other">%1$d dager</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d plassering</item>
-        <item quantity="other">%1$d plasseringer</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d måned</item>
-        <item quantity="other">%1$d måneder</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">1 dag igjen på kontoen</item>
-        <item quantity="other">%1$d dager igjen på kontoen</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">1 år igjen på kontoen</item>
-        <item quantity="other">%1$d år igjen på kontoen</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Kontokreditt utløper om én dag</item>
-        <item quantity="other">Kontokreditt utløper om %1$d dager</item>
+        <item quantity="other">Kontokreditt utløper om %d dager</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Kontokreditt utløper om én time</item>
-        <item quantity="other">Kontokreditt utløper om %1$d timer</item>
+        <item quantity="other">Kontokreditt utløper om %d timer</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dager</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag igjen på kontoen</item>
+        <item quantity="other">%d dager igjen på kontoen</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
         <item quantity="one">Du vil miste gjenværende dag.</item>
-        <item quantity="other">Du vil miste gjenværende %1$d dager.</item>
+        <item quantity="other">Du vil miste gjenværende %d dager.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d måned</item>
+        <item quantity="other">%d måneder</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d plassering</item>
+        <item quantity="other">%d plasseringer</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 år igjen på kontoen</item>
+        <item quantity="other">%d år igjen på kontoen</item>
     </plurals>
 </resources>

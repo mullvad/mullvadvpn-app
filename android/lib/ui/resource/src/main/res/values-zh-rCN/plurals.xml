@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="other">%1$d 天</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="other">%1$d 个位置</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="other">%1$d 个月</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="other">此帐户还剩 %1$d 天</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="other">此帐户还剩 %1$d 年</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="other">帐户额度将在 %1$d 天后到期</item>
+        <item quantity="other">帐户额度将在 %d 天后到期</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="other">帐户额度将在 %1$d 小时后到期</item>
+        <item quantity="other">帐户额度将在 %d 小时后到期</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">此帐户还剩 %d 天</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
-        <item quantity="other">您会失去剩余的 %1$d 天。</item>
+        <item quantity="other">您会失去剩余的 %d 天。</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%d 个月</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%d 个位置</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">此帐户还剩 %d 年</item>
     </plurals>
 </resources>

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="other">%1$d日</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="other">%1$d 件の場所</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="other">%1$dヶ月</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="other">このアカウントの残り時間は%1$d日です</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="other">このアカウントの残り時間は%1$d年です</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="other">アカウントのクレジットが%1$d日後に無効になります</item>
+        <item quantity="other">アカウントのクレジットが%d日後に無効になります</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="other">アカウントのクレジットが%1$d時間後に無効になります</item>
+        <item quantity="other">アカウントのクレジットが%d時間後に無効になります</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="other">%d日</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">このアカウントの残り時間は%d日です</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
-        <item quantity="other">残りの%1$d日分が失われます。</item>
+        <item quantity="other">残りの%d日分が失われます。</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%dヶ月</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%d 件の場所</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="other">このアカウントの残り時間は%d年です</item>
     </plurals>
 </resources>
