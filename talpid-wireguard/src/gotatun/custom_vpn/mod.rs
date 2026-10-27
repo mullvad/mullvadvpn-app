@@ -28,6 +28,7 @@ use std::{
 };
 use talpid_types::net::wireguard::CustomVpnConfig;
 
+mod fragment;
 mod ipv6;
 mod merge;
 mod nat;
