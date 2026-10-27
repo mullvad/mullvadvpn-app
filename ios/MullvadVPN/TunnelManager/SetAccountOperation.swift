@@ -11,6 +11,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Operations
@@ -360,7 +361,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
                     // able to return the acknowledgment back to client.
                     // In that case the subsequent retry attempt will error with `.publicKeyInUse`. Fetch the device
                     // from API when that happens.
-                    if let error = result.error as? REST.Error, error.compareErrorCode(.publicKeyInUse) {
+                    if let error = result.error as? ApiContextError,
+                        case .ApiError(_, let description) = error,
+                        description == REST.ServerResponseCode.publicKeyInUse.rawValue
+                    {
                         self.findDevice(accountNumber: accountNumber, publicKey: privateKey.publicKey) { result in
                             let result = result.flatMap { device in
                                 if let device {

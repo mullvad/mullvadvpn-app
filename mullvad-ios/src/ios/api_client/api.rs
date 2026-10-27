@@ -1,6 +1,6 @@
 use super::{do_request, response::ApiResponse, retry_request, retry_strategy::RetryStrategy};
 use crate::{
-    api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper},
+    api_client::{ApiContext, ApiContextError, access_method_settings::AccessMethodSettingWrapper},
     type_bridges::{AnyError, TokioBridge},
 };
 use chrono::{DateTime, Utc};
@@ -16,7 +16,7 @@ impl ApiContext {
     pub async fn get_addresses(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         TokioBridge::spawn(async move {
             let api = Arc::new(ApiProxy::new(self.rest_handle()));
 
@@ -24,27 +24,29 @@ impl ApiContext {
             do_request(*retry_strategy, future_factory).await
         })
         .await
-        .map_err(AnyError::from)
-        .inspect_err(|e| log::error!("get_addresses failed: {e}"))
+        .map_err(ApiContextError::from)
     }
 
     pub async fn api_addrs_available(
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         access_method_setting: Arc<AccessMethodSettingWrapper>,
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         TokioBridge::spawn(async move {
             let access_method_setting = access_method_setting.inner.clone();
 
             let resolved_connection_mode = self
                 .access_mode_handler
                 .resolve(access_method_setting.clone())
-                .await?;
+                .await
+                .map_err(AnyError::from)?;
             let Some(resolved_connection_mode) = resolved_connection_mode else {
                 log::error!("Invalid access method configuration, {access_method_setting:?}");
-                return Err(AnyError::from(mullvad_api::access_mode::Error::Resolve {
-                    access_method: access_method_setting.access_method,
-                }));
+                return Err(ApiContextError::from(AnyError::from(
+                    mullvad_api::access_mode::Error::Resolve {
+                        access_method: access_method_setting.access_method,
+                    },
+                )));
             };
 
             let oneshot_client = self
@@ -58,10 +60,9 @@ impl ApiContext {
             retry_request(*retry_strategy, future_factory)
                 .await
                 .map(|_| ApiResponse::ok())
-                .map_err(AnyError::from)
+                .map_err(ApiContextError::from)
         })
         .await
-        .inspect_err(|e| log::error!("api_addrs_available failed: {e}"))
     }
 
     pub async fn get_relays(

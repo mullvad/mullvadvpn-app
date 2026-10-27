@@ -9,6 +9,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Routing
@@ -85,7 +86,10 @@ final class LoginCoordinator: Coordinator, Presenting {
         }
 
         if case let .login(accountNumber) = action {
-            if let error = error as? REST.Error, error.compareErrorCode(.maxDevicesReached) {
+            if let error = error as? ApiContextError,
+                case .ApiError(_, let description) = error,
+                description == REST.ServerResponseCode.maxDevicesReached.rawValue
+            {
                 self.showDeviceList(for: accountNumber)
             }
         }

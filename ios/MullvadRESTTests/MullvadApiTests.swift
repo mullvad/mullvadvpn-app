@@ -113,7 +113,7 @@ class MullvadApiTests: XCTestCase {
                 }
         }
 
-        let error = try XCTUnwrap(result.error as? REST.Error)
+        let error = try XCTUnwrap(result.error as? AnyError)
 
         switch error {
         case let .unhandledResponse(responseCode, _):
@@ -139,7 +139,7 @@ class MullvadApiTests: XCTestCase {
                 }
         }
 
-        let error = try XCTUnwrap(result.error as? REST.Error)
+        let error = try XCTUnwrap(result.error as? AnyError)
 
         switch error {
         case let .unhandledResponse(_, response):
@@ -173,7 +173,7 @@ class MullvadApiTests: XCTestCase {
                 }
         }
 
-        let error = try XCTUnwrap(result.error as? REST.Error)
+        let error = try XCTUnwrap(result.error as? AnyError)
 
         switch error {
         case let .unhandledResponse(responseCode, response):

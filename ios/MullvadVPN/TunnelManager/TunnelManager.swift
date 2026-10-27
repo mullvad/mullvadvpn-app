@@ -11,6 +11,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import NetworkExtension
@@ -1153,11 +1154,13 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func handleRestError(_ error: Error) {
-        guard let restError = error as? REST.Error else { return }
+        guard let restError = error as? ApiContextError,
+            case let .ApiError(_, errorDescription) = restError
+        else { return }
 
-        if restError.compareErrorCode(.deviceNotFound) {
+        if errorDescription == REST.ServerResponseCode.deviceNotFound.rawValue {
             handleBlockedState(reason: .deviceRevoked)
-        } else if restError.compareErrorCode(.invalidAccount) {
+        } else if errorDescription == REST.ServerResponseCode.invalidAccount.rawValue {
             handleBlockedState(reason: .invalidAccount)
         }
     }

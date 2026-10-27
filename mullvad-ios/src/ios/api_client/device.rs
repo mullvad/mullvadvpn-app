@@ -2,8 +2,8 @@ use super::{
     do_request, do_request_with_empty_body, response::ApiResponse, retry_strategy::RetryStrategy,
 };
 use crate::{
-    api_client::ApiContext,
-    type_bridges::{AnyError, TokioBridge},
+    api_client::{ApiContext, ApiContextError},
+    type_bridges::TokioBridge,
 };
 use mullvad_api::DevicesProxy;
 use std::sync::Arc;
@@ -17,14 +17,13 @@ impl ApiContext {
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         identifier: String,
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let api = DevicesProxy::new(self.rest_handle());
         let future_factory = move || api.get_response(account_number.clone(), identifier.clone());
 
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
-            .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("get_device failed: {e}"))
+            .map_err(ApiContextError::from)
     }
 
     /// Get devices info via the Mullvad API client.
@@ -32,15 +31,14 @@ impl ApiContext {
         self: Arc<Self>,
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let rest_client = self.rest_handle();
         let api = DevicesProxy::new(rest_client);
         let future_factory = move || api.list_response(account_number.clone());
 
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
-            .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("get_devices failed: {e}"))
+            .map_err(ApiContextError::from)
     }
 
     /// create device via the Mullvad API client.
@@ -49,7 +47,7 @@ impl ApiContext {
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         public_key: &[u8],
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
             return Ok(ApiResponse::bad_public_key_size());
         };
@@ -60,8 +58,7 @@ impl ApiContext {
 
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
-            .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("create_device failed: {e}"))
+            .map_err(ApiContextError::from)
     }
 
     /// Delete device via the Mullvad API client.
@@ -70,7 +67,7 @@ impl ApiContext {
         retry_strategy: Arc<RetryStrategy>,
         account_number: String,
         identifier: String,
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let rest_client = self.rest_handle();
 
         let api = DevicesProxy::new(rest_client);
@@ -78,8 +75,7 @@ impl ApiContext {
 
         TokioBridge::spawn(do_request_with_empty_body(*retry_strategy, future_factory))
             .await
-            .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("delete_device failed: {e}"))
+            .map_err(ApiContextError::from)
     }
 
     /// Rotate device key via the Mullvad API client.
@@ -89,7 +85,7 @@ impl ApiContext {
         account_number: String,
         identifier: String,
         public_key: &[u8],
-    ) -> Result<ApiResponse, AnyError> {
+    ) -> Result<ApiResponse, ApiContextError> {
         let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
             return Ok(ApiResponse::bad_public_key_size());
         };
@@ -102,7 +98,6 @@ impl ApiContext {
 
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
-            .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("delete_device failed: {e}"))
+            .map_err(ApiContextError::from)
     }
 }
