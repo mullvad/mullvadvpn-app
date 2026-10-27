@@ -159,7 +159,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(17, &udp_payload); // 17 = UDP
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Udp);
         assert_eq!(result.offset, 0);
         assert!(result.has_l4_header);
@@ -171,7 +171,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(6, &tcp_payload); // 6 = TCP
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Tcp);
         assert_eq!(result.offset, 0);
         assert!(result.has_l4_header);
@@ -188,7 +188,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &payload); // 0 = Hopopt
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Udp);
         assert_eq!(result.offset, 8); // Offset past the 8-byte Hop-by-Hop header
         assert!(result.has_l4_header);
@@ -210,7 +210,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &payload);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Udp);
         assert_eq!(result.offset, 16); // 8 + 8 = 16 bytes
         assert!(result.has_l4_header);
@@ -226,7 +226,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(44, &payload); // 44 = Ipv6Frag
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Udp);
         assert_eq!(result.offset, 8); // Past the 8-byte fragment header
         assert!(result.has_l4_header);
@@ -242,7 +242,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(44, &payload);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Ipv6Frag);
         assert_eq!(result.offset, 0);
         assert!(!result.has_l4_header); // Subsequent fragment must NOT be treated as having an L4 header
@@ -258,7 +258,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &payload);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Ipv6Frag);
         assert_eq!(result.offset, 8); // Offset stops at the fragment header
         assert!(!result.has_l4_header);
@@ -274,7 +274,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &payload);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Esp);
         assert_eq!(result.offset, 8);
         assert!(!result.has_l4_header); // Encrypted payload is not accessible
@@ -285,7 +285,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(59, &[]); // 59 = Ipv6NoNxt
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Ipv6NoNxt);
         assert_eq!(result.offset, 0);
         assert!(!result.has_l4_header);
@@ -305,7 +305,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(51, &payload); // 51 = AH
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        let result = parse_next_protocol(&ipv6).expect("Should parse");
+        let result = parse_next_protocol(ipv6).expect("Should parse");
         assert_eq!(result.protocol, IpNextProtocol::Udp);
         assert_eq!(result.offset, 12);
         assert!(result.has_l4_header);
@@ -322,7 +322,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &payload);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        assert!(parse_next_protocol(&ipv6).is_none());
+        assert!(parse_next_protocol(ipv6).is_none());
     }
 
     #[test]
@@ -332,7 +332,7 @@ mod tests {
         let packet_bytes = build_ipv6_packet(0, &malformed_ext_hdr);
         let ipv6 = Ipv6::<[u8]>::ref_from_bytes(&packet_bytes).expect("Valid IPv6");
 
-        assert!(parse_next_protocol(&ipv6).is_none());
+        assert!(parse_next_protocol(ipv6).is_none());
     }
 
     #[test]

@@ -531,7 +531,9 @@ impl WireguardMonitor {
         let tun_provider = Arc::clone(&args.tun_provider);
 
         let tunnel = Arc::new(AsyncMutex::new(None));
+        #[cfg(feature = "custom-vpn")]
         let tunnel_weak = Arc::downgrade(&tunnel);
+
         let mut event_hook = args.event_hook;
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),

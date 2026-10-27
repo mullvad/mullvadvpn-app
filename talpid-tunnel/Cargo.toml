@@ -42,7 +42,7 @@ features = [
 ]
 
 [features]
-custom-vpn = []
+custom-vpn = ["talpid-types/custom-vpn"]
 
 [lints]
 workspace = true
