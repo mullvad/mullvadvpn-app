@@ -137,7 +137,7 @@ impl CustomVpn {
                 endpoint: endpoint.parse()?,
             }],
         };
-        let error = rpc.set_custom_vpn_config(Some(config)).await?;
+        let error = rpc.set_custom_vpn_config(config).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
@@ -152,7 +152,7 @@ impl CustomVpn {
             anyhow::bail!("No personal VPN configuration");
         };
         config.enabled = *state;
-        let error = rpc.set_custom_vpn_config(Some(config)).await?;
+        let error = rpc.set_custom_vpn_config(config).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
@@ -162,7 +162,7 @@ impl CustomVpn {
 
     async fn unset() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let error = rpc.set_custom_vpn_config(None).await?;
+        let error = rpc.clear_custom_vpn_config().await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
