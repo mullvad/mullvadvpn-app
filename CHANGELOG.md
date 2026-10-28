@@ -47,6 +47,8 @@ Line wrap the file at 100 chars.                                              Th
   was used for both.
 - Update the Lockdown mode and Kill switch settings to better explain their purpose and where they
   intersect and where they differ.
+- The app will now try multiple obfuscation methods at once and pick the first one that works.
+  This will greatly reduce the time it takes to connect when obfuscation is enabled.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
