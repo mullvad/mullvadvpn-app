@@ -128,7 +128,6 @@ impl_intersection_partialeq!(bool);
 impl_intersection_partialeq!(relay_constraints::Providers);
 impl_intersection_partialeq!(relay_constraints::LocationConstraint);
 impl_intersection_partialeq!(relay_constraints::Ownership);
-impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
 impl_intersection_partialeq!(talpid_types::net::IpVersion);
 impl_intersection_partialeq!(relay_constraints::AllowedIps);
 impl_intersection_partialeq!(crate::relay_selector::ResolvedLocationConstraint);
