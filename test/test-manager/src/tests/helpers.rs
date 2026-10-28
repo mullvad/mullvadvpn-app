@@ -1460,11 +1460,7 @@ fn obfuscation_to_settings(constraint: ObfuscationConstraint) -> ObfuscationSett
 }
 
 pub fn into_settings(
-    RelayQuery {
-        hops,
-        allowed_ips,
-        quantum_resistant: _,
-    }: RelayQuery,
+    RelayQuery { hops, allowed_ips }: RelayQuery,
 ) -> (RelayConstraints, ObfuscationSettings) {
     let location = |exit: &ExitConstraints, not: Option<&GeographicLocationConstraint>| {
         let Constraint::Only(locations) = exit.location.as_ref() else {
