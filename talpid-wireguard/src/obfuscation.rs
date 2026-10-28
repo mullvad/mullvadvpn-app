@@ -6,7 +6,6 @@ use crate::{
     ephemeral::{self, IngressSession},
 };
 use std::{
-    iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
 };
@@ -73,15 +72,12 @@ pub fn settings_from_config(
                 mtu,
             ))
         }
-        Obfuscators::Multiplexer {
-            direct,
-            configs: (first_obfs, remaining_obfs),
-        } => {
+        Obfuscators::Multiplexer { direct, configs } => {
             let mut transports = vec![];
             if let Some(direct) = direct {
                 transports.push(multiplexer::Transport::Direct(*direct));
             }
-            for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
+            for obfs_config in configs {
                 let settings = settings_from_single_config(
                     client_public_key.clone(),
                     server_public_key.clone(),
