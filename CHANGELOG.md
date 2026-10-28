@@ -41,7 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 - Perform the ephemeral peer exchange using smoltcp.
 - Limit daemon log files to 2GB in size before they are rotated. This puts an upper limit to how
   large the log files can become.
-- Automatically rotate daemom log files after 7 days.
+- Automatically rotate daemon log files after 7 days.
+- The app will now try multiple obfuscation methods at once and pick the first one that works.
+  This will greatly reduce the time it takes to connect when obfuscation is enabled.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
