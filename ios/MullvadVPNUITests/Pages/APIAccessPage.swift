@@ -14,7 +14,7 @@ import XCTest
 class APIAccessPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.otherElements[.apiAccessView]
+        self.pageElement = app.scrollViews[.apiAccessView]
         waitForPageToBeShown()
     }
 
@@ -25,10 +25,11 @@ class APIAccessPage: Page {
     }
 
     func getAccessMethodCells() -> [XCUIElement] {
-        var elements = app.collectionViews[AccessibilityIdentifier.apiAccessListView].buttons.allElementsBoundByIndex
-        elements.removeFirst()
-        elements.removeLast()
-        return elements
+        app.otherElements[AccessibilityIdentifier.apiAccessListView].buttons.allElementsBoundByIndex
+        //        var elements = app.collectionViews[AccessibilityIdentifier.apiAccessListView].buttons.allElementsBoundByIndex
+        //        elements.removeFirst()
+        //        elements.removeLast()
+        //        return elements
     }
 
     func getAccessMethodCell(accessibilityId: AccessibilityIdentifier) -> XCUIElement {

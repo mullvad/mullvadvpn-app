@@ -32,8 +32,12 @@ import SwiftUI
                     ])
                 )
             },
-            footer: MullvadInfoView(
-                bodyText: "Some body text ", link: "A link", onTapLink: { print("onTapLink") })
+            footer: InlineLinkText(
+                text: "Some body text ",
+                linkTitle: "A link"
+            ) {
+                print("onTapLink")
+            }
         )
 
         SegmentedListItem(

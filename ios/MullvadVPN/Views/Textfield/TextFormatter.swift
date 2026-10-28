@@ -89,4 +89,13 @@ extension GroupedTextFormatter {
             maxGroups: 4
         )
     )
+
+    static let portNumber = GroupedTextFormatter(
+        configuration: .init(
+            allowedInput: .numeric,
+            groupSeparator: " ",
+            groupSize: 5,
+            maxGroups: 1
+        )
+    )
 }

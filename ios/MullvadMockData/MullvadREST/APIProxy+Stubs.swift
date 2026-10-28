@@ -13,17 +13,36 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadTypes
 
-struct APIProxyStubError: Error {}
+public struct APIProxyStubError: Error {
+    public init() {}
+}
 
-struct APIProxyStub: APIQuerying {
-    var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
-    var getRelaysResult: Result<REST.ServerRelaysCacheResponse?, Error> = .failure(APIProxyStubError())
-    var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
-    var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
-    var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
-    var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
+public struct APIProxyStub: APIQuerying {
+    var getAddressListResult: Result<[AnyIPEndpoint], Error>
+    var getRelaysResult: Result<REST.ServerRelaysCacheResponse?, Error>
+    var sendProblemReportResult: Result<Void, Error>
+    var initStorekitPaymentResult: Result<UUID, Error>
+    var checkStorekitPaymentResult: Result<Void, Error>
+    var checkApiAvailabilityResult: Result<Bool, Error>
 
-    func getAddressList(
+    public init(
+        getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError()),
+        getRelaysResult: Result<REST.ServerRelaysCacheResponse?, Error> = .failure(APIProxyStubError()),
+        sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError()),
+        initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError()),
+        checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError()),
+        checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
+    ) {
+        self.getAddressListResult = getAddressListResult
+        self.getRelaysResult = getRelaysResult
+        self.sendProblemReportResult = sendProblemReportResult
+        self.initStorekitPaymentResult = initStorekitPaymentResult
+        self.checkStorekitPaymentResult = checkStorekitPaymentResult
+        self.initStorekitPaymentResult = initStorekitPaymentResult
+        self.checkApiAvailabilityResult = checkApiAvailabilityResult
+    }
+
+    public func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable {
@@ -31,7 +50,7 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func getRelays(
+    public func getRelays(
         sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
@@ -40,7 +59,7 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func sendProblemReport(
+    public func sendProblemReport(
         _ body: ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
@@ -49,7 +68,7 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func initStoreKitPayment(
+    public func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<UUID>
@@ -58,7 +77,7 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func checkStoreKitPayment(
+    public func checkStoreKitPayment(
         transaction: StoreKitTransaction,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<Void>
@@ -67,7 +86,7 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func checkApiAvailability(
+    public func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
         accessMethod: PersistentAccessMethod,
         completion: @escaping ProxyCompletionHandler<Bool>

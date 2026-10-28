@@ -141,8 +141,11 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Labels
     case accountPageDeviceNameLabel
-    case socks5ServerCell
-    case socks5PortCell
+    case addAccessMethodServerCell
+    case addAccessMethodPortCell
+    case addAccessMethodUsernameCell
+    case addAccessMethodPasswordCell
+    case addAccessMethodCipherCell
     case accountPagePaidUntilLabel
     case addAccessMethodTestStatusReachableLabel
     case addAccessMethodTestStatusTestingLabel
@@ -157,6 +160,7 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Views
     case accessMethodProtocolPickerView
+    case accessMethodProtocolCipherPickerView
     case accessMethodUnreachableAlert
     case accountView
     case addLocationsView

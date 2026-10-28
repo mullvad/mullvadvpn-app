@@ -11,113 +11,156 @@
 import Combine
 import MullvadREST
 import MullvadSettings
+import MullvadTypes
 import SwiftUI
 
-protocol ListAccessViewModel: ObservableObject {
-    var items: [ListAccessMethodItem] { get }
-    var itemInUse: ListAccessMethodItem? { get }
-    func addNewMethod()
-    func methodSelected(_ method: ListAccessMethodItem)
-    func showAbout()
-    func cipherIsValid(for item: ListAccessMethodItem) -> Bool
-}
+struct ListAccessMethodView: View {
+    private enum ActiveSheet: Identifiable {
+        var id: Self { self }
+        case about
+        case addNewMethod
+    }
 
-struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewModel {
-    @ObservedObject var viewModel: ViewModel
+    private let factory: any ListAccessMethodViewFactoryProtocol
+    private let itemFactory = SegmentedListItemFactory()
 
-    init(viewModel: ViewModel) {
-        self.viewModel = viewModel
+    @State private var presentedSheet: ActiveSheet? = nil
+    @State private var viewModel: any ListAccessViewModelProtocol
+
+    @State private var destinationCache:
+        [PersistentAccessMethod.ID: (
+            viewModel: any EditAccessMethodViewModelProtocol,
+            configureViewModel: ConfigureApiAccessMethodViewModelProtocol
+        )] = [:]
+
+    init(factory: any ListAccessMethodViewFactoryProtocol) {
+        _viewModel = State(initialValue: factory.makeListViewModel())
+        self.factory = factory
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            let text = NSLocalizedString(
-                "Manage and add custom methods to access the Mullvad API.",
-                comment: ""
-            )
-            let about = NSLocalizedString("About API access…", comment: "")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                infoHeader
+                methodList
+                addButton
+            }
+            .padding(16.0)
+        }
+        .sheet(
+            item: $presentedSheet,
+            content: { id in
+                switch id {
+                case .about:
+                    aboutSheet
+                case .addNewMethod:
+                    addNewMethodSheet
+                }
+            }
+        )
+        .background(Color.mullvadBackground)
+        .navigationTitle("API access")
+        .accessibilityIdentifier(.apiAccessView)
+    }
 
-            MullvadList(
-                viewModel.items,
-                header: {
-                    MullvadInfoView(
-                        bodyText: "\(text) ",
-                        link: about,
-                        onTapLink: viewModel.showAbout
-                    )
-                },
-                footer: {
-                    MullvadButton(
-                        text: LocalizedStringKey("Add"),
-                        style: .primary
-                    ) {
-                        viewModel.addNewMethod()
+    private var infoHeader: some View {
+        InlineLinkText(
+            text: viewModel.infoHeaderConfig.body,
+            linkTitle: viewModel.infoHeaderConfig.link
+        ) {
+            presentedSheet = .about
+        }
+        .padding(.bottom, 16.0)
+    }
+
+    private var methodList: some View {
+        Group {
+            ForEach(Array(viewModel.items.enumerated()), id: \.element.id) { index, item in
+                makeListItem(item, at: index)
+                    .environment(\.isNestedInSegmentedListItem, index > 0)
+                    .padding(.bottom, 1.0)
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(.apiAccessListView)
+    }
+
+    private var addButton: some View {
+        MullvadButton(
+            text: LocalizedStringKey("Add"),
+            style: .primary
+        ) {
+            presentedSheet = .addNewMethod
+        }
+        .padding(.vertical, 24.0)
+        .accessibilityIdentifier(.addAccessMethodButton)
+    }
+
+    private func makeListItem(
+        _ item: ListAccessMethodItem,
+        at index: Int
+    ) -> some View {
+        SegmentedListItem(
+            isLastInList: index == viewModel.items.count - 1,
+            accessibilityIdentifier: item.accessibilityIdentifier,
+            leadingAndTrailingDestination: {
+                if let method = viewModel.fetch(item) {
+                    RetainedDestination {
+                        (
+                            viewModel: factory.makeEditMethodViewModel(for: method),
+                            configureViewModel: factory.makeConfigureAccessMethodViewModel(for: method)
+                        )
+                    } content: { models in
+                        EditAccessMethodView(
+                            viewModel: models.viewModel,
+                            editAccessMethodViewModel: models.configureViewModel
+                        )
                     }
-                    .accessibilityIdentifier(AccessibilityIdentifier.addAccessMethodButton.asString)
-                },
-                content: { item in
-                    let accessibilityId: AccessibilityIdentifier? =
-                        switch item.id {
-                        case AccessMethodRepository.directId:
-                            AccessibilityIdentifier.accessMethodDirectCell
-                        case AccessMethodRepository.bridgeId:
-                            AccessibilityIdentifier.accessMethodBridgesCell
-                        case AccessMethodRepository.encryptedDNSId:
-                            AccessibilityIdentifier.accessMethodEncryptedDNSCell
-                        case AccessMethodRepository.domainFrontingId:
-                            AccessibilityIdentifier.accessMethodDomainFrontingCell
-                        default:
-                            nil
-                        }
-
-                    MullvadListNavigationItemView(
-                        item: MullvadListNavigationItem(
-                            id: item.id,
-                            title: item.name,
-                            state: getState(for: item),
-                            detail: item.detail,
-                            accessibilityIdentifier: accessibilityId
-                        ) {
-                            viewModel.methodSelected(item)
-                        }
+                } else {
+                    EmptyView()
+                }
+            },
+            leading: {
+                if let detail = item.detail, !detail.isEmpty {
+                    itemFactory.leading(for: .generic(title: item.name, subtitle: detail))
+                } else {
+                    itemFactory.leading(for: .generic(title: item.name))
+                }
+            },
+            trailing: {
+                itemFactory.trailing(
+                    for: .drillDown(
+                        title: item.status.description,
+                        breadcrumb: nil
                     )
+                )
+            })
+    }
+
+    private var aboutSheet: some View {
+        NavigationStack {
+            AboutView(
+                header: viewModel.infoModalConfig.header,
+                preamble: viewModel.infoModalConfig.preamble,
+                paragraphs: viewModel.infoModalConfig.body.map {
+                    AttributedString($0)
                 }
             )
-            .accessibilityIdentifier(
-                AccessibilityIdentifier.apiAccessListView.asString
-            )
-            .scrollBounceBehavior(.basedOnSize)
-            Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        presentedSheet = nil
+                    }
+                }
+            }
         }
-        .background(Color.mullvadBackground)
+        .tint(Color.mullvadTextPrimary)
     }
 
-    func getState(for item: ListAccessMethodItem) -> MullvadListNavigationItem.State? {
-        if viewModel.cipherIsValid(for: item) {
-            viewModel.itemInUse?.id == item.id
-                ? .inUse
-                : (!item.isEnabled
-                    ? .off
-                    : nil)
-        } else {
-            .warning("Unsupported cipher")
+    private var addNewMethodSheet: some View {
+        NavigationStack {
+            ConfigureApiAccessMethodView(viewModel: factory.makeAddMethodViewModel())
         }
-    }
-}
-
-#Preview {
-    NavigationView {
-        ListAccessMethodView(
-            viewModel: ListAccessViewModelBridge(
-                interactor: ListAccessMethodInteractor(
-                    repository: AccessMethodRepository(
-                        shadowsocksCiphers: [],
-                        settingsStore: SettingsManager().store
-                    )
-                ),
-                delegate: nil
-            )
-        )
-        .navigationTitle("API Access")
+        .tint(Color.mullvadTextPrimary)
     }
 }

@@ -18,6 +18,7 @@ struct InputViewAppearance {
     var cornerRadius: CGFloat = 4.0
     var messageFont: Font = .mullvadTiny
     var backgroundColor: Color = .MullvadTextField.background
-    var height: CGFloat
+    var height: CGFloat = 44.0
     var spacing: CGFloat = 4.0
+    var showsClearButton = true
 }
