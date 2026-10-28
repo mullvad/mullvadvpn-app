@@ -12,20 +12,14 @@ import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
     // Account Proxy
-    case checkStorekitPayment(retryStrategy: REST.RetryStrategy, transaction: StoreKitTransaction)
+    case removeMe
 
     var name: String {
-        switch self {
-        case .checkStorekitPayment:
-            "check-storekit-payment"
-        }
+        fatalError()
     }
 
     var retryStrategy: REST.RetryStrategy {
-        switch self {
-        case let .checkStorekitPayment(strategy, _):
-            strategy
-        }
+        fatalError()
     }
 }
 

@@ -199,26 +199,6 @@ extension REST {
                 }
             }.cancellable
         }
-
-        private func createNetworkOperation<Success>(
-            request: APIRequest,
-            responseHandler: RustResponseHandler<Success>,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
-        ) -> MullvadApiNetworkOperation<Success> {
-            let networkOperation = MullvadApiNetworkOperation(
-                name: request.name,
-                dispatchQueue: dispatchQueue,
-                request: request,
-                transportProvider: transportProvider,
-                responseDecoder: responseDecoder,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
-
-            operationQueue.addOperation(networkOperation)
-
-            return networkOperation
-        }
     }
 
     // MARK: - Response types

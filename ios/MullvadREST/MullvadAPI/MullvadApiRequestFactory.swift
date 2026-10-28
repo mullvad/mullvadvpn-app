@@ -21,17 +21,6 @@ public struct MullvadApiRequestFactory: Sendable {
     }
 
     public func makeRequest(_ request: APIRequest) throws -> MullvadApiCancellable {
-        switch request {
-        // Device Proxy
-        case let .checkStorekitPayment(
-            retryStrategy: retryStrategy,
-            transaction: transaction
-        ):
-            return MullvadApiCancellable(
-                handle: apiContext.checkStorekitPayment(
-                    retryStrategy: retryStrategy.toRustStrategy(),
-                    body: try encoder.encode(transaction)
-                ))
-        }
+        fatalError()
     }
 }
