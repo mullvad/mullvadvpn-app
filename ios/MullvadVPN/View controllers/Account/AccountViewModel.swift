@@ -42,27 +42,22 @@ extension AccountViewModelProtocol {
 
 @Observable
 class AccountViewModel: AccountViewModelProtocol {
-    var deviceName: String {
-        tunnelManager.deviceState.deviceData?.capitalizedName ?? ""
-    }
+    var deviceName: String
 
-    var accountNumber: String {
-        tunnelManager.deviceState.accountData?.number ?? ""
-    }
+    var accountNumber: String
 
-    var isOutOfTime: Bool {
-        tunnelManager.deviceState.accountData?.isExpired ?? false
-    }
+    var isOutOfTime: Bool
 
-    var paidUntil: Date {
-        tunnelManager.deviceState.accountData?.expiry ?? Date()
-    }
+    var paidUntil: Date
 
     let onFinish: ((AccountDismissReason) -> Void)?
 
     let onPaymentAction: (PaymentAction) -> Void
 
     let tunnelManager: TunnelManager
+
+    @ObservationIgnored
+    private var tunnelObserver: TunnelObserver?
 
     init(
         tunnelManager: TunnelManager,
@@ -72,6 +67,20 @@ class AccountViewModel: AccountViewModelProtocol {
         self.tunnelManager = tunnelManager
         self.onFinish = onFinish
         self.onPaymentAction = onPaymentAction
+        self.paidUntil = tunnelManager.deviceState.accountData?.expiry ?? Date()
+        self.isOutOfTime = tunnelManager.deviceState.accountData?.isExpired ?? false
+        self.deviceName = tunnelManager.deviceState.deviceData?.capitalizedName ?? ""
+        self.accountNumber = tunnelManager.deviceState.accountData?.number ?? ""
+        let observer = TunnelBlockObserver(
+            didUpdateDeviceState: { [weak self] _, deviceState, _ in
+                if let accountData = deviceState.accountData {
+                    self?.isOutOfTime = accountData.isExpired
+                    self?.paidUntil = accountData.expiry
+                }
+            }
+        )
+        self.tunnelObserver = observer
+        tunnelManager.addObserver(observer)
     }
 
     func deleteAccount() async throws {
