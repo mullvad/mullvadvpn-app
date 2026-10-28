@@ -23,11 +23,11 @@ use mullvad_types::{
     location::Coordinates,
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
 };
-use std::ops::Deref;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
+use std::{net::SocketAddr, ops::Deref};
 use talpid_types::net::{obfuscation::Obfuscators, proxy::Shadowsocks};
 
 /// A [`RelayList`] together with pre-computed [`endpoint_set::RelayEndpointSet`]s for every
@@ -75,6 +75,7 @@ pub struct GetRelay {
     pub endpoint: MullvadEndpoint,
     pub obfuscator: Option<Obfuscators>,
     pub inner: WireguardConfig,
+    pub server_override: bool,
 }
 
 impl RelaySelector {
@@ -130,15 +131,12 @@ impl RelaySelector {
 
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
-    ///
-    /// When the query leaves obfuscation on "auto", the returned relay multiplexes every
-    /// obfuscation method it supports.
-    pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
+    pub fn get_relay_by_query(&self, query: &RelayQuery) -> Result<GetRelay, Error> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
         let annotated = self.relays.read().unwrap();
 
-        let inner = select_wireguard_relay(&annotated, &query)?;
+        let inner = select_wireguard_relay(&annotated, query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -151,7 +149,12 @@ impl RelaySelector {
 
         let entry_specific = query.entry_specific();
         let (wg_addr, obfuscator) = endpoint_set
-            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version)?;
+            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version);
+
+        let server_override = match wg_addr {
+            SocketAddr::V4(_) => entry.overridden_ipv4,
+            SocketAddr::V6(_) => entry.overridden_ipv6,
+        };
 
         let endpoint = wireguard_endpoint(
             query.allowed_ips.as_ref(),
@@ -164,6 +167,7 @@ impl RelaySelector {
             endpoint,
             obfuscator,
             inner,
+            server_override,
         })
     }
 }

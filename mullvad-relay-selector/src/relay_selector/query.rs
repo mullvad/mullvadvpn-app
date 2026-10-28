@@ -11,13 +11,11 @@
 //! [`RelayQuery`] is built either from the user's [`Settings`] (via [From]) or with the
 //! [`builder::RelayQueryBuilder`] fluent API used in tests.
 
-pub use mullvad_types::relay_constraints::{
-    ObfuscationMode, obfuscation_constraint_from_settings, obfuscation_to_settings,
-};
+pub use mullvad_types::relay_constraints::obfuscation_constraint_from_settings;
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
-    relay_constraints::{AllowedIps, Multihop, RelaySettings},
+    relay_constraints::{AllowedIps, Multihop, ObfuscationConstraint, RelaySettings},
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
         ResolvedLocationConstraint,
@@ -54,15 +52,18 @@ pub enum Hops {
 }
 
 impl RelayQuery {
-    /// Tighten `self`'s entry-specific constraints by intersecting them with `retry`.
-    ///
-    /// Returns `None` when the retry's constraints are incompatible with the user's
-    /// — e.g., the user pinned ip_version=v4 and the retry wants v6. The retry order
-    /// only ever modifies obfuscation and ip_version, both of which live in
-    /// [`EntrySpecificConstraints`], so this is the only kind of merging needed.
-    pub fn merge_retry(mut self, retry: EntrySpecificConstraints) -> Option<Self> {
-        let merged = self.entry_specific().clone().intersection(retry)?;
-        *self.entry_specific_mut() = merged;
+    /// Constrain query to only direct/wireguard/none for obfuscation, or return none if incompatible.
+    pub fn wireguard_only(mut self) -> Option<Self> {
+        let obfuscation = &mut self.entry_specific_mut().obfuscation;
+        *obfuscation = ObfuscationConstraint {
+            // If direct is None, fn returns None
+            direct: Some(obfuscation.direct?),
+            // Other are disabled (None or false)
+            quic: false,
+            udp2tcp: None,
+            shadowsocks: None,
+            lwo: None,
+        };
         Some(self)
     }
 
@@ -240,8 +241,8 @@ pub mod builder {
         constraints::Constraint,
         custom_list::CustomListsSettings,
         relay_constraints::{
-            LocationConstraint, LwoSettings, ShadowsocksSettings, Udp2TcpObfuscationSettings,
-            WireguardPortSettings,
+            LocationConstraint, LwoSettings, ObfuscationConstraint, ShadowsocksSettings,
+            Udp2TcpObfuscationSettings, WireguardPortSettings,
         },
         relay_selector::{
             EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
@@ -250,7 +251,7 @@ pub mod builder {
         wireguard::QuantumResistantState,
     };
 
-    use super::{Hops, ObfuscationMode, RelayQuery};
+    use super::{Hops, RelayQuery};
 
     // Re-exports
     pub use mullvad_types::relay_constraints::{
@@ -449,7 +450,7 @@ pub mod builder {
         /// obfuscation, just port pinning).
         pub fn port(mut self, port: u16) -> RelayQueryBuilder<Multihop, WireguardPortSettings> {
             let port = WireguardPortSettings::from(port);
-            self.entry_specific.obfuscation = Constraint::Only(ObfuscationMode::Port(port));
+            self.entry_specific.obfuscation = ObfuscationConstraint::direct(port);
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
@@ -464,8 +465,7 @@ pub mod builder {
 
         pub fn shadowsocks(mut self) -> RelayQueryBuilder<Multihop, ShadowsocksSettings> {
             let settings = ShadowsocksSettings::default();
-            self.entry_specific.obfuscation =
-                Constraint::Only(ObfuscationMode::Shadowsocks(settings.clone()));
+            self.entry_specific.obfuscation = ObfuscationConstraint::shadowsocks(settings.clone());
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
@@ -480,8 +480,7 @@ pub mod builder {
 
         pub fn udp2tcp(mut self) -> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings> {
             let settings = Udp2TcpObfuscationSettings::default();
-            self.entry_specific.obfuscation =
-                Constraint::Only(ObfuscationMode::Udp2tcp(settings.clone()));
+            self.entry_specific.obfuscation = ObfuscationConstraint::udp2tcp(settings.clone());
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
@@ -495,7 +494,7 @@ pub mod builder {
         }
 
         pub fn quic(mut self) -> RelayQueryBuilder<Multihop, Quic> {
-            self.entry_specific.obfuscation = Constraint::Only(ObfuscationMode::Quic);
+            self.entry_specific.obfuscation = ObfuscationConstraint::quic();
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
@@ -509,8 +508,8 @@ pub mod builder {
         }
 
         pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo> {
-            self.entry_specific.obfuscation =
-                Constraint::Only(ObfuscationMode::Lwo(LwoSettings::default()));
+            let settings = LwoSettings::default();
+            self.entry_specific.obfuscation = ObfuscationConstraint::lwo(settings);
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
@@ -527,8 +526,7 @@ pub mod builder {
     impl<Multihop> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings> {
         pub fn udp2tcp_port(mut self, port: u16) -> Self {
             self.obfuscation_state.port = Constraint::Only(port);
-            self.entry_specific.obfuscation =
-                Constraint::Only(ObfuscationMode::Udp2tcp(self.obfuscation_state.clone()));
+            self.entry_specific.obfuscation.udp2tcp = Some(self.obfuscation_state.clone());
             self
         }
     }
@@ -536,13 +534,7 @@ pub mod builder {
 
 #[cfg(test)]
 mod test {
-    use mullvad_types::{
-        constraints::Constraint,
-        relay_constraints::{
-            LwoSettings, ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings,
-            Udp2TcpObfuscationSettings,
-        },
-    };
+    use mullvad_types::constraints::Constraint;
     use proptest::prelude::*;
 
     use super::Intersection;
@@ -623,22 +615,5 @@ mod test {
             prop_assert_eq!(left, right);
         }
 
-        /// When obfuscation is set to automatic in [`ObfuscationSettings`], the query should
-        /// convert to `Constraint::Any`.
-        #[test]
-        fn test_auto_obfuscation_settings(port1 in constraint(proptest::arbitrary::any::<u16>()), port2 in constraint(proptest::arbitrary::any::<u16>())) {
-            let query = super::obfuscation_constraint_from_settings(ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Auto,
-                udp2tcp: Udp2TcpObfuscationSettings {
-                    port: port1,
-                },
-                shadowsocks: ShadowsocksSettings {
-                    port: port2,
-                },
-                wireguard_port: port1.into(),
-                lwo: LwoSettings { port: port1 },
-            });
-            assert_eq!(query, Constraint::Any);
-        }
     }
 }
