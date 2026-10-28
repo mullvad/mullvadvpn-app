@@ -98,7 +98,7 @@ class BaseUITestCase: XCTestCase {
             let partnerAPIClient = PartnerAPIClient()
             return await partnerAPIClient.createAccount()
         } else {
-            return mullvadAPIWrapper.createAccount()
+            return await mullvadAPIWrapper.createAccount()
         }
     }
 

@@ -5,10 +5,7 @@ use crate::{
     api_client::ApiContext,
     type_bridges::{AnyError, TokioBridge},
 };
-use mullvad_api::{
-    AccountsProxy,
-    rest::{self, MullvadRestHandle},
-};
+use mullvad_api::AccountsProxy;
 use std::sync::Arc;
 
 #[uniffi::export]
@@ -24,7 +21,6 @@ impl ApiContext {
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
             .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("get_account failed: {e}"))
     }
 
     pub async fn create_account(
@@ -37,7 +33,6 @@ impl ApiContext {
         TokioBridge::spawn(do_request(*retry_strategy, future_factory))
             .await
             .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("create_account failed: {e}"))
     }
 
     pub async fn delete_account(
@@ -51,6 +46,5 @@ impl ApiContext {
         TokioBridge::spawn(do_request_with_empty_body(*retry_strategy, future_factory))
             .await
             .map_err(AnyError::from)
-            .inspect_err(|e| log::error!("delete_account failed: {e}"))
     }
 }

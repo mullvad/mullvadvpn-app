@@ -143,7 +143,7 @@ extension REST {
             accessMethod: PersistentAccessMethod,
             completion: @escaping ProxyCompletionHandler<Bool>
         ) -> Cancellable {
-            Task {
+            Task { @MainActor in
                 do {
                     let response = try await apiContext.apiAddrsAvailable(
                         retryStrategy: retryStrategy.toRustStrategy(),

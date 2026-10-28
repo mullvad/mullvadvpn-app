@@ -14,7 +14,7 @@ import XCTest
 class PaymentTests: LoggedOutUITestCase {
     func testMakeInAppPurchaseOnAccountScreen() async throws {
         let accountNumberWithTime = await getAccountWithTime()
-        let accountExpiry = try mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
+        let accountExpiry = try await mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
 
         addTeardownBlock {
             await self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
@@ -37,7 +37,7 @@ class PaymentTests: LoggedOutUITestCase {
         accountPage
             .dismissThankYouAlert()
 
-        try verifyAccountUpdated(accountNumber: accountNumberWithTime, accountExpiry: accountExpiry)
+        try await verifyAccountUpdated(accountNumber: accountNumberWithTime, accountExpiry: accountExpiry)
     }
 
     func testMakeInAppPurchaseOnWelcomeScreen() async throws {
@@ -99,7 +99,7 @@ class PaymentTests: LoggedOutUITestCase {
         firewallAPIClient.removeRules()
 
         let accountNumberWithTime = await getAccountWithTime()
-        let accountExpiry = try mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
+        let accountExpiry = try await mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
 
         addTeardownBlock {
             await self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
@@ -139,7 +139,7 @@ class PaymentTests: LoggedOutUITestCase {
             .tapRestorePurchasesButton()
             .dismissRestoredPurchasesAlert()
 
-        try verifyAccountUpdated(accountNumber: accountNumberWithTime, accountExpiry: accountExpiry)
+        try await verifyAccountUpdated(accountNumber: accountNumberWithTime, accountExpiry: accountExpiry)
     }
 }
 
@@ -157,8 +157,8 @@ extension PaymentTests {
         return accountNumber
     }
 
-    private func verifyAccountUpdated(accountNumber: String, accountExpiry: Date) throws {
-        let newAccountExpiry = try mullvadAPIWrapper.getAccountExpiry(accountNumber)
+    private func verifyAccountUpdated(accountNumber: String, accountExpiry: Date) async throws {
+        let newAccountExpiry = try await mullvadAPIWrapper.getAccountExpiry(accountNumber)
         XCTAssertTrue(newAccountExpiry > accountExpiry)
 
         AccountPage(app)
