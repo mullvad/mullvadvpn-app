@@ -1,14 +1,14 @@
 use super::{
-    Error, TestContext,
     config::TEST_CONFIG,
     helpers::{self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait},
+    Error, TestContext,
 };
 use crate::{
-    network_monitor::{MonitorOptions, start_packet_monitor},
-    tests::helpers::{ConnChecker, geoip_lookup_with_retries, login_with_retries},
+    network_monitor::{start_packet_monitor, MonitorOptions},
+    tests::helpers::{geoip_lookup_with_retries, login_with_retries, ConnChecker},
 };
 
-use anyhow::{Context, ensure};
+use anyhow::{ensure, Context};
 use duplicate::duplicate_item;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
@@ -20,7 +20,7 @@ use std::{
 };
 use talpid_types::net::IpVersion;
 use test_macro::test_function;
-use test_rpc::{ServiceClient, meta::Os, mullvad_daemon::ServiceStatus};
+use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
 
 use pnet_packet::ip::IpNextHeaderProtocols;
 
@@ -557,14 +557,12 @@ pub async fn test_quantum_resistant_multihop_quic_tunnel_ipvx(
     let ip_version = IpVersion::VX;
 
     mullvad_client
-        // TODO: Why is this needed, exactly?
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
-        .quantum_resistant()
         .multihop()
         .quic()
         .build();

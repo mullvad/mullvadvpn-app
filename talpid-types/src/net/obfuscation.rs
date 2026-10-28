@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use super::{Endpoint, TransportProtocol};
 
 /// Available obfuscation configuration types.
-#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Obfuscators {
     /// A single obfuscation method
     Single(ObfuscatorConfig),
