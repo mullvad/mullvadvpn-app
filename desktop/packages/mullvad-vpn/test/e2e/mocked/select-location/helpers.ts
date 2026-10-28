@@ -1,7 +1,6 @@
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
-import { LocationType } from '../../../../src/renderer/features/locations/types';
 import {
   type Constraint,
   type CustomLists,
@@ -19,6 +18,7 @@ import {
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
+import { type MockLocationType } from '../../utils';
 import { MockedTestUtils } from '../mocked-utils';
 
 export type RelaySelectionPath = {
@@ -144,10 +144,10 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     await routes.filter.collapseProviders();
   };
 
-  const resetToFilterView = async (locationType: LocationType) => {
+  const resetToFilterView = async (locationType: MockLocationType) => {
     const currentRoute = await utils.getCurrentRoute();
     if (currentRoute === RoutePath.selectLocation) {
-      if (locationType === LocationType.exit) {
+      if (locationType === 'exit') {
         await routes.selectLocation.gotoExitFilter();
       } else {
         await routes.selectLocation.gotoEntryFilter();
@@ -171,7 +171,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       providers,
       locationType,
     }: {
-      locationType: LocationType;
+      locationType: MockLocationType;
       ownership?: Ownership;
       providers?: string[];
     },
@@ -183,14 +183,14 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
 
     if ('normal' in settings.relaySettings) {
       if (ownership) {
-        if (locationType === LocationType.exit) {
+        if (locationType === 'exit') {
           settings.relaySettings.normal.ownership = ownership;
         } else {
           settings.relaySettings.normal.wireguardConstraints.entryOwnership = ownership;
         }
       }
       if (providers) {
-        if (locationType === LocationType.exit) {
+        if (locationType === 'exit') {
           settings.relaySettings.normal.providers = providers;
         } else {
           settings.relaySettings.normal.wireguardConstraints.entryProviders = providers;
@@ -216,7 +216,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       {
         ownership,
         providers,
-        locationType: LocationType.entry,
+        locationType: 'entry',
       },
       settings,
     );
@@ -236,7 +236,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       {
         ownership,
         providers,
-        locationType: LocationType.exit,
+        locationType: 'exit',
       },
       settings,
     );

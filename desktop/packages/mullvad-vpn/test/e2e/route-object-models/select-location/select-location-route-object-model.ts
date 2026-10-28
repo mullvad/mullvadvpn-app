@@ -1,7 +1,7 @@
 import { type Locator, Page } from 'playwright';
 
-import { LocationType } from '../../../../src/renderer/features/locations/types';
 import { RoutePath } from '../../../../src/shared/routes';
+import { type MockLocationType } from '../../utils';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
@@ -45,8 +45,8 @@ export class SelectLocationRouteObjectModel {
     );
   }
 
-  async gotoLocations(locationType: LocationType) {
-    if (locationType === LocationType.exit) {
+  async gotoLocations(locationType: MockLocationType) {
+    if (locationType === 'exit') {
       await this.gotoExitLocations();
     } else {
       await this.gotoEntryLocations();
