@@ -2035,7 +2035,7 @@ impl Daemon {
     }
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
-        Self::oneshot_send(tx, self.relay_selector.get_relays(), "relay locations");
+        Self::oneshot_send(tx, self.relay_selector.get_relay_list(), "relay locations");
     }
 
     fn on_get_bridges(&mut self, tx: oneshot::Sender<BridgeList>) {
@@ -3496,7 +3496,7 @@ impl Daemon {
     fn on_toggle_relay(&mut self, relay: String, active: bool, tx: oneshot::Sender<()>) {
         use mullvad_types::relay_list::RelayList;
         let relays = {
-            let relay_list = self.relay_selector.get_relays();
+            let relay_list = self.relay_selector.get_relay_list();
             let countries = {
                 let mut countries = relay_list.countries;
                 for country in &mut countries {
