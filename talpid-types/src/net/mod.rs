@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
-    fmt, iter,
+    fmt,
     net::{IpAddr, SocketAddr},
     str::FromStr,
 };
@@ -135,18 +135,12 @@ impl fmt::Display for ObfuscationInfo {
 impl From<&Obfuscators> for ObfuscationInfo {
     fn from(config: &Obfuscators) -> Self {
         match config {
-            Obfuscators::Multiplexer {
-                direct,
-                configs: (first_obfs, remaining_obfs),
-            } => ObfuscationInfo::Multiplexer {
+            Obfuscators::Multiplexer { direct, configs } => ObfuscationInfo::Multiplexer {
                 direct: direct.map(|direct| Endpoint {
                     address: direct,
                     protocol: TransportProtocol::Udp,
                 }),
-                obfuscators: iter::once(first_obfs)
-                    .chain(remaining_obfs)
-                    .map(ObfuscationEndpoint::from)
-                    .collect(),
+                obfuscators: configs.iter().map(ObfuscationEndpoint::from).collect(),
             },
             Obfuscators::Single(obfs) => ObfuscationInfo::Single(ObfuscationEndpoint::from(obfs)),
         }

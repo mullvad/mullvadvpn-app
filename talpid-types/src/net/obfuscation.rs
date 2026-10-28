@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use vec1::Vec1;
 
 use super::{Endpoint, TransportProtocol};
 
@@ -16,7 +17,7 @@ pub enum Obfuscators {
         /// Optional direct connection (no obfuscation) to try along with `configs`.
         direct: Option<SocketAddr>,
         /// Obfuscation configurations to try.
-        configs: (ObfuscatorConfig, Vec<ObfuscatorConfig>),
+        configs: Vec1<ObfuscatorConfig>,
     },
 }
 
@@ -63,12 +64,9 @@ impl Obfuscators {
         direct: Option<SocketAddr>,
         obfuscators: &[ObfuscatorConfig],
     ) -> Option<Self> {
-        let [first, remaining @ ..] = obfuscators else {
-            return None;
-        };
         Some(Obfuscators::Multiplexer {
             direct,
-            configs: (first.clone(), remaining.to_vec()),
+            configs: Vec1::try_from(obfuscators).ok()?,
         })
     }
 
@@ -80,10 +78,7 @@ impl Obfuscators {
     pub fn endpoints(&self) -> Vec<Endpoint> {
         match self {
             Obfuscators::Single(config) => vec![config.endpoint()],
-            Obfuscators::Multiplexer {
-                direct,
-                configs: (first_config, remaining_configs),
-            } => {
+            Obfuscators::Multiplexer { direct, configs } => {
                 let mut endpoints = vec![];
                 if let Some(direct) = direct {
                     endpoints.push(Endpoint {
@@ -91,14 +86,29 @@ impl Obfuscators {
                         protocol: TransportProtocol::Udp,
                     });
                 }
-                endpoints.push(first_config.endpoint());
-                endpoints.extend(remaining_configs.iter().map(|cfg| cfg.endpoint()));
+                endpoints.extend(configs.iter().map(|cfg| cfg.endpoint()));
 
                 endpoints.sort();
                 endpoints.dedup();
 
                 endpoints
             }
+        }
+    }
+
+    pub fn obfuscator_configs(&self) -> Vec<ObfuscatorConfig> {
+        match self {
+            Obfuscators::Single(config) => vec![config.clone()],
+            Obfuscators::Multiplexer { configs, .. } => configs.iter().cloned().collect(),
+        }
+    }
+
+    /// Return the socket address of the direct/plain wireguard connection inside
+    /// the multiplexer, if present.
+    pub fn direct(&self) -> Option<SocketAddr> {
+        match self {
+            Obfuscators::Single(_) => None,
+            Obfuscators::Multiplexer { direct, .. } => *direct,
         }
     }
 }
