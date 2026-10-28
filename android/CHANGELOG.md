@@ -21,15 +21,21 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.13-beta1] - 2026-10-28
 ### Added
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
   proxies. The access method is enabled by default.
+- Publish software bill of materials (SBOM) along with the GitHub release.
 
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Replace grpc-java with wire as grpc library.
+- Update LWO to improved v2 protocol.
+- Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
+- Ask for notification permission on the connect screen instead of after the (now gone) privacy
+  consent screen.
+- Improve how the quick settings tile show the connection state.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
@@ -42,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix relay list and custom lists sorting by respecting locales.
 - Ensure cached routes are cleared before setting up new tunnels.
 - Improve detection of IPv6 connectivity.
+- Fix a bug where password managers could save the account number as hidden dots.
 
 
 ## [android/2026.12] - 2026-09-30
