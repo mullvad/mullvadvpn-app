@@ -5,7 +5,7 @@
 //!
 //! - the **hop count** the user wants ([`Hops::Single`], [`Hops::Auto`], or
 //!   [`Hops::Multi`]) along with the entry/exit constraints meaningful to that count
-//! - **connection-level** constraints (`allowed_ips`, `quantum_resistant`) that apply regardless of
+//! - **connection-level** constraints (`allowed_ips`) that apply regardless of
 //!   the count.
 //!
 //! [`RelayQuery`] is built either from the user's [`Settings`] (via [From]) or with the
@@ -21,7 +21,6 @@ use mullvad_types::{
         ResolvedLocationConstraint,
     },
     settings::Settings,
-    wireguard::QuantumResistantState,
 };
 use talpid_types::net::{IpAvailability, IpVersion};
 
@@ -37,7 +36,6 @@ pub struct RelayQuery {
     // Only this field affects relay selection.
     pub hops: Hops,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub quantum_resistant: Constraint<QuantumResistantState>,
 }
 
 /// The multihop variant and corresponding constraints on each hop.
@@ -205,9 +203,6 @@ impl From<Settings> for RelayQuery {
         RelayQuery {
             hops,
             allowed_ips: wg.allowed_ips.clone(),
-            quantum_resistant: Constraint::Only(
-                settings.tunnel_options.wireguard.quantum_resistant,
-            ),
         }
     }
 }
@@ -219,7 +214,6 @@ impl Default for RelayQuery {
         Self {
             hops: Hops::Single(EntryConstraints::default()),
             allowed_ips: Constraint::Any,
-            quantum_resistant: Constraint::Any,
         }
     }
 }
@@ -242,7 +236,6 @@ pub mod builder {
             EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
             ResolvedLocationConstraint,
         },
-        wireguard::QuantumResistantState,
     };
 
     use super::{Hops, RelayQuery};
@@ -284,7 +277,6 @@ pub mod builder {
         multihop_entry: ExitConstraints,
         hop_choice: HopChoice,
         allowed_ips: Constraint<AllowedIps>,
-        quantum_resistant: Constraint<QuantumResistantState>,
         obfuscation_state: Obfuscation,
         _phantom: PhantomData<Multihop>,
     }
@@ -297,7 +289,6 @@ pub mod builder {
                 multihop_entry: ExitConstraints::default(),
                 hop_choice: HopChoice::default(),
                 allowed_ips: Constraint::Any,
-                quantum_resistant: Constraint::Any,
                 obfuscation_state: Any,
                 _phantom: PhantomData,
             }
@@ -353,11 +344,6 @@ pub mod builder {
             self
         }
 
-        pub fn quantum_resistant(mut self) -> Self {
-            self.quantum_resistant = Constraint::Only(QuantumResistantState::On);
-            self
-        }
-
         /// Switch to the autohop. Falls back from singlehop to multihop when
         /// no singlehop relay matches the constraints.
         pub fn autohop(mut self) -> Self {
@@ -387,7 +373,6 @@ pub mod builder {
             RelayQuery {
                 hops,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
             }
         }
     }
@@ -402,7 +387,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: self.obfuscation_state,
                 _phantom: PhantomData,
             }
@@ -451,7 +435,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: port,
                 _phantom: PhantomData,
             }
@@ -466,7 +449,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: settings,
                 _phantom: PhantomData,
             }
@@ -481,7 +463,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: settings,
                 _phantom: PhantomData,
             }
@@ -495,7 +476,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: Quic,
                 _phantom: PhantomData,
             }
@@ -510,7 +490,6 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                quantum_resistant: self.quantum_resistant,
                 obfuscation_state: Lwo,
                 _phantom: PhantomData,
             }
