@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
@@ -59,7 +58,8 @@ private fun PreviewSelectableRelayLocationItem(
                     relayListItem = it,
                     onClick = {},
                     onToggleExpand = {},
-                    showMultihopWhenNeededIcon = it.item is RelayItem.Location.Relay,
+                    showMultihopWhenNeededIcon =
+                        it is RelayListItem.GeoLocationItem && it.needsOtherEntry,
                 )
             }
         }
@@ -182,7 +182,10 @@ private fun Content(
         Name(
             name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
             state = relayListItem.state,
-            colors.headlineColor(enabled = active, selected = selected),
+            colors.headlineColor(
+                enabled = active && relayListItem.state == null,
+                selected = selected,
+            ),
         )
         if (relayListItem.connected && !selected) {
             Subtitle(
