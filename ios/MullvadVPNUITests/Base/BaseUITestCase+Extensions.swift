@@ -98,12 +98,27 @@ extension BaseUITestCase {
     }
 
     func agreeToTermsOfServiceIfShown() {
-        let timeout: XCUIElement.Timeout =
-            Self.authenticationState == .forceLoggedOut && loginViewIsShown() ? .short : .longerThanMullvadAPITimeout
-
-        if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: timeout) {
+        // Sanity check on the assumptions in the test
+        if case .all = Self.settingsResetPolicy {
+            XCTAssertTrue(
+                Self.authenticationState == .forceLoggedOut,
+                "All settings expect to be reset, therefore the authentication should be logged out")
+        }
+        // First do a very short check if it's the first test being run to avoid invalidating first runs of a suite from a fresh state
+        if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: .short) {
             TermsOfServicePage(app)
                 .tapAgreeButton()
+            return
+        }
+
+        // If the test expects to stay logged in, with only a partial or no reset of settings, the terms of service should not be shown.
+        // Check the reset settings policy to further wait when the test is expected to go back to the TOS page.
+        if case .all = Self.settingsResetPolicy {
+            // Give enough time for the app to log out if it's waiting to do so before resetting things
+            if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: .longerThanMullvadAPITimeout) {
+                TermsOfServicePage(app)
+                    .tapAgreeButton()
+            }
         }
     }
 
@@ -198,29 +213,6 @@ extension BaseUITestCase {
                 .waitForDeviceList()
                 .waitForNoLoading()
                 .tapContinueWithLoginButton()
-        }
-    }
-
-    func logoutIfLoggedIn() {
-        if loginViewIsShown() {
-            // First dismiss settings modal if presented
-            if isPresentingSettings() {
-                SettingsPage(app)
-                    .swipeDownToDismissModal()
-            }
-
-            if app.buttons[AccessibilityIdentifier.accountButton].exists {
-                HeaderBar(app)
-                    .tapAccountButton()
-                AccountPage(app)
-                    .tapLogOutButton()
-            } else {
-                // Workaround for revoked device view not showing account button
-                RevokedDevicePage(app)
-                    .tapGoToLogin()
-            }
-
-            LoginPage(app)
         }
     }
 }
