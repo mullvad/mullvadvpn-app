@@ -1,100 +1,82 @@
-
-# Glossary
-
-- Relay - a server that provides one or multiple tunnel endpoints, and has a weight
-  associated with it
-- Endpoint - a combination of a socket address and the transport protocol
-- Transport protocol - TCP or UDP
-- Obfuscation - Putting WireGuard or API traffic inside a protocol designed to make it
-  harder to fingerprint or block the contained traffic. This is used to circumvent censorship.
-- Anti-censorhip - Umbrella term for methods and protocols used to circumvent network censorship.
-  Obfuscation is a type of Anti-censorhip measurement that Mullvad use for this effort.
-- DAITA - Short for "Defense against AI-guided Traffic Analysis". A technique supported on some
-  WireGuard relays that makes website fingerprinting more difficult.
-
 # Relay selector
 
-The relay selector's main purpose is to pick a configuration of one or more Mullvad relays taking
-into account certain user-configurable criteria. Relays can be filtered by their _location_
-(country, city, hostname), by the protocols and ports they support and by other constraints.
-The constraints are user specified and stored in the settings. The default value for location
-constraints restricts relay selection to relays from Sweden.
+The relay selector is the part of the VPN client that filters relays and decides their configuration,
+endpoints, and features.
 
-Generally, the filtering process consists of going through each relay in our relay list and
-removing relay and endpoint combinations that do not match the constraints outlined above. The
-filtering process produces a list of relays that only contain matching endpoints. Of all the relays
-that match the constraints, one is selected and a random matching endpoint is selected from that
-relay.
+## Glossary
 
-## Tunnel endpoint constraints
+- **Relay** - A VPN server which all traffic is routed through. Provides one or multiple tunnel
+  endpoints and has a weight that affects the likelihood of it being selected.
+- **Endpoint** - A combination of a socket address and the transport protocol (TCP or UDP).
+- **Anti-censorship** - Methods for reaching the Mullvad services while under censorship or other
+  network restrictions by making the traffic harder to distinguish from non-VPN traffic.
+  Can be configured under the settings page of the same name.
+- **WireGuard** - The VPN protocol used by Mullvad. Changing the WireGuard port is an anti-censorship
+  method.
+- **Obfuscation protocol** - Circumvents censorship by putting WireGuard or API traffic inside another
+  protocol - designed to make it harder to fingerprint. There are currently four obfuscation protocols:
+  _udp2tcp_, _shadowsocks_, _quic_, and _lwo_.
+- **DAITA** - Short for "Defense against AI-guided Traffic Analysis". A technique supported on some
+  WireGuard relays that makes website fingerprinting more difficult.
 
-Endpoints may be filtered by:
+## Relay selection
 
-- entry port
+Relays are filtered by:
+
 - location (country, city, hostname)
 - provider
 - ownership (Mullvad-owned or rented)
-
-### Default constraints for tunnel endpoints
-
-Whilst all user selected constraints are always honored, when the user hasn't selected any specific
-constraints the following default ones will take effect
-
-- The first attempt will connect to a relay on a random port
-- The second attempt will connect to a relay over IPv6 (if IPv6 is configured on the host) on a random port
-- The third attempt will connect to a relay using LWO
-- The fourth attempt will connect to a relay on a random port using Shadowsocks for obfuscation
-- The fifth attempt will connect to a relay using QUIC for obfuscation
-- The sixth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
-- The seventh attempt will connect to a relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
-
-### Default constraints for tunnel endpoints on iOS
-
-The iOS platform supports connecting to a relay over IPv6, but will use only
-either IPv4 or IPv6, depending on user settings. As such, the above algorithm
-is simplified to the following version:
-
-- The first attempt will connect to a relay on a random port
-- The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation
-- The third attempt will connect to a relay using QUIC for obfuscation
-- The fourth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
-- The fifth attempt will connect to a relay using LWO
-
-### Random Ports for UDP2TCP and Shadowsocks
-
-- The UDP2TCP random port is one of 80, 443 or 5001 on desktop. On iOS, it is
-  only port 443 and 80.
-- The Shadowsocks port is random within a certain range of ports defined by the
-  relay list
-
-### Ports for QUIC
-
-QUIC will use port 443.
-
-If no tunnel has been established after exhausting this list of attempts, the relay selector will
-loop back to the first default constraint and continue its search from there.
-
-Any default constraint that is incompatible with user specified constraints will simply not be
-considered. Conversely, all default constraints which do not conflict with user specified constraints
-will be used in the search for a working tunnel endpoint on repeated connection failures.
-
-## Selecting tunnel endpoint between filtered relays
+- support for features such as DAITA and obfuscation methods
+- device IP version and port
 
 To select a single relay from the set of filtered relays, the relay selector uses a roulette wheel
 selection algorithm using the weights that are assigned to each relay. The higher the weight is
-relatively to other relays, the higher the likelihood that a given relay will be picked. Once a
-relay is picked, then a random endpoint that matches the constraints from the relay is picked.
+relative to other relays, the higher the likelihood that a given relay will be picked. Once a
+relay is picked, a random endpoint that matches the constraints from the relay is picked.
 
-## Selecting a DAITA-compatible relay
+If multihop is enabled, two relays are selected and the user connection is routed through them in
+sequence. Anti-censorship, DAITA, IP version, and port settings only apply to the entry relay.
 
-Since not all relays deploy DAITA, there are lots of tunnel endpoint constraints that
-are fundamentally incompatible with DAITA. As such, if DAITA is enabled the relay selector may select
-an alternative entry relay and implicitly use multihop in order to achieve a seamless user experience.
-The user's tunnel endpoint constraint is respected for the exit relay.
+### Automatic anti-censorship selection
 
-The user may opt out of this behaviour by toggling the "Direct only" option in the DAITA settings.
+If the anti-censorship setting is set to _Automatic_, the relay selector will first attempt to connect
+without an obfuscation method. If that fails, it will simultaneously try all obfuscation methods
+that are available on the relay to find a working tunnel endpoint. Both IPv4 and IPv6 will be
+tried if the device IP version is set to automatic. The first working obfuscation method will be
+selected and used for the remainder of the session.
 
-### Obfuscator caveats
+If a working endpoint is not found, subsequent connection attempts use other relays, chosen so that
+obfuscation methods not supported by the previously tried relays are attempted next. Once every
+enabled method has been tried, the sequence restarts from the plain WireGuard attempt.
 
-There are four types of obfuscators - _udp2tcp_, _shadowsocks_, _quic_, and _lwo_.
-Any of them may be used if the anti-censorship method mode is set _Automatic_.
+### Default constraints for tunnel endpoints on iOS
+
+The iOS platform supports connecting to a relay over IPv6 but will use only
+either IPv4 or IPv6, depending on user settings. As such, the above algorithm
+is simplified to the following version:
+
+1. The first attempt will connect to a relay on a random port.
+2. The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation.
+3. The third attempt will connect to a relay using QUIC for obfuscation.
+4. The fourth attempt will connect to a relay on a random port using
+   [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp).
+5. The fifth attempt will connect to a relay using LWO.
+
+### Ports
+
+Wireguard and the obfuscation protocols have different valid port ranges. If a specific anti-censorship
+method is selected, then a port can also be specified. Otherwise, the port is randomly selected in the
+valid ranges.
+
+Valid ports for each anti-censorship method are:
+
+- **WireGuard** - 53, 123, 4000-33433, 33565-51820 and 52001-60000.
+- **LWO** - The same ports as WireGuard.
+- **Shadowsocks** - 51900-51949 is supported on all relays (using the same IP address
+  as the WireGuard endpoint). Some relays also have dedicated shadowsocks IP addresses
+  which support any port. Setting a port outside this range will therefore reduce the
+  number of available relays.
+- **QUIC** - Always port 443.
+- **UDP2TCP** - 80, 443, or 5001 on desktop. On iOS, only 80 or 443.
+
+The valid port ranges are provided by the relay list and may change from what's listed here.
