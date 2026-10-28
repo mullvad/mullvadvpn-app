@@ -78,6 +78,12 @@ class Networking {
                 connection.cancel()
                 connectionError = error
                 connectionStateDeterminedExpectation.fulfill()
+            case let .waiting(noSuchDNSRecordError):
+                if noSuchDNSRecordError.errorCode == kDNSServiceErr_NoSuchRecord {
+                    connection.cancel()
+                    connectionError = noSuchDNSRecordError
+                    connectionStateDeterminedExpectation.fulfill()
+                }
             case .ready:
                 connection.cancel()
                 connectionStateDeterminedExpectation.fulfill()
