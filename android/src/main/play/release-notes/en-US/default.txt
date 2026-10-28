@@ -1,0 +1,6 @@
+- Added domain fronting as a new way to reach our API when it is blocked.
+- Added a workaround for Android failing to restart the VPN app after app upgrade.
+- Improved obfuscation performance, mainly for Shadowsocks.
+- Improved how the quick settings tile show the connection state.
+- Fixed a few issues with establishing connections.
+- Fixed a bug with how password managers save the account number.
