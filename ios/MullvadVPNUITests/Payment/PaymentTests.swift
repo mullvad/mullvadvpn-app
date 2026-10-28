@@ -94,7 +94,6 @@ class PaymentTests: LoggedOutUITestCase {
     }
 
     func testInAppPurchaseWithRestoreOnFailedReceiptUpload() async throws {
-        try XCTSkipIf(true, "This test is too unreliable to run in CI for now")
         let firewallAPIClient = FirewallClient()
         firewallAPIClient.removeRules()
 
@@ -106,7 +105,7 @@ class PaymentTests: LoggedOutUITestCase {
             firewallAPIClient.removeRules()
         }
 
-        disableBridgesAccessMethod()
+        disableAccessMethods([.accessMethodBridgesCell, .accessMethodEncryptedDNSCell, .accessMethodDomainFrontingCell])
 
         login(accountNumber: accountNumberWithTime)
 

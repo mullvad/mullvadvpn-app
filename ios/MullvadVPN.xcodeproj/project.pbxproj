@@ -439,9 +439,6 @@
 		58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */; };
 		58EC067A2A8D208D00BEB973 /* TunnelDeviceInfoStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC06792A8D208D00BEB973 /* TunnelDeviceInfoStub.swift */; };
 		58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */; };
-		58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */; };
-		58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */; };
-		58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */; };
 		58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF581025D69DB400AEBA94 /* StatusImageView.swift */; };
 		58EF87572B16330B00C098B2 /* ProxyConfigurationTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF87562B16330B00C098B2 /* ProxyConfigurationTester.swift */; };
 		58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF875C2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift */; };
@@ -879,6 +876,7 @@
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
 		A98207EB2D9190F100654558 /* ShadowsocksConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */; };
 		A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */; };
+		A982B5993091E18F00307A9C /* BaseUITestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A982B5983091E18F00307A9C /* BaseUITestCase+Extensions.swift */; };
 		A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98502022B627B120061901E /* LocalNetworkProbe.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
 		A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */; };
@@ -2292,9 +2290,6 @@
 		58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCounters.swift; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
 		58ED3A132A7C199C0085CE65 /* StartOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartOptions.swift; sourceTree = "<group>"; };
-		58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportSubmissionOverlayView.swift; sourceTree = "<group>"; };
-		58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSource.swift; sourceTree = "<group>"; };
-		58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSourceDelegate.swift; sourceTree = "<group>"; };
 		58EF581025D69DB400AEBA94 /* StatusImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusImageView.swift; sourceTree = "<group>"; };
 		58EF87562B16330B00C098B2 /* ProxyConfigurationTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationTester.swift; sourceTree = "<group>"; };
 		58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -2678,6 +2673,7 @@
 		A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredWgKeyData.swift; sourceTree = "<group>"; };
 		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
 		A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccessMethodReceiver.swift; sourceTree = "<group>"; };
+		A982B5983091E18F00307A9C /* BaseUITestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseUITestCase+Extensions.swift"; sourceTree = "<group>"; };
 		A9840BB32C69F78A0030F05E /* Maybenot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Maybenot.swift; sourceTree = "<group>"; };
 		A98502022B627B120061901E /* LocalNetworkProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkProbe.swift; sourceTree = "<group>"; };
 		A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardObfuscationSettings.swift; sourceTree = "<group>"; };
@@ -5000,6 +4996,7 @@
 				8590896A2B61763B003AF5F5 /* BaseUITestCase.swift */,
 				859089692B61763B003AF5F5 /* LoggedInWithTimeUITestCase.swift */,
 				8590896B2B61763B003AF5F5 /* LoggedOutUITestCase.swift */,
+				A982B5983091E18F00307A9C /* BaseUITestCase+Extensions.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -7687,6 +7684,7 @@
 				7A8A19262CF4D37B000BCB5B /* DAITAPage.swift in Sources */,
 				856952DC2BD2922A008C1F84 /* PartnerAPIClient.swift in Sources */,
 				85F1E17E2C0A256200DB8F55 /* LeakTests.swift in Sources */,
+				A982B5993091E18F00307A9C /* BaseUITestCase+Extensions.swift in Sources */,
 				85557B162B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift in Sources */,
 				7A6AA3AB2EC5C8FB00F1C80C /* StoreSubscription.swift in Sources */,
 				855D9F5B2B63E56B00D7C64D /* ProblemReportPage.swift in Sources */,

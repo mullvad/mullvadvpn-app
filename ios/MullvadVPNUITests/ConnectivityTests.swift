@@ -45,7 +45,7 @@ class ConnectivityTests: LoggedOutUITestCase {
         // Setup. Enter blocked state by connecting to relay and applying filter which relay isn't part of.
         login(accountNumber: hasTimeAccountNumber)
 
-        disableBridgesAccessMethod()
+        disableAccessMethods([.accessMethodBridgesCell, .accessMethodEncryptedDNSCell, .accessMethodDomainFrontingCell])
 
         TunnelControlPage(app)
             .tapSelectLocationButton()

@@ -30,7 +30,8 @@ class PaymentPage: Page {
         // Adding accessibility identifier to the button inside the product sheet would to duplicate
         // button entries, which in turn led to tapping here not working reliably. Using the title
         // as a workaround.
-        app.buttons.element(matching: NSPredicate(format: "label BEGINSWITH 'Add 30 days time'")).tapWhenHittable()
+        app.buttons.element(matching: NSPredicate(format: "label BEGINSWITH 'Add 30 days time'")).tapWhenHittable(
+            timeout: .long)
 
         return self
     }
@@ -44,7 +45,7 @@ class PaymentPage: Page {
     }
 
     @discardableResult func dismissFailedPurchaseAlert() -> Self {
-        app.staticTexts["Cannot complete the purchase"].wait(timeout: .long)
+        app.staticTexts["Cannot complete the purchase"].wait(timeout: .extremelyLong)
         app.buttons["Got it!"].tap()
 
         return self
