@@ -57,7 +57,7 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
-        // Personal VPN requires the gotatun device graph; the kernel backend has no such path.
+        // Custom VPN requires the gotatun device graph; the kernel backend has no such path.
         let pvpn = cfg_select! {
             feature = "custom-vpn" => self.custom_vpn.is_some(),
             _ => false,
@@ -344,7 +344,7 @@ impl fmt::Debug for PresharedKey {
     }
 }
 
-/// Personal VPN tunnel interface configuration (WireGuard-based).
+/// Custom VPN tunnel interface configuration (WireGuard-based).
 ///
 /// `ips` carries one or more interface addresses (typically one IPv4 and/or
 /// one IPv6, matching a wg-quick `Address = ...` line). Must be non-empty;
@@ -356,7 +356,7 @@ pub struct CustomVpnTunnelConfig {
     pub ips: Vec<std::net::IpAddr>,
 }
 
-/// Personal VPN peer configuration (WireGuard-based).
+/// Custom VPN peer configuration (WireGuard-based).
 #[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnPeerConfig {
@@ -365,7 +365,7 @@ pub struct CustomVpnPeerConfig {
     pub endpoint: SocketAddr,
 }
 
-/// Personal VPN configuration (WireGuard-based).
+/// Custom VPN configuration (WireGuard-based).
 #[cfg(feature = "custom-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnConfig {
@@ -383,7 +383,7 @@ impl CustomVpnConfig {
     }
 }
 
-/// Personal VPN configs (WireGuard-based).
+/// Custom VPN configs (WireGuard-based).
 #[cfg(feature = "custom-vpn")]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnSettings {

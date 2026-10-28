@@ -142,7 +142,7 @@ pub struct Settings {
     pub settings_version: SettingsVersion,
     /// Stores the user's recently connected locations. If None recents have been disabled by the user.
     pub recents: Option<Recents>,
-    /// Personal WireGuard VPN settings
+    /// Custom WireGuard VPN settings
     #[cfg(feature = "custom-vpn")]
     pub custom_vpn: talpid_types::net::wireguard::CustomVpnSettings,
     /// A randomly generated number used as input when determining if the client should update. Note that this

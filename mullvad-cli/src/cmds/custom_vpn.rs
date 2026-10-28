@@ -81,7 +81,7 @@ impl CustomVpn {
         let settings = rpc.get_settings().await?;
         let config = settings.custom_vpn.configs.into_iter().next();
         let enabled = BooleanOption::from(config.as_ref().is_some_and(|c| c.enabled));
-        println!("Personal VPN: {enabled}");
+        println!("Custom VPN: {enabled}");
         match config {
             None => println!("Configuration: none"),
             Some(config) => {
@@ -141,7 +141,7 @@ impl CustomVpn {
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
-        println!("Personal VPN configuration updated");
+        println!("Custom VPN configuration updated");
         Ok(())
     }
 
@@ -156,7 +156,7 @@ impl CustomVpn {
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
-        println!("Personal VPN: {state}");
+        println!("Custom VPN: {state}");
         Ok(())
     }
 
@@ -166,7 +166,7 @@ impl CustomVpn {
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
-        println!("Personal VPN configuration removed");
+        println!("Custom VPN configuration removed");
         Ok(())
     }
 
@@ -190,7 +190,7 @@ impl CustomVpn {
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
-        println!("Personal VPN configuration imported");
+        println!("Custom VPN configuration imported");
         Ok(())
     }
 }

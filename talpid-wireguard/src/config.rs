@@ -39,7 +39,7 @@ pub struct Config {
     /// Networks routed into the tunnel device. Typically matches the union of all peers' allowed
     /// IPs.
     pub routes: Vec<IpNetwork>,
-    /// Personal VPN configuration
+    /// Custom VPN configuration
     #[cfg(feature = "custom-vpn")]
     pub custom_vpn: Option<wireguard::CustomVpnConfig>,
 }

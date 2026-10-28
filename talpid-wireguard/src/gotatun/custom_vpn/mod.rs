@@ -1,4 +1,4 @@
-//! Personal VPN: a WireGuard tunnel of the user's own, carried inside the Mullvad tunnel.
+//! Custom VPN: a WireGuard tunnel of the user's own, carried inside the Mullvad tunnel.
 //!
 //! Traffic to the custom VPN's allowed IPs is NATed to the custom VPN tunnel address and
 //! encrypted by an inner device, and then carried by the outer (Mullvad) device. All other traffic
@@ -256,7 +256,7 @@ fn resolve_nat_mappings(
         (Some(inner), Some(outer)) => Some((inner, outer)),
         (Some(_), None) => {
             log::warn!(
-                "Personal VPN inner tunnel has IPv4 but outer tunnel IPv4 is disabled; skipping IPv4"
+                "Custom VPN inner tunnel has IPv4 but outer tunnel IPv4 is disabled; skipping IPv4"
             );
             None
         }
@@ -267,7 +267,7 @@ fn resolve_nat_mappings(
         (Some(inner), Some(outer)) => Some((inner, outer)),
         (Some(_), None) => {
             log::warn!(
-                "Personal VPN inner tunnel has IPv6 but outer tunnel IPv6 is disabled; skipping IPv6"
+                "Custom VPN inner tunnel has IPv6 but outer tunnel IPv6 is disabled; skipping IPv6"
             );
             None
         }

@@ -107,7 +107,7 @@ impl FeatureIndicator {
             FeatureIndicator::ServerIpOverride => "Server Ip Override",
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::Daita => "DAITA",
-            FeatureIndicator::CustomVpn => "Personal VPN",
+            FeatureIndicator::CustomVpn => "Custom VPN",
         }
     }
 }
