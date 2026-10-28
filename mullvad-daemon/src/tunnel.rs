@@ -1,5 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::net::{Ipv4Addr, Ipv6Addr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
 
@@ -69,7 +69,9 @@ impl ParametersGenerator {
 
     /// Sets the tunnel options to use when generating new tunnel parameters.
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
-        self.0.lock().await.tunnel_options = tunnel_options.clone();
+        let mut inner = self.0.lock().await;
+        inner.tunnel_options = tunnel_options.clone();
+        inner.relay_selector.clear_relay_queue();
     }
 
     /// Updates generator state from full settings and keeps relay-selector config in sync.
@@ -196,26 +198,18 @@ impl InnerParametersGenerator {
         }
 
         let data = self.device().await?;
-        let selected_relay = self
-            .relay_selector
-            .get_relay(retry_attempt as usize, ip_availability)?;
+
+        self.relay_selector.set_ip_availability(ip_availability);
+        if retry_attempt == 0 {
+            self.relay_selector.clear_relay_queue();
+        }
 
         let GetRelay {
             endpoint,
             obfuscator,
             inner,
-        } = selected_relay;
-
-        let server_override = {
-            let first_relay = match &inner {
-                WireguardConfig::Singlehop { exit } => exit,
-                WireguardConfig::Multihop { exit: _, entry } => entry,
-            };
-            match endpoint.peer.endpoint {
-                SocketAddr::V4(_) => first_relay.overridden_ipv4,
-                SocketAddr::V6(_) => first_relay.overridden_ipv6,
-            }
-        };
+            server_override,
+        } = self.relay_selector.next_relay()?;
 
         self.last_generated_relays = Some(LastSelectedRelays {
             config: inner,
