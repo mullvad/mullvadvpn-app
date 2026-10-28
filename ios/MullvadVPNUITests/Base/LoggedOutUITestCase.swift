@@ -19,20 +19,22 @@ class LoggedOutUITestCase: BaseUITestCase {
         .all
     }
 
-    func disableBridgesAccessMethod() {
+    func disableAccessMethods(_ methods: [AccessibilityIdentifier]) {
         HeaderBar(app)
             .tapSettingsButton()
 
         SettingsPage(app)
             .tapAPIAccessCell()
 
-        APIAccessPage(app)
-            .getAccessMethodCell(accessibilityId: AccessibilityIdentifier.accessMethodBridgesCell)
-            .tap()
+        for methodIdentifier in methods {
+            APIAccessPage(app)
+                .getAccessMethodCell(accessibilityId: methodIdentifier)
+                .tap()
 
-        EditAccessMethodPage(app)
-            .tapEnableMethodSwitch()
-            .tapBackButton()
+            EditAccessMethodPage(app)
+                .tapEnableMethodSwitch()
+                .tapBackButton()
+        }
 
         // Navigate back to main screen
         let backButton = app.navigationBars.firstMatch.buttons.firstMatch
