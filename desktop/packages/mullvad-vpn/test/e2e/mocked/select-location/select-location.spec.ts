@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
-import { LocationType } from '../../../../src/renderer/features/locations/types';
 import {
   type ISettings,
   ObfuscationType,
@@ -417,13 +416,13 @@ test.describe('Select location', () => {
       const testCases = [
         {
           title: 'Exit filter',
-          locationType: LocationType.exit,
+          locationType: 'exit',
         },
         {
           title: 'Entry filter',
-          locationType: LocationType.entry,
+          locationType: 'entry',
         },
-      ];
+      ] as const;
       testCases.forEach(({ title, locationType }) => {
         test.describe(`${title}`, () => {
           let settings = getDefaultSettings();
