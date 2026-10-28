@@ -21,7 +21,7 @@ public protocol APIQuerying: Sendable {
     func getRelays(
         sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
     ) -> Cancellable
 
     func sendProblemReport(
