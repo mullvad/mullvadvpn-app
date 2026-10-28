@@ -453,14 +453,19 @@ mod relay_selection {
                 "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
             )
         };
-        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
-        else {
-            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-        };
+        // One Shadowsocks config per IP family, each with a dedicated extra address.
+        let configs = obfuscator_configs(obfuscator);
+        let endpoints: HashSet<IpAddr> = configs
+            .iter()
+            .map(|config| match config {
+                ObfuscatorConfig::Shadowsocks { endpoint } => endpoint.ip(),
+                _ => panic!("expected Shadowsocks, got: {config:?}"),
+            })
+            .collect();
         assert!(!exit.overridden_ipv4 && !exit.overridden_ipv6, "{exit:#?}");
-        assert!(
-            SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
-            "{endpoint} is not an additional IP"
+        assert_eq!(
+            endpoints,
+            SHADOWSOCKS_RELAY_EXTRA_ADDRS.iter().copied().collect()
         );
     }
 
@@ -774,14 +779,21 @@ mod relay_selection {
                     relay.inner
                 )
             };
-            let Some(obfuscator) = relay.obfuscator else {
-                panic!("Relay selector should have picked an obfuscator")
-            };
-            assert_matches!(
-                obfuscator,
-                Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
-                    TCP2UDP_PORTS.contains(&endpoint.port())
-            );
+            // One config per IP family, each with a valid port.
+            let configs = obfuscator_configs(relay.obfuscator);
+            assert_eq!(configs.len(), 2);
+            let mut families = HashSet::new();
+            for config in configs {
+                let ObfuscatorConfig::Udp2Tcp { endpoint } = config else {
+                    panic!("expected Udp2Tcp, got: {config:?}")
+                };
+                assert!(
+                    TCP2UDP_PORTS.contains(&endpoint.port()),
+                    "{endpoint} is not in {TCP2UDP_PORTS:?}"
+                );
+                families.insert(endpoint.is_ipv4());
+            }
+            assert_eq!(families, HashSet::from([true, false]));
         }
     }
 
