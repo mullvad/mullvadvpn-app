@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.FirstBaselineAlignedIconAndText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -196,6 +197,7 @@ private fun MultihopOptionsList(
             position = Position.Middle,
             isSelected = state.mode == MultihopMode.WHEN_NEEDED,
             onClick = { onMultihopModeSelected(MultihopMode.WHEN_NEEDED) },
+            mainClickArea = ListItemClickArea.LeadingAndMain,
             title = stringResource(R.string.when_needed),
             trailingContent = {
                 DividerButton(onClick = onWhenNeededInfoClick, icon = Icons.Rounded.Info)
