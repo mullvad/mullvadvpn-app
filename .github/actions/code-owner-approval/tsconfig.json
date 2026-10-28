@@ -1,0 +1,14 @@
+{
+  "extends": "../../../desktop/tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "noImplicitAny": true,
+    "target": "es2022",
+    "types": ["node"],
+    "rootDir": "src"
+  },
+  "exclude": ["test/", "node_modules"],
+  "include": ["src/"]
+}
