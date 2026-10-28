@@ -557,14 +557,12 @@ pub async fn test_quantum_resistant_multihop_quic_tunnel_ipvx(
     let ip_version = IpVersion::VX;
 
     mullvad_client
-        // TODO: Why is this needed, exactly?
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .context("Failed to enable PQ tunnels")?;
 
     let query = RelayQueryBuilder::new()
         .ip_version(ip_version)
-        .quantum_resistant()
         .multihop()
         .quic()
         .build();
