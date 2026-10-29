@@ -159,9 +159,6 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     const currentRoute = await utils.getCurrentRoute();
     if (currentRoute === RoutePath.filter) {
       await routes.filter.gotoSelectLocation();
-      // TODO: Remove gotoExitLocations when the Filter view selects
-      // the appropriate exit or entry locations automatically
-      await routes.selectLocation.gotoExitLocations();
     }
   };
 
