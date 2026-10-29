@@ -21,8 +21,9 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapBackButton() -> Self {
-        // Workaround for setting accessibility identifier on navigation bar button being non-trivial
-        app.buttons.matching(identifier: "Settings").allElementsBoundByIndex.last?.tap()
+        // Sometimes there is more than one button named "Settings" but only one will be hittable, so hit that
+        app.buttons.matching(identifier: "Settings").allElementsBoundByIndex.first(where: { $0.isHittable })?
+            .tap()
         return self
     }
 
