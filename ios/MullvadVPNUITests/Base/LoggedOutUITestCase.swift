@@ -18,4 +18,8 @@ class LoggedOutUITestCase: BaseUITestCase {
     override class var settingsResetPolicy: UITestSettingsResetPolicy {
         .all
     }
+
+    override class var appPreferencesPolicy: UITestAppPreferencesPolicy {
+        .all
+    }
 }
