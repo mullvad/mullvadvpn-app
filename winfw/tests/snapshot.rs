@@ -4,10 +4,8 @@
 //!
 //! Each test drives the firewall implementation through one or more states,
 //! dumping the complete WFP object state after each step and comparing it with
-//! the snapshots in `tests/snapshots/`. With the `cpp-ffi` and `rust` features
-//! both enabled, every test runs once per implementation: the snapshots were
-//! generated from the C++ library, and the Rust implementation must produce
-//! the same ones.
+//! the snapshots in `tests/snapshots/`. The snapshots were generated from the
+//! former C++ implementation, and guard this one against behavior drift.
 //!
 //! The tests are ignored by default: they replace the WFP objects of any
 //! running Mullvad daemon, and must run as administrator. Run them with
@@ -18,11 +16,11 @@
 
 mod common;
 
-use common::{assert_snapshot, run_test, run_test_uninitialized};
-use winfw::cpp_ffi::{
-    AllowedTunnelTraffic, EndpointArgument, WinFwActivePolicy, WinFwCleanupPolicy,
-    WinFwPolicyStatus, WinFwProtocol, WinFwSettings,
+use common::{
+    ActivePolicy, AllowedTunnelTraffic, CleanupPolicy, EndpointArgument, PolicyStatus, Protocol,
+    Settings, TrafficType,
 };
+use common::{assert_snapshot, run_test, run_test_uninitialized};
 
 /// Timeout for acquiring the WFP transaction lock, in seconds. Same as the daemon.
 pub const TIMEOUT_SECONDS: u32 = 5;
@@ -34,45 +32,40 @@ const CLIENT_SVCHOST: &str = r"C:\Windows\System32\svchost.exe";
 const CLIENT_CMD: &str = r"C:\Windows\System32\cmd.exe";
 
 /// A relay over WireGuard's typical UDP port.
-const RELAY_V4_UDP: (&str, u16, WinFwProtocol) = ("185.65.134.73", 51820, WinFwProtocol::Udp);
+const RELAY_V4_UDP: (&str, u16, Protocol) = ("185.65.134.73", 51820, Protocol::Udp);
 /// A relay reached over TCP.
-const RELAY_V4_TCP: (&str, u16, WinFwProtocol) = ("45.83.220.2", 443, WinFwProtocol::Tcp);
+const RELAY_V4_TCP: (&str, u16, Protocol) = ("45.83.220.2", 443, Protocol::Tcp);
 /// An IPv6 relay over UDP.
-const RELAY_V6_UDP: (&str, u16, WinFwProtocol) = ("2a03:1b20:1:b::4", 51820, WinFwProtocol::Udp);
+const RELAY_V6_UDP: (&str, u16, Protocol) = ("2a03:1b20:1:b::4", 51820, Protocol::Udp);
 /// A relay that serves WireGuard over the DNS port, which makes the firewall
 /// install its endpoint rule in the DNS sublayer instead of the baseline one.
-const RELAY_V4_DNS: (&str, u16, WinFwProtocol) = ("194.242.11.20", 53, WinFwProtocol::Udp);
+const RELAY_V4_DNS: (&str, u16, Protocol) = ("194.242.11.20", 53, Protocol::Udp);
 
-fn relay((ip, port, protocol): (&str, u16, WinFwProtocol)) -> EndpointArgument {
+fn relay((ip, port, protocol): (&str, u16, Protocol)) -> EndpointArgument {
     endpoint(ip, port, protocol, &[])
 }
 
-fn allowed_endpoint(
-    ip: &str,
-    port: u16,
-    protocol: WinFwProtocol,
-    clients: &[&str],
-) -> EndpointArgument {
+fn allowed_endpoint(ip: &str, port: u16, protocol: Protocol, clients: &[&str]) -> EndpointArgument {
     endpoint(ip, port, protocol, clients)
 }
 
-fn endpoint(ip: &str, port: u16, protocol: WinFwProtocol, clients: &[&str]) -> EndpointArgument {
+fn endpoint(ip: &str, port: u16, protocol: Protocol, clients: &[&str]) -> EndpointArgument {
     EndpointArgument::new(ip, port, protocol, clients)
 }
 
-fn settings(permit_lan: bool) -> WinFwSettings {
-    WinFwSettings::new(permit_lan)
+fn settings(permit_lan: bool) -> Settings {
+    Settings::new(permit_lan)
 }
 
-fn no_dhcp_settings(permit_lan: bool) -> WinFwSettings {
-    WinFwSettings {
+fn no_dhcp_settings(permit_lan: bool) -> Settings {
+    Settings {
         permit_dhcp: false,
         permit_lan,
     }
 }
 
 fn tunnel_traffic<'a>(
-    traffic_type: winfw::cpp_ffi::WinFwAllowedTunnelTrafficType,
+    traffic_type: TrafficType,
     endpoint1: Option<&'a EndpointArgument>,
     endpoint2: Option<&'a EndpointArgument>,
 ) -> AllowedTunnelTraffic<'a> {
@@ -83,7 +76,7 @@ fn tunnel_traffic<'a>(
     }
 }
 
-use winfw::cpp_ffi::WinFwAllowedTunnelTrafficType as Traffic;
+use common::TrafficType as Traffic;
 
 // ---------------------------------------------------------------------------
 // Initialization
@@ -93,10 +86,10 @@ use winfw::cpp_ffi::WinFwAllowedTunnelTrafficType as Traffic;
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn initialize() {
     run_test(|fw| {
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::None);
+        assert_eq!(fw.active_policy(), ActivePolicy::None);
         assert_snapshot("initialize");
 
-        fw.deinitialize(WinFwCleanupPolicy::ResetFirewall);
+        fw.deinitialize(CleanupPolicy::ResetFirewall);
         assert_snapshot("initialize-after-deinitialize");
     });
 }
@@ -118,7 +111,7 @@ fn blocked_policy() {
                 Some(allowed_endpoint(
                     "193.138.218.74",
                     443,
-                    WinFwProtocol::Tcp,
+                    Protocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             ),
@@ -128,19 +121,14 @@ fn blocked_policy() {
                 Some(allowed_endpoint(
                     "193.138.218.74",
                     443,
-                    WinFwProtocol::Tcp,
+                    Protocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             ),
             (
                 "blocked-allowed-endpoint-no-clients",
                 settings(false),
-                Some(allowed_endpoint(
-                    "193.138.218.74",
-                    443,
-                    WinFwProtocol::Tcp,
-                    &[],
-                )),
+                Some(allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[])),
             ),
             (
                 "blocked-allowed-endpoint-v6",
@@ -148,7 +136,7 @@ fn blocked_policy() {
                 Some(allowed_endpoint(
                     "2a03:1b20:1:d::42",
                     443,
-                    WinFwProtocol::Tcp,
+                    Protocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             ),
@@ -158,7 +146,7 @@ fn blocked_policy() {
                 Some(allowed_endpoint(
                     "194.242.11.20",
                     53,
-                    WinFwProtocol::Udp,
+                    Protocol::Udp,
                     &[CLIENT_CMD],
                 )),
             ),
@@ -166,15 +154,15 @@ fn blocked_policy() {
             ("blocked-no-dhcp-lan", no_dhcp_settings(true), None),
         ] {
             let status = fw.apply_policy_blocked(&fw_settings, allowed.as_ref());
-            assert_eq!(status, WinFwPolicyStatus::Success, "{name}");
-            assert_eq!(fw.active_policy(), WinFwActivePolicy::Blocked, "{name}");
+            assert_eq!(status, PolicyStatus::Success, "{name}");
+            assert_eq!(fw.active_policy(), ActivePolicy::Blocked, "{name}");
             assert_snapshot(name);
         }
 
         // Resetting returns to the bare base configuration.
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::None);
+        assert_eq!(status, PolicyStatus::Success);
+        assert_eq!(fw.active_policy(), ActivePolicy::None);
         assert_snapshot("blocked-then-reset");
     });
 }
@@ -187,7 +175,7 @@ fn blocked_policy() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn connecting_policy() {
     run_test(|fw| {
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, WinFwProtocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
 
         // The bare minimum: one relay, no restrictions lifted.
         let status = fw.apply_policy_connecting(
@@ -199,8 +187,8 @@ fn connecting_policy() {
             &allowed_all,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::Connecting);
+        assert_eq!(status, PolicyStatus::Success);
+        assert_eq!(fw.active_policy(), ActivePolicy::Connecting);
         assert_snapshot("connecting-bare");
 
         // Private networks reachable.
@@ -213,7 +201,7 @@ fn connecting_policy() {
             &allowed_all,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-lan");
 
         // The works: multiple relays, per-process relay access, an exit relay for
@@ -233,11 +221,11 @@ fn connecting_policy() {
             &allowed_all,
             tunnel_traffic(Traffic::All, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-multi-relay-clients-tunnel-all");
 
         // A single tunnel endpoint is allowed to communicate.
-        let att_one_endpoint = endpoint("10.64.0.1", 51820, WinFwProtocol::Udp, &[]);
+        let att_one_endpoint = endpoint("10.64.0.1", 51820, Protocol::Udp, &[]);
         let status = fw.apply_policy_connecting(
             &settings(true),
             &relays,
@@ -247,13 +235,13 @@ fn connecting_policy() {
             &allowed_all,
             tunnel_traffic(Traffic::One, Some(&att_one_endpoint), None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-tunnel-traffic-one-v6");
 
         // Two tunnel endpoints are allowed to communicate.
         let att_two_endpoints = (
-            endpoint("10.64.0.1", 51820, WinFwProtocol::Udp, &[]),
-            endpoint("10.65.0.1", 51820, WinFwProtocol::Udp, &[]),
+            endpoint("10.64.0.1", 51820, Protocol::Udp, &[]),
+            endpoint("10.65.0.1", 51820, Protocol::Udp, &[]),
         );
         let status = fw.apply_policy_connecting(
             &settings(true),
@@ -268,7 +256,7 @@ fn connecting_policy() {
                 Some(&att_two_endpoints.1),
             ),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-tunnel-traffic-two");
 
         // No tunnel interface: the allowed tunnel traffic is ignored entirely.
@@ -285,7 +273,7 @@ fn connecting_policy() {
                 Some(&att_two_endpoints.1),
             ),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-no-tunnel");
 
         // A relay on the DNS port: its endpoint rule goes in the DNS sublayer.
@@ -298,12 +286,12 @@ fn connecting_policy() {
             &allowed_all,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-relay-on-dns-port");
 
         // An allowed endpoint on the DNS port: its rule goes in the DNS sublayer.
         let allowed_dns_port =
-            allowed_endpoint("194.242.11.20", 53, WinFwProtocol::Udp, &[CLIENT_SVCHOST]);
+            allowed_endpoint("194.242.11.20", 53, Protocol::Udp, &[CLIENT_SVCHOST]);
         let status = fw.apply_policy_connecting(
             &settings(false),
             &[relay(RELAY_V4_UDP)],
@@ -313,11 +301,11 @@ fn connecting_policy() {
             &allowed_dns_port,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-allowed-endpoint-on-dns-port");
 
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connecting-then-reset");
     });
 }
@@ -342,8 +330,8 @@ fn connected_policy() {
             &[],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::Connected);
+        assert_eq!(status, PolicyStatus::Success);
+        assert_eq!(fw.active_policy(), ActivePolicy::Connected);
         assert_snapshot("connected-bare");
 
         // Private networks reachable, relay access restricted to processes.
@@ -356,7 +344,7 @@ fn connected_policy() {
             &[],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-lan-clients");
 
         // DNS servers on the tunnel interface only.
@@ -369,7 +357,7 @@ fn connected_policy() {
             &["10.64.0.1"],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-tunnel-dns");
 
         // DNS servers outside the tunnel only.
@@ -382,7 +370,7 @@ fn connected_policy() {
             &[],
             &["193.138.218.74"],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-non-tunnel-dns");
 
         // Both, with an IPv6 tunnel resolver, an IPv6 exit relay and an IPv6 relay.
@@ -395,7 +383,7 @@ fn connected_policy() {
             &["fc00::53", "10.64.0.2"],
             &["193.138.218.74", "2a01:3a0:53:53::1"],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-both-dns-v6-exit");
 
         // A relay on the DNS port: its endpoint rule goes in the DNS sublayer.
@@ -408,11 +396,11 @@ fn connected_policy() {
             &["10.64.0.1"],
             &["193.138.218.74"],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-relay-on-dns-port");
 
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("connected-then-reset");
     });
 }
@@ -425,13 +413,13 @@ fn connected_policy() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn reset_from_every_policy() {
     run_test(|fw| {
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, WinFwProtocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
         let relays = [relay(RELAY_V4_UDP)];
 
         let _ = fw.apply_policy_blocked(&settings(true), Some(&allowed_all));
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::None);
+        assert_eq!(status, PolicyStatus::Success);
+        assert_eq!(fw.active_policy(), ActivePolicy::None);
         assert_snapshot("reset-from-blocked");
 
         let _ = fw.apply_policy_connecting(
@@ -444,7 +432,7 @@ fn reset_from_every_policy() {
             tunnel_traffic(Traffic::All, None, None),
         );
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("reset-from-connecting");
 
         let _ = fw.apply_policy_connected(
@@ -457,7 +445,7 @@ fn reset_from_every_policy() {
             &[],
         );
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("reset-from-connected");
     });
 }
@@ -476,9 +464,9 @@ fn deinitialize_from_connected_resets_to_base() {
             &["10.64.0.1"],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
 
-        fw.deinitialize(WinFwCleanupPolicy::ResetFirewall);
+        fw.deinitialize(CleanupPolicy::ResetFirewall);
         // Deinitializing with a reset reverts to the base configuration: no
         // filters, but the provider and sublayers remain until the process
         // resets them.
@@ -487,7 +475,7 @@ fn deinitialize_from_connected_resets_to_base() {
         // A reset with no initialized module purges everything the firewall ever
         // registered, including the provider and sublayers.
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("reset-when-uninitialized");
     });
 }
@@ -506,24 +494,24 @@ fn initialize_blocked_states() {
                     Some(allowed_endpoint(
                         "193.138.218.74",
                         443,
-                        WinFwProtocol::Tcp,
+                        Protocol::Tcp,
                         &[CLIENT_SVCHOST],
                     )),
                 ),
             ] {
                 fw.initialize_blocked(&fw_settings, allowed.as_ref());
-                assert_eq!(fw.active_policy(), WinFwActivePolicy::Blocked, "{name}");
+                assert_eq!(fw.active_policy(), ActivePolicy::Blocked, "{name}");
                 assert_snapshot(name);
 
                 // Leaving blocked filters in place on deinitialize: the state
                 // is the same, the objects are simply not removed.
-                fw.deinitialize(WinFwCleanupPolicy::BlockingUntilReboot);
+                fw.deinitialize(CleanupPolicy::BlockingUntilReboot);
                 assert_snapshot(&format!("{name}-after-deinitialize-block-until-reboot"));
 
                 // The uninitialized reset purges everything, cleaning up for the
                 // next iteration of the loop.
                 let status = fw.reset();
-                assert_eq!(status, WinFwPolicyStatus::Success);
+                assert_eq!(status, PolicyStatus::Success);
                 assert_snapshot(&format!("{name}-after-reset-when-uninitialized"));
             }
         }
@@ -538,7 +526,7 @@ fn initialize_blocked_states() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn policy_transitions() {
     run_test(|fw| {
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, WinFwProtocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
         let relays = [relay(RELAY_V4_UDP)];
 
         let _ = fw.apply_policy_blocked(&settings(true), Some(&allowed_all));
@@ -553,7 +541,7 @@ fn policy_transitions() {
             &allowed_all,
             tunnel_traffic(Traffic::All, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-connecting-after-blocked");
 
         let status = fw.apply_policy_connected(
@@ -565,7 +553,7 @@ fn policy_transitions() {
             &["10.64.0.1"],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-connected-after-connecting");
 
         // Applying the same policy again is idempotent.
@@ -578,11 +566,11 @@ fn policy_transitions() {
             &["10.64.0.1"],
             &[],
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-connected-again");
 
         let status = fw.apply_policy_blocked(&settings(true), None);
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-blocked-after-connected");
 
         let status = fw.apply_policy_connecting(
@@ -594,11 +582,11 @@ fn policy_transitions() {
             &allowed_all,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-connecting-after-blocked-no-tunnel");
 
         let status = fw.reset();
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("transition-reset");
     });
 }
@@ -607,10 +595,10 @@ fn policy_transitions() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn failed_apply_leaves_state_untouched() {
     run_test(|fw| {
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, WinFwProtocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
 
         let status = fw.apply_policy_blocked(&settings(true), None);
-        assert_eq!(status, WinFwPolicyStatus::Success);
+        assert_eq!(status, PolicyStatus::Success);
         assert_snapshot("failure-baseline-blocked");
 
         // A relay that equals the exit endpoint is rejected.
@@ -624,7 +612,7 @@ fn failed_apply_leaves_state_untouched() {
             &allowed_all,
             tunnel_traffic(Traffic::None, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::GeneralFailure);
+        assert_eq!(status, PolicyStatus::GeneralFailure);
 
         // A tunnel interface that does not exist is rejected.
         let status = fw.apply_policy_connecting(
@@ -636,9 +624,9 @@ fn failed_apply_leaves_state_untouched() {
             &allowed_all,
             tunnel_traffic(Traffic::All, None, None),
         );
-        assert_eq!(status, WinFwPolicyStatus::GeneralFailure);
+        assert_eq!(status, PolicyStatus::GeneralFailure);
 
-        assert_eq!(fw.active_policy(), WinFwActivePolicy::Blocked);
+        assert_eq!(fw.active_policy(), ActivePolicy::Blocked);
         assert_snapshot("failure-state-unchanged");
     });
 }
