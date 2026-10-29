@@ -23,7 +23,7 @@ on:
       - 'flake*'
       - 'nix/android-*.nix'
       - 'nix/common-toolchain.nix'
-      - 'android/fdroid-build/**'
+      - 'android/config/fdroid-test.yml'
       - 'building/install-rust.sh'
       - 'building/install-cyclonedx.sh'
       - 'android/scripts/generate-sboms.sh'
@@ -174,7 +174,7 @@ jobs:
         with:
           path: app-metadata
           sparse-checkout: |
-            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+            android/config/fdroid-test.yml
           sparse-checkout-cone-mode: false
 
       - name: Prepare metadata
@@ -184,7 +184,7 @@ jobs:
           VERSION_CODE: ${{ needs.resolve-app-version.outputs.VERSION_CODE }}
         run: |
           mkdir metadata
-          cp app-metadata/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
+          cp app-metadata/android/config/fdroid-test.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i \
             -e "s/commit-hash/$COMMIT_HASH/" \
             -e "s/app-version-name/$VERSION_NAME/" \
