@@ -7822,6 +7822,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
+name = "winfw"
+version = "0.0.0"
+dependencies = [
+ "insta",
+ "log",
+ "thiserror 2.0.19",
+ "wfp",
+ "widestring",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "winnow"
 version = "0.7.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"

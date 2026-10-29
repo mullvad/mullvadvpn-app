@@ -171,3 +171,7 @@ jobs:
       - name: Test crates
         shell: bash
         run: ci/cargo-ci.sh test --workspace  --exclude windows-installer
+
+      - name: Firewall snapshot tests
+        shell: bash
+        run: ci/cargo-ci.sh test -p winfw -- --ignored
