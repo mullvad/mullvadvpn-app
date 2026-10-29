@@ -34,6 +34,7 @@ const StyledFeatureIndicator = styled.button<{
     const variant = styles.variants[variantProp];
     return css`
       display: flex;
+      width: fit-content;
       align-items: center;
       gap: 2px;
 
