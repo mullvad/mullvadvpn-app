@@ -9,8 +9,6 @@ For security and anonymity properties, please see [security](security.md).
 
 Some components have specific documentation that go into greater detail:
 
-- [winfw](../windows/winfw/README.md)
-
 ## Mullvad vs talpid
 
 Explain the differences between these layers and why the distinction exists.

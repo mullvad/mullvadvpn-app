@@ -6,7 +6,7 @@
 //! including if the machine is rebooted before the daemon comes back up.
 //!
 //! This used to be `WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING` in
-//! `windows/winfw/src/winfw/winfw.cpp`, together with `rules::persistent::BlockAll`.
+//! the former C++ `winfw` library, together with its `rules::persistent::BlockAll`.
 
 use std::{io, time::Duration};
 
@@ -141,7 +141,7 @@ fn remove_ephemeral_objects(transaction: &Transaction<'_>) -> Result<(), Error> 
     }
 
     ignore_not_found(
-        delete_provider(transaction, &guids::PROVIDER),
+        delete_provider(transaction, guids::PROVIDER),
         FWP_E_PROVIDER_NOT_FOUND,
     )
     .map_err(Error::RemoveEphemeral)
