@@ -19,6 +19,7 @@ export type LocationSelectorTextFieldProps = Omit<TextFieldProps, 'onValueChange
 export const StyledLocationSelectorTextField = styled(TextField)`
   ${StyledLocationSelectorTextFieldInputInput} {
     padding-left: calc(${spacings.small} + 18px + ${spacings.tiny});
+    padding-top: 2px;
   }
 `;
 
