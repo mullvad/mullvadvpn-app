@@ -1,0 +1,10 @@
+---
+source: winfw/tests/common/mod.rs
+expression: actual
+---
+providers: 1
+provider PROVIDER | flags 0 | "Mullvad VPN" / "Mullvad VPN firewall integration"
+sublayers: 2
+sublayer SUBLAYER_BASELINE | weight 65535 | flags 0 | "Mullvad VPN baseline" / "Filters that enforce a good baseline"
+sublayer SUBLAYER_DNS | weight 65534 | flags 0 | "Mullvad VPN DNS" / "Filters that restrict DNS traffic"
+filters: 0
