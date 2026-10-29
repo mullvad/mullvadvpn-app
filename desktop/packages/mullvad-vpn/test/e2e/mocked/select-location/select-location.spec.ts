@@ -582,6 +582,31 @@ test.describe('Select location', () => {
         await expect(routes.filter.getHeading('Exit filter')).toBeVisible();
       });
 
+      test('Should show filter chips for active VPN settings in "Exit Filter" view', async () => {
+        await routes.selectLocation.gotoExitFilter();
+
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'never',
+            daita: true,
+          },
+          settings,
+        );
+
+        const daitaFilterChip = routes.filter.getFilterChipLink('DAITA');
+        await expect(daitaFilterChip).toBeVisible();
+
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+        await expect(quicFilterChip).toBeVisible();
+
+        settings = await helpers.mockAntiCensorship(ObfuscationType.lwo, settings);
+
+        const lwoFilterChip = routes.filter.getFilterChipLink('Obfuscation: LWO');
+        await expect(lwoFilterChip).toBeVisible();
+      });
+
       test('Should apply filter when QUIC when viewing locations', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
@@ -781,6 +806,21 @@ test.describe('Select location', () => {
         await routes.selectLocation.gotoExitLocations();
         await expect(quicFilterChip).not.toBeVisible();
       });
+
+      test('Should display QUIC filter chip when viewing entry filters and not when viewing exit filters', async () => {
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+
+        // Present on entry
+        await routes.selectLocation.gotoEntryFilter();
+        await expect(quicFilterChip).toBeVisible();
+        await routes.filter.gotoSelectLocation();
+
+        // Not present on exit
+        await routes.selectLocation.gotoExitFilter();
+        await expect(quicFilterChip).not.toBeVisible();
+      });
     });
 
     test.describe('multihop: when-needed', () => {
@@ -880,6 +920,51 @@ test.describe('Select location', () => {
 
         const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
         await expect(providerFilterChip).toBeVisible();
+      });
+
+      test('Should display QUIC filter chip when viewing entry filters and not when viewing exit filters', async () => {
+        // Need to set up all the circumstances that makes the Automatic entry appear
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'when-needed',
+          },
+          settings,
+        );
+
+        settings = await helpers.mockEntryAndExitLocations(
+          {
+            entryLocation: {
+              only: {
+                country: relayList.countries[0].code,
+              },
+            },
+            exitLocation: {
+              only: {
+                country: relayList.countries[0].code,
+              },
+            },
+          },
+          settings,
+        );
+
+        await helpers.mockConnectTunnel({
+          ...mockData.location,
+          entryHostname: relayList.countries[0].cities[0].relays[0].hostname,
+        });
+
+        // Then we can set up the anti-censorship method and verify that it is present under the right conditions
+        settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
+
+        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+
+        // Present on entry filters when using automatic location
+        await routes.selectLocation.gotoEntryAutomaticFilter();
+        await expect(quicFilterChip).toBeVisible();
+        await routes.filter.gotoSelectLocation();
+
+        // Not present on exit
+        await routes.selectLocation.gotoExitFilter();
+        await expect(quicFilterChip).not.toBeVisible();
       });
     });
 
