@@ -7826,7 +7826,9 @@ name = "winfw"
 version = "0.0.0"
 dependencies = [
  "insta",
+ "ipnetwork",
  "log",
+ "talpid-types",
  "thiserror 2.0.19",
  "wfp",
  "widestring",

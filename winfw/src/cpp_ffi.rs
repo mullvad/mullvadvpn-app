@@ -162,7 +162,11 @@ impl WinFwPolicyStatus {
 /// while this argument is alive: pass them as arguments, never store them.
 pub struct EndpointArgument {
     ip: WideCString,
+    /// The IP as passed in, for the Rust implementation driver.
+    pub(crate) ip_str: String,
     clients: Vec<WideCString>,
+    /// The clients as passed in, for the Rust implementation driver.
+    pub(crate) clients_str: Vec<String>,
     client_ptrs: Vec<*const u16>,
     port: u16,
     protocol: WinFwProtocol,
@@ -175,13 +179,39 @@ impl EndpointArgument {
             .map(|client| WideCString::from_str_truncate(*client))
             .collect();
         let client_ptrs = clients.iter().map(|w| w.as_ptr()).collect();
+        let clients_str = clients
+            .iter()
+            .map(|client| client.to_string_lossy())
+            .collect();
         Self {
             ip: WideCString::from_str_truncate(ip),
+            ip_str: ip.to_owned(),
             clients,
+            clients_str,
             client_ptrs,
             port,
             protocol,
         }
+    }
+
+    /// The IP address, as passed in.
+    pub fn ip(&self) -> &str {
+        &self.ip_str
+    }
+
+    /// The port.
+    pub fn port(&self) -> u16 {
+        self.port
+    }
+
+    /// The transport protocol.
+    pub fn protocol(&self) -> WinFwProtocol {
+        self.protocol
+    }
+
+    /// The allowed client processes, as passed in.
+    pub fn clients(&self) -> &[String] {
+        &self.clients_str
     }
 
     /// A `WinFwEndpoint` view valid while `self` is alive.
