@@ -110,6 +110,9 @@ msgstr ""
 msgid "CONNECTING..."
 msgstr ""
 
+msgid "Continue"
+msgstr ""
+
 msgid "Create"
 msgstr ""
 
@@ -2560,9 +2563,15 @@ msgctxt "select-location-view"
 msgid "When needed"
 msgstr ""
 
-#. Text in dialog explaning the behavior of the “Automatic” location option
+#. Text in dialog explaining the behavior of the “Automatic” location option
 msgctxt "select-location-view"
 msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr ""
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
 msgstr ""
 
 msgctxt "settings-import"
@@ -3685,9 +3694,6 @@ msgid "Connecting..."
 msgstr ""
 
 msgid "Contact support"
-msgstr ""
-
-msgid "Continue"
 msgstr ""
 
 msgid "Copied Mullvad account number to clipboard"
