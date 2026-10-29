@@ -332,7 +332,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     if [[ "$IS_RELEASE" == "true" ]]; then
         ./build-windows-modules.sh clean
     else
-        echo "Will NOT clean intermediate files in ./windows/**/bin/ in dev builds"
+        echo "Will NOT clean intermediate files in dev builds"
     fi
 
     for t in "${TARGETS[@]:-"$HOST"}"; do
@@ -349,11 +349,8 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
         CPP_BUILD_MODES=$CPP_BUILD_MODE CPP_BUILD_TARGETS=$CPP_BUILD_TARGET ./build-windows-modules.sh
 
         if [[ "$SIGN" == "true" ]]; then
-            CPP_BINARIES=(
-                "windows/winfw/bin/$CPP_BUILD_TARGET-$CPP_BUILD_MODE/winfw.dll"
-                # The nsis plugins are always built in 32 bit release mode
-                target/i686-pc-windows-msvc/release/*.dll
-            )
+            # The nsis plugins are always built in 32 bit release mode
+            CPP_BINARIES=(target/i686-pc-windows-msvc/release/*.dll)
             sign_win "${CPP_BINARIES[@]}"
         fi
     done

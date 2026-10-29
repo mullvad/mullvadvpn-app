@@ -4,8 +4,8 @@
 //! objects, so the firewall records every object it adds. `revert_to`
 //! uninstalls everything added after a checkpoint, newest first. Checkpoints
 //! are shared per process: two firewall instances initialized in sequence
-//! never confuse each other's records, matching the C++ implementation where
-//! the key base is a process-global counter.
+//! never confuse each other's records, since the key base is a process-global
+//! counter.
 
 use std::{
     io,
