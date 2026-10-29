@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
   proxies. The access method is enabled by default.
+- Add option to add the quick settings tile directly from the Appearance settings menu.
 
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.

@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMeth
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.list.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodViewModel
+import net.mullvad.mullvadvpn.feature.appearance.impl.AppearanceViewModel
 import net.mullvad.mullvadvpn.feature.appicon.impl.AppIconViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogViewModel
@@ -510,6 +511,7 @@ val uiModule = module {
             supportEmailUseCase = get(),
         )
     }
+    viewModel { AppearanceViewModel() }
     viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
         LocationBottomSheetViewModel(
             locationBottomSheetState = locationBottomSheetState,

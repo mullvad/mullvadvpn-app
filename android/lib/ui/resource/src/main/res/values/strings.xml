@@ -596,4 +596,12 @@
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
     <string name="connected_server">Connected server</string>
+    <string name="add_tile_title">Add tile to quick settings panel</string>
+    <string name="add_tile_info">A shortcut for connecting or disconnecting to the most recent tunnel.</string>
+    <string name="add_tile_error">Failed to add tile to quick settings panel</string>
+    <string name="add_tile_already_added">Tile already added to quick settings panel.</string>
+    <string name="add_tile_added">Tile was added to quick settings panel.</string>
+    <string name="add_tile_no_status_bar">System not responding. Please add the tile manually from your quick settings panel.</string>
+    <string name="add_tile_generic_error">Can’t add tile shortcut. Please try again later. Error %d</string>
+
 </resources>
