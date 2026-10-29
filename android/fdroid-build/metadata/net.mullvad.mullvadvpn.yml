@@ -27,7 +27,7 @@ Builds:
     sudo:
       - apt-get update
       - apt-get install -y build-essential protobuf-compiler libprotobuf-dev
-    init: NDK_PATH="$$NDK$$" ../fdroid-build/init.sh
+    init: ../../building/install-rust.sh android
     output: build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
     rm:
       - desktop
@@ -45,8 +45,7 @@ Builds:
       - sed -i '/\"desktop\//d' ../../Cargo.toml
       - sed -i '/\"mullvad-nsis\"/d' ../../Cargo.toml
     build:
-      - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
-      - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
+      - source "$HOME/.cargo/env"
       # This is to increase stability of CI builds which could otherwise crash due to OOM.
       - export GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
       - gradle --console plain fdroidRelease
