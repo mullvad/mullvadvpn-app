@@ -2,10 +2,12 @@
 
 set -eu
 
-# We'll need to add "stable_aarch64.rpm" and "stable_arm64.deb" later.
+# The script will look for files named "mullvad-browser-$release" on the CDN
 BROWSER_RELEASES=( \
     "stable_x86_64.rpm" \
     "stable_amd64.deb" \
+    "stable_aarch64.rpm" \
+    "stable_arm64.deb" \
     "alpha_x86_64.rpm" \
     "alpha_amd64.deb" \
     "alpha_aarch64.rpm" \
