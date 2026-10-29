@@ -375,7 +375,6 @@ pub struct TunnelOptions {
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
 
-    // TODO: should this still exist?
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     pub generic: GenericTunnelOptions,
     /// DNS options.
