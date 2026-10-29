@@ -6,14 +6,10 @@ use talpid_types::{
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
 };
-use widestring::WideCString;
 
-use self::winfw::*;
+use self::winfw::{ActivePolicy, CleanupPolicy};
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
-
-#[macro_use] // must come before other mod declarations
-mod ffi;
 
 mod hyperv;
 mod objects;
@@ -138,7 +134,7 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
+                let cfg = &winfw::Settings::new(allow_lan);
                 self.set_connecting_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -155,7 +151,7 @@ impl Firewall {
                 allow_lan,
                 dns_config,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
+                let cfg = &winfw::Settings::new(allow_lan);
                 self.set_connected_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -168,11 +164,8 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
-                self.set_blocked_state(
-                    cfg,
-                    allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
-                )
+                let cfg = &winfw::Settings::new(allow_lan);
+                self.set_blocked_state(cfg, allowed_endpoint)
             }
             // Windows doesn't need to change any existing firewall rules here. Disconnecting state is purely for the Hyper-V blocking which is done later.
             FirewallPolicy::Disconnecting { .. } => Ok(()),
@@ -210,7 +203,7 @@ impl Firewall {
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &WinFwSettings,
+        winfw_settings: &winfw::Settings,
         tunnel_metadata: Option<&TunnelMetadata>,
         allowed_endpoint: AllowedEndpoint,
         allowed_tunnel_traffic: &AllowedTunnelTraffic,
@@ -232,7 +225,7 @@ impl Firewall {
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &WinFwSettings,
+        winfw_settings: &winfw::Settings,
         tunnel_metadata: &TunnelMetadata,
         dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
@@ -250,11 +243,12 @@ impl Firewall {
 
     fn set_blocked_state(
         &mut self,
-        winfw_settings: &WinFwSettings,
-        allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
+        winfw_settings: &winfw::Settings,
+        allowed_endpoint: Option<AllowedEndpoint>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
-        winfw::apply_policy_blocked(winfw_settings, allowed_endpoint)
+        let winfw_allowed_endpoint = allowed_endpoint.as_ref().map(winfw::to_allowed_endpoint);
+        winfw::apply_policy_blocked(winfw_settings, winfw_allowed_endpoint.as_ref())
             .map_err(Error::ApplyingBlockedPolicy)
     }
 }
@@ -263,12 +257,12 @@ impl Drop for Firewall {
     fn drop(&mut self) {
         // Ask WinFW for the active policy before tearing it down, since it is forgotten
         // along with the rest of the module state.
-        let was_blocked = winfw::active_policy() == WinFwActivePolicy::Blocked;
+        let was_blocked = winfw::active_policy() == ActivePolicy::Blocked;
 
         // Shut WinFW down without cleaning up. The blocking filters, if any, are left in
         // place and stay in effect until the machine is rebooted. All other filters should
         // still remain intact.
-        match winfw::deinit(WinFwCleanupPolicy::BlockingUntilReboot) {
+        match winfw::deinit(CleanupPolicy::BlockingUntilReboot) {
             Ok(()) => log::trace!("Successfully deinitialized windows firewall module"),
             Err(_) => log::error!("Failed to deinitialize windows firewall module"),
         }
@@ -286,10 +280,6 @@ impl Drop for Firewall {
             }
         }
     }
-}
-
-fn widestring_ip(ip: IpAddr) -> WideCString {
-    WideCString::from_str_truncate(ip.to_string())
 }
 
 // Convert `result` into an option and log the error, if any.

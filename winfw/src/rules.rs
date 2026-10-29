@@ -1,4 +1,4 @@
-//! The firewall rules, ported one to one from `windows/winfw/src/winfw/rules`.
+//! The firewall rules, ported one to one from the former C++ `winfw` library's `rules`.
 //!
 //! Each rule installs one or more WFP filters inside an ongoing transaction.
 //! The GUIDs, names, descriptions, layers, weights, actions and conditions

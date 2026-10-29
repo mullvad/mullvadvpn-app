@@ -122,7 +122,6 @@ ManifestDPIAware true
 
 	SetOutPath "$PLUGINSDIR"
 	File "${BUILD_RESOURCES_DIR}\$%SETUP_SUBDIR%\mullvad-setup.exe"
-	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\$%CPP_BUILD_TARGET%-$%CPP_BUILD_MODE%\winfw.dll"
 
 !macroend
 

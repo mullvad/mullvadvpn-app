@@ -1,391 +1,340 @@
-//! Safe bindings for the WinFW library.
+//! The Windows firewall implementation, backed by the `winfw` crate.
+//!
+//! The module owns the [`winfw::Manager`] singleton for the process and adapts
+//! the daemon's types to it, replacing the previous C FFI to the C++ `winfw`
+//! library.
 
-use super::{AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString, widestring_ip};
-use std::{net::IpAddr, ptr};
-use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
-
-mod sys;
-use sys::*;
-pub use sys::{
-    WinFwActivePolicy, WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings,
+use std::{
+    net::IpAddr,
+    sync::{LazyLock, Mutex},
+    time::Duration,
 };
 
-/// Timeout for acquiring the WFP transaction lock
-const WINFW_TIMEOUT_SECONDS: u32 = 5;
+use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
 
-/// Initialize WinFw module. Returns an initialization error if called multiple times without
-/// interleaving [deinit].
-pub(super) fn initialize() -> Result<(), Error> {
-    // SAFETY: This function is always safe to call.
-    let init = unsafe {
-        WinFw_Initialize(
-            WINFW_TIMEOUT_SECONDS,
-            Some(log_sink),
-            LOGGING_CONTEXT.as_ptr(),
-        )
-    };
+// The firewall's types, re-exported for the parent module's path resolution:
+// it declares `mod winfw;`, so paths like `winfw::Settings` resolve to this
+// adapter module rather than the external crate.
+pub use winfw::Settings;
 
-    init.into_result()
+use talpid_types::net::AllowedEndpoint;
+
+// Kept from the previous FFI layer for readable path resolution in the parent
+// module: it declares `mod winfw;`, so paths like `winfw::Settings` resolve to
+// this adapter module rather than the external crate.
+
+/// Timeout for acquiring the WFP transaction lock.
+const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// The firewall singleton. The daemon initializes it exactly once per process,
+/// exactly like the C library it replaces did.
+static WINFW: LazyLock<Mutex<Option<winfw::Manager>>> = LazyLock::new(|| Mutex::new(None));
+
+/// Errors when initializing the module.
+#[derive(thiserror::Error, Debug)]
+#[error("WinFW manager state error")]
+pub struct StateError;
+
+fn lock_manager() -> Result<std::sync::MutexGuard<'static, Option<winfw::Manager>>, StateError> {
+    WINFW.lock().map_err(|_| StateError)
 }
 
-/// Initialize WinFw module and apply blocking rules. Returns an initialization error if called
-/// multiple times without interleaving [deinit].
+/// The policy currently in effect.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ActivePolicy {
+    None,
+    Connecting,
+    Connected,
+    Blocked,
+}
+
+/// How to clean up when deinitializing the module. The daemon only ever
+/// leaves the blocking filters in place, expecting the persistent objects to
+/// take over for them.
+#[expect(dead_code)]
+pub enum CleanupPolicy {
+    /// Remove all objects that have been registered with WFP.
+    ResetFirewall,
+    /// Continue blocking if this is the active policy. The blocking filters
+    /// are ephemeral: they are active until the machine is rebooted.
+    BlockingUntilReboot,
+}
+
+/// Initialize the firewall module.
+pub(super) fn initialize() -> Result<(), super::Error> {
+    let mut manager = lock_manager().map_err(|_| super::Error::Initialization)?;
+    if manager.is_some() {
+        return Err(super::Error::Initialization);
+    }
+    *manager = Some(
+        winfw::Manager::new(TRANSACTION_TIMEOUT)
+            .map_err(|error| map_init_error(error, "initialize"))?,
+    );
+    Ok(())
+}
+
+/// Initialize the firewall module and apply blocking rules.
 pub(super) fn initialize_blocked(
     allowed_endpoint: AllowedEndpoint,
     allow_lan: bool,
-) -> Result<(), Error> {
-    let cfg = WinFwSettings::new(allow_lan);
-    let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
-    // SAFETY: This function is always safe to call.
-    let init = unsafe {
-        WinFw_InitializeBlocked(
-            WINFW_TIMEOUT_SECONDS,
-            &cfg,
-            &allowed_endpoint.as_endpoint(),
-            Some(log_sink),
-            LOGGING_CONTEXT.as_ptr(),
+) -> Result<(), super::Error> {
+    let mut manager = lock_manager().map_err(|_| super::Error::Initialization)?;
+    if manager.is_some() {
+        return Err(super::Error::Initialization);
+    }
+
+    let endpoint = to_allowed_endpoint(&allowed_endpoint);
+    *manager = Some(
+        winfw::Manager::new_blocked(
+            TRANSACTION_TIMEOUT,
+            &winfw::Settings::new(allow_lan),
+            Some(&endpoint),
         )
+        .map_err(|error| map_init_error(error, "initialize to a blocking state"))?,
+    );
+    Ok(())
+}
+
+/// Deinitialize the module.
+pub(super) fn deinit(cleanup: CleanupPolicy) -> Result<(), super::Error> {
+    let mut manager = lock_manager().map_err(|_| super::Error::Deinitialization)?;
+    let Some(mut instance) = manager.take() else {
+        // Deinitializing an uninitialized module is a no-op, like in the C
+        // library.
+        return Ok(());
     };
-    init.into_result()
+
+    let cleanup = match cleanup {
+        CleanupPolicy::ResetFirewall => winfw::CleanupPolicy::ResetFirewall,
+        CleanupPolicy::BlockingUntilReboot => winfw::CleanupPolicy::BlockingUntilReboot,
+    };
+    instance
+        .deinitialize(cleanup)
+        .map_err(|_| super::Error::Deinitialization)
 }
 
-/// Deinitialize WinFw module. Trying to use WinFw after calling deinit will result in an
-/// error before [initialize] is called.
-pub(super) fn deinit(cleanup_policy: WinFwCleanupPolicy) -> Result<(), Error> {
-    // SAFETY: WinFw_Deinitialize is always safe to call.
-    // Will simply return false if WinFw already has been deinitialized.
-    let deinit = unsafe { WinFw_Deinitialize(cleanup_policy) };
-    deinit.into_result()
+/// The policy currently in effect, or [`ActivePolicy::None`] if the module is
+/// not initialized.
+pub(super) fn active_policy() -> ActivePolicy {
+    let Ok(manager) = lock_manager() else {
+        return ActivePolicy::None;
+    };
+    match manager.as_ref().map(winfw::Manager::active_policy) {
+        Some(winfw::ActivePolicy::None) | None => ActivePolicy::None,
+        Some(winfw::ActivePolicy::Connecting) => ActivePolicy::Connecting,
+        Some(winfw::ActivePolicy::Connected) => ActivePolicy::Connected,
+        Some(winfw::ActivePolicy::Blocked) => ActivePolicy::Blocked,
+    }
 }
 
-/// Return the policy currently in effect.
-///
-/// Returns [WinFwActivePolicy::None] if [winfw](self) is not initialized.
-pub(super) fn active_policy() -> WinFwActivePolicy {
-    // SAFETY: WinFw_ActivePolicy is always safe to call, even before WinFW has been
-    // initialized and after WinFW has been deinitialized.
-    unsafe { WinFw_ActivePolicy() }
+/// Clear the policy in effect, if any.
+pub(super) fn reset() -> Result<(), talpid_types::tunnel::FirewallPolicyError> {
+    let mut manager =
+        lock_manager().map_err(|_| talpid_types::tunnel::FirewallPolicyError::Generic)?;
+    match manager.as_mut() {
+        Some(instance) => instance
+            .reset()
+            .map_err(map_apply_error("reset the policy of")),
+        None => winfw::purge_all().map_err(map_apply_error("remove all objects of")),
+    }
 }
 
-/// Reset all firewall policies applied by [winfw](self).
-///
-/// Sets the underlying active policy to None.
-pub(super) fn reset() -> Result<(), FirewallPolicyError> {
-    // SAFETY: WinFw_Reset is always safe to call, even before WinFW has been
-    // initialized and after WinFW has been deinitialized.
-    let reset = unsafe { WinFw_Reset() };
-    reset.into_result()
-}
-
-/// Apply blocking firewall rules Sets the underlying active policy to Blocked. Exceptions
-/// permitted through the firewall is defined by `winfw_settings` and `allowed_endpoint`. See
-/// the BlockAll class for more information.
-///
-/// Returns an error if [winfw](self) is not initialized.
-pub(super) fn apply_policy_blocked(
-    winfw_settings: &WinFwSettings,
-    allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
-) -> Result<(), FirewallPolicyError> {
-    let allowed_endpoint = allowed_endpoint
-        .as_ref()
-        .map(WinFwAllowedEndpointContainer::as_endpoint);
-    let allowed_endpoint_ptr = allowed_endpoint.as_ref().map_or(ptr::null(), ptr::from_ref);
-    // SAFETY: This function is always safe to call
-    let application = unsafe { WinFw_ApplyPolicyBlocked(winfw_settings, allowed_endpoint_ptr) };
-    application.into_result()
-}
-
+/// Apply the connecting policy.
 pub(super) fn apply_policy_connecting(
     peer_endpoints: &[AllowedEndpoint],
     exit_endpoint_ip: Option<IpAddr>,
-    winfw_settings: &WinFwSettings,
+    winfw_settings: &winfw::Settings,
     tunnel_interface: Option<&str>,
     allowed_endpoint: AllowedEndpoint,
     allowed_tunnel_traffic: &AllowedTunnelTraffic,
-) -> Result<(), FirewallPolicyError> {
-    let mut winfw_relays = vec![];
-    let mut ip_strs = vec![];
-    let mut clients = None;
-
-    for peer in peer_endpoints {
-        if clients.is_none() {
-            clients = Some(peer.clients.clone());
-        } else if clients.as_ref() != Some(&peer.clients) {
-            log::error!("Relay endpoints must have same allowed clients");
-            return Err(FirewallPolicyError::Generic);
-        }
-
-        let ip_str = widestring_ip(peer.endpoint.address.ip());
-        let ip_str_ptr = ip_str.as_ptr();
-        // Keep pointer valid for the duration of this function
-        ip_strs.push(ip_str);
-
-        winfw_relays.push(WinFwEndpoint {
-            ip: ip_str_ptr,
-            port: peer.endpoint.address.port(),
-            protocol: WinFwProt::from(peer.endpoint.protocol),
-        });
-    }
-
-    let relay_client_wstrs: Vec<_> = clients
-        .ok_or_else(|| {
-            log::error!("Allowed clients missing. Zero peer endpoints?");
-            FirewallPolicyError::Generic
-        })?
-        .iter()
-        .map(WideCString::from_os_str_truncate)
-        .collect();
-    let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
-        .iter()
-        .map(|wstr| wstr.as_ptr())
-        .collect();
-    let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-
-    let interface_wstr = tunnel_interface
-        .as_ref()
-        .map(WideCString::from_str_truncate);
-    let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
-        wstr.as_ptr()
-    } else {
-        ptr::null()
+) -> Result<(), talpid_types::tunnel::FirewallPolicyError> {
+    let mut manager =
+        lock_manager().map_err(|_| talpid_types::tunnel::FirewallPolicyError::Generic)?;
+    let Some(instance) = manager.as_mut() else {
+        log::error!("Cannot apply connecting policy: WinFW not initialized");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
     };
 
-    let mut endpoint1_ip = WideCString::new();
-    let mut endpoint2_ip = WideCString::new();
-    let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
-        AllowedTunnelTraffic::One(endpoint) => {
-            endpoint1_ip = widestring_ip(endpoint.address.ip());
-            (
-                Some(WinFwEndpoint {
-                    ip: endpoint1_ip.as_ptr(),
-                    port: endpoint.address.port(),
-                    protocol: WinFwProt::from(endpoint.protocol),
-                }),
-                None,
-            )
-        }
-        AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
-            endpoint1_ip = widestring_ip(endpoint1.address.ip());
-            let endpoint1 = Some(WinFwEndpoint {
-                ip: endpoint1_ip.as_ptr(),
-                port: endpoint1.address.port(),
-                protocol: WinFwProt::from(endpoint1.protocol),
-            });
-            endpoint2_ip = widestring_ip(endpoint2.address.ip());
-            let endpoint2 = Some(WinFwEndpoint {
-                ip: endpoint2_ip.as_ptr(),
-                port: endpoint2.address.port(),
-                protocol: WinFwProt::from(endpoint2.protocol),
-            });
-            (endpoint1, endpoint2)
-        }
-        AllowedTunnelTraffic::None | AllowedTunnelTraffic::All => (None, None),
+    let (relays, tunnel_clients) = to_relays(peer_endpoints)?;
+
+    let tunnel = winfw::TunnelParameters {
+        alias: tunnel_interface.map(str::to_owned),
+        exit_ip: exit_endpoint_ip,
+        clients: tunnel_clients,
+        allowed_tunnel_traffic: to_allowed_tunnel_traffic(allowed_tunnel_traffic),
     };
 
-    let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
-    let allowed_endpoint = allowed_endpoint.as_endpoint();
-
-    let allowed_tunnel_traffic = WinFwAllowedTunnelTraffic {
-        type_: WinFwAllowedTunnelTrafficType::from(allowed_tunnel_traffic),
-        endpoint1: endpoint1
-            .as_ref()
-            .map(|ep| ep as *const _)
-            .unwrap_or(ptr::null()),
-        endpoint2: endpoint2
-            .as_ref()
-            .map(|ep| ep as *const _)
-            .unwrap_or(ptr::null()),
-    };
-
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
-    let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
-        .as_ref()
-        .map_or(ptr::null(), |ip| ip.as_ptr());
-
-    #[expect(clippy::undocumented_unsafe_blocks)]
-    let res = unsafe {
-        WinFw_ApplyPolicyConnecting(
+    instance
+        .apply_policy_connecting(
             winfw_settings,
-            winfw_relays.len(),
-            winfw_relays.as_ptr(),
-            exit_endpoint_ip_ptr,
-            relay_client_wstr_ptrs.as_ptr(),
-            relay_client_wstr_ptrs_len,
-            interface_wstr_ptr,
-            &raw const allowed_endpoint,
-            &allowed_tunnel_traffic,
+            &relays,
+            &tunnel,
+            &to_allowed_endpoint(&allowed_endpoint),
         )
-    };
-    // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnecting` has returned.
-    drop(endpoint1_ip);
-    drop(endpoint2_ip);
-    #[expect(clippy::drop_non_drop)]
-    drop(endpoint1);
-    #[expect(clippy::drop_non_drop)]
-    drop(endpoint2);
-    drop(relay_client_wstrs);
-    drop(exit_endpoint_ip_wstr);
-    drop(winfw_relays);
-    drop(ip_strs);
-    res.into_result()
+        .map_err(map_apply_error("apply the connecting policy of"))
 }
 
+/// Apply the connected policy.
 pub(super) fn apply_policy_connected(
     peer_endpoints: &[AllowedEndpoint],
     exit_endpoint_ip: Option<IpAddr>,
-    winfw_settings: &WinFwSettings,
+    winfw_settings: &winfw::Settings,
     tunnel_interface: &str,
     dns_config: &talpid_dns::ResolvedDnsConfig,
-) -> Result<(), FirewallPolicyError> {
-    let mut winfw_relays = vec![];
-    let mut ip_strs = vec![];
-    let mut clients = None;
+) -> Result<(), talpid_types::tunnel::FirewallPolicyError> {
+    let mut manager =
+        lock_manager().map_err(|_| talpid_types::tunnel::FirewallPolicyError::Generic)?;
+    let Some(instance) = manager.as_mut() else {
+        log::error!("Cannot apply connected policy: WinFW not initialized");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+    };
+
+    let (relays, tunnel_clients) = to_relays(peer_endpoints)?;
+
+    let tunnel = winfw::TunnelParameters {
+        alias: Some(tunnel_interface.to_owned()),
+        exit_ip: exit_endpoint_ip,
+        clients: tunnel_clients,
+        allowed_tunnel_traffic: winfw::AllowedTunnelTraffic::All,
+    };
+
+    instance
+        .apply_policy_connected(
+            winfw_settings,
+            &relays,
+            &tunnel,
+            dns_config.tunnel_config(),
+            dns_config.non_tunnel_config(),
+        )
+        .map_err(map_apply_error("apply the connected policy of"))
+}
+
+/// Apply the blocked policy.
+pub(super) fn apply_policy_blocked(
+    winfw_settings: &winfw::Settings,
+    allowed_endpoint: Option<&winfw::AllowedEndpoint>,
+) -> Result<(), talpid_types::tunnel::FirewallPolicyError> {
+    let mut manager =
+        lock_manager().map_err(|_| talpid_types::tunnel::FirewallPolicyError::Generic)?;
+    let Some(instance) = manager.as_mut() else {
+        log::error!("Cannot apply blocked policy: WinFW not initialized");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+    };
+
+    instance
+        .apply_policy_blocked(winfw_settings, allowed_endpoint)
+        .map_err(map_apply_error("apply the blocked policy of"))
+}
+
+/// The endpoint allowed outside the tunnel, in the `winfw` crate's form.
+pub(super) fn to_allowed_endpoint(endpoint: &AllowedEndpoint) -> winfw::AllowedEndpoint {
+    winfw::AllowedEndpoint {
+        clients: endpoint
+            .clients
+            .iter()
+            .map(|client| client.display().to_string())
+            .collect(),
+        endpoint: winfw::RelayEndpoint {
+            ip: endpoint.endpoint.address.ip(),
+            port: endpoint.endpoint.address.port(),
+            protocol: to_protocol(endpoint.endpoint.protocol),
+        },
+    }
+}
+
+/// Convert the peer endpoints into relays, requiring they allow the same
+/// clients, like the previous FFI layer did.
+fn to_relays(
+    peer_endpoints: &[AllowedEndpoint],
+) -> Result<(Vec<winfw::RelayEndpoint>, Vec<String>), talpid_types::tunnel::FirewallPolicyError> {
+    let mut relays = Vec::with_capacity(peer_endpoints.len());
+    let mut tunnel_clients: Option<&[std::path::PathBuf]> = None;
 
     for peer in peer_endpoints {
-        if clients.is_none() {
-            clients = Some(peer.clients.clone());
-        } else if clients.as_ref() != Some(&peer.clients) {
-            log::error!("Relay endpoints must have same allowed clients");
-            return Err(FirewallPolicyError::Generic);
+        if let Some(clients) = tunnel_clients {
+            if clients != peer.clients.as_ref() {
+                log::error!("Relay endpoints must have same allowed clients");
+                return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+            }
+        } else {
+            tunnel_clients = Some(&peer.clients);
         }
 
-        let ip_str = widestring_ip(peer.endpoint.address.ip());
-        let ip_str_ptr = ip_str.as_ptr();
-        // Keep pointer valid for the duration of this function
-        ip_strs.push(ip_str);
-
-        winfw_relays.push(WinFwEndpoint {
-            ip: ip_str_ptr,
+        relays.push(winfw::RelayEndpoint {
+            ip: peer.endpoint.address.ip(),
             port: peer.endpoint.address.port(),
-            protocol: WinFwProt::from(peer.endpoint.protocol),
+            protocol: to_protocol(peer.endpoint.protocol),
         });
     }
 
-    let tunnel_alias = WideCString::from_str_truncate(tunnel_interface);
-
-    // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
-    // returned.
-    let relay_client_wstrs: Vec<_> = clients
+    let clients = tunnel_clients
         .ok_or_else(|| {
             log::error!("Allowed clients missing. Zero peer endpoints?");
-            FirewallPolicyError::Generic
+            talpid_types::tunnel::FirewallPolicyError::Generic
         })?
         .iter()
-        .map(WideCString::from_os_str_truncate)
-        .collect();
-    let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
-        .iter()
-        .map(|wstr| wstr.as_ptr())
-        .collect();
-    let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-
-    let tunnel_dns_servers: Vec<WideCString> = dns_config
-        .tunnel_config()
-        .iter()
-        .cloned()
-        .map(widestring_ip)
-        .collect();
-    let tunnel_dns_servers: Vec<*const u16> =
-        tunnel_dns_servers.iter().map(|ip| ip.as_ptr()).collect();
-    let non_tunnel_dns_servers: Vec<WideCString> = dns_config
-        .non_tunnel_config()
-        .iter()
-        .cloned()
-        .map(widestring_ip)
-        .collect();
-    let non_tunnel_dns_servers: Vec<*const u16> = non_tunnel_dns_servers
-        .iter()
-        .map(|ip| ip.as_ptr())
+        .map(|client| client.display().to_string())
         .collect();
 
-    let exit_endpoint_ip_wstr = exit_endpoint_ip.map(widestring_ip);
-    let exit_endpoint_ip_ptr = exit_endpoint_ip_wstr
-        .as_ref()
-        .map_or(ptr::null(), |ip| ip.as_ptr());
+    Ok((relays, clients))
+}
 
-    #[expect(clippy::undocumented_unsafe_blocks)]
-    let result = unsafe {
-        WinFw_ApplyPolicyConnected(
-            winfw_settings,
-            winfw_relays.len(),
-            winfw_relays.as_ptr(),
-            exit_endpoint_ip_ptr,
-            relay_client_wstr_ptrs.as_ptr(),
-            relay_client_wstr_ptrs_len,
-            tunnel_alias.as_ptr(),
-            tunnel_dns_servers.as_ptr(),
-            tunnel_dns_servers.len(),
-            non_tunnel_dns_servers.as_ptr(),
-            non_tunnel_dns_servers.len(),
-        )
+fn to_protocol(protocol: TransportProtocol) -> winfw::Protocol {
+    match protocol {
+        TransportProtocol::Tcp => winfw::Protocol::Tcp,
+        TransportProtocol::Udp => winfw::Protocol::Udp,
+    }
+}
+
+fn to_allowed_tunnel_traffic(traffic: &AllowedTunnelTraffic) -> winfw::AllowedTunnelTraffic {
+    let to_tunnel_endpoint = |endpoint: &Endpoint| winfw::RelayEndpoint {
+        ip: endpoint.address.ip(),
+        port: endpoint.address.port(),
+        protocol: to_protocol(endpoint.protocol),
     };
-
-    // SAFETY: All of these must remain allocated until `WinFw_ApplyPolicyConnected` has returned.
-    drop(exit_endpoint_ip_wstr);
-    drop(ip_strs);
-    drop(winfw_relays);
-    drop(relay_client_wstrs);
-    result.into_result()
-}
-
-impl From<AllowedEndpoint> for WinFwAllowedEndpointContainer {
-    fn from(endpoint: AllowedEndpoint) -> Self {
-        let clients = endpoint
-            .clients
-            .iter()
-            .map(WideCString::from_os_str_truncate)
-            .collect::<Box<_>>();
-        let clients_ptrs = clients
-            .iter()
-            .map(|client| client.as_ptr())
-            .collect::<Box<_>>();
-        let ip = widestring_ip(endpoint.endpoint.address.ip());
-
-        WinFwAllowedEndpointContainer {
-            _clients: clients,
-            clients_ptrs,
-            ip,
-            port: endpoint.endpoint.address.port(),
-            protocol: WinFwProt::from(endpoint.endpoint.protocol),
+    match traffic {
+        AllowedTunnelTraffic::None => winfw::AllowedTunnelTraffic::None,
+        AllowedTunnelTraffic::All => winfw::AllowedTunnelTraffic::All,
+        AllowedTunnelTraffic::One(endpoint) => {
+            winfw::AllowedTunnelTraffic::One(to_tunnel_endpoint(endpoint))
+        }
+        AllowedTunnelTraffic::Two(first, second) => {
+            winfw::AllowedTunnelTraffic::Two(to_tunnel_endpoint(first), to_tunnel_endpoint(second))
         }
     }
 }
 
-impl From<&AllowedTunnelTraffic> for WinFwAllowedTunnelTrafficType {
-    fn from(traffic: &AllowedTunnelTraffic) -> Self {
-        match traffic {
-            AllowedTunnelTraffic::None => WinFwAllowedTunnelTrafficType::None,
-            AllowedTunnelTraffic::All => WinFwAllowedTunnelTrafficType::All,
-            AllowedTunnelTraffic::One(..) => WinFwAllowedTunnelTrafficType::One,
-            AllowedTunnelTraffic::Two(..) => WinFwAllowedTunnelTrafficType::Two,
-        }
-    }
+fn map_init_error(error: winfw::Error, action: &str) -> super::Error {
+    use talpid_error::ErrorExt as _;
+
+    log::error!(
+        "{}",
+        error.display_chain_with_msg(&format!("Failed to {action} the firewall module"))
+    );
+    super::Error::Initialization
 }
 
-impl From<TransportProtocol> for WinFwProt {
-    fn from(prot: TransportProtocol) -> WinFwProt {
-        match prot {
-            TransportProtocol::Tcp => WinFwProt::Tcp,
-            TransportProtocol::Udp => WinFwProt::Udp,
-        }
-    }
-}
+fn map_apply_error(
+    action: &str,
+) -> impl Fn(winfw::ApplyError) -> talpid_types::tunnel::FirewallPolicyError {
+    use talpid_error::ErrorExt as _;
 
-impl WinFwPolicyStatus {
-    pub fn into_result(self) -> Result<(), super::FirewallPolicyError> {
-        match self {
-            WinFwPolicyStatus::Success => Ok(()),
-            WinFwPolicyStatus::GeneralFailure => Err(super::FirewallPolicyError::Generic),
-            WinFwPolicyStatus::LockTimeout => {
-                // TODO: Obtain application name and string from WinFw
-                Err(super::FirewallPolicyError::Locked(None))
+    move |error| {
+        let action = format!("Failed to {action} the firewall");
+        match error {
+            winfw::ApplyError::Generic(error) => {
+                log::error!("{}", error.display_chain_with_msg(&action));
+                talpid_types::tunnel::FirewallPolicyError::Generic
+            }
+            winfw::ApplyError::LockTimeout(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg(&format!(
+                        "{action}: the WFP transaction lock timed out"
+                    ))
+                );
+                talpid_types::tunnel::FirewallPolicyError::Locked(None)
             }
         }
-    }
-}
-
-impl From<WinFwPolicyStatus> for Result<(), super::FirewallPolicyError> {
-    fn from(val: WinFwPolicyStatus) -> Self {
-        val.into_result()
     }
 }

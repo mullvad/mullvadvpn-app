@@ -1,6 +1,6 @@
 //! GUIDs of every WFP object the Windows firewall registers.
 //!
-//! These must match `MullvadGuids` in `windows/winfw/src/winfw/mullvadguids.cpp` exactly.
+//! These must match `MullvadGuids` in the former C++ `winfw` library's `mullvadguids.cpp` exactly.
 //! Changing one means objects registered by an older version are never cleaned up.
 
 use wfp::Guid;

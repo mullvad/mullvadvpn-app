@@ -61,9 +61,8 @@ pub fn add_sublayer_dns(transaction: &Transaction<'_>, recorder: &mut Recorder) 
 ///
 /// Since the session cannot assume anything about which objects are already
 /// installed, everything is discovered by enumeration. Deleting sublayers and
-/// providers can fail transiently while filters in them are being deleted;
-/// the deletion order below mirrors the C++ implementation, which deletes
-/// filters first, then sublayers, then providers.
+/// providers can fail transiently while filters in them are being deleted, so
+/// filters are deleted first, then sublayers, then providers.
 pub fn purge_all(transaction: &Transaction<'_>) -> io::Result<()> {
     let mut filters = Vec::new();
     let mut sublayers = Vec::new();
@@ -98,9 +97,9 @@ pub fn purge_all(transaction: &Transaction<'_>) -> io::Result<()> {
     Ok(())
 }
 
-/// Treat the WFP "object not found" errors as success, like the C++
-/// `ObjectDeleter` does: deleting fire-and-forget is best effort, since
-/// another process may have removed the objects already.
+/// Treat the WFP "object not found" errors as success: deleting
+/// fire-and-forget is best effort, since another process may have removed the
+/// objects already.
 pub(crate) fn ignore_not_found(result: io::Result<()>) -> io::Result<()> {
     match result {
         Ok(()) => Ok(()),

@@ -2,8 +2,6 @@
 exclude = [
   "dist-assets/binaries/**",
   "ios/wireguard-apple/**",
-  "windows/libwfp/**",
-  "windows/windows-libraries/**",
 ]
 
 [format.rules]

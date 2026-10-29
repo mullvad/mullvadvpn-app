@@ -7,14 +7,8 @@ repository.workspace = true
 license.workspace = true
 
 [features]
-default = ["cpp-ffi"]
-# The C++ winfw.dll reference implementation, loaded at runtime from
-# WINFW_DLL_PATH (or the build output directory). The Rust implementation
-# replaces it; until then the snapshot tests run against the C++ library.
-cpp-ffi = []
-# The Rust implementation being written in this crate. When both features
-# are enabled, the snapshot tests run every state through both, asserting
-# they install the same WFP objects.
+default = ["rust"]
+# The Rust implementation of the firewall.
 rust = []
 
 [target."cfg(windows)".dependencies]
@@ -22,7 +16,6 @@ log = { workspace = true }
 ipnetwork = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-widestring = { workspace = true }
 wfp = { workspace = true }
 
 [target."cfg(windows)".dependencies.windows-sys]

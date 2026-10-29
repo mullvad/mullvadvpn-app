@@ -5913,11 +5913,11 @@ dependencies = [
  "tun",
  "typed-builder 0.20.1",
  "wfp",
- "widestring",
  "windows",
  "windows-registry",
  "windows-service",
  "windows-sys 0.61.2",
+ "winfw",
  "wmi",
 ]
 
@@ -7831,7 +7831,6 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.19",
  "wfp",
- "widestring",
  "windows-sys 0.61.2",
 ]
 

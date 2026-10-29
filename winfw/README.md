@@ -2,44 +2,56 @@
 
 Windows firewall for the Mullvad app.
 
-This crate is a work in progress. It currently contains:
+A from-scratch Rust replacement of the former C++ `winfw` library, linked
+directly into the daemon (see `talpid-core`'s `firewall::windows` module).
 
-* `guids`: the WFP object GUIDs shared between the C++ `winfw.dll` implementation
-  and its Rust replacement,
-* `cpp_ffi`: runtime bindings for the C++ implementation, used by the snapshot
-  tests as the reference while the Rust implementation is written.
+## Organization of sublayers
 
-The goal is for this crate to fully replace the C++ code in `windows/winfw`.
+In its initialized state, the firewall uses two sublayers:
+
+- The baseline sublayer, weighted the highest, so it sees all traffic first.
+  It contains a large number of permit-filters, with a different subset of
+  them being activated by different policies, and low-weighted block-all
+  filters. If traffic is matched by a permit-filter, it is "lifted" out of the
+  sublayer and processing is resumed with the next sublayer.
+- The DNS sublayer, weighted slightly lower. All DNS is lifted out of the
+  baseline sublayer (see the `PermitDns` rule) and restricted here instead:
+  only explicitly permitted DNS traffic passes, and a low-weighted filter
+  blocks the rest.
+
+When the daemon shuts down while the firewall is in the blocked state, the
+ephemeral filters installed here are swapped for persistent ones (see
+`talpid-core`'s `firewall::windows::objects::persistent`), which survive a
+Base Filtering Engine restart and a reboot.
 
 ## Snapshot tests
 
-`tests/snapshot.rs` drives the firewall through every policy state and compares
-the resulting WFP object state with the snapshots in `tests/snapshots/`. This
-guards the Rust implementation against behavioral differences from the C++
-implementation, feature by feature, until the latter can be deleted.
+`tests/snapshot.rs` drives the firewall through every policy state and
+compares the resulting WFP object state with the snapshots in
+`tests/snapshots/`. These snapshots were generated from the C++
+implementation before its removal, and guard this implementation against
+behavior drift.
 
 The tests talk to the real Base Filtering Engine, so they must run as
 administrator, on Windows. They replace every WFP object the firewall owns,
 including those of a running Mullvad daemon, so they are ignored by default:
 
 ```sh
-WINFW_DLL_PATH=<path to winfw.dll> cargo test -p winfw --features cpp-ffi -- --ignored
+cargo test -p winfw -- --ignored
 ```
-
-The C++ DLL is built from `windows/winfw/winfw.sln` (see `build-windows-modules.sh`).
 
 The snapshots are stored with [insta]. When one legitimately changes,
 regenerate them with:
 
 ```sh
-INSTA_UPDATE=always WINFW_DLL_PATH=<...> cargo test -p winfw --features cpp-ffi -- --ignored
+INSTA_UPDATE=always cargo test -p winfw -- --ignored
 ```
 
 or use the review workflow, which walks you through the differences one by
 one:
 
 ```sh
-WINFW_DLL_PATH=<...> cargo insta test -p winfw --features cpp-ffi -- --ignored
+cargo insta test -p winfw -- --ignored
 cargo insta review
 ```
 

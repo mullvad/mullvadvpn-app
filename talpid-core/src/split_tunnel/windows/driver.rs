@@ -44,7 +44,7 @@ use windows_sys::core::GUID;
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
-/// Matches MullvadGuids::SublayerBaseline() in winfw/mullvadguids.cpp
+/// Matches `SUBLAYER_BASELINE` in the winfw crate.
 const WINFW_SUBLAYER_BASELINE: GUID = GUID {
     data1: 0x21e068a2,
     data2: 0x2851,
@@ -52,7 +52,7 @@ const WINFW_SUBLAYER_BASELINE: GUID = GUID {
     data4: [0x8a, 0x29, 0x7a, 0xfe, 0x3f, 0x26, 0x03, 0x84],
 };
 
-/// Matches MullvadGuids::SublayerDns() in winfw/mullvadguids.cpp
+/// Matches `SUBLAYER_DNS` in the winfw crate.
 const WINFW_SUBLAYER_DNS: GUID = GUID {
     data1: 0xe65841b6,
     data2: 0x82f6,

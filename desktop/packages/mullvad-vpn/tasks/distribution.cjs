@@ -140,18 +140,6 @@ function newConfig() {
           to: '.',
         },
         {
-          from: root(
-            path.join(
-              'windows',
-              'winfw',
-              'bin',
-              '${env.TARGET_ARCHITECTURE}-${env.CPP_BUILD_MODE}',
-              'winfw.dll',
-            ),
-          ),
-          to: '.',
-        },
-        {
           from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'wintun/wintun.dll')),
           to: '.',
         },

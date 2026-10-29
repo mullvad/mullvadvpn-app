@@ -1,20 +1,17 @@
 //! Windows firewall for the Mullvad app.
 //!
-//! A from-scratch Rust replacement of the C++ `winfw` library in
-//! `windows/winfw`, meant to be linked directly into the daemon. For every
-//! policy the complete set of WFP objects it installs is kept identical to the
-//! C++ implementation, guarded by the snapshot tests in `tests/snapshot.rs`.
+//! This is a from-scratch Rust replacement of the former C++ `winfw` library,
+//! linked directly into the daemon. For every policy, the complete set of WFP
+//! objects it installs is guarded by the snapshot tests in `tests/snapshot.rs`,
+//! whose snapshots were generated from the C++ implementation before its
+//! removal.
 //!
-//! While the replacement is underway, [`cpp_ffi`] contains runtime bindings to
-//! the C++ library, used by the snapshot tests as the reference behavior.
-//!
-//! The module is a singleton per process, like the C++ library: initialize
+//! The module is a singleton per process, like the C++ library was: initialize
 //! [`Manager::new`] once, then drive it with the `apply_policy_*` methods.
 
 #![cfg(target_os = "windows")]
 
 pub mod context;
-pub mod cpp_ffi;
 pub mod error;
 pub mod guids;
 pub mod objects;
