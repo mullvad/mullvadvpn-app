@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { FeatureIndicator, Text } from '../../../../../../../lib/components';
+import { Text } from '../../../../../../../lib/components';
 import { colors, durations } from '../../../../../../../lib/foundations';
 import { useStyledRef } from '../../../../../../../lib/utility-hooks';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
 import { ConnectionPanelAccordion } from '../../../../styles';
-import { useGetFeatureIndicator } from './hooks';
+import { useGetFeatureIndicatorMap } from './hooks';
 
 const LINE_HEIGHT = 22;
 const GAP = 8;
@@ -82,7 +82,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
   const ellipsisRef = useStyledRef<HTMLSpanElement>();
   const ellipsisSpacerRef = useStyledRef<HTMLSpanElement>();
   const featureIndicatorsContainerRef = useStyledRef<HTMLDivElement>();
-  const featureMap = useGetFeatureIndicator();
+  const featureIndicatorMap = useGetFeatureIndicatorMap();
 
   const featureIndicatorsVisible =
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
@@ -161,15 +161,8 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {sortedIndicators.map((indicator) => {
-              const feature = featureMap[indicator];
-              return (
-                <FeatureIndicator
-                  key={indicator.toString()}
-                  data-testid="feature-indicator"
-                  onClick={feature.onClick}>
-                  <FeatureIndicator.Text>{feature.label}</FeatureIndicator.Text>
-                </FeatureIndicator>
-              );
+              const featureIndicator = featureIndicatorMap[indicator];
+              return <React.Fragment key={indicator.toString()}>{featureIndicator}</React.Fragment>;
             })}
           </StyledFeatureIndicatorsWrapper>
           <StyledEllipsisSpacer

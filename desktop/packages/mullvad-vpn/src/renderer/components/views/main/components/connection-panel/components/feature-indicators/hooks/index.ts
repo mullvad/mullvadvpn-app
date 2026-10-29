@@ -1,1 +1,1 @@
-export * from './use-get-feature-indicator';
+export * from './use-get-feature-indicator-map';
