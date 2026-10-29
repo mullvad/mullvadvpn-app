@@ -1,18 +1,18 @@
 import { Button, VerticalBox } from "std-widgets.slint";
 
 export component AppWindow inherits Window {
-    in-out property <int> counter: 42;
-    callback request-increase-value();
+    in property <string> selected_version: "2025.6";
     VerticalBox {
         Text {
-            text: "Counter: \{root.counter}";
+            horizontal-alignment: center;
+            vertical-alignment: center;
+	    // Ref: LATEST_VERSION_PREFIX
+            text: @tr("Version: {}", root.selected_version);
         }
 
         Button {
-            text: "Increase value";
-            clicked => {
-                root.request-increase-value();
-            }
+	    // Ref: DOWNLOAD_BUTTON_TEXT
+            text: @tr("Download & install");
         }
     }
 }
