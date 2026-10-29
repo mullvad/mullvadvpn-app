@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
-import { useEntryLocation } from '../../../../../features/locations/hooks';
+import { useActiveFilters, useEntryLocation } from '../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../features/locations/types';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { Location } from '../location-list-item';
 import { useHandleSelectEntryLocation } from '../location-lists/hooks';
-import { AutomaticEntryInfoDialog } from './components';
+import { AutomaticEntryInfoDialog, AutomaticEntryWarningDialog } from './components';
 
 export type AutomaticLocationProps = {
   position?: ListItemProps['position'];
@@ -14,13 +15,20 @@ export type AutomaticLocationProps = {
 export function AutomaticLocation({ position }: AutomaticLocationProps) {
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
   const { entryLocation } = useEntryLocation();
+  const { isAnyListFilterActive } = useActiveFilters(LocationType.entry);
 
   const [infoDialogOpen, setInfoDialogOpen] = React.useState(false);
+  const [warningDialogOpen, setWarningDialogOpen] = React.useState(false);
+
   const openInfoDialog = React.useCallback(() => setInfoDialogOpen(true), []);
 
   const handleClickAutomatic = React.useCallback(async () => {
-    await handleSelectEntryLocation('any');
-  }, [handleSelectEntryLocation]);
+    if (isAnyListFilterActive) {
+      setWarningDialogOpen(true);
+    } else {
+      await handleSelectEntryLocation('any');
+    }
+  }, [handleSelectEntryLocation, isAnyListFilterActive]);
 
   return (
     <>
@@ -50,6 +58,7 @@ export function AutomaticLocation({ position }: AutomaticLocationProps) {
         </Location.ListItem>
       </Location>
       <AutomaticEntryInfoDialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen} />
+      <AutomaticEntryWarningDialog open={warningDialogOpen} onOpenChange={setWarningDialogOpen} />
     </>
   );
 }
