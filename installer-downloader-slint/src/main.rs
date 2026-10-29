@@ -1,13 +1,26 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::error::Error;
+use installer_downloader::controller::initialize_controller;
+use installer_downloader::environment::Environment;
+use slint::Weak;
+
+mod delegate;
 
 slint::include_modules!();
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let ui = AppWindow::new()?;
-    let _ui_handle = ui.as_weak();
+    init_backend(ui.as_weak())?;
     ui.run()?;
+    Ok(())
+}
+
+/// [`delegate::App`] is responsible for hooking up the UI to their corresponsding action.
+fn init_backend(ui: Weak<AppWindow>) -> anyhow::Result<()> {
+    let environment = Environment::load()?;
+    let mut delegate = delegate::SlintApp::new(ui);
+    initialize_controller(&mut delegate, environment);
     Ok(())
 }

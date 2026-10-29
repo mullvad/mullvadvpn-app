@@ -4047,9 +4047,11 @@ dependencies = [
 name = "installer-downloader-slint"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "installer-downloader",
  "slint",
  "slint-build",
+ "tokio",
 ]
 
 [[package]]

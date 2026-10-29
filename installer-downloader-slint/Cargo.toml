@@ -7,6 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+anyhow.workspace = true
 installer-downloader.workspace = true
 slint = { version = "1.18", default-features = false, features = [
   "backend-winit-wayland",
@@ -14,6 +15,7 @@ slint = { version = "1.18", default-features = false, features = [
   "live-preview",
   "renderer-winit-software",
 ] }
+tokio.workspace = true
 
 [build-dependencies]
 slint-build = { version = "1.18", features = ["sdf-fonts"] }

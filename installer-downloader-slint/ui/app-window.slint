@@ -1,18 +1,81 @@
 import { Button, VerticalBox } from "std-widgets.slint";
+import { Label } from "./label.slint";
 
 export component AppWindow inherits Window {
-    in property <string> selected_version: "2025.6";
+    in property <string> selected-version: "2025.6";
+    in property <string> status-text: "";
+    in property <string> download-text: "";
+    in property <int> download-progress: 0;
+    in property <bool> show-download-progress;
+    in property <bool> show-download-button;
+    in property <bool> show-cancel-button;
+    in property <bool> show-beta-text;
+    in property <bool> show-stable-text;
+    in property <bool> show-error-message;
+    in property <bool> enable-download-button;
+    in property <bool> enable-cancel-button;
+    in property <string> error-message: ""; // TODO: Represent this as a struct.
+
+    callback download;
+    callback cancel;
+    callback stable-link;
+    callback beta-link;
+    callback error-message-retry;
+    callback error-message-cancel;
+
     VerticalBox {
         Text {
             horizontal-alignment: center;
             vertical-alignment: center;
+	    // Ref: BANNER_DESC
+            text: @tr("The Mullvad VPN app installer will be downloaded and verified for authenticity.");
+        }
+
+        Text {
+            horizontal-alignment: center;
+            vertical-alignment: center;
 	    // Ref: LATEST_VERSION_PREFIX
-            text: @tr("Version: {}", root.selected_version);
+            text: @tr("Version: {}", root.selected-version);
         }
 
         Button {
 	    // Ref: DOWNLOAD_BUTTON_TEXT
             text: @tr("Download & install");
+            clicked => { download(); };
+        }
+
+        Button {
+	    // Ref: CANCEL_BUTTON_TEXT
+            text: @tr("Cancel");
+            clicked => { cancel(); };
+        }
+
+        // Link to beta. Stable is shown by default.
+	// TODO: Replace with clickable label.
+	Button {
+	    // Ref: BETA_PREFACE_DESC
+	    // Ref: BETA_LINK_TEXT
+	    text: @tr("Want to try the new Beta version? Click here!");
+            clicked => { beta-link(); };
+        }
+
+        // Link back to stable
+	Button {
+	    // Ref: STABLE_LINK_TEXT
+	    text: @tr("Back to stable version");
+            clicked => { stable-link(); };
+        }
+
+        Button {
+	    // Ref: DOWNLOAD_FAILED_RETRY_BUTTON_TEXT // TODO: Is this ref correct?
+            text: @tr("Try again");
+            clicked => { error-message-retry(); };
+        }
+
+        Button {
+	    // Ref: CANCEL_BUTTON_TEXT
+            text: @tr("Cancel");
+            clicked => { error-message-retry(); };
         }
     }
 }
