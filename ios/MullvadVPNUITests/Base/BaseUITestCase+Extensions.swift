@@ -194,7 +194,7 @@ extension BaseUITestCase {
     }
 
     private func skipNotificationPromptIfShown() {
-        if app.otherElements[.notificationPromptView].existsAfterWait(timeout: .short) {
+        if app.otherElements[.notificationPromptView].existsAfterWait() {
             NotificationPromptPage(app)
                 .tapSkipButton()
         }
