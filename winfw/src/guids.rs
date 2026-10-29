@@ -1,7 +1,4 @@
 //! GUIDs of every WFP object the Windows firewall registers.
-//!
-//! These must match `MullvadGuids` in the former C++ `winfw` library's `mullvadguids.cpp` exactly.
-//! Changing one means objects registered by an older version are never cleaned up.
 
 use wfp::Guid;
 
@@ -72,6 +69,34 @@ known_guids! {
     FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV4 = 0x4e2bdc82292c4545a5c450251c702fcd;
     FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV6 = 0x7811263c3916428da5142e43021a738a;
 }
+
+/// Sublayer holding the persistent and boot-time rules, which `talpid-core`
+/// installs when the daemon shuts down in the blocked state.
+pub const SUBLAYER_PERSISTENT: Guid = Guid::from_u128(0x3c28881e_8891_4d61_b87f_f272502d1005);
+
+/// Boot-time block-all filters, ordered as they are installed.
+pub const FILTER_BOOTTIME_BLOCK_ALL: [Guid; 4] = [
+    // Outbound, IPv4
+    Guid::from_u128(0x5996aa42_102b_419f_ad3d_835db50b8b01),
+    // Inbound, IPv4
+    Guid::from_u128(0x6150b73d_4dfa_4c30_80eb_e0ee535193da),
+    // Outbound, IPv6
+    Guid::from_u128(0x139b8b26_5037_4929_9237_e873bddd651d),
+    // Inbound, IPv6
+    Guid::from_u128(0x129927e2_7a3a_49bb_b987_3692563a83f4),
+];
+
+/// Persistent block-all filters, ordered as they are installed.
+pub const FILTER_PERSISTENT_BLOCK_ALL: [Guid; 4] = [
+    // Outbound, IPv4
+    Guid::from_u128(0x79860c64_9a5e_48a3_b5f3_d64b41659aa5),
+    // Inbound, IPv4
+    Guid::from_u128(0x9f177f14_f090_4fde_98f9_84153125a7c5),
+    // Outbound, IPv6
+    Guid::from_u128(0xa9b72749_b1c1_4483_a371_90e18668532e),
+    // Inbound, IPv6
+    Guid::from_u128(0x333e7e5c_9293_4bda_8b19_b670191cc47c),
+];
 
 /// Look up the name of a known WFP object GUID, for readable snapshots.
 pub fn known_object_name(guid: &Guid) -> Option<&'static str> {

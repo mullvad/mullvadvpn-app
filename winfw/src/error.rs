@@ -17,8 +17,6 @@ pub enum Error {
 }
 
 /// Errors that can happen when applying a firewall policy or resetting it.
-///
-/// Mirrors `WINFW_POLICY_STATUS` in the C++ `winfw` library.
 #[derive(thiserror::Error, Debug)]
 pub enum ApplyError {
     /// The policy could not be applied
@@ -38,13 +36,6 @@ impl ApplyError {
             Self::LockTimeout(error)
         } else {
             Self::Generic(error)
-        }
-    }
-
-    /// Turn the error back into the plain I/O error it came from.
-    pub fn into_io(self) -> io::Error {
-        match self {
-            Self::Generic(error) | Self::LockTimeout(error) => error,
         }
     }
 }
