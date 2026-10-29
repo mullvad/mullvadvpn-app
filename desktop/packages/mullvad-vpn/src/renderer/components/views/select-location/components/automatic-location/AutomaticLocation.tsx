@@ -2,10 +2,10 @@ import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useEntryLocation } from '../../../../../features/locations/hooks';
-import { Dialog } from '../../../../../lib/components/dialog';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { Location } from '../location-list-item';
 import { useHandleSelectEntryLocation } from '../location-lists/hooks';
+import { AutomaticEntryInfoDialog } from './components';
 
 export type AutomaticLocationProps = {
   position?: ListItemProps['position'];
@@ -15,17 +15,12 @@ export function AutomaticLocation({ position }: AutomaticLocationProps) {
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
   const { entryLocation } = useEntryLocation();
 
+  const [infoDialogOpen, setInfoDialogOpen] = React.useState(false);
+  const openInfoDialog = React.useCallback(() => setInfoDialogOpen(true), []);
+
   const handleClickAutomatic = React.useCallback(async () => {
     await handleSelectEntryLocation('any');
   }, [handleSelectEntryLocation]);
-
-  const [open, setOpen] = React.useState(false);
-
-  const openDialog = React.useCallback(() => setOpen(true), []);
-
-  const handleOpenChange = React.useCallback((isOpen: boolean) => {
-    setOpen(isOpen);
-  }, []);
 
   return (
     <>
@@ -42,7 +37,7 @@ export function AutomaticLocation({ position }: AutomaticLocationProps) {
           </Location.ListItem.Trigger>
           <Location.ListItem.TrailingActions>
             <Location.ListItem.Trigger
-              onClick={openDialog}
+              onClick={openInfoDialog}
               aria-label={messages.pgettext(
                 'accessibility',
                 'Read more about the automatic entry location',
@@ -54,38 +49,7 @@ export function AutomaticLocation({ position }: AutomaticLocationProps) {
           </Location.ListItem.TrailingActions>
         </Location.ListItem>
       </Location>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <Dialog.Portal>
-          <Dialog.Popup>
-            <Dialog.PopupContent>
-              <Dialog.Icon icon="info-circle" />
-              <Dialog.TextGroup>
-                <Dialog.Text>
-                  {
-                    // TRANSLATORS: Text in dialog explaning the behavior of the “Automatic” location option
-                    messages.pgettext(
-                      'select-location-view',
-                      'When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance.',
-                    )
-                  }
-                </Dialog.Text>
-                <Dialog.Text>
-                  {
-                    // TRANSLATORS: Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
-                    messages.pgettext(
-                      'select-location-view',
-                      'Attention: With the “Automatic” location, any enabled filters are ignored for the entry server.',
-                    )
-                  }
-                </Dialog.Text>
-              </Dialog.TextGroup>
-              <Dialog.CloseButton>
-                <Dialog.CloseButton.Text>{messages.gettext('Got it!')}</Dialog.CloseButton.Text>
-              </Dialog.CloseButton>
-            </Dialog.PopupContent>
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog>
+      <AutomaticEntryInfoDialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen} />
     </>
   );
 }
