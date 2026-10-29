@@ -1,0 +1,39 @@
+[package]
+name = "winfw"
+edition.workspace = true
+rust-version.workspace = true
+description = "Windows firewall for the Mullvad app"
+repository.workspace = true
+license.workspace = true
+
+[features]
+default = ["cpp-ffi"]
+# The C++ winfw.dll reference implementation, loaded at runtime from
+# WINFW_DLL_PATH (or the build output directory). The Rust implementation
+# replaces it; until then the snapshot tests run against the C++ library.
+cpp-ffi = []
+
+[target."cfg(windows)".dependencies]
+log = { workspace = true }
+thiserror = { workspace = true }
+widestring = { workspace = true }
+wfp = { workspace = true }
+
+[target."cfg(windows)".dependencies.windows-sys]
+workspace = true
+features = [
+  "Win32_Foundation",
+  "Win32_NetworkManagement_IpHelper",
+  "Win32_NetworkManagement_Ndis",
+  "Win32_NetworkManagement_WindowsFilteringPlatform",
+  "Win32_Networking_WinSock",
+  "Win32_Security",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Rpc",
+]
+
+[dev-dependencies]
+insta.workspace = true
+
+[lints]
+workspace = true
