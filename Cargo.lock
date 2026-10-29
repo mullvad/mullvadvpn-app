@@ -4052,6 +4052,7 @@ dependencies = [
  "slint",
  "slint-build",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

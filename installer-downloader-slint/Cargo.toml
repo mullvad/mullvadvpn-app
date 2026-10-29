@@ -16,6 +16,7 @@ slint = { version = "1.18", default-features = false, features = [
   "renderer-winit-software",
 ] }
 tokio.workspace = true
+tracing.workspace = true
 
 [build-dependencies]
 slint-build = { version = "1.18", features = ["sdf-fonts"] }

@@ -3,35 +3,48 @@
 
 use crate::AppWindow;
 use slint::Weak;
-
-use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc;
 
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
+use tracing::trace;
 
 pub struct SlintApp {
     ui: Weak<AppWindow>,
-    queue: Queue,
+    work: (Queue, Backlog),
 }
 
 impl SlintApp {
     pub fn new(ui: Weak<AppWindow>) -> Self {
-        let queue = Queue::new();
-        Self { ui, queue }
+        let work = Queue::new();
+        Self { ui, work }
+    }
+
+    pub async fn run(mut self) -> anyhow::Result<()> {
+        while let Some(callback) = self.work.1.callbacks.recv().await {
+            callback(&mut self);
+        }
+        Ok(())
     }
 }
 
 /// This simply mutates the UI on the main thread
 #[derive(Clone)]
 pub struct Queue {
-    // TODO: Actually run these callbacks eventually. On tick ?
-    callbacks: Arc<Mutex<Vec<Box<dyn FnOnce(&mut SlintApp) + Send>>>>,
+    queue: mpsc::Sender<UICallback>,
 }
 
+pub struct Backlog {
+    callbacks: mpsc::Receiver<UICallback>,
+}
+
+/// TODO: Document.
+type UICallback = Box<dyn FnOnce(&mut SlintApp) + Send>;
+
 impl Queue {
-    fn new() -> Self {
-        Self {
-            callbacks: Arc::new(Mutex::new(vec![])),
-        }
+    fn new() -> (Queue, Backlog) {
+        // TODO: Arbitrary
+        let (queue, callbacks) = mpsc::channel(10);
+        (Queue { queue }, Backlog { callbacks })
     }
 }
 
@@ -177,12 +190,19 @@ impl AppDelegate for SlintApp {
     }
 
     fn queue(&self) -> Self::Queue {
-        self.queue.clone()
+        self.work.0.clone()
     }
 }
 
 impl AppDelegateQueue<SlintApp> for Queue {
     fn queue_main<F: FnOnce(&mut SlintApp) + 'static + Send>(&self, callback: F) {
-        self.callbacks.lock().unwrap().push(Box::new(callback));
+        let rt = tokio::runtime::Handle::current();
+        let queue = self.queue.clone();
+        let fut = async move {
+            if let Err(err) = queue.send(Box::new(callback)).await {
+                trace!("{err}");
+            }
+        };
+        rt.spawn(fut);
     }
 }
