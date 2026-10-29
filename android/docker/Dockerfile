@@ -48,6 +48,9 @@ ENV ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}
 ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
 ENV GRADLE_USER_HOME=/root/.gradle
 
+# The variables below are only needed when invoking cargo directly, without the
+# rust-android-gradle plugin.
+
 # Rust cross-compilation for: aarch64
 ENV AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang \
