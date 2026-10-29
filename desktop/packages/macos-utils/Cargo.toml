@@ -1,0 +1,21 @@
+[package]
+name = "macos-utils"
+edition.workspace = true
+rust-version.workspace = true
+description = "Access various system APIs via Node"
+repository.workspace = true
+license.workspace = true
+exclude = ["index.node"]
+
+[lib]
+crate-type = ["cdylib"]
+path = "macos-utils-rs/lib.rs"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+block2.workspace = true
+neon = "1"
+objc2-app-kit = { workspace = true, features = ["NSEvent", "block2"] }
+smappservice-rs.workspace = true
+
+[lints]
+workspace = true
