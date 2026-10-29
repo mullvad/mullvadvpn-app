@@ -43,6 +43,10 @@ export const createSelectors = (page: Page) => ({
     return page.getByLabel(new RegExp(`${possiblePrefix.join('|')} ${label}`));
   },
   automaticLocation: () => page.getByLabel('Use automatic entry location'),
+  automaticLocationWarningDialogContinueButton: () =>
+    page.getByRole('dialog').getByRole('button', {
+      name: 'Continue',
+    }),
   locationsMatching: (relayNames: string[]) => {
     const possiblePrefix = ['Connect to', 'Use', 'Connect and use'];
     const possibleNames = possiblePrefix.flatMap((prefix) =>
