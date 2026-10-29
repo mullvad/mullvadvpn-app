@@ -273,11 +273,7 @@ TARGETS="riscv64gc-unknown-linux-gnu" ./build.sh --daemon-only --optimize
 
 This section is for building the system service individually.
 
-1. On Windows, build the C++ libraries:
-    ```bash
-    ./build-windows-modules.sh
-    ```
-    And copy the `wintun.dll` next to the daemon binary:
+1. On Windows, copy the `wintun.dll` next to the daemon binary:
     ```bash
     cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
     ```

@@ -10,7 +10,6 @@ on:
       - '!.github/CODEOWNERS'
       - '!audits/**'
       - '!build.sh'
-      - '!build-windows-modules.sh'
       - '!ci/**'
       - '!code-owners.json'
       - '!dist-assets/**'

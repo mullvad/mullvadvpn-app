@@ -154,7 +154,7 @@ jobs:
       - name: Build NSIS plugins
         shell: bash
         run: |
-          ./build-windows-modules.sh build nsis-plugins
+          cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis
 
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead
