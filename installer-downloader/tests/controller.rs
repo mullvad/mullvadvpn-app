@@ -1,5 +1,3 @@
-#![cfg(any(target_os = "windows", target_os = "macos"))]
-
 //! Tests for integrations between UI controller and other components
 //!
 //! The tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
@@ -8,7 +6,7 @@
 
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
-use mock::{
+use installer_downloader::mock::{
     FAKE_ENVIRONMENT, FakeAppCacheEmpty, FakeAppCacheHappyPath, FakeAppCacheVerifyFail,
     FakeAppDelegate, FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail,
     FakeDirectoryProvider, FakeVersionInfoProvider,
@@ -17,8 +15,6 @@ use std::{
     sync::{Arc, atomic::AtomicBool},
     time::Duration,
 };
-
-mod mock;
 
 /// Test that the flow starts by fetching app version data
 #[tokio::test(start_paused = true)]

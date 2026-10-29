@@ -1,11 +1,10 @@
-#![cfg(any(target_os = "windows", target_os = "macos"))]
-
 //! This module contains fake/mock implementations of different updater/installer traits
 
-use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
-use installer_downloader::environment::{Architecture, Environment};
-use installer_downloader::temp::DirectoryProvider;
-use installer_downloader::ui_downloader::UiAppDownloaderParameters;
+use crate::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
+use crate::environment::{Architecture, Environment};
+use crate::temp::DirectoryProvider;
+use crate::ui_downloader::UiAppDownloaderParameters;
+
 use mullvad_update::app::{
     AppCache, AppDownloader, DownloadError, DownloadedInstaller, VerifiedInstaller,
 };
