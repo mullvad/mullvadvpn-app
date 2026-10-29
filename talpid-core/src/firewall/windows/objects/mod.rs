@@ -1,7 +1,6 @@
-//! The WFP objects owned by the app, managed by talking to the Windows Filtering Platform
-//! directly rather than going through the `winfw` C++ library.
+//! The WFP objects owned by the app that outlive the `winfw` firewall: the persistent
+//! and boot-time objects that keep blocking after the daemon has shut down.
 
-mod guids;
 mod persistent;
 
 pub(super) use persistent::apply_persistent_blocking;

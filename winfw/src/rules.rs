@@ -1,13 +1,11 @@
-//! The firewall rules, ported one to one from the former C++ `winfw` library's `rules`.
+//! The firewall rules.
 //!
 //! Each rule installs one or more WFP filters inside an ongoing transaction.
-//! The GUIDs, names, descriptions, layers, weights, actions and conditions
-//! must not drift from the C++ implementation: the snapshot tests in
-//! `tests/snapshot.rs` compare them against snapshots taken from it.
 
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    path::PathBuf,
 };
 
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
@@ -22,7 +20,7 @@ use crate::{
     session::{Record, Recorder},
 };
 
-/// Well-known ports, `rules::Ports` in `ports.h`.
+/// Well-known ports.
 mod ports {
     pub const DHCP_V4_CLIENT_PORT: u16 = 68;
     pub const DHCP_V4_SERVER_PORT: u16 = 67;
@@ -71,8 +69,7 @@ impl Sublayer {
     }
 }
 
-/// The traffic that is allowed inside the tunnel while connecting,
-/// `WinFwAllowedTunnelTraffic` in `winfw.h`.
+/// The traffic that is allowed inside the tunnel while connecting.
 #[derive(Clone, Debug, Default)]
 pub enum AllowedTunnelTraffic {
     /// Allow no traffic in the tunnel.
@@ -89,51 +86,52 @@ pub enum AllowedTunnelTraffic {
 /// One firewall rule: a parameter bundle plus the filters it installs.
 #[derive(Clone, Debug)]
 pub enum Rule {
-    /// `rules::baseline::BlockAll`
+    /// Block all traffic in the baseline sublayer.
     BlockAll,
-    /// `rules::baseline::PermitLoopback`
+    /// Permit loopback traffic.
     PermitLoopback,
-    /// `rules::baseline::PermitDhcp`
+    /// Permit DHCP client traffic.
     PermitDhcp,
-    /// `rules::baseline::PermitNdp`
+    /// Permit NDP router and neighbor discovery.
     PermitNdp,
-    /// `rules::baseline::PermitDhcpServer`
+    /// Permit serving DHCP requests from the LAN.
     PermitDhcpServer,
-    /// `rules::baseline::PermitLan`
+    /// Permit outbound traffic to the LAN.
     PermitLan,
-    /// `rules::baseline::PermitLanService`
+    /// Permit inbound traffic from the LAN.
     PermitLanService,
-    /// `rules::baseline::PermitDns`
+    /// Lift all DNS out of the baseline sublayer, to be restricted in the DNS
+    /// sublayer instead.
     PermitDns,
-    /// `rules::baseline::PermitVpnTunnel`
+    /// Permit outbound traffic inside the tunnel.
     PermitVpnTunnel {
-        clients: Vec<String>,
+        clients: Vec<PathBuf>,
         alias: String,
         endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
         exit_ip: Option<IpAddr>,
     },
-    /// `rules::baseline::PermitVpnTunnelService`
+    /// Permit inbound traffic inside the tunnel.
     PermitVpnTunnelService {
-        clients: Vec<String>,
+        clients: Vec<PathBuf>,
         alias: String,
         endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
         exit_ip: Option<IpAddr>,
     },
-    /// `rules::dns::BlockAll`
+    /// Block all DNS in the DNS sublayer.
     DnsBlockAll,
-    /// `rules::dns::PermitLoopback`
+    /// Permit DNS on loopback.
     DnsPermitLoopback,
-    /// `rules::dns::PermitTunnel`
+    /// Permit DNS to the given servers inside the tunnel.
     DnsPermitTunnel { alias: String, hosts: Vec<IpAddr> },
-    /// `rules::dns::PermitNonTunnel`
+    /// Permit DNS to the given servers outside the tunnel.
     DnsPermitNonTunnel {
         alias: Option<String>,
         hosts: Vec<IpAddr>,
     },
-    /// `rules::multi::PermitEndpoint`
+    /// Permit outbound traffic to an endpoint, in the given sublayer.
     PermitEndpoint {
         endpoint: RelayEndpoint,
-        clients: Vec<String>,
+        clients: Vec<PathBuf>,
         sublayer: Sublayer,
     },
 }
@@ -352,8 +350,7 @@ impl Rule {
             Prefix(IpAddr, u8),
         }
 
-        // (guid, layer, name, ICMP type, remote matches), mirroring
-        // `permitndp.cpp` message by message.
+        // (guid, layer, name, ICMP type, remote matches), one per message.
         let messages: [(wfp::Guid, Layer, &str, u8, Vec<Remote>); 7] = [
             // #1 Permit outbound router solicitation.
             (
@@ -524,8 +521,7 @@ impl Rule {
 
     fn install_permit_lan(cx: &mut Cx<'_>) -> io::Result<()> {
         // The LAN networks and multicast ranges of the platform, in order and
-        // split by family, like `g_ipv4LanNets`/`g_ipv6LanNets` in
-        // `lannetworks.h`.
+        // split by family.
         let (lan_v4, lan_v6) = split_networks(&ALLOWED_LAN_NETS);
         let (multicast_v4, multicast_v6) = split_networks(&ALLOWED_LAN_MULTICAST_NETS);
 
@@ -623,11 +619,10 @@ impl Rule {
         Ok(())
     }
 
-    /// `PermitVpnTunnel::apply`: the exit-relay access filters, then the
-    /// endpoint filters.
+    /// The exit-relay access filters, then the endpoint filters.
     fn install_permit_vpn_tunnel(
         cx: &mut Cx<'_>,
-        clients: &[String],
+        clients: &[PathBuf],
         alias: &str,
         endpoints: &Option<(RelayEndpoint, Option<RelayEndpoint>)>,
         exit_ip: Option<IpAddr>,
@@ -665,10 +660,10 @@ impl Rule {
         Ok(())
     }
 
-    /// `PermitVpnTunnelService::apply`: the same, on the inbound layers.
+    /// The same as [`Self::install_permit_vpn_tunnel`], on the inbound layers.
     fn install_permit_vpn_tunnel_service(
         cx: &mut Cx<'_>,
-        clients: &[String],
+        clients: &[PathBuf],
         alias: &str,
         endpoints: &Option<(RelayEndpoint, Option<RelayEndpoint>)>,
         exit_ip: Option<IpAddr>,
@@ -706,16 +701,14 @@ impl Rule {
         Ok(())
     }
 
-    /// `PermitVpnTunnel::BlockNonRelayClientExit` and the corresponding
-    /// `PermitVpnTunnelService` method: permit the relay clients to reach the
-    /// exit relay, and block everyone else from it.
+    /// Permit the relay clients to reach the exit relay, and block everyone
+    /// else from it.
     ///
-    /// The filter names say "inbound" even on the outbound layers, matching the
-    /// C++ implementation.
+    /// The filter names say "inbound" even on the outbound layers.
     #[expect(clippy::too_many_arguments)]
     fn add_exit_ip_rules(
         cx: &mut Cx<'_>,
-        clients: &[String],
+        clients: &[PathBuf],
         alias: &str,
         exit_ip: Option<IpAddr>,
         layer_v4: Layer,
@@ -770,9 +763,8 @@ impl Rule {
         Ok(())
     }
 
-    /// `PermitVpnTunnel::AddEndpointFilter` and the corresponding
-    /// `PermitVpnTunnelService` method: permit traffic inside the tunnel, to
-    /// one specific endpoint or to anywhere.
+    /// Permit traffic inside the tunnel, to one specific endpoint or to
+    /// anywhere.
     fn add_tunnel_endpoint_rule(
         cx: &mut Cx<'_>,
         alias: &str,
@@ -1005,7 +997,7 @@ impl Rule {
     fn install_permit_endpoint(
         cx: &mut Cx<'_>,
         endpoint: &RelayEndpoint,
-        clients: &[String],
+        clients: &[PathBuf],
         sublayer: Sublayer,
     ) -> io::Result<()> {
         let layer = match endpoint.ip {
@@ -1033,7 +1025,7 @@ impl Rule {
     }
 }
 
-/// A weight class, `wfp::FilterBuilder::WeightClass` in libwfp.
+/// The filter weight range `class`, from 0 to 15.
 fn class(class: u8) -> FilterWeight {
     FilterWeight::Range(WeightRange::try_from(class).expect("weight class 0..=15"))
 }
@@ -1071,7 +1063,7 @@ fn interface_alias_not_condition(alias: &str) -> io::Result<wfp::Condition> {
         .build())
 }
 
-/// Match a remote network prefix, `wfp::IpNetwork` in libwfp.
+/// Match a remote network prefix.
 fn remote_prefix_condition(addr: IpAddr, prefix: u8) -> wfp::Condition {
     match addr {
         IpAddr::V4(ip) => IpAddressConditionBuilder::remote()
@@ -1097,18 +1089,16 @@ fn local_prefix_condition(addr: IpAddr, prefix: u8) -> wfp::Condition {
 
 fn app_id_conditions(
     builder: FilterBuilder<wfp::FilterBuilderHasName, wfp::FilterBuilderHasAction>,
-    clients: &[String],
+    clients: &[PathBuf],
 ) -> io::Result<FilterBuilder<wfp::FilterBuilderHasName, wfp::FilterBuilderHasAction>> {
     let mut builder = builder;
     for client in clients {
-        builder = builder.condition(AppIdConditionBuilder::new().equal(client.as_str())?.build());
+        builder = builder.condition(AppIdConditionBuilder::new().equal(client)?.build());
     }
     Ok(builder)
 }
 
-/// The LAN networks, split by family. `rules::shared.cpp` splits into
-/// `m_hostsIpv4`/`m_hostsIpv6` in the rule constructors, and
-/// `lannetworks.h` keeps the LAN networks split the same way.
+/// A network address and its prefix length.
 type Net = (IpAddr, u8);
 
 fn split_networks(networks: &[ipnetwork::IpNetwork]) -> (Vec<Net>, Vec<Net>) {

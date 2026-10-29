@@ -2,8 +2,7 @@
 
 Windows firewall for the Mullvad app.
 
-A from-scratch Rust replacement of the former C++ `winfw` library, linked
-directly into the daemon (see `talpid-core`'s `firewall::windows` module).
+The daemon uses it through `talpid-core`'s `firewall::windows` module.
 
 ## Organization of sublayers
 
@@ -28,9 +27,7 @@ Base Filtering Engine restart and a reboot.
 
 `tests/snapshot.rs` drives the firewall through every policy state and
 compares the resulting WFP object state with the snapshots in
-`tests/snapshots/`. These snapshots were generated from the C++
-implementation before its removal, and guard this implementation against
-behavior drift.
+`tests/snapshots/`, guarding the firewall against behavior drift.
 
 The tests talk to the real Base Filtering Engine, so they must run as
 administrator, on Windows. They replace every WFP object the firewall owns,

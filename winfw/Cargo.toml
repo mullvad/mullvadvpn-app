@@ -6,11 +6,6 @@ description = "Windows firewall for the Mullvad app"
 repository.workspace = true
 license.workspace = true
 
-[features]
-default = ["rust"]
-# The Rust implementation of the firewall.
-rust = []
-
 [target."cfg(windows)".dependencies]
 log = { workspace = true }
 ipnetwork = { workspace = true }

@@ -1,13 +1,7 @@
 //! Windows firewall for the Mullvad app.
 //!
-//! This is a from-scratch Rust replacement of the former C++ `winfw` library,
-//! linked directly into the daemon. For every policy, the complete set of WFP
-//! objects it installs is guarded by the snapshot tests in `tests/snapshot.rs`,
-//! whose snapshots were generated from the C++ implementation before its
-//! removal.
-//!
-//! The module is a singleton per process, like the C++ library was: initialize
-//! [`Manager::new`] once, then drive it with the `apply_policy_*` methods.
+//! The module is a singleton per process: initialize [`Manager::new`] once,
+//! then drive it with the `apply_policy_*` methods.
 
 #![cfg(target_os = "windows")]
 
@@ -21,12 +15,11 @@ mod sessions;
 
 use std::{io, net::IpAddr, time::Duration};
 
-pub use context::Policy;
 pub use error::{ApplyError, Error};
 
-/// The rule-composition side of `fwcontext.cpp`.
+/// The rulesets each policy is composed of.
 mod policy_rules {
-    use std::net::IpAddr;
+    use std::{net::IpAddr, path::PathBuf};
 
     use super::{
         Settings,
@@ -37,7 +30,7 @@ mod policy_rules {
     #[derive(Clone, Debug)]
     pub struct AllowedEndpoint {
         /// Processes allowed to reach the endpoint; empty means any process.
-        pub clients: Vec<String>,
+        pub clients: Vec<PathBuf>,
         pub endpoint: RelayEndpoint,
     }
 
@@ -49,12 +42,12 @@ mod policy_rules {
         /// The IP of the exit relay in a multihop tunnel, if any.
         pub exit_ip: Option<IpAddr>,
         /// The processes allowed to reach the relays; empty means any process.
-        pub clients: Vec<String>,
+        pub clients: Vec<PathBuf>,
         /// What traffic is allowed inside the tunnel while connecting.
         pub allowed_tunnel_traffic: AllowedTunnelTraffic,
     }
 
-    /// `FwContext::composePolicyBlocked`.
+    /// The ruleset of the blocked policy.
     pub fn blocked(settings: &Settings, allowed_endpoint: Option<&AllowedEndpoint>) -> Vec<Rule> {
         let mut ruleset = Vec::new();
         append_net_blocked_rules(&mut ruleset);
@@ -63,7 +56,7 @@ mod policy_rules {
         ruleset
     }
 
-    /// The ruleset `FwContext::applyPolicyConnecting` assembles.
+    /// The ruleset of the connecting policy.
     pub fn connecting(
         settings: &Settings,
         relays: &[RelayEndpoint],
@@ -78,34 +71,31 @@ mod policy_rules {
 
         // The tunnel rules are only installed while the tunnel exists, and
         // the "None" case of the allowed tunnel traffic adds nothing.
-        if let Some(alias) = &tunnel.alias {
-            let endpoints = match &tunnel.allowed_tunnel_traffic {
-                AllowedTunnelTraffic::None => None,
-                AllowedTunnelTraffic::All => None,
-                AllowedTunnelTraffic::One(endpoint) => Some((endpoint.clone(), None)),
-                AllowedTunnelTraffic::Two(first, second) => {
-                    Some((first.clone(), Some(second.clone())))
-                }
-            };
-            match &tunnel.allowed_tunnel_traffic {
-                AllowedTunnelTraffic::None => {}
-                _ => {
-                    for outbound in [true, false] {
-                        ruleset.push(tunnel_rule(
-                            alias,
-                            tunnel.clients.clone(),
-                            endpoints.clone(),
-                            tunnel.exit_ip,
-                            outbound,
-                        ));
-                    }
-                }
-            }
-        }
+        let Some(alias) = &tunnel.alias else {
+            return ruleset;
+        };
+        let endpoints = match &tunnel.allowed_tunnel_traffic {
+            AllowedTunnelTraffic::None => return ruleset,
+            AllowedTunnelTraffic::All => None,
+            AllowedTunnelTraffic::One(endpoint) => Some((endpoint.clone(), None)),
+            AllowedTunnelTraffic::Two(first, second) => Some((first.clone(), Some(second.clone()))),
+        };
+        ruleset.push(tunnel_rule_out(
+            alias,
+            tunnel.clients.clone(),
+            endpoints.clone(),
+            tunnel.exit_ip,
+        ));
+        ruleset.push(tunnel_rule_in(
+            alias,
+            tunnel.clients.clone(),
+            endpoints,
+            tunnel.exit_ip,
+        ));
         ruleset
     }
 
-    /// The ruleset `FwContext::applyPolicyConnected` assembles.
+    /// The ruleset of the connected policy.
     pub fn connected(
         settings: &Settings,
         relays: &[RelayEndpoint],
@@ -131,50 +121,57 @@ mod policy_rules {
                     hosts: non_tunnel_dns_servers.to_vec(),
                 });
             }
-            for outbound in [true, false] {
-                ruleset.push(tunnel_rule(
-                    alias,
-                    tunnel.clients.clone(),
-                    None,
-                    tunnel.exit_ip,
-                    outbound,
-                ));
-            }
+            ruleset.push(tunnel_rule_out(
+                alias,
+                tunnel.clients.clone(),
+                None,
+                tunnel.exit_ip,
+            ));
+            ruleset.push(tunnel_rule_in(
+                alias,
+                tunnel.clients.clone(),
+                None,
+                tunnel.exit_ip,
+            ));
         }
         ruleset
     }
 
-    fn tunnel_rule(
+    /// Permit outbound traffic inside the tunnel.
+    fn tunnel_rule_out(
         alias: &str,
-        clients: Vec<String>,
+        clients: Vec<PathBuf>,
         endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
         exit_ip: Option<IpAddr>,
-        outbound: bool,
     ) -> Rule {
-        if outbound {
-            Rule::PermitVpnTunnel {
-                clients,
-                alias: alias.to_owned(),
-                endpoints,
-                exit_ip,
-            }
-        } else {
-            Rule::PermitVpnTunnelService {
-                clients,
-                alias: alias.to_owned(),
-                endpoints,
-                exit_ip,
-            }
+        Rule::PermitVpnTunnel {
+            clients,
+            alias: alias.to_owned(),
+            endpoints,
+            exit_ip,
         }
     }
 
-    /// `AppendNetBlockedRules`.
+    /// Permit inbound traffic inside the tunnel.
+    fn tunnel_rule_in(
+        alias: &str,
+        clients: Vec<PathBuf>,
+        endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        exit_ip: Option<IpAddr>,
+    ) -> Rule {
+        Rule::PermitVpnTunnelService {
+            clients,
+            alias: alias.to_owned(),
+            endpoints,
+            exit_ip,
+        }
+    }
+
     fn append_net_blocked_rules(ruleset: &mut Vec<Rule>) {
         ruleset.push(Rule::BlockAll);
         ruleset.push(Rule::PermitLoopback);
     }
 
-    /// `AppendSettingsRules`.
     fn append_settings_rules(ruleset: &mut Vec<Rule>, settings: &Settings) {
         if settings.permit_dhcp {
             ruleset.push(Rule::PermitDhcp);
@@ -194,12 +191,11 @@ mod policy_rules {
         ruleset.push(Rule::DnsBlockAll);
     }
 
-    /// `AppendRelayRules`.
-    fn append_relay_rules(ruleset: &mut Vec<Rule>, relays: &[RelayEndpoint], clients: &[String]) {
+    fn append_relay_rules(ruleset: &mut Vec<Rule>, relays: &[RelayEndpoint], clients: &[PathBuf]) {
         for relay in relays {
-            // A relay serving on the DNS port is permitted in the DNS sublayer,
-            // which would otherwise block it. See the comment on
-            // `AppendSettingsRules` in `fwcontext.cpp`.
+            // A relay serving on the DNS port is permitted in the DNS sublayer:
+            // `PermitDns` lifts all DNS out of the baseline sublayer, so the DNS
+            // sublayer would otherwise block it.
             let sublayer = if relay.port == 53 {
                 Sublayer::Dns
             } else {
@@ -214,7 +210,6 @@ mod policy_rules {
         }
     }
 
-    /// `AppendAllowedEndpointRules`.
     fn append_allowed_endpoint_rules(
         ruleset: &mut Vec<Rule>,
         allowed_endpoint: Option<&AllowedEndpoint>,
@@ -238,7 +233,6 @@ pub use policy_rules::{AllowedEndpoint, TunnelParameters};
 pub use rules::{AllowedTunnelTraffic, Protocol, RelayEndpoint};
 
 /// Whether DHCP requests are permitted, and private networks are reachable.
-/// `WinFwSettings` in `winfw.h`.
 #[derive(Clone, Copy, Debug)]
 pub struct Settings {
     pub permit_dhcp: bool,
@@ -255,7 +249,7 @@ impl Settings {
     }
 }
 
-/// How to clean up when deinitializing, `WINFW_CLEANUP_POLICY` in `winfw.h`.
+/// How to clean up when deinitializing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CleanupPolicy {
     /// Remove all objects that have been registered with WFP.
@@ -267,7 +261,7 @@ pub enum CleanupPolicy {
     BlockingUntilReboot,
 }
 
-/// The policy currently in effect, `WINFW_ACTIVE_POLICY` in `winfw.h`.
+/// The policy currently in effect.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ActivePolicy {
     #[default]
@@ -277,18 +271,7 @@ pub enum ActivePolicy {
     Blocked,
 }
 
-impl From<Policy> for ActivePolicy {
-    fn from(policy: Policy) -> Self {
-        match policy {
-            Policy::None => Self::None,
-            Policy::Connecting => Self::Connecting,
-            Policy::Connected => Self::Connected,
-            Policy::Blocked => Self::Blocked,
-        }
-    }
-}
-
-/// The firewall, `WinFw_Initialize` onward.
+/// The firewall.
 ///
 /// Must be initialized once per process; a second manager would find the
 /// first one's provider and sublayer objects already installed, which the
@@ -298,7 +281,7 @@ pub struct Manager {
 }
 
 impl Manager {
-    /// `WinFw_Initialize`.
+    /// Initialize the firewall, with no policy in effect.
     pub fn new(timeout: Duration) -> Result<Self, Error> {
         context::FwContext::new(timeout)
             .map(|context| Self {
@@ -307,7 +290,8 @@ impl Manager {
             .map_err(Error::Initialization)
     }
 
-    /// `WinFw_InitializeBlocked`.
+    /// Initialize the firewall with the blocked policy in effect, applied in
+    /// the initialization transaction.
     pub fn new_blocked(
         timeout: Duration,
         settings: &Settings,
@@ -322,12 +306,12 @@ impl Manager {
     }
 
     fn context(&mut self) -> Result<&mut context::FwContext, ApplyError> {
-        self.context.as_mut().ok_or_else(|| {
-            ApplyError::from_io(io::Error::other("the firewall module is not initialized"))
-        })
+        self.context
+            .as_mut()
+            .ok_or_else(|| policy_error(io::Error::other("the firewall module is not initialized")))
     }
 
-    /// `WinFw_ApplyPolicyConnecting`.
+    /// Apply the connecting policy.
     pub fn apply_policy_connecting(
         &mut self,
         settings: &Settings,
@@ -343,7 +327,7 @@ impl Manager {
             .map_err(policy_error)
     }
 
-    /// `WinFw_ApplyPolicyConnected`.
+    /// Apply the connected policy.
     pub fn apply_policy_connected(
         &mut self,
         settings: &Settings,
@@ -354,11 +338,14 @@ impl Manager {
     ) -> Result<(), ApplyError> {
         self.validate_relays(relays, tunnel.exit_ip)?;
         if tunnel.alias.is_none() {
-            return Err(ApplyError::from_io(io::Error::other(
+            return Err(policy_error(io::Error::other(
                 "the connected policy requires a tunnel interface",
             )));
         }
-        log::debug!("Non-tunnel DNS servers: {}", join_ips(non_tunnel_dns_servers));
+        log::debug!(
+            "Non-tunnel DNS servers: {}",
+            join_ips(non_tunnel_dns_servers)
+        );
         log::debug!("Tunnel DNS servers: {}", join_ips(tunnel_dns_servers));
         let context = self.context()?;
         let ruleset = policy_rules::connected(
@@ -373,7 +360,7 @@ impl Manager {
             .map_err(policy_error)
     }
 
-    /// `WinFw_ApplyPolicyBlocked`.
+    /// Apply the blocked policy.
     pub fn apply_policy_blocked(
         &mut self,
         settings: &Settings,
@@ -381,12 +368,10 @@ impl Manager {
     ) -> Result<(), ApplyError> {
         let context = self.context()?;
         let ruleset = policy_rules::blocked(settings, allowed_endpoint);
-        context
-            .apply_policy_blocked(&ruleset)
-            .map_err(policy_error)
+        context.apply_policy_blocked(&ruleset).map_err(policy_error)
     }
 
-    /// `WinFw_Reset`: clear the policy in effect. Without an initialized
+    /// Clear the policy in effect. Without an initialized
     /// module, this removes everything the firewall ever registered.
     pub fn reset(&mut self) -> Result<(), ApplyError> {
         match self.context.as_mut() {
@@ -395,50 +380,45 @@ impl Manager {
         }
     }
 
-    /// `WinFw_Deinitialize`.
+    /// Deinitialize the firewall, cleaning up according to `cleanup`.
     ///
     /// The context is dropped before the reset, closing the engine session, so
-    /// the reset removes everything instead of just reverting the policy: this
-    /// mirrors the C++ implementation, where `WinFw_Deinitialize` first
-    /// deletes the context and then calls an uninitialized `WinFw_Reset`.
+    /// the reset removes everything instead of just reverting the policy.
     pub fn deinitialize(&mut self, cleanup: CleanupPolicy) -> Result<(), Error> {
         let Some(context) = self.context.take() else {
             return Ok(());
         };
-        let was_blocked = context.active_policy() == Policy::Blocked;
+        let was_blocked = context.active_policy() == ActivePolicy::Blocked;
         drop(context);
 
         if cleanup == CleanupPolicy::BlockingUntilReboot && was_blocked {
             return Ok(());
         }
-        context::purge_standalone()
-            .map_err(|error| Error::Deinitialization(ApplyError::from_io(error).into_io()))
+        context::purge_standalone().map_err(Error::Deinitialization)
     }
 
-    /// `WinFw_ActivePolicy`.
+    /// The policy currently in effect.
     pub fn active_policy(&self) -> ActivePolicy {
         self.context
             .as_ref()
-            .map_or(Policy::None, context::FwContext::active_policy)
-            .into()
+            .map_or(ActivePolicy::None, context::FwContext::active_policy)
     }
 
-    /// The relay validation of `WinFw_ApplyPolicyConnecting` and
-    /// `WinFw_ApplyPolicyConnected`: there must be relays, and none of them
-    /// may be the exit endpoint.
+    /// Validate the relays of the connecting and connected policies: there
+    /// must be relays, and none of them may be the exit endpoint.
     fn validate_relays(
         &self,
         relays: &[RelayEndpoint],
         exit_ip: Option<IpAddr>,
     ) -> Result<(), ApplyError> {
         if relays.is_empty() {
-            return Err(ApplyError::from_io(io::Error::other("no relays specified")));
+            return Err(policy_error(io::Error::other("no relays specified")));
         }
 
         if let Some(exit_ip) = exit_ip
             && relays.iter().any(|relay| relay.ip == exit_ip)
         {
-            return Err(ApplyError::from_io(io::Error::other(
+            return Err(policy_error(io::Error::other(
                 "relay IP must not equal the exit endpoint IP",
             )));
         }
@@ -446,8 +426,8 @@ impl Manager {
     }
 }
 
-/// `WinFw_Reset` when the module is not initialized: remove everything the
-/// firewall ever registered, in its own engine session.
+/// Remove everything the firewall ever registered, in its own engine session.
+/// This is what [`Manager::reset`] does when the module is not initialized.
 pub fn purge_all() -> Result<(), ApplyError> {
     context::purge_standalone().map_err(policy_error)
 }

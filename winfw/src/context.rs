@@ -1,4 +1,4 @@
-//! The firewall session context, `FwContext` in the C++ implementation.
+//! The firewall session context.
 //!
 //! Owns the WFP engine session and the record of objects it added, applies
 //! policies within transactions, and reverts to the base configuration
@@ -8,71 +8,61 @@ use std::{io, time::Duration};
 
 use wfp::{FilterEngine, FilterEngineBuilder, Transaction};
 
-use crate::{objects, rules, session::Recorder};
-
-/// The policy in effect.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub enum Policy {
-    #[default]
-    None,
-    Connecting,
-    Connected,
-    Blocked,
-}
+use crate::{ActivePolicy, objects, rules, session::Recorder};
 
 /// The firewall session context.
 pub struct FwContext {
     engine: FilterEngine,
     recorder: Recorder,
     baseline: u32,
-    active_policy: Policy,
+    active_policy: ActivePolicy,
 }
 
 impl FwContext {
-    /// `FwContext(timeout)`: connect to the engine, purge leftovers from any
-    /// earlier run, install the structural objects and checkpoint them.
+    /// Connect to the engine, remove any leftover objects from
+    /// earlier runs, install the structural objects and checkpoint them.
     pub fn new(timeout: Duration) -> io::Result<Self> {
         let engine = open_engine(timeout)?;
         let mut context = Self {
             engine,
             recorder: Recorder::default(),
             baseline: 0,
-            active_policy: Policy::None,
+            active_policy: ActivePolicy::None,
         };
         context.apply_base_configuration()?;
         Ok(context)
     }
 
-    /// `FwContext(timeout, settings, allowedEndpoint)`: the same, with the
-    /// blocked policy applied within the same initialization transaction.
+    /// The same as [`Self::new`], with the blocked policy applied within the
+    /// same initialization transaction.
     pub fn new_blocked(timeout: Duration, ruleset: &[rules::Rule]) -> io::Result<Self> {
         let engine = open_engine(timeout)?;
         let mut context = Self {
             engine,
             recorder: Recorder::default(),
             baseline: 0,
-            active_policy: Policy::None,
+            active_policy: ActivePolicy::None,
         };
         context.apply_blocked_base_configuration(ruleset)?;
-        context.active_policy = Policy::Blocked;
+        context.active_policy = ActivePolicy::Blocked;
         Ok(context)
     }
 
     pub fn apply_policy_connecting(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
         self.apply_ruleset(ruleset)?;
-        self.active_policy = Policy::Connecting;
+        self.active_policy = ActivePolicy::Connecting;
         Ok(())
     }
 
     pub fn apply_policy_connected(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
         self.apply_ruleset(ruleset)?;
-        self.active_policy = Policy::Connected;
+        self.active_policy = ActivePolicy::Connected;
         Ok(())
     }
 
     pub fn apply_policy_blocked(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
         self.apply_ruleset(ruleset)?;
-        self.active_policy = Policy::Blocked;
+        self.active_policy = ActivePolicy::Blocked;
         Ok(())
     }
 
@@ -81,15 +71,15 @@ impl FwContext {
         self.execute_transaction(|transaction, recorder| {
             recorder.revert_to(baseline, transaction)
         })?;
-        self.active_policy = Policy::None;
+        self.active_policy = ActivePolicy::None;
         Ok(())
     }
 
-    pub fn active_policy(&self) -> Policy {
+    pub fn active_policy(&self) -> ActivePolicy {
         self.active_policy
     }
 
-    /// `FwContext::applyBaseConfiguration`: purge everything and reinstall the
+    /// Purge everything and reinstall the
     /// structural objects, in one transaction.
     fn apply_base_configuration(&mut self) -> io::Result<()> {
         let mut baseline = 0;
@@ -105,7 +95,7 @@ impl FwContext {
         Ok(())
     }
 
-    /// `FwContext::applyBlockedBaseConfiguration`: as above, with the blocking
+    /// As above, with the blocking
     /// policy added in the same transaction, past the baseline checkpoint.
     fn apply_blocked_base_configuration(
         &mut self,
@@ -124,8 +114,7 @@ impl FwContext {
         Ok(())
     }
 
-    /// `FwContext::applyRuleset`: revert to the baseline, then install the
-    /// ruleset, in one transaction.
+    /// Revert to the baseline, then install the ruleset, in one transaction.
     fn apply_ruleset(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
         let baseline = self.baseline;
         self.execute_transaction(|transaction, recorder| {
@@ -134,8 +123,8 @@ impl FwContext {
         })
     }
 
-    /// `SessionController::executeTransaction`: run a transaction on a copy of
-    /// the records, and adopt it only when it commits.
+    /// Run a transaction on a copy of the records, and adopt it only when it
+    /// commits.
     fn execute_transaction(
         &mut self,
         operation: impl FnOnce(&Transaction<'_>, &mut Recorder) -> io::Result<()>,
@@ -159,7 +148,7 @@ impl FwContext {
     }
 }
 
-/// `FwContext::applyRulesetDirectly`: install every rule, recording objects.
+/// Install every rule, recording objects.
 fn apply_ruleset_directly(
     transaction: &Transaction<'_>,
     recorder: &mut Recorder,
@@ -175,16 +164,16 @@ fn apply_ruleset_directly(
 }
 
 /// Open the standard WFP session with the transaction-lock wait the daemon
-/// uses, `wfp::FilterEngine::StandardSession(timeout)`.
+/// uses.
 pub fn open_engine(timeout: Duration) -> io::Result<FilterEngine> {
     FilterEngineBuilder::default()
         .transaction_timeout(timeout)
         .open()
 }
 
-/// Purge every firewall-owned object, outside any session. This is
-/// `WinFw_Reset` when the module is not initialized, and how a new run cleans
-/// up after a crashed one.
+/// Purge every firewall-owned object, outside any session. This is what
+/// [`crate::Manager::reset`] does when the module is not initialized, and how
+/// a new run cleans up after a crashed one.
 pub fn purge_standalone() -> io::Result<()> {
     let mut engine = open_engine(Duration::ZERO)?;
     let transaction = Transaction::new(&mut engine)?;

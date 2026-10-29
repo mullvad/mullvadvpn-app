@@ -1,33 +1,28 @@
 //! The Windows firewall implementation, backed by the `winfw` crate.
 //!
 //! The module owns the [`winfw::Manager`] singleton for the process and adapts
-//! the daemon's types to it, replacing the previous C FFI to the C++ `winfw`
-//! library.
+//! the daemon's types to it.
 
 use std::{
     net::IpAddr,
+    path::PathBuf,
     sync::{LazyLock, Mutex},
     time::Duration,
 };
 
 use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
 
+use talpid_types::net::AllowedEndpoint;
+
 // The firewall's types, re-exported for the parent module's path resolution:
 // it declares `mod winfw;`, so paths like `winfw::Settings` resolve to this
 // adapter module rather than the external crate.
-pub use winfw::Settings;
-
-use talpid_types::net::AllowedEndpoint;
-
-// Kept from the previous FFI layer for readable path resolution in the parent
-// module: it declares `mod winfw;`, so paths like `winfw::Settings` resolve to
-// this adapter module rather than the external crate.
+pub use winfw::{ActivePolicy, CleanupPolicy, Settings};
 
 /// Timeout for acquiring the WFP transaction lock.
 const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// The firewall singleton. The daemon initializes it exactly once per process,
-/// exactly like the C library it replaces did.
+/// The firewall singleton. The daemon initializes it exactly once per process.
 static WINFW: LazyLock<Mutex<Option<winfw::Manager>>> = LazyLock::new(|| Mutex::new(None));
 
 /// Errors when initializing the module.
@@ -37,27 +32,6 @@ pub struct StateError;
 
 fn lock_manager() -> Result<std::sync::MutexGuard<'static, Option<winfw::Manager>>, StateError> {
     WINFW.lock().map_err(|_| StateError)
-}
-
-/// The policy currently in effect.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ActivePolicy {
-    None,
-    Connecting,
-    Connected,
-    Blocked,
-}
-
-/// How to clean up when deinitializing the module. The daemon only ever
-/// leaves the blocking filters in place, expecting the persistent objects to
-/// take over for them.
-#[expect(dead_code)]
-pub enum CleanupPolicy {
-    /// Remove all objects that have been registered with WFP.
-    ResetFirewall,
-    /// Continue blocking if this is the active policy. The blocking filters
-    /// are ephemeral: they are active until the machine is rebooted.
-    BlockingUntilReboot,
 }
 
 /// Initialize the firewall module.
@@ -104,10 +78,6 @@ pub(super) fn deinit(cleanup: CleanupPolicy) -> Result<(), super::Error> {
         return Ok(());
     };
 
-    let cleanup = match cleanup {
-        CleanupPolicy::ResetFirewall => winfw::CleanupPolicy::ResetFirewall,
-        CleanupPolicy::BlockingUntilReboot => winfw::CleanupPolicy::BlockingUntilReboot,
-    };
     instance
         .deinitialize(cleanup)
         .map_err(|_| super::Error::Deinitialization)
@@ -119,12 +89,9 @@ pub(super) fn active_policy() -> ActivePolicy {
     let Ok(manager) = lock_manager() else {
         return ActivePolicy::None;
     };
-    match manager.as_ref().map(winfw::Manager::active_policy) {
-        Some(winfw::ActivePolicy::None) | None => ActivePolicy::None,
-        Some(winfw::ActivePolicy::Connecting) => ActivePolicy::Connecting,
-        Some(winfw::ActivePolicy::Connected) => ActivePolicy::Connected,
-        Some(winfw::ActivePolicy::Blocked) => ActivePolicy::Blocked,
-    }
+    manager
+        .as_ref()
+        .map_or(ActivePolicy::None, winfw::Manager::active_policy)
 }
 
 /// Clear the policy in effect, if any.
@@ -229,11 +196,7 @@ pub(super) fn apply_policy_blocked(
 /// The endpoint allowed outside the tunnel, in the `winfw` crate's form.
 pub(super) fn to_allowed_endpoint(endpoint: &AllowedEndpoint) -> winfw::AllowedEndpoint {
     winfw::AllowedEndpoint {
-        clients: endpoint
-            .clients
-            .iter()
-            .map(|client| client.display().to_string())
-            .collect(),
+        clients: endpoint.clients.to_vec(),
         endpoint: winfw::RelayEndpoint {
             ip: endpoint.endpoint.address.ip(),
             port: endpoint.endpoint.address.port(),
@@ -246,9 +209,9 @@ pub(super) fn to_allowed_endpoint(endpoint: &AllowedEndpoint) -> winfw::AllowedE
 /// clients, like the previous FFI layer did.
 fn to_relays(
     peer_endpoints: &[AllowedEndpoint],
-) -> Result<(Vec<winfw::RelayEndpoint>, Vec<String>), talpid_types::tunnel::FirewallPolicyError> {
+) -> Result<(Vec<winfw::RelayEndpoint>, Vec<PathBuf>), talpid_types::tunnel::FirewallPolicyError> {
     let mut relays = Vec::with_capacity(peer_endpoints.len());
-    let mut tunnel_clients: Option<&[std::path::PathBuf]> = None;
+    let mut tunnel_clients: Option<&[PathBuf]> = None;
 
     for peer in peer_endpoints {
         if let Some(clients) = tunnel_clients {
@@ -272,9 +235,7 @@ fn to_relays(
             log::error!("Allowed clients missing. Zero peer endpoints?");
             talpid_types::tunnel::FirewallPolicyError::Generic
         })?
-        .iter()
-        .map(|client| client.display().to_string())
-        .collect();
+        .to_vec();
 
     Ok((relays, clients))
 }
