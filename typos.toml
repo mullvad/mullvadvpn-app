@@ -5,8 +5,6 @@
 extend-exclude = [
   # exclude git (sub)modules and generated content
   "dist-assets/**",
-  "windows/libwfp",
-  "windows/windows-libraries",
   "ios/wireguard-apple",
 
   # Ignore localization files

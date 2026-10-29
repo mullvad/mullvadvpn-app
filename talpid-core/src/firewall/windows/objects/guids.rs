@@ -1,6 +1,6 @@
 //! Identifiers for the WFP objects owned by the app.
 //!
-//! These must match `MullvadGuids` in `windows/winfw/src/winfw/mullvadguids.cpp` exactly.
+//! These must match the `winfw` crate's `guids` module exactly.
 //! Changing one means objects registered by an older version are never cleaned up.
 
 use wfp::GUID;

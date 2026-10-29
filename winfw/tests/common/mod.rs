@@ -2,18 +2,18 @@
 //!
 //! The dumper in [`wfp_state`] serializes the complete set of WFP objects the
 //! firewall owns into a stable, human-readable textual form. Snapshot tests
-//! drive the firewall implementation through states, comparing the dumper
-//! output at every step against the snapshots in `tests/snapshots/`.
+//! drive the firewall through states, comparing the dumper output at every
+//! step against the snapshots in `tests/snapshots/`.
 //!
-//! With both the `cpp-ffi` and `rust` features enabled, every test runs once
-//! per implementation, each asserting it installs the same WFP objects as the
-//! snapshots say it should.
+//! The snapshots were generated from the former C++ implementation before its
+//! removal, and now guard the Rust implementation against behavior drift:
+//! every state must install exactly the WFP objects recorded in them.
 //!
 //! Run with `cargo test` as administrator (graphical session not required).
 //! Regenerate with `INSTA_UPDATE=always cargo test -p winfw`, or use
 //! `cargo insta test` and review the pending snapshots with
-//! `cargo insta review`. Set `WINFW_DLL_PATH` to the C++ `winfw.dll` to use
-//! the C++ reference implementation.
+//! `cargo insta review`, only for deliberate, reviewed changes to the
+//! firewall rules.
 
 pub mod wfp_state;
 
@@ -23,63 +23,36 @@ use std::{
     time::Duration,
 };
 
-use winfw::cpp_ffi::{
-    AllowedTunnelTraffic, CppWinFw, EndpointArgument, WinFwActivePolicy, WinFwCleanupPolicy,
-    WinFwPolicyStatus, WinFwProtocol, WinFwSettings,
-};
-
-/// The firewall implementation under test.
+/// The firewall implementation under test: the Rust implementation.
 pub enum Implementation {
-    /// The C++ WinFW library, loaded from `winfw.dll`.
-    Cpp(CppWinFw),
-    /// The Rust implementation, `winfw::Manager`, kept while initialized.
-    #[cfg(feature = "rust")]
     Rust(Option<winfw::Manager>),
 }
 
 impl Implementation {
     /// Load every implementation selected by cargo features.
     pub fn load_all() -> Vec<Self> {
-        let mut implementations = Vec::new();
-        if cfg!(feature = "cpp-ffi") {
-            implementations.push(Self::Cpp(
-                CppWinFw::load_default().expect("Failed to load winfw.dll"),
-            ));
-        }
-        #[cfg(feature = "rust")]
-        {
-            implementations.push(Self::Rust(None));
-        }
-        implementations
+        vec![Self::Rust(None)]
     }
-}
 
-impl Implementation {
-    /// `WinFw_Initialize`.
+    /// `initialize`.
     pub fn initialize(&mut self) {
         match self {
-            Self::Cpp(fw) => fw.initialize(super::TIMEOUT_SECONDS).unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 *manager = Some(
                     winfw::Manager::new(Duration::from_secs(u64::from(super::TIMEOUT_SECONDS)))
-                        .expect("Failed to initialize the Rust implementation"),
+                        .expect("Failed to initialize the firewall"),
                 );
             }
         }
     }
 
-    /// `WinFw_InitializeBlocked`.
+    /// `initialize_blocked`.
     pub fn initialize_blocked(
         &mut self,
-        settings: &WinFwSettings,
+        settings: &Settings,
         allowed_endpoint: Option<&EndpointArgument>,
     ) {
         match self {
-            Self::Cpp(fw) => fw
-                .initialize_blocked(super::TIMEOUT_SECONDS, settings, allowed_endpoint)
-                .unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 *manager = Some(
                     winfw::Manager::new_blocked(
@@ -87,70 +60,53 @@ impl Implementation {
                         &to_settings(settings),
                         allowed_endpoint.map(to_allowed_endpoint).as_ref(),
                     )
-                    .expect("Failed to initialize the Rust implementation to a blocking state"),
+                    .expect("Failed to initialize the firewall to a blocking state"),
                 );
             }
         }
     }
 
-    /// `WinFw_Deinitialize`.
-    pub fn deinitialize(&mut self, cleanup: WinFwCleanupPolicy) {
+    /// `deinitialize`.
+    pub fn deinitialize(&mut self, cleanup: CleanupPolicy) {
         match self {
-            Self::Cpp(fw) => fw.deinitialize(cleanup).unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 if let Some(mut manager) = manager.take() {
                     manager
                         .deinitialize(to_cleanup_policy(cleanup))
-                        .expect("Failed to deinitialize the Rust implementation");
+                        .expect("Failed to deinitialize the firewall");
                 }
             }
         }
     }
 
-    /// `WinFw_ActivePolicy`.
-    pub fn active_policy(&self) -> WinFwActivePolicy {
+    /// `active_policy`.
+    pub fn active_policy(&self) -> ActivePolicy {
         match self {
-            Self::Cpp(fw) => fw.active_policy().unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => match manager.as_ref().map(winfw::Manager::active_policy) {
-                Some(winfw::ActivePolicy::None) => WinFwActivePolicy::None,
-                Some(winfw::ActivePolicy::Connecting) => WinFwActivePolicy::Connecting,
-                Some(winfw::ActivePolicy::Connected) => WinFwActivePolicy::Connected,
-                Some(winfw::ActivePolicy::Blocked) => WinFwActivePolicy::Blocked,
-                None => WinFwActivePolicy::None,
+                Some(winfw::ActivePolicy::None) | None => ActivePolicy::None,
+                Some(winfw::ActivePolicy::Connecting) => ActivePolicy::Connecting,
+                Some(winfw::ActivePolicy::Connected) => ActivePolicy::Connected,
+                Some(winfw::ActivePolicy::Blocked) => ActivePolicy::Blocked,
             },
         }
     }
 
-    /// `WinFw_ApplyPolicyConnecting`.
+    /// `apply_policy_connecting`.
     #[expect(clippy::too_many_arguments)]
     pub fn apply_policy_connecting(
         &mut self,
-        settings: &WinFwSettings,
+        settings: &Settings,
         relays: &[EndpointArgument],
         exit_endpoint_ip: Option<&str>,
         relay_clients: &[&str],
         tunnel_interface_alias: Option<&str>,
         allowed_endpoint: &EndpointArgument,
         allowed_tunnel_traffic: AllowedTunnelTraffic<'_>,
-    ) -> WinFwPolicyStatus {
+    ) -> PolicyStatus {
         match self {
-            Self::Cpp(fw) => fw
-                .apply_policy_connecting(
-                    settings,
-                    relays,
-                    exit_endpoint_ip,
-                    relay_clients,
-                    tunnel_interface_alias,
-                    allowed_endpoint,
-                    allowed_tunnel_traffic,
-                )
-                .unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 let Some(manager) = manager.as_mut() else {
-                    return WinFwPolicyStatus::GeneralFailure;
+                    return PolicyStatus::GeneralFailure;
                 };
                 let tunnel = winfw::TunnelParameters {
                     alias: tunnel_interface_alias.map(|alias| alias.to_owned()),
@@ -160,27 +116,19 @@ impl Implementation {
                         .map(|client| client.to_string())
                         .collect(),
                     allowed_tunnel_traffic: match allowed_tunnel_traffic.traffic_type {
-                        winfw::cpp_ffi::WinFwAllowedTunnelTrafficType::None => {
-                            winfw::AllowedTunnelTraffic::None
-                        }
-                        winfw::cpp_ffi::WinFwAllowedTunnelTrafficType::All => {
-                            winfw::AllowedTunnelTraffic::All
-                        }
-                        winfw::cpp_ffi::WinFwAllowedTunnelTrafficType::One => {
-                            winfw::AllowedTunnelTraffic::One(to_relay_endpoint(
+                        TrafficType::None => winfw::AllowedTunnelTraffic::None,
+                        TrafficType::All => winfw::AllowedTunnelTraffic::All,
+                        TrafficType::One => winfw::AllowedTunnelTraffic::One(to_relay_endpoint(
+                            allowed_tunnel_traffic.endpoint1.expect("endpoint one"),
+                        )),
+                        TrafficType::Two => winfw::AllowedTunnelTraffic::Two(
+                            to_relay_endpoint(
                                 allowed_tunnel_traffic.endpoint1.expect("endpoint one"),
-                            ))
-                        }
-                        winfw::cpp_ffi::WinFwAllowedTunnelTrafficType::Two => {
-                            winfw::AllowedTunnelTraffic::Two(
-                                to_relay_endpoint(
-                                    allowed_tunnel_traffic.endpoint1.expect("endpoint one"),
-                                ),
-                                to_relay_endpoint(
-                                    allowed_tunnel_traffic.endpoint2.expect("endpoint two"),
-                                ),
-                            )
-                        }
+                            ),
+                            to_relay_endpoint(
+                                allowed_tunnel_traffic.endpoint2.expect("endpoint two"),
+                            ),
+                        ),
                     },
                 };
                 let status = manager.apply_policy_connecting(
@@ -189,39 +137,30 @@ impl Implementation {
                     &tunnel,
                     &to_allowed_endpoint(allowed_endpoint),
                 );
+                if let Err(error) = &status {
+                    eprintln!("[rust-impl] connecting policy failed: {error:?}");
+                }
                 to_status(status)
             }
         }
     }
 
-    /// `WinFw_ApplyPolicyConnected`.
+    /// `apply_policy_connected`.
     #[expect(clippy::too_many_arguments)]
     pub fn apply_policy_connected(
         &mut self,
-        settings: &WinFwSettings,
+        settings: &Settings,
         relays: &[EndpointArgument],
         exit_endpoint_ip: Option<&str>,
         relay_clients: &[&str],
         tunnel_interface_alias: &str,
         tunnel_dns_servers: &[&str],
         non_tunnel_dns_servers: &[&str],
-    ) -> WinFwPolicyStatus {
+    ) -> PolicyStatus {
         match self {
-            Self::Cpp(fw) => fw
-                .apply_policy_connected(
-                    settings,
-                    relays,
-                    exit_endpoint_ip,
-                    relay_clients,
-                    tunnel_interface_alias,
-                    tunnel_dns_servers,
-                    non_tunnel_dns_servers,
-                )
-                .unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 let Some(manager) = manager.as_mut() else {
-                    return WinFwPolicyStatus::GeneralFailure;
+                    return PolicyStatus::GeneralFailure;
                 };
                 let tunnel = winfw::TunnelParameters {
                     alias: Some(tunnel_interface_alias.to_owned()),
@@ -245,23 +184,24 @@ impl Implementation {
                         .map(|ip| ip.parse::<IpAddr>().expect("valid IP"))
                         .collect::<Vec<_>>(),
                 );
+                if let Err(error) = &status {
+                    eprintln!("[rust-impl] connected policy failed: {error:?}");
+                }
                 to_status(status)
             }
         }
     }
 
-    /// `WinFw_ApplyPolicyBlocked`.
+    /// `apply_policy_blocked`.
     pub fn apply_policy_blocked(
         &mut self,
-        settings: &WinFwSettings,
+        settings: &Settings,
         allowed_endpoint: Option<&EndpointArgument>,
-    ) -> WinFwPolicyStatus {
+    ) -> PolicyStatus {
         match self {
-            Self::Cpp(fw) => fw.apply_policy_blocked(settings, allowed_endpoint).unwrap(),
-            #[cfg(feature = "rust")]
             Self::Rust(manager) => {
                 let Some(manager) = manager.as_mut() else {
-                    return WinFwPolicyStatus::GeneralFailure;
+                    return PolicyStatus::GeneralFailure;
                 };
                 let status = manager.apply_policy_blocked(
                     &to_settings(settings),
@@ -275,82 +215,125 @@ impl Implementation {
         }
     }
 
-    /// `WinFw_Reset`.
-    pub fn reset(&mut self) -> WinFwPolicyStatus {
+    /// `reset`.
+    pub fn reset(&mut self) -> PolicyStatus {
         match self {
-            Self::Cpp(fw) => fw.reset().unwrap(),
-            #[cfg(feature = "rust")]
-            Self::Rust(manager) => {
-                match manager.as_mut() {
-                    Some(manager) => {
-                        let result = manager.reset();
-                        if let Err(error) = &result {
-                            eprintln!("[rust-impl] reset failed: {error:?}");
-                        }
-                        to_status(result)
+            Self::Rust(manager) => match manager.as_mut() {
+                Some(manager) => {
+                    let result = manager.reset();
+                    if let Err(error) = &result {
+                        eprintln!("[rust-impl] reset failed: {error:?}");
                     }
-                    // Reset with no initialized module purges everything.
-                    None => match winfw::purge_all() {
-                        Ok(()) => WinFwPolicyStatus::Success,
-                        Err(_) => WinFwPolicyStatus::GeneralFailure,
-                    },
+                    to_status(result)
                 }
-            }
+                // Reset with no initialized module purges everything.
+                None => match winfw::purge_all() {
+                    Ok(()) => PolicyStatus::Success,
+                    Err(_) => PolicyStatus::GeneralFailure,
+                },
+            },
         }
     }
 }
 
-fn to_settings(settings: &WinFwSettings) -> winfw::Settings {
-    winfw::Settings {
-        permit_dhcp: settings.permit_dhcp,
-        permit_lan: settings.permit_lan,
+/// An endpoint argument: an IP, port and protocol, with the allowed client
+/// processes.
+pub struct EndpointArgument {
+    ip_str: String,
+    clients_str: Vec<String>,
+    port: u16,
+    protocol: Protocol,
+}
+
+impl EndpointArgument {
+    pub fn new(ip: &str, port: u16, protocol: Protocol, clients: &[&str]) -> Self {
+        Self {
+            ip_str: ip.to_owned(),
+            clients_str: clients.iter().map(|client| client.to_string()).collect(),
+            port,
+            protocol,
+        }
+    }
+
+    /// The IP address, as passed in.
+    pub fn ip(&self) -> &str {
+        &self.ip_str
+    }
+
+    /// The port.
+    pub fn port(&self) -> u16 {
+        self.port
+    }
+
+    /// The transport protocol.
+    pub fn protocol(&self) -> Protocol {
+        self.protocol
+    }
+
+    /// The allowed client processes, as passed in.
+    pub fn clients(&self) -> &[String] {
+        &self.clients_str
     }
 }
 
-fn to_protocol(protocol: WinFwProtocol) -> winfw::Protocol {
-    match protocol {
-        WinFwProtocol::Tcp => winfw::Protocol::Tcp,
-        WinFwProtocol::Udp => winfw::Protocol::Udp,
+/// Allowed tunnel traffic argument.
+pub struct AllowedTunnelTraffic<'a> {
+    pub traffic_type: TrafficType,
+    pub endpoint1: Option<&'a EndpointArgument>,
+    pub endpoint2: Option<&'a EndpointArgument>,
+}
+
+/// The traffic allowed in the tunnel while connecting.
+pub enum TrafficType {
+    None,
+    All,
+    One,
+    Two,
+}
+
+/// Whether DHCP requests are permitted, and private networks are reachable.
+pub struct Settings {
+    pub permit_dhcp: bool,
+    pub permit_lan: bool,
+}
+
+impl Settings {
+    pub fn new(permit_lan: bool) -> Self {
+        Self {
+            permit_dhcp: true,
+            permit_lan,
+        }
     }
 }
 
-fn to_relay_endpoint(endpoint: &EndpointArgument) -> winfw::RelayEndpoint {
-    winfw::RelayEndpoint {
-        ip: endpoint.ip().parse().expect("valid IP"),
-        port: endpoint.port(),
-        protocol: to_protocol(endpoint.protocol()),
-    }
+/// The policy currently in effect.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActivePolicy {
+    None,
+    Connecting,
+    Connected,
+    Blocked,
 }
 
-fn to_relay_endpoints(relays: &[EndpointArgument]) -> Vec<winfw::RelayEndpoint> {
-    relays.iter().map(to_relay_endpoint).collect()
+/// How to clean up when deinitializing.
+pub enum CleanupPolicy {
+    ResetFirewall,
+    BlockingUntilReboot,
 }
 
-fn to_allowed_endpoint(endpoint: &EndpointArgument) -> winfw::AllowedEndpoint {
-    winfw::AllowedEndpoint {
-        clients: endpoint.clients().to_vec(),
-        endpoint: to_relay_endpoint(endpoint),
-    }
+/// Whether a policy application succeeded.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PolicyStatus {
+    Success,
+    GeneralFailure,
+    LockTimeout,
 }
 
-fn to_cleanup_policy(cleanup: WinFwCleanupPolicy) -> winfw::CleanupPolicy {
-    match cleanup {
-        WinFwCleanupPolicy::ResetFirewall => winfw::CleanupPolicy::ResetFirewall,
-        WinFwCleanupPolicy::BlockingUntilReboot => winfw::CleanupPolicy::BlockingUntilReboot,
-    }
-}
-
-fn to_status(result: Result<(), winfw::ApplyError>) -> WinFwPolicyStatus {
-    if let Err(error) = &result {
-        eprintln!("[rust-impl] policy application failed: {error:?}");
-    }
-    use winfw::ApplyError as RustApplyError;
-
-    match result {
-        Ok(()) => WinFwPolicyStatus::Success,
-        Err(RustApplyError::LockTimeout(_)) => WinFwPolicyStatus::LockTimeout,
-        Err(RustApplyError::Generic(_)) => WinFwPolicyStatus::GeneralFailure,
-    }
+/// The transport protocol of an endpoint argument.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Protocol {
+    Tcp,
+    Udp,
 }
 
 /// The alias of an existing interface to use for the tunnel rules. The firewall
@@ -459,6 +442,53 @@ pub fn assert_snapshot(name: &str) {
         insta::assert_snapshot!(name, actual);
     });
 }
+fn to_settings(settings: &Settings) -> winfw::Settings {
+    winfw::Settings {
+        permit_dhcp: settings.permit_dhcp,
+        permit_lan: settings.permit_lan,
+    }
+}
+
+fn to_protocol(protocol: Protocol) -> winfw::Protocol {
+    match protocol {
+        Protocol::Tcp => winfw::Protocol::Tcp,
+        Protocol::Udp => winfw::Protocol::Udp,
+    }
+}
+
+fn to_relay_endpoint(endpoint: &EndpointArgument) -> winfw::RelayEndpoint {
+    winfw::RelayEndpoint {
+        ip: endpoint.ip().parse().expect("valid IP"),
+        port: endpoint.port(),
+        protocol: to_protocol(endpoint.protocol()),
+    }
+}
+
+fn to_relay_endpoints(relays: &[EndpointArgument]) -> Vec<winfw::RelayEndpoint> {
+    relays.iter().map(to_relay_endpoint).collect()
+}
+
+fn to_allowed_endpoint(endpoint: &EndpointArgument) -> winfw::AllowedEndpoint {
+    winfw::AllowedEndpoint {
+        clients: endpoint.clients().to_vec(),
+        endpoint: to_relay_endpoint(endpoint),
+    }
+}
+
+fn to_cleanup_policy(cleanup: CleanupPolicy) -> winfw::CleanupPolicy {
+    match cleanup {
+        CleanupPolicy::ResetFirewall => winfw::CleanupPolicy::ResetFirewall,
+        CleanupPolicy::BlockingUntilReboot => winfw::CleanupPolicy::BlockingUntilReboot,
+    }
+}
+
+fn to_status(result: Result<(), winfw::ApplyError>) -> PolicyStatus {
+    match result {
+        Ok(()) => PolicyStatus::Success,
+        Err(winfw::ApplyError::LockTimeout(_)) => PolicyStatus::LockTimeout,
+        Err(winfw::ApplyError::Generic(_)) => PolicyStatus::GeneralFailure,
+    }
+}
 
 /// Serialize all tests: the firewall library is a per-process singleton and
 /// the WFP state it holds is global.
@@ -500,7 +530,7 @@ impl std::ops::DerefMut for Firewall {
 impl Drop for Firewall {
     fn drop(&mut self) {
         self.implementation
-            .deinitialize(WinFwCleanupPolicy::ResetFirewall);
+            .deinitialize(CleanupPolicy::ResetFirewall);
     }
 }
 
@@ -517,7 +547,7 @@ pub fn run_test(body: impl Fn(&mut Firewall)) {
 }
 
 /// Run a test body once per implementation, without initializing it first:
-/// for tests that drive `WinFw_InitializeBlocked` and the uninitialized
+/// for tests that drive the blocked initialization and the uninitialized
 /// reset themselves.
 pub fn run_test_uninitialized(body: impl Fn(&mut Firewall)) {
     let _guard = lock()
