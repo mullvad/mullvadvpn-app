@@ -5,8 +5,10 @@ pub struct Environment {
 
 pub type Architecture = mullvad_update::format::Architecture;
 
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to get the host's CPU architecture.
+    #[error("Failed to get the host's CPU architecture")]
     Arch,
 }
 

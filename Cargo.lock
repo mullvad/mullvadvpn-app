@@ -2607,6 +2607,7 @@ dependencies = [
  "safelog",
  "serde",
  "talpid-platform-metadata",
+ "thiserror 2.0.19",
  "tokio",
  "tracing-appender",
  "tracing-subscriber",
