@@ -39,8 +39,9 @@ impl DirectoryProvider for TempDirProvider {
     /// Create a locked-down directory to store downloads in
     async fn create_download_dir() -> anyhow::Result<PathBuf> {
         cfg_select! {
-            windows             => { admin_temp_dir().await }
+            target_os = "windows" => { admin_temp_dir().await }
             target_os = "macos" => { temp_dir().await }
+            target_os = "linux" => { temp_dir().await }
         }
     }
 }
@@ -69,7 +70,7 @@ async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
 /// This returns a temporary directory for storing the downloaded app.
 ///
 /// See [module-level](self) docs for more information.
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 async fn temp_dir() -> anyhow::Result<PathBuf> {
     use rand::{Rng, distr::Alphanumeric};
     use std::{fs::Permissions, os::unix::fs::PermissionsExt};

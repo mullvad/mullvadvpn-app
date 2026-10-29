@@ -78,6 +78,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type CacheDir = cfg_select! {
         target_os = "windows" => { mullvad_update::local::AppCacheDir }
         target_os = "macos"   => { mullvad_update::local::NoopAppCacheDir }
+        target_os = "linux" => { mullvad_update::local::TmpFs }
     };
 
     AppController::initialize::<_, Downloader<T>, CacheDir, DirProvider>(

@@ -1,5 +1,3 @@
-#![cfg(any(target_os = "macos", target_os = "windows"))]
-
 //! This module implements fetching of information about app versions from disk.
 
 use anyhow::{Context, bail};
@@ -10,6 +8,25 @@ use crate::format::response::SignedResponse;
 use crate::version::VersionParameters;
 
 use super::app::{AppCache, InstallerFile};
+
+/// Tmpfs is a file system which keeps all of its files in virtual memory.
+pub struct TmpFs;
+
+impl AppCache for TmpFs {
+    type Installer = InstallerFile<false>;
+
+    fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
+        todo!()
+    }
+
+    async fn get_metadata(&self) -> anyhow::Result<SignedResponse> {
+        todo!()
+    }
+
+    fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
+        todo!()
+    }
+}
 
 pub struct AppCacheDir {
     /// Path to directory containing the metadata file and the downloaded installer.

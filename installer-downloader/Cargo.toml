@@ -11,16 +11,7 @@ publish = false
 [package.metadata.winresource]
 LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
-[build-dependencies]
-anyhow = { workspace = true }
-windows-sys = { workspace = true, features = [
-  "Win32_System",
-  "Win32_System_LibraryLoader",
-  "Win32_System_SystemServices"
-] }
-winresource.workspace = true
-
-[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+[dependencies]
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 log = { workspace = true }
@@ -35,10 +26,19 @@ tokio = { workspace = true, features = ["fs", "rt-multi-thread"] }
 tracing-appender = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["chrono"] }
 
-[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dev-dependencies]
+[dev-dependencies]
 insta = { workspace = true, features = ["yaml"] }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["macros", "test-util"] }
+
+[build-dependencies]
+anyhow = { workspace = true }
+windows-sys = { workspace = true, features = [
+  "Win32_System",
+  "Win32_System_LibraryLoader",
+  "Win32_System_SystemServices"
+] }
+winresource.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cacao = "0.3.2"

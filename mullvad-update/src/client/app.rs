@@ -1,5 +1,3 @@
-#![cfg(any(target_os = "macos", target_os = "windows"))]
-
 //! This module implements the flow of downloading and verifying the app.
 
 use std::{
@@ -194,12 +192,13 @@ impl VerifiedInstaller for InstallerFile<true> {
 }
 
 pub fn bin_path(app_version: &mullvad_version::Version, cache_dir: &Path) -> PathBuf {
-    #[cfg(windows)]
-    let bin_filename = format!("mullvad-{app_version}.exe");
+    let bin_filename = cfg_select! {
+        target_os = "windows" => { format!("mullvad-{app_version}.exe") }
+        target_os = "macos" => { format!("mullvad-{app_version}.pkg") }
+        // TODO: Runtime-detection of deb/rpm.
+        target_os = "linux" => { format!("mullvad-vpn-{app_version}_amd64.deb") }
 
-    #[cfg(target_os = "macos")]
-    let bin_filename = format!("mullvad-{app_version}.pkg");
-
+    };
     cache_dir.join(bin_filename)
 }
 
@@ -232,28 +231,19 @@ impl InstallerFile<false> {
 
 impl InstallerFile<true> {
     fn launch_path(&self) -> PathBuf {
-        #[cfg(target_os = "windows")]
-        {
-            self.path.clone()
-        }
-
-        #[cfg(target_os = "macos")]
-        {
-            use std::path::Path;
-
-            Path::new("/usr/bin/open").to_owned()
+        cfg_select! {
+            target_os = "windows" => { self.path.clone() }
+            target_os = "macos" => { std::path::Path::new("/usr/bin/open").to_owned() }
+            target_os = "linux" => { std::path::Path::new("/usr/bin/xdg-open").to_owned() }
         }
     }
 
     fn launch_args(&self) -> Vec<OsString> {
-        #[cfg(target_os = "windows")]
-        {
-            vec![]
-        }
+        cfg_select! {
+            target_os = "windows" => { Default::default() }
+            target_os = "macos" => { vec![self.path.clone().into_os_string()] }
+            target_os = "linux" => { Default::default() }
 
-        #[cfg(target_os = "macos")]
-        {
-            vec![self.path.clone().into_os_string()]
         }
     }
 }
