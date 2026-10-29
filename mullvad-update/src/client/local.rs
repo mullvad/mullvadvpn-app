@@ -16,15 +16,15 @@ impl AppCache for TmpFs {
     type Installer = InstallerFile<false>;
 
     fn new(_directory: PathBuf, _version_params: VersionParameters) -> Self {
-        todo!()
+        Self
     }
 
     async fn get_metadata(&self) -> anyhow::Result<SignedResponse> {
-        todo!()
+        anyhow::bail!("`get_metadata` not yet implemented!")
     }
 
     fn get_cached_installers(self, _metadata: SignedResponse) -> Vec<Self::Installer> {
-        todo!()
+        vec![]
     }
 }
 

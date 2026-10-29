@@ -172,7 +172,8 @@ impl AppDelegate for SlintApp {
     }
 
     fn quit(&mut self) {
-        todo!()
+        // TODO: Signal main loop that we're exiting instead.
+        std::process::exit(0);
     }
 
     fn queue(&self) -> Self::Queue {
