@@ -5,6 +5,7 @@ members = [
   "desktop/packages/nseventforwarder",
   "desktop/packages/windows-utils",
   "installer-downloader",
+  "installer-downloader-slint",
   "mullvad-api",
   "mullvad-api/mullvad-api-constants",
   "mullvad-cli",
@@ -89,6 +90,7 @@ hyper-util = { version = "0.1.8", features = [
   "tokio",
 ] }
 insta = { version = "1.42", features = ["yaml"] }
+installer-downloader = { path = "./installer-downloader/" }
 ipnetwork = "0.21.1"
 itertools = "0.14"
 log = "0.4"
@@ -249,8 +251,12 @@ incremental = false
 [profile.installer-downloader]
 inherits = "release"
 opt-level = "z"
+lto = "fat"
 panic = "abort"
 codegen-units = 1
+
+[profile.installer-downloader-slint]
+inherits = "installer-downloader"
 
 [profile.release-debuginfo]
 inherits = "release"

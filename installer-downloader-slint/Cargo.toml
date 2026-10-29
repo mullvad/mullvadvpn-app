@@ -1,0 +1,22 @@
+[package]
+name = "installer-downloader-slint"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+installer-downloader.workspace = true
+slint = { version = "1.18", default-features = false, features = [
+  "backend-winit-wayland",
+  "compat-1-18",
+  "live-preview",
+  "renderer-winit-software",
+] }
+
+[build-dependencies]
+slint-build = { version = "1.18", features = ["sdf-fonts"] }
+
+[lints]
+workspace = true
