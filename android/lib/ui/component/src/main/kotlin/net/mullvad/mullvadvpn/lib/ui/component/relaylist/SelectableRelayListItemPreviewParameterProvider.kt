@@ -21,7 +21,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     expanded = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
-                    needsOtherEntry = true,
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -91,7 +91,46 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = true,
+                ),
+                RelayListItem.GeoLocationItem(
+                    item =
+                        generateRelayItemRelay(
+                            cityCode =
+                                GeoLocationId.City(
+                                    country = GeoLocationId.Country("be"),
+                                    code = "bru",
+                                ),
+                            hostName = "be-bru-wg-101",
+                            cityName = "Brussels",
+                            countryName = "Belgium",
+                            active = true,
+                            daita = false,
+                        ),
+                    isSelected = false,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Middle,
+                    needsOtherEntry = true,
+                ),
+                RelayListItem.GeoLocationItem(
+                    item =
+                        generateRelayItemRelay(
+                            cityCode =
+                                GeoLocationId.City(
+                                    country = GeoLocationId.Country("be"),
+                                    code = "bru",
+                                ),
+                            hostName = "Relay-selected-in-entry-list",
+                            cityName = "Brussels",
+                            countryName = "Belgium",
+                            active = true,
+                            daita = false,
+                        ),
+                    isSelected = false,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Bottom,
                     needsOtherEntry = false,
+                    state = RelayListItemState.USED_AS_ENTRY,
                 ),
             )
         )
