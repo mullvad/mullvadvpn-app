@@ -1,27 +1,20 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { LocationType } from '../../../../../../../features/locations/types';
 import { useMultihop } from '../../../../../../../features/multihop/hooks';
 import { Menu } from '../../../../../../../lib/components/menu';
-import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import { useHeaderMenuContext } from '../../HeaderMenuContext';
-import { useResetLocationSelector } from '../../hooks';
+import { useSetMultihopWhenNeeded } from '../../hooks';
 
 export function MultihopWhenNeededMenuOption() {
-  const { multihop, setMultihop } = useMultihop();
+  const { multihop } = useMultihop();
   const { onOpenChange } = useHeaderMenuContext();
-  const { locationType, setLocationType } = useSelectLocationViewContext();
-  const resetLocationSelector = useResetLocationSelector();
+  const setMultihopWhenNeeded = useSetMultihopWhenNeeded();
 
   const handleMultihopWhenNeeded = React.useCallback(async () => {
-    await setMultihop({ multihop: 'when-needed' });
+    await setMultihopWhenNeeded();
     onOpenChange?.(false);
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
-      resetLocationSelector();
-      setLocationType(LocationType.exit);
-    }
-  }, [locationType, onOpenChange, resetLocationSelector, setLocationType, setMultihop]);
+  }, [onOpenChange, setMultihopWhenNeeded]);
 
   return (
     <Menu.Option>
