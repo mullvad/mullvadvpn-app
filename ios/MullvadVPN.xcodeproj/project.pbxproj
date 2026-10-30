@@ -1088,6 +1088,8 @@
 		F07F63CE2C63E5790027A351 /* AccessMethodRepository+Stub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepository+Stub.swift */; };
 		F080AED7303F202F00D4DE50 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F080AED6303F202F00D4DE50 /* AccountManager.swift */; };
 		F080AED8303F202F00D4DE50 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F080AED6303F202F00D4DE50 /* AccountManager.swift */; };
+		F086DBFC3094E09D00A2F0A8 /* SpeedTestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F086DBFB3094E09C00A2F0A8 /* SpeedTestViewModel.swift */; };
+		F086DBFD3094E09D00A2F0A8 /* SpeedTestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F086DBFB3094E09C00A2F0A8 /* SpeedTestViewModel.swift */; };
 		F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */; };
 		F08B6B772C52878400D0A121 /* EphemeralPeerExchangeActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98F1B502C19C48D003C869E /* EphemeralPeerExchangeActorTests.swift */; };
 		F08B6B782C528B8A00D0A121 /* EphemeralPeerExchangingProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F059197E2C454CE000C301F3 /* EphemeralPeerExchangingProtocol.swift */; };
@@ -2758,6 +2760,7 @@
 		F07F1BD42E4A361E003FB336 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		F08096FA2E4A325600D8B0CF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F080AED6303F202F00D4DE50 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
+		F086DBFB3094E09C00A2F0A8 /* SpeedTestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestViewModel.swift; sourceTree = "<group>"; };
 		F09035B22FAB708D004635A3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		F09035B42FAB724C004635A3 /* LogRedactorComparisonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorComparisonTests.swift; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
@@ -5375,6 +5378,7 @@
 		F0F2666A2EB4AB9E00AAD7DA /* SpeedConnection */ = {
 			isa = PBXGroup;
 			children = (
+				F086DBFB3094E09C00A2F0A8 /* SpeedTestViewModel.swift */,
 				F02AD0D230668AA30047BB34 /* SpeedTestView.swift */,
 				F02AD0CF3066885D0047BB34 /* SpeedTest.swift */,
 				F02AD0C9306679C60047BB34 /* MockNetworkSpeedMonitor.swift */,
@@ -6610,6 +6614,7 @@
 				7A76360B2FC437830075DC0E /* Breadcrumb.swift in Sources */,
 				A9A5FA062ACB05160083449F /* SimulatorTunnelProviderManager.swift in Sources */,
 				A9A5FA072ACB05160083449F /* SimulatorVPNConnection.swift in Sources */,
+				F086DBFC3094E09D00A2F0A8 /* SpeedTestViewModel.swift in Sources */,
 				7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */,
 				7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */,
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
@@ -7259,6 +7264,7 @@
 				F94B9CE2305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */,
+				F086DBFD3094E09D00A2F0A8 /* SpeedTestViewModel.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
 				4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,

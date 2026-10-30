@@ -25,40 +25,34 @@ enum SpeedTestError: Error {
     case invalidURL
 }
 
-final actor SpeedTest: NSObject {
+final class SpeedTest: NSObject, Sendable {
 
     private let connectionCount = 4
-    private let warmupDuration: TimeInterval = 2
+    private let warmupDuration: TimeInterval = 1
     private let measurementDuration: TimeInterval = 8
 
-    private var session: URLSession!
-    private var tasks: [URLSessionDataTask] = []
+    private let state: SpeedTestState
 
-    private var totalBytes: Int64 = 0
-    private var measurementBytes: Int64 = 0
-
-    private var testStart: Date?
-    private var measurementStart: Date?
-
-    private var isMeasuring = false
-
-    private var continuation: CheckedContinuation<SpeedTestResult, Error>?
-    private var progressHandler: (@Sendable (SpeedTestProgress) -> Void)?
+    private let session: URLSession
 
     override init() {
-        super.init()
-
         let configuration = URLSessionConfiguration.ephemeral
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         configuration.urlCache = nil
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 30
 
-        session = URLSession(
+        let state = SpeedTestState()
+
+        self.state = state
+
+        self.session = URLSession(
             configuration: configuration,
-            delegate: self,
+            delegate: state,
             delegateQueue: nil
         )
+
+        super.init()
     }
 
     deinit {
@@ -69,61 +63,84 @@ final actor SpeedTest: NSObject {
         progress: (@Sendable (SpeedTestProgress) -> Void)? = nil
     ) async throws -> SpeedTestResult {
 
+        try await state.runTest(
+            session: session,
+            connectionCount: connectionCount,
+            warmupDuration: warmupDuration,
+            measurementDuration: measurementDuration,
+            progress: progress
+        )
+    }
+}
+
+private actor SpeedTestState: NSObject, URLSessionDataDelegate {
+
+    private var tasks: [URLSessionDataTask] = []
+
+    private var measurementBytes: Int64 = 0
+    private var testStart: Date?
+    private var measurementStart: Date?
+
+    private var isMeasuring = false
+    private var isFinished = false
+
+    private var continuation: CheckedContinuation<SpeedTestResult, Error>?
+    private var progressHandler: (@Sendable (SpeedTestProgress) -> Void)?
+
+    func runTest(
+        session: URLSession,
+        connectionCount: Int,
+        warmupDuration: TimeInterval,
+        measurementDuration: TimeInterval,
+        progress: (@Sendable (SpeedTestProgress) -> Void)?
+    ) async throws -> SpeedTestResult {
+
         stop()
 
-        progressHandler = progress
-
-        totalBytes = 0
         measurementBytes = 0
         isMeasuring = false
-
+        isFinished = false
         testStart = Date()
+        measurementStart = nil
+        progressHandler = progress
 
         return try await withTaskCancellationHandler {
-
-            try await withCheckedThrowingContinuation {
-                (continuation: CheckedContinuation<SpeedTestResult, Error>) in
+            try await withCheckedThrowingContinuation { continuation in
 
                 self.continuation = continuation
-                self.startConnections()
+
+                guard
+                     let url = URL(string: "https://speed.cloudflare.com/__down?bytes=250000000")
+                else {
+                    finish(.failure(SpeedTestError.invalidURL))
+                    return
+                }
+
+                for _ in 0..<connectionCount {
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "GET"
+                    request.cachePolicy = .reloadIgnoringLocalCacheData
+
+                    let task = session.dataTask(with: request)
+                    tasks.append(task)
+                    task.resume()
+                }
             }
-
         } onCancel: {
-            self.stop()
-
-            self.continuation?.resume(
-                throwing: CancellationError()
-            )
-
-            self.continuation = nil
+            Task {
+                await self.cancel()
+            }
         }
     }
 
-    private func startConnections() {
-
-        guard let url = URL(
-            string: "https://speed.cloudflare.com/__down?bytes=250000000"
-        ) else {
-            finish(.failure(SpeedTestError.invalidURL))
-            return
-        }
-
-        for _ in 0..<connectionCount {
-
-            var request = URLRequest(url: url)
-
-            request.httpMethod = "GET"
-            request.cachePolicy = .reloadIgnoringLocalCacheData
-
-            let task = session.dataTask(with: request)
-
-            tasks.append(task)
-            task.resume()
-        }
+    private func cancel() {
+        finish(.failure(CancellationError()))
     }
 
-    private func startMeasurement() {
-        guard !isMeasuring else {
+    private func startMeasurement(
+        duration: TimeInterval
+    ) {
+        guard !isMeasuring, !isFinished else {
             return
         }
 
@@ -133,67 +150,58 @@ final actor SpeedTest: NSObject {
 
         emitProgress()
 
-        DispatchQueue.global().asyncAfter(
-            deadline: .now() + measurementDuration
-        ) { [weak self] in
+        Task {
+            try? await Task.sleep(
+                for: .seconds(duration)
+            )
 
-            self?.finishMeasurement()
+            finishMeasurement()
         }
     }
 
     private func finishMeasurement() {
-        guard isMeasuring, let measurementStart  else {
+        guard
+            isMeasuring,
+            !isFinished,
+            let measurementStart
+        else {
             return
         }
 
         isMeasuring = false
 
         let elapsed = Date().timeIntervalSince(measurementStart)
-        let bytes = measurementBytes
 
         guard elapsed > 0 else {
             finish(.failure(SpeedTestError.invalidDuration))
             return
         }
 
-        let bits = Double(bytes) * 8
+        let bits = Double(measurementBytes) * 8
         let mbps = bits / elapsed / 1_000_000
 
         finish(
             .success(
-                SpeedTestResult(
-                    downloadMbps: mbps
-                )
+                SpeedTestResult(downloadMbps: mbps)
             )
         )
     }
 
     private func emitProgress() {
-        let bytes = measurementBytes
-        let start = measurementStart
-
-        guard
-            let start,
-            isMeasuring
-        else {
+        guard isMeasuring,
+              let measurementStart else {
             return
         }
 
-        let elapsed = Date().timeIntervalSince(start)
+        let elapsed = Date().timeIntervalSince(measurementStart)
+        guard elapsed > 0 else { return }
 
-        guard elapsed > 0 else {
-            return
-        }
+        let mbps = Double(measurementBytes) * 8
+            / elapsed / 1_000_000
 
-        let mbps =
-            Double(bytes) * 8
-            / elapsed
-            / 1_000_000
+        print("Bytes: \(measurementBytes), Elapsed: \(elapsed), Speed: \(mbps) Mbps")
 
-        let progress = min(
-            elapsed / measurementDuration,
-            1
-        )
+        let progress = min(elapsed / 8, 1)
 
         progressHandler?(
             SpeedTestProgress(
@@ -204,17 +212,18 @@ final actor SpeedTest: NSObject {
     }
 
     private func stop() {
-        tasks.forEach {
-            $0.cancel()
-        }
-
+        tasks.forEach { $0.cancel() }
         tasks.removeAll()
     }
 
     private func finish(
         _ result: Result<SpeedTestResult, Error>
     ) {
+        guard !isFinished else {
+            return
+        }
 
+        isFinished = true
         stop()
 
         let continuation = self.continuation
@@ -222,57 +231,74 @@ final actor SpeedTest: NSObject {
 
         continuation?.resume(with: result)
     }
+
+    nonisolated func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive data: Data
+    ) {
+        let byteCount = Int64(data.count)
+        print("Received chunk: \(byteCount) bytes")
+
+        Task {
+            await receiveData(byteCount)
+        }
+    }
+    
+    nonisolated func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+    ) {
+        if let httpResponse = response as? HTTPURLResponse {
+            print("HTTP status:", httpResponse.statusCode)
+            print("Content-Length:", httpResponse.expectedContentLength)
+            print("MIME type:", httpResponse.mimeType ?? "unknown")
+        }
+
+        completionHandler(.allow)
+    }
+
+    private func receiveData(_ byteCount: Int64) {
+        guard !isFinished else {
+            return
+        }
+
+        let now = Date()
+
+        if !isMeasuring,
+            let testStart,
+            now.timeIntervalSince(testStart) >= 2
+        {
+            startMeasurement(duration: 8)
+        }
+
+        if isMeasuring {
+            measurementBytes += byteCount
+            emitProgress()
+        }
+    }
+
+    nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        guard let error else {
+            return
+        }
+
+        if (error as NSError).code == NSURLErrorCancelled {
+            return
+        }
+
+        Task {
+            await handleError(error)
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        finish(.failure(error))
+    }
 }
-
-
-//extension SpeedTest: URLSessionDataDelegate {
-//
-//    func urlSession(
-//        _ session: URLSession,
-//        dataTask: URLSessionDataTask,
-//        didReceive data: Data
-//    ) {
-//
-//        let byteCount = Int64(data.count)
-//
-//        lock.lock()
-//
-//        totalBytes += byteCount
-//
-//        if isMeasuring {
-//            measurementBytes += byteCount
-//        }
-//
-//        let shouldStartMeasurement =
-//            !isMeasuring &&
-//            Date().timeIntervalSince(testStart ?? Date())
-//            >= warmupDuration
-//
-//        lock.unlock()
-//
-//        if shouldStartMeasurement {
-//            startMeasurement()
-//        }
-//
-//        if isMeasuring {
-//            emitProgress()
-//        }
-//    }
-//
-//    func urlSession(
-//        _ session: URLSession,
-//        task: URLSessionTask,
-//        didCompleteWithError error: Error?
-//    ) {
-//
-//        if let error {
-//
-//            if (error as NSError).code ==
-//                NSURLErrorCancelled {
-//                return
-//            }
-//
-//            finish(.failure(error))
-//        }
-//    }
-//}
