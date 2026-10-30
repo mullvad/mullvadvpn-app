@@ -23,7 +23,7 @@ on:
       - 'flake*'
       - 'nix/android-*.nix'
       - 'nix/common-toolchain.nix'
-      - 'android/fdroid-build/**'
+      - 'android/config/fdroid-test.yml'
       - 'building/install-rust.sh'
       - 'building/install-cyclonedx.sh'
       - 'android/scripts/generate-sboms.sh'
@@ -174,7 +174,7 @@ jobs:
         with:
           path: app-metadata
           sparse-checkout: |
-            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+            android/config/fdroid-test.yml
           sparse-checkout-cone-mode: false
 
       - name: Prepare metadata
@@ -184,7 +184,7 @@ jobs:
           VERSION_CODE: ${{ needs.resolve-app-version.outputs.VERSION_CODE }}
         run: |
           mkdir metadata
-          cp app-metadata/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
+          cp app-metadata/android/config/fdroid-test.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i \
             -e "s/commit-hash/$COMMIT_HASH/" \
             -e "s/app-version-name/$VERSION_NAME/" \
@@ -230,6 +230,13 @@ jobs:
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - uses: cachix/install-nix-action@ab739621df7a23f52766f9ccc97f38da6b7af14f  # v31.10.5
+
+      # Running cargo directly relies on the devshell's NDK toolchain variables, which the Gradle
+      # build doesn't use since the rust-android-gradle plugin sets them itself.
+      - name: Run clippy for Android without Gradle
+        run: >
+          nix develop .#android -c
+          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni
 
       - name: Build app
         env:

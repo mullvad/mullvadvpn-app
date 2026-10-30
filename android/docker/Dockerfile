@@ -48,6 +48,9 @@ ENV ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VERSION}
 ENV NDK_TOOLCHAIN_DIR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin
 ENV GRADLE_USER_HOME=/root/.gradle
 
+# The variables below are only needed when invoking cargo directly, without the
+# rust-android-gradle plugin.
+
 # Rust cross-compilation for: aarch64
 ENV AR_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_aarch64_linux_android=${NDK_TOOLCHAIN_DIR}/aarch64-linux-android${MIN_SDK_VERSION}-clang \
@@ -67,9 +70,6 @@ ENV AR_i686_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
 ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang
-
-# Set up python3 path for the rust gradle plugin
-ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
