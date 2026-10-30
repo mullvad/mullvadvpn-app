@@ -37,6 +37,13 @@ export component AppWindow inherits Window {
             text: @tr("Version: {}", root.selected-version);
         }
 
+        Text {
+            horizontal-alignment: center;
+            vertical-alignment: center;
+	    // Ref: TODO
+            text: @tr("Status: {}", root.status-text);
+        }
+
         Button {
 	    // Ref: DOWNLOAD_BUTTON_TEXT
             text: @tr("Download & install");

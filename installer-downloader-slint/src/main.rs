@@ -1,12 +1,11 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::delegate::SlintApp;
 use installer_downloader::controller::initialize_controller;
 use installer_downloader::environment::Environment;
 use installer_downloader::log;
 use slint::Weak;
-
-use crate::delegate::SlintApp;
 
 mod delegate;
 
@@ -17,9 +16,8 @@ async fn main() -> anyhow::Result<()> {
     let _logger = log::init();
     let ui = AppWindow::new()?;
     let app = init_backend(ui.as_weak())?;
+    app.run_background();
     ui.run()?;
-    // Start working on message queue
-    app.run().await?;
     Ok(())
 }
 

@@ -3,10 +3,10 @@
 
 use crate::AppWindow;
 use slint::Weak;
-use tokio::sync::mpsc;
+use tokio::{sync::mpsc, task::spawn_blocking};
 
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
-use tracing::{debug, trace};
+use tracing::{debug, error, trace};
 
 pub struct SlintApp {
     ui: Weak<AppWindow>,
@@ -17,6 +17,16 @@ impl SlintApp {
     pub fn new(ui: Weak<AppWindow>) -> Self {
         let work = Queue::new();
         Self { ui, work }
+    }
+
+    /// Run the app unattended in the background. Spawns the app on a blocking thread which only
+    /// yields on error.
+    pub fn run_background(self) {
+        spawn_blocking(async move || {
+            if let Err(err) = self.run().await {
+                error!("{err}");
+            }
+        });
     }
 
     pub async fn run(mut self) -> anyhow::Result<()> {
@@ -200,6 +210,7 @@ impl AppDelegate for SlintApp {
 
 impl AppDelegateQueue<SlintApp> for Queue {
     fn queue_main<F: FnOnce(&mut SlintApp) + 'static + Send>(&self, callback: F) {
+        trace!("Queueing action on main thread");
         let rt = tokio::runtime::Handle::current();
         let queue = self.queue.clone();
         let fut = async move {
