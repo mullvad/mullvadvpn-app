@@ -6,7 +6,7 @@ use slint::Weak;
 use tokio::sync::mpsc;
 
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
-use tracing::trace;
+use tracing::{debug, trace};
 
 pub struct SlintApp {
     ui: Weak<AppWindow>,
@@ -55,7 +55,11 @@ impl AppDelegate for SlintApp {
     where
         F: Fn() + Send + 'static,
     {
-        self.ui.unwrap().on_download(callback);
+        let cb = move || {
+            debug!("Calling `on_download!`");
+            callback()
+        };
+        self.ui.unwrap().on_download(cb);
     }
 
     fn on_cancel<F>(&mut self, callback: F)
