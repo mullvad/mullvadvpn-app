@@ -27,7 +27,8 @@ use tokio::{
 };
 
 /// Actions handled by an async worker task in [ActionMessageHandler].
-enum TaskMessage {
+#[derive(Debug)]
+pub enum TaskMessage {
     BeginDownload,
     Cancel,
     TryBeta,
