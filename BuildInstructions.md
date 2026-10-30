@@ -124,22 +124,10 @@ rustc-link-lib = ["dbus-1"]
 
 In addition to the above, the host has to have the following installed:
 
-- Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
-  Community or Pro edition works as well).
-
-- Windows 10 (or Windows 11) SDK.
-
-- `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
-  binary can be found under:
-
-  ```
-  C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\<arch>
-  ```
-
-  Where `<arch>` refers to the host architecture, either `amd64` or `arm64`.
-
-  The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
-  that that script assumes that you're running VS 2022 Community.
+- The MSVC build tools and the Windows 10 (or Windows 11) SDK. `rustup-init` offers to install
+  these through Visual Studio Community if they are missing. Otherwise, install Microsoft's
+  _Build Tools for Visual Studio 2022_ (or Visual Studio 2022 Community or Pro) with the
+  "Desktop development with C++" workload.
 
 - The `x86` target is required for building some NSIS plugins:
 
@@ -273,11 +261,7 @@ TARGETS="riscv64gc-unknown-linux-gnu" ./build.sh --daemon-only --optimize
 
 This section is for building the system service individually.
 
-1. On Windows, build the C++ libraries:
-    ```bash
-    ./build-windows-modules.sh
-    ```
-    And copy the `wintun.dll` next to the daemon binary:
+1. On Windows, copy the `wintun.dll` next to the daemon binary:
     ```bash
     cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
     ```

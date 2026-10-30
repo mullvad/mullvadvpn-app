@@ -1,0 +1,128 @@
+---
+source: winfw/tests/common/mod.rs
+expression: actual
+---
+providers: 1
+provider PROVIDER | flags 0 | "Mullvad VPN" / "Mullvad VPN firewall integration"
+sublayers: 2
+sublayer SUBLAYER_BASELINE | weight 65535 | flags 0 | "Mullvad VPN baseline" / "Filters that enforce a good baseline"
+sublayer SUBLAYER_DNS | weight 65534 | flags 0 | "Mullvad VPN DNS" / "Filters that restrict DNS traffic"
+filters: 33
+filter FILTER_BASELINE_BLOCK_ALL_INBOUND_IPV4 | "Block all inbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_INBOUND_IPV6 | "Block all inbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_OUTBOUND_IPV4 | "Block all outbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_OUTBOUND_IPV6 | "Block all outbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_PERMIT_DHCP_INBOUND_RESPONSE_IPV4 | "Permit inbound DHCP responses (IPv4)" / "This filter is part of a rule that permits DHCP client traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:68
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_PORT == u16:67
+filter FILTER_BASELINE_PERMIT_DHCP_INBOUND_RESPONSE_IPV6 | "Permit inbound DHCP responses (IPv6)" / "This filter is part of a rule that permits DHCP client traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_ADDRESS == v6:fe80::/10
+    IP_LOCAL_PORT == u16:546
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_PORT == u16:547
+filter FILTER_BASELINE_PERMIT_DHCP_OUTBOUND_REQUEST_IPV4 | "Permit outbound DHCP requests (IPv4)" / "This filter is part of a rule that permits DHCP client traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:68
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_ADDRESS == u32:4294967295
+    IP_REMOTE_PORT == u16:67
+filter FILTER_BASELINE_PERMIT_DHCP_OUTBOUND_REQUEST_IPV6 | "Permit outbound DHCP requests (IPv6)" / "This filter is part of a rule that permits DHCP client traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_ADDRESS == v6:fe80::/10
+    IP_LOCAL_PORT == u16:546
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_ADDRESS == ba16:ff02::1:2
+    IP_REMOTE_ADDRESS == ba16:ff05::1:3
+    IP_REMOTE_PORT == u16:547
+filter FILTER_BASELINE_PERMIT_DHCP_SERVER_INBOUND_REQUEST_IPV4 | "Permit inbound DHCP requests (IPv4)" / "This filter is part of a rule that permits DHCP server traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_ADDRESS == u32:4294967295
+    IP_LOCAL_PORT == u16:67
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_PORT == u16:68
+filter FILTER_BASELINE_PERMIT_DHCP_SERVER_OUTBOUND_RESPONSE_IPV4 | "Permit outbound DHCP responses (IPv4)" / "This filter is part of a rule that permits DHCP server traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:67
+    IP_PROTOCOL == u8:17
+    IP_REMOTE_PORT == u16:68
+filter FILTER_BASELINE_PERMIT_DNS_OUTBOUND_IPV4 | "Permit outbound connections to DNS server (IPv4)" / "This filter is part of a rule that permits outbound DNS" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_BASELINE_PERMIT_DNS_OUTBOUND_IPV6 | "Permit outbound connections to DNS server (IPv6)" / "This filter is part of a rule that permits outbound DNS" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV4 | "Permit outbound connections on LAN (IPv4)" / "This filter is part of a rule that permits LAN traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v4:10.0.0.0/8
+    IP_REMOTE_ADDRESS == v4:169.254.0.0/16
+    IP_REMOTE_ADDRESS == v4:172.16.0.0/12
+    IP_REMOTE_ADDRESS == v4:192.168.0.0/16
+filter FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV6 | "Permit outbound connections on LAN (IPv6)" / "This filter is part of a rule that permits LAN traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v6:fc00::/7
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+filter FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV4 | "Permit outbound multicast on LAN (IPv4)" / "This filter is part of a rule that permits LAN traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v4:224.0.0.0/24
+    IP_REMOTE_ADDRESS == v4:239.0.0.0/8
+    IP_REMOTE_ADDRESS == v4:255.255.255.255/32
+filter FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV6 | "Permit outbound multicast on LAN (IPv6)" / "This filter is part of a rule that permits LAN traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v6:ff01::/16
+    IP_REMOTE_ADDRESS == v6:ff02::/16
+    IP_REMOTE_ADDRESS == v6:ff03::/16
+    IP_REMOTE_ADDRESS == v6:ff04::/16
+    IP_REMOTE_ADDRESS == v6:ff05::/16
+filter FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV4 | "Permit inbound connections on LAN (IPv4)" / "This filter is part of a rule that permits hosting services in a LAN environment" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v4:10.0.0.0/8
+    IP_REMOTE_ADDRESS == v4:169.254.0.0/16
+    IP_REMOTE_ADDRESS == v4:172.16.0.0/12
+    IP_REMOTE_ADDRESS == v4:192.168.0.0/16
+filter FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV6 | "Permit inbound connections on LAN (IPv6)" / "This filter is part of a rule that permits hosting services in a LAN environment" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_ADDRESS == v6:fc00::/7
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+filter FILTER_BASELINE_PERMIT_LOOPBACK_INBOUND_IPV4 | "Permit inbound connections on loopback (IPv4)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_INBOUND_IPV6 | "Permit inbound connections on loopback (IPv6)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_OUTBOUND_IPV4 | "Permit outbound connections on loopback (IPv4)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_OUTBOUND_IPV6 | "Permit outbound connections on loopback (IPv6)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_NDP_INBOUND_NEIGHBOR_ADVERTISEMENT | "Permit inbound NDP neighbor advertisement" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:136
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_INBOUND_NEIGHBOR_SOLICITATION | "Permit inbound NDP neighbor solicitation" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:135
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_INBOUND_REDIRECT | "Permit inbound NDP redirect" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:137
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_INBOUND_ROUTER_ADVERTISEMENT | "Permit inbound NDP router advertisement" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:134
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_OUTBOUND_NEIGHBOR_ADVERTISEMENT | "Permit outbound NDP neighbor advertisement" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:136
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_OUTBOUND_NEIGHBOR_SOLICITATION | "Permit outbound NDP neighbor solicitation" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:135
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == v6:fe80::/10
+    IP_REMOTE_ADDRESS == v6:ff02::1:ff00:0/104
+    IP_REMOTE_PORT == u16:0
+filter FILTER_BASELINE_PERMIT_NDP_OUTBOUND_ROUTER_SOLICITATION | "Permit outbound NDP router solicitation" / "This filter is part of a rule that permits the most central parts of NDP" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_LOCAL_PORT == u16:133
+    IP_PROTOCOL == u8:58
+    IP_REMOTE_ADDRESS == ba16:ff02::2
+    IP_REMOTE_PORT == u16:0
+filter FILTER_DNS_BLOCK_ALL_OUTBOUND_IPV4 | "Block outbound DNS (IPv4)" / "This filter is part of a rule that blocks DNS requests" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_DNS | action BLOCK | weight class:0 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_BLOCK_ALL_OUTBOUND_IPV6 | "Block outbound DNS (IPv6)" / "This filter is part of a rule that blocks DNS requests" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_DNS | action BLOCK | weight class:0 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV4 | "Permit loopback DNS traffic (IPv4)" / "This filter is part of a rule that permits loopback DNS traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_DNS | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV6 | "Permit loopback DNS traffic (IPv6)" / "This filter is part of a rule that permits loopback DNS traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_DNS | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+    IP_REMOTE_PORT == u16:53

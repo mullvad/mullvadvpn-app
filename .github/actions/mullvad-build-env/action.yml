@@ -26,14 +26,7 @@ inputs:
       workspace at the repository root.
     default: ""
     required: false
-outputs:
-  windows-modules-cache-hit:
-    description: >-
-      Whether the prebuilt Windows libraries were restored from the cache. When
-      this is `true`, the cached binaries were built from exactly the sources
-      that are checked out, so `build-windows-modules.sh` has nothing to do.
-      Empty on every platform but Windows.
-    value: ${{ steps.windows-modules-cache.outputs.cache-hit }}
+outputs: {}
 runs:
   using: "composite"
   steps:
@@ -109,43 +102,6 @@ runs:
       run: |
         git config --global --add safe.directory '*'
         git submodule update --init --depth=1 dist-assets/binaries
-
-    - name: Checkout Windows libraries submodule
-      # These libraries are only required if building for Windows.
-      if: runner.os == 'Windows'
-      shell: bash
-      run: |
-        git config --global --add safe.directory '*'
-        git submodule update --init --depth=1 windows
-
-    - name: Calculate Windows libraries cache hash
-      if: runner.os == 'Windows'
-      id: windows-modules-hash
-      shell: bash
-      run: |
-        hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
-          | grep -v '\.exe$\|\.md$' \
-          | xargs sha1sum \
-          | sha1sum \
-          | cut -d" " -f1)"
-        echo "hash=$hash" >> "$GITHUB_OUTPUT"
-
-    - name: Cache Windows libraries
-      if: runner.os == 'Windows'
-      id: windows-modules-cache
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
-      with:
-        path: ./windows/*/bin/
-        key: windows-modules-${{ runner.arch }}-${{ steps.windows-modules-hash.outputs.hash }}
-
-    - name: Install msbuild
-      if: runner.os == 'Windows'
-      uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce  # v2.0.0
-      with:
-        vs-version: latest
-        # Defaults to the x86 msbuild, which runs emulated on ARM64 and
-        # selects the x86 compiler.
-        msbuild-architecture: ${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}
 
     - name: Install build dependencies
       if: runner.os == 'Linux'

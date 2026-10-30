@@ -12,7 +12,6 @@ const shouldNotarize = process.argv.includes('--notarize');
 const shouldSign = process.argv.includes('--sign');
 
 const universal = process.argv.includes('--universal');
-const release = process.argv.includes('--release');
 
 const targets = getOptionValue('--targets');
 const hostTargetTriple = getOptionValue('--host-target-triple');
@@ -137,18 +136,6 @@ function newConfig() {
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-daemon.exe')), to: '.' },
         {
           from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-setup.exe')),
-          to: '.',
-        },
-        {
-          from: root(
-            path.join(
-              'windows',
-              'winfw',
-              'bin',
-              '${env.TARGET_ARCHITECTURE}-${env.CPP_BUILD_MODE}',
-              'winfw.dll',
-            ),
-          ),
           to: '.',
         },
         {
@@ -302,8 +289,6 @@ async function packWin() {
       },
       asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico', '**/*.node'],
       beforeBuild: (options) => {
-        process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
-        process.env.CPP_BUILD_TARGET = options.arch;
         process.env.TARGET_ARCHITECTURE = options.arch;
         switch (options.arch) {
           case 'x64':

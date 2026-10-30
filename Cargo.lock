@@ -5913,11 +5913,11 @@ dependencies = [
  "tun",
  "typed-builder 0.20.1",
  "wfp",
- "widestring",
  "windows",
  "windows-registry",
  "windows-service",
  "windows-sys 0.61.2",
+ "winfw",
  "wmi",
 ]
 
@@ -7331,8 +7331,7 @@ dependencies = [
 [[package]]
 name = "wfp"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f0382780f5db1e7101e69eb4f9b5950463e75c115967e805bef66968786c97c"
+source = "git+https://github.com/mullvad/wfp-rs?branch=loopback-and-not-equal#e4550ec916f5d0bb3b5df13d55588467995ff041"
 dependencies = [
  "log",
  "windows-sys 0.61.2",
@@ -7821,6 +7820,19 @@ name = "windows_x86_64_msvc"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
+
+[[package]]
+name = "winfw"
+version = "0.0.0"
+dependencies = [
+ "insta",
+ "ipnetwork",
+ "log",
+ "talpid-types",
+ "thiserror 2.0.19",
+ "wfp",
+ "windows-sys 0.61.2",
+]
 
 [[package]]
 name = "winnow"

@@ -1,0 +1,36 @@
+---
+source: winfw/tests/common/mod.rs
+expression: actual
+---
+providers: 1
+provider PROVIDER | flags 0 | "Mullvad VPN" / "Mullvad VPN firewall integration"
+sublayers: 2
+sublayer SUBLAYER_BASELINE | weight 65535 | flags 0 | "Mullvad VPN baseline" / "Filters that enforce a good baseline"
+sublayer SUBLAYER_DNS | weight 65534 | flags 0 | "Mullvad VPN DNS" / "Filters that restrict DNS traffic"
+filters: 14
+filter FILTER_BASELINE_BLOCK_ALL_INBOUND_IPV4 | "Block all inbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_INBOUND_IPV6 | "Block all inbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_OUTBOUND_IPV4 | "Block all outbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_BLOCK_ALL_OUTBOUND_IPV6 | "Block all outbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action BLOCK | weight class:0 | flags 0
+filter FILTER_BASELINE_PERMIT_DNS_OUTBOUND_IPV4 | "Permit outbound connections to DNS server (IPv4)" / "This filter is part of a rule that permits outbound DNS" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_BASELINE_PERMIT_DNS_OUTBOUND_IPV6 | "Permit outbound connections to DNS server (IPv6)" / "This filter is part of a rule that permits outbound DNS" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_BASELINE_PERMIT_LOOPBACK_INBOUND_IPV4 | "Permit inbound connections on loopback (IPv4)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_INBOUND_IPV6 | "Permit inbound connections on loopback (IPv6)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_OUTBOUND_IPV4 | "Permit outbound connections on loopback (IPv4)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_BASELINE_PERMIT_LOOPBACK_OUTBOUND_IPV6 | "Permit outbound connections on loopback (IPv6)" / "This filter is part of a rule that permits all loopback traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_BASELINE | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+filter FILTER_DNS_BLOCK_ALL_OUTBOUND_IPV4 | "Block outbound DNS (IPv4)" / "This filter is part of a rule that blocks DNS requests" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_DNS | action BLOCK | weight class:0 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_BLOCK_ALL_OUTBOUND_IPV6 | "Block outbound DNS (IPv6)" / "This filter is part of a rule that blocks DNS requests" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_DNS | action BLOCK | weight class:0 | flags 0
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV4 | "Permit loopback DNS traffic (IPv4)" / "This filter is part of a rule that permits loopback DNS traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_DNS | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+    IP_REMOTE_PORT == u16:53
+filter FILTER_DNS_PERMIT_LOOPBACK_OUTBOUND_IPV6 | "Permit loopback DNS traffic (IPv6)" / "This filter is part of a rule that permits loopback DNS traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_DNS | action PERMIT | weight class:7 | flags 0
+    FLAGS flags-all-set u32:1
+    IP_REMOTE_PORT == u16:53

@@ -13,7 +13,7 @@ REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 # An exact nightly rather than plain "nightly", so that everyone rebuilding a given commit
 # uses the same compiler. Bumping it changes the bytes that come out.
 # Takes precedence over rust-toolchain.toml, and is inherited by the cargo invocations we
-# do not make ourselves: npm's native module builds, MSBuild and cargo-deb.
+# do not make ourselves: npm's native module builds and cargo-deb.
 # https://rust-lang.github.io/rustup/overrides.html
 export RUSTUP_TOOLCHAIN="nightly-2026-09-15"
 

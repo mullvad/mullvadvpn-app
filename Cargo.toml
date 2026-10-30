@@ -50,7 +50,8 @@ members = [
   "talpid-windows",
   "talpid-wireguard",
   "tunnel-obfuscation",
-  "windows-installer"
+  "windows-installer",
+  "winfw",
 ]
 exclude = ["ci/ios/test-router/raas"]
 # Default members dictate what is built when running `cargo build` in the root directory.
@@ -209,6 +210,12 @@ unused_macro_rules = "warn"
 # The way prost is only used by generated code makes it really hard for dependency
 # usage checkers to see that it's not unused
 ignored = ["prost"]
+
+# Development: the Windows firewall rewrite needs additions to wfp-rs that are
+# not released yet. They are available on the `loopback-and-not-equal` branch
+# of the public repository while in development.
+[patch.crates-io]
+wfp = { git = "https://github.com/mullvad/wfp-rs", branch = "loopback-and-not-equal" }
 
 [profile.release]
 opt-level = "s"

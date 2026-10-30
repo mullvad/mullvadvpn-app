@@ -1,0 +1,34 @@
+[package]
+name = "winfw"
+edition.workspace = true
+rust-version.workspace = true
+description = "Windows firewall for the Mullvad app"
+repository.workspace = true
+license.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+
+[target."cfg(windows)".dependencies]
+ipnetwork = { workspace = true }
+log = { workspace = true }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+wfp = { workspace = true }
+
+[target."cfg(windows)".dependencies.windows-sys]
+workspace = true
+features = [
+  "Win32_Foundation",
+  "Win32_NetworkManagement_IpHelper",
+  "Win32_NetworkManagement_Ndis",
+  "Win32_NetworkManagement_WindowsFilteringPlatform",
+  "Win32_Networking_WinSock",
+  "Win32_Security",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Rpc",
+  "Win32_System_Threading",
+]
+
+[lints]
+workspace = true

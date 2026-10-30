@@ -44,22 +44,6 @@ use windows_sys::core::GUID;
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
-/// Matches MullvadGuids::SublayerBaseline() in winfw/mullvadguids.cpp
-const WINFW_SUBLAYER_BASELINE: GUID = GUID {
-    data1: 0x21e068a2,
-    data2: 0x2851,
-    data3: 0x43c5,
-    data4: [0x8a, 0x29, 0x7a, 0xfe, 0x3f, 0x26, 0x03, 0x84],
-};
-
-/// Matches MullvadGuids::SublayerDns() in winfw/mullvadguids.cpp
-const WINFW_SUBLAYER_DNS: GUID = GUID {
-    data1: 0xe65841b6,
-    data2: 0x82f6,
-    data3: 0x4d55,
-    data4: [0xbd, 0xe2, 0x61, 0xf8, 0x4d, 0x45, 0x08, 0xd4],
-};
-
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     (device_type << 16) | (access << 14) | (function << 2) | method
 }
@@ -274,8 +258,8 @@ impl DeviceHandle {
 
     fn initialize(&self) -> io::Result<()> {
         let guids = SublayerGuids {
-            baseline: WINFW_SUBLAYER_BASELINE,
-            dns: WINFW_SUBLAYER_DNS,
+            baseline: winfw::guids::SUBLAYER_BASELINE.into(),
+            dns: winfw::guids::SUBLAYER_DNS.into(),
         };
         device_io_control(
             self,

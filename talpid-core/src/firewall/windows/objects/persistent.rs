@@ -4,9 +4,6 @@
 //! filters installed by `winfw` are swapped for an equivalent set that survives both a
 //! Base Filtering Engine restart and a reboot. Traffic stays blocked in the meantime,
 //! including if the machine is rebooted before the daemon comes back up.
-//!
-//! This used to be `WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING` in
-//! `windows/winfw/src/winfw/winfw.cpp`, together with `rules::persistent::BlockAll`.
 
 use std::{io, time::Duration};
 
@@ -19,13 +16,12 @@ use windows_sys::Win32::Foundation::{
     FWP_E_FILTER_NOT_FOUND, FWP_E_PROVIDER_NOT_FOUND, FWP_E_SUBLAYER_NOT_FOUND,
 };
 
-use super::guids;
+use winfw::guids;
 
 /// How long to wait for the WFP transaction lock before giving up.
 const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// Highest weight within the sublayer. Matches `WeightClass::Max` in libwfp, which is what
-/// `winfw` used for these filters.
+/// Highest weight within the sublayer.
 const MAX_WEIGHT: u8 = 15;
 
 const FILTER_DESCRIPTION: &str =
@@ -71,7 +67,7 @@ pub enum Error {
 /// Replace the ephemeral blocking filters with persistent and boot-time equivalents.
 ///
 /// This must only be called once `winfw` has been deinitialized *without* cleaning up,
-/// i.e. with [`WinFwCleanupPolicy::BlockingUntilReboot`], and only if the policy in effect
+/// i.e. with [`CleanupPolicy::BlockingUntilReboot`], and only if the policy in effect
 /// was the blocked one. The ephemeral filters stay in effect until this is called, and the
 /// swap itself happens in a single transaction, so there is no point at which traffic is
 /// permitted.
@@ -81,7 +77,7 @@ pub enum Error {
 /// Waits up to [`TRANSACTION_TIMEOUT`] for the WFP transaction lock, and then as long as
 /// the filter engine needs to enumerate and replace the filters.
 ///
-/// [`WinFwCleanupPolicy::BlockingUntilReboot`]: super::super::winfw::WinFwCleanupPolicy::BlockingUntilReboot
+/// [`CleanupPolicy::BlockingUntilReboot`]: winfw::CleanupPolicy::BlockingUntilReboot
 pub fn apply_persistent_blocking() -> Result<(), Error> {
     // A standard (non-dynamic) session, so that the objects added here outlive it.
     let mut engine = FilterEngineBuilder::default()
@@ -141,7 +137,7 @@ fn remove_ephemeral_objects(transaction: &Transaction<'_>) -> Result<(), Error> 
     }
 
     ignore_not_found(
-        delete_provider(transaction, &guids::PROVIDER),
+        delete_provider(transaction, guids::PROVIDER),
         FWP_E_PROVIDER_NOT_FOUND,
     )
     .map_err(Error::RemoveEphemeral)
@@ -150,7 +146,7 @@ fn remove_ephemeral_objects(transaction: &Transaction<'_>) -> Result<(), Error> 
 /// Whether an object with this provider is one of the ephemeral ones, i.e. one that only
 /// lives for as long as the daemon is running.
 fn is_ephemeral(provider: Option<GUID>) -> bool {
-    provider.is_some_and(|provider| guids::eq(&provider, &guids::PROVIDER))
+    provider.is_some_and(|provider| provider == guids::PROVIDER)
 }
 
 /// Install the persistent provider and sublayer, and the boot-time and persistent

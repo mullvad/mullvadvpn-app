@@ -121,18 +121,9 @@ fi
 if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
-    NPM_PACK_ARGS+=(--release)
 else
     RUST_BUILD_MODE="debug"
     NPM_PACK_ARGS+=(--no-compression)
-fi
-# The cargo builds that are part of the C++ builds only enforce `--locked` when built
-# in release mode. And we must enforce `--locked` for all signed builds. So we enable
-# release mode if either optimizations or signing is enabled.
-if [[ "$OPTIMIZE" == "true" || "$SIGN" == "true" ]]; then
-    CPP_BUILD_MODE="Release"
-else
-    CPP_BUILD_MODE="Debug"
 fi
 
 function assert_clean_working_directory {
@@ -215,7 +206,7 @@ function sign_win {
     "$SCRIPT_DIR/scripts/sign-windows.sh" "$@"
 }
 
-# Build the daemon and other Rust/C++ binaries, optionally
+# Build the daemon and other Rust binaries, optionally
 # sign them, and copy to `dist-assets/`.
 function build {
     local specified_target=${1:-""}
@@ -329,34 +320,13 @@ function build {
 }
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    if [[ "$IS_RELEASE" == "true" ]]; then
-        ./build-windows-modules.sh clean
-    else
-        echo "Will NOT clean intermediate files in ./windows/**/bin/ in dev builds"
+    log_header "Building NSIS plugins"
+    cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis
+
+    if [[ "$SIGN" == "true" ]]; then
+        # The NSIS plugins are always built in 32-bit release mode
+        sign_win target/i686-pc-windows-msvc/release/*.dll
     fi
-
-    for t in "${TARGETS[@]:-"$HOST"}"; do
-        case "${t:-"$HOST"}" in
-            x86_64-pc-windows-msvc) CPP_BUILD_TARGET=x64;;
-            aarch64-pc-windows-msvc) CPP_BUILD_TARGET=ARM64;;
-            *)
-                log_error "Unknown Windows target: $t"
-                exit 1
-                ;;
-        esac
-
-        log_header "Building C++ code in $CPP_BUILD_MODE mode for $CPP_BUILD_TARGET"
-        CPP_BUILD_MODES=$CPP_BUILD_MODE CPP_BUILD_TARGETS=$CPP_BUILD_TARGET ./build-windows-modules.sh
-
-        if [[ "$SIGN" == "true" ]]; then
-            CPP_BINARIES=(
-                "windows/winfw/bin/$CPP_BUILD_TARGET-$CPP_BUILD_MODE/winfw.dll"
-                # The nsis plugins are always built in 32 bit release mode
-                target/i686-pc-windows-msvc/release/*.dll
-            )
-            sign_win "${CPP_BINARIES[@]}"
-        fi
-    done
 fi
 
 for t in "${TARGETS[@]:-""}"; do
