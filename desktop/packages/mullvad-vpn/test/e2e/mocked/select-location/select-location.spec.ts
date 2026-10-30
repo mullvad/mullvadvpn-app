@@ -852,6 +852,49 @@ test.describe('Select location', () => {
         await routes.selectLocation.gotoExitFilter();
         await expect(quicFilterChip).not.toBeVisible();
       });
+
+      test('Should show a warning dialog when changing multihop mode without automatic entry location and with active entry filters', async () => {
+        settings = await helpers.mockSettings(
+          {
+            entryLocation: {
+              only: {
+                country: relayList.countries[0].code,
+              },
+            },
+          },
+          settings,
+        );
+
+        const providers = helpers.getProvidersFromRelayList(relayList);
+        settings = await helpers.updateMockEntryRelayFilter(
+          {
+            providers: [providers[0]],
+          },
+          settings,
+        );
+
+        // Open menu and select `when-needed`
+        await routes.selectLocation.openHeaderMenu();
+        const headerMenuItem = routes.selectLocation.getHeaderMenuItem('When needed');
+
+        await expect(headerMenuItem).toBeVisible();
+        await Promise.all([util.ipc.settings.setRelaySettings.ignore(), headerMenuItem.click()]);
+
+        // Cancel first
+        const cancelButton = routes.selectLocation.getEntryFiltersOverrideDialogButton('Cancel');
+        await expect(cancelButton).toBeVisible();
+        await cancelButton.click();
+
+        // Trigger dialog again
+        await Promise.all([util.ipc.settings.setRelaySettings.ignore(), headerMenuItem.click()]);
+
+        const continueButton =
+          routes.selectLocation.getEntryFiltersOverrideDialogButton('Continue');
+        await expect(continueButton).toBeVisible();
+
+        // Multihop mode should now be updated
+        await Promise.all([util.ipc.settings.setRelaySettings.ignore(), continueButton.click()]);
+      });
     });
 
     test.describe('multihop: when-needed', () => {
