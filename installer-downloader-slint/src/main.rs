@@ -3,6 +3,7 @@
 
 use installer_downloader::controller::initialize_controller;
 use installer_downloader::environment::Environment;
+use installer_downloader::log;
 use slint::Weak;
 
 use crate::delegate::SlintApp;
@@ -13,6 +14,7 @@ slint::include_modules!();
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let _logger = log::init();
     let ui = AppWindow::new()?;
     let app = init_backend(ui.as_weak())?;
     ui.run()?;
