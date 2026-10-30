@@ -22,6 +22,10 @@ export class MultihopSettingsRouteObjectModel {
     return this.selectors.multihopModeItem(this.getMultihopModeItems(), label);
   }
 
+  getEntryFiltersOverrideDialogButton(label: string) {
+    return this.selectors.entryFiltersOverrideDialogButton(label);
+  }
+
   async selectMultihopMode(label: string) {
     const multihopModeItem = this.getMultihopModeItem(label);
     await multihopModeItem.click();
