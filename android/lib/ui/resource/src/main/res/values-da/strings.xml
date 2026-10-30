@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Du kan have op til 5 enheder logget ind på én Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Hvis du logger ud, fjernes enheden og enhedsnavnet. Når du logger på igen, får enheden et nyt navn.</string>
     <string name="direct">Direkte</string>
+    <string name="direct_info_message_part1">Med \"Direkte\"-metoden kommunikerer appen med en Mullvad API-server direkte uden nogen mellemliggende proxyer.</string>
+    <string name="direct_info_message_part2">Dette kan være nyttigt, når du ikke er berørt af censur.</string>
     <string name="direct_only_removed_first_paragraph">DAITA-underindstillingen \"Kun direkte\" er blevet fjernet og forenklet for at undgå blokering af forbindelser. Når DAITA er aktiveret, kan du i stedet vælge denne mulighed med multihop-indstillingen.</string>
     <string name="direct_only_removed_second_paragraph">Når multihop er indstillet til \"Efter behov\", kan appen bruge en ekstra server til at sikre, at du opretter forbindelse til din valgte placering ved hjælp af DAITA.</string>
     <string name="direct_only_removed_third_paragraph">Når multihop er indstillet til \"Altid\" eller \"Aldrig\", skal du manuelt vælge en DAITA-server.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Bemærk: DNS-indstillinger træder muligvis ikke i kraft med det samme.</b></string>
     <string name="dns_settings_issues_first_paragraph">DNS-indstillinger træder muligvis ikke i kraft med det samme.</string>
     <string name="dns_settings_issues_second_paragraph">Deaktiver Privat DNS i %1$s, da det muligvis vil skabe konflikt med Mullvads DNS-indstillinger.</string>
+    <string name="domain_fronting_info_message_part1">Med %1$s-adgangsmetoden tilgår appen Mullvad API\'en via en CDN, så trafikken blandes med en masse anden internettrafik, hvilket gør det vanskeligt at censurere den.</string>
+    <string name="domain_fronting_info_message_part2">Dette kan være nyttigt, når censur blokerer direkte adgang og andre metoder.</string>
     <string name="duplicate_address_warning">Denne adresse er allerede blevet indtastet.</string>
     <string name="edit_custom_lists">Rediger tilpassede lister</string>
     <string name="edit_list">Rediger liste</string>

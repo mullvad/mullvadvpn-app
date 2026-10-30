@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี</string>
     <string name="device_name_info_third_paragraph">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</string>
     <string name="direct">โดยตรง</string>
+    <string name="direct_info_message_part1">การใช้วิธีการ \"โดยตรง\" จะทำให้แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API โดยตรง โดยไม่ต้องใช้พร็อกซี่ตัวกลาง</string>
+    <string name="direct_info_message_part2">ตัวเลือกนี้อาจมีประโยชน์ในกรณีที่คุณไม่ได้ถูกเซ็นเซอร์ใดๆ</string>
     <string name="direct_only_removed_first_paragraph">การตั้งค่าย่อยของ DAITA อย่าง \"โดยตรงเท่านั้น\" ได้ถูกนำออกและปรับให้เรียบง่ายขึ้นเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อ แทนที่จะเป็นเช่นนั้น การเปิดใช้งาน DAITA จะช่วยให้คุณสามารถเลือกตัวเลือกนี้ได้ด้วยการตั้งค่ามัลติฮอป</string>
     <string name="direct_only_removed_second_paragraph">แอปอาจใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้แน่ใจว่าคุณเชื่อมต่อกับตำแหน่งที่เลือกโดยใช้ DAITA เมื่อตั้งค่ามัลติฮอปเป็น “เมื่อจำเป็น”</string>
     <string name="direct_only_removed_third_paragraph">คุณต้องเลือกเซิร์ฟเวอร์ DAITA ด้วยตนเอง เมื่อตั้งค่ามัลติฮอปเป็น “ตลอดเวลา” หรือ “ไม่เลย”</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>โปรดทราบ: การตั้งค่า DNS อาจไม่ได้มีผลทันที</b></string>
     <string name="dns_settings_issues_first_paragraph">การตั้งค่า DNS อาจไม่มีผลทันที</string>
     <string name="dns_settings_issues_second_paragraph">ปิดDNS ส่วนตัวใน %1$s เนื่องจากอาจไปรบกวนการตั้งค่า DNS ของ Mullvad ได้</string>
+    <string name="domain_fronting_info_message_part1">วิธีการเข้าถึงแบบ %1$s จะช่วยให้แอปสามารถจะเข้าถึง Mullvad API ผ่าน CDN ซึ่งจะผสมการรับส่งข้อมูลเข้ากับการรับส่งข้อมูลอินเทอร์เน็ตอื่นๆ จำนวนมาก และทำให้ถูกเซ็นเซอร์ได้ยากขึ้น</string>
+    <string name="domain_fronting_info_message_part2">สิ่งนี้มีประโยชน์เมื่อการเข้าถึงโดยตรง และวิธีการอื่นๆ ถูกบล็อกจากการเซ็นเซอร์</string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
     <string name="edit_custom_lists">แก้ไขรายการแบบกำหนดเอง</string>
     <string name="edit_list">แก้ไขรายการ</string>

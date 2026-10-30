@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="direct">Suora</string>
+    <string name="direct_info_message_part1">Nk. suora menetelmä sallii sovelluksen kommunikoida Mullvadin ohjelmointirajapinnan palvelimen kanssa suoraan ilman välityspalvelimia.</string>
+    <string name="direct_info_message_part2">Tästä voi olla hyötyä, kun sensuurilla ei ole vaikutusta toimintaasi.</string>
     <string name="direct_only_removed_first_paragraph">DAITAn aliasetus \"vain suora\" on poistettu käytöstä, ja sitä on yksinkertaistettu yhteyksien estämisen välttämiseksi. Kun DAITA on käytössä, tämä valinta tehdään sen sijaan multihop-asetuksella.</string>
     <string name="direct_only_removed_second_paragraph">Kun multihop-asetuksena on \"tarvittaessa\", sovellus voi käyttää lisäpalvelinta varmistaakseen, että muodostat yhteyden valittuun sijaintiin DAITAa käyttämällä.</string>
     <string name="direct_only_removed_third_paragraph">Kun multihop-asetuksena on \"aina\" tai \"ei koskaan\", DAITA-palvelin on valittava manuaalisesti.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>Huomio: uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</b></string>
     <string name="dns_settings_issues_first_paragraph">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</string>
     <string name="dns_settings_issues_second_paragraph">Poista yksityinen DNS käytöstä %1$s, sillä se saattaa häiritä Mullvadin DNS-asetuksia.</string>
+    <string name="domain_fronting_info_message_part1">Kun pääsytapa on %1$s, sovellus saavuttaa Mullvadin API:n CDN:n kautta. Tämä sekoittaa liikenteen suureen määrään muuta internetliikennettä, mikä vaikeuttaa sen sensurointia.</string>
+    <string name="domain_fronting_info_message_part2">Tämä voi olla hyödyllistä, kun sensuuri estää suoran pääsyn ja muut tavat.</string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>

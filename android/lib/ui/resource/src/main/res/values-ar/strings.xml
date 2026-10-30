@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">يمكنك تسجيل الدخول إلى ما يصل إلى 5 أجهزة على حساب Mullvad واحد.</string>
     <string name="device_name_info_third_paragraph">عند تسجيل الخروج، سيتم حذف الجهاز واسمه. وعند تسجيل الدخول مجددًا، سيحصل الجهاز على اسم جديد.</string>
     <string name="direct">مباشر</string>
+    <string name="direct_info_message_part1">باستخدام طريقة الوصول \"المباشر\"، يتواصل التطبيق مع خادم Mullvad API مباشرةً دون أي خوادم وكيلة وسيطة.</string>
+    <string name="direct_info_message_part2">قد يكون هذا مفيدًا عندما لا تؤثر عليك الرقابة.</string>
     <string name="direct_only_removed_first_paragraph">تمت إزالة الإعداد الفرعي \"مباشر فقط\" ضمن DAITA وتبسيطه لتجنّب حظر الاتصالات. بدلًا من ذلك، عند تفعيل DAITA، يمكنك ضبط هذا الخيار من خلال إعداد تعدد القفزات.</string>
     <string name="direct_only_removed_second_paragraph">عند ضبط تعدد القفزات على \"عند الحاجة\"، قد يستخدم التطبيق خادمًا إضافيًا لضمان اتصالك بالموقع الذي اخترته باستخدام DAITA.</string>
     <string name="direct_only_removed_third_paragraph">عند ضبط وضع القفزات المتعددة على “دائمًا” أو “أبدًا”، فيجب أن تختار خادم DAITA يدويًا.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>تنبيه: قد لا يتم تطبيق إعدادات DNS على الفور.</b></string>
     <string name="dns_settings_issues_first_paragraph">قد لا يتم تطبيق إعدادات DNS على الفور.</string>
     <string name="dns_settings_issues_second_paragraph">يُرجى إيقاف تشغيل نظام أسماء النطاقات الخاص (DNS) في %1$s لمنع أي تعارض مع إعدادات DNS الخاصة بـ Mullvad.   </string>
+    <string name="domain_fronting_info_message_part1">باستخدام طريقة الوصول %1$s، يصل التطبيق إلى واجهة برمجة تطبيقات Mullvad عبر شبكة توصيل المحتوى (CDN)، مما يدمج حركة البيانات مع حركة البيانات الأخرى العديدة على الإنترنت، ويجعل حجبها أكثر صعوبة.</string>
+    <string name="domain_fronting_info_message_part2">قد يكون هذا مفيدًا في حالة حظر الوصول المباشر والأساليب الأخرى بسبب الرقابة.</string>
     <string name="duplicate_address_warning">لقد تم إدخال هذا العنوان بالفعل.</string>
     <string name="edit_custom_lists">تعديل القوائم المُخصَّصة</string>
     <string name="edit_list">تعديل القائمة</string>

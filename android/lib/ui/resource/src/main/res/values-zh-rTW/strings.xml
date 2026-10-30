@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">一個 Mullvad 帳戶最多可以登入 5 台裝置。</string>
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
     <string name="direct">直接</string>
+    <string name="direct_info_message_part1">使用「直接」方式，應用程式將直接與 Mullvad API 伺服器通訊，而不經過任何中間代理伺服器。</string>
+    <string name="direct_info_message_part2">當您不受審查影響時，此方式可能會很有用。</string>
     <string name="direct_only_removed_first_paragraph">DAITA 的「僅限直接連線」子設定已移除，並簡化相關設定，以避免連線受阻。啟用 DAITA 後，您可以透過多點跳躍設定決定是否僅使用直接連線。</string>
     <string name="direct_only_removed_second_paragraph">若多點跳躍設為「必要時」，應用程式可能會使用其他伺服器，以確保您使用 DAITA 連至所選位置。</string>
     <string name="direct_only_removed_third_paragraph">若多點跳躍設為「一律」或「從不」，您必須手動選擇 DAITA 伺服器。</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>注意：DNS 設定可能不會立即生效。</b></string>
     <string name="dns_settings_issues_first_paragraph">DNS 設定可能不會立即生效.</string>
     <string name="dns_settings_issues_second_paragraph">在「%1$s」中關閉私人 DNS，因為此設定可能會干擾 Mullvad 的 DNS 設定。</string>
+    <string name="domain_fronting_info_message_part1">採用 %1$s 存取方式時，應用程式會透過 CDN 連線至 Mullvad API，使相關流量混雜在大量其他網際網路流量中，增加審查封鎖的難度。</string>
+    <string name="domain_fronting_info_message_part2">當網路審查阻斷了直接連線及其他連線方式時，這種方式就能派上用場。</string>
     <string name="duplicate_address_warning">此地址已輸入過。</string>
     <string name="edit_custom_lists">編輯自訂清單</string>
     <string name="edit_list">編輯清單</string>
