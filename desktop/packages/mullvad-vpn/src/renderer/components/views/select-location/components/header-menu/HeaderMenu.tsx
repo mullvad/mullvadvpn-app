@@ -1,5 +1,8 @@
+import React from 'react';
+
 import { messages } from '../../../../../../shared/gettext';
 import { DisableRecentsDialog } from '../../../../../features/locations/components';
+import { EntryFiltersWarningDialog } from '../../../../../features/multihop/components';
 import { Menu, type MenuProps } from '../../../../../lib/components/menu';
 import {
   MultihopAlwaysMenuOption,
@@ -8,14 +11,33 @@ import {
   RecentsMenuOption,
 } from './components';
 import { HeaderMenuProvider, useHeaderMenuContext } from './HeaderMenuContext';
+import { useSetMultihopWhenNeeded } from './hooks';
 
 export type HeaderMenuProps = MenuProps;
 
 function HeaderMenuImpl({
   ...props
 }: Omit<HeaderMenuProps, 'triggerRef' | 'open' | 'onOpenChange'>) {
-  const { disableRecentsDialogOpen, open, onOpenChange, setDisableRecentsDialogOpen, triggerRef } =
-    useHeaderMenuContext();
+  const {
+    disableRecentsDialogOpen,
+    entryFiltersWarningDialogOpen,
+    open,
+    onOpenChange,
+    setDisableRecentsDialogOpen,
+    setEntryFiltersWarningDialogOpen,
+    triggerRef,
+  } = useHeaderMenuContext();
+  const setMultihopWhenNeeded = useSetMultihopWhenNeeded();
+
+  const handleContinue = React.useCallback(async () => {
+    await setMultihopWhenNeeded();
+    setEntryFiltersWarningDialogOpen(false);
+    onOpenChange?.(false);
+  }, [onOpenChange, setEntryFiltersWarningDialogOpen, setMultihopWhenNeeded]);
+
+  const handleCancel = React.useCallback(() => {
+    setEntryFiltersWarningDialogOpen(false);
+  }, [setEntryFiltersWarningDialogOpen]);
 
   return (
     <>
@@ -37,6 +59,11 @@ function HeaderMenuImpl({
       <DisableRecentsDialog
         open={disableRecentsDialogOpen}
         onOpenChange={setDisableRecentsDialogOpen}
+      />
+      <EntryFiltersWarningDialog
+        open={entryFiltersWarningDialogOpen}
+        onCancel={handleCancel}
+        onContinue={handleContinue}
       />
     </>
   );

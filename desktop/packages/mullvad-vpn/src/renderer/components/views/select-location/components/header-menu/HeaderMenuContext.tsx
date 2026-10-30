@@ -5,6 +5,8 @@ import { type HeaderMenuProps } from './HeaderMenu';
 type HeaderMenuContextProps = Omit<HeaderMenuProviderProps, 'children'> & {
   disableRecentsDialogOpen: boolean;
   setDisableRecentsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  entryFiltersWarningDialogOpen: boolean;
+  setEntryFiltersWarningDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const HeaderMenuContext = React.createContext<HeaderMenuContextProps | undefined>(undefined);
@@ -26,6 +28,7 @@ export function HeaderMenuProvider({
   open,
 }: HeaderMenuProviderProps) {
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
+  const [entryFiltersWarningDialogOpen, setEntryFiltersWarningDialogOpen] = React.useState(false);
 
   const value = React.useMemo(
     () => ({
@@ -34,8 +37,10 @@ export function HeaderMenuProvider({
       onOpenChange,
       disableRecentsDialogOpen,
       setDisableRecentsDialogOpen,
+      entryFiltersWarningDialogOpen,
+      setEntryFiltersWarningDialogOpen,
     }),
-    [disableRecentsDialogOpen, onOpenChange, open, triggerRef],
+    [disableRecentsDialogOpen, entryFiltersWarningDialogOpen, onOpenChange, open, triggerRef],
   );
 
   return <HeaderMenuContext.Provider value={value}>{children}</HeaderMenuContext.Provider>;
