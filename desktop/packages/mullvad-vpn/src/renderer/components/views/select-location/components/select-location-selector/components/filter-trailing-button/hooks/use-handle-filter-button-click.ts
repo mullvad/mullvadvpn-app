@@ -31,12 +31,7 @@ export function useHandleFilterButtonClick() {
   const handleFilterButtonClick = React.useCallback(() => {
     const locationType = type === 'entryAutomatic' ? 'entry' : type;
 
-    const unregisterListener = history.listen(async (location) => {
-      if (location.pathname === RoutePath.filter) {
-        await document.activeViewTransition?.finished;
-        setSelectLocationView(locationTypeAsEnum(type));
-      }
-    });
+    setSelectLocationView(locationTypeAsEnum(type));
 
     history.push(RoutePath.filter, {
       options: [
@@ -46,10 +41,6 @@ export function useHandleFilterButtonClick() {
         },
       ],
     });
-
-    return () => {
-      unregisterListener();
-    };
   }, [history, setSelectLocationView, type]);
 
   return handleFilterButtonClick;
