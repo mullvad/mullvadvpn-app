@@ -1,6 +1,6 @@
 //! Windows firewall for the Mullvad app.
 //!
-//! The module is a singleton per process: initialize [`Manager::new`] once,
+//! The module is a singleton per process: initialize `Manager::new` once,
 //! then drive it with the `apply_policy_*` methods.
 
 #![cfg(target_os = "windows")]
