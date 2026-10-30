@@ -7331,8 +7331,7 @@ dependencies = [
 [[package]]
 name = "wfp"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f0382780f5db1e7101e69eb4f9b5950463e75c115967e805bef66968786c97c"
+source = "git+https://github.com/mullvad/wfp-rs?branch=loopback-and-not-equal#e4550ec916f5d0bb3b5df13d55588467995ff041"
 dependencies = [
  "log",
  "windows-sys 0.61.2",

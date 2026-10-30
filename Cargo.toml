@@ -259,3 +259,9 @@ strip = false
 lto = "thin"
 # Back to the cargo default; this profile favours build speed.
 codegen-units = 16
+
+# Development: the Windows firewall rewrite needs additions to wfp-rs that are
+# not released yet. They are available on the `loopback-and-not-equal` branch
+# of the public repository while in development.
+[patch.crates-io]
+wfp = { git = "https://github.com/mullvad/wfp-rs", branch = "loopback-and-not-equal" }
