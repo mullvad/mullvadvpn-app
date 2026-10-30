@@ -127,3 +127,6 @@ export function fileExists(filePath: string): boolean {
     return false;
   }
 }
+
+// TODO: Remove this in favor of the `LocationType` when it has been converted from an enum to a type
+export type MockLocationType = 'entry' | 'exit' | 'entryAutomatic';
