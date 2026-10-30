@@ -40,10 +40,9 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 
 | Version          | Architecture   | Type of test |
 |------------------|----------------|--------------|
-| 14 (Sonoma)      | x86-64 (Intel) | e2e          |
-| 14 (Sonoma)      | ARM64          | e2e, manual  |
 | 15 (Sequoia)     | ARM64          | e2e, manual  |
 | 26 (Tahoe)       | ARM64          | e2e, manual  |
+| 27 (Golden Gate) | ARM64          | e2e, manual  |
 
 ### Linux
 
