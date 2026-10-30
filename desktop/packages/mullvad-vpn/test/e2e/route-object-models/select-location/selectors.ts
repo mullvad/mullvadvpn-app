@@ -15,6 +15,10 @@ export const createSelectors = (page: Page) => ({
     page.getByPlaceholder('Search exit location or server').filter({ visible: true }),
   selectLocationMenuButton: () =>
     page.getByRole('button', { name: 'Open select location menu' }).filter({ visible: true }),
+  entryFiltersOverrideDialogButton: (label: string) =>
+    page.getByRole('dialog').getByRole('button', {
+      name: label,
+    }),
   filterMenuOption: () =>
     page.getByRole('link', { name: 'Filters', exact: true }).filter({ visible: true }),
   filterEntryButton: () =>
@@ -38,6 +42,14 @@ export const createSelectors = (page: Page) => ({
   filterChipButton: (label: string) => {
     return page.locator('button', { hasText: label }).filter({ visible: true });
   },
+  headerMenu: () =>
+    page.getByRole('button', {
+      name: 'Open select location menu',
+    }),
+  headerMenuItem: (label: string) =>
+    page.getByRole('dialog').getByRole('button', {
+      name: label,
+    }),
   accordionButton: (label: string) => {
     const possiblePrefix = ['Expand', 'Collapse'];
     return page.getByLabel(new RegExp(`${possiblePrefix.join('|')} ${label}`));
