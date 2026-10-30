@@ -9,4 +9,8 @@ export const createSelectors = (page: Page) => ({
     itemsLocator.getByRole('option', {
       name,
     }),
+  entryFiltersOverrideDialogButton: (label: string) =>
+    page.getByRole('dialog').getByRole('button', {
+      name: label,
+    }),
 });
