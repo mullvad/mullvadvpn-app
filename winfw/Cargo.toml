@@ -6,9 +6,12 @@ description = "Windows firewall for the Mullvad app"
 repository.workspace = true
 license.workspace = true
 
+[dev-dependencies]
+insta.workspace = true
+
 [target."cfg(windows)".dependencies]
-log = { workspace = true }
 ipnetwork = { workspace = true }
+log = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 wfp = { workspace = true }
@@ -26,9 +29,6 @@ features = [
   "Win32_System_Rpc",
   "Win32_System_Threading",
 ]
-
-[dev-dependencies]
-insta.workspace = true
 
 [lints]
 workspace = true
