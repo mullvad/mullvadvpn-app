@@ -306,3 +306,10 @@ reason = "The app does not use dependency directly, it is used by AGP that build
 id = "CVE-2026-8763"  # GHSA-9pwp-9qqc-pr26
 ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# CompactHashMap/CompactHashSet/MapMakerInternalMap native deserialization triggers uncontrolled memory allocation
+[[IgnoredVulns]]
+id = "CVE-2026-102554"  # GHSA-xxph-c9ww-hj94
+ignoreUntil = 2027-02-01
+reason = "This dependency is used by lint, testing and datastore. It is not used to parse external data,
+no impact on app"
