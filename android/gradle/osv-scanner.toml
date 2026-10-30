@@ -4,61 +4,61 @@
 # apache httpclient: Cross-site scripting
 [[IgnoredVulns]]
 id = "CVE-2020-13956"  # GHSA-7r82-7xv7-xcpj
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "Apache http client is used by lint and not the app directly."
 
 # XML External Entity (XXE) Injection in JDOM
 [[IgnoredVulns]]
 id = "CVE-2021-33813"  # GHSA-2363-cqg2-863c
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "JDOM is used by AGP and not the app directly"
 
 # jose4j: Jose4j is vulnerable to DoS via compressed JWE content
 [[IgnoredVulns]]
 id = "CVE-2024-29371"  # GHSA-3677-xxcr-wjqv
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "Denial-of-Service condition is not relevant."
 
 # Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic Algorithm vulnerability in bcpkix modules
 [[IgnoredVulns]]
 id = "CVE-2026-5588"  # GHSA-wg6q-6289-32hp
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs
 [[IgnoredVulns]]
 id = "CVE-2025-48924"  # GHSA-j288-q9x7-2f5v
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Bouncy Castle has an LDAP injection
 [[IgnoredVulns]]
 id = "CVE-2026-0636"  # GHSA-c3fc-8qff-9hwx
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # JetBrains Kotlin: Unsafe Deserialization in Kotlin Build Cache Enables Code Execution
 [[IgnoredVulns]]
 id = "CVE-2026-53914"  # GHSA-r937-wjx7-w2jp
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used to compile the app, no impact on app"
 
 # Wire: Unauthenticated decoder crash via 32-bit length integer overflow in ByteArrayProtoReader32
 [[IgnoredVulns]]
 id = "CVE-2026-63126"  # GHSA-9rm7-3qhh-h2mc
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The version of Wire containing this vulnerability is only used to generate baseline profiles. It is not used by the app directly."
 
 # Bouncy Castle: Lazy ASN.1 sequence forcing resets nesting-depth guard
 [[IgnoredVulns]]
 id = "CVE-2026-13506"  # GHSA-qp49-qgx5-5m26
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Bouncy Castle: Name Constraints bypass via trailing dot in rfc822Name and URI
 [[IgnoredVulns]]
 id = "CVE-2026-8763"  # GHSA-9pwp-9qqc-pr26
-ignoreUntil = 2026-11-01
+ignoreUntil = 2027-02-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # CompactHashMap/CompactHashSet/MapMakerInternalMap native deserialization triggers uncontrolled memory allocation
