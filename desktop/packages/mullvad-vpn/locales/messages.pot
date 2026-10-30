@@ -1894,6 +1894,10 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr ""
 
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr ""
+
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
