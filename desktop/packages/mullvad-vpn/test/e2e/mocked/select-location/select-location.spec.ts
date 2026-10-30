@@ -477,9 +477,6 @@ test.describe('Select location', () => {
                 settings,
               );
               await util.expectRoute(RoutePath.selectLocation);
-              // TODO: Remove goToLocations when the Filter view selects
-              // the appropriate exit or entry locations automatically
-              await routes.selectLocation.gotoLocations(locationType);
 
               const providerFilterChip = routes.selectLocation.getFilterChipButton('Providers: 1');
               await expect(providerFilterChip).toBeVisible();
@@ -507,9 +504,6 @@ test.describe('Select location', () => {
 
               await routes.filter.applyFilter();
               await util.expectRoute(RoutePath.selectLocation);
-              // TODO: Remove goToLocations when the Filter view selects
-              // the appropriate exit or entry locations automatically
-              await routes.selectLocation.gotoLocations(locationType);
 
               const ownerFilterChip = routes.selectLocation.getFilterChipButton('Rented');
               await expect(ownerFilterChip).toBeVisible();
