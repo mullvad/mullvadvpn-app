@@ -65,5 +65,4 @@ reason = "The app does not use dependency directly, it is used by AGP that build
 [[IgnoredVulns]]
 id = "CVE-2026-102554"  # GHSA-xxph-c9ww-hj94
 ignoreUntil = 2027-02-01
-reason = "This dependency is used by lint, testing and datastore. It is not used to parse external data,
-no impact on app"
+reason = "This dependency is used by lint, testing and datastore. It is not used to parse external data, no impact on app"
