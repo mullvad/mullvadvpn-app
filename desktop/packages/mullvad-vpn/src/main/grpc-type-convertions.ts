@@ -365,15 +365,20 @@ function convertFromTunnelStateRelayInfo(
 function convertFromFeatureIndicators(
   featureIndicators?: Array<grpcTypes.FeatureIndicator>,
 ): Array<FeatureIndicator> | undefined {
-  return featureIndicators?.map(convertFromFeatureIndicator);
+  return featureIndicators
+    ?.map(convertFromFeatureIndicator)
+    .filter((indicator) => indicator !== undefined);
 }
 
 function convertFromFeatureIndicator(
   featureIndicator: grpcTypes.FeatureIndicator,
-): FeatureIndicator {
+): FeatureIndicator | undefined {
   switch (featureIndicator) {
     case grpcTypes.FeatureIndicator.QUANTUM_RESISTANCE:
       return FeatureIndicator.quantumResistance;
+    // Custom VPN is not supported in the desktop app
+    case grpcTypes.FeatureIndicator.CUSTOM_VPN:
+      return undefined;
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:

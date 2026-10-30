@@ -1365,6 +1365,113 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::DeleteMultihopMigration)?;
         Ok(Response::new(()))
     }
+    #[cfg(feature = "custom-vpn")]
+    async fn set_custom_vpn_config(
+        &self,
+        request: Request<types::CustomVpnConfig>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("set_custom_vpn_config");
+        let config = talpid_types::net::wireguard::CustomVpnConfig::try_from(request.into_inner())
+            .map_err(map_protobuf_type_err)?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, Some(config)))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::CustomVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn clear_custom_vpn_config(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("clear_custom_vpn_config");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, None))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::CustomVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn import_custom_vpn_config(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("import_custom_vpn_config");
+        let body = request.into_inner();
+        let config =
+            <talpid_types::net::wireguard::CustomVpnConfig as std::str::FromStr>::from_str(&body)
+                .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, Some(config)))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::CustomVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn get_custom_vpn_stats(&self, _: Request<()>) -> ServiceResult<types::CustomVpnStats> {
+        log::debug!("get_custom_vpn_stats");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCustomVpnStats(tx))?;
+        self.wait_for_result(rx).await.map(|stats| {
+            let stats = types::CustomVpnStats {
+                last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
+                    let duration = handshake
+                        .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                        .ok()?;
+                    Some(types::Timestamp {
+                        seconds: i64::try_from(duration.as_secs()).ok()?,
+                        nanos: 0,
+                    })
+                }),
+                tx_bytes: stats.tx_bytes,
+                rx_bytes: stats.rx_bytes,
+            };
+            Response::new(stats)
+        })
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
+    async fn set_custom_vpn_config(
+        &self,
+        _request: Request<types::CustomVpnConfig>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("set_custom_vpn_config");
+        Ok(Response::new(types::CustomVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
+    async fn clear_custom_vpn_config(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("clear_custom_vpn_config");
+        Ok(Response::new(types::CustomVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
+    async fn import_custom_vpn_config(
+        &self,
+        _request: Request<String>,
+    ) -> ServiceResult<types::CustomVpnConfigError> {
+        log::debug!("import_custom_vpn_config");
+        Ok(Response::new(types::CustomVpnConfigError {
+            error: "".to_string(),
+        }))
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
+    async fn get_custom_vpn_stats(&self, _: Request<()>) -> ServiceResult<types::CustomVpnStats> {
+        log::debug!("get_custom_vpn_stats");
+        Ok(Response::new(types::CustomVpnStats {
+            last_handshake_time: None,
+            rx_bytes: 0,
+            tx_bytes: 0,
+        }))
+    }
 }
 
 impl ManagementServiceImpl {
