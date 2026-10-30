@@ -29,8 +29,8 @@
     "talpid-*/**",
     "test/**",
     "tunnel-obfuscation/**",
-    "windows/**",
     "windows-installer/**",
+    "winfw/**",
     "typos.toml",
     ".github/workflows/typos.yml",
     ".github/workflows/desktop-*"
