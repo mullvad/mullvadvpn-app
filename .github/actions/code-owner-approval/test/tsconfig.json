@@ -1,7 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node"],
+    "lib": ["es6", "dom.iterable"]
   },
   "include": ["*.ts", "./**/*.ts", "../src/**/*.ts"],
   "exclude": []
