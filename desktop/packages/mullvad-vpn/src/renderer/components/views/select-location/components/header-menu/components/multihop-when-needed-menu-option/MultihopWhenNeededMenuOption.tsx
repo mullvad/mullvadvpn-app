@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { useActiveFilters, useEntryLocation } from '../../../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../../../features/locations/types';
 import { useMultihop } from '../../../../../../../features/multihop/hooks';
 import { Menu } from '../../../../../../../lib/components/menu';
 import { useHeaderMenuContext } from '../../HeaderMenuContext';
@@ -8,13 +10,30 @@ import { useSetMultihopWhenNeeded } from '../../hooks';
 
 export function MultihopWhenNeededMenuOption() {
   const { multihop } = useMultihop();
+  const { setEntryFiltersWarningDialogOpen } = useHeaderMenuContext();
+  const { isAnyListFilterActive: isAnyListEntryFilterActive } = useActiveFilters(
+    LocationType.entry,
+  );
   const { onOpenChange } = useHeaderMenuContext();
+
+  const { entryLocation } = useEntryLocation();
   const setMultihopWhenNeeded = useSetMultihopWhenNeeded();
 
   const handleMultihopWhenNeeded = React.useCallback(async () => {
-    await setMultihopWhenNeeded();
-    onOpenChange?.(false);
-  }, [onOpenChange, setMultihopWhenNeeded]);
+    if (multihop === 'always' && isAnyListEntryFilterActive && entryLocation !== 'any') {
+      setEntryFiltersWarningDialogOpen(true);
+    } else {
+      await setMultihopWhenNeeded();
+      onOpenChange?.(false);
+    }
+  }, [
+    entryLocation,
+    isAnyListEntryFilterActive,
+    multihop,
+    onOpenChange,
+    setEntryFiltersWarningDialogOpen,
+    setMultihopWhenNeeded,
+  ]);
 
   return (
     <Menu.Option>
