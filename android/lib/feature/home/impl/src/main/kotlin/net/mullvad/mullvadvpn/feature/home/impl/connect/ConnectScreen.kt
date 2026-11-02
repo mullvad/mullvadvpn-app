@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -297,10 +298,14 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                 }
 
             ConnectViewModel.UiSideEffect.ShowNotificationPermissionPrompt -> {
+                Logger.d {
+                    "ShowNotification: Showing notification permission prompt ${notificationPermissionState?.status}"
+                }
                 if (
                     notificationPermissionState != null &&
                         !notificationPermissionState.status.isGranted
                 ) {
+                    Logger.d { "ShowNotification: Launching permission dialog" }
                     notificationPermissionState.launchPermissionRequest()
                     connectViewModel.setHasShownNotificationPrompt()
                 }
