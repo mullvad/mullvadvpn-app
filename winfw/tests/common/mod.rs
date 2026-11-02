@@ -57,7 +57,7 @@ impl Firewall {
     }
 
     pub fn deinitialize(&mut self, cleanup: CleanupPolicy) {
-        if let Some(mut manager) = self.manager.take() {
+        if let Some(manager) = self.manager.take() {
             manager
                 .deinitialize(cleanup)
                 .expect("Failed to deinitialize the firewall");
@@ -89,7 +89,7 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        if let Some(mut manager) = self.manager.take()
+        if let Some(manager) = self.manager.take()
             && let Err(error) = manager.deinitialize(CleanupPolicy::ResetFirewall)
         {
             eprintln!("Failed to deinitialize the firewall: {error}");

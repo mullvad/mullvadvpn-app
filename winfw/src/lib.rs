@@ -263,16 +263,14 @@ pub enum ActivePolicy {
 /// first one's provider and sublayer objects already installed, which the
 /// initialization transaction removes and re-adds.
 pub struct Manager {
-    context: Option<context::FwContext>,
+    context: context::FwContext,
 }
 
 impl Manager {
     /// Initialize the firewall, with no policy in effect.
     pub fn new(timeout: Duration) -> Result<Self, Error> {
         context::FwContext::new(timeout)
-            .map(|context| Self {
-                context: Some(context),
-            })
+            .map(|context| Self { context })
             .map_err(Error::Initialization)
     }
 
@@ -285,16 +283,8 @@ impl Manager {
     ) -> Result<Self, Error> {
         let ruleset = policy_rules::blocked(settings, allowed_endpoint);
         context::FwContext::new_blocked(timeout, &ruleset)
-            .map(|context| Self {
-                context: Some(context),
-            })
+            .map(|context| Self { context })
             .map_err(Error::Initialization)
-    }
-
-    fn context(&mut self) -> Result<&mut context::FwContext, ApplyError> {
-        self.context
-            .as_mut()
-            .ok_or_else(|| policy_error(io::Error::other("the firewall module is not initialized")))
     }
 
     /// Apply the connecting policy.
@@ -306,9 +296,8 @@ impl Manager {
         allowed_endpoint: &AllowedEndpoint,
     ) -> Result<(), ApplyError> {
         self.validate_relays(relays, tunnel.exit_ip)?;
-        let context = self.context()?;
         let ruleset = policy_rules::connecting(settings, relays, tunnel, allowed_endpoint);
-        context
+        self.context
             .apply_policy_connecting(&ruleset)
             .map_err(policy_error)
     }
@@ -333,7 +322,6 @@ impl Manager {
             join_ips(non_tunnel_dns_servers)
         );
         log::debug!("Tunnel DNS servers: {}", join_ips(tunnel_dns_servers));
-        let context = self.context()?;
         let ruleset = policy_rules::connected(
             settings,
             relays,
@@ -341,7 +329,7 @@ impl Manager {
             tunnel_dns_servers,
             non_tunnel_dns_servers,
         );
-        context
+        self.context
             .apply_policy_connected(&ruleset)
             .map_err(policy_error)
     }
@@ -352,18 +340,15 @@ impl Manager {
         settings: &Settings,
         allowed_endpoint: Option<&AllowedEndpoint>,
     ) -> Result<(), ApplyError> {
-        let context = self.context()?;
         let ruleset = policy_rules::blocked(settings, allowed_endpoint);
-        context.apply_policy_blocked(&ruleset).map_err(policy_error)
+        self.context
+            .apply_policy_blocked(&ruleset)
+            .map_err(policy_error)
     }
 
-    /// Clear the policy in effect. Without an initialized
-    /// module, this removes everything the firewall ever registered.
+    /// Clear the policy in effect.
     pub fn reset(&mut self) -> Result<(), ApplyError> {
-        match self.context.as_mut() {
-            Some(context) => context.reset().map_err(policy_error),
-            None => purge_all(),
-        }
+        self.context.reset().map_err(policy_error)
     }
 
     /// Deinitialize the firewall, cleaning up according to `cleanup`.
@@ -375,10 +360,8 @@ impl Manager {
     ///
     /// With [`CleanupPolicy::BlockingPersistent`], this waits for the WFP
     /// transaction lock for up to the timeout the manager was created with.
-    pub fn deinitialize(&mut self, cleanup: CleanupPolicy) -> Result<(), Error> {
-        let Some(context) = self.context.take() else {
-            return Ok(());
-        };
+    pub fn deinitialize(self, cleanup: CleanupPolicy) -> Result<(), Error> {
+        let context = self.context;
         let was_blocked = context.active_policy() == ActivePolicy::Blocked;
 
         match cleanup {
@@ -395,9 +378,7 @@ impl Manager {
 
     /// The policy currently in effect.
     pub fn active_policy(&self) -> ActivePolicy {
-        self.context
-            .as_ref()
-            .map_or(ActivePolicy::None, context::FwContext::active_policy)
+        self.context.active_policy()
     }
 
     /// Validate the relays of the connecting and connected policies: there
@@ -422,8 +403,8 @@ impl Manager {
     }
 }
 
-/// Remove everything the firewall ever registered, in its own engine session.
-/// This is what [`Manager::reset`] does when the module is not initialized.
+/// Remove everything the firewall ever registered, in its own engine session,
+/// for resetting the firewall when no [`Manager`] is initialized.
 pub fn purge_all() -> Result<(), ApplyError> {
     context::purge_standalone().map_err(policy_error)
 }

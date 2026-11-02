@@ -72,7 +72,7 @@ pub(super) fn initialize_blocked(
 /// Deinitialize the module.
 pub(super) fn deinit(cleanup: CleanupPolicy) -> Result<(), super::Error> {
     let mut manager = lock_manager().map_err(|_| super::Error::Deinitialization)?;
-    let Some(mut instance) = manager.take() else {
+    let Some(instance) = manager.take() else {
         // Deinitializing an uninitialized module is a no-op, like in the C
         // library.
         return Ok(());
