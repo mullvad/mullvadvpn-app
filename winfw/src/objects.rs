@@ -3,8 +3,8 @@
 use std::io;
 
 use wfp::{
-    FilterEnumerator, SubLayerEnumerator, Transaction, delete_filter_by_guid, delete_provider,
-    delete_sublayer,
+    FilterEnumerator, Guid, SubLayerEnumerator, Transaction, delete_filter_by_guid,
+    delete_provider, delete_sublayer,
 };
 use windows_sys::Win32::Foundation::{
     FWP_E_FILTER_NOT_FOUND, FWP_E_PROVIDER_NOT_FOUND, FWP_E_SUBLAYER_NOT_FOUND,
@@ -64,22 +64,35 @@ pub fn add_sublayer_dns(transaction: &Transaction<'_>, recorder: &mut Recorder) 
 /// providers can fail transiently while filters in them are being deleted, so
 /// filters are deleted first, then sublayers, then providers.
 pub fn purge_all(transaction: &Transaction<'_>) -> io::Result<()> {
-    let mut filters = Vec::new();
-    let mut sublayers = Vec::new();
+    purge_providers(transaction, &[PROVIDER, PROVIDER_PERSISTENT])
+}
 
-    let mut filter_enum = FilterEnumerator::new(transaction)?;
-    while let Some(filter) = filter_enum.next() {
-        let filter = filter?;
-        if is_mullvad_provider(filter.provider().as_ref()) {
-            filters.push(filter.guid());
+/// Uninstall `providers` and every filter and sublayer belonging to them.
+pub(crate) fn purge_providers(transaction: &Transaction<'_>, providers: &[Guid]) -> io::Result<()> {
+    let is_purged =
+        |provider: Option<Guid>| provider.is_some_and(|provider| providers.contains(&provider));
+
+    // Collect the keys before deleting anything, closing each enumeration first: the
+    // objects should not be removed while the enumeration that produced them is open.
+    let mut filters = Vec::new();
+    {
+        let mut filter_enum = FilterEnumerator::new(transaction)?;
+        while let Some(filter) = filter_enum.next() {
+            let filter = filter?;
+            if is_purged(filter.provider()) {
+                filters.push(filter.guid());
+            }
         }
     }
 
-    let mut sublayer_enum = SubLayerEnumerator::new(transaction)?;
-    while let Some(sublayer) = sublayer_enum.next() {
-        let sublayer = sublayer?;
-        if is_mullvad_provider(sublayer.provider().as_ref()) {
-            sublayers.push(sublayer.guid());
+    let mut sublayers = Vec::new();
+    {
+        let mut sublayer_enum = SubLayerEnumerator::new(transaction)?;
+        while let Some(sublayer) = sublayer_enum.next() {
+            let sublayer = sublayer?;
+            if is_purged(sublayer.provider()) {
+                sublayers.push(sublayer.guid());
+            }
         }
     }
 
@@ -91,8 +104,9 @@ pub fn purge_all(transaction: &Transaction<'_>) -> io::Result<()> {
         ignore_not_found(delete_sublayer(transaction, guid))?;
     }
 
-    ignore_not_found(delete_provider(transaction, PROVIDER))?;
-    ignore_not_found(delete_provider(transaction, PROVIDER_PERSISTENT))?;
+    for provider in providers {
+        ignore_not_found(delete_provider(transaction, *provider))?;
+    }
 
     Ok(())
 }
@@ -107,8 +121,4 @@ pub(crate) fn ignore_not_found(result: io::Result<()>) -> io::Result<()> {
         .then_some(())
         .ok_or(error)
     })
-}
-
-fn is_mullvad_provider(provider: Option<&wfp::Guid>) -> bool {
-    provider.is_some_and(|guid| *guid == PROVIDER || *guid == PROVIDER_PERSISTENT)
 }

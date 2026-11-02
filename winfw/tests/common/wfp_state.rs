@@ -42,7 +42,8 @@ use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::{
 };
 
 use winfw::guids::{
-    PROVIDER, PROVIDER_PERSISTENT, SUBLAYER_BASELINE, SUBLAYER_DNS, known_object_name,
+    PROVIDER, PROVIDER_PERSISTENT, SUBLAYER_BASELINE, SUBLAYER_DNS, SUBLAYER_PERSISTENT,
+    known_object_name,
 };
 use wfp::FilterEngineBuilder;
 
@@ -160,7 +161,11 @@ pub fn dump() -> io::Result<String> {
 
     let mut ours: Vec<String> = sublayers
         .iter()
-        .filter(|sublayer| sublayer.key == SUBLAYER_BASELINE || sublayer.key == SUBLAYER_DNS)
+        .filter(|sublayer| {
+            sublayer.key == SUBLAYER_BASELINE
+                || sublayer.key == SUBLAYER_DNS
+                || sublayer.key == SUBLAYER_PERSISTENT
+        })
         .map(render_sublayer)
         .collect();
     ours.sort();
