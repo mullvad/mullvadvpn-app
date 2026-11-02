@@ -17,6 +17,7 @@ inotify = "0.10"
 nix = { workspace = true, features = ["net"] }
 parking_lot = "0.12.0"
 resolv-conf = "0.7"
+safelog.workspace = true
 talpid-dbus = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
 triggered = "0.1.1"
