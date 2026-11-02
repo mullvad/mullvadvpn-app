@@ -27,6 +27,13 @@ struct RootView: View {
             Spacer()
 
             LoginView(viewModel: viewModel)
+
+            Spacer()
+
+            TunnelButton()
+
+            Spacer()
+
             CreateAccountPromptView()
                 .background(Color.mullvadBackground)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 150)
@@ -34,6 +41,119 @@ struct RootView: View {
         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
         .background(Color.mullvadBackground)
         .environment(navigation)
+    }
+}
+
+import SwiftUI
+import NetworkExtension
+
+@MainActor @Observable
+final class TunnelController {
+    private(set) var status: NEVPNStatus = .invalid
+    private(set) var lastError: Error?
+
+    @ObservationIgnored private let providerBundleID = "net.mullvad.MullvadVPNTvOS.PacketTunnel"
+    @ObservationIgnored private var manager: NETunnelProviderManager?
+    @ObservationIgnored private var observer: NSObjectProtocol?
+
+    init() {
+        Task { _ = try? await existingManager() }
+    }
+
+    func toggle() async {
+        lastError = nil
+        do {
+            switch status {
+            case .connected, .connecting, .reasserting:
+                manager?.connection.stopVPNTunnel()
+            default:
+                try await connect()
+            }
+        } catch {
+            lastError = error
+        }
+    }
+
+    private func connect() async throws {
+        let m: NETunnelProviderManager
+        if let existing = try await existingManager() {
+            m = existing
+        } else {
+            m = NETunnelProviderManager()
+            let proto = NETunnelProviderProtocol()
+            proto.providerBundleIdentifier = providerBundleID
+            proto.serverAddress = "127.0.0.1"
+            m.protocolConfiguration = proto
+            m.localizedDescription = "Mullvad VPN"
+        }
+
+        try await m.loadFromPreferences()
+        m.isEnabled = true
+        // Another VPN app enabling its config flips ours to disabled,
+        // so check every time, not only on first install.
+        try await m.saveToPreferences()   // first time: system "Add VPN Configurations" prompt
+        try await m.loadFromPreferences() // required after save, otherwise start fails with stale/invalid config
+
+        attach(m)
+        try m.connection.startVPNTunnel(options: nil)
+        try await m.connection.fetchLastDisconnectError()
+    }
+
+    private func existingManager() async throws -> NETunnelProviderManager? {
+        if let manager { return manager }
+        let all = try await NETunnelProviderManager.loadAllFromPreferences()
+        let found = all.first {
+            ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == providerBundleID
+        }
+        if let found { attach(found) }
+        return found
+    }
+
+    private func attach(_ m: NETunnelProviderManager) {
+        guard manager !== m else { return }
+        manager = m
+        status = m.connection.status
+        if let observer { NotificationCenter.default.removeObserver(observer) }
+        observer = NotificationCenter.default.addObserver(
+            forName: .NEVPNStatusDidChange, object: m.connection, queue: .main
+        ) { [weak self] note in
+            let s = (note.object as? NEVPNConnection)?.status ?? .invalid
+            MainActor.assumeIsolated { self?.status = s }
+        }
+    }
+}
+
+struct TunnelButton: View {
+    @State private var tunnel = TunnelController()
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Button(buttonTitle) { Task { await tunnel.toggle() } }
+                .disabled(tunnel.status == .disconnecting)
+            Text(statusText).font(.caption).foregroundStyle(.secondary)
+            if let err = tunnel.lastError {
+                Text(err.localizedDescription).font(.caption).foregroundStyle(.red)
+            }
+        }
+    }
+
+    private var buttonTitle: String {
+        switch tunnel.status {
+        case .connected, .connecting, .reasserting: "Disconnect"
+        default: "Connect"
+        }
+    }
+
+    private var statusText: String {
+        switch tunnel.status {
+        case .invalid: "Not configured"
+        case .disconnected: "Disconnected"
+        case .connecting: "Connecting…"
+        case .connected: "Connected"
+        case .reasserting: "Reconnecting…"
+        case .disconnecting: "Disconnecting…"
+        @unknown default: "Unknown"
+        }
     }
 }
 
