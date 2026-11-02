@@ -1,7 +1,6 @@
 import { Location } from 'history';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { ViewTransition } from '../../../types/global';
 import { LocationState } from '../../shared/ipc-types';
 import { useAppContext } from '../context';
 import { TransitionType, useHistory } from '../lib/history';
