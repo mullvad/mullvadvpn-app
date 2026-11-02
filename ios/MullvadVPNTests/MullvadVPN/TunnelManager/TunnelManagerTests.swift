@@ -67,7 +67,7 @@ class TunnelManagerTests: XCTestCase {
     func testLogInStartsKeyRotations() async throws {
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
@@ -86,7 +86,7 @@ class TunnelManagerTests: XCTestCase {
     func testLogOutStopsKeyRotations() async throws {
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
@@ -116,7 +116,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
@@ -189,7 +189,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
@@ -266,7 +266,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
