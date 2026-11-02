@@ -19,12 +19,8 @@ h3-quinn = { version = "0.0.9", features = ["datagram"] }
 http = "1"
 libc = "0.2"
 log = { workspace = true }
-quinn = { version = "0.11", default-features = false, features = [
-  "log",
-  "runtime-tokio",
-  "rustls-aws-lc-rs"
-] }
-quinn-proto = { version = "0.11", default-features = false }
+quinn.workspace = true
+quinn-proto.workspace = true
 rustls = { workspace = true }
 rustls-pki-types = { workspace = true, optional = true }
 thiserror = { workspace = true }
