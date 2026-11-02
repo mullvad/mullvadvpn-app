@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -251,7 +252,12 @@ class ConnectViewModel(
     private fun showNotificationPromptEffect() =
         hasShownNotificationPromptRepository.hasShowNotificationPrompt
             .filter { !it }
-            .map { UiSideEffect.ShowNotificationPermissionPrompt }
+            .map {
+                Logger.d {
+                    "ShowNotification: Sending sideEffect to showing notification permission prompt"
+                }
+                UiSideEffect.ShowNotificationPermissionPrompt
+            }
 
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
