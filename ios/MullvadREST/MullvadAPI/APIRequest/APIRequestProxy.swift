@@ -46,22 +46,6 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
 
             // `proxiedRequests` must only be accessed on `dispatchQueue`.
             self.dispatchQueue.async {
-                guard let transport else {
-                    // Cancel old task, if there's one scheduled.
-                    self.cancelRequest(identifier: proxyRequest.id)
-
-                    completion(
-                        ProxyAPIResponse(
-                            data: nil,
-                            error: APIError(
-                                statusCode: 0,
-                                errorDescription: REST.InternalTransportError.noTransport.errorDescription,
-                                serverResponseCode: nil
-                            )
-                        )
-                    )
-                    return
-                }
                 do {
                     let cancellable = try transport.sendRequest(proxyRequest.request) { response in
                         // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
