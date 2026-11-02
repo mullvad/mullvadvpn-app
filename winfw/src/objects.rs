@@ -97,23 +97,18 @@ pub fn purge_all(transaction: &Transaction<'_>) -> io::Result<()> {
     Ok(())
 }
 
-/// Treat the WFP "object not found" errors as success: deleting
-/// fire-and-forget is best effort, since another process may have removed the
-/// objects already.
+/// Treat the WFP "object not found" errors as success.
 pub(crate) fn ignore_not_found(result: io::Result<()>) -> io::Result<()> {
-    match result {
-        Ok(()) => Ok(()),
-        Err(error) => {
-            if error.raw_os_error() == Some(FWP_E_FILTER_NOT_FOUND)
-                || error.raw_os_error() == Some(FWP_E_SUBLAYER_NOT_FOUND)
-                || error.raw_os_error() == Some(FWP_E_PROVIDER_NOT_FOUND)
-            {
-                Ok(())
-            } else {
-                Err(error)
-            }
+    result.or_else(|error| {
+        if error.raw_os_error() == Some(FWP_E_FILTER_NOT_FOUND)
+            || error.raw_os_error() == Some(FWP_E_SUBLAYER_NOT_FOUND)
+            || error.raw_os_error() == Some(FWP_E_PROVIDER_NOT_FOUND)
+        {
+            Ok(())
+        } else {
+            Err(error)
         }
-    }
+    })
 }
 
 fn is_mullvad_provider(provider: Option<&wfp::Guid>) -> bool {
