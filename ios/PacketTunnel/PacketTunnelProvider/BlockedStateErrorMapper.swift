@@ -13,7 +13,9 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
+#if canImport(WireGuardKit)
 import WireGuardKit
+#endif
 
 /**
  Struct responsible for mapping errors that may occur in the packet tunnel to the `BlockedStateReason`.
@@ -67,11 +69,12 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
             default:
                 .noRelaysSatisfyingConstraints
             }
-
+            #if canImport(WireGuardKit)
         case is WireGuardAdapterError:
             // Any errors that originate from wireguard adapter including failure to set tunnel settings using
             // packet tunnel provider.
             return .tunnelAdapter
+            #endif
 
         case is PublicKeyError:
             // Returned when there is an endpoint but its public key is invalid.

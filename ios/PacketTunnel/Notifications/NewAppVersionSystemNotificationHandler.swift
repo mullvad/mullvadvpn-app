@@ -46,6 +46,7 @@ final class NewAppVersionSystemNotificationHandler {
     }
 
     private func sendSystemNotification() {
+#if os(iOS)
         let content = UNMutableNotificationContent()
         content.title = NSLocalizedString("Update available", comment: "")
         content.body = String(
@@ -79,5 +80,6 @@ final class NewAppVersionSystemNotificationHandler {
                 )
             }
         }
+        #endif
     }
 }

@@ -103,7 +103,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             settingsManager: settingsManager
         )
 
-        #if DEBUG
+
+#if DEBUG && os(iOS)
             if PacketTunnelDebugSettings.useWireGuard {
                 providerLogger.info("Using WireGuard implementation (debug)")
                 implementation = makeWireGuardGoImplementation(
@@ -151,7 +152,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: implementation.actor,
             apiRequestProxy: apiRequestProxy,
-            inAppLogBuffer: inAppLogBuffer
+            // inAppLogBuffer: inAppLogBuffer
         )
 
         newAppVersionSystemNotificationHandler = NewAppVersionSystemNotificationHandler(
@@ -294,6 +295,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
+    #if os(iOS)
     /// WireGuardGo wires its dependencies in a second phase; GotaTun takes them at init instead.
     private func makeWireGuardGoImplementation(
         ipOverrideWrapper: IPOverrideWrapper,
@@ -311,6 +313,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
         return wgImpl
     }
+    #endif
 
     private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
         let settings = NEPacketTunnelNetworkSettings(
