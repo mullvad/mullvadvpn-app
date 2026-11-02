@@ -19,6 +19,12 @@ struct MapView: View {
                 .background(Color.mullvadDangerColor)
             Spacer()
             Text("Congratulations you are logged in !")
+
+            Spacer()
+
+            TunnelButton()
+
+            Spacer()
         }
         .background(Color.mullvadBackground)
     }
