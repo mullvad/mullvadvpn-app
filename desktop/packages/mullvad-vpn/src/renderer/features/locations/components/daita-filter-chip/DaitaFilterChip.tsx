@@ -1,6 +1,6 @@
 import React from 'react';
-import { sprintf } from 'sprintf-js';
 
+import { strings } from '../../../../../shared/constants';
 import { messages } from '../../../../../shared/gettext';
 import { RoutePath } from '../../../../../shared/routes';
 import { FilterChip, type FilterChipProps } from '../../../../lib/components';
@@ -32,11 +32,7 @@ export function DaitaFilterChip(props: DaitaFilterChipProps) {
       }
       onClick={gotoEnableDaitaFeature}
       {...props}>
-      <FilterChip.Text>
-        {sprintf(messages.pgettext('select-location-view', 'Setting: %(settingName)s'), {
-          settingName: 'DAITA',
-        })}
-      </FilterChip.Text>
+      <FilterChip.Text>{strings.daita}</FilterChip.Text>
     </FilterChip>
   );
 }
