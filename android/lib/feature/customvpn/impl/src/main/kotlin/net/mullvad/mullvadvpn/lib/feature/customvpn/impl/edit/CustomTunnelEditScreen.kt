@@ -100,7 +100,7 @@ fun CustomTunnelEdit(
 private fun PreviewCustomTunnelEditScreen() {
     AppTheme {
         CustomTunnelEditScreen(
-            state = Lc.Content(PersonalVpnUiState(clearEnabled = false)),
+            state = Lc.Content(CustomTunnelEditUiState(clearEnabled = false)),
             isNew = false,
             onBackClick = {},
             saveConfig = {},
@@ -115,7 +115,7 @@ private fun PreviewCustomTunnelEditScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTunnelEditScreen(
-    state: Lc<Boolean, PersonalVpnUiState>,
+    state: Lc<Boolean, CustomTunnelEditUiState>,
     isNew: Boolean,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,

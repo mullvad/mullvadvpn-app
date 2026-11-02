@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.edit
 
 import kotlin.collections.ifEmpty
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
-import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 
-data class PersonalVpnUiState(
+data class CustomTunnelEditUiState(
     val clearEnabled: Boolean,
     val initialFormData: PersonalVpnFormData = PersonalVpnFormData(),
     val nameDataError: FormDataError.Name? = null,
@@ -27,7 +27,7 @@ data class PersonalVpnFormData(
     val endpointPort: Int? = null,
 ) {
     companion object {
-        fun from(personalVpnConfig: PersonalVpnConfig?) =
+        fun from(personalVpnConfig: CustomVpnConfig?) =
             if (personalVpnConfig == null) {
                 PersonalVpnFormData()
             } else {
