@@ -278,13 +278,6 @@ typedef void (*UniffiCallbackInterfaceShadowsocksBridgeProviderMethod0)(uint64_t
     );
 
 #endif
-#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_REQUEST_COMPLETION_METHOD0
-#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_REQUEST_COMPLETION_METHOD0
-typedef void (*UniffiCallbackInterfaceRequestCompletionMethod0)(uint64_t, RustBuffer, void* _Nonnull, 
-        RustCallStatus *_Nonnull uniffiCallStatus
-    );
-
-#endif
 #ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_GOTA_TUN_CALLBACK
 #define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_GOTA_TUN_CALLBACK
 typedef struct UniffiVTableCallbackInterfaceGotaTunCallback {
@@ -312,15 +305,6 @@ typedef struct UniffiVTableCallbackInterfaceShadowsocksBridgeProvider {
     UniffiCallbackInterfaceClone _Nonnull uniffiClone;
     UniffiCallbackInterfaceShadowsocksBridgeProviderMethod0 _Nonnull bridge;
 } UniffiVTableCallbackInterfaceShadowsocksBridgeProvider;
-
-#endif
-#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_REQUEST_COMPLETION
-#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_REQUEST_COMPLETION
-typedef struct UniffiVTableCallbackInterfaceRequestCompletion {
-    UniffiCallbackInterfaceFree _Nonnull uniffiFree;
-    UniffiCallbackInterfaceClone _Nonnull uniffiClone;
-    UniffiCallbackInterfaceRequestCompletionMethod0 _Nonnull finish;
-} UniffiVTableCallbackInterfaceRequestCompletion;
 
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_ACCESSMETHODCHANGECALLBACK
@@ -486,46 +470,6 @@ uint64_t uniffi_mullvad_ios_fn_clone_swiftaccessmethodsettingscontext(uint64_t h
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_SWIFTACCESSMETHODSETTINGSCONTEXT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_SWIFTACCESSMETHODSETTINGSCONTEXT
 void uniffi_mullvad_ios_fn_free_swiftaccessmethodsettingscontext(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_REQUESTCANCELHANDLE
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_REQUESTCANCELHANDLE
-uint64_t uniffi_mullvad_ios_fn_clone_requestcancelhandle(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_REQUESTCANCELHANDLE
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_REQUESTCANCELHANDLE
-void uniffi_mullvad_ios_fn_free_requestcancelhandle(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCANCELHANDLE_CANCEL_TASK
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCANCELHANDLE_CANCEL_TASK
-void uniffi_mullvad_ios_fn_method_requestcancelhandle_cancel_task(uint64_t ptr, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCANCELHANDLE_START_TASK
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCANCELHANDLE_START_TASK
-void uniffi_mullvad_ios_fn_method_requestcancelhandle_start_task(uint64_t ptr, uint64_t completion_cookie, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_REQUESTCOMPLETION
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_REQUESTCOMPLETION
-uint64_t uniffi_mullvad_ios_fn_clone_requestcompletion(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_REQUESTCOMPLETION
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_REQUESTCOMPLETION
-void uniffi_mullvad_ios_fn_free_requestcompletion(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_REQUESTCOMPLETION
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_REQUESTCOMPLETION
-void uniffi_mullvad_ios_fn_init_callback_vtable_requestcompletion(const UniffiVTableCallbackInterfaceRequestCompletion* _Nonnull vtable
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCOMPLETION_FINISH
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_REQUESTCOMPLETION_FINISH
-void uniffi_mullvad_ios_fn_method_requestcompletion_finish(uint64_t ptr, RustBuffer result, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_SHADOWSOCKSWRAPPER
@@ -1060,24 +1004,6 @@ uint16_t uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment(voi
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_SHADOWSOCKSBRIDGEPROVIDER_BRIDGE
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_SHADOWSOCKSBRIDGEPROVIDER_BRIDGE
 uint16_t uniffi_mullvad_ios_checksum_method_shadowsocksbridgeprovider_bridge(void
-    
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCANCELHANDLE_CANCEL_TASK
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCANCELHANDLE_CANCEL_TASK
-uint16_t uniffi_mullvad_ios_checksum_method_requestcancelhandle_cancel_task(void
-    
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCANCELHANDLE_START_TASK
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCANCELHANDLE_START_TASK
-uint16_t uniffi_mullvad_ios_checksum_method_requestcancelhandle_start_task(void
-    
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
-uint16_t uniffi_mullvad_ios_checksum_method_requestcompletion_finish(void
     
 );
 #endif
