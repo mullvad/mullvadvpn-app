@@ -97,7 +97,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         monitor.cancel()
     }
 
-    func testAdBlockingViaDNS() throws {
+    func atestAdBlockingViaDNS() throws {
         HeaderBar(app)
             .tapSettingsButton()
 

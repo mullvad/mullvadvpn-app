@@ -29,8 +29,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
-    private(set) var tunnelStore: TunnelStore!
-    nonisolated(unsafe) private(set) var tunnelManager: TunnelManager!
+    private(set) var tunnelStore: TunnelStore?
+    nonisolated(unsafe) private(set) var tunnelManager: TunnelManager?
 
     private var proxyFactory: ProxyFactoryProtocol!
     private(set) var apiProxy: APIQuerying!
@@ -40,7 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var addressCacheUpdateScheduler: AddressCacheUpdateScheduler!
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
-    nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
 
@@ -57,6 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
     let breadcrumbsProvider = BreadcrumbsProvider()
     let inAppLogObserver = InAppLogBlockObserver()
+    private var appResetManager: AppResetManager!
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
@@ -98,6 +98,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if let overriddenLaunchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) {
             launchArguments = overriddenLaunchArguments
         }
+
+        let resetManager = AppResetManager(launchArguments: launchArguments, settingsManager: settingsManager)
+        await resetManager.start()
 
         migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
         configureLogging()
@@ -165,33 +168,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
 
-        await setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
             application: application
         )
 
+        let store = TunnelStore(application: backgroundTaskProvider)
+        tunnelStore = store
+        if launchArguments.target == .screenshots {
+            proxyFactory = await MockProxyFactory.makeProxyFactory(
+                apiTransportProvider: REST.AnyAPITransportProvider {
+                    let monitor = await self.makeApiTransportMonitor(store: store)
+                    return await monitor.makeTransport()
+                }
+            )
+        } else {
+            proxyFactory = await REST.ProxyFactory.makeProxyFactory(
+                apiTransportProvider: REST.AnyAPITransportProvider {
+                    let monitor = await self.makeApiTransportMonitor(store: store)
+                    return await monitor.makeTransport()
+                }
+            )
+        }
+        apiProxy = proxyFactory.createAPIProxy()
+        accountsProxy = proxyFactory.createAccountsProxy()
+        devicesProxy = proxyFactory.createDevicesProxy()
+
+        relaySelector = RelaySelectorWrapper(
+            relayCache: ipOverrideWrapper
+        )
         relayCacheTracker = RelayCacheTracker(
             relayCache: ipOverrideWrapper,
             backgroundTaskProvider: backgroundTaskProvider,
             apiProxy: apiProxy
         )
 
-        addressCacheUpdateScheduler = AddressCacheUpdateScheduler(
+        let manager = await TunnelManager(
             backgroundTaskProvider: backgroundTaskProvider,
+            tunnelStore: store,
+            relayCacheTracker: relayCacheTracker,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            apiContext: apiContext
+            relaySelector: relaySelector,
+            settingsManager: settingsManager
         )
-
-        tunnelStore = TunnelStore(application: backgroundTaskProvider)
-
-        relaySelector = RelaySelectorWrapper(
-            relayCache: ipOverrideWrapper
-        )
-        tunnelManager = createTunnelManager(
-            backgroundTaskProvider: backgroundTaskProvider,
-            relaySelector: relaySelector
-        )
+        tunnelManager = manager
 
         settingsObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] tunnelManager in
@@ -202,23 +224,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             didUpdateTunnelSettings: { _, settings in
                 tunnelSettingsListener.onNewSettings?(settings)
             })
-        tunnelManager.addObserver(settingsObserver)
+        manager.addObserver(settingsObserver)
 
         #if NEVER_IN_PRODUCTION
-            await tunnelManager.setOnInAppLogHandler { [weak self] entries in
+            await manager.setOnInAppLogHandler { [weak self] entries in
                 DispatchQueue.main.async {
                     entries.forEach { self?.inAppLogObserver.didAddLogEntry($0) }
                 }
             }
         #endif
-
-        storePaymentManager = StorePaymentManager(
-            interactor: StorePaymentManagerInteractor(
-                tunnelManager: tunnelManager,
-                apiProxy: apiProxy,
-                accountProxy: accountsProxy
-            )
-        )
 
         let apiRequestFactory = MullvadApiRequestFactory(
             apiContext: apiContext,
@@ -226,23 +240,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
         let apiTransportProvider = APITransportProvider(requestFactory: apiRequestFactory)
 
-        apiTransportMonitor = APITransportMonitor(
-            tunnelManager: tunnelManager,
-            tunnelStore: tunnelStore,
-            requestFactory: apiRequestFactory
-        )
-
         setUpSimulatorHost(
             apiTransportProvider: apiTransportProvider,
             relaySelector: relaySelector
         )
+
+        addressCacheUpdateScheduler = AddressCacheUpdateScheduler(
+            backgroundTaskProvider: backgroundTaskProvider,
+            apiProxy: apiProxy,
+            apiContext: apiContext
+        )
+
         registerBackgroundTasks()
         setupNotifications(
             tunnelSettings: tunnelSettings,
-            tunnelSettingsUpdater: tunnelSettingsUpdater
+            tunnelSettingsUpdater: tunnelSettingsUpdater,
+            manager: manager
         )
         addApplicationNotifications(application: application)
-        await startInitialization(application: application)
+
+        storePaymentManager = StorePaymentManager(
+            interactor: StorePaymentManagerInteractor(
+                tunnelManager: manager,
+                apiProxy: apiProxy,
+                accountProxy: accountsProxy
+            )
+        )
+
+        await startInitialization(application: application, manager: manager)
 
         // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag
         // in SelectLocationView. SwiftUI's observation system has initialization overhead
@@ -252,40 +277,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func createTunnelManager(
-        backgroundTaskProvider: BackgroundTaskProviding,
-        relaySelector: RelaySelectorProtocol
-    ) -> TunnelManager {
-        return TunnelManager(
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnelStore: tunnelStore,
-            relayCacheTracker: relayCacheTracker,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
-            apiProxy: apiProxy,
-            relaySelector: relaySelector,
-            settingsManager: settingsManager
+    func makeApiTransportMonitor(store: TunnelStore) -> APITransportMonitor {
+        let apiRequestFactory = MullvadApiRequestFactory(
+            apiContext: apiContext,
+            encoder: REST.Coding.makeJSONEncoder()
         )
-    }
-
-    @MainActor
-    private func setUpProxies(containerURL: URL) async {
-        if launchArguments.target == .screenshots {
-            proxyFactory = await MockProxyFactory.makeProxyFactory(
-                apiTransportProvider: REST.AnyAPITransportProvider {
-                    await self.apiTransportMonitor.makeTransport()
-                }
-            )
-        } else {
-            proxyFactory = await REST.ProxyFactory.makeProxyFactory(
-                apiTransportProvider: REST.AnyAPITransportProvider {
-                    await self.apiTransportMonitor.makeTransport()
-                }
-            )
-        }
-        apiProxy = proxyFactory.createAPIProxy()
-        accountsProxy = proxyFactory.createAccountsProxy()
-        devicesProxy = proxyFactory.createDevicesProxy()
+        return APITransportMonitor(
+            tunnelManager: tunnelManager,
+            tunnelStore: store,
+            requestFactory: apiRequestFactory
+        )
     }
 
     private func setUpSimulatorHost(
@@ -327,14 +328,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // MARK: - Notifications
 
     @objc private func didBecomeActive(_ notification: Notification) {
-        Task { await tunnelManager.startPeriodicPrivateKeyRotation() }
+        Task {
+            if let tunnelManager {
+                await tunnelManager.startPeriodicPrivateKeyRotation()
+            }
+        }
         relayCacheTracker.startPeriodicUpdates()
         addressCacheUpdateScheduler.startPeriodicUpdates()
     }
 
     @objc private func willResignActive(_ notification: Notification) {
         withExtendedBackgroundTime { [weak self] in
-            await self?.tunnelManager.stopPeriodicPrivateKeyRotation()
+            await self?.tunnelManager?.stopPeriodicPrivateKeyRotation()
         }
         relayCacheTracker.stopPeriodicUpdates()
         addressCacheUpdateScheduler.stopPeriodicUpdates()
@@ -393,7 +398,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             using: .main
         ) { task in
             Task { [weak self = self] in
-                let handle = await self?.tunnelManager.rotatePrivateKey { error in
+                let handle = await self?.tunnelManager?.rotatePrivateKey { error in
                     await self?.scheduleKeyRotationTask()
                     task.setTaskCompleted(success: error == nil)
                 }
@@ -451,7 +456,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func scheduleKeyRotationTask() async {
-        guard let date = await tunnelManager.getNextKeyRotationDate() else { return }
+        guard let date = await tunnelManager?.getNextKeyRotationDate() else { return }
         do {
             let request = BGProcessingTaskRequest(identifier: BackgroundTask.privateKeyRotation.identifier)
             request.requiresNetworkConnectivity = true
@@ -535,8 +540,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func setupNotifications(
         tunnelSettings: LatestTunnelSettings,
-        tunnelSettingsUpdater: SettingsUpdater
-
+    tunnelSettingsUpdater: SettingsUpdater,
+        manager: TunnelManager
     ) {
         let appVersionService = AppVersionService(
             urlSession: URLSession.shared,
@@ -546,17 +551,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         NotificationManager.shared.notificationProviders = [
             SettingsMigrationInAppNotificationProvider(
-                tunnelManager: tunnelManager,
+                tunnelManager: manager,
                 migratedSettingsUpdater: migratedSettingsUpdater),
             LatestChangesNotificationProvider(appPreferences: appPreferences),
-            TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
+            TunnelStatusNotificationProvider(tunnelManager: manager),
             AccountExpirySystemNotificationProvider(
                 isNotificationEnabled: appPreferences.notificationSettings.isAccountNotificationEnabled,
-                notificationSettingsUpdater: notificationSettingsUpdater, tunnelManager: tunnelManager),
-            AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
-            NewDeviceNotificationProvider(tunnelManager: tunnelManager),
+                notificationSettingsUpdater: notificationSettingsUpdater, tunnelManager: manager),
+            AccountExpiryInAppNotificationProvider(tunnelManager: manager),
+            NewDeviceNotificationProvider(tunnelManager: manager),
             NewAppVersionInAppNotificationProvider(
-                tunnelManager: tunnelManager,
+                tunnelManager: manager,
                 appVersionService: appVersionService
             ),
             InvalidShadowsocksCipherInAppNotificationProvider(breadcrumbsProvider: breadcrumbsProvider),
@@ -566,21 +571,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: Initialisation tasks, which are (mostly) performed asynchronously
 
-    private func startInitialization(application: UIApplication) async {
+    private func startInitialization(application: UIApplication, manager: TunnelManager) async {
         // the new structured code: things here run first, before we run the legacy operations.
         // in the fullness of time, this section will grow and the latter will shrink to nothing
         doWipeSettingsIfNeeded()
         async let loadTunnelStore: () = doLoadTunnelStore()
-        async let getDefaultLocation: () = doGetDefaultLocation()
+        async let getDefaultLocation: () = doGetDefaultLocation(manager: manager)
         _ = await [loadTunnelStore, getDefaultLocation]
-        await doMigrateSettings(application: application)
-        await doResolveDeprecatedSettings()
-        await doInitTunnelManager()
-        await storePaymentManager.start()
+        await doMigrateSettings(application: application, manager: manager)
+        await doResolveDeprecatedSettings(manager: manager)
+        await doInitTunnelManager(manager: manager)
     }
 
     private func doLoadTunnelStore() async {
         do {
+            guard let tunnelStore else { throw POSIXError(.ENOSR) }
             try await tunnelStore.loadPersistentTunnels()
         } catch {
             logger.error(
@@ -590,7 +595,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func doMigrateSettings(application: UIApplication) async {
+    private func doMigrateSettings(application: UIApplication, manager: TunnelManager) async {
         // Uses NSFileCoordinator to maintain a lock shared between the app and extension
         // it consumes any error states produced in the process
         await withCheckedContinuation { continuation in
@@ -601,7 +606,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 case .success:
                     // Tell the tunnel to re-read tunnel configuration after migration.
                     logger.debug("Successful settings migration")
-                    tunnelManager.reconnectTunnel(selectNewRelay: true)
+                    manager.reconnectTunnel(selectNewRelay: true)
                     continuation.resume()
 
                 case .nothing:
@@ -627,11 +632,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func doInitTunnelManager() async {
+    private func doInitTunnelManager(manager: TunnelManager) async {
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
         // and leave user in logged out state. VPN config will be removed as well.
-        await self.tunnelManager.loadConfiguration()
+        await manager.loadConfiguration()
         self.logger.debug("Finished initialization.")
         NotificationManager.shared.updateNotifications()
     }
@@ -679,7 +684,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func doGetDefaultLocation() async {
+    private func doGetDefaultLocation(manager: TunnelManager) async {
         guard !self.appPreferences.hasDoneFirstTimeLaunch else {
             return
         }
@@ -699,13 +704,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let constraint = RelayConstraint.only(userSelectedRelays)
 
         if !self.appPreferences.hasDoneFirstTimeLogin {
-            await tunnelManager.updateSettings([
+            await manager.updateSettings([
                 .relayConstraints(RelayConstraints(entryLocations: constraint, exitLocations: constraint))
             ])
         }
     }
 
-    private func doResolveDeprecatedSettings() async {
+    private func doResolveDeprecatedSettings(manager: TunnelManager) async {
         let resetVisibility: @Sendable () -> Void = {
             self.appPreferences.migratedSettingsState = MigratedSettingsState(
                 preMigrationSettings: nil,
@@ -747,7 +752,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 hasCompletedMigrationWizard: changes.isEmpty,
                 shouldShowMigratedSettingsMenuItem: !changes.isEmpty)
             migratedSettingsListener.onMigratedSettingsHandler?(changes.isEmpty ? .noChanges : .migrated)
-            await self.tunnelManager.updateSettings([.all(new)])
+            await manager.updateSettings([.all(new)])
 
         case .nothing:
             logger.debug(

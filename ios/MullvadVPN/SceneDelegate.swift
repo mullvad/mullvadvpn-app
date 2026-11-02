@@ -35,8 +35,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         appDelegate.accessMethodRepository
     }
 
+    /// The `tunnelManager` is guaranteed to have a value when this is called
     private var tunnelManager: TunnelManager {
-        appDelegate.tunnelManager
+        appDelegate.tunnelManager!
     }
 
     private var settingsManager: SettingsManager {
@@ -209,15 +210,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         } while appDelegate.doneStarting == false
 
         guard let windowScene = scene as? UIWindowScene else { return }
-        let launchViewController = LaunchViewController(
-            launchArguments: appDelegate.launchArguments,
-            tunnelManager: tunnelManager,
-            settingsManager: settingsManager)
-
-        launchViewController.onAppReady = { [weak self] in
-            guard let self = self else { return }
-            configureScene()
-        }
+        let launchViewController = LaunchViewController()
 
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = launchViewController
@@ -234,6 +227,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         addTunnelObserver()
 
         configureScene()
+        // The store payment manager will issue network requests
+        // Move those in a task to avoid the scene configuration being dependant on successful networking
+        Task {
+            await appDelegate.storePaymentManager.start()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
