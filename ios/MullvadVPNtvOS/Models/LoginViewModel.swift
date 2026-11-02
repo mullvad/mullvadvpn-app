@@ -44,9 +44,19 @@ class LoginViewModel: LoggingIn {
     var deviceProxy: DeviceHandling!
     var state: LoggingInState = .`initial`
 
-    init(accountProxy: RESTAccountHandling, deviceProxy: DeviceHandling) {
+    private let settingsManager: SettingsManager
+    private let relayListUpdater: RelayListUpdater
+
+    init(
+        accountProxy: RESTAccountHandling,
+        deviceProxy: DeviceHandling,
+        settingsManager: SettingsManager,
+        relayListUpdater: RelayListUpdater
+    ) {
         self.accountProxy = accountProxy
         self.deviceProxy = deviceProxy
+        self.settingsManager = settingsManager
+        self.relayListUpdater = relayListUpdater
     }
 
     func loginWith(_ accountNumber: String) async {
@@ -65,9 +75,18 @@ class LoginViewModel: LoggingIn {
                 let storedAccountData = StoredAccountData(
                     identifier: account.id, number: accountNumber, expiry: account.expiry)
                 let storedDeviceData = StoredDeviceData(with: device, privateKey: privateKey)
-                let loggedInState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
-                let data = try JSONEncoder().encode(loggedInState)
-                try SettingsManager().store.write(data, for: .deviceState)
+                // Holds the WireGuard private key and the interface addresses assigned to the device,
+                // which is what `SettingsReader` in the packet tunnel reads to build its configuration.
+                try settingsManager.writeDeviceState(.loggedIn(storedAccountData, storedDeviceData))
+                // The packet tunnel refuses to start without tunnel settings, and nothing else on
+                // tvOS seeds them the way `AppDelegate` does on iOS.
+                if (try? settingsManager.readSettings()) == nil {
+                    try settingsManager.writeSettings(LatestTunnelSettings())
+                }
+                try settingsManager.setLastUsedAccount(accountNumber)
+                // The relay the tunnel connects to is picked from the relay cache, so a logged in
+                // device alone is not enough to connect.
+                await relayListUpdater.updateRelays()
                 state = .success
             } catch {
                 state = .failure(error)
@@ -80,6 +99,54 @@ class LoginViewModel: LoggingIn {
 
     func createAccount() async {
         state = .authenticating
+    }
+}
+
+/// Fetches the relay list and stores it in the relay cache shared with the packet tunnel.
+///
+/// The tunnel's relay selector only ever reads this cache, and the prebundled relay list is empty
+/// in non-release builds. On iOS `RelayCacheTracker` keeps the cache fresh, but it lives in the app
+/// target and depends on UIKit background tasks, so tvOS populates the cache here instead.
+struct RelayListUpdater {
+    private let logger = Logger(label: "RelayListUpdater")
+    private let apiProxy: APIQuerying
+    private let relayCache: RelayCacheProtocol
+
+    init(apiProxy: APIQuerying, relayCache: RelayCacheProtocol) {
+        self.apiProxy = apiProxy
+        self.relayCache = relayCache
+    }
+
+    /// Updates the cached relay list, logging instead of throwing so that a failed fetch does not
+    /// invalidate an otherwise successful login.
+    func updateRelays() async {
+        do {
+            let cachedRelays = try? relayCache.read()
+            var sigsum: (String, Int64)?
+            if let digest = cachedRelays?.digest, let timestamp = cachedRelays?.timestamp {
+                sigsum = (digest, timestamp)
+            }
+
+            let response: REST.ServerRelaysCacheResponse? = try await withCheckedThrowingContinuation {
+                continuation in
+                _ = apiProxy.getRelays(sigsum: sigsum, retryStrategy: .apiRequest) { result in
+                    continuation.resume(with: result)
+                }
+            }
+
+            // An unchanged sigsum digest yields an empty body.
+            switch response ?? .notModified {
+            case let .newContent(digest, timestamp, rawData):
+                try relayCache.write(
+                    record: StoredRelays(
+                        digest: digest, timestamp: timestamp, rawData: rawData, updatedAt: Date()))
+                logger.debug("Updated cached relay list.")
+            case .notModified:
+                logger.debug("Cached relay list is up to date.")
+            }
+        } catch {
+            logger.error(error: error, message: "Failed to update relay list.")
+        }
     }
 }
 
