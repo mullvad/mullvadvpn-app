@@ -31,6 +31,8 @@ class ApiAccessMethodDetailsScreenTest {
         onUseMethodClicked: () -> Unit = {},
         onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
         onNavigateToEncryptedDnsInfoDialog: () -> Unit = {},
+        onNavigateToDirectInfoDialog: () -> Unit = {},
+        onNavigateToDomainFrontingInfoDialog: () -> Unit = {},
         onBackClicked: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -42,6 +44,8 @@ class ApiAccessMethodDetailsScreenTest {
                 onUseMethodClicked = onUseMethodClicked,
                 onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked,
                 onNavigateToEncryptedDnsInfoDialog = onNavigateToEncryptedDnsInfoDialog,
+                onNavigateToDirectInfoDialog = onNavigateToDirectInfoDialog,
+                onNavigateToDomainFrontingInfoDialog = onNavigateToDomainFrontingInfoDialog,
                 onBackClicked = onBackClicked,
             )
         }

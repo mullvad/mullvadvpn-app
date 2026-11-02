@@ -189,6 +189,8 @@
     <string name="device_name_info_second_paragraph">شما می‌توانید حداکثر 5 دستگاه را هم‌زمان در یک حساب Mullvad وارد کنید.</string>
     <string name="device_name_info_third_paragraph">اگر خارج شوید، دستگاه و نام آن حذف می‌شوند. وقتی دوباره وارد شوید، دستگاه نام جدیدی خواهد گرفت.</string>
     <string name="direct">مستقیم</string>
+    <string name="direct_info_message_part1">با روش «مستقیم»، اپلیکیشن بدون هیچ پراکسی واسطه‌ای، مستقیماً با سرور API مربوط به Mullvad ارتباط برقرار می‌کند.</string>
+    <string name="direct_info_message_part2">این می‌تواند زمانی مفید باشد که تحت تأثیر سانسور نباشید.</string>
     <string name="direct_only_removed_first_paragraph">تنظیم فرعی «فقط مستقیم» (Direct only) در قابلیت DAITA حذف و ساده‌سازی شده است تا از مسدود شدن اتصال‌ها جلوگیری شود. در عوض، هنگامی که DAITA فعال است، می‌توانید این انتخاب را از طریق تنظیمات مالتی‌هاپ انجام دهید.</string>
     <string name="direct_only_removed_second_paragraph">وقتی حالت مالتی‌هاپ روی «در صورت نیاز» تنظیم شده باشد، برنامه ممکن است از یک سرور اضافی استفاده کند تا مطمئن شود که با استفاده از DAITA به موقعیت مکان انتخابی خود متصل می‌شوید.</string>
     <string name="direct_only_removed_third_paragraph">هنگامی که قابلیت مالتی‌هاپ روی حالت «همیشه» یا «هیچ وقت» تنظیم شده باشد، باید سرور DAITA را به‌صورت دستی انتخاب کنید.</string>
@@ -212,6 +214,8 @@
     <string name="dns_settings_description_warning"><b>توجه: تنظیمات DNS ممکن است بلافاصله اعمال نشوند.</b></string>
     <string name="dns_settings_issues_first_paragraph">تنظیمات DNS ممکن است بلافاصله اعمال نشوند.</string>
     <string name="dns_settings_issues_second_paragraph">DNS خصوصی در %1$s را خاموش کنید زیرا ممکن است با تنظیمات DNS Mullvad تداخل داشته باشد.</string>
+    <string name="domain_fronting_info_message_part1">با روش دسترسی %1$s، اپلیکیشن از طریق یک CDN به API رابط برنامه‌نویسی کاربردی Mullvad می‌رسد و ترافیک را با بسیاری از ترافیک‌های اینترنتی دیگر مخلوط می‌کند. در نتیجه، سانسور کردن آن دشوارتر می‌شود.</string>
+    <string name="domain_fronting_info_message_part2">این روش می‌تواند زمانی مفید باشد که سانسور، دسترسی مستقیم و روش‌های دیگر را مسدود کرده باشد.</string>
     <string name="duplicate_address_warning">این نشانی قبلاً وارد شده است.</string>
     <string name="edit_custom_lists">ویرایش فهرست‌های سفارشی</string>
     <string name="edit_list">ویرایش فهرست</string>

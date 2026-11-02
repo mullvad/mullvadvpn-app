@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edpinfo
+package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
