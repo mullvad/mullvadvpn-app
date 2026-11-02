@@ -41,7 +41,8 @@ use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::{
 use windows_sys::Win32::System::Rpc::RPC_C_AUTHN_DEFAULT;
 
 use winfw::guids::{
-    PROVIDER, PROVIDER_PERSISTENT, SUBLAYER_BASELINE, SUBLAYER_DNS, known_object_name,
+    PROVIDER, PROVIDER_PERSISTENT, SUBLAYER_BASELINE, SUBLAYER_DNS, SUBLAYER_PERSISTENT,
+    known_object_name,
 };
 
 // ---------------------------------------------------------------------------
@@ -170,7 +171,11 @@ pub fn dump() -> Result<String, DumpError> {
 
     let mut ours: Vec<String> = sublayers
         .iter()
-        .filter(|sublayer| sublayer.key == SUBLAYER_BASELINE || sublayer.key == SUBLAYER_DNS)
+        .filter(|sublayer| {
+            sublayer.key == SUBLAYER_BASELINE
+                || sublayer.key == SUBLAYER_DNS
+                || sublayer.key == SUBLAYER_PERSISTENT
+        })
         .map(render_sublayer)
         .collect();
     ours.sort();

@@ -8,7 +8,7 @@ use std::{io, time::Duration};
 
 use wfp::{FilterEngine, FilterEngineBuilder, Transaction};
 
-use crate::{ActivePolicy, objects, rules, session::Recorder};
+use crate::{ActivePolicy, objects, persistent, rules, session::Recorder};
 
 /// The firewall session context.
 pub struct FwContext {
@@ -56,6 +56,19 @@ impl FwContext {
         })?;
         self.active_policy = ActivePolicy::None;
         Ok(())
+    }
+
+    /// Replace the ephemeral objects with persistent and boot-time blocking filters, and
+    /// close the session. If this fails, the ephemeral objects are left in place.
+    ///
+    /// # Blocking
+    ///
+    /// Waits for the WFP transaction lock for up to the timeout the context was created
+    /// with, and then as long as the filter engine needs to replace the filters.
+    pub fn apply_persistent_blocking(mut self) -> io::Result<()> {
+        self.execute_transaction(|transaction, _recorder| {
+            persistent::replace_ephemeral_objects(transaction)
+        })
     }
 
     pub fn active_policy(&self) -> ActivePolicy {

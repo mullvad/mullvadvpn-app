@@ -24,8 +24,9 @@ const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
 /// Serializes all tests: the WFP state the firewall manages is global.
 static LOCK: Mutex<()> = Mutex::new(());
 
-/// The firewall under test. Deinitialized with a full reset when dropped, even
-/// if a test panics.
+/// The firewall under test. Everything it registered is removed when dropped,
+/// even if a test panics. This matters most for persistent filters, which
+/// would otherwise keep the machine blocked across reboots.
 pub struct Firewall {
     manager: Option<Manager>,
     _guard: MutexGuard<'static, ()>,
@@ -92,6 +93,9 @@ impl Drop for Firewall {
             && let Err(error) = manager.deinitialize(CleanupPolicy::ResetFirewall)
         {
             eprintln!("Failed to deinitialize the firewall: {error}");
+        }
+        if let Err(error) = winfw::purge_all() {
+            eprintln!("Failed to remove the firewall's WFP objects: {error}");
         }
     }
 }
