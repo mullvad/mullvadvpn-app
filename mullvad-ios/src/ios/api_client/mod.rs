@@ -27,7 +27,6 @@ mod access_method_resolver;
 mod access_method_settings;
 mod account;
 mod api;
-mod cancellation;
 mod device;
 mod geoip;
 pub(super) mod helpers;
