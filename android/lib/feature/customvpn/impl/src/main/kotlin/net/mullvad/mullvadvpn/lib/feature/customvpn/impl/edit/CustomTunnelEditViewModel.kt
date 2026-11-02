@@ -26,8 +26,8 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
-import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
@@ -43,16 +43,16 @@ class CustomTunnelEditViewModel(
     private val _formData = MutableStateFlow<PersonalVpnFormData?>(null)
     private val formErrors = MutableStateFlow<List<FormDataError>>(emptyList())
 
-    val uiState: StateFlow<Lc<Boolean, PersonalVpnUiState>> =
+    val uiState: StateFlow<Lc<Boolean, CustomTunnelEditUiState>> =
         combine(
                 _formData.filterNotNull().onStart {
                     val settings = settingsRepository.settingsUpdates.filterNotNull().first()
-                    emit(PersonalVpnFormData.from(settings.personalVpnConfig))
+                    emit(PersonalVpnFormData.from(settings.customVpnConfig))
                 },
                 formErrors,
                 _formData.map { it != PersonalVpnFormData() },
             ) { formData: PersonalVpnFormData, formErrors, canClear ->
-                PersonalVpnUiState(
+                CustomTunnelEditUiState(
                         clearEnabled = canClear,
                         initialFormData = formData,
                         nameDataError =
@@ -76,7 +76,7 @@ class CustomTunnelEditViewModel(
                         endpointPortDataError =
                             formErrors.filterIsInstance<FormDataError.EndpointPort>().firstOrNull(),
                     )
-                    .toLc<Boolean, PersonalVpnUiState>()
+                    .toLc<Boolean, CustomTunnelEditUiState>()
             }
             .stateIn(
                 viewModelScope,
@@ -134,7 +134,7 @@ class CustomTunnelEditViewModel(
 
     private fun parseFormData(
         formData: PersonalVpnFormData
-    ): Either<List<FormDataError>, PersonalVpnConfig> {
+    ): Either<List<FormDataError>, CustomVpnConfig> {
         val errors = mutableListOf<FormDataError>()
 
         val privateKey = parsePrivateKey(formData.privateKey).onLeft { errors.add(it) }.getOrNull()
@@ -164,7 +164,7 @@ class CustomTunnelEditViewModel(
         }
 
         return Either.Right(
-            PersonalVpnConfig(
+            CustomVpnConfig(
                 tunnelConfig = TunnelConfig(privateKey = privateKey!!, tunnelIps = tunnelIps!!),
                 peerConfig =
                     PeerConfig(

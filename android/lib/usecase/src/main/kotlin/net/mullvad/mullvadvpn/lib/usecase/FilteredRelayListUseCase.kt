@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.usecase
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -37,6 +38,7 @@ class FilteredRelayListUseCase(
     private val settingsRepository: SettingsRepository,
     private val managementService: ManagementService,
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(relayListType: RelayListType): Flow<FilteredCountries> =
         combine(
             settingsRepository.settingsUpdates

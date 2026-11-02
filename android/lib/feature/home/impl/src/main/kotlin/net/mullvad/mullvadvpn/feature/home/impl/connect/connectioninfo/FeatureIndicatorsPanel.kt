@@ -104,7 +104,7 @@ fun FeatureIndicators(
                 icon = featureIndicator.icon(),
                 onClick = { onNavigateToFeature(featureIndicator) },
                 trailingIcon =
-                    if (featureIndicator == FeatureIndicator.PERSONAL_VPN_ACTIVE) {
+                    if (featureIndicator == FeatureIndicator.CUSTOM_VPN) {
                         {
                             val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                             val tint by
@@ -130,12 +130,7 @@ fun FeatureIndicators(
                 modifier =
                     if (this@with != null && animatedVisibilityScope != null) {
                         Modifier.sharedBounds(
-                            rememberSharedContentState(
-                                key =
-                                    if (featureIndicator == FeatureIndicator.PERSONAL_VPN_ACTIVE)
-                                        FeatureIndicator.PERSONAL_VPN
-                                    else featureIndicator
-                            ),
+                            rememberSharedContentState(key = featureIndicator),
                             animatedVisibilityScope = animatedVisibilityScope,
                             // This flag should be set to `true` (default), this would allow the
                             // element to animate above all other views. However, it causes the
@@ -179,8 +174,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.MULTIHOP_AUTO,
             FeatureIndicator.MULTIHOP -> R.string.multihop
-            FeatureIndicator.PERSONAL_VPN,
-            FeatureIndicator.PERSONAL_VPN_ACTIVE -> R.string.personal_vpn
+            FeatureIndicator.CUSTOM_VPN -> R.string.personal_vpn
         }
     return stringResource(resource)
 }

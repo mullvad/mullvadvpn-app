@@ -933,6 +933,5 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
 
-        FeatureIndicator.PERSONAL_VPN,
-        FeatureIndicator.PERSONAL_VPN_ACTIVE -> CustomTunnelsListNavKey(isModal = true)
+        FeatureIndicator.CUSTOM_VPN -> CustomTunnelsListNavKey(isModal = true)
     }
