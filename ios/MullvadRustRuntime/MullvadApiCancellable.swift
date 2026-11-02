@@ -11,47 +11,40 @@
 import MullvadTypes
 
 public final class MullvadApiCancellable: Cancellable, Sendable {
-    private enum Handle {
-        case legacy(RequestCancelHandle)
-        case task(Task<ApiResponse, Error>)
-    }
+    private let handle: Task<ApiResponse, Error>
 
-    private let handle: Handle
-
-    public init(handle: consuming RequestCancelHandle) {
-        self.handle = .legacy(handle)
-    }
-
-    public init(task: @Sendable @escaping () async throws -> ApiResponse) {
-        self.handle = .task(
-            Task {
-                try await task()
-            }
-        )
-    }
-
-    public func start(_ completion: (@Sendable (ApiResponse) throws -> Void)?) {
-        let completionCookie = MullvadApiCompletion { apiResponse in
-            try? completion?(apiResponse)
+    public init(_ task: @Sendable @escaping () async throws -> ApiResponse) {
+        self.handle = Task {
+            try await task()
         }
-        switch handle {
-        case .legacy(let handle):
-            handle.startTask(completionCookie: completionCookie)
-        case .task(let task):
-            Task {
-                do {
-                    try completion?(try await task.value)
-                } catch {
-                    print("temp logging")
+    }
+
+    public func start(_ completion: (@Sendable (ApiResponse) -> Void)?) {
+        Task {
+            let response: ApiResponse
+            do {
+                response = try await handle.value
+            } catch {
+                if let error = error as? ApiContextError,
+                    case let .ApiError(statusCode, errorDescription) = error
+                {
+                    response = .error(
+                        statusCode: statusCode,
+                        errorDescription: nil,
+                        serverResponseCode: errorDescription)
+                } else {
+                    response = .error(
+                        statusCode: 0,
+                        errorDescription: error.localizedDescription,
+                        serverResponseCode: nil)
                 }
             }
+
+            completion?(response)
         }
     }
 
     public func cancel() {
-        switch handle {
-        case .legacy(let handle): handle.cancelTask()
-        case .task(let task): task.cancel()
-        }
+        handle.cancel()
     }
 }
