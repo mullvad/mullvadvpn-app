@@ -623,19 +623,19 @@ test.describe('Select location', () => {
 
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
-        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.filter.getFilterChipLink('QUIC');
         await expect(quicFilterChip).toBeVisible();
 
         settings = await helpers.mockAntiCensorship(ObfuscationType.lwo, settings);
 
-        const lwoFilterChip = routes.filter.getFilterChipLink('Obfuscation: LWO');
+        const lwoFilterChip = routes.filter.getFilterChipLink('LWO');
         await expect(lwoFilterChip).toBeVisible();
       });
 
       test('Should apply filter when QUIC when viewing locations', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
-        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('QUIC');
         await expect(quicFilterChip).toBeVisible();
 
         const relaySelectionPaths = helpers.toSelectionPaths(
@@ -655,7 +655,7 @@ test.describe('Select location', () => {
       test('Should display LWO filter when it is selected when viewing locations', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.lwo, settings);
 
-        const lwoFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: LWO');
+        const lwoFilterChip = routes.selectLocation.getFilterChipLink('LWO');
         await expect(lwoFilterChip).toBeVisible();
 
         const relaySelectionPaths = helpers.toSelectionPaths(
@@ -821,7 +821,7 @@ test.describe('Select location', () => {
       test('Should display QUIC filter when viewing entry locations and not when viewing exit locations', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
-        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('QUIC');
 
         // Present on entry
         await routes.selectLocation.gotoEntryLocations();
@@ -835,7 +835,7 @@ test.describe('Select location', () => {
       test('Should display QUIC filter chip when viewing entry filters and not when viewing exit filters', async () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
-        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.filter.getFilterChipLink('QUIC');
 
         // Present on entry
         await routes.selectLocation.gotoEntryFilter();
@@ -965,7 +965,7 @@ test.describe('Select location', () => {
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
         // Ensure QUIC filter can be seen when using multihop: never
-        const quicFilterChip = routes.selectLocation.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.selectLocation.getFilterChipLink('QUIC');
         await expect(quicFilterChip).toBeVisible();
 
         // Switch to multihop: when-needed to ensure QUIC filter is hidden
@@ -1023,7 +1023,7 @@ test.describe('Select location', () => {
         // Then we can set up the anti-censorship method and verify that it is present under the right conditions
         settings = await helpers.mockAntiCensorship(ObfuscationType.quic, settings);
 
-        const quicFilterChip = routes.filter.getFilterChipLink('Obfuscation: QUIC');
+        const quicFilterChip = routes.filter.getFilterChipLink('QUIC');
 
         // Present on entry filters when using automatic location
         await routes.selectLocation.gotoEntryAutomaticFilter();
