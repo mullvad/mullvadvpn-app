@@ -168,9 +168,8 @@ pub fn open_engine(timeout: Duration) -> io::Result<FilterEngine> {
         .open()
 }
 
-/// Purge every firewall-owned object, outside any session. This is what
-/// [`crate::Manager::reset`] does when the module is not initialized, and how
-/// a new run cleans up after a crashed one.
+/// Purge every firewall-owned object, outside any session. This is how the
+/// firewall is reset when the module is not initialized.
 pub fn purge_standalone() -> io::Result<()> {
     let mut engine = open_engine(Duration::ZERO)?;
     let transaction = Transaction::new(&mut engine)?;
