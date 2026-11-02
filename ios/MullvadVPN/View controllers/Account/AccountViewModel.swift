@@ -25,8 +25,8 @@ protocol AccountViewModelProtocol {
     func factoryReset() async
     func finishUnfinishedPurchase() async
     #if NEVER_IN_PRODUCTION
-        func invalidateWireguardKey()
-        func toggleWireGuard()
+        func invalidateWireguardKey() async
+        func toggleWireGuard() async
     #endif
 }
 
@@ -100,7 +100,7 @@ class AccountViewModel: AccountViewModelProtocol {
     }
 
     func factoryReset() async {
-        tunnelManager.updateSettings([.reset])
+        await tunnelManager.updateSettings([.reset])
         UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
         await logout()
         onFinish?(.userLoggedOut)
@@ -111,13 +111,13 @@ class AccountViewModel: AccountViewModelProtocol {
     }
 
     #if NEVER_IN_PRODUCTION
-        func invalidateWireguardKey() {
-            tunnelManager.invalidateWireGuardKey()
+        func invalidateWireguardKey() async {
+            await tunnelManager.invalidateWireGuardKey()
         }
 
-        func toggleWireGuard() {
+        func toggleWireGuard() async {
             PacketTunnelDebugSettings.useWireGuard = !PacketTunnelDebugSettings.useWireGuard
-            tunnelManager.reapplyTunnelConfiguration()
+            await tunnelManager.reapplyTunnelConfiguration()
         }
     #endif
 }
@@ -145,12 +145,12 @@ class AccountViewModelMock: AccountViewModelProtocol {
 
     func restorePurchase() {}
 
-    func invalidateWireguardKey() {}
+    func invalidateWireguardKey() async {}
 
     func factoryReset() async {}
 
     func finishUnfinishedPurchase() async {}
 
-    func toggleWireGuard() {}
+    func toggleWireGuard() async {}
 
 }
