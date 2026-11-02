@@ -23,16 +23,6 @@ import UIKit
 /// Assumes safe for isolation in various places (mainly related to operations) as long work is
 /// done on `internalQueue`.
 actor TunnelManager {
-    private enum OperationCategory: String, Sendable {
-        case manageTunnel
-        case deviceStateUpdate
-        case settingsUpdate
-
-        var category: String {
-            "TunnelManager.\(rawValue)"
-        }
-    }
-
     // MARK: - Internal variables
 
     let backgroundTaskProvider: BackgroundTaskProviding
@@ -40,6 +30,7 @@ actor TunnelManager {
     // `let` is implicitly nonisolated on actors, allowing use as a custom executor in
     // nonisolated contexts.
     let internalQueue = DispatchSerialQueue(label: "TunnelManager.internalQueue")
+    let networkMonitorQueue = DispatchQueue(label: "com.TunnelManager.NetworkMonitor")
 
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
@@ -81,7 +72,7 @@ actor TunnelManager {
     fileprivate var _tunnelStatus = TunnelStatus()
     fileprivate var _lastNEVPNStatus: NEVPNStatus = .invalid
 
-    nonisolated(unsafe) private var accountManager: AccountManager!
+    private var accountManager: AccountManager!
 
     // MARK: - Custom executor
 
@@ -100,7 +91,7 @@ actor TunnelManager {
         apiProxy: APIQuerying,
         relaySelector: RelaySelectorProtocol,
         settingsManager: SettingsManager
-    ) {
+    ) async {
         self.backgroundTaskProvider = backgroundTaskProvider
         self.tunnelStore = tunnelStore
         self.relayCacheTracker = relayCacheTracker
@@ -112,14 +103,13 @@ actor TunnelManager {
         self.relaySelector = relaySelector
         self.settingsManager = settingsManager
 
-        self.accountManager = AccountManager(
+        self.accountManager = await AccountManager(
             operationQueue: operationQueue,
             internalQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             backgroundTaskProvider: backgroundTaskProvider,
             accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
-            category: OperationCategory.deviceStateUpdate.category
+            devicesProxy: devicesProxy
         )
 
         NotificationCenter.default.addObserver(
@@ -136,13 +126,7 @@ actor TunnelManager {
             object: nil
         )
 
-        Task { [weak self] in
-            await self?.startNetworkMonitor()
-        }
-
-        #if NOT_PRODUCTION_PERMANENT
-            relayCacheTracker.addObserver(self)
-        #endif
+        startNetworkMonitor()
     }
 
     // MARK: - Account
@@ -169,7 +153,7 @@ actor TunnelManager {
     }
 
     func deleteLoggedInAccount() async throws {
-        guard let accountNumber = deviceState.accountData?.number else {
+        guard let accountNumber = _deviceState.accountData?.number else {
             return
         }
         _ = try await setAccount(action: .delete(accountNumber))
@@ -295,7 +279,7 @@ actor TunnelManager {
     // MARK: - Public methods
 
     func loadConfiguration() async {
-        let task = LoadTunnelConfigurationTask(
+        let task = await LoadTunnelConfigurationTask(
             interactor: TunnelInteractorProxy(self),
             settingsManager: settingsManager)
 
@@ -314,73 +298,26 @@ actor TunnelManager {
                 cancelUponExpiration: false
             )
         )
-        loadTunnelOperation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
         operationQueue.addOperation(loadTunnelOperation)
     }
 
-    /// Nonisolation is safe due to execution on internal queue.
     nonisolated func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        internalQueue.async { [weak self] in
-            self?.assumeIsolatedHack { actor in
-                let operation = StartTunnelOperation(
-                    dispatchQueue: actor.internalQueue,
-                    interactor: TunnelInteractorProxy(actor),
-                    completionHandler: { result in
-                        if let error = result.error {
-                            actor.logger.error(
-                                error: error,
-                                message: "Failed to start the tunnel."
-                            )
-
-                            let tunnelError = StartTunnelError(underlyingError: error)
-
-                            actor.observerList.notify { observer in
-                                Task { @MainActor in
-                                    observer.tunnelManager(actor, didFailWithError: tunnelError)
-                                }
-                            }
-                        }
-
-                        completionHandler?(result.error)
-                    }
-                )
-
-                operation.addObserver(
-                    BackgroundObserver(
-                        backgroundTaskProvider: actor.backgroundTaskProvider,
-                        name: "Start tunnel",
-                        cancelUponExpiration: true
-                    ))
-                operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-                actor.operationQueue.addOperation(operation)
-            }
-        }
-    }
-
-    /// Nonisolation is safe due to execution on internal queue.
-    nonisolated func stopTunnel(
-        isOnDemandEnabled: Bool = false,
-        completionHandler: (@Sendable (Error?) -> Void)? = nil
-    ) {
-        internalQueue.async { [weak self] in
-            self?.assumeIsolatedHack { actor in
-                let operation = StopTunnelOperation(
-                    dispatchQueue: actor.internalQueue,
-                    interactor: TunnelInteractorProxy(actor)
-                ) { [weak self] result in
-                    guard let self else { return }
-
+        Task {
+            let operation = await StartTunnelOperation(
+                dispatchQueue: internalQueue,
+                interactor: TunnelInteractorProxy(self),
+                completionHandler: { [weak self] result in
                     if let error = result.error {
-                        self.logger.error(
+                        self?.logger.error(
                             error: error,
-                            message: "Failed to stop the tunnel."
+                            message: "Failed to start the tunnel."
                         )
 
-                        let tunnelError = StopTunnelError(underlyingError: error)
+                        let tunnelError = StartTunnelError(underlyingError: error)
 
-                        self.observerList.notify { observer in
+                        self?.observerList.notify { observer in
                             Task { @MainActor in
+                                guard let self else { return }
                                 observer.tunnelManager(self, didFailWithError: tunnelError)
                             }
                         }
@@ -388,72 +325,89 @@ actor TunnelManager {
 
                     completionHandler?(result.error)
                 }
-                operation.isOnDemandEnabled = isOnDemandEnabled
-                operation.addObserver(
-                    BackgroundObserver(
-                        backgroundTaskProvider: actor.backgroundTaskProvider,
-                        name: "Stop tunnel",
-                        cancelUponExpiration: true
-                    ))
-                operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
+            )
 
-                actor.operationQueue.addOperation(operation)
-            }
+            operation.addObserver(
+                BackgroundObserver(
+                    backgroundTaskProvider: self.backgroundTaskProvider,
+                    name: "Start tunnel",
+                    cancelUponExpiration: true
+                ))
+
+            self.operationQueue.addOperation(operation)
         }
     }
 
-    /// Nonisolation is safe due to execution on internal queue.
-    nonisolated func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        internalQueue.async { [weak self] in
-            self?.assumeIsolatedHack { actor in
-                // Start polling the tunnel immediately when the user reconnects
-                actor.startPollingTunnelStatus(interval: actor.tunnelStatusPollInterval)
+    nonisolated func stopTunnel(
+        isOnDemandEnabled: Bool = false,
+        completionHandler: (@Sendable (Error?) -> Void)? = nil
+    ) {
+        Task {
+            let operation = await StopTunnelOperation(
+                dispatchQueue: self.internalQueue,
+                interactor: TunnelInteractorProxy(self)
+            ) { [weak self] result in
+                guard let self else { return }
 
-                let operation = AsyncBlockOperation(dispatchQueue: actor.internalQueue) { [weak self] finish in
-                    self?.assumeIsolatedHack { actor in
-                        guard let tunnel = actor._tunnel else {
-                            finish(UnsetTunnelError())
-                            return
+                if let error = result.error {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to stop the tunnel."
+                    )
+
+                    let tunnelError = StopTunnelError(underlyingError: error)
+
+                    self.observerList.notify { observer in
+                        Task { @MainActor in
+                            observer.tunnelManager(self, didFailWithError: tunnelError)
                         }
+                    }
+                }
 
-                        _ = tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { [weak self] result in
+                completionHandler?(result.error)
+            }
+            operation.isOnDemandEnabled = isOnDemandEnabled
+            operation.addObserver(
+                BackgroundObserver(
+                    backgroundTaskProvider: self.backgroundTaskProvider,
+                    name: "Stop tunnel",
+                    cancelUponExpiration: true
+                ))
+
+            self.operationQueue.addOperation(operation)
+        }
+    }
+
+    nonisolated func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+        Task {
+            // Start polling the tunnel immediately when the user reconnects
+            await self.startPollingTunnelStatus(interval: self.tunnelStatusPollInterval)
+            guard let tunnel = await _tunnel else {
+                completionHandler?(UnsetTunnelError())
+                return
+            }
+
+            _ = tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
+                if case let .success(observedState) = result,
+                    let connectionState = observedState.connectionState
+                {
+                    Task {
+                        await self.setTunnelStatus { tunnelStatus in
+                            tunnelStatus.state = .reconnecting(
+                                connectionState.selectedRelays,
+                                isPostQuantum: connectionState.isPostQuantum,
+                                isDaita: connectionState.isDaitaEnabled
+                            )
+                            tunnelStatus.observedState = observedState
                             Task {
-                                if case let .success(observedState) = result,
-                                    let connectionState = observedState.connectionState
-                                {
-                                    _ = await self?.setTunnelStatus { tunnelStatus in
-                                        tunnelStatus.state = .reconnecting(
-                                            connectionState.selectedRelays,
-                                            isPostQuantum: connectionState.isPostQuantum,
-                                            isDaita: connectionState.isDaitaEnabled
-                                        )
-                                        tunnelStatus.observedState = observedState
-                                    }
-                                }
-
-                                finish(result.error)
+                                await self.didReconnectTunnel(error: result.error)
+                                completionHandler?(result.error)
                             }
                         }
                     }
+                } else {
+                    completionHandler?(result.error)
                 }
-
-                operation.completionBlock = { [weak self] in
-                    Task {
-                        await self?.didReconnectTunnel(error: operation.error)
-                        completionHandler?(operation.error)
-                    }
-                }
-
-                operation.addObserver(
-                    BackgroundObserver(
-                        backgroundTaskProvider: actor.backgroundTaskProvider,
-                        name: "Reconnect tunnel",
-                        cancelUponExpiration: true
-                    )
-                )
-                operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-                actor.operationQueue.addOperation(operation)
             }
         }
     }
@@ -829,31 +783,33 @@ actor TunnelManager {
     }
 
     private func startNetworkMonitor() {
-        networkMonitor = NWPathMonitor()
-        networkMonitor?.pathUpdateHandler = { [weak self] path in
-            self?.assumeIsolatedHack { actor in
-                actor.scheduleNetworkPathUpdate(path)
+        let pathMonitor = NWPathMonitor()
+        pathMonitor.pathUpdateHandler = { path in
+            Task {
+                await self.scheduleNetworkPathUpdate(path)
             }
         }
-
-        networkMonitor?.start(queue: internalQueue)
+        pathMonitor.start(queue: networkMonitorQueue)
+        networkMonitor = pathMonitor
     }
 
     /// Schedule a network path update with a delay to debounce rapid changes.
     private func scheduleNetworkPathUpdate(_ path: Network.NWPath) {
-        pendingNetworkPathUpdate?.cancel()
-
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.assumeIsolatedHack { actor in
-                actor.didUpdateNetworkPath(path)
-            }
-        }
-        pendingNetworkPathUpdate = workItem
-
-        internalQueue.asyncAfter(
-            deadline: .now().advanced(by: Self.networkPathUpdateDelay),
-            execute: workItem
-        )
+        dispatchPrecondition(condition: .onQueue(internalQueue))
+//        pendingNetworkPathUpdate?.cancel()
+//
+//        let workItem = DispatchWorkItem { [weak self] in
+//            Task {
+//                await self?.didUpdateNetworkPath(path)
+//            }
+//        }
+//        pendingNetworkPathUpdate = workItem
+//
+//        internalQueue.asyncAfter(
+//            deadline: .now().advanced(by: Self.networkPathUpdateDelay),
+//            execute: workItem
+//        )
+        didUpdateNetworkPath(path)
     }
 
     private func unsubscribeVPNStatusObserver() {
@@ -894,7 +850,6 @@ actor TunnelManager {
             }
         }
 
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
         operation.addObserver(
             BackgroundObserver(
                 backgroundTaskProvider: backgroundTaskProvider,
@@ -1115,9 +1070,6 @@ actor TunnelManager {
                 name: taskName,
                 cancelUponExpiration: false
             ))
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
-        )
 
         operationQueue.addOperation(operation)
     }
@@ -1154,9 +1106,6 @@ actor TunnelManager {
                 name: taskName,
                 cancelUponExpiration: false
             ))
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
 
         operationQueue.addOperation(operation)
     }
@@ -1370,9 +1319,9 @@ actor TunnelManager {
 #endif
 
 private struct TunnelInteractorProxy: TunnelInteractor {
-    private let tunnelManager: TunnelManager
+    private var tunnelManager: TunnelManager!
 
-    init(_ tunnelManager: TunnelManager) {
+    init(_ tunnelManager: TunnelManager) async {
         self.tunnelManager = tunnelManager
     }
 
@@ -1456,25 +1405,3 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         await tunnelManager.handleRestError(error)
     }
 }
-
-// MARK: - RelayCacheTrackerObserver
-
-#if NOT_PRODUCTION_PERMANENT
-    extension TunnelManager: RelayCacheTrackerObserver {
-        nonisolated func relayCacheTracker(
-            _ tracker: RelayCacheTracker,
-            didUpdateCachedRelays cachedRelays: CachedRelays
-        ) {
-            // Only reconnect if relays are now available
-            guard !cachedRelays.isEmpty else { return }
-
-            Task { [weak self] in
-                guard let self else { return }
-                // If tunnel is active, trigger reconnect to re-evaluate with new relays
-                if self._tunnelStatus.state.isSecured {
-                    self.reconnectTunnel(selectNewRelay: false)
-                }
-            }
-        }
-    }
-#endif

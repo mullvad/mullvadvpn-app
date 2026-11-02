@@ -23,108 +23,47 @@ import UIKit
 @MainActor
 final class AppResetManagerReal {
     private let launchArguments: LaunchArguments
-    private let tunnelManager: TunnelManager
     private let settingsManager: SettingsManager
-    private var tunnelObserver: TunnelObserver!
-
     let logger = Logger(label: "AppResetManager")
-
-    var onAppReady: (@Sendable @MainActor () -> Void)?
-
-    private let isConfigurationLoaded = CurrentValueSubject<Bool, Never>(false)
-    private let isAppReady = CurrentValueSubject<Bool, Never>(false)
-
-    private var cancellables = Set<AnyCancellable>()
 
     init(
         launchArguments: LaunchArguments,
-        tunnelManager: TunnelManager,
         settingsManager: SettingsManager
     ) {
         self.launchArguments = launchArguments
-        self.tunnelManager = tunnelManager
         self.settingsManager = settingsManager
+    }
+
+    func start() async {
         guard launchArguments.target.isUITest else { return }
-        observeReadiness()
-        addObserver()
-    }
-
-    func start() {
-        guard launchArguments.target.isUITest else { return }
-        Task {
-            async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
-            async let setupTask: () = setup()
-            _ = await (cleanup, setupTask)
-        }
-    }
-
-    private func observeReadiness() {
-        Publishers.CombineLatest(isConfigurationLoaded, isAppReady)
-            .filter { configurationLoaded, appReady in
-                configurationLoaded && appReady
-            }
-            .sink { [weak self] _, _ in
-                guard let self else { return }
-                tunnelManager.removeObserver(tunnelObserver)
-                onAppReady?()
-            }
-            .store(in: &cancellables)
-    }
-
-    private func addObserver() {
-        let tunnelObserver = TunnelBlockObserver(
-            didLoadConfiguration: { [weak self] tunnelManager in
-                self?.isConfigurationLoaded.send(true)
-            },
-            didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
-                guard let self else { return }
-                if tunnelStatus.observedState != .disconnected {
-                    tunnelManager.stopTunnel()
-                } else if case .disconnected = tunnelStatus.observedState {
-                    Task {
-                        await reset()
-                    }
-                }
-            }
-        )
-        tunnelManager.addObserver(tunnelObserver)
-        self.tunnelObserver = tunnelObserver
-    }
-
-    private func setup() async {
-        do {
-            guard try await isTunnelActive() == false else { return }
-            await reset()
-        } catch {
-            logger.error("Unexpected tunnel error: \(error.localizedDescription)")
-            isAppReady.send(true)
-        }
+        await StorePaymentManager.cleanupUnfinishedTransactions()
+        await reset()
     }
 
     private func reset() async {
-        switch tunnelManager.deviceState {
-        case .loggedIn:
-            await logoutIfNeeded()
-            fallthrough
-        default:
-            resetUserDefaults()
-            await resetKeychain()
-            isAppReady.send(true)
-        }
+        await logoutIfNeeded()
+        resetUserDefaults()
+        await resetKeychain()
     }
 
     private func logoutIfNeeded() async {
-        guard launchArguments.authenticationState == .forceLoggedOut else {
-            return
+        do {
+            try await stopActiveTunnel()
+            guard launchArguments.authenticationState == .forceLoggedOut else {
+                return
+            }
+            try settingsManager.writeDeviceState(.loggedOut)
+            try settingsManager.setLastUsedAccount(nil)
+        } catch {
+            logger.error("Could not log out properly: \(error)")
         }
-        await tunnelManager.unsetAccount(isRemovingProfile: false)
     }
 
     private func resetKeychain() async {
         let policy = launchArguments.settingsResetPolicy
         settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
         if policy.shouldReset(.settings) {
-            await tunnelManager.updateSettings([.reset])
+            try? settingsManager.writeSettings(LatestTunnelSettings())
         }
     }
 
@@ -138,35 +77,21 @@ final class AppResetManagerReal {
         defaults.synchronize()
     }
 
-    private func isTunnelActive() async throws -> Bool {
-        #if targetEnvironment(simulator)
-            return false
-        #else
-            try await withCheckedThrowingContinuation { continuation in
-                NETunnelProviderManager.loadAllFromPreferences { managers, error in
-                    if let error {
-                        continuation.resume(throwing: error)
-                        return
-                    }
-
-                    let active = (managers ?? []).contains {
-                        [.connected, .connecting, .reasserting].contains($0.connection.status)
-                    }
-
-                    continuation.resume(returning: active)
-                }
+    private func stopActiveTunnel() async throws {
+        NETunnelProviderManager.loadAllFromPreferences { managers, _ in
+            _ = managers?.compactMap { manager in
+                manager.isOnDemandEnabled = false
+                manager.connection.stopVPNTunnel()
+                manager.saveToPreferences()
             }
-        #endif
+        }
     }
 }
 
 @MainActor
 final class AppResetManagerNoOp {
-    var onAppReady: (@Sendable @MainActor () -> Void)?
-
     init(
         launchArguments: LaunchArguments,
-        tunnelManager: TunnelManager,
         settingsManager: SettingsManager
     ) {}
 

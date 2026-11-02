@@ -191,6 +191,11 @@ class BaseUITestCase: XCTestCase {
         agreeToTermsOfServiceIfShown()
         handleRevokedDeviceIfShown()
     }
+
+    override func tearDown() async throws {
+        app.terminate()
+        try await super.tearDown()
+    }
 }
 
 extension XCUIApplication {

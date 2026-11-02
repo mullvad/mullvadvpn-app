@@ -21,7 +21,6 @@ struct AccountManager: Sendable {
     let backgroundTaskProvider: BackgroundTaskProviding
     let accountsProxy: RESTAccountHandling
     let devicesProxy: DeviceHandling
-    let category: String
 
     func setAccount(
         action: SetAccountAction,
@@ -58,7 +57,6 @@ struct AccountManager: Sendable {
                 cancelUponExpiration: true
             ))
 
-        operation.addCondition(MutuallyExclusive(category: category))
 
         // Unsetting (ie. logging out) or deleting the account should cancel all other
         // currently ongoing activity.
@@ -97,10 +95,6 @@ struct AccountManager: Sendable {
                 name: "Rotate private key",
                 cancelUponExpiration: true
             )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: category)
         )
 
         operationQueue.addOperation(operation)

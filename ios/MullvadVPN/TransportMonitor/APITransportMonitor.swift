@@ -13,21 +13,21 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 
-final class APITransportMonitor: APITransportProviderProtocol, Sendable {
-    private let tunnelManager: TunnelManager
+struct APITransportMonitor: APITransportProviderProtocol, Sendable {
+    private let tunnelManager: TunnelManager?
     private let tunnelStore: TunnelStore
     private let requestFactory: MullvadApiRequestFactory
 
-    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, requestFactory: MullvadApiRequestFactory) {
+    init(tunnelManager: TunnelManager?, tunnelStore: TunnelStore, requestFactory: MullvadApiRequestFactory) {
         self.tunnelManager = tunnelManager
         self.tunnelStore = tunnelStore
         self.requestFactory = requestFactory
     }
 
-    func makeTransport() async -> APITransportProtocol? {
+    func makeTransport() async -> APITransportProtocol {
         let tunnel = await tunnelStore.getPersistentTunnel()
 
-        return if let tunnel, shouldRouteThroughTunnel(tunnel: tunnel) {
+        return if let tunnel, let tunnelManager, shouldRouteThroughTunnel(manager: tunnelManager, tunnel: tunnel) {
             PacketTunnelAPITransport(tunnel: tunnel)
         } else {
             APITransport(requestFactory: requestFactory)
@@ -38,17 +38,17 @@ final class APITransportMonitor: APITransportProviderProtocol, Sendable {
     ///
     /// - Parameter tunnel: The tunnel tunnel to evaluate
     /// - Returns: `true` if the tunnel should be used; otherwise, `false`
-    private func shouldRouteThroughTunnel(tunnel: any TunnelProtocol) -> Bool {
+    private func shouldRouteThroughTunnel(manager: TunnelManager, tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
-            switch tunnelManager.tunnelStatus.state {
+            switch manager.tunnelStatus.state {
             // Use tunnel if the tunnel is connected but the tunnel manager
             // reports an error or the tunnel is still connecting
             case .error, .connecting, .negotiatingEphemeralPeer:
                 true
             // Also use tunnel if configuration is loaded and device is revoked
             default:
-                tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
+                manager.isConfigurationLoaded && manager.deviceState == .revoked
             }
 
         case .connecting, .reasserting:
