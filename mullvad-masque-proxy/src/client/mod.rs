@@ -15,7 +15,7 @@ use h3::{client, ext::Protocol, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{StatusCode, Uri, header, uri::Scheme};
 use quinn::{
-    Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
+    ConnectionIdGenerator, Endpoint, EndpointConfig, IdleTimeout, TokioRuntime, TransportConfig,
     crypto::rustls::QuicClientConfig,
 };
 
@@ -30,6 +30,13 @@ use crate::{
 const MAX_HEADER_SIZE: u64 = 8192;
 
 const MAX_REDIRECT_COUNT: usize = 1;
+
+/// Length in bytes of the client's QUIC connection IDs. This is the destination connection ID
+/// of every packet sent by the server, so it adds to rx overhead and potentially
+/// fragmentation.
+///
+/// This is considered protocol. Do not change it unless server side expects it.
+const CID_LEN: usize = 8;
 
 /// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
@@ -148,6 +155,9 @@ impl Client {
             .expect("Failed to construct a valid TLS configuration");
 
         let mut client_config = quinn::ClientConfig::new(Arc::new(quic_client_config));
+        client_config.initial_dst_cid_provider(Arc::new(|| {
+            quinn_proto::RandomConnectionIdGenerator::new(CID_LEN).generate_cid()
+        }));
         let mut transport_config = TransportConfig::default();
         transport_config.max_idle_timeout(
             config
@@ -221,6 +231,8 @@ impl Client {
             endpoint_config
                 .max_udp_payload_size(max_udp_payload_size)
                 .map_err(Error::InvalidMaxUdpPayload)?;
+            endpoint_config
+                .cid_generator(|| Box::new(quinn_proto::RandomConnectionIdGenerator::new(CID_LEN)));
             endpoint_config
         };
 
