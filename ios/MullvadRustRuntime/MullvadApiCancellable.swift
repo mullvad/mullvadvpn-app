@@ -11,20 +11,47 @@
 import MullvadTypes
 
 public final class MullvadApiCancellable: Cancellable, Sendable {
-    private let handle: RequestCancelHandle
+    private enum Handle {
+        case legacy(RequestCancelHandle)
+        case task(Task<ApiResponse, Error>)
+    }
+
+    private let handle: Handle
 
     public init(handle: consuming RequestCancelHandle) {
-        self.handle = handle
+        self.handle = .legacy(handle)
+    }
+
+    public init(task: @Sendable @escaping () async throws -> ApiResponse) {
+        self.handle = .task(
+            Task {
+                try await task()
+            }
+        )
     }
 
     public func start(_ completion: (@Sendable (ApiResponse) throws -> Void)?) {
         let completionCookie = MullvadApiCompletion { apiResponse in
             try? completion?(apiResponse)
         }
-        handle.startTask(completionCookie: completionCookie)
+        switch handle {
+        case .legacy(let handle):
+            handle.startTask(completionCookie: completionCookie)
+        case .task(let task):
+            Task {
+                do {
+                    try completion?(try await task.value)
+                } catch {
+                    print("temp logging")
+                }
+            }
+        }
     }
 
     public func cancel() {
-        handle.cancelTask()
+        switch handle {
+        case .legacy(let handle): handle.cancelTask()
+        case .task(let task): task.cancel()
+        }
     }
 }
