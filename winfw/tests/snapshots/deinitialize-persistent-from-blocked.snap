@@ -1,0 +1,17 @@
+---
+source: winfw/tests/common/mod.rs
+expression: actual
+---
+providers: 1
+provider PROVIDER_PERSISTENT | flags 1 | "Mullvad VPN persistent" / "Mullvad VPN firewall integration"
+sublayers: 1
+sublayer SUBLAYER_PERSISTENT | weight 65535 | flags 1 | "Mullvad VPN persistent" / "Filters that restrict traffic before WinFw is initialized"
+filters: 8
+filter FILTER_BOOTTIME_BLOCK_ALL_INBOUND_IPV4 | "Block all inbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 2
+filter FILTER_BOOTTIME_BLOCK_ALL_INBOUND_IPV6 | "Block all inbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 2
+filter FILTER_BOOTTIME_BLOCK_ALL_OUTBOUND_IPV4 | "Block all outbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 2
+filter FILTER_BOOTTIME_BLOCK_ALL_OUTBOUND_IPV6 | "Block all outbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 2
+filter FILTER_PERSISTENT_BLOCK_ALL_INBOUND_IPV4 | "Block all inbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V4 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 1
+filter FILTER_PERSISTENT_BLOCK_ALL_INBOUND_IPV6 | "Block all inbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_RECV_ACCEPT_V6 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 1
+filter FILTER_PERSISTENT_BLOCK_ALL_OUTBOUND_IPV4 | "Block all outbound connections (IPv4)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V4 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 1
+filter FILTER_PERSISTENT_BLOCK_ALL_OUTBOUND_IPV6 | "Block all outbound connections (IPv6)" / "This filter is part of a rule that restricts inbound and outbound traffic" | layer ALE_AUTH_CONNECT_V6 | sublayer SUBLAYER_PERSISTENT | action BLOCK | weight class:15 | flags 1

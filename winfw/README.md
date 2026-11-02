@@ -19,9 +19,9 @@ In its initialized state, the firewall uses two sublayers:
   blocks the rest.
 
 When the daemon shuts down while the firewall is in the blocked state, the
-ephemeral filters installed here are swapped for persistent ones (see
-`talpid-core`'s `firewall::windows::objects::persistent`), which survive a
-Base Filtering Engine restart and a reboot.
+ephemeral filters are swapped for persistent and boot-time ones (see
+`CleanupPolicy::BlockingPersistent`), which survive a Base Filtering Engine
+restart and a reboot.
 
 ## Snapshot tests
 

@@ -17,7 +17,7 @@ use talpid_types::net::AllowedEndpoint;
 // The firewall's types, re-exported for the parent module's path resolution:
 // it declares `mod winfw;`, so paths like `winfw::Settings` resolve to this
 // adapter module rather than the external crate.
-pub use winfw::{ActivePolicy, CleanupPolicy, Settings};
+pub use winfw::{CleanupPolicy, Settings};
 
 /// Timeout for acquiring the WFP transaction lock.
 const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
@@ -78,20 +78,15 @@ pub(super) fn deinit(cleanup: CleanupPolicy) -> Result<(), super::Error> {
         return Ok(());
     };
 
-    instance
-        .deinitialize(cleanup)
-        .map_err(|_| super::Error::Deinitialization)
-}
+    instance.deinitialize(cleanup).map_err(|error| {
+        use talpid_error::ErrorExt as _;
 
-/// The policy currently in effect, or [`ActivePolicy::None`] if the module is
-/// not initialized.
-pub(super) fn active_policy() -> ActivePolicy {
-    let Ok(manager) = lock_manager() else {
-        return ActivePolicy::None;
-    };
-    manager
-        .as_ref()
-        .map_or(ActivePolicy::None, winfw::Manager::active_policy)
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to deinitialize the firewall module")
+        );
+        super::Error::Deinitialization
+    })
 }
 
 /// Clear the policy in effect, if any.
