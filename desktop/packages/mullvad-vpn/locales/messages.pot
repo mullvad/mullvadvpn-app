@@ -2501,13 +2501,6 @@ msgctxt "select-location-view"
 msgid "No result for: “%(searchTerm)s“"
 msgstr ""
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
-msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr ""
-
 #. Text describing that the user should try to update their filters
 msgctxt "select-location-view"
 msgid "Please try changing your filters."
@@ -2537,10 +2530,6 @@ msgstr ""
 #. Text for a button that sets multihop mode to "Always".
 msgctxt "select-location-view"
 msgid "Set multihop to \"Always\""
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
 msgstr ""
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
