@@ -751,8 +751,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     ) -> GotaTunConfig {
         let extraRelay = selectedRelays.entry ?? selectedRelays.exit
         let ipStrings =
-            extraRelay.hostname == "de-fra-wg-001" && selectedRelays.obfuscation == .multiplex
-            ? ["\(extraRelay.endpoint.socketAddress.ip)", "185.209.196.90", "185.213.155.90"]
+            extraRelay.hostname == "se-got-wg-001" && selectedRelays.obfuscation == .multiplex
+            ? ["85.203.53.140", "85.203.53.202"]
             : ["\(extraRelay.endpoint.socketAddress.ip)"]
         let ips = ipStrings.map({ "\($0):41414" }).map({ AnyIPEndpoint(string: $0)! })
         return GotaTunConfig(
