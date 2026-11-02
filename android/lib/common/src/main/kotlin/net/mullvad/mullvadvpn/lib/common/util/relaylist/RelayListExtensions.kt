@@ -127,7 +127,7 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
 
 fun <T : RelayItem> List<T>.sortedByName(): List<T> {
     val selector: (T) -> String =
-        if (ULocale.getDefault().language == "ja") {
+        if (ULocale.getDefault().language == ULocale.JAPANESE.language) {
             { item -> JapaneseSort.getSortKey(item.name) }
         } else {
             { item -> item.name }
