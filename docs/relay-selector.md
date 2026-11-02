@@ -51,9 +51,7 @@ enabled method has been tried, the sequence restarts from the plain WireGuard at
 
 ### Default constraints for tunnel endpoints on iOS
 
-The iOS platform supports connecting to a relay over IPv6 but will use only
-either IPv4 or IPv6, depending on user settings. As such, the above algorithm
-is simplified to the following version:
+On iOS, the selector instead cycles through one anti-censorship method per connection attempt:
 
 1. The first attempt will connect to a relay on a random port.
 2. The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation.
@@ -61,6 +59,9 @@ is simplified to the following version:
 4. The fourth attempt will connect to a relay on a random port using
    [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp).
 5. The fifth attempt will connect to a relay using LWO.
+
+The iOS platform supports connecting to a relay over IPv6 but will use only
+either IPv4 or IPv6, depending on user settings.
 
 ### Ports
 
