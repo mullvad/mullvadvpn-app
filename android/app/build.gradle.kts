@@ -15,7 +15,6 @@ import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
-import utilities.getStringProperty
 import utilities.isReleaseBuild
 import utilities.leakCanaryImplementation
 import utilities.matchesAny
@@ -352,7 +351,6 @@ cargo {
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
     targets = getStringListProperty("mullvad.app.build.cargo.targets")
-    rustupChannel = getStringProperty("mullvad.app.build.cargo.rustupChannel")
     profile =
         if (isReleaseBuild) {
             if (generateDebugSymbolsForReleaseBuilds) "release-debuginfo" else "release"
