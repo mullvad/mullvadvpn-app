@@ -8,6 +8,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import NetworkExtension
 import SwiftUI
 
 struct RootView: View {
@@ -34,6 +35,10 @@ struct RootView: View {
 
             Spacer()
 
+            RelayReloadButton()
+
+            Spacer()
+
             CreateAccountPromptView()
                 .background(Color.mullvadBackground)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 150)
@@ -43,9 +48,6 @@ struct RootView: View {
         .environment(navigation)
     }
 }
-
-import SwiftUI
-import NetworkExtension
 
 @MainActor @Observable
 final class TunnelController {
@@ -91,8 +93,8 @@ final class TunnelController {
         m.isEnabled = true
         // Another VPN app enabling its config flips ours to disabled,
         // so check every time, not only on first install.
-        try await m.saveToPreferences()   // first time: system "Add VPN Configurations" prompt
-        try await m.loadFromPreferences() // required after save, otherwise start fails with stale/invalid config
+        try await m.saveToPreferences()  // first time: system "Add VPN Configurations" prompt
+        try await m.loadFromPreferences()  // required after save, otherwise start fails with stale/invalid config
 
         attach(m)
         try m.connection.startVPNTunnel(options: nil)
@@ -154,6 +156,48 @@ struct TunnelButton: View {
         case .disconnecting: "Disconnecting…"
         @unknown default: "Unknown"
         }
+    }
+}
+
+/// Refetches the relay list on demand.
+///
+/// The list is otherwise only fetched at login, and an empty cache leaves the tunnel blocking all
+/// traffic — which blocks the fetch too, so a failed login-time fetch needs a way back.
+struct RelayReloadButton: View {
+    @Environment(DependencyManager.self) private var dependencies: DependencyManager?
+    @State private var isReloading = false
+    @State private var relayCount: Int?
+    @State private var lastError: Error?
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Button(isReloading ? "Reloading relays…" : "Reload relays") {
+                Task { await reload() }
+            }
+            .disabled(isReloading || dependencies == nil)
+
+            if let lastError {
+                Text(lastError.localizedDescription).font(.caption).foregroundStyle(Color.red)
+            } else if let relayCount {
+                Text(relayCount == 0 ? "No relays cached" : "\(relayCount) relays cached")
+                    .font(.caption)
+                    .foregroundStyle(relayCount == 0 ? Color.red : Color.secondary)
+            }
+        }
+        .task { relayCount = dependencies?.makeRelayListUpdater().cachedRelayCount }
+    }
+
+    private func reload() async {
+        guard let updater = dependencies?.makeRelayListUpdater() else { return }
+        isReloading = true
+        lastError = nil
+        do {
+            try await updater.updateRelays()
+        } catch {
+            lastError = error
+        }
+        relayCount = updater.cachedRelayCount
+        isReloading = false
     }
 }
 

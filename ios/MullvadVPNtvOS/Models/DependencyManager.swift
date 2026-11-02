@@ -134,10 +134,11 @@ class DependencyManager {
             accountProxy: proxyFactory.createAccountsProxy(),
             deviceProxy: proxyFactory.createDevicesProxy(),
             settingsManager: settingsManager,
-            relayListUpdater: RelayListUpdater(
-                apiProxy: proxyFactory.createAPIProxy(),
-                relayCache: relayCache
-            )
+            relayListUpdater: makeRelayListUpdater()
         )
+    }
+
+    public func makeRelayListUpdater() -> RelayListUpdater {
+        RelayListUpdater(apiProxy: proxyFactory.createAPIProxy(), relayCache: relayCache)
     }
 }

@@ -25,6 +25,10 @@ struct MapView: View {
             TunnelButton()
 
             Spacer()
+
+            RelayReloadButton()
+
+            Spacer()
         }
         .background(Color.mullvadBackground)
     }

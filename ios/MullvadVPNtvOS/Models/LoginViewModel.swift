@@ -44,6 +44,7 @@ class LoginViewModel: LoggingIn {
     var deviceProxy: DeviceHandling!
     var state: LoggingInState = .`initial`
 
+    private let logger = Logger(label: "LoginViewModel")
     private let settingsManager: SettingsManager
     private let relayListUpdater: RelayListUpdater
 
@@ -85,8 +86,14 @@ class LoginViewModel: LoggingIn {
                 }
                 try settingsManager.setLastUsedAccount(accountNumber)
                 // The relay the tunnel connects to is picked from the relay cache, so a logged in
-                // device alone is not enough to connect.
-                await relayListUpdater.updateRelays()
+                // device alone is not enough to connect. A failure here must not void the login:
+                // the device already exists server-side, and logging in again would burn another
+                // device slot. The reload button is the way back from it.
+                do {
+                    try await relayListUpdater.updateRelays()
+                } catch {
+                    logger.error(error: error, message: "Failed to update relay list on login.")
+                }
                 state = .success
             } catch {
                 state = .failure(error)
@@ -117,35 +124,39 @@ struct RelayListUpdater {
         self.relayCache = relayCache
     }
 
-    /// Updates the cached relay list, logging instead of throwing so that a failed fetch does not
-    /// invalidate an otherwise successful login.
-    func updateRelays() async {
-        do {
-            let cachedRelays = try? relayCache.read()
-            var sigsum: (String, Int64)?
-            if let digest = cachedRelays?.digest, let timestamp = cachedRelays?.timestamp {
-                sigsum = (digest, timestamp)
-            }
+    /// Number of WireGuard relays in the cache, and zero when it is empty or unreadable. The
+    /// tunnel can only reach a blocked state while this is zero.
+    var cachedRelayCount: Int {
+        (try? relayCache.read())?.relays.wireguard.relays.count ?? 0
+    }
 
-            let response: REST.ServerRelaysCacheResponse? = try await withCheckedThrowingContinuation {
-                continuation in
-                _ = apiProxy.getRelays(sigsum: sigsum, retryStrategy: .apiRequest) { result in
-                    continuation.resume(with: result)
-                }
-            }
+    /// Fetches the relay list and writes it to the cache.
+    ///
+    /// - Throws: whatever the API or the cache write failed with, so that callers can show it. A
+    ///   silent failure here leaves the tunnel with nothing to connect to.
+    func updateRelays() async throws {
+        let cachedRelays = try? relayCache.read()
+        var sigsum: (String, Int64)?
+        if let digest = cachedRelays?.digest, let timestamp = cachedRelays?.timestamp {
+            sigsum = (digest, timestamp)
+        }
 
-            // An unchanged sigsum digest yields an empty body.
-            switch response ?? .notModified {
-            case let .newContent(digest, timestamp, rawData):
-                try relayCache.write(
-                    record: StoredRelays(
-                        digest: digest, timestamp: timestamp, rawData: rawData, updatedAt: Date()))
-                logger.debug("Updated cached relay list.")
-            case .notModified:
-                logger.debug("Cached relay list is up to date.")
+        let response: REST.ServerRelaysCacheResponse? = try await withCheckedThrowingContinuation {
+            continuation in
+            _ = apiProxy.getRelays(sigsum: sigsum, retryStrategy: .apiRequest) { result in
+                continuation.resume(with: result)
             }
-        } catch {
-            logger.error(error: error, message: "Failed to update relay list.")
+        }
+
+        // An unchanged sigsum digest yields an empty body.
+        switch response ?? .notModified {
+        case let .newContent(digest, timestamp, rawData):
+            try relayCache.write(
+                record: StoredRelays(
+                    digest: digest, timestamp: timestamp, rawData: rawData, updatedAt: Date()))
+            logger.debug("Updated cached relay list.")
+        case .notModified:
+            logger.debug("Cached relay list is up to date.")
         }
     }
 }
