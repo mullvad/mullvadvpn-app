@@ -1371,7 +1371,7 @@ open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimesta
             completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
             freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
             liftFunc: FfiConverterTypeApiResponse_lift,
-            errorHandler: FfiConverterTypeAnyError__as_error_lift
+            errorHandler: FfiConverterTypeApiContextError_lift
         )
 }
     
@@ -3966,7 +3966,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_get_addresses() != 51223) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 31518) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 52941) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 15564) {
