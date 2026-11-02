@@ -82,6 +82,38 @@ test.describe('Select location', () => {
       await expect(automaticLocation).toBeVisible();
     });
 
+    test('Should update to automatic location after confirming entry filters override warning dialog', async () => {
+      const providers = helpers.getProvidersFromRelayList(relayList);
+      settings = await helpers.updateMockEntryRelayFilter(
+        {
+          providers: [providers[0]],
+        },
+        settings,
+      );
+      settings = await helpers.mockSettings(
+        {
+          entryLocation: {
+            only: {
+              country: relayList.countries[0].code,
+            },
+          },
+        },
+        settings,
+      );
+
+      const automaticLocation = routes.selectLocation.getAutomaticLocation();
+      await automaticLocation.click();
+
+      const automaticLocationWarningDialogConfirmButton =
+        routes.selectLocation.getAutomaticLocationWarningDialogContinueButton();
+      await expect(automaticLocationWarningDialogConfirmButton).toBeVisible();
+
+      await Promise.all([
+        util.ipc.settings.setRelaySettings.expect(),
+        automaticLocationWarningDialogConfirmButton.click(),
+      ]);
+    });
+
     test('Should show relays in exit list', async () => {
       await routes.selectLocation.gotoExitLocations();
 

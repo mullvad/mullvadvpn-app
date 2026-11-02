@@ -132,6 +132,10 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.deleteCustomListButton();
   }
 
+  getAutomaticLocationWarningDialogContinueButton() {
+    return this.selectors.automaticLocationWarningDialogContinueButton();
+  }
+
   async gotoEntryFilter() {
     await this.selectors.filterEntryButton().click();
     await this.utils.expectRoute(RoutePath.filter);
