@@ -131,7 +131,7 @@ impl DnsWatcher {
 
         let (cancel_trigger, cancel_listener) = trigger();
 
-        tokio::spawn(async move { Self::event_loop(watcher, cancel_listener, &state).await });
+        tokio::spawn(Self::event_loop(watcher, cancel_listener, state));
 
         Ok(DnsWatcher { cancel_trigger })
     }
@@ -139,7 +139,7 @@ impl DnsWatcher {
     async fn event_loop(
         watcher: Inotify,
         mut cancel_listener: Listener,
-        state: &Arc<Mutex<Option<State>>>,
+        state: Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
