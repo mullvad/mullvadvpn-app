@@ -19,6 +19,16 @@ use std::{
 };
 use tokio::io::ReadBuf;
 
+fn offset_iterator<T>(slice: &mut [T], offset: usize) -> impl Iterator<Item = &mut T> {
+    let mid = if slice.is_empty() {
+        0
+    } else {
+        offset % slice.len()
+    };
+    let (head, tail) = slice.split_at_mut(mid);
+    tail.iter_mut().chain(head)
+}
+
 /// An abstraction over udp sockets that allows for using multiple IP addresses (and sockets) for the
 /// same relay.
 #[derive(Clone)]
@@ -96,23 +106,15 @@ impl Multiplex {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut i = self.recv;
-        let poll = loop {
-            let (_, state) = &mut self.multiplexers[i];
-
+        let mut res = None;
+        for (_, state) in offset_iterator(&mut self.multiplexers, self.recv) {
             if let poll @ Poll::Ready(..) = state.poll_recv(cx, read_buf) {
-                break Some(poll);
+                res = Some(poll);
+                break;
             }
-            i = (i + 1) % self.multiplexers.len();
-            if i == self.recv {
-                break None;
-            }
-        };
-        self.recv = (self.recv + 1) % self.multiplexers.len();
-        if let Some(poll @ Poll::Ready(..)) = poll {
-            return poll;
         }
-        Poll::Pending
+        self.recv = (self.recv + 1) % self.multiplexers.len();
+        res.unwrap_or(Poll::Pending)
     }
 }
 impl UdpTransportFactory for Multiplex {
@@ -177,20 +179,15 @@ impl SocketMultiplexer {
         cx: &mut Context<'_>,
         read_buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<SocketAddr>> {
-        let mut i = self.recv;
-        let poll = loop {
-            let socket = self.sockets[i].socket();
-
-            if let poll @ Poll::Ready(..) = socket.poll_recv_from(cx, read_buf) {
-                break Some(poll);
+        let mut res = None;
+        for socket in offset_iterator(&mut self.sockets, self.recv) {
+            if let poll @ Poll::Ready(..) = socket.socket().poll_recv_from(cx, read_buf) {
+                res = Some(poll);
+                break;
             }
-            i = (i + 1) % self.sockets.len();
-            if i == self.recv {
-                break None;
-            }
-        };
+        }
         self.recv = (self.recv + 1) % self.sockets.len();
-        if let Some(p) = poll { p } else { Poll::Pending }
+        res.unwrap_or(Poll::Pending)
     }
 }
 impl UdpRecv for SocketMultiplexer {
