@@ -321,7 +321,16 @@ function build {
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
     log_header "Building NSIS plugins"
-    cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis
+    nsis_cargo_args=(--release --target i686-pc-windows-msvc -p mullvad-nsis)
+    if [[ "$IS_RELEASE" == "true" ]]; then
+        cargo clean "${nsis_cargo_args[@]}"
+    else
+        echo "Will NOT clean the NSIS plugins in dev builds"
+    fi
+    if [[ "$SIGN" == "true" ]]; then
+        nsis_cargo_args+=(--locked)
+    fi
+    cargo build "${nsis_cargo_args[@]}"
 
     if [[ "$SIGN" == "true" ]]; then
         # The NSIS plugins are always built in 32-bit release mode
