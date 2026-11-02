@@ -6,6 +6,7 @@ pub mod context;
 pub mod error;
 pub mod guids;
 pub mod objects;
+mod persistent;
 pub mod rules;
 pub mod session;
 mod sessions;
@@ -238,10 +239,12 @@ pub enum CleanupPolicy {
     /// Remove all objects that have been registered with WFP.
     ResetFirewall,
     /// Continue blocking if this is the active policy. The blocking filters
-    /// are ephemeral: they are active until the machine is rebooted. To keep
-    /// blocking across a reboot, the caller is responsible for replacing them
-    /// with persistent ones.
+    /// are ephemeral: they are active until the machine is rebooted.
     BlockingUntilReboot,
+    /// Continue blocking if this is the active policy, including across a
+    /// reboot: the ephemeral objects are replaced with persistent and boot-time
+    /// blocking filters in a single transaction.
+    BlockingPersistent,
 }
 
 /// The policy currently in effect.
@@ -367,17 +370,27 @@ impl Manager {
     ///
     /// The context is dropped before the reset, closing the engine session, so
     /// the reset removes everything instead of just reverting the policy.
+    ///
+    /// # Blocking
+    ///
+    /// With [`CleanupPolicy::BlockingPersistent`], this waits for the WFP
+    /// transaction lock for up to the timeout the manager was created with.
     pub fn deinitialize(&mut self, cleanup: CleanupPolicy) -> Result<(), Error> {
         let Some(context) = self.context.take() else {
             return Ok(());
         };
         let was_blocked = context.active_policy() == ActivePolicy::Blocked;
-        drop(context);
 
-        if cleanup == CleanupPolicy::BlockingUntilReboot && was_blocked {
-            return Ok(());
+        match cleanup {
+            CleanupPolicy::BlockingUntilReboot if was_blocked => Ok(()),
+            CleanupPolicy::BlockingPersistent if was_blocked => context
+                .apply_persistent_blocking()
+                .map_err(Error::PersistentBlocking),
+            _ => {
+                drop(context);
+                context::purge_standalone().map_err(Error::Deinitialization)
+            }
         }
-        context::purge_standalone().map_err(Error::Deinitialization)
     }
 
     /// The policy currently in effect.

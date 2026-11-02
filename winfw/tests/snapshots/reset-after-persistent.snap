@@ -1,0 +1,7 @@
+---
+source: winfw/tests/common/mod.rs
+expression: actual
+---
+providers: 0
+sublayers: 0
+filters: 0

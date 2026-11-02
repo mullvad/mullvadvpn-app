@@ -14,6 +14,11 @@ pub enum Error {
     /// Failure to deinitialize the firewall module
     #[error("Failed to deinitialize windows firewall module")]
     Deinitialization(#[source] io::Error),
+
+    /// Failure to replace the ephemeral blocking filters with persistent ones. The
+    /// ephemeral filters remain, so traffic is blocked only until the machine is rebooted.
+    #[error("Failed to add persistent block rules")]
+    PersistentBlocking(#[source] io::Error),
 }
 
 /// Errors that can happen when applying a firewall policy or resetting it.
