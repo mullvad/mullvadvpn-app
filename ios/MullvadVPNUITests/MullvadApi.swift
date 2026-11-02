@@ -88,22 +88,22 @@ class MullvadApi {
     }
 
     func createAccount() throws -> String {
-        let response = try makeRequest { strategy in
-            context.createAccount(retryStrategy: strategy)
+        let response = try makeRequest { [context] strategy in
+            try await context.createAccount(retryStrategy: strategy)
         }
         let data = try requireBody(response)
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
     }
 
     func delete(account: String) throws {
-        _ = try makeRequest { strategy in
-            context.deleteAccount(retryStrategy: strategy, accountNumber: account)
+        _ = try makeRequest { [context] strategy in
+            try await context.deleteAccount(retryStrategy: strategy, accountNumber: account)
         }
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {
-        try makeRequest { strategy in
-            context.createDevice(
+        try makeRequest { [context] strategy in
+            try await context.createDevice(
                 retryStrategy: strategy,
                 accountNumber: forAccount,
                 publicKey: publicKey
@@ -112,11 +112,10 @@ class MullvadApi {
     }
 
     func getExpiry(forAccount: String) throws -> UInt64 {
-        let response = try makeRequest { strategy in
-            let handle = context.getAccount(
+        let response = try makeRequest { [context] strategy in
+            try await context.getAccount(
                 retryStrategy: strategy,
                 accountNumber: forAccount)
-            return handle
         }
         let data = try requireBody(response)
         let decoder = JSONDecoder()
@@ -126,8 +125,8 @@ class MullvadApi {
     }
 
     func listDevices(forAccount: String) throws -> [Device] {
-        let response = try makeRequest { strategy in
-            context.getDevices(
+        let response = try makeRequest { [context] strategy in
+            try await context.getDevices(
                 retryStrategy: strategy,
                 accountNumber: forAccount)
         }
@@ -150,23 +149,30 @@ class MullvadApi {
 
     @discardableResult
     private func makeRequest(
-        _ call: (RetryStrategy) -> RequestCancelHandle
+        _ call: @Sendable @escaping (RetryStrategy) async throws -> ApiResponse
     ) throws -> ApiResponse {
         let semaphore = DispatchSemaphore(value: 0)
-        nonisolated(unsafe) var apiResponse: ApiResponse?
+        nonisolated(unsafe) var apiResponse: Result<ApiResponse, Error>?
 
-        let completion = MullvadApiCompletion { response in
-            apiResponse = response
+        let strategy = REST.RetryStrategy.apiRequest.toRustStrategy()
+        Task {
+            do {
+                apiResponse = .success(try await call(strategy))
+            } catch {
+                apiResponse = .failure(error)
+            }
             semaphore.signal()
         }
-        let strategy = REST.RetryStrategy.apiRequest.toRustStrategy()
-        let handle = call(strategy)
-        handle.startTask(completionCookie: completion)
         semaphore.wait()
 
         guard let response = apiResponse else {
             throw MullvadApiError(description: "No response received")
         }
-        return response
+
+        switch response {
+        case .success(let response): return response
+        case .failure(let error):
+            throw MullvadApiError(description: "No response received: \(error)")
+        }
     }
 }
