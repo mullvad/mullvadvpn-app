@@ -7,12 +7,11 @@ use talpid_types::{
     tunnel::FirewallPolicyError,
 };
 
-use self::winfw::{ActivePolicy, CleanupPolicy};
+use self::winfw::CleanupPolicy;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
 
 mod hyperv;
-mod objects;
 mod winfw;
 
 const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
@@ -255,29 +254,17 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // Ask WinFW for the active policy before tearing it down, since it is forgotten
-        // along with the rest of the module state.
-        let was_blocked = winfw::active_policy() == ActivePolicy::Blocked;
+        // If the blocked policy is in effect, keep blocking after shutting down. Otherwise,
+        // everything is removed.
+        let cleanup = if self.persist {
+            CleanupPolicy::BlockingPersistent
+        } else {
+            CleanupPolicy::BlockingUntilReboot
+        };
 
-        // Shut WinFW down without cleaning up. The blocking filters, if any, are left in
-        // place and stay in effect until the machine is rebooted. All other filters should
-        // still remain intact.
-        match winfw::deinit(CleanupPolicy::BlockingUntilReboot) {
+        match winfw::deinit(cleanup) {
             Ok(()) => log::trace!("Successfully deinitialized windows firewall module"),
             Err(_) => log::error!("Failed to deinitialize windows firewall module"),
-        }
-
-        // Swap those ephemeral filters for ones that also survive a reboot. Until this
-        // runs, the ephemeral filters are what keeps traffic blocked, so there is no
-        // window during which traffic is permitted.
-        if self.persist && was_blocked {
-            match objects::apply_persistent_blocking() {
-                Ok(()) => log::debug!("Added persistent block rules"),
-                Err(error) => log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to add persistent block rules")
-                ),
-            }
         }
     }
 }

@@ -532,6 +532,34 @@ fn initialize_blocked_states() {
     });
 }
 
+#[test]
+#[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
+fn persistent_blocking() {
+    run_test_uninitialized(|fw| {
+        let allowed = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[CLIENT_SVCHOST]);
+
+        // Only the persistent and boot-time filters remain. Neither the LAN
+        // exceptions nor the allowed endpoint carry over.
+        fw.initialize_blocked(&Settings::new(true), Some(&allowed));
+        fw.deinitialize(CleanupPolicy::BlockingPersistent);
+        assert_snapshot("deinitialize-persistent-from-blocked");
+
+        // The next run of the firewall takes over from the persistent filters.
+        fw.initialize();
+        assert_snapshot("initialize-after-persistent");
+
+        // Without the blocked policy in effect, there is nothing to keep.
+        fw.deinitialize(CleanupPolicy::BlockingPersistent);
+        assert_snapshot("deinitialize-persistent-from-no-policy");
+
+        // The uninitialized reset also removes the persistent filters.
+        fw.initialize_blocked(&Settings::new(false), None);
+        fw.deinitialize(CleanupPolicy::BlockingPersistent);
+        fw.reset().expect("Failed to reset");
+        assert_snapshot("reset-after-persistent");
+    });
+}
+
 // ---------------------------------------------------------------------------
 // Transitions and failure behavior
 // ---------------------------------------------------------------------------
