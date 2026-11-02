@@ -10,6 +10,7 @@ import mullvad_daemon.management_interface.CustomDnsOptions
 import mullvad_daemon.management_interface.CustomList
 import mullvad_daemon.management_interface.CustomProxy
 import mullvad_daemon.management_interface.CustomProxy.ProxyMethod
+import mullvad_daemon.management_interface.CustomVpnConfig
 import mullvad_daemon.management_interface.DaitaSettings
 import mullvad_daemon.management_interface.DefaultDnsOptions
 import mullvad_daemon.management_interface.DnsOptions
@@ -20,7 +21,6 @@ import mullvad_daemon.management_interface.NewAccessMethodSetting
 import mullvad_daemon.management_interface.NormalRelaySettings
 import mullvad_daemon.management_interface.ObfuscationSettings
 import mullvad_daemon.management_interface.Ownership
-import mullvad_daemon.management_interface.PersonalVpnConfig
 import mullvad_daemon.management_interface.PlayPurchase
 import mullvad_daemon.management_interface.PlayPurchasePaymentToken
 import mullvad_daemon.management_interface.QuantumResistantState
@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings as ModelDaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
@@ -59,7 +60,6 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting as ModelNewAccess
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode as ModelObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
-import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase as ModelPlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken as ModelPlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -348,18 +348,20 @@ internal fun RelayItemId.fromDomain(): LocationConstraint =
 internal fun ModelCipher.fromDomain(): Shadowsocks.Cipher = Shadowsocks.Cipher(name = value)
 
 @Suppress("UnsafeCallOnNullableType")
-internal fun ModelPersonalVpnConfig.fromDomain(): PersonalVpnConfig =
-    PersonalVpnConfig(
+internal fun ModelPersonalVpnConfig.fromDomain(): CustomVpnConfig =
+    CustomVpnConfig(
         tunnel =
-            PersonalVpnConfig.TunnelConfig(
+            CustomVpnConfig.TunnelConfig(
                 private_key = tunnelConfig.privateKey.value.decodeBase64()!!,
                 ips = tunnelConfig.tunnelIps.map { it.hostAddress!! },
             ),
-        peer =
-            PersonalVpnConfig.PeerConfig(
-                public_key = peerConfig.publicKey.value.decodeBase64()!!,
-                allowed_ip = peerConfig.allowedIps,
-                endpoint = peerConfig.endpoint.toEndpointString(),
+        peers =
+            listOf(
+                CustomVpnConfig.PeerConfig(
+                    public_key = peerConfig.publicKey.value.decodeBase64()!!,
+                    allowed_ip = peerConfig.allowedIps,
+                    endpoint = peerConfig.endpoint.toEndpointString(),
+                )
             ),
     )
 

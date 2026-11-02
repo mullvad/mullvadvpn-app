@@ -48,8 +48,8 @@ import net.mullvad.mullvadvpn.feature.customvpn.impl.R
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
@@ -139,7 +139,7 @@ fun SharedTransitionScope.CustomTunnelsList(
         isModal = isModal,
         modifier =
             Modifier.sharedBounds(
-                rememberSharedContentState(key = FeatureIndicator.PERSONAL_VPN),
+                rememberSharedContentState(key = FeatureIndicator.CUSTOM_VPN),
                 animatedVisibilityScope = animatedVisibilityScope,
             ),
         onCreateConfiguration = dropUnlessResumed { navigator.navigate(CreateCustomTunnelNavKey) },
@@ -265,7 +265,7 @@ private fun ConfigurationsHeader() {
 
 @Composable
 private fun CustomTunnelsListContent(
-    customVpnConfig: PersonalVpnConfig?,
+    customVpnConfig: CustomVpnConfig?,
     customVpnEnabled: Boolean,
     tunnelStats: TunnelStats?,
     onEditConfiguration: () -> Unit,

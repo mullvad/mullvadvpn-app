@@ -40,8 +40,8 @@ class CustomTunnelsListViewModel(
                 Lc.Content(
                     CustomTunnelsListUiState(
                         customVpnConfigState =
-                            settings.personalVpnConfig?.let {
-                                if (settings.personalVpnEnabled) {
+                            settings.customVpnConfig?.let {
+                                if (it.peerConfig.allowedIps.isEmpty()) { // TODO
                                     CustomTunnelConfigState.Enabled(it)
                                 } else {
                                     CustomTunnelConfigState.Disabled(it)

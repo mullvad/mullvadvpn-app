@@ -45,13 +45,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mullvad_daemon.management_interface.CustomVpnConfig
+import mullvad_daemon.management_interface.CustomVpnConfigError
 import mullvad_daemon.management_interface.DaemonEvent
 import mullvad_daemon.management_interface.Device
 import mullvad_daemon.management_interface.DeviceRemoval
 import mullvad_daemon.management_interface.ManagementServiceClient
 import mullvad_daemon.management_interface.NewCustomList
-import mullvad_daemon.management_interface.PersonalVpnConfig
-import mullvad_daemon.management_interface.PersonalVpnConfigError
 import mullvad_daemon.relay_selector.RelaySelectorServiceClient
 import net.mullvad.mullvadvpn.lib.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.grpc.mapper.toDomain
@@ -78,6 +78,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
@@ -94,9 +95,9 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
+import net.mullvad.mullvadvpn.lib.model.GetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetMigrationEventError
-import net.mullvad.mullvadvpn.lib.model.GetPersonalVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -109,7 +110,6 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PackageName
-import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig as ModelPersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
@@ -133,10 +133,10 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
+import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
-import net.mullvad.mullvadvpn.lib.model.SetPersonalVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetRelayLocationError
 import net.mullvad.mullvadvpn.lib.model.SetWireguardConstraintsError
 import net.mullvad.mullvadvpn.lib.model.SetWireguardMtuError
@@ -1014,30 +1014,31 @@ class ManagementService(
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
 
-    suspend fun getPersonalVpnStats(): Either<GetPersonalVpnConfigError, ModelTunnelStats> =
-        Either.catch { grpc.GetPersonalVpnStats().execute(Unit).toDomain() }
+    suspend fun getPersonalVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
+        Either.catch { grpc.GetCustomVpnStats().execute(Unit).toDomain() }
             .onLeft { Logger.e("Get personal vpn event error") }
-            .mapLeft { GetPersonalVpnConfigError.Unknown }
+            .mapLeft { GetCustomVpnConfigError.Unknown }
 
-    suspend fun togglePersonalVpn(enable: Boolean): Either<SetPersonalVpnConfigError, Unit> =
-        Either.catch { grpc.SetPersonalVpnConfigStatus().execute(enable.toBoolValue()) }
-            .onLeft { Logger.e("Toggle personal VPN error", it) }
-            .mapLeft { SetPersonalVpnConfigError.Unknown }
+    suspend fun togglePersonalVpn(enable: Boolean): Either<SetCustomVpnConfigError, Unit> =
+        /*Either.catch { grpc..execute(enable.toBoolValue()) }
+        .onLeft { Logger.e("Toggle personal VPN error", it) }
+        .mapLeft { SetPersonalVpnConfigError.Unknown }*/
+        Unit.right() // TODO
 
     suspend fun setPersonalVpnConfig(
         config: ModelPersonalVpnConfig
-    ): Either<SetPersonalVpnConfigError, Unit> = setPersonalVpnConfigProto(config.fromDomain())
+    ): Either<SetCustomVpnConfigError, Unit> = setPersonalVpnConfigProto(config.fromDomain())
 
     /** Remove the personal VPN config. The daemon interprets an empty config as removal. */
-    suspend fun clearPersonalVpn(): Either<SetPersonalVpnConfigError, Unit> =
-        setPersonalVpnConfigProto(PersonalVpnConfig())
+    suspend fun clearPersonalVpn(): Either<SetCustomVpnConfigError, Unit> =
+        setPersonalVpnConfigProto(CustomVpnConfig())
 
     private suspend fun setPersonalVpnConfigProto(
-        config: PersonalVpnConfig
-    ): Either<SetPersonalVpnConfigError, Unit> =
-        Either.catch { grpc.SetPersonalVpnConfig().execute(config) }
+        config: CustomVpnConfig
+    ): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.SetCustomVpnConfig().execute(config) }
             .onLeft { Logger.e("Set personal VPN config error", it) }
-            .mapLeft { SetPersonalVpnConfigError.Unknown }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
     /**
@@ -1046,18 +1047,18 @@ class ManagementService(
      * The daemon parses the `wg-quick` body, resolves any DNS hostname in `Endpoint`, and persists
      * the resulting config.
      */
-    suspend fun importPersonalVpnConfig(body: String): Either<SetPersonalVpnConfigError, Unit> =
-        Either.catch { grpc.ImportPersonalVpnConfig().execute(body.toStringValue()) }
+    suspend fun importPersonalVpnConfig(body: String): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.ImportCustomVpnConfig().execute(body.toStringValue()) }
             .onLeft { Logger.e("Import personal VPN config error", it) }
-            .mapLeft { SetPersonalVpnConfigError.Unknown }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
-    private fun PersonalVpnConfigError.toResult(): Either<SetPersonalVpnConfigError, Unit> =
+    private fun CustomVpnConfigError.toResult(): Either<SetCustomVpnConfigError, Unit> =
         if (error.isEmpty()) {
             Unit.right()
         } else {
             Logger.e("Personal VPN config error: $error")
-            SetPersonalVpnConfigError.Unknown.left()
+            SetCustomVpnConfigError.Unknown(Throwable(error)).left()
         }
 
     private fun Boolean.toBoolValue() = WireBoolValue(this)
