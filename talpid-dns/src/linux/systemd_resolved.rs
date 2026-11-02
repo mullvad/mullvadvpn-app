@@ -11,10 +11,10 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("systemd-resolved operation failed {0}")]
-    SystemdResolvedError(#[from] SystemdDbusError),
+    SystemdResolved(#[from] SystemdDbusError),
 
     #[error("Failed to resolve interface index with error {0}")]
-    InterfaceNameError(#[from] IfaceIndexLookupError),
+    InterfaceName(#[from] IfaceIndexLookupError),
 }
 
 pub struct SystemdResolved {
