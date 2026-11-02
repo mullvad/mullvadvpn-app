@@ -1057,10 +1057,7 @@ fn interface_alias_condition(alias: &str) -> io::Result<wfp::Condition> {
 }
 
 fn interface_alias_not_condition(alias: &str) -> io::Result<wfp::Condition> {
-    Ok(InterfaceConditionBuilder::local()
-        .alias(alias)?
-        .not_equal()
-        .build())
+    Ok(InterfaceConditionBuilder::local().not_alias(alias)?.build())
 }
 
 /// Match a remote network prefix.
