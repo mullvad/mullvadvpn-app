@@ -22,8 +22,28 @@ public enum ApplicationConfiguration {
     }
 
     /// Container URL for security group.
+    ///
+    /// On tvOS the root of the shared container is not writable — `Library/Caches` is the only
+    /// place in it an app may write — so everything the app and the packet tunnel share through
+    /// the container (relay cache, log files, Shadowsocks cache) lives there instead. Both
+    /// processes resolve this the same way, so they still agree on the paths.
+    ///
+    /// - Important: tvOS may purge this directory. Nothing in it can be treated as durable
+    ///   storage; the relay cache already copes by refetching, and settings live in the keychain.
     public static var containerURL: URL {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
+        let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
+
+        #if os(tvOS)
+            let writableURL =
+                containerURL
+                .appendingPathComponent("Library", isDirectory: true)
+                .appendingPathComponent("Caches", isDirectory: true)
+            try? FileManager.default.createDirectory(at: writableURL, withIntermediateDirectories: true)
+            return writableURL
+        #else
+            return containerURL
+        #endif
     }
 
     /// Returns URL for new log file associated with application target and located within the specified container.
