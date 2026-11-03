@@ -7,17 +7,23 @@ use thiserror::Error;
 #[error("Unable to attach ctrl-c handler")]
 pub struct Error(#[from] ctrlc::Error);
 
-pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
-    ctrlc::set_handler(f)?;
-    Ok(())
+pub fn install_shutdown_signal_handler(daemon: &crate::Daemon) {
+    let shutdown_handle = daemon.shutdown_handle();
+
+    tokio::spawn(async move {
+        tokio::signal::ctrl_c().await.unwrap();
+        let user_init_shutdown = is_shutdown_user_initiated().await;
+        shutdown_handle.shutdown(user_init_shutdown);
+    });
 }
 
 /// Returns true if systemd successfully reported that the machine is not shutting down or entering
 /// maintenance. If obtaining this information fails, the return value will be `false` and it will
 /// be assumed that the machine is shutting down.
 #[cfg(target_os = "linux")]
-pub fn is_shutdown_user_initiated() -> bool {
-    talpid_dbus::systemd::dbus_rs::is_host_running()
+pub async fn is_shutdown_user_initiated() -> bool {
+    talpid_dbus::systemd::is_host_running()
+        .await
         .map_err(|err| {
             err.display_chain_with_msg(
                 "Failed to determine if host is shutting down, assuming it is shutting down",
@@ -39,8 +45,16 @@ pub fn is_shutdown_user_initiated() -> bool {
 // It might be that I'm missing something, but neither of these two methods appears to work. You
 // have been warned.
 #[cfg(target_os = "macos")]
-pub fn is_shutdown_user_initiated() -> bool {
+#[expect(clippy::unused_async)]
+pub async fn is_shutdown_user_initiated() -> bool {
     false
+}
+
+/// Currently returns true all of the time.
+#[cfg(any(target_os = "windows", target_os = "android"))]
+#[expect(clippy::unused_async)]
+pub async fn is_shutdown_user_initiated() -> bool {
+    true
 }
 
 /// Install a signal handler for `SIGUSR1`.

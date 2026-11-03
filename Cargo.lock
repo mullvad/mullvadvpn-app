@@ -1160,17 +1160,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4ae5f15dda3c708c0ade84bfee31ccab44a3da4f88015ed22f63732abe300c8"
 
 [[package]]
-name = "dbus"
-version = "0.9.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b942602992bb7acfd1f51c49811c58a610ef9181b6e66f3e519d79b540a3bf73"
-dependencies = [
- "libc",
- "libdbus-sys",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "defmt"
 version = "0.3.100"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2942,15 +2931,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
 
 [[package]]
-name = "libdbus-sys"
-version = "0.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "328c4789d42200f1eeec05bd86c9c13c7f091d2ba9a6ea35acdf51f31bc0f043"
-dependencies = [
- "pkg-config",
-]
-
-[[package]]
 name = "libloading"
 version = "0.8.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3476,6 +3456,7 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
+ "futures",
  "jnix",
  "log",
  "log-panics",
@@ -5928,9 +5909,9 @@ dependencies = [
 name = "talpid-dbus"
 version = "0.0.0"
 dependencies = [
- "dbus",
- "libc",
+ "futures",
  "log",
+ "nix 0.31.3",
  "resolv-conf",
  "serde",
  "thiserror 2.0.19",
@@ -6198,6 +6179,7 @@ dependencies = [
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.61.2",
+ "zbus",
  "zerocopy",
 ]
 
