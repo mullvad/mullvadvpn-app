@@ -3,11 +3,6 @@ These are instructions on how to build the app on desktop platforms. See the
 
 # Install toolchains and dependencies
 
-These instructions are probably not complete. If you find something more that needs installing
-on your platform please submit an issue or a pull request.
-
-## All platforms
-
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
   - Install default targets and components needed for your platform:
     ```bash
@@ -326,3 +321,7 @@ transpile and reload the file so that the changes are visible almost immediately
 Please note that the Electron app needs a running daemon to connect to in order to work. See
 [Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instructions
 on how to do that before starting the Electron app.
+
+# Troubleshooting
+
+If you find something more that needs installing on your platform please submit an issue or a pull request.
