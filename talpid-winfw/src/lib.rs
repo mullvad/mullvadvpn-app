@@ -342,13 +342,11 @@ impl Manager {
 
     /// Deinitialize the firewall, cleaning up according to `cleanup`.
     ///
-    /// The context is dropped before the reset, closing the engine session, so
-    /// the reset removes everything instead of just reverting the policy.
-    ///
     /// # Blocking
     ///
-    /// With [`CleanupPolicy::BlockingPersistent`], this waits for the WFP
-    /// transaction lock for up to the timeout the manager was created with.
+    /// Unless the blocked policy is left in place by
+    /// [`CleanupPolicy::BlockingUntilReboot`], this waits for the WFP transaction
+    /// lock for up to the timeout the manager was created with.
     pub fn deinitialize(self, cleanup: CleanupPolicy) -> Result<(), Error> {
         let context = self.context;
         let was_blocked = context.active_policy() == ActivePolicy::Blocked;
@@ -358,10 +356,7 @@ impl Manager {
             CleanupPolicy::BlockingPersistent if was_blocked => context
                 .apply_persistent_blocking()
                 .map_err(Error::PersistentBlocking),
-            _ => {
-                drop(context);
-                context::purge_standalone().map_err(Error::Deinitialization)
-            }
+            _ => context.purge().map_err(Error::Deinitialization),
         }
     }
 
