@@ -47,6 +47,7 @@ netlink-packet-route = { workspace = true }
 netlink-proto = { workspace = true }
 rtnetlink = { workspace = true }
 talpid-dbus = { workspace = true }
+zbus.workspace = true
 zerocopy = { workspace = true, features = ["derive"] }
 
 [target."cfg(unix)".dependencies]

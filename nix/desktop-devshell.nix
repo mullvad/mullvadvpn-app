@@ -7,10 +7,6 @@ pkgs.devshell.mkShell {
     pkgs.tombi
   ];
 
-  env = import ./desktop-env.nix {
-    inherit pkgs;
-  };
-
   devshell.startup.prepare.text = ''
     export FLAKE_ROOT=$(git rev-parse --show-toplevel)
     cd "$FLAKE_ROOT"

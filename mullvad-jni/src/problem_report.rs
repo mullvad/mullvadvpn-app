@@ -40,7 +40,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportR
         pending_purchases,
     };
 
-    match collector.write_to_path(&output_path) {
+    match futures::executor::block_on(collector.write_to_path(&output_path)) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
