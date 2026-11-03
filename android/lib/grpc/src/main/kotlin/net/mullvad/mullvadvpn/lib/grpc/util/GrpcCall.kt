@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.lib.grpc.util
 
 import co.touchlab.kermit.Logger
 import com.squareup.wire.GrpcCall
-import java.io.IOException
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
