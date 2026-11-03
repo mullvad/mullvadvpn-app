@@ -251,7 +251,7 @@ impl Firewall {
         let (relays, tunnel_clients) =
             to_relays(peer_endpoints).map_err(Error::ApplyingConnectedPolicy)?;
         let tunnel = talpid_winfw::TunnelParameters {
-            alias: Some(tunnel_metadata.interface.clone()),
+            alias: tunnel_metadata.interface.clone(),
             exit_ip: exit_endpoint_ip,
             clients: tunnel_clients,
             allowed_tunnel_traffic: AllowedTunnelTraffic::All,

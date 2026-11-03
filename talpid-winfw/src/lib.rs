@@ -30,9 +30,9 @@ mod policy_rules {
 
     /// The relays and tunnel data of a connecting or connected firewall state.
     #[derive(Clone, Debug)]
-    pub struct TunnelParameters {
-        /// The tunnel interface alias, `Some` only while a tunnel exists.
-        pub alias: Option<String>,
+    pub struct TunnelParameters<T> {
+        /// The tunnel interface alias.
+        pub alias: T,
         /// The IP of the exit relay in a multihop tunnel, if any.
         pub exit_ip: Option<IpAddr>,
         /// The processes allowed to reach the relays; empty means any process.
@@ -54,7 +54,7 @@ mod policy_rules {
     pub fn connecting(
         settings: &Settings,
         relays: &[Endpoint],
-        tunnel: &TunnelParameters,
+        tunnel: &TunnelParameters<Option<String>>,
         allowed_endpoint: &AllowedEndpoint,
     ) -> Vec<Rule> {
         let mut ruleset = Vec::new();
@@ -93,7 +93,7 @@ mod policy_rules {
     pub fn connected(
         settings: &Settings,
         relays: &[Endpoint],
-        tunnel: &TunnelParameters,
+        tunnel: &TunnelParameters<String>,
         tunnel_dns_servers: &[IpAddr],
         non_tunnel_dns_servers: &[IpAddr],
     ) -> Vec<Rule> {
@@ -102,32 +102,31 @@ mod policy_rules {
         append_settings_rules(&mut ruleset, settings);
         append_relay_rules(&mut ruleset, relays, &tunnel.clients);
 
-        if let Some(alias) = &tunnel.alias {
-            if !tunnel_dns_servers.is_empty() {
-                ruleset.push(Rule::DnsPermitTunnel {
-                    alias: alias.clone(),
-                    hosts: tunnel_dns_servers.to_vec(),
-                });
-            }
-            if !non_tunnel_dns_servers.is_empty() {
-                ruleset.push(Rule::DnsPermitNonTunnel {
-                    alias: Some(alias.clone()),
-                    hosts: non_tunnel_dns_servers.to_vec(),
-                });
-            }
-            ruleset.push(tunnel_rule_out(
-                alias,
-                tunnel.clients.clone(),
-                None,
-                tunnel.exit_ip,
-            ));
-            ruleset.push(tunnel_rule_in(
-                alias,
-                tunnel.clients.clone(),
-                None,
-                tunnel.exit_ip,
-            ));
+        if !tunnel_dns_servers.is_empty() {
+            ruleset.push(Rule::DnsPermitTunnel {
+                alias: tunnel.alias.clone(),
+                hosts: tunnel_dns_servers.to_vec(),
+            });
         }
+        if !non_tunnel_dns_servers.is_empty() {
+            ruleset.push(Rule::DnsPermitNonTunnel {
+                alias: Some(tunnel.alias.clone()),
+                hosts: non_tunnel_dns_servers.to_vec(),
+            });
+        }
+        ruleset.push(tunnel_rule_out(
+            &tunnel.alias,
+            tunnel.clients.clone(),
+            None,
+            tunnel.exit_ip,
+        ));
+        ruleset.push(tunnel_rule_in(
+            &tunnel.alias,
+            tunnel.clients.clone(),
+            None,
+            tunnel.exit_ip,
+        ));
+
         ruleset
     }
 
@@ -287,7 +286,7 @@ impl Manager {
         &mut self,
         settings: &Settings,
         relays: &[Endpoint],
-        tunnel: &TunnelParameters,
+        tunnel: &TunnelParameters<Option<String>>,
         allowed_endpoint: &AllowedEndpoint,
     ) -> Result<(), ApplyError> {
         self.validate_relays(relays, tunnel.exit_ip)?;
@@ -302,16 +301,11 @@ impl Manager {
         &mut self,
         settings: &Settings,
         relays: &[Endpoint],
-        tunnel: &TunnelParameters,
+        tunnel: &TunnelParameters<String>,
         tunnel_dns_servers: &[IpAddr],
         non_tunnel_dns_servers: &[IpAddr],
     ) -> Result<(), ApplyError> {
         self.validate_relays(relays, tunnel.exit_ip)?;
-        if tunnel.alias.is_none() {
-            return Err(policy_error(io::Error::other(
-                "the connected policy requires a tunnel interface",
-            )));
-        }
         log::debug!(
             "Non-tunnel DNS servers: {}",
             join_ips(non_tunnel_dns_servers)

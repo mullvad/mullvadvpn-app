@@ -50,14 +50,28 @@ fn no_dhcp_settings(permit_lan: bool) -> Settings {
     }
 }
 
-fn tunnel(
+fn connecting_tunnel(
     alias: Option<&str>,
     exit_ip: Option<&str>,
     clients: &[&str],
     allowed_tunnel_traffic: AllowedTunnelTraffic,
-) -> TunnelParameters {
+) -> TunnelParameters<Option<String>> {
     TunnelParameters {
         alias: alias.map(str::to_owned),
+        exit_ip: exit_ip.map(|ip| ip.parse().expect("valid IP")),
+        clients: clients.iter().map(Into::into).collect(),
+        allowed_tunnel_traffic,
+    }
+}
+
+fn connected_tunnel(
+    alias: &str,
+    exit_ip: Option<&str>,
+    clients: &[&str],
+    allowed_tunnel_traffic: AllowedTunnelTraffic,
+) -> TunnelParameters<String> {
+    TunnelParameters {
+        alias: alias.to_owned(),
         exit_ip: exit_ip.map(|ip| ip.parse().expect("valid IP")),
         clients: clients.iter().map(Into::into).collect(),
         allowed_tunnel_traffic,
@@ -83,7 +97,7 @@ fn apply_connected(
         .apply_policy_connected(
             settings,
             relays,
-            &tunnel(Some(&alias), exit_ip, clients, AllowedTunnelTraffic::All),
+            &connected_tunnel(&alias, exit_ip, clients, AllowedTunnelTraffic::All),
             &ips(tunnel_dns_servers),
             &ips(non_tunnel_dns_servers),
         )
@@ -238,7 +252,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -250,7 +264,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -263,7 +277,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST, CLIENT_CMD],
@@ -279,7 +293,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST],
@@ -295,7 +309,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("2a03:1b20:1:b::5"),
                     &[CLIENT_SVCHOST],
@@ -311,7 +325,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(
+                &connecting_tunnel(
                     None,
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST],
@@ -327,7 +341,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_DNS)],
-                &tunnel(None, None, &[CLIENT_SVCHOST], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[CLIENT_SVCHOST], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -338,7 +352,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_dns_port,
             )
             .expect("Failed to apply the connecting policy");
@@ -452,7 +466,7 @@ fn reset_from_every_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
+                &connecting_tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -589,7 +603,7 @@ fn policy_transitions() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
+                &connecting_tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -627,7 +641,7 @@ fn policy_transitions() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -654,7 +668,7 @@ fn failed_apply_leaves_state_untouched() {
         let result = fw.manager().apply_policy_connecting(
             &Settings::new(true),
             &relays,
-            &tunnel(None, Some(RELAY_V4_UDP.0), &[], AllowedTunnelTraffic::None),
+            &connecting_tunnel(None, Some(RELAY_V4_UDP.0), &[], AllowedTunnelTraffic::None),
             &allowed_all,
         );
         assert!(matches!(result, Err(ApplyError::Generic(_))));
@@ -663,7 +677,7 @@ fn failed_apply_leaves_state_untouched() {
         let result = fw.manager().apply_policy_connecting(
             &Settings::new(true),
             &relays,
-            &tunnel(
+            &connecting_tunnel(
                 Some("Nonexistent-Adapter-42"),
                 None,
                 &[],
