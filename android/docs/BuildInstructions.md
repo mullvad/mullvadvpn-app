@@ -1,195 +1,199 @@
 # Build instructions
 
-This document aims to explain how to build the Mullvad Android app. It's strongly recommended and
-primarily supported to build the app using the provided container, as it ensures the correct build
-environment.
+This document explains how to build the Mullvad Android app. For everyday development, follow the
+[quick start with Android Studio](#quick-start-with-android-studio).
+[Other ways to build](#other-ways-to-build) covers the nix devshell, the container, the command line
+(without installing Android Studio) and running cargo directly. [Releases and build configuration](#releases-and-build-configuration)
+covers Gradle properties, signing, releases and reproducible builds. To debug the Rust code from
+Android Studio, see the [debug instructions](DebugInstructions.md).
 
-## Build process
+## Quick start with Android Studio
 
-The app uses Gradle to build the app. It also relies on native libraries (`mullvad-daemon`).
-Building these are included in the Gradle build process using the [rust-android-gradle](https://github.com/mullvad/rust-android-gradle) plugin.
-Building the native libraries requires some specific toolchains and packages to be installed, so
-it's recommended to build using the provided build script and container image.
-
-## Build with provided container (recommended)
-
-> __*NOTE:*__ Build with provided container is only supported on Linux and may not work on other
-> platforms.
-
-Building the app can easily be done by running the
-[containerized-build.sh](../../building/containerized-build.sh) script, which helps using the correct
-tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
-by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
-can be used by setting the `CONTAINER_RUNNER` environment variable.
-
-### Setup
-
-- Install [podman](https://podman.io/getting-started/installation.html) and make sure it's
-  configured to run in rootless mode.
-
-### Debug build
-Run the following command to trigger a full debug build:
-```bash
-../building/containerized-build.sh android
-```
-
-### Release build
-1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Run the following command to build:
-```bash
-../building/containerized-build.sh android fullRelease
-```
-3. Sign the release artifacts using apksigner with the following command:
-```bash
-apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
-```
-
-## Build without the provided container
-
-> __*NOTE:*__ This guide is only supported on Linux and may not work on other platforms, if you are
-> using macOS please refer to [macOS build instructions](./BuildInstructions.macos.md)
-
-Building without the provided container requires installing multiple Sdk:s and toolchains, and is
-therefore more complex.
-
-### Setup build environment
-These steps explain how to manually set up the build environment on a Linux system.
-
-#### 1. Install `protobuf-compiler`
-Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros via
-the package name `protobuf-compiler`. An additional package might also be required depending on
-Linux distro:
-- `protobuf-devel` on Fedora.
-- `libprotobuf-dev` on Debian/Ubuntu.
-
-#### 2. Install `gcc`
-
-#### 3. Install Android toolchain
-
-- Install the JDK
-
-  ```bash
-  sudo apt install zip openjdk-21-jdk
-  ```
-
-- Install the SDK and NDK
-
-  The SDK should be placed in a separate directory, like for example `~/android` or `/opt/android`.
-  This directory should be exported as the `$ANDROID_HOME` environment variable.
-
-  Note: if `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
-  to the command below.
-
-  ```bash
-  cd /opt/android     # Or some other directory to place the Android SDK
-  export ANDROID_HOME=$PWD
-
-  wget https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip
-  mkdir -p cmdline-tools
-  unzip commandlinetools-linux-13114758_latest.zip -d cmdline-tools-latest
-  mv cmdline-tools-latest/cmdline-tools cmdline-tools/latest && rm -d cmdline-tools-latest
-  ./cmdline-tools/latest/bin/sdkmanager "platforms;android-37" "build-tools;37.0.0" "platform-tools" "ndk;27.3.13750724"
-  ```
-
-#### 4. Install and configure Rust toolchain
-
-- Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
-
-- Configure Android cross-compilation targets and set up linker and archiver. This can be done by setting the following
-environment variables:
-
-  Add to `~/.bashrc` or equivalent:
-  ```
-  export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.3.13750724"
-  export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-  export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
-  export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
-  export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
-  export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
-  export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android26-clang"
-  export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi26-clang"
-  export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
-  export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android26-clang"
-  export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/aarch64-linux-android26-clang"
-  export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi26-clang"
-  export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-android26-clang"
-  export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
-  ```
-
-- Install Android targets
-  ```bash
-  ./scripts/setup-rust android
-  ```
-
-- (Optional) Run the following to install a git `post-checkout` hook that will automatically
-  run the `setup-rust` script when the Rust version specified in the `rust-toolchain.toml` file changes:
-  ```bash
-  ./scripts/setup-rust install-hook
-  ```
-
-### Debug build
-Run the following command to build a debug build:
-```bash
-./gradlew debug
-```
-
-### Release build
-1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Run the following command to build:
+1. Clone the repository:
    ```bash
-   ./gradlew fullRelease
-   ```
-3. Sign the release artifacts using apksigner with the following command:
-   ```bash
-   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
+   git clone https://github.com/mullvad/mullvadvpn-app.git
+   cd mullvadvpn-app
    ```
 
-## Build using nix devshell
+2. Install [rustup](https://rustup.rs/), a protobuf compiler and a C compiler:
+   - macOS (with [Homebrew](https://brew.sh/)): `brew install protobuf`
+   - Debian/Ubuntu: `sudo apt install protobuf-compiler libprotobuf-dev gcc`
+   - Fedora: `sudo dnf install protobuf-compiler protobuf-devel gcc`
+
+3. Make sure new terminals and Android Studio get the `PATH` change from the rustup installer, for
+   example by logging out and back in.
+
+4. From the repository root, install the pinned Rust version and the Android targets:
+   ```bash
+   ./scripts/setup-rust android
+   ```
+   Optionally, run `./scripts/setup-rust install-hook` and add
+   `export MULLVAD_SETUP_PLATFORM=android`, for example to `~/.zshrc` or `~/.bashrc`, to rerun this
+   automatically when the Rust version in `rust-toolchain.toml` changes.
+
+5. Install [Android Studio](https://developer.android.com/studio) and complete the setup wizard.
+
+6. Install the NDK. The build doesn't download it, so this is needed even if you already use Android
+   Studio: in **Settings > Languages & Frameworks > Android SDK > SDK Tools**, check **Show Package
+   Details**, select **NDK (Side by side)** version `27.3.13750724` (the `ndk` version in
+   [`gradle/libs.versions.toml`](../gradle/libs.versions.toml)) and click **Apply**.
+
+7. Open the `android` directory in Android Studio and click **Run**.
+
+The first build downloads the other Android SDK packages it needs and compiles the Rust daemon for
+all four Android ABIs, so it takes a while. To build for fewer ABIs, see
+[Build the Rust library for fewer ABIs](#build-the-rust-library-for-fewer-abis).
+
+### Enable command line builds
+
+Optionally, you can also build from the command line after the quick start. Android Studio stores
+the SDK location in `android/local.properties`, so Gradle only needs a JDK. You can use the one
+bundled with Android Studio by setting `JAVA_HOME` to
+`"/Applications/Android Studio.app/Contents/jbr/Contents/Home"` on macOS, or on Linux
+`/usr/local/android-studio/jbr` or `/opt/android-studio/jbr` depending on where you unpacked it.
+You can then build a debug APK by running `./gradlew debug` from the `android` directory.
+
+## Other ways to build
+
+The app is built with Gradle, which also builds the Rust daemon (`mullvad-daemon`) as a native
+library through the [rust-android-gradle](https://github.com/mullvad/rust-android-gradle) plugin.
+The plugin sets up the NDK toolchain for cargo, so building through Gradle doesn't need any NDK
+environment variables. For release builds it's strongly recommended to use the
+[container](#build-using-the-container), as it ensures the correct build environment.
+
+### Build using nix devshell
 This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
 
 1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
 2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
-3. Launch a devshell (in `<repository>/android`) by running:
+3. Build a debug APK:
    ```bash
-   nix develop .#android
+   nix develop .#android -c build
    ```
-4. Build the app as usual by running for example:
+
+To run another command in the devshell, pass it after `-c`, for example
+`nix develop .#android -c ./gradlew tasks`, or run `nix develop .#android` to enter an interactive
+shell.
+
+### Build using the container
+This is primarily supported on Linux, and might work on macOS and Windows to varying degrees.
+
+1. Install [podman](https://podman.io/getting-started/installation.html) and make sure it's
+   configured to run in rootless mode. To use another container runner such as
+   [docker](https://docs.docker.com/get-started/), set the `CONTAINER_RUNNER` environment variable.
+2. Build a debug APK from the repository root:
    ```bash
-   build
+   ./building/containerized-build.sh android
    ```
-   or
+
+To run another Gradle task in the container, pass it after `android`, for example
+`./building/containerized-build.sh android tasks`.
+
+### Build using the command line (without installing Android Studio)
+This works on Linux and macOS.
+
+1. Clone the repository and install rustup, a protobuf compiler, a C compiler, the pinned Rust
+   version and the Android targets as in steps 1 to 4 of the
+   [quick start](#quick-start-with-android-studio).
+2. Install a JDK:
+   - macOS: `brew install openjdk@21`, then set `JAVA_HOME` to
+     `$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home`.
+   - Debian/Ubuntu: `sudo apt install zip openjdk-21-jdk`
+   - Fedora: `sudo dnf install java-21-openjdk-devel`
+3. Install the Android command line tools as described in the
+   [sdkmanager docs](https://developer.android.com/tools/sdkmanager) and export the SDK directory
+   as `ANDROID_HOME`, for example in `~/.zshrc` or `~/.bashrc`. Then accept the SDK licenses and
+   install the NDK:
+   ```bash
+   yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+   "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.3.13750724"
+   ```
+   The build downloads the SDK platform and build tools it needs.
+4. Build a debug APK from the `android` directory:
    ```bash
    ./gradlew debug
    ```
-   or
-   ```bash
-   ./gradlew assembleOssProdDebug
-   ```
 
-## Configure signing key
-Generate a key/keystore named `app-keys.jks` and make sure to write
-down the used passwords:
-   ```bash
-   keytool -genkey -v -keystore app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
-   ```
+### Build the Rust library directly with cargo
 
-## Creating an alpha release
+Gradle builds the Rust library through the plugin, so this is only needed when running cargo
+yourself against an Android target, for example to build or lint the library without Gradle. Cargo
+then needs the NDK toolchain through the environment variables below. The
+[nix devshell](#build-using-nix-devshell) and the [container](#build-using-the-container) already
+set them.
 
-Run the [prepare-release.sh](../scripts/prepare-release.sh) script with the desired version you wish
-to release as an argument. The prepare script will download the latest relay list and update the
-version files, and add as commits.
+To run cargo in your own shell, install the Android Rust targets with `./scripts/setup-rust android`
+and set the variables, for example in `~/.zshrc` or `~/.bashrc`. Also set `ANDROID_HOME` to an SDK
+with the NDK installed. If you set it up as in the [quick start](#quick-start-with-android-studio),
+that's `~/Library/Android/sdk` on macOS and `~/Android/Sdk` on Linux. The NDK toolchain directory
+is `darwin-x86_64` on macOS (also on Apple silicon) and `linux-x86_64` on Linux, which the `uname`
+call picks. The versions must match [`gradle/libs.versions.toml`](../gradle/libs.versions.toml):
+`27.3.13750724` is the `ndk` version and the `28` in the compiler names is the `min-sdk` version.
 
 ```bash
-# Replace `202X.X-alphaX` with the alpha version you intend to create.
-./scripts/prepare-release.sh 202X.X-alphaX
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.3.13750724"
+export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$(uname -s | tr '[:upper:]' '[:lower:]')-x86_64/bin"
+export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
+export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
+export CC_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/aarch64-linux-android28-clang"
+export CC_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi28-clang"
+export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android28-clang"
+export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android28-clang"
+export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/aarch64-linux-android28-clang"
+export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$NDK_TOOLCHAIN_DIR/armv7a-linux-androideabi28-clang"
+export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android28-clang"
+export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-android28-clang"
 ```
 
-Continue by following the instructions provided by the script.
+Then run cargo from the repository root as usual, for example:
+```bash
+cargo build --target aarch64-linux-android --package mullvad-jni
+```
 
-## Gradle dependency metadata verification lockfile
+## Releases and build configuration
+
+### Gradle properties
+Some Gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
+In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
+[gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
+for more info of the prioritization of properties.
+
+#### Build the Rust library for fewer ABIs
+By default the Rust library is built for all four Android ABIs. To speed up development builds,
+build it only for the ABI of your device or emulator, for example:
+```
+mullvad.app.build.cargo.targets=arm64
+```
+Use `arm64` for most phones and for emulators on Apple silicon, and `x86_64` for emulators on Intel
+and AMD machines. The available values are `arm`, `arm64`, `x86` and `x86_64`. Remove the property
+before making release builds, since the app then only works on the listed ABIs.
+
+#### Override version code and version name
+To avoid or override the rust based version generation, the `mullvad.app.config.override.versionCode` and
+`mullvad.app.config.override.versionName` properties can be set:
+```
+mullvad.app.config.override.versionCode=123
+mullvad.app.config.override.versionName=1.2.3
+```
+
+#### Disable version in-app notifications
+To disable in-app notifications related to the app version during development or testing,
+the `mullvad.app.config.inAppVersionNotifications.enable` property can be set:
+```
+mullvad.app.config.inAppVersionNotifications.enable=false
+```
+
+#### Run tests highly affected by rate limiting
+To avoid being rate limited we avoid running tests sending requests that are highly rate limited
+too often. If you want to run these tests you can override the
+`mullvad.test.e2e.config.runHighlyRateLimitedTests` Gradle properties. The default value is `false`.
+
+### Gradle dependency metadata verification lockfile
 This lockfile helps ensure the integrity of the Gradle dependencies in the project.
 
-### Update lockfile
+#### Update lockfile
 When adding or updating dependencies, it's necessary to also update the lockfile. This can be done
 in the following way:
 
@@ -202,39 +206,45 @@ in the following way:
 
 2. Check diff before committing.
 
-### Disable during development
+#### Disable during development
 This is easiest done by temporarily removing the lockfile:
 ```bash
 rm ./gradle/verification-metadata.xml
 ```
 
-## Gradle properties
-Some Gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
-In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
-[gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
-for more info of the prioritization of properties.
+### Release build
+1. Configure a signing key by following [these instructions](#configure-signing-key).
+2. Build the release artifacts in the [container](#build-using-the-container) from the repository
+   root:
+   ```bash
+   ./building/containerized-build.sh android fullRelease
+   ```
+   Without the container, run `./gradlew fullRelease` from the `android` directory instead.
+3. Sign the release artifacts using apksigner with the following command:
+   ```bash
+   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
+   ```
 
-### Override version code and version name
-To avoid or override the rust based version generation, the `mullvad.app.config.override.versionCode` and
-`mullvad.app.config.override.versionName` properties can be set:
-```
-mullvad.app.config.override.versionCode=123
-mullvad.app.config.override.versionName=1.2.3
+### Configure signing key
+Generate a key/keystore named `app-keys.jks` and make sure to write
+down the used passwords:
+   ```bash
+   keytool -genkey -v -keystore app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
+   ```
+
+### Creating an alpha release
+
+Run the [prepare-release.sh](../scripts/prepare-release.sh) script from the `android` directory
+with the alpha version you intend to create as an argument, for example `2026.13-alpha1`. The
+prepare script will download the latest relay list and update the version files, and add as commits.
+
+```bash
+./scripts/prepare-release.sh 2026.13-alpha1
 ```
 
-### Disable version in-app notifications
-To disable in-app notifications related to the app version during development or testing,
-the `mullvad.app.config.inAppVersionNotifications.enable` property can be set:
-```
-mullvad.app.config.inAppVersionNotifications.enable=false
-```
+Continue by following the instructions provided by the script.
 
-### Run tests highly affected by rate limiting
-To avoid being rate limited we avoid running tests sending requests that are highly rate limited
-too often. If you want to run these tests you can override the
-`mullvad.test.e2e.config.runHighlyRateLimitedTests` Gradle properties. The default value is `false`.
-
-## Reproducible builds
+### Reproducible builds
 
 Reproducible builds are a way to verify that the app was built from the exact source code it claims to be built from. When a build is reproducible, compiling the same source code with the same tools will always produce bit-for-bit identical output.
 
@@ -251,16 +261,16 @@ To maximize reproducibility when building without the container:
   and the setup scripts in [building](../../building) that it runs. This includes for example the Rust toolchain,
   protobuf compiler, and Android SDK and NDK versions.
 
-### How to verify reproducible builds across environments
+#### How to verify reproducible builds across environments
 
-A simple way to check that a build is reproducible across environments is to build the release version of the app with and without the container and comparing the checksums of the produced APKs.
+A simple way to check that a build is reproducible across environments is to build the release version of the app with and without the container and comparing the checksums of the produced APKs. Run these steps from the `android` directory.
 
 1. Build the app with the container: `../building/containerized-build.sh android assembleOssProdRelease`
 1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `cp app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk release-container.apk`
 1. Build the app locally without the container: `./gradlew assembleOssProdRelease`
 1. Compare the checksums of the two APKs: `sha256sum release-container.apk app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk`
 
-## Verifying that an official release is reproducible
+### Verifying that an official release is reproducible
 
 1. Obtain the release APK (`2025.2-beta1` or newer) from [GitHub releases](https://github.com/mullvad/mullvadvpn-app/releases)
 1. Checkout the release tag: `git checkout android/<version>`
@@ -268,7 +278,7 @@ A simple way to check that a build is reproducible across environments is to bui
 1. Delete the signatures from the two APKs by running `zip -d app-oss-prod-release.apk "META-INF/*"` and `zip -d MullvadVPN-<version>.apk "META-INF/*"`
 1. Compare the checksums of the two APKs: `sha256sum app-oss-prod-release.apk MullvadVPN-<version>.apk`. If the checksums are equal the build is reproducible.
 
-### Troubleshooting reproducibility
+#### Troubleshooting reproducibility
 
 If two APKs built from the same commit have different checksums the build is not reproducible. This could be because of either:
 

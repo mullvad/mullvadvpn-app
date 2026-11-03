@@ -54,9 +54,9 @@ WireGuard implementation) as a shared library bundled into the assembled APK.
 All releases have signed git tags on the format `android/<version>`. For changes between each
 release, see the [changelog](CHANGELOG.md).
 
-To build the app, see the [build instructions](docs/BuildInstructions.md) or the
-[build instructions for macOS](docs/BuildInstructions.macos.md). The rest of the documentation,
-for example about code style, debugging and testing, can be found in the [docs](docs/) directory.
+To build the app, see the [build instructions](docs/BuildInstructions.md). The rest of the
+documentation, for example about code style, debugging and testing, can be found in the
+[docs](docs/) directory.
 
 ---
 
