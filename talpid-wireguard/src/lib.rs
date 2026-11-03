@@ -784,9 +784,12 @@ impl WireguardMonitor {
             }
         };
         let mut metadata = metadata(&tunnel);
-        match will_nm_manage_dns()
-            .then(|| nm_tunnel::NetworkManagerDevice::dns(config, "mullvad-dns".to_string()))
-        {
+        match runtime.block_on(will_nm_manage_dns()).then(|| {
+            runtime.block_on(nm_tunnel::NetworkManagerDevice::dns(
+                config,
+                "mullvad-dns".to_string(),
+            ))
+        }) {
             // NetworkManager should manage a device (where routes + DNS may be configured).
             Some(Ok(device)) => {
                 metadata.dummy_dns = Some(device.interface_name().to_string());
@@ -1257,19 +1260,20 @@ pub enum TunnelError {
 }
 
 #[cfg(target_os = "linux")]
-fn will_nm_manage_dns() -> bool {
-    use talpid_dbus::network_manager::NetworkManager;
+async fn will_nm_manage_dns() -> bool {
+    use talpid_dbus::network_manager::NetworkManagerConnection;
 
-    if talpid_dbus::systemd_resolved::dbus_rs::SystemdResolved::new().is_ok() {
+    if talpid_dbus::systemd_resolved::SystemdResolved::new()
+        .await
+        .is_ok()
+    {
         return false;
     }
 
-    NetworkManager::new()
-        .and_then(|nm| {
-            nm.ensure_can_be_used_to_manage_dns()?;
-            Ok(true)
-        })
-        .unwrap_or(false)
+    let Ok(nm) = NetworkManagerConnection::new().await else {
+        return false;
+    };
+    nm.ensure_can_be_used_to_manage_dns().await.is_ok()
 }
 
 // Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
