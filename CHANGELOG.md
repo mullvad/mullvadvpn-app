@@ -27,6 +27,10 @@ Line wrap the file at 100 chars.                                              Th
   to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
   proxies. The access method is enabled by default.
+- Add Custom VPN support. This feature lets a user connect to their own WireGuard server via a
+  Mullvad relay, never exposing their WireGuard server's IP to the local network, and Mullvad can
+  not see their network traffic. All the privacy and anti-censorship features (DAITA, LWO, etc.)
+  still work.
 
 #### Linux
 - Add back support for managing DNS via NetworkManager.
