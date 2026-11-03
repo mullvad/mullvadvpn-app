@@ -5,9 +5,14 @@
 compile-sdk-major = "37"
 compile-sdk-minor = "0"
 build-tools = "37.0.0"
+# Updating the min sdk version also requires updating docker/Dockerfile, scripts/sign.sh,
+# test/baselineprofile/build.gradle.kts and docs/BuildInstructions.md.
 min-sdk = "28"
 target-sdk = "37"
 jvm-toolchain = "21"
+# Updating the ndk version also requires updating docker/Dockerfile, config/fdroid-test.yml and
+# docs/BuildInstructions.md. We also need to update the F-Droid fdroiddata repository once we
+# release next stable version.
 ndk = "27.3.13750724"
 # The android-gradle-aapt plugin version must be in sync with the android gradle plugin version.
 # Required for Gradle metadata verification to work properly, see:
