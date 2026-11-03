@@ -22,12 +22,10 @@ if [[ "$#" -eq 2 ]] ; then
 fi
 
 
-RELFLAG=
 LOCKEDFLAG=
-LIBFOLDER=debug
+PROFILE=dev-ios
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
-    LIBFOLDER=release
-    RELFLAG=--release
+    PROFILE=release
     LOCKEDFLAG=--locked
 fi
 
@@ -52,44 +50,22 @@ elif [ "${PLATFORM_NAME}" = "iphonesimulator" ]; then
 TARGET=aarch64-apple-ios-sim
 fi
 
-# To make GotaTun fast enough to not be bothersome in DEBUG builds, lets
-# disable debug assertions, overflow checks and set the optimization level to 3
-# for the relevant crates. Relevant being on the data path for traffic between
-# the tunnel device and the UDP socket.
-OPT_CONFIG=(
-    --config 'profile.dev.package.gotatun.opt-level=3'
-    --config 'profile.dev.package.gotatun.debug-assertions=false'
-    --config 'profile.dev.package.gotatun.overflow-checks=false'
-    --config 'profile.dev.package.smoltcp.opt-level=3'
-    --config 'profile.dev.package.smoltcp.debug-assertions=false'
-    --config 'profile.dev.package.smoltcp.overflow-checks=false'
-    --config 'profile.dev.package.ring.opt-level=3'
-    --config 'profile.dev.package.chacha20poly1305.opt-level=3'
-    --config 'profile.dev.package.chacha20poly1305.debug-assertions=false'
-    --config 'profile.dev.package.chacha20poly1305.overflow-checks=false'
-    --config 'profile.dev.package.chacha20.opt-level=3'
-    --config 'profile.dev.package.chacha20.overflow-checks=false'
-    --config 'profile.dev.package.poly1305.opt-level=3'
-    --config 'profile.dev.package.poly1305.overflow-checks=false'
-    --config 'profile.dev.package.mullvad-ios.opt-level=2'
-)
-
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            MODIFIED_FILE="$CONFIGURATION_BUILD_DIR/modified_$LIBFOLDER"
+            MODIFIED_FILE="$CONFIGURATION_BUILD_DIR/modified_$PROFILE"
             LIB=
             if [[ -z  "${CARGO_TARGET_DIR}" ]]; then
-                LIB="../target/$TARGET/$LIBFOLDER/libmullvad_ios.a"
+                LIB="../target/$TARGET/$PROFILE/libmullvad_ios.a"
             else
-                LIB="$CARGO_TARGET_DIR/$TARGET/$LIBFOLDER/libmullvad_ios.a"
+                LIB="$CARGO_TARGET_DIR/$TARGET/$PROFILE/libmullvad_ios.a"
             fi
 
             OUT_DIR="MullvadRustRuntime/generated"
             OUT_DIR_TMP="$CONFIGURATION_BUILD_DIR/generated"
 
             echo "Building libmullvad_ios for $TARGET..."
-            time "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            time "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib --profile "$PROFILE" --target "$TARGET" ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
 
             MODIFIED_DATE=$(date -r "$LIB")
             CACHED="no-checksum"
