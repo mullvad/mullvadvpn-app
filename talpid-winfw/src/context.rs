@@ -14,7 +14,7 @@ use crate::{ActivePolicy, objects, persistent, rules, session::Recorder};
 pub struct FwContext {
     engine: FilterEngine,
     recorder: Recorder,
-    baseline: u32,
+    baseline: usize,
     active_policy: ActivePolicy,
 }
 
