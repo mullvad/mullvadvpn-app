@@ -52,6 +52,7 @@ import net.mullvad.mullvadvpn.lib.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.grpc.mapper.toDomain
 import net.mullvad.mullvadvpn.lib.grpc.util.GrpcEventListener
 import net.mullvad.mullvadvpn.lib.grpc.util.UnixDomainSocketFactory
+import net.mullvad.mullvadvpn.lib.grpc.util.executeWithRetry
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
@@ -207,7 +208,7 @@ class ManagementService(
         predicate: RelaySelectorPredicate
     ): Either<PartitionRelaysError, RelayPartitions> =
         Either.catch {
-                service.PartitionRelays().execute(predicate.fromDomain()).toDomain().also {
+                service.PartitionRelays().executeWithRetry(predicate.fromDomain()).toDomain().also {
                     Logger.d("Partition relays matches: ${it.matches}")
                 }
             }
@@ -313,12 +314,12 @@ class ManagementService(
     }
 
     suspend fun updateDevice(): Either<DeviceUpdateError, Unit> =
-        Either.catch { grpc.UpdateDevice().execute(Unit) }
+        Either.catch { grpc.UpdateDevice().executeWithRetry(Unit) }
             .onLeft { Logger.e("Update device error") }
             .mapLeft { DeviceUpdateError(it) }
 
     suspend fun getDeviceList(token: AccountNumber): Either<GetDeviceListError, List<ModelDevice>> =
-        Either.catch { grpc.ListDevices().execute(token.value.toStringValue()) }
+        Either.catch { grpc.ListDevices().executeWithRetry(token.value.toStringValue()) }
             .map { it.devices.map(Device::toDomain) }
             .onLeft { Logger.e("Get device list error") }
             .mapLeft { GetDeviceListError.Unknown(it) }
@@ -330,7 +331,7 @@ class ManagementService(
         Either.catch {
                 grpc
                     .RemoveDevice()
-                    .execute(
+                    .executeWithRetry(
                         DeviceRemoval(
                             account_number = token.value,
                             device_id = deviceId.value.toString(),
@@ -341,50 +342,54 @@ class ManagementService(
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
     suspend fun connect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.ConnectTunnel().execute(Unit).value }
+        Either.catch { grpc.ConnectTunnel().executeWithRetry(Unit).value }
             .onLeft { Logger.e("Connect error") }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(disconnectReason: DisconnectReason): Either<ConnectError, Boolean> =
         Either.catch {
-                grpc.DisconnectTunnel().execute(disconnectReason.logString.toStringValue()).value
+                grpc
+                    .DisconnectTunnel()
+                    .executeWithRetry(disconnectReason.logString.toStringValue())
+                    .value
             }
             .onLeft { Logger.e("Disconnect error") }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun reconnect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.ReconnectTunnel().execute(Unit).value }
+        Either.catch { grpc.ReconnectTunnel().executeWithRetry(Unit).value }
             .onLeft { Logger.e("Reconnect error") }
             .mapLeft(ConnectError::Unknown)
 
     private suspend fun getTunnelState(): ModelTunnelState =
-        grpc.GetTunnelState().execute(Unit).toDomain()
+        grpc.GetTunnelState().executeWithRetry(Unit).toDomain()
 
-    private suspend fun getSettings(): ModelSettings = grpc.GetSettings().execute(Unit).toDomain()
+    private suspend fun getSettings(): ModelSettings =
+        grpc.GetSettings().executeWithRetry(Unit).toDomain()
 
     private suspend fun getDeviceState(): ModelDeviceState =
-        grpc.GetDevice().execute(Unit).toDomain()
+        grpc.GetDevice().executeWithRetry(Unit).toDomain()
 
     private suspend fun getRelayList(): ModelRelayList =
-        grpc.GetRelayLocations().execute(Unit).toDomain()
+        grpc.GetRelayLocations().executeWithRetry(Unit).toDomain()
 
     // On release build this will return error until services have published the new beta, daemon
     // will get 404 until the api have been published, thus we need to ignore error downstream.
     private suspend fun getVersionInfo(): Either<GetVersionInfoError, ModelAppVersionInfo> =
-        Either.catch { grpc.GetVersionInfo().execute(Unit).toDomain() }
+        Either.catch { grpc.GetVersionInfo().executeWithRetry(Unit).toDomain() }
             .onLeft { Logger.e("Get version info error") }
             .mapLeft { GetVersionInfoError.Unknown(it) }
 
     private suspend fun getCurrentApiAccessMethod(): ApiAccessMethodSetting =
-        grpc.GetCurrentApiAccessMethod().execute(Unit).toDomain()
+        grpc.GetCurrentApiAccessMethod().executeWithRetry(Unit).toDomain()
 
     suspend fun logoutAccount(): Either<LogoutAccountError, Unit> =
-        Either.catch { grpc.LogoutAccount().execute("android-ui".toStringValue()) }
+        Either.catch { grpc.LogoutAccount().executeWithRetry("android-ui".toStringValue()) }
             .onLeft { Logger.e("Logout account error") }
             .mapLeft(LogoutAccountError::Unknown)
 
     suspend fun loginAccount(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
-        Either.catch { grpc.LoginAccount().execute(accountNumber.value.toStringValue()) }
+        Either.catch { grpc.LoginAccount().executeWithRetry(accountNumber.value.toStringValue()) }
             .mapLeftStatus {
                 when (it.grpcStatus) {
                     GrpcStatus.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
@@ -403,7 +408,7 @@ class ManagementService(
             }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
-        Either.catch { grpc.DeleteAccount().execute(Unit) }
+        Either.catch { grpc.DeleteAccount().executeWithRetry(Unit) }
             .onLeft { Logger.e("Delete account error") }
             .mapLeftStatus {
                 when (it.grpcStatus) {
@@ -418,13 +423,13 @@ class ManagementService(
             }
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
-        Either.catch { grpc.ClearAccountHistory().execute(Unit) }
+        Either.catch { grpc.ClearAccountHistory().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear account history error") }
             .mapLeft(ClearAccountHistoryError::Unknown)
 
     suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountNumber?> =
         Either.catch {
-                val history = grpc.GetAccountHistory().execute(Unit)
+                val history = grpc.GetAccountHistory().executeWithRetry(Unit)
                 if (history.number != null) {
                     AccountNumber(history.number.value)
                 } else {
@@ -452,7 +457,7 @@ class ManagementService(
         Either.catch {
                 grpc
                     .GetAccountData()
-                    .execute(accountNumber.value.toStringValue())
+                    .executeWithRetry(accountNumber.value.toStringValue())
                     .toDomain(accountNumber)
             }
             .onLeft { Logger.e("Get account data error") }
@@ -460,7 +465,7 @@ class ManagementService(
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         Either.catch {
-                val accountNumberStringValue = grpc.CreateNewAccount().execute(Unit)
+                val accountNumberStringValue = grpc.CreateNewAccount().executeWithRetry(Unit)
                 AccountNumber(accountNumberStringValue.value)
             }
             .onLeft { Logger.e("Create account error ${it.message}") }
@@ -482,13 +487,13 @@ class ManagementService(
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val newDefaultDnsOptions = update(currentDnsOptions.defaultOptions)
                 val updated = DnsOptions.defaultOptions.set(currentDnsOptions, newDefaultDnsOptions)
-                grpc.SetDnsOptions().execute(updated.fromDomain())
+                grpc.SetDnsOptions().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set dns state error") }
             .mapLeft(SetDnsOptionsError::Unknown)
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
-        Either.catch { grpc.SetDnsOptions().execute(dnsOptions.fromDomain()) }
+        Either.catch { grpc.SetDnsOptions().executeWithRetry(dnsOptions.fromDomain()) }
             .onLeft { Logger.e("Set dns options error") }
             .mapLeft(SetDnsOptionsError::Unknown)
 
@@ -496,7 +501,7 @@ class ManagementService(
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updated = DnsOptions.state.set(currentDnsOptions, dnsState)
-                grpc.SetDnsOptions().execute(updated.fromDomain())
+                grpc.SetDnsOptions().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set dns state error") }
             .mapLeft(SetDnsOptionsError::Unknown)
@@ -509,7 +514,7 @@ class ManagementService(
                         .index(Index.list(), index)
                         .set(currentDnsOptions, address)
 
-                grpc.SetDnsOptions().execute(updatedDnsOptions.fromDomain())
+                grpc.SetDnsOptions().executeWithRetry(updatedDnsOptions.fromDomain())
             }
             .onLeft { Logger.e("Set custom dns error") }
             .mapLeft(SetDnsOptionsError::Unknown)
@@ -522,7 +527,7 @@ class ManagementService(
                         currentDnsOptions.customOptions.addresses + address
                     DnsOptions.state set currentDnsOptions.state
                 }
-                grpc.SetDnsOptions().execute(updatedDnsOptions.fromDomain())
+                grpc.SetDnsOptions().executeWithRetry(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
             }
             .onLeft { Logger.e("Add custom dns error") }
@@ -541,25 +546,25 @@ class ManagementService(
                         if (mutableAddresses.isEmpty()) DnsState.Default
                         else currentDnsOptions.state
                 }
-                grpc.SetDnsOptions().execute(updatedDnsOptions.fromDomain())
+                grpc.SetDnsOptions().executeWithRetry(updatedDnsOptions.fromDomain())
             }
             .onLeft { Logger.e("Delete custom dns error") }
             .mapLeft(SetDnsOptionsError::Unknown)
 
     suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.SetWireguardMtu().execute(value.toUInt32Value()) }
+        Either.catch { grpc.SetWireguardMtu().executeWithRetry(value.toUInt32Value()) }
             .onLeft { Logger.e("Set wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
 
     suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.SetWireguardMtu().execute(WireUInt32Value()) }
+        Either.catch { grpc.SetWireguardMtu().executeWithRetry(WireUInt32Value()) }
             .onLeft { Logger.e("Reset wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
 
     suspend fun setWireguardQuantumResistant(
         value: ModelQuantumResistantState
     ): Either<SetWireguardQuantumResistantError, Unit> =
-        Either.catch { grpc.SetQuantumResistantTunnel().execute(value.fromDomain()) }
+        Either.catch { grpc.SetQuantumResistantTunnel().executeWithRetry(value.fromDomain()) }
             .onLeft { Logger.e("Set wireguard quantum resistant error") }
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
 
@@ -571,7 +576,9 @@ class ManagementService(
                     ) {
                         value
                     }
-                grpc.SetObfuscationSettings().execute(updatedObfuscationSettings.fromDomain())
+                grpc
+                    .SetObfuscationSettings()
+                    .executeWithRetry(updatedObfuscationSettings.fromDomain())
             }
             .onLeft { Logger.e("Set obfuscation error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
@@ -584,7 +591,7 @@ class ManagementService(
                     ObfuscationSettings.wireguardPort.modify(getSettings().obfuscationSettings) {
                         portConstraint
                     }
-                grpc.SetObfuscationSettings().execute(updatedSettings.fromDomain())
+                grpc.SetObfuscationSettings().executeWithRetry(updatedSettings.fromDomain())
             }
             .onLeft { Logger.e("Set wireguard port error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
@@ -597,7 +604,7 @@ class ManagementService(
                     ObfuscationSettings.udp2tcp.modify(getSettings().obfuscationSettings) {
                         it.copy(port = portConstraint)
                     }
-                grpc.SetObfuscationSettings().execute(updatedSettings.fromDomain())
+                grpc.SetObfuscationSettings().executeWithRetry(updatedSettings.fromDomain())
             }
             .onLeft { Logger.e("Set obfuscation port error") }
             .mapLeft(SetObfuscationOptionsError::Unknown)
@@ -610,7 +617,7 @@ class ManagementService(
                     ObfuscationSettings.shadowsocks.modify(getSettings().obfuscationSettings) {
                         it.copy(port = portConstraint)
                     }
-                grpc.SetObfuscationSettings().execute(updatedSettings.fromDomain())
+                grpc.SetObfuscationSettings().executeWithRetry(updatedSettings.fromDomain())
             }
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
@@ -622,17 +629,17 @@ class ManagementService(
                     ObfuscationSettings.lwo.modify(getSettings().obfuscationSettings) {
                         it.copy(port = portConstraint)
                     }
-                grpc.SetObfuscationSettings().execute(updatedSettings.fromDomain())
+                grpc.SetObfuscationSettings().executeWithRetry(updatedSettings.fromDomain())
             }
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
-        Either.catch { grpc.SetAllowLan().execute(allow.toBoolValue()) }
+        Either.catch { grpc.SetAllowLan().executeWithRetry(allow.toBoolValue()) }
             .onLeft { Logger.e("Set allow lan error") }
             .mapLeft(SetAllowLanError::Unknown)
 
     suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.SetEnableDaita().execute(enabled.toBoolValue()) }
+        Either.catch { grpc.SetEnableDaita().executeWithRetry(enabled.toBoolValue()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
 
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =
@@ -643,7 +650,7 @@ class ManagementService(
                         currentRelaySettings,
                         Constraint.Only(location),
                     )
-                grpc.SetRelaySettings().execute(updatedRelaySettings.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updatedRelaySettings.fromDomain())
             }
             .onLeft { Logger.e("Set relay location error") }
             .mapLeft(SetRelayLocationError::Unknown)
@@ -666,7 +673,7 @@ class ManagementService(
                         RelayConstraints.wireguardConstraints.multihop set multihopMode
                     }
                 }
-                grpc.SetRelaySettings().execute(updatedRelaySettings.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updatedRelaySettings.fromDomain())
             }
             .onLeft { Logger.e("Set relay multihop error") }
             .mapLeft(SetRelayLocationError::Unknown)
@@ -678,7 +685,7 @@ class ManagementService(
         Either.catch {
                 grpc
                     .CreateCustomList()
-                    .execute(
+                    .executeWithRetry(
                         NewCustomList(
                             name = name.value,
                             locations = locations.map(GeoLocationId::fromDomain),
@@ -697,7 +704,7 @@ class ManagementService(
             }
 
     suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
-        Either.catch { grpc.UpdateCustomList().execute(customList.fromDomain()) }
+        Either.catch { grpc.UpdateCustomList().executeWithRetry(customList.fromDomain()) }
             .mapLeftStatus {
                 when (it.grpcStatus) {
                     GrpcStatus.ALREADY_EXISTS -> NameAlreadyExists(customList.name)
@@ -709,17 +716,17 @@ class ManagementService(
             }
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
-        Either.catch { grpc.DeleteCustomList().execute(id.value.toStringValue()) }
+        Either.catch { grpc.DeleteCustomList().executeWithRetry(id.value.toStringValue()) }
             .onLeft { Logger.e("Delete custom list error") }
             .mapLeft(::UnknownCustomListError)
 
     suspend fun clearAllRelayOverrides(): Either<ClearAllOverridesError, Unit> =
-        Either.catch { grpc.ClearAllRelayOverrides().execute(Unit) }
+        Either.catch { grpc.ClearAllRelayOverrides().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear all relay overrides error") }
             .mapLeft(ClearAllOverridesError::Unknown)
 
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
-        Either.catch { grpc.ApplyJsonSettings().execute(json.toStringValue()) }
+        Either.catch { grpc.ApplyJsonSettings().executeWithRetry(json.toStringValue()) }
             .mapLeftStatus {
                 when (it.grpcStatus) {
                     // Currently we only get invalid argument errors from daemon via gRPC
@@ -755,7 +762,7 @@ class ManagementService(
                     hopType.ownership() set ownershipConstraint
                 }
                 val domain = updated.fromDomain()
-                grpc.SetRelaySettings().execute(domain)
+                grpc.SetRelaySettings().executeWithRetry(domain)
             }
             .onLeft { Logger.e("Set ownership and providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -767,7 +774,7 @@ class ManagementService(
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated = hopType.ownership().set(relaySettings, ownership)
-                grpc.SetRelaySettings().execute(updated.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -779,7 +786,7 @@ class ManagementService(
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated = hopType.providers().set(relaySettings, providersConstraint)
-                grpc.SetRelaySettings().execute(updated.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set providers error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -787,7 +794,9 @@ class ManagementService(
     suspend fun submitVoucher(
         voucher: VoucherCode
     ): Either<RedeemVoucherError, RedeemVoucherSuccess> =
-        Either.catch { grpc.SubmitVoucher().execute(voucher.value.toStringValue()).toDomain() }
+        Either.catch {
+                grpc.SubmitVoucher().executeWithRetry(voucher.value.toStringValue()).toDomain()
+            }
             .mapLeftStatus {
                 when (it.grpcStatus) {
                     GrpcStatus.INVALID_ARGUMENT,
@@ -804,12 +813,12 @@ class ManagementService(
 
     suspend fun initializePlayPurchase():
         Either<PlayPurchaseInitError, PlayExternalObfuscatedAccountId> =
-        Either.catch { grpc.InitPlayPurchase().execute(Unit).toDomain() }
+        Either.catch { grpc.InitPlayPurchase().executeWithRetry(Unit).toDomain() }
             .onLeft { Logger.e("Initialize play purchase error") }
             .mapLeft { PlayPurchaseInitError.OtherError }
 
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
-        Either.catch { grpc.VerifyPlayPurchase().execute(purchase.fromDomain()) }
+        Either.catch { grpc.VerifyPlayPurchase().executeWithRetry(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
             .mapLeftStatus { error ->
                 when (error.grpcStatus) {
@@ -824,33 +833,35 @@ class ManagementService(
             }
 
     suspend fun addSplitTunnelingApp(app: PackageName): Either<AddSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.AddSplitTunnelApp().execute(app.value.toStringValue()) }
+        Either.catch { grpc.AddSplitTunnelApp().executeWithRetry(app.value.toStringValue()) }
             .onLeft { Logger.e("Add split tunneling app error") }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
 
     suspend fun removeSplitTunnelingApp(
         app: PackageName
     ): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.RemoveSplitTunnelApp().execute(app.value.toStringValue()) }
+        Either.catch { grpc.RemoveSplitTunnelApp().executeWithRetry(app.value.toStringValue()) }
             .onLeft { Logger.e("Remove split tunneling app error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
 
     suspend fun setSplitTunnelingState(
         enabled: Boolean
     ): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch { grpc.SetSplitTunnelState().execute(enabled.toBoolValue()) }
+        Either.catch { grpc.SetSplitTunnelState().executeWithRetry(enabled.toBoolValue()) }
             .onLeft { Logger.e("Set split tunneling state error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
 
     suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
-        Either.catch { grpc.GetWwwAuthToken().execute(Unit) }
+        Either.catch { grpc.GetWwwAuthToken().executeWithRetry(Unit) }
             .onLeft { Logger.e("Get website auth token error") }
             .map { WebsiteAuthToken.fromString(it.value) }
 
     suspend fun addApiAccessMethod(
         newAccessMethodSetting: NewAccessMethodSetting
     ): Either<AddApiAccessMethodError, ApiAccessMethodId> =
-        Either.catch { grpc.AddApiAccessMethod().execute(newAccessMethodSetting.fromDomain()) }
+        Either.catch {
+                grpc.AddApiAccessMethod().executeWithRetry(newAccessMethodSetting.fromDomain())
+            }
             .onLeft { Logger.e("Add api access method error") }
             .mapLeft(AddApiAccessMethodError::Unknown)
             .map { ApiAccessMethodId.fromString(it.value) }
@@ -858,28 +869,32 @@ class ManagementService(
     suspend fun removeApiAccessMethod(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<RemoveApiAccessMethodError, Unit> =
-        Either.catch { grpc.RemoveApiAccessMethod().execute(apiAccessMethodId.fromDomain()) }
+        Either.catch {
+                grpc.RemoveApiAccessMethod().executeWithRetry(apiAccessMethodId.fromDomain())
+            }
             .onLeft { Logger.e("Remove api access method error") }
             .mapLeft(RemoveApiAccessMethodError::Unknown)
 
     suspend fun setApiAccessMethod(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<SetApiAccessMethodError, Unit> =
-        Either.catch { grpc.SetApiAccessMethod().execute(apiAccessMethodId.fromDomain()) }
+        Either.catch { grpc.SetApiAccessMethod().executeWithRetry(apiAccessMethodId.fromDomain()) }
             .onLeft { Logger.e("Set api access method error") }
             .mapLeft(SetApiAccessMethodError::Unknown)
 
     suspend fun updateApiAccessMethod(
         apiAccessMethodSetting: ApiAccessMethodSetting
     ): Either<UpdateApiAccessMethodError, Unit> =
-        Either.catch { grpc.UpdateApiAccessMethod().execute(apiAccessMethodSetting.fromDomain()) }
+        Either.catch {
+                grpc.UpdateApiAccessMethod().executeWithRetry(apiAccessMethodSetting.fromDomain())
+            }
             .onLeft { Logger.e("Update api access method error") }
             .mapLeft(::UnknownApiAccessMethodError)
 
     suspend fun testCustomApiAccessMethod(
         customProxy: ApiAccessMethod.CustomProxy
     ): Either<TestApiAccessMethodError, Unit> =
-        Either.catch { grpc.TestCustomApiAccessMethod().execute(customProxy.fromDomain()) }
+        Either.catch { grpc.TestCustomApiAccessMethod().executeWithRetry(customProxy.fromDomain()) }
             .onLeft { Logger.e("Test custom api access method error") }
             .mapLeftStatus { TestApiAccessMethodError.Grpc }
             .map { result ->
@@ -889,7 +904,9 @@ class ManagementService(
     suspend fun testApiAccessMethodById(
         apiAccessMethodId: ApiAccessMethodId
     ): Either<TestApiAccessMethodError, Unit> =
-        Either.catch { grpc.TestApiAccessMethodById().execute(apiAccessMethodId.fromDomain()) }
+        Either.catch {
+                grpc.TestApiAccessMethodById().executeWithRetry(apiAccessMethodId.fromDomain())
+            }
             .onLeft { Logger.e("Test api access method error") }
             .mapLeftStatus { TestApiAccessMethodError.Grpc }
             .map { result ->
@@ -904,7 +921,7 @@ class ManagementService(
                         relaySettings,
                         mode,
                     )
-                grpc.SetRelaySettings().execute(updated.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -919,7 +936,7 @@ class ManagementService(
                         relaySettings,
                         entryLocation,
                     )
-                grpc.SetRelaySettings().execute(updated.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -934,21 +951,21 @@ class ManagementService(
                         relaySettings,
                         ipVersion,
                     )
-                grpc.SetRelaySettings().execute(updated.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updated.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun setIpv6Enabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.SetEnableIpv6().execute(enabled.toBoolValue()) }
+        Either.catch { grpc.SetEnableIpv6().executeWithRetry(enabled.toBoolValue()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
 
     suspend fun setRecentsEnabled(enabled: Boolean): Either<SetWireguardConstraintsError, Unit> =
-        Either.catch { grpc.SetEnableRecents().execute(enabled.toBoolValue()) }
+        Either.catch { grpc.SetEnableRecents().executeWithRetry(enabled.toBoolValue()) }
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun updateRelayLocations(): Either<UpdateRelayLocationsError, Unit> =
-        Either.catch { grpc.UpdateRelayLocations().execute(Unit) }
+        Either.catch { grpc.UpdateRelayLocations().executeWithRetry(Unit) }
             .mapLeft(UpdateRelayLocationsError::Unknown)
 
     suspend fun setMultihopAndEntryLocation(
@@ -963,23 +980,23 @@ class ManagementService(
                         WireguardConstraints.multihop set mode
                     }
                 }
-                grpc.SetRelaySettings().execute(updatedRelaySettings.fromDomain())
+                grpc.SetRelaySettings().executeWithRetry(updatedRelaySettings.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun getShadowsocksCiphers(): Either<GetShadowsocksCiphersError, List<Cipher>> =
-        Either.catch { grpc.ShadowsocksCiphers().execute(Unit).toDomain() }
+        Either.catch { grpc.ShadowsocksCiphers().executeWithRetry(Unit).toDomain() }
             .onLeft { Logger.e("Get all shadowsocks ciphers error") }
             .mapLeft(GetShadowsocksCiphersError::Unknown)
 
     suspend fun getMigrationEvent(): Either<GetMigrationEventError, SplitFilterMigration> =
-        Either.catch { grpc.GetMigrationEvent().execute(Unit).toDomain() }
+        Either.catch { grpc.GetMigrationEvent().executeWithRetry(Unit).toDomain() }
             .onLeft { Logger.e("Get migration event error") }
             .mapLeft(GetMigrationEventError::Unknown)
 
     suspend fun clearMigrationMessage(): Either<ClearMigrationMessageError, Unit> =
-        Either.catch { grpc.ClearMigrationMessage().execute(Unit) }
+        Either.catch { grpc.ClearMigrationMessage().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
 

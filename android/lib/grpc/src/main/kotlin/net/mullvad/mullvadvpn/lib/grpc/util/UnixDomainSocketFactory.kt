@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.grpc.util
 import android.net.LocalSocket
 import android.net.LocalSocketAddress
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
@@ -47,7 +48,13 @@ private class LocalSocketWrapper(private val path: String) : Socket() {
 
     override fun connect(endpoint: SocketAddress?, timeout: Int) {
         if (!localSocket.isConnected) {
-            localSocket.connect(LocalSocketAddress(path, LocalSocketAddress.Namespace.FILESYSTEM))
+            try {
+                localSocket.connect(
+                    LocalSocketAddress(path, LocalSocketAddress.Namespace.FILESYSTEM)
+                )
+            } catch (e: IOException) {
+                throw LocalSocketConnectException(e)
+            }
             pendingSoTimeout?.let { localSocket.soTimeout = it }
         }
     }
@@ -83,3 +90,7 @@ private class LocalSocketWrapper(private val path: String) : Socket() {
     override fun isOutputShutdown(): Boolean =
         false // Not supported by LocalSocket, always return false
 }
+
+// Wrapper for IOException to distinguish between a local socket connect error and other IO errors.
+class LocalSocketConnectException(cause: Throwable) :
+    IOException("Could not connect to local socket", cause)

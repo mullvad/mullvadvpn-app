@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.arch
 
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.modifierprovider.withPublicOrDefaultModifier
+import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -16,6 +17,13 @@ class ManagementServiceTest {
             .assertTrue { it.returnType?.name?.startsWith(EITHER_CLASS_NAME) == true }
     }
 
+    @Test
+    fun `ensure no function calls execute directly, use executeWithRetry on a grpc call`() {
+        managementServiceClass().functions(includeNested = true, includeLocal = true).assertFalse {
+            EXECUTE_CALL_REGEX.containsMatchIn(it.text)
+        }
+    }
+
     private fun managementServiceClass() =
         Konsist.scopeFromProject().classes().first { it.name == MANAGEMENT_SERVICE_CLASS_NAME }
 
@@ -27,5 +35,6 @@ class ManagementServiceTest {
         private const val STOP = "stop"
         private const val ENTER_IDLE = "enterIdle"
         private const val EITHER_CLASS_NAME = "Either"
+        private val EXECUTE_CALL_REGEX = Regex("""\.execute\(""")
     }
 }
