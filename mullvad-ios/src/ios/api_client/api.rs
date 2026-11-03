@@ -1,7 +1,8 @@
 use super::{do_request, response::ApiResponse, retry_request, retry_strategy::RetryStrategy};
 use crate::{
     api_client::{ApiContext, ApiContextError, access_method_settings::AccessMethodSettingWrapper},
-    type_bridges::{AnyError, TokioBridge},
+    tokio_bridge::TokioBridge,
+    type_bridges::AnyError,
 };
 use chrono::DateTime;
 use mullvad_api::{
