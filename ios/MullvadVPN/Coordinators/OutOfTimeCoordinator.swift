@@ -8,22 +8,24 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import MullvadSettings
 import Routing
+import SwiftUI
 import UIKit
 
-class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeViewControllerDelegate, Poppable {
+class OutOfTimeCoordinator: Coordinator, Presenting, Poppable {
     let navigationController: RootContainerViewController
     let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
+    private var inAppPurhaseCoordinator: InAppPurchaseCoordinator?
 
-    nonisolated(unsafe) var didFinishPayment: (@Sendable (OutOfTimeCoordinator) -> Void)?
+    var didFinishPayment: ((OutOfTimeCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
     }
 
-    private(set) var isMakingPayment = false
-    private var viewController: OutOfTimeViewController?
+    private var viewController: UIHostingRootController<OutOfTimeView<OutOfTimeViewModel>>?
 
     init(
         navigationController: RootContainerViewController,
@@ -36,25 +38,36 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
     }
 
     func start(animated: Bool) {
-        let interactor = OutOfTimeInteractor(
-            tunnelManager: tunnelManager
-        )
-
-        interactor.didAddMoreCredit = { [weak self] in
-            guard let self else { return }
-            didFinishPayment?(self)
+        let viewModel = OutOfTimeViewModel(interactor: OutOfTimeInteractor(tunnelManager: tunnelManager))
+        viewModel.showInAppPurchase = { [weak self] action in
+            guard let accountNumber = self?.tunnelManager.deviceState.accountData?.number else {
+                return
+            }
+            self?.showInAppPurchase(
+                accountNumber: accountNumber,
+                paymentAction: action
+            )
         }
 
-        let controller = OutOfTimeViewController(
-            interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(alertContext: self)
-        )
+        viewModel.didAddMoreCredit = { [weak self] in
+            Task { @MainActor in
+                guard let self else { return }
+                self.inAppPurhaseCoordinator?.dismiss(animated: false)
+                self.didFinishPayment?(self)
+            }
+        }
 
-        controller.delegate = self
+        viewModel.didReceiveTunnelStatus = { [weak self] in
+            self?.updateHeaderBarPresentation()
+        }
 
+        let view = OutOfTimeView(viewModel: viewModel)
+        let controller = UIHostingRootController(rootView: view)
+        controller.view.setAccessibilityIdentifier(.outOfTimeView)
         viewController = controller
 
         navigationController.pushViewController(controller, animated: animated)
+        updateHeaderBarPresentation()
     }
 
     func popFromNavigationStack(animated: Bool, completion: (() -> Void)?) {
@@ -72,9 +85,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
         )
     }
 
-    // MARK: - OutOfTimeViewControllerDelegate
-
-    func didRequestShowInAppPurchase(
+    func showInAppPurchase(
         accountNumber: String,
         paymentAction: PaymentAction
     ) {
@@ -83,10 +94,28 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             accountNumber: accountNumber,
             paymentAction: paymentAction
         )
+        inAppPurhaseCoordinator = coordinator
         coordinator.didFinish = { coordinator in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()
         presentChild(coordinator, animated: true)
+    }
+
+    private func updateHeaderBarPresentation() {
+        viewController?.prefersDeviceInfoBarHidden = false
+        viewController?.preferredHeaderBarPresentation =
+            switch tunnelManager.deviceState {
+            case .loggedIn, .revoked:
+                HeaderBarPresentation(
+                    style: tunnelManager.tunnelStatus.state.isSecured ? .secured : .unsecured,
+
+                )
+            case .loggedOut:
+                HeaderBarPresentation(style: .default)
+            }
+
+        navigationController.updateHeaderDeviceHiddenAppearance()
+        navigationController.updateHeaderBarAppearance()
     }
 }
