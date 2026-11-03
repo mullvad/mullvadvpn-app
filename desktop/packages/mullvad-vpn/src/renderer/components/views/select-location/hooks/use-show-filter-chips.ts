@@ -1,11 +1,15 @@
 import { useActiveFilters } from '../../../../features/locations/hooks';
+import { useMultihop } from '../../../../features/multihop/hooks';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 export function useShowFilterChips() {
-  const { locationType } = useSelectLocationViewContext();
+  const { isolatedItem, locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
+  const { multihop } = useMultihop();
 
-  const showFilterChips = isAnyFilterActive && locationType !== 'automaticEntry';
+  const showFilterChips =
+    (multihop === 'always' && isolatedItem !== 'automaticEntry') ||
+    (isAnyFilterActive && locationType !== 'automaticEntry');
 
   return showFilterChips;
 }
