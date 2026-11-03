@@ -32,7 +32,7 @@ class OutOfTimeUseCase(
                 tunnelOutOfTime ->
                 reduce(accountExpiryHasPast, tunnelOutOfTime)
             }
-            .stateIn(scope, SharingStarted.Eagerly, null)
+            .stateIn(scope, SharingStarted.WhileSubscribed(), null)
 
     @Suppress("ArrayPrimitive")
     private fun reduce(vararg outOfTimeProperty: Boolean?): Boolean? =

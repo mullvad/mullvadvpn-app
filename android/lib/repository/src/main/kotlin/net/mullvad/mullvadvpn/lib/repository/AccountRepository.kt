@@ -5,14 +5,9 @@ import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -31,7 +26,7 @@ class AccountRepository(
 ) {
     private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
-    private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
+    private val _mutableAccountDataCache: MutableStateFlow<AccountData?> = MutableStateFlow(null)
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
@@ -41,24 +36,7 @@ class AccountRepository(
 
     val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
 
-    val accountData: StateFlow<AccountData?> =
-        merge(
-                managementService.deviceState.map { deviceState ->
-                    when (deviceState) {
-                        is DeviceState.LoggedIn -> {
-                            managementService
-                                .getAccountData(deviceState.accountNumber)
-                                .getOrNull()
-                                ?.also { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
-                        }
-                        DeviceState.LoggedOut,
-                        DeviceState.Revoked -> null
-                    }
-                },
-                _mutableAccountDataCache,
-            )
-            .distinctUntilChanged()
-            .stateIn(scope = scope, SharingStarted.Eagerly, null)
+    val accountData: StateFlow<AccountData?> = _mutableAccountDataCache
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         managementService.createAccount().onRight { _isNewAccount.update { true } }
@@ -67,7 +45,10 @@ class AccountRepository(
         managementService.loginAccount(accountNumber)
 
     suspend fun logout() =
-        managementService.logoutAccount().onRight { _isNewAccount.update { false } }
+        managementService.logoutAccount().onRight {
+            _mutableAccountDataCache.update { null }
+            _isNewAccount.update { false }
+        }
 
     suspend fun fetchAccountHistory(): AccountNumber? =
         managementService

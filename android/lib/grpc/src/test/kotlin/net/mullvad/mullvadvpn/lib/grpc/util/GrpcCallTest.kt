@@ -13,7 +13,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -33,7 +32,7 @@ class GrpcCallTest {
             every { mockCall.clone() } returns mockCall
             coEvery { mockCall.execute(Unit) } returns "result"
 
-            assertEquals("result", mockCall.executeWithRetry(Unit))
+            assertEquals("result", mockCall.executeWithRetry(Unit, {}))
             coVerify(exactly = 1) { mockCall.execute(Unit) }
         }
 
@@ -44,7 +43,7 @@ class GrpcCallTest {
         every { mockCall.clone() } returns mockCall
         coEvery { mockCall.execute(Unit) } throwsMany listOf(localSocketException) andThen "result"
 
-        val result = async { mockCall.executeWithRetry(Unit) }
+        val result = async { mockCall.executeWithRetry(Unit, {}) }
         // Needs to be above the retry delay to ensure the retry is triggered.
         advanceTimeBy(150.milliseconds)
         runCurrent()
@@ -59,7 +58,7 @@ class GrpcCallTest {
         every { mockCall.clone() } returns mockCall
         coEvery { mockCall.execute(Unit) } throws IOException()
 
-        assertFailsWith<IOException> { mockCall.executeWithRetry(Unit) }
+        assertFailsWith<IOException> { mockCall.executeWithRetry(Unit, {}) }
         coVerify(exactly = 1) { mockCall.execute(Unit) }
     }
 
@@ -69,7 +68,7 @@ class GrpcCallTest {
         every { mockCall.clone() } returns mockCall
         coEvery { mockCall.execute(Unit) } throws LocalSocketConnectException(Throwable())
 
-        val job = launch { mockCall.executeWithRetry(Unit) }
+        val job = launch { mockCall.executeWithRetry(Unit, {}) }
         // Allow for a few attempts to be made before cancelling.
         advanceTimeBy(300.milliseconds)
         job.cancelAndJoin()
@@ -88,7 +87,24 @@ class GrpcCallTest {
         coEvery { mockCall.execute(Unit) } just awaits
 
         assertFailsWith<TimeoutCancellationException> {
-            withTimeout(300.milliseconds) { mockCall.executeWithRetry(Unit) }
+            withTimeout(300.milliseconds) { mockCall.executeWithRetry(Unit, {}) }
         }
+    }
+
+    @Test
+    fun `when keepRetrying turns false the connection failure is thrown`() = runTest {
+        val mockCall = mockk<GrpcCall<Unit, String>>()
+        every { mockCall.clone() } returns mockCall
+        coEvery { mockCall.execute(Unit) } throws LocalSocketConnectException(Throwable())
+        var keepRetrying = true
+
+        val result = async { runCatching { mockCall.executeWithRetry(Unit) { keepRetrying } } }
+        advanceTimeBy(1_000.milliseconds)
+        assertTrue(result.isActive)
+
+        keepRetrying = false
+        advanceTimeBy(1_000.milliseconds)
+
+        assertTrue(result.await().exceptionOrNull() is LocalSocketConnectException)
     }
 }
