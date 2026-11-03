@@ -8,15 +8,14 @@
 pub mod wfp_state;
 
 use std::{
+    net::IpAddr,
     path::PathBuf,
     sync::{Mutex, MutexGuard, OnceLock},
     time::Duration,
 };
 
-use talpid_winfw::{
-    ActivePolicy, AllowedEndpoint, ApplyError, CleanupPolicy, Manager, Protocol, RelayEndpoint,
-    Settings,
-};
+use talpid_types::net::{AllowedEndpoint, Endpoint, TransportProtocol};
+use talpid_winfw::{ActivePolicy, ApplyError, CleanupPolicy, Manager, Settings};
 
 /// Timeout for acquiring the WFP transaction lock. Same as the daemon.
 const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
@@ -113,22 +112,19 @@ pub fn run_test_uninitialized(body: impl FnOnce(&mut Firewall)) {
     body(&mut Firewall::new());
 }
 
-pub fn endpoint(ip: &str, port: u16, protocol: Protocol) -> RelayEndpoint {
-    RelayEndpoint {
-        ip: ip.parse().expect("valid IP"),
-        port,
-        protocol,
-    }
+pub fn endpoint(ip: &str, port: u16, protocol: TransportProtocol) -> Endpoint {
+    let ip: IpAddr = ip.parse().expect("valid IP");
+    Endpoint::new(ip, port, protocol)
 }
 
 pub fn allowed_endpoint(
     ip: &str,
     port: u16,
-    protocol: Protocol,
+    protocol: TransportProtocol,
     clients: &[&str],
 ) -> AllowedEndpoint {
     AllowedEndpoint {
-        clients: clients.iter().map(PathBuf::from).collect(),
+        clients: clients.iter().map(PathBuf::from).collect::<Vec<_>>().into(),
         endpoint: endpoint(ip, port, protocol),
     }
 }

@@ -8,7 +8,9 @@ use std::{
     path::PathBuf,
 };
 
-use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
+use talpid_types::net::{
+    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, Endpoint, TransportProtocol,
+};
 use wfp::{
     ActionType, AppIdConditionBuilder, FilterBuilder, FilterWeight, IcmpConditionBuilder,
     InterfaceConditionBuilder, IpAddressConditionBuilder, Layer, LoopbackConditionBuilder,
@@ -27,30 +29,6 @@ mod ports {
     pub const DHCP_V6_CLIENT_PORT: u16 = 546;
     pub const DHCP_V6_SERVER_PORT: u16 = 547;
     pub const DNS_SERVER_PORT: u16 = 53;
-}
-
-/// The transport protocols the firewall can restrict traffic by.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Protocol {
-    Tcp,
-    Udp,
-}
-
-impl Protocol {
-    fn condition(self) -> wfp::Condition {
-        match self {
-            Self::Tcp => ProtocolConditionBuilder::tcp().build(),
-            Self::Udp => ProtocolConditionBuilder::udp().build(),
-        }
-    }
-}
-
-/// A network endpoint the firewall permits traffic to or from.
-#[derive(Clone, Debug)]
-pub struct RelayEndpoint {
-    pub ip: IpAddr,
-    pub port: u16,
-    pub protocol: Protocol,
 }
 
 /// The sublayer a rule belongs to.
@@ -80,20 +58,6 @@ impl Sublayer {
     }
 }
 
-/// The traffic that is allowed inside the tunnel while connecting.
-#[derive(Clone, Debug, Default)]
-pub enum AllowedTunnelTraffic {
-    /// Allow no traffic in the tunnel.
-    #[default]
-    None,
-    /// Allow all traffic in the tunnel.
-    All,
-    /// Allow traffic to one endpoint in the tunnel.
-    One(RelayEndpoint),
-    /// Allow traffic to two endpoints in the tunnel.
-    Two(RelayEndpoint, RelayEndpoint),
-}
-
 /// One firewall rule: a parameter bundle plus the filters it installs.
 #[derive(Clone, Debug)]
 pub enum Rule {
@@ -118,14 +82,14 @@ pub enum Rule {
     PermitVpnTunnel {
         clients: Vec<PathBuf>,
         alias: String,
-        endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     },
     /// Permit inbound traffic inside the tunnel.
     PermitVpnTunnelService {
         clients: Vec<PathBuf>,
         alias: String,
-        endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     },
     /// Block all DNS in the DNS sublayer.
@@ -141,7 +105,7 @@ pub enum Rule {
     },
     /// Permit outbound traffic to an endpoint, in the given sublayer.
     PermitEndpoint {
-        endpoint: RelayEndpoint,
+        endpoint: Endpoint,
         clients: Vec<PathBuf>,
         sublayer: Sublayer,
     },
@@ -635,7 +599,7 @@ impl Rule {
         cx: &mut Cx<'_>,
         clients: &[PathBuf],
         alias: &str,
-        endpoints: &Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: &Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     ) -> io::Result<()> {
         Self::add_exit_ip_rules(
@@ -676,7 +640,7 @@ impl Rule {
         cx: &mut Cx<'_>,
         clients: &[PathBuf],
         alias: &str,
-        endpoints: &Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: &Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     ) -> io::Result<()> {
         Self::add_exit_ip_rules(
@@ -779,7 +743,7 @@ impl Rule {
     fn add_tunnel_endpoint_rule(
         cx: &mut Cx<'_>,
         alias: &str,
-        endpoint: Option<&RelayEndpoint>,
+        endpoint: Option<&Endpoint>,
         ipv4_guid: wfp::Guid,
         ipv6_guid: wfp::Guid,
         outbound: bool,
@@ -814,9 +778,9 @@ impl Rule {
 
             if let Some(endpoint) = endpoint {
                 builder = builder
-                    .condition(remote_ip_condition(endpoint.ip))
-                    .condition(remote_port_condition(endpoint.port))
-                    .condition(endpoint.protocol.condition());
+                    .condition(remote_ip_condition(endpoint.address.ip()))
+                    .condition(remote_port_condition(endpoint.address.port()))
+                    .condition(protocol_condition(endpoint.protocol));
             }
 
             let id = builder.add(cx.transaction)?;
@@ -824,8 +788,8 @@ impl Rule {
             Ok(())
         };
 
-        let should_add_v4 = endpoint.is_none_or(|endpoint| endpoint.ip.is_ipv4());
-        let should_add_v6 = endpoint.is_none_or(|endpoint| endpoint.ip.is_ipv6());
+        let should_add_v4 = endpoint.is_none_or(|endpoint| endpoint.address.is_ipv4());
+        let should_add_v6 = endpoint.is_none_or(|endpoint| endpoint.address.is_ipv6());
 
         if should_add_v4 {
             add(ipv4_guid, layer_v4, "IPv4")?;
@@ -1007,11 +971,11 @@ impl Rule {
 
     fn install_permit_endpoint(
         cx: &mut Cx<'_>,
-        endpoint: &RelayEndpoint,
+        endpoint: &Endpoint,
         clients: &[PathBuf],
         sublayer: Sublayer,
     ) -> io::Result<()> {
-        let layer = match endpoint.ip {
+        let layer = match endpoint.address.ip() {
             IpAddr::V4(_) => Layer::ConnectV4,
             IpAddr::V6(_) => Layer::ConnectV6,
         };
@@ -1026,9 +990,9 @@ impl Rule {
             .sublayer(sublayer.guid())
             .weight(class(7))
             .action(ActionType::Permit)
-            .condition(remote_ip_condition(endpoint.ip))
-            .condition(remote_port_condition(endpoint.port))
-            .condition(endpoint.protocol.condition());
+            .condition(remote_ip_condition(endpoint.address.ip()))
+            .condition(remote_port_condition(endpoint.address.port()))
+            .condition(protocol_condition(endpoint.protocol));
 
         let id = app_id_conditions(builder, clients)?.add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -1039,6 +1003,13 @@ impl Rule {
 /// The filter weight range `class`, from 0 to 15.
 fn class(class: u8) -> FilterWeight {
     FilterWeight::Range(WeightRange::try_from(class).expect("weight class 0..=15"))
+}
+
+fn protocol_condition(protocol: TransportProtocol) -> wfp::Condition {
+    match protocol {
+        TransportProtocol::Tcp => ProtocolConditionBuilder::tcp().build(),
+        TransportProtocol::Udp => ProtocolConditionBuilder::udp().build(),
+    }
 }
 
 fn remote_ip_condition(ip: IpAddr) -> wfp::Condition {

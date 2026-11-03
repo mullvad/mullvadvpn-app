@@ -13,27 +13,23 @@ mod sessions;
 
 use std::{io, net::IpAddr, time::Duration};
 
+use talpid_types::net::{AllowedEndpoint, Endpoint};
+
 pub use error::{ApplyError, Error};
 
 /// The rulesets each policy is composed of.
 mod policy_rules {
     use std::{net::IpAddr, path::PathBuf};
 
+    use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint};
+
     use super::{
         Settings,
-        rules::{AllowedTunnelTraffic, RelayEndpoint, Rule, Sublayer},
+        rules::{Rule, Sublayer},
     };
 
-    /// A relay server, or any other endpoint the firewall permits traffic to.
-    #[derive(Clone, Debug)]
-    pub struct AllowedEndpoint {
-        /// Processes allowed to reach the endpoint; empty means any process.
-        pub clients: Vec<PathBuf>,
-        pub endpoint: RelayEndpoint,
-    }
-
     /// The relays and tunnel data of a connecting or connected firewall state.
-    #[derive(Clone, Debug, Default)]
+    #[derive(Clone, Debug)]
     pub struct TunnelParameters {
         /// The tunnel interface alias, `Some` only while a tunnel exists.
         pub alias: Option<String>,
@@ -57,7 +53,7 @@ mod policy_rules {
     /// The ruleset of the connecting policy.
     pub fn connecting(
         settings: &Settings,
-        relays: &[RelayEndpoint],
+        relays: &[Endpoint],
         tunnel: &TunnelParameters,
         allowed_endpoint: &AllowedEndpoint,
     ) -> Vec<Rule> {
@@ -75,13 +71,13 @@ mod policy_rules {
         let endpoints = match &tunnel.allowed_tunnel_traffic {
             AllowedTunnelTraffic::None => return ruleset,
             AllowedTunnelTraffic::All => None,
-            AllowedTunnelTraffic::One(endpoint) => Some((endpoint.clone(), None)),
-            AllowedTunnelTraffic::Two(first, second) => Some((first.clone(), Some(second.clone()))),
+            AllowedTunnelTraffic::One(endpoint) => Some((*endpoint, None)),
+            AllowedTunnelTraffic::Two(first, second) => Some((*first, Some(*second))),
         };
         ruleset.push(tunnel_rule_out(
             alias,
             tunnel.clients.clone(),
-            endpoints.clone(),
+            endpoints,
             tunnel.exit_ip,
         ));
         ruleset.push(tunnel_rule_in(
@@ -96,7 +92,7 @@ mod policy_rules {
     /// The ruleset of the connected policy.
     pub fn connected(
         settings: &Settings,
-        relays: &[RelayEndpoint],
+        relays: &[Endpoint],
         tunnel: &TunnelParameters,
         tunnel_dns_servers: &[IpAddr],
         non_tunnel_dns_servers: &[IpAddr],
@@ -139,7 +135,7 @@ mod policy_rules {
     fn tunnel_rule_out(
         alias: &str,
         clients: Vec<PathBuf>,
-        endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     ) -> Rule {
         Rule::PermitVpnTunnel {
@@ -154,7 +150,7 @@ mod policy_rules {
     fn tunnel_rule_in(
         alias: &str,
         clients: Vec<PathBuf>,
-        endpoints: Option<(RelayEndpoint, Option<RelayEndpoint>)>,
+        endpoints: Option<(Endpoint, Option<Endpoint>)>,
         exit_ip: Option<IpAddr>,
     ) -> Rule {
         Rule::PermitVpnTunnelService {
@@ -189,12 +185,12 @@ mod policy_rules {
         ruleset.push(Rule::DnsBlockAll);
     }
 
-    fn append_relay_rules(ruleset: &mut Vec<Rule>, relays: &[RelayEndpoint], clients: &[PathBuf]) {
+    fn append_relay_rules(ruleset: &mut Vec<Rule>, relays: &[Endpoint], clients: &[PathBuf]) {
         for relay in relays {
             ruleset.push(Rule::PermitEndpoint {
-                endpoint: relay.clone(),
+                endpoint: *relay,
                 clients: clients.to_vec(),
-                sublayer: Sublayer::for_port(relay.port),
+                sublayer: Sublayer::for_port(relay.address.port()),
             });
         }
     }
@@ -205,16 +201,15 @@ mod policy_rules {
     ) {
         if let Some(allowed_endpoint) = allowed_endpoint {
             ruleset.push(Rule::PermitEndpoint {
-                endpoint: allowed_endpoint.endpoint.clone(),
-                clients: allowed_endpoint.clients.clone(),
-                sublayer: Sublayer::for_port(allowed_endpoint.endpoint.port),
+                endpoint: allowed_endpoint.endpoint,
+                clients: allowed_endpoint.clients.to_vec(),
+                sublayer: Sublayer::for_port(allowed_endpoint.endpoint.address.port()),
             });
         }
     }
 }
 
-pub use policy_rules::{AllowedEndpoint, TunnelParameters};
-pub use rules::{AllowedTunnelTraffic, Protocol, RelayEndpoint};
+pub use policy_rules::TunnelParameters;
 
 /// Whether DHCP requests are permitted, and private networks are reachable.
 #[derive(Clone, Copy, Debug)]
@@ -291,7 +286,7 @@ impl Manager {
     pub fn apply_policy_connecting(
         &mut self,
         settings: &Settings,
-        relays: &[RelayEndpoint],
+        relays: &[Endpoint],
         tunnel: &TunnelParameters,
         allowed_endpoint: &AllowedEndpoint,
     ) -> Result<(), ApplyError> {
@@ -306,7 +301,7 @@ impl Manager {
     pub fn apply_policy_connected(
         &mut self,
         settings: &Settings,
-        relays: &[RelayEndpoint],
+        relays: &[Endpoint],
         tunnel: &TunnelParameters,
         tunnel_dns_servers: &[IpAddr],
         non_tunnel_dns_servers: &[IpAddr],
@@ -385,7 +380,7 @@ impl Manager {
     /// must be relays, and none of them may be the exit endpoint.
     fn validate_relays(
         &self,
-        relays: &[RelayEndpoint],
+        relays: &[Endpoint],
         exit_ip: Option<IpAddr>,
     ) -> Result<(), ApplyError> {
         if relays.is_empty() {
@@ -393,7 +388,7 @@ impl Manager {
         }
 
         if let Some(exit_ip) = exit_ip
-            && relays.iter().any(|relay| relay.ip == exit_ip)
+            && relays.iter().any(|relay| relay.address.ip() == exit_ip)
         {
             return Err(policy_error(io::Error::other(
                 "relay IP must not equal the exit endpoint IP",
