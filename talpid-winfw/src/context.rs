@@ -151,6 +151,9 @@ fn apply_ruleset_directly(
 
 /// Open the standard WFP session with the transaction-lock wait the daemon
 /// uses.
+///
+/// [`Duration::ZERO`] lets the Base Filtering Engine pick its own default
+/// timeout.
 pub fn open_engine(timeout: Duration) -> io::Result<FilterEngine> {
     FilterEngineBuilder::default()
         .transaction_timeout(timeout)
