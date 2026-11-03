@@ -10,6 +10,7 @@ license.workspace = true
 crate-type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
+futures = { workspace = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
