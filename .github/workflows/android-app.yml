@@ -68,7 +68,7 @@ on:
         required: true
         type: string
       android_build_runner:
-        description: 'Choose which runner to build on'
+        description: 'Build runner'
         required: true
         default: 'android-build'
         type: choice
@@ -79,7 +79,7 @@ on:
           - android-bender-03
           - android-bender-04
       android_device_runner_instrumented_test:
-        description: 'Choose which runner to use for screen and Mockapi tests'
+        description: 'Test runner (screen & mockapi)'
         required: true
         default: 'android-device'
         type: choice
@@ -90,7 +90,7 @@ on:
           - android-bender-07
           - android-bender-08
       android_device_runner_e2e_test:
-        description: 'Choose which runner to use for E2E tests'
+        description: 'Test runner (e2e)'
         required: true
         default: 'android-device'
         type: choice
