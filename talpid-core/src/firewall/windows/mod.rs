@@ -337,28 +337,18 @@ fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
 fn to_relays(
     peer_endpoints: &[AllowedEndpoint],
 ) -> Result<(Vec<Endpoint>, Vec<PathBuf>), talpid_types::tunnel::FirewallPolicyError> {
-    let mut relays = Vec::with_capacity(peer_endpoints.len());
-    let mut tunnel_clients: Option<&[PathBuf]> = None;
+    let Some(first) = peer_endpoints.first() else {
+        log::error!("Must have non-zero endpoints");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+    };
 
-    for peer in peer_endpoints {
-        if let Some(clients) = tunnel_clients {
-            if clients != peer.clients.as_ref() {
-                log::error!("Relay endpoints must have same allowed clients");
-                return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
-            }
-        } else {
-            tunnel_clients = Some(&peer.clients);
-        }
-
-        relays.push(peer.endpoint);
+    if !peer_endpoints.iter().all(|p| p.clients == first.clients) {
+        log::error!("Relay endpoints must have same allowed clients");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
     }
 
-    let clients = tunnel_clients
-        .ok_or_else(|| {
-            log::error!("Allowed clients missing. Zero peer endpoints?");
-            talpid_types::tunnel::FirewallPolicyError::Generic
-        })?
-        .to_vec();
+    let relays = peer_endpoints.iter().map(|p| p.endpoint).collect();
+    let clients = first.clients.to_vec();
 
     Ok((relays, clients))
 }
