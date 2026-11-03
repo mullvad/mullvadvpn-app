@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.repository
 import arrow.core.Either
 import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull

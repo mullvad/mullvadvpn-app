@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class GrpcCallTest {
     @Test
-    fun `when a call is successful it returns the result and the call is only called once`() =
+    fun `when a call is successful it should return the result and the call should only called once`() =
         runTest {
             val mockCall = mockk<GrpcCall<Unit, String>>()
             every { mockCall.clone() } returns mockCall
@@ -37,23 +37,26 @@ class GrpcCallTest {
         }
 
     @Test
-    fun `when a call fails due to LocalSocketException it is retried until successful`() = runTest {
-        val mockCall = mockk<GrpcCall<Unit, String>>()
-        val localSocketException = LocalSocketConnectException(Throwable())
-        every { mockCall.clone() } returns mockCall
-        coEvery { mockCall.execute(Unit) } throwsMany listOf(localSocketException) andThen "result"
+    fun `when a call fails due to LocalSocketException it should be retried until successful`() =
+        runTest {
+            val mockCall = mockk<GrpcCall<Unit, String>>()
+            val localSocketException = LocalSocketConnectException(Throwable())
+            every { mockCall.clone() } returns mockCall
+            coEvery { mockCall.execute(Unit) } throwsMany
+                listOf(localSocketException) andThen
+                "result"
 
-        val result = async { mockCall.executeWithRetry(Unit) }
-        // Needs to be above the retry delay to ensure the retry is triggered.
-        advanceTimeBy(150.milliseconds)
-        runCurrent()
+            val result = async { mockCall.executeWithRetry(Unit) }
+            // Needs to be above the retry delay to ensure the retry is triggered.
+            advanceTimeBy(150.milliseconds)
+            runCurrent()
 
-        assertEquals("result", result.await())
-        coVerify(exactly = 2) { mockCall.execute(Unit) }
-    }
+            assertEquals("result", result.await())
+            coVerify(exactly = 2) { mockCall.execute(Unit) }
+        }
 
     @Test
-    fun `when a call fails due to other IOException it will never retry`() = runTest {
+    fun `when a call fails due to other IOException it should never retry`() = runTest {
         val mockCall = mockk<GrpcCall<Unit, String>>()
         every { mockCall.clone() } returns mockCall
         coEvery { mockCall.execute(Unit) } throws IOException()

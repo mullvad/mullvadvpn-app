@@ -22,8 +22,7 @@ internal suspend fun <S : Any, R : Any> GrpcCall<S, R>.executeWithRetry(request:
     while (true) {
         try {
             return clone().execute(request)
-        } catch (e: IOException) {
-            if (e !is LocalSocketConnectException) throw e
+        } catch (e: LocalSocketConnectException) {
             Logger.w("Failed to connect to daemon", e)
             delay(retryDelay)
             retryDelay = minOf(retryDelay + increase, MAX_RETRY_DELAY)
