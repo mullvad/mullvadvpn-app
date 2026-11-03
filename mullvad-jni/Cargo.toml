@@ -23,8 +23,10 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
 
 [features]
+default = ["custom-vpn"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override", "mullvad-daemon/api-override"]
+custom-vpn = ["mullvad-daemon/custom-vpn"]
 
 [lints]
 workspace = true

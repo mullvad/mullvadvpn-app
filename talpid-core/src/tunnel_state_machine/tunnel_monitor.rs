@@ -1,6 +1,5 @@
 //! Abstracts over an active VPN tunnel.
 use std::path;
-
 use talpid_tunnel::TunnelArgs;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider;

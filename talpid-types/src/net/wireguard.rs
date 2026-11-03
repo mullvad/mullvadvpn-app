@@ -20,6 +20,8 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    #[cfg(feature = "custom-vpn")]
+    pub custom_vpn: Option<CustomVpnConfig>,
 }
 
 impl TunnelParameters {
@@ -55,11 +57,18 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
+        // Custom VPN requires the gotatun device graph; the kernel backend has no such path.
+        let pvpn = cfg_select! {
+            feature = "custom-vpn" => self.custom_vpn.is_some(),
+            _ => false,
+        };
+
         cfg!(target_os = "macos")
             || self.options.userspace
             || self.options.daita
             // Always prefer GotaTun for multihop on Windows
             || (cfg!(target_os = "windows") && self.connection.exit_peer.is_some())
+            || pvpn
     }
 }
 
@@ -332,6 +341,60 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", STANDARD.encode(self.as_bytes()))
+    }
+}
+
+/// Custom VPN tunnel interface configuration (WireGuard-based).
+///
+/// `ips` carries one or more interface addresses (typically one IPv4 and/or
+/// one IPv6, matching a wg-quick `Address = ...` line). Must be non-empty;
+/// construction/parsing from proto and wg-quick both reject an empty list.
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnTunnelConfig {
+    pub private_key: PrivateKey,
+    pub ips: Vec<std::net::IpAddr>,
+}
+
+/// Custom VPN peer configuration (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnPeerConfig {
+    pub public_key: PublicKey,
+    pub allowed_ip: Vec<IpNetwork>,
+    pub endpoint: SocketAddr,
+}
+
+/// Custom VPN configuration (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnConfig {
+    pub enabled: bool,
+    pub name: Option<String>,
+    pub tunnel: CustomVpnTunnelConfig,
+    pub peers: vec1::Vec1<CustomVpnPeerConfig>,
+}
+
+#[cfg(feature = "custom-vpn")]
+impl CustomVpnConfig {
+    /// The peer used by the tunnel. Only a single peer is currently supported.
+    pub fn peer(&self) -> &CustomVpnPeerConfig {
+        self.peers.first()
+    }
+}
+
+/// Custom VPN configs (WireGuard-based).
+#[cfg(feature = "custom-vpn")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CustomVpnSettings {
+    pub configs: Vec<CustomVpnConfig>,
+}
+
+#[cfg(feature = "custom-vpn")]
+impl CustomVpnSettings {
+    /// The config to use, which is the first enabled config, if any.
+    pub fn active(&self) -> Option<&CustomVpnConfig> {
+        self.configs.iter().find(|config| config.enabled)
     }
 }
 

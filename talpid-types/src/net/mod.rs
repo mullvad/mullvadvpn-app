@@ -15,6 +15,8 @@ use std::{
 pub mod ipnetwork_sub;
 pub mod obfuscation;
 pub mod proxy;
+#[cfg(feature = "custom-vpn")]
+pub mod wg_config;
 pub mod wireguard;
 
 mod allowed_nets;

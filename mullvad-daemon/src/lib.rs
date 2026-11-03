@@ -107,6 +107,8 @@ use talpid_core::{
 };
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
+#[cfg(feature = "custom-vpn")]
+use talpid_types::Stats;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
@@ -473,6 +475,15 @@ pub enum DaemonCommand {
     /// TODO
     /// After this event, GetMultihopMigration will indefinitely return a None-value.
     DeleteMultihopMigration,
+    /// Set custom VPN configuration
+    #[cfg(feature = "custom-vpn")]
+    SetCustomVpnConfig(
+        oneshot::Sender<String>,
+        Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ),
+    /// Get custom VPN stats
+    #[cfg(feature = "custom-vpn")]
+    GetCustomVpnStats(oneshot::Sender<Stats>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -905,6 +916,8 @@ impl Daemon {
             relay_selector.clone(),
             settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
+            #[cfg(feature = "custom-vpn")]
+            settings.custom_vpn.active().cloned(),
         );
 
         let param_gen = parameters_generator.clone();
@@ -1663,6 +1676,10 @@ impl Daemon {
             DeleteAccount(tx) => self.on_delete_account(tx),
             GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
             DeleteMultihopMigration => self.on_delete_multihop_migration().await,
+            #[cfg(feature = "custom-vpn")]
+            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            #[cfg(feature = "custom-vpn")]
+            GetCustomVpnStats(tx) => self.on_get_custom_vpn_stats(tx),
         }
     }
 
@@ -2688,6 +2705,39 @@ impl Daemon {
                 Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
             }
         }
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    async fn on_set_custom_vpn_config(
+        &mut self,
+        tx: oneshot::Sender<String>,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ) {
+        match self
+            .settings
+            // Only a single config is currently managed
+            .update(move |s| s.custom_vpn.configs = config.into_iter().collect())
+            .await
+        {
+            Ok(_) => {
+                let effective = self.settings.settings().custom_vpn.active().cloned();
+                self.parameters_generator.set_custom_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.reconnect_tunnel();
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config")
+                );
+                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
+            }
+        }
+    }
+
+    #[cfg(feature = "custom-vpn")]
+    fn on_get_custom_vpn_stats(&self, tx: oneshot::Sender<Stats>) {
+        self.send_tunnel_command(TunnelCommand::CustomVpnStats(tx));
     }
 
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
