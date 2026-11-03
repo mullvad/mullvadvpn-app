@@ -284,17 +284,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     ) -> Bool {
         context.dismissedRoutes.allSatisfy { dismissedRoute in
             /*
-             Prevent dismissal of "out of time" route in response to device state change when
-             making payment. It will dismiss itself once done.
+             Prevent dismissal of "out of time" route in response to device state change. It
+             will dismiss itself once payment is done.
              */
-            if dismissedRoute.route == .outOfTime {
-                guard let coordinator = dismissedRoute.coordinator as? OutOfTimeCoordinator else {
-                    return false
-                }
-                return !coordinator.isMakingPayment
+            return if dismissedRoute.route == .outOfTime {
+                false
+            } else {
+                true
             }
-
-            return true
         }
     }
 

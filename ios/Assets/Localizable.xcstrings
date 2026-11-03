@@ -4,254 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "Deleting account..." : {
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sletter konto ..."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konto wird gelöscht …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminando cuenta..."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poistetaan tiliä..."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suppression du compte..."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminazione account..."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アカウントを削除しています..."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "계정 삭제 중..."
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "အကောင့် ဖျက်နေဆဲ..."
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sletter konto …"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Account wordt verwijderd..."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuwanie konta..."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A eliminar conta..."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удаление учетной записи..."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tar bort konto …"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "กำลังลบบัญชี..."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hesap siliniyor..."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Видалення облікового запису…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在删除帐户…"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在刪除帳戶…"
-          }
-        }
-      }
-    },
-    "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." : {
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie haben bereits eine gespeicherte Kontonummer. Wenn Sie ein neues Konto erstellen, wird die gespeicherte Kontonummer von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ya tiene un número de cuenta guardado. Al crear una nueva cuenta, el número de cuenta guardado se eliminará de este dispositivo. Esto no se puede deshacer."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous avez déjà un numéro de compte enregistré. Si vous créez un nouveau compte, le numéro de compte enregistré sera supprimé de cet appareil. Cette action est irréversible."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hai già un numero di account salvato, creando un nuovo account il numero di account salvato verrà rimosso da questo dispositivo. Questa operazione non può essere annullata."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Já tem um número de conta guardado. Ao criar uma nova conta, o número de conta guardado será removido deste dispositivo. Esta ação não pode ser anulada."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har redan ett sparat kontonummer. Om du skapar ett nytt konto tas det sparade kontonumret bort från enheten. Det går inte att ångra detta."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "คุณมีหมายเลขบัญชีที่บันทึกไว้แล้ว การสร้างบัญชีใหม่จะเป็นการลบหมายเลขบัญชีที่บันทึกไว้ออกจากอุปกรณ์นี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaten kayıtlı bir hesap numaranız var. Yeni bir hesap oluşturduğunuzda kayıtlı hesap numarası bu cihazdan kaldırılır. Bu işlem geri alınamaz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У вас уже є збережений номер облікового запису. Після створення нового його буде видалено. Цю дію не можна скасувати."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您已保存一个帐号，如果创建新帐户，已保存的帐号将从此设备中移除。此操作无法撤消。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您已儲存一組帳號。若建立新帳戶，該已儲存的帳號將會從此裝置移除；此動作無法復原。"
-          }
-        }
-      }
-    },
     "“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN." : {
       "comment" : "A message in an in-app notification alert that explains the purpose of the alert and gives an option to disable a feature that might cause a user to lose network connectivity when an app update is available. The first argument The argument is the string “Force all apps”.",
       "isCommentAutoGenerated" : true,
@@ -3384,131 +3136,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "帳戶點數已過期"
-          }
-        }
-      }
-    },
-    "Account deletion" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sletning af konto"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontolöschung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminación de la cuenta"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tilin poisto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suppression du compte"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminazione account"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アカウントの削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "계정 삭제"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "အကောင့် ဖျက်ခြင်း"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sletting av konto"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accountverwijdering"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunięcie konta"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminação da conta"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удаление учетной записи"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kontoborttagning"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "การลบบัญชี"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hesap silme"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Видалення облікового запису"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "帐户删除"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "帳戶刪除"
           }
         }
       }
@@ -19938,131 +19565,6 @@
         }
       }
     },
-    "Debug options" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fejlfindingsmuligheder"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Debug-Optionen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opciones de depuración"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vianetsintävaihtoehdot"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Options de débogage"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opzioni di debug"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "デバッグオプション"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "디버그 옵션"
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ပြစ်ချက် ရှာဖွေဖယ်ရှားမှုဆိုင်ရာ ရွေးချယ်စရာများ"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alternativer for feilsøking"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Debugopties"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opcje debugowania"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opções de depuração"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Параметры отладки"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Felsökningsalternativ"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ตัวเลือกกาดีบัก"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hata ayıklama seçenekleri"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Параметри налагодження"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "调试选项"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "除錯選項"
-          }
-        }
-      }
-    },
     "Delete" : {
       "localizations" : {
         "da" : {
@@ -20679,6 +20181,130 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "刪除方式"
+          }
+        }
+      }
+    },
+    "Deleting account..." : {
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sletter konto ..."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto wird gelöscht …"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminando cuenta..."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poistetaan tiliä..."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suppression du compte..."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminazione account..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントを削除しています..."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 삭제 중..."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "အကောင့် ဖျက်နေဆဲ..."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sletter konto …"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account wordt verwijderd..."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuwanie konta..."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A eliminar conta..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удаление учетной записи..."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tar bort konto …"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "กำลังลบบัญชี..."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesap siliniyor..."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видалення облікового запису…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在删除帐户…"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在刪除帳戶…"
           }
         }
       }
@@ -24655,130 +24281,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "編輯方式"
-          }
-        }
-      }
-    },
-    "Either buy credit on our website or make an in-app purchase via the **Add time** button below." : {
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Køb enten kreditter på vores hjemmeside eller foretag et køb i appen via knappen **Tilføj tid** nedenfor."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaufen Sie Guthaben auf unserer Website oder tätigen Sie einen Kauf in der App über die Schaltfläche **Zeit hinzufügen** unten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compre crédito en nuestro sitio web o realice una compra en la aplicación a través del botón **Añadir tiempo** de abajo."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Osta saldoa verkkosivustollamme tai tee ostos sovelluksessa alla olevan **Lisää käyttöaikaa** -painikkeen kautta."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Achetez du crédit sur notre site Web ou effectuez un achat dans l'application à l'aide du bouton **Ajouter du temps** ci-dessous."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puoi acquistare credito sul nostro sito web oppure effettuare un acquisto in-app tramite il pulsante **Aggiungi tempo** qui sotto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当社のウェブサイトでクレジットを購入するか、以下の **[時間を追加]** ボタンからアプリ内課金を行ってください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹사이트에서 크레딧을 구입하거나 아래의 **시간 추가** 버튼을 통해 인앱으로 구매하세요."
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်မှ ခရက်ဒစ် ဝယ်ယူခြင်း သို့မဟုတ် အောက်ရှိ **အချိန်တိုးရန်** ခလုတ်ကို အသုံးပြု၍ အက်ပ်အတွင်း ငွေပေးချေမှု ပြုလုပ်နိုင်ပါသည်။"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kjøp kreditt på vår nettside eller foreta et kjøp i appen via **Legg til tid**-knappen nedenfor."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Koop krediet op onze website, of via een aankoop in de app met de knop **Tijd toevoegen** hieronder."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kup doładowanie na naszej stronie internetowej albo dokonaj zakupu w aplikacji, klikając poniższy przycisk **Dodaj czas**."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compre crédito no nosso site ou efetue uma compra na aplicação através do botão **Adicionar tempo** abaixo."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пополните баланс на нашем сайте или совершите покупку в приложении, нажав кнопку **«Добавить время»** ниже."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan antingen köpa kredit på vår webbplats eller göra ett köp i appen via knappen **Lägg till tid** nedan."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ซื้อเครดิตบนเว็บไซต์ของเรา หรือซื้อในแอปผ่านปุ่ม **เพิ่มเวลา** ด้านล่าง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kredinizi web sitemizden veya aşağıdaki **Süre ekle** düğmesini kullanarak uygulama içinden satın alabilirsiniz."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поповніть баланс на нашому вебсайті або здійсніть покупку в застосунку, натиснувши кнопку **Додати час** нижче."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您可以在我们的网站上购买额度，或通过下方的**添加时间**按钮进行应用内购买。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您可以在我們的網站上購買點數，也可以透過下方**增加時間**按鈕進行應用程式內購買。"
           }
         }
       }
@@ -33516,131 +33018,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。"
-          }
-        }
-      }
-    },
-    "If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hvis du stadig oplever problemer, kan du sende en e-mail direkte til vores support på **%@**. Vedhæft din apps logfil til din e-mail."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn Sie weiterhin Probleme haben, können Sie eine E-Mail direkt an unseren Support unter **%@** senden. Fügen Sie Ihrer E-Mail Ihr App-Protokoll bei."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si sigue experimentando problemas, puede contactar directamente por correo electrónico con nuestro servicio de asistencia en la dirección **%@**. Adjunte al correo electrónico el registro de su aplicación."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jos kohtaat edelleen ongelmia, voit lähettää sähköpostia tuellemme suoraan osoitteeseen **%@**. Liitä sovelluslokisi sähköpostiisi."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si vous rencontrez encore des problèmes, vous pouvez contacter notre assistance par e-mail directement à l'adresse **%@**. Veuillez joindre votre fichier journal de l'application à votre e-mail."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se riscontri ancora problemi, puoi inviare un'e-mail direttamente al nostro supporto all'indirizzo **%@**. Allega il log dell'app all'e-mail."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "問題が解決しない場合は、サポートまで **%@** 宛に直接メールをお送りください。メールにはアプリのログを添付してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "계속 문제가 발생하는 경우 이메일(**%@**)을 통해 지원팀에 문의할 수 있습니다. 이메일에 앱 로그를 첨부해 주세요."
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ပြဿနာများ ဆက်လက်ကြုံတွေ့နေပါက ကျွန်ုပ်တို့၏ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံသို့ **%@** မှတစ်ဆင့် တိုက်ရိုက်အီးမေးလ်ပေးပို့နိုင်ပါသည်။ အီးမေးလ်တွင် သင်၏ အက်ပ်မှတ်တမ်းကို တွဲချိတ်ပေးပါ။"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hvis du fortsatt har problemer, kan du sende en e-post direkte til kundestøtten vår på **%@**. Legg ved apploggfilen i e-posten."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Als u nog steeds problemen ondervindt, kunt u rechtstreeks ons ondersteuningsteam e-mailen via **%@**. Voeg het app-logboek bij als bijlage."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jeśli nadal występują problemy, możesz wysłać wiadomość e-mail bezpośrednio do naszego działu pomocy technicznej na adres **%@**. Do wiadomości e-mail dołącz dziennik aplikacji."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se ainda tiver problemas, pode enviar um e-mail diretamente para o nosso suporte em **%@**. Anexe o registo da aplicação ao seu e-mail."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Если проблема не устранена, вы можете написать в нашу службу поддержки напрямую на адрес **%@**. Приложите к письму журнал приложения."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du fortfarande har problem kan du skicka ett e-postmeddelande till vår support direkt på **%@**. Bifoga din applogg i e-postmeddelandet."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "หากคุณยังพบปัญหาอยู่ คุณสามารถส่งอีเมลถึงฝ่ายสนับสนุนของเราได้โดยตรงที่ **%@** โปรดแนบบันทึกแอปของคุณไปกับอีเมล"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hâlâ sorun yaşıyorsanız doğrudan **%@** adresinden destek ekibimize e-posta gönderebilirsiniz. Lütfen uygulama günlüğünüzü e-postanıza ekleyin."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Якщо проблеми не зникнуть, напишіть нашій службі підтримки на адресу **%@**, прикріпивши журнал застосунку."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如果仍然遇到问题，您可以直接发送电子邮件至 **%@** 联系我们的支持团队。请在电子邮件中附上您的应用日志。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "如果您持續遇到問題，可直接傳送電子郵件至 **%@** 聯絡支援團隊。請在電子郵件中附上您的應用程式日誌。"
           }
         }
       }
@@ -71250,130 +70627,6 @@
         }
       }
     },
-    "To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For at tilføje mere skal du afbryde forbindelsen og tilgå internettet med en usikker forbindelse."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um mehr hinzuzufügen, müssen Sie Ihre Verbindung trennen und mit einer unsicheren Verbindung auf das Internet zugreifen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Para agregar tiempo, tendrá que desconectarse y acceder a Internet a través de una conexión no segura."
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinun on katkaistava yhteys ja käytettävä internetiä suojaamattoman yhteyden kautta, jotta voit lisätä lisää."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pour en ajouter d'autres, vous devrez vous déconnecter et accéder à internet avec une connexion non sécurisée."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per aggiungerne ancora, dovrai disconnetterti e accedere a Internet con una connessione non protetta."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "時間を追加するには、いったん接続を解除し、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "더 추가하려면 연결을 끊고 안전하지 않은 연결로 인터넷에 액세스해야 합니다."
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "နောက်ထပ် ပေါင်းထည့်ရန်အတွက် ချိတ်ဆက်မှုဖြုတ်ပြီး မလုံခြုံသည့် ချိတ်ဆက်မှုဖြင့် အင်တာနက် ရယူသုံးစွဲရန် လိုပါမည်။"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "For å legge til mer, må du koble fra og koble til internettet med en usikker tilkobling."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om meer toe te voegen, moet u de verbinding verbreken en het internet gebruiken via een onveilige verbinding."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aby dodać więcej, musisz rozłączyć się i uzyskać dostęp do Internetu za pomocą niezabezpieczonego połączenia."
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Além disso, tem de se desligar e aceder à Internet através de uma ligação não segura."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чтобы добавить время, необходимо отключиться, а затем выйти в Интернет по незащищенному соединению."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Om du vill lägga till mer måste du koppla från och öppna internet med en oskyddad anslutning."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ในการเพิ่ม คุณจำเป็นจะต้องตัดการเชื่อมต่อ และเข้าใช้อินเทอร์เน็ตผ่านการเชื่อมต่อที่ไม่ปลอดภัย"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Daha fazla süre eklemek için, bağlantıyı keserek güvenli olmayan bir bağlantıyla internete erişmeniz gerekir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Щоб додати час, вам доведеться відключитись і підключитися до Інтернету через незахищене підключення."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要添加更多时间，您需要断开连接并使用不安全的连接访问网络。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "若要追加，您需中斷連線並使用不安全的連線來存取網路。"
-          }
-        }
-      }
-    },
     "To assist you better, please write in English or Swedish and include which country you are connecting from." : {
       "localizations" : {
         "da" : {
@@ -80904,6 +80157,130 @@
         }
       }
     },
+    "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." : {
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie haben bereits eine gespeicherte Kontonummer. Wenn Sie ein neues Konto erstellen, wird die gespeicherte Kontonummer von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya tiene un número de cuenta guardado. Al crear una nueva cuenta, el número de cuenta guardado se eliminará de este dispositivo. Esto no se puede deshacer."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous avez déjà un numéro de compte enregistré. Si vous créez un nouveau compte, le numéro de compte enregistré sera supprimé de cet appareil. Cette action est irréversible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai già un numero di account salvato, creando un nuovo account il numero di account salvato verrà rimosso da questo dispositivo. Questa operazione non può essere annullata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Já tem um número de conta guardado. Ao criar uma nova conta, o número de conta guardado será removido deste dispositivo. Esta ação não pode ser anulada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har redan ett sparat kontonummer. Om du skapar ett nytt konto tas det sparade kontonumret bort från enheten. Det går inte att ångra detta."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณมีหมายเลขบัญชีที่บันทึกไว้แล้ว การสร้างบัญชีใหม่จะเป็นการลบหมายเลขบัญชีที่บันทึกไว้ออกจากอุปกรณ์นี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaten kayıtlı bir hesap numaranız var. Yeni bir hesap oluşturduğunuzda kayıtlı hesap numarası bu cihazdan kaldırılır. Bu işlem geri alınamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас уже є збережений номер облікового запису. Після створення нового його буде видалено. Цю дію не можна скасувати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您已保存一个帐号，如果创建新帐户，已保存的帐号将从此设备中移除。此操作无法撤消。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您已儲存一組帳號。若建立新帳戶，該已儲存的帳號將會從此裝置移除；此動作無法復原。"
+          }
+        }
+      }
+    },
     "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." : {
       "localizations" : {
         "da" : {
@@ -82399,129 +81776,13 @@
         }
       }
     },
-    "You have no more VPN time left on this account. " : {
-      "localizations" : {
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ikke mere VPN-tid tilbage på denne konto. "
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sie haben keine VPN-Zeit mehr auf diesem Konto. "
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No queda tiempo de uso de VPN en la cuenta. "
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä. "
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il ne vous reste plus de temps de VPN sur ce compte. "
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hai esaurito il tempo VPN su questo account. "
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このアカウントにはVPN時間が残っていません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 계정에 남은 VPN 시간이 더 이상 없습니다. "
-          }
-        },
-        "my" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။ "
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ikke mer VPN-tid igjen på kontoen. "
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "U hebt geen VPN-tijd meer op dit account. "
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Na tym koncie nie masz już czasu VPN. "
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não dispõe de mais tempo de VPN nesta conta. "
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На этой учетной записи времени VPN не осталось. "
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du har ingen VPN-tid kvar på det här kontot. "
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu hesap için artık VPN süreniz kalmadı. "
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На балансі облікового запису не залишилося часу для використання VPN. "
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "此帐户的 VPN 时间已用尽。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "您這個帳戶已經沒有剩餘的 VPN 時間了。 "
-          }
-        }
-      }
+    "You have no more VPN time left on this account. Either buy credit on our website or make an in-app purchase via the Add time button below." : {
+      "comment" : "A description of the out of time error.",
+      "isCommentAutoGenerated" : true
+    },
+    "You have no more VPN time left on this account. To add more, you will need to disconnect and access the Internet with an unsecure connection." : {
+      "comment" : "A description of the out of time error when the user is connected.",
+      "isCommentAutoGenerated" : true
     },
     "You have one day left on this account. Please add more time to continue using the VPN." : {
       "localizations" : {

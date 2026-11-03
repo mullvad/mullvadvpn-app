@@ -13,9 +13,9 @@ import SwiftUI
 
 @MainActor
 public final class UIHostingRootController<Content: View>: UIHostingController<Content>, RootContainment {
-    let preferredHeaderBarPresentation: HeaderBarPresentation
-    let prefersHeaderBarHidden: Bool
-    let prefersDeviceInfoBarHidden: Bool
+    var preferredHeaderBarPresentation: HeaderBarPresentation
+    var prefersHeaderBarHidden: Bool
+    var prefersDeviceInfoBarHidden: Bool
 
     init(
         preferredHeaderBarPresentation: HeaderBarPresentation = HeaderBarPresentation(style: .default),
