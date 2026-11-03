@@ -15,7 +15,7 @@ pub fn short_version() -> String {
     format!("macOS {version}")
 }
 
-pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+pub async fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     std::iter::empty()
 }
 

@@ -60,7 +60,7 @@ impl super::DnsMonitorT for DnsMonitor {
         let servers = config.tunnel_config();
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
-        let mut inner = DnsMonitorHolder::new()?;
+        let mut inner = self.handle.block_on(DnsMonitorHolder::new())?;
         if !servers.is_empty() {
             self.handle.block_on(inner.set(interface, servers))?;
             self.inner = Some(inner);
@@ -70,7 +70,7 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn reset(&mut self) -> Result<()> {
         if let Some(mut inner) = self.inner.take() {
-            inner.reset(&self.handle)?;
+            self.handle.block_on(inner.reset())?;
         }
         Ok(())
     }
@@ -97,21 +97,23 @@ impl fmt::Display for DnsMonitorHolder {
 }
 
 impl DnsMonitorHolder {
-    fn new() -> Result<Self> {
+    async fn new() -> Result<Self> {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
         let manager = match dns_module.as_ref().and_then(|value| value.to_str()) {
             Some("static-file") => DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new()?),
             Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new()?),
-            Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new()?),
-            Some("network-manager") => DnsMonitorHolder::NetworkManager(NetworkManager::new()?),
-            Some(_) | None => Self::with_detected_dns_manager()?,
+            Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new().await?),
+            Some("network-manager") => {
+                DnsMonitorHolder::NetworkManager(NetworkManager::new().await?)
+            }
+            Some(_) | None => Self::with_detected_dns_manager().await?,
         };
         log::debug!("Managing DNS via {}", manager);
         Ok(manager)
     }
 
-    fn with_detected_dns_manager() -> Result<Self> {
+    async fn with_detected_dns_manager() -> Result<Self> {
         fn log_err<E: std::error::Error>(method: &'static str) -> impl Fn(&E) {
             move |err: &E| {
                 log::debug!(
@@ -120,26 +122,27 @@ impl DnsMonitorHolder {
                 );
             }
         }
+        match SystemdResolved::new().await {
+            Ok(systemd) => return Ok(DnsMonitorHolder::SystemdResolved(systemd)),
+            Err(err) => log_err("systemd-resolved")(&err),
+        };
 
-        SystemdResolved::new()
-            .map(DnsMonitorHolder::SystemdResolved)
-            .inspect_err(log_err("systemd-resolved"))
-            .or_else(|_| {
-                NetworkManager::new()
-                    .map(DnsMonitorHolder::NetworkManager)
-                    .inspect_err(log_err("NetworkManager"))
-            })
-            .or_else(|_| {
-                Resolvconf::new()
-                    .map(DnsMonitorHolder::Resolvconf)
-                    .inspect_err(log_err("resolveconf"))
-            })
-            .or_else(|_| {
-                StaticResolvConf::new()
-                    .map(DnsMonitorHolder::StaticResolvConf)
-                    .inspect_err(log_err("/etc/resolv.conf"))
-            })
-            .map_err(|_| Error::NoDnsMonitor)
+        match NetworkManager::new().await {
+            Ok(systemd) => return Ok(DnsMonitorHolder::NetworkManager(systemd)),
+            Err(err) => log_err("NetworkManager")(&err),
+        };
+
+        match Resolvconf::new() {
+            Ok(systemd) => return Ok(DnsMonitorHolder::Resolvconf(systemd)),
+            Err(err) => log_err("resolveconf")(&err),
+        };
+
+        match StaticResolvConf::new() {
+            Ok(systemd) => return Ok(DnsMonitorHolder::StaticResolvConf(systemd)),
+            Err(err) => log_err("/etc/resolv.conf")(&err),
+        };
+
+        Err(Error::NoDnsMonitor)
     }
 
     async fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
@@ -150,24 +153,24 @@ impl DnsMonitorHolder {
             SystemdResolved(systemd_resolved) => {
                 systemd_resolved.set_dns(interface, servers).await?
             }
-            NetworkManager(network_manager) => network_manager.set_dns(interface, servers)?,
+            NetworkManager(network_manager) => network_manager.set_dns(interface, servers).await?,
         }
         Ok(())
     }
 
-    fn reset(&mut self, handle: &tokio::runtime::Handle) -> Result<()> {
+    async fn reset(&mut self) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(resolvconf) => resolvconf.reset()?,
             StaticResolvConf(static_resolv_conf) => static_resolv_conf.reset()?,
-            SystemdResolved(systemd_resolved) => handle.block_on(systemd_resolved.reset())?,
-            NetworkManager(network_manager) => network_manager.reset()?,
+            SystemdResolved(systemd_resolved) => systemd_resolved.reset().await?,
+            NetworkManager(network_manager) => network_manager.reset().await?,
         }
         Ok(())
     }
 }
 
 /// Returns true if DnsMonitor will use NetworkManager to manage DNS.
-pub fn will_use_nm() -> bool {
-    SystemdResolved::new().is_err() && NetworkManager::new().is_ok()
+pub async fn will_use_nm() -> bool {
+    SystemdResolved::new().await.is_err() && NetworkManager::new().await.is_ok()
 }
