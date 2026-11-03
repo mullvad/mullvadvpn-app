@@ -135,17 +135,14 @@ mullvad-update = { workspace = true, features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 async-trait = { workspace = true }
-ctrlc = { workspace = true }
 hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
-ctrlc = { workspace = true, features = ["termination"] }
 talpid-dbus.workspace = true
 tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
-ctrlc = { workspace = true, features = ["termination"] }
 notify = "8.0.0"
 objc2-foundation = { workspace = true, features = ["NSProcessInfo", "NSString", "NSURL"] }
 objc2-service-management = { workspace = true, features = ["SMAppService", "objc2"] }
@@ -158,7 +155,6 @@ mullvad-update.workspace = true
 nix = { workspace = true, features = ["signal", "user"] }
 
 [target."cfg(windows)".dependencies]
-ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows.workspace = true
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
