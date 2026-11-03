@@ -2476,6 +2476,18 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr ""
 
+#. Label for a filter chip explaining that the user is selecting
+#. an entry location
+msgctxt "select-location-view"
+msgid "Entry"
+msgstr ""
+
+#. Label for a filter chip explaining that the user is selecting
+#. an exit location
+msgctxt "select-location-view"
+msgid "Exit"
+msgstr ""
+
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
