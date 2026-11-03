@@ -9,7 +9,7 @@ use talpid_types::{
 
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
-use winfw::CleanupPolicy;
+use talpid_winfw::CleanupPolicy;
 
 mod hyperv;
 
@@ -73,7 +73,7 @@ pub enum Error {
 /// The Windows implementation for the firewall.
 pub struct Firewall {
     /// The firewall module.
-    manager: Option<winfw::Manager>,
+    manager: Option<talpid_winfw::Manager>,
     /// If firewall rules should even if firewall module is shut down or dies.
     ///
     /// This should only very cautiously be turned off.
@@ -90,7 +90,7 @@ impl Firewall {
     }
 
     pub fn new() -> Result<Self, Error> {
-        let manager = winfw::Manager::new(TRANSACTION_TIMEOUT)
+        let manager = talpid_winfw::Manager::new(TRANSACTION_TIMEOUT)
             .map_err(|error| map_init_error(error, "initialize"))?;
         log::trace!("Successfully initialized windows firewall module");
         Ok(Firewall::with_manager(manager))
@@ -100,9 +100,9 @@ impl Firewall {
         allowed_endpoint: AllowedEndpoint,
         allow_lan: bool,
     ) -> Result<Self, Error> {
-        let manager = winfw::Manager::new_blocked(
+        let manager = talpid_winfw::Manager::new_blocked(
             TRANSACTION_TIMEOUT,
-            &winfw::Settings::new(allow_lan),
+            &talpid_winfw::Settings::new(allow_lan),
             Some(&to_allowed_endpoint(&allowed_endpoint)),
         )
         .map_err(|error| map_init_error(error, "initialize to a blocking state"))?;
@@ -116,14 +116,14 @@ impl Firewall {
         Ok(Firewall::with_manager(manager))
     }
 
-    fn with_manager(manager: winfw::Manager) -> Self {
+    fn with_manager(manager: talpid_winfw::Manager) -> Self {
         Self {
             manager: Some(manager),
             persist: true,
         }
     }
 
-    fn manager(&mut self) -> &mut winfw::Manager {
+    fn manager(&mut self) -> &mut talpid_winfw::Manager {
         self.manager
             .as_mut()
             .expect("the manager is only taken when dropping the firewall")
@@ -146,7 +146,7 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let cfg = &winfw::Settings::new(allow_lan);
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
                 self.set_connecting_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -163,7 +163,7 @@ impl Firewall {
                 allow_lan,
                 dns_config,
             } => {
-                let cfg = &winfw::Settings::new(allow_lan);
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
                 self.set_connected_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -176,7 +176,7 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
             } => {
-                let cfg = &winfw::Settings::new(allow_lan);
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
                 self.set_blocked_state(cfg, allowed_endpoint)
             }
             // Windows doesn't need to change any existing firewall rules here. Disconnecting state is purely for the Hyper-V blocking which is done later.
@@ -218,7 +218,7 @@ impl Firewall {
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &winfw::Settings,
+        winfw_settings: &talpid_winfw::Settings,
         tunnel_metadata: Option<&TunnelMetadata>,
         allowed_endpoint: AllowedEndpoint,
         allowed_tunnel_traffic: &AllowedTunnelTraffic,
@@ -226,7 +226,7 @@ impl Firewall {
         log::trace!("Applying 'connecting' firewall policy");
         let (relays, tunnel_clients) =
             to_relays(peer_endpoints).map_err(Error::ApplyingConnectingPolicy)?;
-        let tunnel = winfw::TunnelParameters {
+        let tunnel = talpid_winfw::TunnelParameters {
             alias: tunnel_metadata.map(|metadata| metadata.interface.clone()),
             exit_ip: exit_endpoint_ip,
             clients: tunnel_clients,
@@ -247,14 +247,14 @@ impl Firewall {
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &winfw::Settings,
+        winfw_settings: &talpid_winfw::Settings,
         tunnel_metadata: &TunnelMetadata,
         dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connected' firewall policy");
         let (relays, tunnel_clients) =
             to_relays(peer_endpoints).map_err(Error::ApplyingConnectedPolicy)?;
-        let tunnel = winfw::TunnelParameters {
+        let tunnel = talpid_winfw::TunnelParameters {
             alias: Some(tunnel_metadata.interface.clone()),
             exit_ip: exit_endpoint_ip,
             clients: tunnel_clients,
@@ -274,7 +274,7 @@ impl Firewall {
 
     fn set_blocked_state(
         &mut self,
-        winfw_settings: &winfw::Settings,
+        winfw_settings: &talpid_winfw::Settings,
         allowed_endpoint: Option<AllowedEndpoint>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
@@ -337,19 +337,21 @@ fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
     })
 }
 
-/// The endpoint allowed outside the tunnel, in the `winfw` crate's form.
-fn to_allowed_endpoint(endpoint: &AllowedEndpoint) -> winfw::AllowedEndpoint {
-    winfw::AllowedEndpoint {
+/// The endpoint allowed outside the tunnel, as the `talpid_winfw` type.
+fn to_allowed_endpoint(endpoint: &AllowedEndpoint) -> talpid_winfw::AllowedEndpoint {
+    talpid_winfw::AllowedEndpoint {
         clients: endpoint.clients.to_vec(),
         endpoint: to_relay_endpoint(&endpoint.endpoint),
     }
 }
 
-/// Convert the peer endpoints into relays, requiring they allow the same
-/// clients, like the previous FFI layer did.
+/// Convert peer endpoints into `talpid_winfw` type relays.
 fn to_relays(
     peer_endpoints: &[AllowedEndpoint],
-) -> Result<(Vec<winfw::RelayEndpoint>, Vec<PathBuf>), talpid_types::tunnel::FirewallPolicyError> {
+) -> Result<
+    (Vec<talpid_winfw::RelayEndpoint>, Vec<PathBuf>),
+    talpid_types::tunnel::FirewallPolicyError,
+> {
     let mut relays = Vec::with_capacity(peer_endpoints.len());
     let mut tunnel_clients: Option<&[PathBuf]> = None;
 
@@ -376,31 +378,32 @@ fn to_relays(
     Ok((relays, clients))
 }
 
-fn to_relay_endpoint(endpoint: &Endpoint) -> winfw::RelayEndpoint {
-    winfw::RelayEndpoint {
+fn to_relay_endpoint(endpoint: &Endpoint) -> talpid_winfw::RelayEndpoint {
+    talpid_winfw::RelayEndpoint {
         ip: endpoint.address.ip(),
         port: endpoint.address.port(),
         protocol: match endpoint.protocol {
-            TransportProtocol::Tcp => winfw::Protocol::Tcp,
-            TransportProtocol::Udp => winfw::Protocol::Udp,
+            TransportProtocol::Tcp => talpid_winfw::Protocol::Tcp,
+            TransportProtocol::Udp => talpid_winfw::Protocol::Udp,
         },
     }
 }
 
-fn to_allowed_tunnel_traffic(traffic: &AllowedTunnelTraffic) -> winfw::AllowedTunnelTraffic {
+fn to_allowed_tunnel_traffic(traffic: &AllowedTunnelTraffic) -> talpid_winfw::AllowedTunnelTraffic {
     match traffic {
-        AllowedTunnelTraffic::None => winfw::AllowedTunnelTraffic::None,
-        AllowedTunnelTraffic::All => winfw::AllowedTunnelTraffic::All,
+        AllowedTunnelTraffic::None => talpid_winfw::AllowedTunnelTraffic::None,
+        AllowedTunnelTraffic::All => talpid_winfw::AllowedTunnelTraffic::All,
         AllowedTunnelTraffic::One(endpoint) => {
-            winfw::AllowedTunnelTraffic::One(to_relay_endpoint(endpoint))
+            talpid_winfw::AllowedTunnelTraffic::One(to_relay_endpoint(endpoint))
         }
-        AllowedTunnelTraffic::Two(first, second) => {
-            winfw::AllowedTunnelTraffic::Two(to_relay_endpoint(first), to_relay_endpoint(second))
-        }
+        AllowedTunnelTraffic::Two(first, second) => talpid_winfw::AllowedTunnelTraffic::Two(
+            to_relay_endpoint(first),
+            to_relay_endpoint(second),
+        ),
     }
 }
 
-fn map_init_error(error: winfw::Error, action: &str) -> Error {
+fn map_init_error(error: talpid_winfw::Error, action: &str) -> Error {
     log::error!(
         "{}",
         error.display_chain_with_msg(&format!("Failed to {action} the firewall module"))
@@ -410,15 +413,15 @@ fn map_init_error(error: winfw::Error, action: &str) -> Error {
 
 fn map_apply_error(
     action: &str,
-) -> impl Fn(winfw::ApplyError) -> talpid_types::tunnel::FirewallPolicyError {
+) -> impl Fn(talpid_winfw::ApplyError) -> talpid_types::tunnel::FirewallPolicyError {
     move |error| {
         let action = format!("Failed to {action} the firewall");
         match error {
-            winfw::ApplyError::Generic(error) => {
+            talpid_winfw::ApplyError::Generic(error) => {
                 log::error!("{}", error.display_chain_with_msg(&action));
                 talpid_types::tunnel::FirewallPolicyError::Generic
             }
-            winfw::ApplyError::LockTimeout(error) => {
+            talpid_winfw::ApplyError::LockTimeout(error) => {
                 log::warn!(
                     "{}",
                     error.display_chain_with_msg(&format!(

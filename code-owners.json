@@ -30,7 +30,6 @@
     "test/**",
     "tunnel-obfuscation/**",
     "windows-installer/**",
-    "winfw/**",
     "typos.toml",
     ".github/workflows/typos.yml",
     ".github/workflows/desktop-*"
