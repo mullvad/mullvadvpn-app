@@ -68,6 +68,19 @@ impl FwContext {
         transaction.commit()
     }
 
+    /// Remove every firewall-owned object, not just the current policy, and close the
+    /// session.
+    ///
+    /// # Blocking
+    ///
+    /// Waits for the WFP transaction lock for up to the timeout the context was created
+    /// with, and then as long as the filter engine needs to remove the objects.
+    pub fn purge(mut self) -> io::Result<()> {
+        let transaction = Transaction::new(&mut self.engine)?;
+        objects::purge_all(&transaction)?;
+        transaction.commit()
+    }
+
     pub fn active_policy(&self) -> ActivePolicy {
         self.active_policy
     }
