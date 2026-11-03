@@ -144,6 +144,7 @@ system-configuration = "0.7.0"
 talpid-dbus = { path = "./talpid-dbus", default-features = false, features = ["libdbus"] }
 talpid-error = { path = "./talpid-error" }
 talpid-logging = { path = "./talpid-logging" }
+talpid-winfw = { path = "./talpid-winfw" }
 tempfile = "3.27.0"
 thiserror = "2.0"
 tipsy = "0.7.0"
