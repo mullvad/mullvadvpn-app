@@ -23,7 +23,7 @@ fn os_version() -> String {
     get_prop("ro.build.version.release").unwrap_or_else(|| "N/A".to_owned())
 }
 
-pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+pub async fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     let mut metadata = BTreeMap::new();
     metadata.insert(
         "abi".to_owned(),
