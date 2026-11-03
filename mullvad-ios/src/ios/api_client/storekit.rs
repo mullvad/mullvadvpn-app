@@ -4,7 +4,7 @@ use mullvad_api::AccountsProxy;
 
 use crate::{
     api_client::{ApiContext, ApiContextError},
-    type_bridges::TokioBridge,
+    tokio_bridge::TokioBridge,
 };
 
 use super::{do_request, response::ApiResponse, retry_strategy::RetryStrategy};

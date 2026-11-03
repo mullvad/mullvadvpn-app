@@ -3,7 +3,7 @@ use super::{
 };
 use crate::{
     api_client::{ApiContext, ApiContextError},
-    type_bridges::TokioBridge,
+    tokio_bridge::TokioBridge,
 };
 use mullvad_api::DevicesProxy;
 use std::sync::Arc;
