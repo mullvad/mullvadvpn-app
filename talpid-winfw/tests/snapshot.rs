@@ -18,10 +18,8 @@ use std::net::IpAddr;
 use common::{
     Firewall, allowed_endpoint, assert_snapshot, endpoint, run_test, run_test_uninitialized,
 };
-use talpid_winfw::{
-    ActivePolicy, AllowedTunnelTraffic, ApplyError, CleanupPolicy, Protocol, RelayEndpoint,
-    Settings, TunnelParameters,
-};
+use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
+use talpid_winfw::{ActivePolicy, ApplyError, CleanupPolicy, Settings, TunnelParameters};
 
 /// Client processes that exist on every Windows installation, used to exercise
 /// the per-application firewall rules. The full paths are passed to the firewall,
@@ -30,16 +28,18 @@ const CLIENT_SVCHOST: &str = r"C:\Windows\System32\svchost.exe";
 const CLIENT_CMD: &str = r"C:\Windows\System32\cmd.exe";
 
 /// A relay over WireGuard's typical UDP port.
-const RELAY_V4_UDP: (&str, u16, Protocol) = ("185.65.134.73", 51820, Protocol::Udp);
+const RELAY_V4_UDP: (&str, u16, TransportProtocol) =
+    ("185.65.134.73", 51820, TransportProtocol::Udp);
 /// A relay reached over TCP.
-const RELAY_V4_TCP: (&str, u16, Protocol) = ("45.83.220.2", 443, Protocol::Tcp);
+const RELAY_V4_TCP: (&str, u16, TransportProtocol) = ("45.83.220.2", 443, TransportProtocol::Tcp);
 /// An IPv6 relay over UDP.
-const RELAY_V6_UDP: (&str, u16, Protocol) = ("2a03:1b20:1:b::4", 51820, Protocol::Udp);
+const RELAY_V6_UDP: (&str, u16, TransportProtocol) =
+    ("2a03:1b20:1:b::4", 51820, TransportProtocol::Udp);
 /// A relay that serves WireGuard over the DNS port, which makes the firewall
 /// install its endpoint rule in the DNS sublayer instead of the baseline one.
-const RELAY_V4_DNS: (&str, u16, Protocol) = ("194.242.11.20", 53, Protocol::Udp);
+const RELAY_V4_DNS: (&str, u16, TransportProtocol) = ("194.242.11.20", 53, TransportProtocol::Udp);
 
-fn relay((ip, port, protocol): (&str, u16, Protocol)) -> RelayEndpoint {
+fn relay((ip, port, protocol): (&str, u16, TransportProtocol)) -> Endpoint {
     endpoint(ip, port, protocol)
 }
 
@@ -50,14 +50,28 @@ fn no_dhcp_settings(permit_lan: bool) -> Settings {
     }
 }
 
-fn tunnel(
+fn connecting_tunnel(
     alias: Option<&str>,
     exit_ip: Option<&str>,
     clients: &[&str],
     allowed_tunnel_traffic: AllowedTunnelTraffic,
-) -> TunnelParameters {
+) -> TunnelParameters<Option<String>> {
     TunnelParameters {
         alias: alias.map(str::to_owned),
+        exit_ip: exit_ip.map(|ip| ip.parse().expect("valid IP")),
+        clients: clients.iter().map(Into::into).collect(),
+        allowed_tunnel_traffic,
+    }
+}
+
+fn connected_tunnel(
+    alias: &str,
+    exit_ip: Option<&str>,
+    clients: &[&str],
+    allowed_tunnel_traffic: AllowedTunnelTraffic,
+) -> TunnelParameters<String> {
+    TunnelParameters {
+        alias: alias.to_owned(),
         exit_ip: exit_ip.map(|ip| ip.parse().expect("valid IP")),
         clients: clients.iter().map(Into::into).collect(),
         allowed_tunnel_traffic,
@@ -72,7 +86,7 @@ fn ips(ips: &[&str]) -> Vec<IpAddr> {
 fn apply_connected(
     fw: &mut Firewall,
     settings: &Settings,
-    relays: &[RelayEndpoint],
+    relays: &[Endpoint],
     exit_ip: Option<&str>,
     clients: &[&str],
     tunnel_dns_servers: &[&str],
@@ -83,7 +97,7 @@ fn apply_connected(
         .apply_policy_connected(
             settings,
             relays,
-            &tunnel(Some(&alias), exit_ip, clients, AllowedTunnelTraffic::All),
+            &connected_tunnel(&alias, exit_ip, clients, AllowedTunnelTraffic::All),
             &ips(tunnel_dns_servers),
             &ips(non_tunnel_dns_servers),
         )
@@ -131,7 +145,7 @@ fn blocked_policy() {
                 Some(&allowed_endpoint(
                     "193.138.218.74",
                     443,
-                    Protocol::Tcp,
+                    TransportProtocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             )
@@ -144,7 +158,7 @@ fn blocked_policy() {
                 Some(&allowed_endpoint(
                     "193.138.218.74",
                     443,
-                    Protocol::Tcp,
+                    TransportProtocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             )
@@ -154,7 +168,12 @@ fn blocked_policy() {
         fw.manager()
             .apply_policy_blocked(
                 &Settings::new(false),
-                Some(&allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[])),
+                Some(&allowed_endpoint(
+                    "193.138.218.74",
+                    443,
+                    TransportProtocol::Tcp,
+                    &[],
+                )),
             )
             .expect("Failed to apply the blocked policy");
         assert_snapshot("blocked-allowed-endpoint-no-clients");
@@ -165,7 +184,7 @@ fn blocked_policy() {
                 Some(&allowed_endpoint(
                     "2a03:1b20:1:d::42",
                     443,
-                    Protocol::Tcp,
+                    TransportProtocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             )
@@ -178,7 +197,7 @@ fn blocked_policy() {
                 Some(&allowed_endpoint(
                     "194.242.11.20",
                     53,
-                    Protocol::Udp,
+                    TransportProtocol::Udp,
                     &[CLIENT_CMD],
                 )),
             )
@@ -211,17 +230,21 @@ fn blocked_policy() {
 fn connecting_policy() {
     run_test(|fw| {
         let alias = common::tunnel_alias();
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
-        let allowed_dns_port =
-            allowed_endpoint("194.242.11.20", 53, Protocol::Udp, &[CLIENT_SVCHOST]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, TransportProtocol::Tcp, &[]);
+        let allowed_dns_port = allowed_endpoint(
+            "194.242.11.20",
+            53,
+            TransportProtocol::Udp,
+            &[CLIENT_SVCHOST],
+        );
         let relays = [
             relay(RELAY_V4_UDP),
             relay(RELAY_V4_TCP),
             relay(RELAY_V6_UDP),
         ];
         let tunnel_endpoints = (
-            endpoint("10.64.0.1", 51820, Protocol::Udp),
-            endpoint("10.65.0.1", 51820, Protocol::Udp),
+            endpoint("10.64.0.1", 51820, TransportProtocol::Udp),
+            endpoint("10.65.0.1", 51820, TransportProtocol::Udp),
         );
 
         // The bare minimum: one relay, no restrictions lifted.
@@ -229,7 +252,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -241,7 +264,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -254,7 +277,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST, CLIENT_CMD],
@@ -270,11 +293,11 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST],
-                    AllowedTunnelTraffic::One(tunnel_endpoints.0.clone()),
+                    AllowedTunnelTraffic::One(tunnel_endpoints.0),
                 ),
                 &allowed_all,
             )
@@ -286,14 +309,11 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(
+                &connecting_tunnel(
                     Some(&alias),
                     Some("2a03:1b20:1:b::5"),
                     &[CLIENT_SVCHOST],
-                    AllowedTunnelTraffic::Two(
-                        tunnel_endpoints.0.clone(),
-                        tunnel_endpoints.1.clone(),
-                    ),
+                    AllowedTunnelTraffic::Two(tunnel_endpoints.0, tunnel_endpoints.1),
                 ),
                 &allowed_all,
             )
@@ -305,14 +325,11 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(
+                &connecting_tunnel(
                     None,
                     Some("45.83.220.3"),
                     &[CLIENT_SVCHOST],
-                    AllowedTunnelTraffic::Two(
-                        tunnel_endpoints.0.clone(),
-                        tunnel_endpoints.1.clone(),
-                    ),
+                    AllowedTunnelTraffic::Two(tunnel_endpoints.0, tunnel_endpoints.1),
                 ),
                 &allowed_all,
             )
@@ -324,7 +341,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_DNS)],
-                &tunnel(None, None, &[CLIENT_SVCHOST], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[CLIENT_SVCHOST], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -335,7 +352,7 @@ fn connecting_policy() {
             .apply_policy_connecting(
                 &Settings::new(false),
                 &[relay(RELAY_V4_UDP)],
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_dns_port,
             )
             .expect("Failed to apply the connecting policy");
@@ -435,7 +452,7 @@ fn connected_policy() {
 fn reset_from_every_policy() {
     run_test(|fw| {
         let alias = common::tunnel_alias();
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, TransportProtocol::Tcp, &[]);
         let relays = [relay(RELAY_V4_UDP)];
 
         fw.manager()
@@ -449,7 +466,7 @@ fn reset_from_every_policy() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
+                &connecting_tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -510,7 +527,7 @@ fn initialize_blocked_states() {
                 Some(allowed_endpoint(
                     "193.138.218.74",
                     443,
-                    Protocol::Tcp,
+                    TransportProtocol::Tcp,
                     &[CLIENT_SVCHOST],
                 )),
             ),
@@ -536,7 +553,12 @@ fn initialize_blocked_states() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn persistent_blocking() {
     run_test_uninitialized(|fw| {
-        let allowed = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[CLIENT_SVCHOST]);
+        let allowed = allowed_endpoint(
+            "193.138.218.74",
+            443,
+            TransportProtocol::Tcp,
+            &[CLIENT_SVCHOST],
+        );
 
         // Only the persistent and boot-time filters remain. Neither the LAN
         // exceptions nor the allowed endpoint carry over.
@@ -569,7 +591,7 @@ fn persistent_blocking() {
 fn policy_transitions() {
     run_test(|fw| {
         let alias = common::tunnel_alias();
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, TransportProtocol::Tcp, &[]);
         let relays = [relay(RELAY_V4_UDP)];
 
         fw.manager()
@@ -581,7 +603,7 @@ fn policy_transitions() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
+                &connecting_tunnel(Some(&alias), None, &[], AllowedTunnelTraffic::All),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -619,7 +641,7 @@ fn policy_transitions() {
             .apply_policy_connecting(
                 &Settings::new(true),
                 &relays,
-                &tunnel(None, None, &[], AllowedTunnelTraffic::None),
+                &connecting_tunnel(None, None, &[], AllowedTunnelTraffic::None),
                 &allowed_all,
             )
             .expect("Failed to apply the connecting policy");
@@ -634,7 +656,7 @@ fn policy_transitions() {
 #[ignore = "replaces the system's Mullvad WFP objects; run as administrator with --ignored"]
 fn failed_apply_leaves_state_untouched() {
     run_test(|fw| {
-        let allowed_all = allowed_endpoint("193.138.218.74", 443, Protocol::Tcp, &[]);
+        let allowed_all = allowed_endpoint("193.138.218.74", 443, TransportProtocol::Tcp, &[]);
         let relays = [relay(RELAY_V4_UDP)];
 
         fw.manager()
@@ -646,7 +668,7 @@ fn failed_apply_leaves_state_untouched() {
         let result = fw.manager().apply_policy_connecting(
             &Settings::new(true),
             &relays,
-            &tunnel(None, Some(RELAY_V4_UDP.0), &[], AllowedTunnelTraffic::None),
+            &connecting_tunnel(None, Some(RELAY_V4_UDP.0), &[], AllowedTunnelTraffic::None),
             &allowed_all,
         );
         assert!(matches!(result, Err(ApplyError::Generic(_))));
@@ -655,7 +677,7 @@ fn failed_apply_leaves_state_untouched() {
         let result = fw.manager().apply_policy_connecting(
             &Settings::new(true),
             &relays,
-            &tunnel(
+            &connecting_tunnel(
                 Some("Nonexistent-Adapter-42"),
                 None,
                 &[],
