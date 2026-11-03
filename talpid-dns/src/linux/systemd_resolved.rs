@@ -7,10 +7,10 @@ use std::path::{Path, PathBuf};
 
 use log::{trace, warn};
 use safelog::Sensitive;
-use talpid_dbus::systemd_resolved::dbus_rs::{AsyncHandle, SystemdResolved as DbusInterface};
+use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
 use talpid_error::ErrorExt;
 
-pub(crate) use talpid_dbus::systemd_resolved::dbus_rs::Error as SystemdDbusError;
+pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
 
 use crate::imp::interface::{IfaceIndexLookupError, iface_index};
 
@@ -35,8 +35,8 @@ pub struct SystemdResolved {
 }
 
 impl SystemdResolved {
-    pub fn new() -> Result<Self> {
-        let dbus_interface = DbusInterface::new()?.async_handle();
+    pub async fn new() -> Result<Self> {
+        let dbus_interface = DbusInterface::new().await?.async_handle();
 
         let systemd_resolved = SystemdResolved {
             dbus_interface,

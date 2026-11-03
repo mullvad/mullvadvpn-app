@@ -1,6 +1,6 @@
 use std::net::IpAddr;
 pub use talpid_dbus::network_manager::Error;
-use talpid_dbus::network_manager::{self, DeviceConfig, NetworkManager as DBus};
+use talpid_dbus::network_manager::{self, DeviceConfig, NetworkManagerConnection as DBus};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -12,9 +12,9 @@ pub struct NetworkManager {
 }
 
 impl NetworkManager {
-    pub fn new() -> Result<Self> {
-        let connection = DBus::new()?;
-        connection.ensure_can_be_used_to_manage_dns()?;
+    pub async fn new() -> Result<Self> {
+        let connection = DBus::new().await?;
+        connection.ensure_can_be_used_to_manage_dns().await?;
         let manager = NetworkManager {
             connection,
             device: None,
@@ -23,14 +23,14 @@ impl NetworkManager {
         Ok(manager)
     }
 
-    pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let old_settings = self.connection.set_dns(interface_name, servers)?;
+    pub async fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
+        let old_settings = self.connection.set_dns(interface_name, servers).await?;
         self.settings_backup = Some(old_settings);
         self.device = Some(interface_name.to_string());
         Ok(())
     }
 
-    pub fn reset(&mut self) -> Result<()> {
+    pub async fn reset(&mut self) -> Result<()> {
         let Some(settings_backup) = self.settings_backup.take() else {
             log::trace!("No DNS settings to reset");
             return Ok(());
@@ -40,7 +40,7 @@ impl NetworkManager {
             log::trace!("No NetworkManager device set");
             return Ok(());
         };
-        let device_path = match self.connection.fetch_device(&device) {
+        let device_path = match self.connection.fetch_device(&device).await {
             Ok(device_path) => device_path,
             Err(Error::DeviceNotFound) => {
                 log::debug!("NetworkManager device ({device}) does not exist");
@@ -49,9 +49,14 @@ impl NetworkManager {
             Err(error) => return Err(error),
         };
 
-        if network_manager::device_is_ready(self.connection.get_device_state(&device_path)?) {
+        if network_manager::device_is_ready(
             self.connection
-                .reapply_settings(&device_path, settings_backup, 0u64)?;
+                .get_device_state(device_path.clone())
+                .await?,
+        ) {
+            self.connection
+                .reapply(device_path, settings_backup)
+                .await?;
         }
         Ok(())
     }

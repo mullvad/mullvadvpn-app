@@ -71,13 +71,18 @@ fn parse_lsb_release() -> Option<String> {
         .filter(|output| !output.is_empty())
 }
 
-pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+pub async fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     #[cfg(not(feature = "network-manager"))]
     let version_cmds = [kernel_version, wg_version, systemd_version];
     #[cfg(feature = "network-manager")]
-    let version_cmds = [kernel_version, nm_version, wg_version, systemd_version];
+    let version_cmds = [
+        kernel_version(),
+        nm_version().await,
+        wg_version(),
+        systemd_version(),
+    ];
 
-    version_cmds.into_iter().filter_map(|f| f())
+    version_cmds.into_iter().flatten()
 }
 
 /// `uname -r` outputs a single line containing only the kernel version:
@@ -90,9 +95,11 @@ fn kernel_version() -> Option<(String, String)> {
 /// NetworkManager's version is returned as a numeric version string
 /// > 1.26.0
 #[cfg(feature = "network-manager")]
-fn nm_version() -> Option<(String, String)> {
-    let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
-    Some(("nm".to_string(), nm.version_string().ok()?))
+async fn nm_version() -> Option<(String, String)> {
+    let nm = talpid_dbus::network_manager::NetworkManagerConnection::new()
+        .await
+        .ok()?;
+    Some(("nm".to_string(), nm.version_string().await.ok()?))
 }
 
 /// `/sys/module/wireguard/version` contains only a numeric version string
