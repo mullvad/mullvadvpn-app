@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     api_client::{ApiContext, ApiContextError},
-    type_bridges::TokioBridge,
+    tokio_bridge::TokioBridge,
 };
 
 use super::{do_request_with_empty_body, response::ApiResponse, retry_strategy::RetryStrategy};
