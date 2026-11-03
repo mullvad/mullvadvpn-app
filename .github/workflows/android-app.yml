@@ -68,7 +68,7 @@ on:
         required: true
         type: string
       android_build_runner:
-        description: 'Choose which runner to use'
+        description: 'Choose which runner to build on'
         required: true
         default: 'android-build'
         type: choice
@@ -99,7 +99,7 @@ on:
           - android-bender-05
           - android-bender-06
           - android-bender-07
-          - android-bender-08    
+          - android-bender-08
       clean:
         description: Clean before building.
         type: boolean
