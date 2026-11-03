@@ -17,6 +17,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
     private let accountsProxy: RESTAccountHandling
+    private var inAppPurhaseCoordinator: InAppPurchaseCoordinator?
 
     private var viewController: WelcomeViewController?
 
@@ -45,7 +46,11 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         )
 
         interactor.didAddMoreCredit = { [weak self] in
-            self?.showSetupAccountCompleted()
+            Task { @MainActor in
+                guard let self else { return }
+                self.inAppPurhaseCoordinator?.dismiss(animated: false)
+                self.showSetupAccountCompleted()
+            }
         }
 
         let controller = WelcomeViewController(interactor: interactor)
@@ -144,6 +149,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             accountNumber: accountNumber,
             paymentAction: .purchase
         )
+        inAppPurhaseCoordinator = coordinator
         coordinator.didFinish = { coordinator in
             coordinator.dismiss(animated: true)
         }
