@@ -2,18 +2,13 @@ use crate::{TunnelType, wireguard_kernel::nm_tunnel};
 
 use super::{super::stats::StatsMap, Config, Tunnel, TunnelError};
 use std::collections::HashMap;
-use talpid_dbus::{
-    dbus,
-    network_manager::{
-        DeviceConfig, Error as NetworkManagerError, NMDevice, NetworkManager, Variant, VariantMap,
-    },
+use talpid_dbus::network_manager::{
+    DeviceConfig, Error as NetworkManagerError, NMDevice, NetworkManagerConnection,
 };
+use talpid_error::ErrorExt;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Error while communicating over Dbus")]
-    Dbus(#[from] dbus::Error),
-
     #[error("NetworkManager error")]
     NetworkManager(#[from] NetworkManagerError),
 }
@@ -25,25 +20,49 @@ pub enum Error {
 pub type NetworkManagerTunnel = (NetworkManagerDevice, TunnelType);
 
 pub struct NetworkManagerDevice {
-    network_manager: NetworkManager,
-    network_manager_device: NMDevice,
+    network_manager: NetworkManagerConnection,
+    network_manager_device: Option<NMDevice>,
     interface: String,
+    handle: tokio::runtime::Handle,
 }
 
 impl NetworkManagerDevice {
-    pub fn dns(config: &Config, interface: String) -> std::result::Result<Self, nm_tunnel::Error> {
-        let network_manager = NetworkManager::new().map_err(Error::NetworkManager)?;
+    pub async fn dns(
+        config: &Config,
+        interface: String,
+    ) -> std::result::Result<Self, nm_tunnel::Error> {
+        let network_manager = NetworkManagerConnection::new()
+            .await
+            .map_err(Error::NetworkManager)?;
         let config_map = convert_config_to_dbus(config, interface.clone());
-        let network_manager_device = network_manager.create_network_device(&config_map)?;
+        let device = network_manager.create_network_device(config_map).await?;
         Ok(NetworkManagerDevice {
             network_manager,
-            network_manager_device,
+            network_manager_device: Some(device),
             interface,
+            handle: tokio::runtime::Handle::current(),
         })
     }
 
     pub fn interface_name(&self) -> &str {
         &self.interface
+    }
+
+    fn remove_associated_network_device(&mut self) {
+        let Some(device) = self.network_manager_device.take() else {
+            return;
+        };
+        let nm = &self.network_manager;
+        if let Err(err) = self.handle.block_on(nm.remove_network_device(&device)) {
+            let err_msg = err.display_chain_with_msg("Failed to remove NetworkManager device");
+            log::error!("{err_msg}");
+        }
+    }
+}
+
+impl Drop for NetworkManagerDevice {
+    fn drop(&mut self) {
+        self.remove_associated_network_device();
     }
 }
 
@@ -54,14 +73,9 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError> {
-        if let Err(err) = self
-            .0
-            .network_manager
-            .remove_network_device(self.0.network_manager_device)
-        {
-            log::error!("Failed to remove NetworkManager device: {}", err);
-        }
-        Box::new(self.1).stop()
+        let (mut nm, tunnel) = (self.0, self.1);
+        nm.remove_associated_network_device();
+        Box::new(tunnel).stop()
     }
 
     async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
@@ -70,21 +84,28 @@ impl Tunnel for NetworkManagerTunnel {
 }
 
 fn convert_config_to_dbus(config: &Config, interface: String) -> DeviceConfig {
-    let mut ipv6_config: VariantMap = HashMap::new();
-    let mut ipv4_config: VariantMap = HashMap::new();
-    let mut connection_config: VariantMap = HashMap::new();
+    use zbus::{Array, OwnedVariant, Str};
+    let mut ipv6_config = HashMap::new();
+    let mut ipv4_config = HashMap::new();
+    let mut connection_config = HashMap::new();
 
-    connection_config.insert("type".into(), Variant(Box::new("dummy".to_string())));
-    connection_config.insert("id".into(), Variant(Box::new(interface.clone())));
-    connection_config.insert("interface-name".into(), Variant(Box::new(interface)));
-    connection_config.insert("autoconnect".into(), Variant(Box::new(true)));
+    connection_config.insert("type".into(), OwnedVariant::from(Str::from_static("dummy")));
+    connection_config.insert(
+        "id".into(),
+        OwnedVariant::from(Str::from(interface.clone())),
+    );
+    connection_config.insert(
+        "interface-name".into(),
+        OwnedVariant::from(Str::from(interface)),
+    );
+    connection_config.insert("autoconnect".into(), OwnedVariant::from(true));
 
     let ipv4_addrs: Vec<_> = config
         .tunnel
         .addresses
         .iter()
         .filter(|ip| ip.is_ipv4())
-        .map(NetworkManager::convert_address_to_dbus)
+        .map(NetworkManagerConnection::convert_address_to_dbus)
         .collect();
 
     let ipv6_addrs: Vec<_> = config
@@ -92,22 +113,34 @@ fn convert_config_to_dbus(config: &Config, interface: String) -> DeviceConfig {
         .addresses
         .iter()
         .filter(|ip| ip.is_ipv6())
-        .map(NetworkManager::convert_address_to_dbus)
+        .map(NetworkManagerConnection::convert_address_to_dbus)
         .collect();
 
-    ipv4_config.insert("address-data".into(), Variant(Box::new(ipv4_addrs)));
-    ipv4_config.insert("ignore-auto-routes".into(), Variant(Box::new(true)));
-    ipv4_config.insert("ignore-auto-dns".into(), Variant(Box::new(true)));
-    ipv4_config.insert("may-fail".into(), Variant(Box::new(true)));
-    ipv4_config.insert("method".into(), Variant(Box::new("manual".to_string())));
-    ipv4_config.insert("never-default".into(), Variant(Box::new(true)));
+    ipv4_config.insert(
+        "address-data".into(),
+        OwnedVariant::try_from(Array::from(ipv4_addrs)).unwrap(),
+    );
+    ipv4_config.insert("ignore-auto-routes".into(), OwnedVariant::from(true));
+    ipv4_config.insert("ignore-auto-dns".into(), OwnedVariant::from(true));
+    ipv4_config.insert("may-fail".into(), OwnedVariant::from(true));
+    ipv4_config.insert(
+        "method".into(),
+        OwnedVariant::from(Str::from_static("manual")),
+    );
+    ipv4_config.insert("never-default".into(), OwnedVariant::from(true));
 
     if !ipv6_addrs.is_empty() {
-        ipv6_config.insert("method".into(), Variant(Box::new("manual".to_string())));
-        ipv6_config.insert("address-data".into(), Variant(Box::new(ipv6_addrs)));
-        ipv6_config.insert("ignore-auto-routes".into(), Variant(Box::new(true)));
-        ipv6_config.insert("ignore-auto-dns".into(), Variant(Box::new(true)));
-        ipv6_config.insert("may-fail".into(), Variant(Box::new(true)));
+        ipv6_config.insert(
+            "method".into(),
+            OwnedVariant::from(Str::from_static("manual")),
+        );
+        ipv6_config.insert(
+            "address-data".into(),
+            OwnedVariant::try_from(Array::from(ipv6_addrs)).unwrap(),
+        );
+        ipv6_config.insert("ignore-auto-routes".into(), OwnedVariant::from(true));
+        ipv6_config.insert("ignore-auto-dns".into(), OwnedVariant::from(true));
+        ipv6_config.insert("may-fail".into(), OwnedVariant::from(true));
     }
 
     let mut settings = HashMap::new();

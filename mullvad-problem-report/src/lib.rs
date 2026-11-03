@@ -124,13 +124,13 @@ pub struct ProblemReportCollector {
 
 impl ProblemReportCollector {
     /// Collect the problem report and writes it to the specified path
-    pub fn write_to_path(self, path: impl AsRef<Path>) -> Result<(), Error> {
-        self.write(open_output_file(path)?)
+    pub async fn write_to_path(self, path: impl AsRef<Path>) -> Result<(), Error> {
+        self.write(open_output_file(path)?).await
     }
 
     /// Collect the problem report and writes it to the specified output
-    pub fn write(self, output: WriteSource<impl Write>) -> Result<(), Error> {
-        let mut problem_report = ProblemReport::new(self.redact_custom_strings);
+    pub async fn write(self, output: WriteSource<impl Write>) -> Result<(), Error> {
+        let mut problem_report = ProblemReport::new(self.redact_custom_strings).await;
 
         let daemon_logs_dir = {
             #[cfg(target_os = "android")]
@@ -332,7 +332,10 @@ async fn send_problem_report_inner(
     cache_dir: &Path,
     endpoint: &ApiEndpoint,
 ) -> Result<(), Error> {
-    let metadata = ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
+    let metadata = match ProblemReport::parse_metadata(report_content) {
+        Some(metadata) => metadata,
+        None => metadata::collect().await,
+    };
     let api_runtime = mullvad_api::Runtime::with_cache(
         endpoint,
         cache_dir,
@@ -389,11 +392,11 @@ struct ProblemReport {
 impl ProblemReport {
     /// Creates a new problem report with system information. Logs can be added with `add_log`.
     /// Logs will have all strings in `redact_custom_strings` removed from them.
-    pub fn new(mut redact_custom_strings: Vec<String>) -> Self {
+    pub async fn new(mut redact_custom_strings: Vec<String>) -> Self {
         redact_custom_strings.retain(|redact| !redact.is_empty());
 
         ProblemReport {
-            metadata: metadata::collect(),
+            metadata: metadata::collect().await,
             logs: Vec::new(),
             log_paths: HashSet::new(),
             redact_custom_strings,
@@ -694,50 +697,50 @@ fn normalize_newlines(text: String) -> String {
 mod tests {
     use super::*;
 
-    #[test]
-    fn redacts_ipv4() {
-        assert_redacts("1.2.3.4");
-        assert_redacts("10.127.0.1");
-        assert_redacts("192.168.1.1");
-        assert_redacts("10.0.16.1");
-        assert_redacts("173.54.12.32");
-        assert_redacts("68.4.4.1");
+    #[tokio::test]
+    async fn redacts_ipv4() {
+        assert_redacts("1.2.3.4").await;
+        assert_redacts("10.127.0.1").await;
+        assert_redacts("192.168.1.1").await;
+        assert_redacts("10.0.16.1").await;
+        assert_redacts("173.54.12.32").await;
+        assert_redacts("68.4.4.1").await;
     }
 
-    #[test]
-    fn does_not_redact_localhost_ipv4() {
-        assert_does_not_redact("127.0.0.1");
+    #[tokio::test]
+    async fn does_not_redact_localhost_ipv4() {
+        assert_does_not_redact("127.0.0.1").await;
     }
 
-    #[test]
-    fn redacts_ipv6() {
-        assert_redacts("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        assert_redacts("2001:db8:85a3:0:0:8a2e:370:7334");
-        assert_redacts("2001:db8:85a3::8a2e:370:7334");
-        assert_redacts("2001:db8:0:0:0:0:2:1");
-        assert_redacts("2001:db8::2:1");
-        assert_redacts("2001:db8:0000:1:1:1:1:1");
-        assert_redacts("2001:db8:0:1:1:1:1:1");
-        assert_redacts("2001:db8:0:0:1:0:0:1");
-        assert_redacts("2001:db8::1:0:0:1");
-        assert_redacts("abcd:dead:beef::");
-        assert_redacts("abcd:dead:beef:1234::");
-        assert_redacts("::dead:beef:1234");
-        assert_redacts("0::0");
-        assert_redacts("0:0:0:0::1");
+    #[tokio::test]
+    async fn redacts_ipv6() {
+        assert_redacts("2001:0db8:85a3:0000:0000:8a2e:0370:7334").await;
+        assert_redacts("2001:db8:85a3:0:0:8a2e:370:7334").await;
+        assert_redacts("2001:db8:85a3::8a2e:370:7334").await;
+        assert_redacts("2001:db8:0:0:0:0:2:1").await;
+        assert_redacts("2001:db8::2:1").await;
+        assert_redacts("2001:db8:0000:1:1:1:1:1").await;
+        assert_redacts("2001:db8:0:1:1:1:1:1").await;
+        assert_redacts("2001:db8:0:0:1:0:0:1").await;
+        assert_redacts("2001:db8::1:0:0:1").await;
+        assert_redacts("abcd:dead:beef::").await;
+        assert_redacts("abcd:dead:beef:1234::").await;
+        assert_redacts("::dead:beef:1234").await;
+        assert_redacts("0::0").await;
+        assert_redacts("0:0:0:0::1").await;
     }
 
-    #[test]
-    fn doesnt_redact_not_ipv6() {
-        assert_does_not_redact("[talpid_core::firewall]");
+    #[tokio::test]
+    async fn doesnt_redact_not_ipv6() {
+        assert_does_not_redact("[talpid_core::firewall]").await;
     }
 
-    #[test]
-    fn redacts_uuid_v4() {
-        assert_redacts("1248e97e-134b-4820-92e1-abaf191c2840");
-        assert_redacts("6B29FC40-CA47-1067-B31D-00DD010662DA");
-        assert_redacts("123123ab-12ab-89cd-45ef-012345678901");
-        assert_redacts("{123123ab-12ab-89cd-45ef-012345678901}");
+    #[tokio::test]
+    async fn redacts_uuid_v4() {
+        assert_redacts("1248e97e-134b-4820-92e1-abaf191c2840").await;
+        assert_redacts("6B29FC40-CA47-1067-B31D-00DD010662DA").await;
+        assert_redacts("123123ab-12ab-89cd-45ef-012345678901").await;
+        assert_redacts("{123123ab-12ab-89cd-45ef-012345678901}").await;
     }
 
     #[test]
@@ -791,32 +794,32 @@ mod tests {
         assert_redacts_home_dir(home_dir, r"/Users/other-user");
     }
 
-    #[test]
-    fn doesnt_redact_not_uuid_v4() {
-        assert_does_not_redact("23123ab-12ab-89cd-45ef-012345678901");
-        assert_does_not_redact("GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG");
+    #[tokio::test]
+    async fn doesnt_redact_not_uuid_v4() {
+        assert_does_not_redact("23123ab-12ab-89cd-45ef-012345678901").await;
+        assert_does_not_redact("GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG").await;
     }
 
-    #[test]
-    fn does_not_redact_time() {
-        assert_does_not_redact("09:47:59");
+    #[tokio::test]
+    async fn does_not_redact_time() {
+        assert_does_not_redact("09:47:59").await;
     }
 
-    fn assert_redacts(input: &str) {
-        let report = ProblemReport::new(vec![]);
+    async fn assert_redacts(input: &str) {
+        let report = ProblemReport::new(vec![]).await;
         let actual = report.redact(&format!("pre {input} post"));
         assert_eq!("pre [REDACTED] post", actual);
     }
 
-    fn assert_does_not_redact(input: &str) {
-        let report = ProblemReport::new(vec![]);
+    async fn assert_does_not_redact(input: &str) {
+        let report = ProblemReport::new(vec![]).await;
         let res = report.redact(input);
         assert_eq!(input, res);
     }
 
-    #[test]
-    fn parse_metadata() {
-        let report = ProblemReport::new(Vec::new());
+    #[tokio::test]
+    async fn parse_metadata() {
+        let report = ProblemReport::new(Vec::new()).await;
         let mut report_data = Vec::new();
         report
             .write_to(&mut report_data)
@@ -826,7 +829,7 @@ mod tests {
 
         let parsed_metadata = ProblemReport::parse_metadata(report_string)
             .expect("Unable to parse metadata from report");
-        let expected_metadata = metadata::collect();
+        let expected_metadata = metadata::collect().await;
 
         assert_eq!(parsed_metadata.len(), expected_metadata.len());
         for (key, value) in &expected_metadata {
