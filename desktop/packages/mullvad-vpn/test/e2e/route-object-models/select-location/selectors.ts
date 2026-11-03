@@ -1,6 +1,7 @@
 import { type Locator, Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
+  clearSearchButton: () => page.getByRole('button').filter({ hasText: 'Clear search' }),
   entryInput: () =>
     page.getByPlaceholder('Search entry location or server').filter({ visible: true }),
   entryAutomaticButton: (country: string) =>

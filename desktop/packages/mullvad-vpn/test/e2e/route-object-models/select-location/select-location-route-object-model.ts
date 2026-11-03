@@ -53,6 +53,10 @@ export class SelectLocationRouteObjectModel {
     }
   }
 
+  getClearSearchButton() {
+    return this.selectors.clearSearchButton();
+  }
+
   getEntryInput() {
     return this.selectors.entryInput();
   }
