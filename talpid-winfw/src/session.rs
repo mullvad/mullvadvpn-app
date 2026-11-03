@@ -19,7 +19,7 @@ pub enum Record {
 }
 
 /// The records of one firewall session.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Recorder {
     records: Vec<Record>,
 }
@@ -36,29 +36,16 @@ impl Recorder {
         self.records.len()
     }
 
-    /// Take a copy of the records, for a transaction working set.
-    pub fn snapshot(&self) -> Self {
-        Self {
-            records: self.records.clone(),
-        }
-    }
-
-    /// Replace the records with those of a committed transaction.
-    pub fn adopt(&mut self, records: Recorder) {
-        self.records = records.records;
-    }
-
     /// Uninstall every object recorded after `checkpoint`, newest first, and
     /// forget them. Used to roll a session back to a checkpoint.
     ///
-    /// The deletions happen inside the given transaction: when it aborts,
-    /// the engine restores the objects and the working set must be discarded
-    /// by the caller.
+    /// The deletions happen inside the given transaction, which the engine
+    /// undoes if it aborts.
     pub fn revert_to(
-        &mut self,
+        mut self,
         checkpoint: usize,
         transaction: &Transaction<'_>,
-    ) -> io::Result<()> {
+    ) -> io::Result<Self> {
         while self.records.len() > checkpoint {
             let record = self.records.pop().expect("len checked above");
             match record {
@@ -74,6 +61,6 @@ impl Recorder {
             }
         }
 
-        Ok(())
+        Ok(self)
     }
 }
