@@ -8,6 +8,7 @@ use std::{
     path::PathBuf,
 };
 
+use ipnetwork::IpNetwork;
 use talpid_types::net::{
     ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, Endpoint, TransportProtocol,
 };
@@ -271,7 +272,7 @@ impl Rule {
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
 
-        let link_local = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0));
+        let link_local = Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0);
         let link_local_dhcp_multicast = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2));
         let site_local_dhcp_multicast = IpAddr::V6(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3));
 
@@ -286,7 +287,11 @@ impl Rule {
             .weight(class(7))
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
-            .condition(local_prefix_condition(link_local, 10))
+            .condition(
+                IpAddressConditionBuilder::local()
+                    .subnet_v6(link_local, 10)
+                    .build(),
+            )
             .condition(local_port_condition(ports::DHCP_V6_CLIENT_PORT))
             .condition(remote_ip_condition(link_local_dhcp_multicast))
             .condition(remote_ip_condition(site_local_dhcp_multicast))
@@ -305,9 +310,17 @@ impl Rule {
             .weight(class(7))
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
-            .condition(local_prefix_condition(link_local, 10))
+            .condition(
+                IpAddressConditionBuilder::local()
+                    .subnet_v6(link_local, 10)
+                    .build(),
+            )
             .condition(local_port_condition(ports::DHCP_V6_CLIENT_PORT))
-            .condition(remote_prefix_condition(link_local, 10))
+            .condition(
+                IpAddressConditionBuilder::remote()
+                    .subnet_v6(link_local, 10)
+                    .build(),
+            )
             .condition(remote_port_condition(ports::DHCP_V6_SERVER_PORT))
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -433,7 +446,11 @@ impl Rule {
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(local_port_condition(ports::DHCP_V4_SERVER_PORT))
-            .condition(local_ip_condition(IpAddr::V4(Ipv4Addr::BROADCAST)))
+            .condition(
+                IpAddressConditionBuilder::local()
+                    .host_v4(Ipv4Addr::BROADCAST)
+                    .build(),
+            )
             .condition(remote_port_condition(ports::DHCP_V4_CLIENT_PORT))
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -462,7 +479,7 @@ impl Rule {
         layer: Layer,
         name: &str,
         description: &str,
-        networks: impl Iterator<Item = (IpAddr, u8)>,
+        networks: &[IpNetwork],
     ) -> io::Result<()> {
         let mut builder = FilterBuilder::default()
             .guid(guid)
@@ -474,19 +491,8 @@ impl Rule {
             .weight(class(7))
             .action(ActionType::Permit);
 
-        for (ip, prefix) in networks {
-            builder = match ip {
-                IpAddr::V4(ip) => builder.condition(
-                    IpAddressConditionBuilder::remote()
-                        .subnet_v4(ip, prefix)
-                        .build(),
-                ),
-                IpAddr::V6(ip) => builder.condition(
-                    IpAddressConditionBuilder::remote()
-                        .subnet_v6(ip, prefix)
-                        .build(),
-                ),
-            };
+        for network in networks {
+            builder = builder.condition(remote_prefix_condition(network.ip(), network.prefix()));
         }
 
         let id = builder.add(cx.transaction)?;
@@ -495,73 +501,77 @@ impl Rule {
     }
 
     fn install_permit_lan(cx: &mut Cx<'_>) -> io::Result<()> {
-        // The LAN networks and multicast ranges of the platform, in order and
-        // split by family.
-        let (lan_v4, lan_v6) = split_networks(&ALLOWED_LAN_NETS);
-        let (multicast_v4, multicast_v6) = split_networks(&ALLOWED_LAN_MULTICAST_NETS);
+        let (lan_v4, lan_v6): (Vec<_>, Vec<_>) =
+            ALLOWED_LAN_NETS.into_iter().partition(IpNetwork::is_ipv4);
+        let (multicast_v4, multicast_v6): (Vec<_>, Vec<_>) = ALLOWED_LAN_MULTICAST_NETS
+            .into_iter()
+            .partition(IpNetwork::is_ipv4);
 
-        // #1 Permit outbound connections on the LAN.
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV4,
-            Layer::ConnectV4,
-            "Permit outbound connections on LAN (IPv4)",
-            "This filter is part of a rule that permits LAN traffic",
-            lan_v4.iter().copied(),
-        )?;
-
-        // #2 Permit outbound multicast on the LAN.
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV4,
-            Layer::ConnectV4,
-            "Permit outbound multicast on LAN (IPv4)",
-            "This filter is part of a rule that permits LAN traffic",
-            multicast_v4.iter().copied(),
-        )?;
-
-        // #3 Permit outbound connections on the LAN, IPv6.
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV6,
-            Layer::ConnectV6,
-            "Permit outbound connections on LAN (IPv6)",
-            "This filter is part of a rule that permits LAN traffic",
-            lan_v6.iter().copied(),
-        )?;
-
-        // #4 Permit outbound multicast on the LAN, IPv6.
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV6,
-            Layer::ConnectV6,
-            "Permit outbound multicast on LAN (IPv6)",
-            "This filter is part of a rule that permits LAN traffic",
-            multicast_v6.iter().copied(),
-        )?;
+        for (guid, layer, name, networks) in [
+            (
+                FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV4,
+                Layer::ConnectV4,
+                "Permit outbound connections on LAN (IPv4)",
+                lan_v4,
+            ),
+            (
+                FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV4,
+                Layer::ConnectV4,
+                "Permit outbound multicast on LAN (IPv4)",
+                multicast_v4,
+            ),
+            (
+                FILTER_BASELINE_PERMIT_LAN_OUTBOUND_IPV6,
+                Layer::ConnectV6,
+                "Permit outbound connections on LAN (IPv6)",
+                lan_v6,
+            ),
+            (
+                FILTER_BASELINE_PERMIT_LAN_OUTBOUND_MULTICAST_IPV6,
+                Layer::ConnectV6,
+                "Permit outbound multicast on LAN (IPv6)",
+                multicast_v6,
+            ),
+        ] {
+            Self::add_lan_traffic_filter(
+                cx,
+                guid,
+                layer,
+                name,
+                "This filter is part of a rule that permits LAN traffic",
+                &networks,
+            )?;
+        }
         Ok(())
     }
 
     fn install_permit_lan_service(cx: &mut Cx<'_>) -> io::Result<()> {
-        let (lan_v4, lan_v6) = split_networks(&ALLOWED_LAN_NETS);
+        let (lan_v4, lan_v6): (Vec<_>, Vec<_>) =
+            ALLOWED_LAN_NETS.into_iter().partition(IpNetwork::is_ipv4);
 
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV4,
-            Layer::AcceptV4,
-            "Permit inbound connections on LAN (IPv4)",
-            "This filter is part of a rule that permits hosting services in a LAN environment",
-            lan_v4.iter().copied(),
-        )?;
-
-        Self::add_lan_traffic_filter(
-            cx,
-            FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV6,
-            Layer::AcceptV6,
-            "Permit inbound connections on LAN (IPv6)",
-            "This filter is part of a rule that permits hosting services in a LAN environment",
-            lan_v6.iter().copied(),
-        )?;
+        for (guid, layer, name, networks) in [
+            (
+                FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV4,
+                Layer::AcceptV4,
+                "Permit inbound connections on LAN (IPv4)",
+                lan_v4,
+            ),
+            (
+                FILTER_BASELINE_PERMIT_LAN_SERVICE_INBOUND_IPV6,
+                Layer::AcceptV6,
+                "Permit inbound connections on LAN (IPv6)",
+                lan_v6,
+            ),
+        ] {
+            Self::add_lan_traffic_filter(
+                cx,
+                guid,
+                layer,
+                name,
+                "This filter is part of a rule that permits hosting services in a LAN environment",
+                &networks,
+            )?;
+        }
         Ok(())
     }
 
@@ -715,7 +725,7 @@ impl Rule {
             .sublayer(SUBLAYER_BASELINE)
             .weight(class(15))
             .action(ActionType::Permit)
-            .condition(interface_alias_condition(alias)?)
+            .condition(InterfaceConditionBuilder::local().alias(alias)?.build())
             .condition(remote_ip_condition(exit_ip));
         let id = app_id_conditions(builder, clients)?.add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -731,7 +741,7 @@ impl Rule {
             .sublayer(SUBLAYER_BASELINE)
             .weight(class(15))
             .action(ActionType::Block)
-            .condition(interface_alias_condition(alias)?)
+            .condition(InterfaceConditionBuilder::local().alias(alias)?.build())
             .condition(remote_ip_condition(exit_ip))
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -774,7 +784,7 @@ impl Rule {
                 .sublayer(SUBLAYER_BASELINE)
                 .weight(class(7))
                 .action(ActionType::Permit)
-                .condition(interface_alias_condition(alias)?);
+                .condition(InterfaceConditionBuilder::local().alias(alias)?.build());
 
             if let Some(endpoint) = endpoint {
                 builder = builder
@@ -860,55 +870,48 @@ impl Rule {
     }
 
     fn install_dns_permit_tunnel(cx: &mut Cx<'_>, alias: &str, hosts: &[IpAddr]) -> io::Result<()> {
-        let (hosts_v4, hosts_v6) = split_ips(hosts);
+        let (hosts_v4, hosts_v6): (Vec<_>, Vec<_>) =
+            hosts.iter().copied().partition(IpAddr::is_ipv4);
 
-        if !hosts_v4.is_empty() {
+        for (guid, layer, name, hosts) in [
+            (
+                FILTER_DNS_PERMIT_TUNNEL_OUTBOUND_IPV4,
+                Layer::ConnectV4,
+                "Permit selected DNS traffic inside tunnel (IPv4)",
+                hosts_v4,
+            ),
+            (
+                FILTER_DNS_PERMIT_TUNNEL_OUTBOUND_IPV6,
+                Layer::ConnectV6,
+                "Permit selected DNS traffic inside tunnel (IPv6)",
+                hosts_v6,
+            ),
+        ] {
+            if hosts.is_empty() {
+                continue;
+            }
+
             let mut builder = FilterBuilder::default()
-                .guid(FILTER_DNS_PERMIT_TUNNEL_OUTBOUND_IPV4)
-                .name("Permit selected DNS traffic inside tunnel (IPv4)")
+                .guid(guid)
+                .name(name)
                 .description(
                     "This filter is part of a rule that permits DNS traffic inside the VPN tunnel",
                 )
                 .provider(PROVIDER)
-                .layer(Layer::ConnectV4)
+                .layer(layer)
                 .sublayer(SUBLAYER_DNS)
                 .weight(class(7))
                 .action(ActionType::Permit)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT))
-                .condition(interface_alias_condition(alias)?);
+                .condition(InterfaceConditionBuilder::local().alias(alias)?.build());
 
-            for host in &hosts_v4 {
-                builder = builder.condition(remote_ip_condition(IpAddr::V4(*host)));
+            for host in hosts {
+                builder = builder.condition(remote_ip_condition(host));
             }
 
             let id = builder.add(cx.transaction)?;
             cx.recorder.record(Record::Filter(id));
         }
-
-        if hosts_v6.is_empty() {
-            return Ok(());
-        }
-
-        let mut builder = FilterBuilder::default()
-            .guid(FILTER_DNS_PERMIT_TUNNEL_OUTBOUND_IPV6)
-            .name("Permit selected DNS traffic inside tunnel (IPv6)")
-            .description(
-                "This filter is part of a rule that permits DNS traffic inside the VPN tunnel",
-            )
-            .provider(PROVIDER)
-            .layer(Layer::ConnectV6)
-            .sublayer(SUBLAYER_DNS)
-            .weight(class(7))
-            .action(ActionType::Permit)
-            .condition(remote_port_condition(ports::DNS_SERVER_PORT))
-            .condition(interface_alias_condition(alias)?);
-
-        for host in &hosts_v6 {
-            builder = builder.condition(remote_ip_condition(IpAddr::V6(*host)));
-        }
-
-        let id = builder.add(cx.transaction)?;
-        cx.recorder.record(Record::Filter(id));
         Ok(())
     }
 
@@ -917,55 +920,49 @@ impl Rule {
         alias: &Option<String>,
         hosts: &[IpAddr],
     ) -> io::Result<()> {
-        let (hosts_v4, hosts_v6) = split_ips(hosts);
+        let (hosts_v4, hosts_v6): (Vec<_>, Vec<_>) =
+            hosts.iter().copied().partition(IpAddr::is_ipv4);
 
-        if !hosts_v4.is_empty() {
+        for (guid, layer, name, hosts) in [
+            (
+                FILTER_DNS_PERMIT_NON_TUNNEL_OUTBOUND_IPV4,
+                Layer::ConnectV4,
+                "Permit selected non-tunnel DNS traffic (IPv4)",
+                hosts_v4,
+            ),
+            (
+                FILTER_DNS_PERMIT_NON_TUNNEL_OUTBOUND_IPV6,
+                Layer::ConnectV6,
+                "Permit selected non-tunnel DNS traffic (IPv6)",
+                hosts_v6,
+            ),
+        ] {
+            if hosts.is_empty() {
+                continue;
+            }
+
             let mut builder = FilterBuilder::default()
-                .guid(FILTER_DNS_PERMIT_NON_TUNNEL_OUTBOUND_IPV4)
-                .name("Permit selected non-tunnel DNS traffic (IPv4)")
+                .guid(guid)
+                .name(name)
                 .description("This filter is part of a rule that permits non-tunnel DNS traffic")
                 .provider(PROVIDER)
-                .layer(Layer::ConnectV4)
+                .layer(layer)
                 .sublayer(SUBLAYER_DNS)
                 .weight(class(7))
                 .action(ActionType::Permit)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT));
 
-            for host in &hosts_v4 {
-                builder = builder.condition(remote_ip_condition(IpAddr::V4(*host)));
+            for host in hosts {
+                builder = builder.condition(remote_ip_condition(host));
             }
             if let Some(alias) = alias {
-                builder = builder.condition(interface_alias_not_condition(alias)?);
+                builder =
+                    builder.condition(InterfaceConditionBuilder::local().not_alias(alias)?.build());
             }
 
             let id = builder.add(cx.transaction)?;
             cx.recorder.record(Record::Filter(id));
         }
-
-        if hosts_v6.is_empty() {
-            return Ok(());
-        }
-
-        let mut builder = FilterBuilder::default()
-            .guid(FILTER_DNS_PERMIT_NON_TUNNEL_OUTBOUND_IPV6)
-            .name("Permit selected non-tunnel DNS traffic (IPv6)")
-            .description("This filter is part of a rule that permits non-tunnel DNS traffic")
-            .provider(PROVIDER)
-            .layer(Layer::ConnectV6)
-            .sublayer(SUBLAYER_DNS)
-            .weight(class(7))
-            .action(ActionType::Permit)
-            .condition(remote_port_condition(ports::DNS_SERVER_PORT));
-
-        for host in &hosts_v6 {
-            builder = builder.condition(remote_ip_condition(IpAddr::V6(*host)));
-        }
-        if let Some(alias) = alias {
-            builder = builder.condition(interface_alias_not_condition(alias)?);
-        }
-
-        let id = builder.add(cx.transaction)?;
-        cx.recorder.record(Record::Filter(id));
         Ok(())
     }
 
@@ -1019,27 +1016,12 @@ fn remote_ip_condition(ip: IpAddr) -> wfp::Condition {
     }
 }
 
-fn local_ip_condition(ip: IpAddr) -> wfp::Condition {
-    match ip {
-        IpAddr::V4(ip) => IpAddressConditionBuilder::local().host_v4(ip).build(),
-        IpAddr::V6(ip) => IpAddressConditionBuilder::local().host_v6(ip).build(),
-    }
-}
-
 fn remote_port_condition(port: u16) -> wfp::Condition {
     PortConditionBuilder::remote().equal(port).build()
 }
 
 fn local_port_condition(port: u16) -> wfp::Condition {
     PortConditionBuilder::local().equal(port).build()
-}
-
-fn interface_alias_condition(alias: &str) -> io::Result<wfp::Condition> {
-    Ok(InterfaceConditionBuilder::local().alias(alias)?.build())
-}
-
-fn interface_alias_not_condition(alias: &str) -> io::Result<wfp::Condition> {
-    Ok(InterfaceConditionBuilder::local().not_alias(alias)?.build())
 }
 
 /// Match a remote network prefix.
@@ -1054,53 +1036,12 @@ fn remote_prefix_condition(addr: IpAddr, prefix: u8) -> wfp::Condition {
     }
 }
 
-/// Match a local network prefix.
-fn local_prefix_condition(addr: IpAddr, prefix: u8) -> wfp::Condition {
-    match addr {
-        IpAddr::V4(ip) => IpAddressConditionBuilder::local()
-            .subnet_v4(ip, prefix)
-            .build(),
-        IpAddr::V6(ip) => IpAddressConditionBuilder::local()
-            .subnet_v6(ip, prefix)
-            .build(),
-    }
-}
-
 fn app_id_conditions(
-    builder: FilterBuilder<wfp::FilterBuilderHasName, wfp::FilterBuilderHasAction>,
+    mut builder: FilterBuilder<wfp::FilterBuilderHasName, wfp::FilterBuilderHasAction>,
     clients: &[PathBuf],
 ) -> io::Result<FilterBuilder<wfp::FilterBuilderHasName, wfp::FilterBuilderHasAction>> {
-    let mut builder = builder;
     for client in clients {
         builder = builder.condition(AppIdConditionBuilder::new().equal(client)?.build());
     }
     Ok(builder)
-}
-
-/// A network address and its prefix length.
-type Net = (IpAddr, u8);
-
-fn split_networks(networks: &[ipnetwork::IpNetwork]) -> (Vec<Net>, Vec<Net>) {
-    let mut v4 = Vec::new();
-    let mut v6 = Vec::new();
-    for network in networks {
-        let net = (network.ip(), network.prefix());
-        match net.0 {
-            IpAddr::V4(_) => v4.push(net),
-            IpAddr::V6(_) => v6.push(net),
-        }
-    }
-    (v4, v6)
-}
-
-fn split_ips(hosts: &[IpAddr]) -> (Vec<Ipv4Addr>, Vec<Ipv6Addr>) {
-    let mut v4 = Vec::new();
-    let mut v6 = Vec::new();
-    for host in hosts {
-        match host {
-            IpAddr::V4(ip) => v4.push(*ip),
-            IpAddr::V6(ip) => v6.push(*ip),
-        }
-    }
-    (v4, v6)
 }
