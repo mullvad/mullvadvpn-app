@@ -68,7 +68,7 @@ on:
         required: true
         type: string
       android_build_runner:
-        description: 'Choose which runner to use'
+        description: 'Build runner'
         required: true
         default: 'android-build'
         type: choice
@@ -78,7 +78,28 @@ on:
           - android-bender-02
           - android-bender-03
           - android-bender-04
+      android_device_runner_instrumented_test:
+        description: 'Test runner (screen & mockapi)'
+        required: true
+        default: 'android-device'
+        type: choice
+        options:
+          - android-device
           - android-bender-05
+          - android-bender-06
+          - android-bender-07
+          - android-bender-08
+      android_device_runner_e2e_test:
+        description: 'Test runner (e2e)'
+        required: true
+        default: 'android-device'
+        type: choice
+        options:
+          - android-device
+          - android-bender-05
+          - android-bender-06
+          - android-bender-07
+          - android-bender-08
       clean:
         description: Clean before building.
         type: boolean
@@ -197,7 +218,7 @@ jobs:
 
   instrumented-tests:
     name: Run instrumented tests
-    runs-on: [self-hosted, android-device]
+    runs-on: [self-hosted, "${{ inputs.android_device_runner_instrumented_test || 'android-device' }}"]
     needs: [build-app]
     strategy:
       fail-fast: false
@@ -257,7 +278,7 @@ jobs:
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
-    runs-on: [self-hosted, android-device]
+    runs-on: [self-hosted, "${{ inputs.android_device_runner_e2e_test || 'android-device' }}"]
     needs: [prepare, build-app]
     if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
     steps:
