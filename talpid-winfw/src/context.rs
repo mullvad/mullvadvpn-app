@@ -50,10 +50,7 @@ impl FwContext {
     }
 
     pub fn reset(&mut self) -> io::Result<()> {
-        let baseline = self.baseline;
-        self.execute_transaction(|transaction, recorder| {
-            recorder.revert_to(baseline, transaction)
-        })?;
+        self.apply_ruleset(&[])?;
         self.active_policy = ActivePolicy::None;
         Ok(())
     }
@@ -66,9 +63,9 @@ impl FwContext {
     /// Waits for the WFP transaction lock for up to the timeout the context was created
     /// with, and then as long as the filter engine needs to replace the filters.
     pub fn apply_persistent_blocking(mut self) -> io::Result<()> {
-        self.execute_transaction(|transaction, _recorder| {
-            persistent::replace_ephemeral_objects(transaction)
-        })
+        let transaction = Transaction::new(&mut self.engine)?;
+        persistent::replace_ephemeral_objects(&transaction)?;
+        transaction.commit()
     }
 
     pub fn active_policy(&self) -> ActivePolicy {
@@ -82,62 +79,44 @@ impl FwContext {
         timeout: Duration,
         blocked_ruleset: Option<&[rules::Rule]>,
     ) -> io::Result<Self> {
-        let mut context = Self {
-            engine: open_engine(timeout)?,
-            recorder: Recorder::default(),
-            baseline: 0,
-            active_policy: ActivePolicy::None,
-        };
+        let mut engine = open_engine(timeout)?;
+        let mut recorder = Recorder::default();
 
-        let mut baseline = 0;
-        context.execute_transaction(|transaction, recorder| {
-            objects::purge_all(transaction)?;
-            objects::add_provider(transaction, recorder)?;
-            objects::add_sublayer_baseline(transaction, recorder)?;
-            objects::add_sublayer_dns(transaction, recorder)?;
-            baseline = recorder.checkpoint();
-            match blocked_ruleset {
-                Some(ruleset) => apply_ruleset_directly(transaction, recorder, ruleset),
-                None => Ok(()),
-            }
-        })?;
-        context.baseline = baseline;
-        if blocked_ruleset.is_some() {
-            context.active_policy = ActivePolicy::Blocked;
+        let transaction = Transaction::new(&mut engine)?;
+        objects::purge_all(&transaction)?;
+        objects::add_provider(&transaction, &mut recorder)?;
+        objects::add_sublayer_baseline(&transaction, &mut recorder)?;
+        objects::add_sublayer_dns(&transaction, &mut recorder)?;
+        let baseline = recorder.checkpoint();
+        if let Some(ruleset) = blocked_ruleset {
+            recorder = apply_ruleset_directly(&transaction, recorder, ruleset)?;
         }
-        Ok(context)
-    }
+        transaction.commit()?;
 
-    /// Revert to the baseline, then install the ruleset, in one transaction.
-    fn apply_ruleset(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
-        let baseline = self.baseline;
-        self.execute_transaction(|transaction, recorder| {
-            recorder.revert_to(baseline, transaction)?;
-            apply_ruleset_directly(transaction, recorder, ruleset)
+        Ok(Self {
+            engine,
+            recorder,
+            baseline,
+            active_policy: match blocked_ruleset {
+                Some(_) => ActivePolicy::Blocked,
+                None => ActivePolicy::None,
+            },
         })
     }
 
-    /// Run a transaction on a copy of the records, and adopt it only when it
-    /// commits.
-    fn execute_transaction(
-        &mut self,
-        operation: impl FnOnce(&Transaction<'_>, &mut Recorder) -> io::Result<()>,
-    ) -> io::Result<()> {
+    /// Revert to the baseline, then install the ruleset, in one transaction. The
+    /// records are only updated if the transaction commits.
+    fn apply_ruleset(&mut self, ruleset: &[rules::Rule]) -> io::Result<()> {
         let transaction = Transaction::new(&mut self.engine)?;
-        let mut recorder = self.recorder.snapshot();
+        let mut recorder = self
+            .recorder
+            .clone()
+            .revert_to(self.baseline, &transaction)?;
 
-        let result = operation(&transaction, &mut recorder);
-        match result {
-            Ok(()) => transaction.commit()?,
-            Err(error) => {
-                if let Err(abort_error) = transaction.abort() {
-                    log::warn!("Failed to abort the WFP transaction: {abort_error}");
-                }
-                return Err(error);
-            }
-        }
+        recorder = apply_ruleset_directly(&transaction, recorder, ruleset)?;
+        transaction.commit()?;
 
-        self.recorder.adopt(recorder);
+        self.recorder = recorder;
         Ok(())
     }
 }
@@ -145,16 +124,16 @@ impl FwContext {
 /// Install every rule, recording objects.
 fn apply_ruleset_directly(
     transaction: &Transaction<'_>,
-    recorder: &mut Recorder,
+    mut recorder: Recorder,
     ruleset: &[rules::Rule],
-) -> io::Result<()> {
+) -> io::Result<Recorder> {
     for rule in ruleset {
         rule.install(&mut rules::Cx {
             transaction,
-            recorder,
+            recorder: &mut recorder,
         })?;
     }
-    Ok(())
+    Ok(recorder)
 }
 
 /// Open the standard WFP session with the transaction-lock wait the daemon
