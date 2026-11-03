@@ -62,4 +62,8 @@ internal class GrpcEventListener : EventListener() {
                 "queue=${dispatcher.queuedCallsCount()}). Running: $runningCalls"
         )
     }
+
+    fun setClosedConnectionState() {
+        _connectionState.update { GrpcConnectivityState.Closed }
+    }
 }

@@ -264,6 +264,7 @@ class ManagementService(
         job?.cancel(message = "ManagementService stopped")
             ?: error("ManagementService already stopped")
         job = null
+        connectionListener.setClosedConnectionState()
     }
 
     private suspend fun subscribeEvents() =
