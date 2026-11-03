@@ -15,18 +15,17 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-final class OutOfTimeInteractor: Sendable {
+final class OutOfTimeInteractor {
     private let tunnelManager: TunnelManager
-
-    nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: TunnelObserver?
 
     private let logger = Logger(label: "OutOfTimeInteractor")
 
     private let accountUpdateTimerInterval: Duration = .minutes(1)
-    nonisolated(unsafe) private var accountUpdateTimer: DispatchSourceTimer?
+    private var accountUpdateTimer: DispatchSourceTimer?
 
-    nonisolated(unsafe) var didReceiveTunnelStatus: (@Sendable (TunnelStatus) -> Void)?
-    nonisolated(unsafe) var didAddMoreCredit: (@Sendable () -> Void)?
+    private var tunnelStatusCallbacks: [((TunnelStatus) -> Void)?] = []
+    var didAddMoreCredit: (() -> Void)?
 
     private let accountDataPoller: AccountDataPoller
 
@@ -36,7 +35,9 @@ final class OutOfTimeInteractor: Sendable {
 
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
-                self?.didReceiveTunnelStatus?(tunnelStatus)
+                self?.tunnelStatusCallbacks.forEach { callback in
+                    callback?(tunnelStatus)
+                }
             },
             didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 let isInactive = previousDeviceState.accountData?.isExpired == true
@@ -58,6 +59,10 @@ final class OutOfTimeInteractor: Sendable {
 
     var deviceState: DeviceState {
         tunnelManager.deviceState
+    }
+
+    func didReceiveTunnelStatus(_ callback: ((TunnelStatus) -> Void)?) {
+        tunnelStatusCallbacks.append(callback)
     }
 
     func stopTunnel() {

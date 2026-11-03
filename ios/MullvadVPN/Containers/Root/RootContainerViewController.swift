@@ -14,7 +14,7 @@ import UIKit
 
 /// A protocol that defines the relationship between the root container and its child controllers
 @MainActor
-protocol RootContainment: Sendable {
+protocol RootContainment {
     /// Return the preferred header bar style
     var preferredHeaderBarPresentation: HeaderBarPresentation { get }
 
@@ -270,6 +270,10 @@ class RootContainerViewController: UIViewController {
     /// Request the root container to query the top controller for the new header bar style
     func updateHeaderBarAppearance() {
         updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
+    }
+
+    func updateHeaderDeviceHiddenAppearance() {
+        updateDeviceInfoBarHiddenFromChildPreferences()
     }
 
     func updateHeaderBarHiddenAppearance() {
