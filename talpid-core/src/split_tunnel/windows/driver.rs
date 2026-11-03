@@ -258,8 +258,8 @@ impl DeviceHandle {
 
     fn initialize(&self) -> io::Result<()> {
         let guids = SublayerGuids {
-            baseline: winfw::guids::SUBLAYER_BASELINE.into(),
-            dns: winfw::guids::SUBLAYER_DNS.into(),
+            baseline: talpid_winfw::guids::SUBLAYER_BASELINE.into(),
+            dns: talpid_winfw::guids::SUBLAYER_DNS.into(),
         };
         device_io_control(
             self,

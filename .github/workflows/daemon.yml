@@ -165,4 +165,4 @@ jobs:
 
       - name: Firewall snapshot tests
         shell: bash
-        run: ci/cargo-ci.sh test -p winfw -- --ignored
+        run: ci/cargo-ci.sh test -p talpid-winfw -- --ignored
