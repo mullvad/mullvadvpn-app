@@ -101,7 +101,9 @@ class AccountRepository(
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
-        managementService.deleteAccount()
+        managementService.deleteAccount().onRight {
+            _mutableAccountDataCache.emit(null)
+        }
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))
