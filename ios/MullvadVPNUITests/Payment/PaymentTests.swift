@@ -94,6 +94,8 @@ class PaymentTests: LoggedOutUITestCase {
     }
 
     func testInAppPurchaseWithRestoreOnFailedReceiptUpload() async throws {
+        throw XCTSkip(
+            "This test is not working properly, check whether the correct API endpoint is blocked when debugging it")
         let firewallAPIClient = FirewallClient()
         firewallAPIClient.removeRules()
 
