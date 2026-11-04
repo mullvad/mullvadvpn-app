@@ -22,7 +22,7 @@
 /ci/android/** @linus-mullvad @rawa @albin-mullvad
 
 # Desktop release config specifying code signing key fingerprint
-/desktop/scripts/release/release-config.sh
+/desktop/scripts/release/release-config.sh @mullvad/appteam-lead
 
 # Cargo deny config must be approved by tech lead or desktop team lead
 **/deny.toml @linus-mullvad @raksooo
