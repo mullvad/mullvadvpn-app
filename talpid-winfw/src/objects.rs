@@ -114,13 +114,11 @@ pub(crate) fn purge_providers(transaction: &Transaction<'_>, providers: &[Guid])
 /// Treat the WFP "object not found" errors as success.
 pub(crate) fn ignore_not_found(result: io::Result<()>) -> io::Result<()> {
     result.or_else(|error| {
-        if error.raw_os_error() == Some(FWP_E_FILTER_NOT_FOUND)
-            || error.raw_os_error() == Some(FWP_E_SUBLAYER_NOT_FOUND)
-            || error.raw_os_error() == Some(FWP_E_PROVIDER_NOT_FOUND)
-        {
-            Ok(())
-        } else {
-            Err(error)
-        }
+        matches!(
+            error.raw_os_error(),
+            Some(FWP_E_FILTER_NOT_FOUND | FWP_E_SUBLAYER_NOT_FOUND | FWP_E_PROVIDER_NOT_FOUND)
+        )
+        .then_some(())
+        .ok_or(error)
     })
 }
