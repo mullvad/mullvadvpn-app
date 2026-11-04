@@ -1,6 +1,6 @@
 import type { icons } from '../../../../../../../../../../../../icon/types';
 import { useTextFieldContext } from '../../../../../../../../../../../../text-field';
-import type { LocationSelectorItemType } from '../../../../../../../../../types';
+import type { LocationSelectorItemType } from '../../../../../../../../../../../types';
 import { useLocationSelectorTextFieldItemContext } from '../../../../../../../LocationSelectorTextFieldItemContext';
 
 export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof icons {
@@ -18,7 +18,7 @@ export function useGetLocationIcon(type: LocationSelectorItemType): keyof typeof
   switch (type) {
     case 'entry':
       return 'location-add';
-    case 'entryAutomatic':
+    case 'automaticEntry':
       return 'magic-multihop';
     case 'exit':
       return 'location';

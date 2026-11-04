@@ -2,7 +2,6 @@ import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { useActiveFilters, useEntryLocation } from '../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../features/locations/types';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { Location } from '../location-list-item';
 import { useHandleSelectEntryLocation } from '../location-lists/hooks';
@@ -15,7 +14,7 @@ export type AutomaticLocationProps = {
 export function AutomaticLocation({ position }: AutomaticLocationProps) {
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
   const { entryLocation } = useEntryLocation();
-  const { isAnyListFilterActive } = useActiveFilters(LocationType.entry);
+  const { isAnyListFilterActive } = useActiveFilters('entry');
 
   const [infoDialogOpen, setInfoDialogOpen] = React.useState(false);
   const [warningDialogOpen, setWarningDialogOpen] = React.useState(false);

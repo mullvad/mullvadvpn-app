@@ -7,7 +7,6 @@ import useActions from '../../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import userInterface from '../../../../redux/userinterface/actions';
 import { useActiveFilters, useEntryLocation } from '../../../locations/hooks';
-import { LocationType } from '../../../locations/types';
 import { useMultihop } from '../../hooks';
 import { EntryFiltersWarningDialog } from '../entry-filters-warning-dialog';
 import { AlwaysOption, NeverOption, WhenNeededOption } from './components';
@@ -15,9 +14,7 @@ import { AlwaysOption, NeverOption, WhenNeededOption } from './components';
 export function MultihopSetting() {
   const { multihop, setMultihop } = useMultihop();
   const { setSelectLocationView } = useActions(userInterface);
-  const { isAnyListFilterActive: isAnyEntryListFilterActive } = useActiveFilters(
-    LocationType.entry,
-  );
+  const { isAnyListFilterActive: isAnyEntryListFilterActive } = useActiveFilters('entry');
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const { entryLocation } = useEntryLocation();
 
@@ -30,7 +27,7 @@ export function MultihopSetting() {
         setDialogOpen(true);
       } else {
         await setMultihop({ multihop });
-        setSelectLocationView(LocationType.exit);
+        setSelectLocationView('exit');
       }
     },
     [entryLocation, isAnyEntryListFilterActive, setMultihop, setSelectLocationView],
@@ -39,7 +36,7 @@ export function MultihopSetting() {
   const handleContinue = React.useCallback(async () => {
     setDialogOpen(false);
     await setMultihop({ multihop: 'when-needed' });
-    setSelectLocationView(LocationType.exit);
+    setSelectLocationView('exit');
   }, [setDialogOpen, setMultihop, setSelectLocationView]);
 
   const handleCancel = React.useCallback(() => setDialogOpen(false), [setDialogOpen]);

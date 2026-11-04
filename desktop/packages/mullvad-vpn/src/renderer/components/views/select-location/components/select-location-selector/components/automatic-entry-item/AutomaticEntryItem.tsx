@@ -9,9 +9,9 @@ export function AutomaticEntryItem(props: AutomaticEntryItemProps) {
   const label = useAutomaticLocationName();
 
   return (
-    <LocationSelector.Items.ButtonItem id="entryAutomatic" type="entryAutomatic" {...props}>
+    <LocationSelector.Items.ButtonItem id="automaticEntry" type="automaticEntry" {...props}>
       <LocationSelector.Items.ButtonItem.Button label={label} />
-      <FilterTrailingButton type="entryAutomatic" />
+      <FilterTrailingButton type="automaticEntry" />
     </LocationSelector.Items.ButtonItem>
   );
 }

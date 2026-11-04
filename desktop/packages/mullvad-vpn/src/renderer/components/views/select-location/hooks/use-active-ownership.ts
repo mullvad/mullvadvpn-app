@@ -2,21 +2,20 @@ import React from 'react';
 
 import { Ownership } from '../../../../../shared/daemon-rpc-types';
 import { useOwnership } from '../../../../features/locations/hooks';
-import { LocationType } from '../../../../features/locations/types';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 export function useActiveOwnership() {
   const { entryOwnership, exitOwnership, setEntryOwnership, setExitOwnership } = useOwnership();
   const { locationType } = useSelectLocationViewContext();
-  const activeOwnership = locationType === LocationType.entry ? entryOwnership : exitOwnership;
+  const activeOwnership = locationType === 'entry' ? entryOwnership : exitOwnership;
 
   const setActiveOwnership = React.useCallback(
     async (ownership: Ownership) => {
-      if (locationType === LocationType.entry) {
+      if (locationType === 'entry') {
         await setEntryOwnership(ownership);
       }
 
-      if (locationType === LocationType.exit) {
+      if (locationType === 'exit') {
         await setExitOwnership(ownership);
       }
     },

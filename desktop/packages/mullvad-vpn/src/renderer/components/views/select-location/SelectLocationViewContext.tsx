@@ -2,7 +2,7 @@ import React from 'react';
 
 import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
-import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
+import type { LocationSelectorItemType } from '../../../lib/components/location-selector/types';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 import { useLocationInvalidReason } from './hooks';
@@ -14,8 +14,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  isolatedItem: LocationSelectorSelectedItem | undefined;
-  setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
+  isolatedItem: LocationSelectorItemType | undefined;
+  setIsolatedItem: (value: LocationSelectorItemType | undefined) => void;
   isLocationSelectorExpanded: boolean;
   setIsLocationSelectorExpanded: (value: boolean) => void;
   transitionState: TransitionState;
@@ -46,12 +46,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
 
-  const [isolatedItem, stateSetIsolatedItem] = React.useState<
-    LocationSelectorSelectedItem | undefined
-  >(undefined);
-  const setIsolatedItem = React.useCallback((value: LocationSelectorSelectedItem | undefined) => {
-    stateSetIsolatedItem(value);
-  }, []);
+  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorItemType | undefined>(
+    undefined,
+  );
 
   const [searchTerm, stateSetSearchTerm] = React.useState('');
   const setSearchTerm = React.useCallback((value: string) => {
@@ -72,8 +69,8 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     [setSelectLocationView],
   );
 
-  const invalidReasonEntry = useLocationInvalidReason(LocationType.entry);
-  const invalidReasonExit = useLocationInvalidReason(LocationType.exit);
+  const invalidReasonEntry = useLocationInvalidReason('entry');
+  const invalidReasonExit = useLocationInvalidReason('exit');
 
   const value = React.useMemo(
     () => ({
