@@ -27,19 +27,13 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 
-[target.'cfg(not(target_os="android"))'.dependencies]
-clap = { workspace = true }
-tracing-subscriber = { workspace = true }
-
-[target."cfg(windows)".build-dependencies]
+[build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winresource.workspace = true
 
-[target."cfg(windows)".build-dependencies.windows-sys]
-workspace = true
-features = [
-  "Win32_System_SystemServices",
-]
+[target.'cfg(not(target_os="android"))'.dependencies]
+clap = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [lints]
 workspace = true

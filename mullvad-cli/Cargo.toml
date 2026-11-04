@@ -35,20 +35,14 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 vec1 = { workspace = true }
 
+[build-dependencies]
+mullvad-version = { path = "../mullvad-version" }
+winresource.workspace = true
+
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "4.4.8" }
 clap_complete_nushell = "4.6.2"
 nix = { workspace = true, features = ["signal"] }
-
-[target."cfg(windows)".build-dependencies]
-mullvad-version = { path = "../mullvad-version" }
-winresource.workspace = true
-
-[target."cfg(windows)".build-dependencies.windows-sys]
-workspace = true
-features = [
-  "Win32_System_SystemServices",
-]
 
 [features]
 custom-vpn = [
