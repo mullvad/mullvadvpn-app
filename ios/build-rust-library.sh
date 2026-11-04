@@ -25,10 +25,14 @@ fi
 RELFLAG=
 LOCKEDFLAG=
 LIBFOLDER=debug
+LOCAL_DEV=
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     LIBFOLDER=release
     RELFLAG=--release
     LOCKEDFLAG=--locked
+elif [[ -z "${CI-}" ]]; then
+    LOCAL_DEV=true
+    RELFLAG="--profile dev-ios"
 fi
 
 # For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
@@ -56,18 +60,27 @@ for arch in $ARCHS; do
     case "$arch" in
         arm64)
             MODIFIED_FILE="$CONFIGURATION_BUILD_DIR/modified_$LIBFOLDER"
+            FOLDER_PATH=../target/$TARGET/$LIBFOLDER
             LIB=
             if [[ -z  "${CARGO_TARGET_DIR}" ]]; then
-                LIB="../target/$TARGET/$LIBFOLDER/libmullvad_ios.a"
+                FOLDER_PATH="../target/$TARGET/$LIBFOLDER"
+                LIB="$FOLDER_PATH/libmullvad_ios.a"
             else
-                LIB="$CARGO_TARGET_DIR/$TARGET/$LIBFOLDER/libmullvad_ios.a"
+                FOLDER_PATH="$CARGO_TARGET_DIR/$TARGET/$LIBFOLDER"
+                LIB="$FOLDER_PATH/libmullvad_ios.a"
             fi
 
             OUT_DIR="MullvadRustRuntime/generated"
             OUT_DIR_TMP="$CONFIGURATION_BUILD_DIR/generated"
 
             echo "Building libmullvad_ios for $TARGET..."
-            time "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            time "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target "$TARGET" ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+
+            if [[ "$LOCAL_DEV" = true ]]; then
+                mkdir -p "$FOLDER_PATH" || true
+                rm "$LIB" || true
+                ln -s "$FOLDER_PATH/../dev-ios/libmullvad_ios.a" "$LIB"
+            fi
 
             MODIFIED_DATE=$(date -r "$LIB")
             CACHED="no-checksum"
