@@ -25,10 +25,14 @@ use mullvad_types::{
 };
 use std::{
     collections::HashMap,
-    sync::{Arc, RwLock},
+    sync::{Arc, Mutex, RwLock},
+    vec::IntoIter,
 };
 use std::{net::SocketAddr, ops::Deref};
-use talpid_types::net::{obfuscation::Obfuscators, proxy::Shadowsocks};
+use talpid_types::net::{
+    obfuscation::{ObfuscatorConfig, Obfuscators},
+    proxy::Shadowsocks,
+};
 
 /// A [`RelayList`] together with pre-computed [`endpoint_set::RelayEndpointSet`]s for every
 /// relay. Both are stored under the same [`RwLock`] in [`RelaySelector`] so that the cache
@@ -67,6 +71,70 @@ pub struct RelaySelector {
     // the same time.
     relays: Arc<RwLock<AnnotatedRelayList>>,
     bridges: Arc<RwLock<BridgeList>>,
+    next_relays: NextRelays,
+}
+
+#[derive(Clone)]
+struct NextRelays(Arc<Mutex<IntoIter<GetRelay>>>);
+
+impl NextRelays {
+    /// Arm the relay queue with relays matching the user query.
+    fn arm(&self, relay_selector: &RelaySelector, mut user_query: RelayQuery) {
+        let mut relays = vec![];
+
+        // First, we make a WireGuard-only attempt before using any obfuscations
+        if let Some(wg_query) = user_query.clone().wireguard_only()
+            && let Ok(wg_relay) = relay_selector.get_relay_by_query(&wg_query)
+        {
+            // TODO: Should we remove `direct` from the user query here so it isn't used on the next relay?
+            relays.push(wg_relay);
+        }
+
+        // Then, select a relay with multiplexed anti-censorship methods.
+        while let Ok(relay) = relay_selector.get_relay_by_query(&user_query) {
+            // All methods in the ObfuscationConstraints that are supported by the relay will be used by the multiplexer.
+            // The next relay is selected with only the remaining methods, until all methods have been used.
+            remove_supported_obfuscations(&mut user_query, &relay);
+            relays.push(relay);
+        }
+
+        *self.0.lock().unwrap() = relays.into_iter();
+    }
+
+    fn empty() -> Self {
+        Self(Arc::new(Mutex::new(Default::default())))
+    }
+
+    fn clear(&self) {
+        *self.0.lock().unwrap() = Default::default();
+    }
+
+    fn next(&self) -> Option<GetRelay> {
+        self.0.lock().unwrap().next()
+    }
+}
+
+/// Remove the obfuscation methods that the selected relay offers from the query.
+fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) {
+    let (direct, obf_configs) = match &relay.obfuscator {
+        None => (true, vec![]),
+        Some(obfuscation) => (
+            obfuscation.direct().is_some(),
+            obfuscation.obfuscator_configs(),
+        ),
+    };
+    let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
+    if direct {
+        obfuscation.direct = None;
+    }
+    for config in obf_configs {
+        match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+            ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+            ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+            ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+        }
+    }
 }
 
 /// The return type of [`RelaySelector::get_relay_by_query`].
@@ -83,7 +151,12 @@ impl RelaySelector {
         RelaySelector {
             relays: Arc::new(RwLock::new(AnnotatedRelayList::new(relays))),
             bridges: Arc::new(RwLock::new(bridges)),
+            next_relays: NextRelays::empty(),
         }
+    }
+
+    pub fn clear_relay_queue(&self) {
+        self.next_relays.clear();
     }
 
     /// Peek the relay list.
@@ -110,9 +183,9 @@ impl RelaySelector {
         *key = bridges;
     }
 
-    /// Returns all countries and cities. The cities in the object returned does not have any
+    /// Returns inner [`RelayList`]. The cities in the object returned does not have any
     /// relays in them.
-    pub fn get_relays(&self) -> RelayList {
+    pub fn get_relay_list(&self) -> RelayList {
         self.relay_list(RelayList::clone)
     }
 
@@ -169,6 +242,14 @@ impl RelaySelector {
             inner,
             server_override,
         })
+    }
+
+    pub fn next_queued_relay(&self) -> Option<GetRelay> {
+        self.next_relays.next()
+    }
+
+    pub fn arm_relay_queue(&self, relay_selector: &RelaySelector, query: RelayQuery) {
+        self.next_relays.arm(relay_selector, query);
     }
 }
 

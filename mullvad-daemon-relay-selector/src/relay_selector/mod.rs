@@ -1,11 +1,9 @@
 pub mod grpc_service;
 
-use std::iter;
 use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::vec::IntoIter;
 
 use mullvad_relay_selector::query::RelayQuery;
 use mullvad_relay_selector::{GetRelay, RelaySelector};
@@ -13,7 +11,6 @@ use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
 use talpid_types::net::IpAvailability;
-use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
 
 use crate::relay_list;
 
@@ -25,47 +22,6 @@ use crate::relay_list;
 pub struct RelaySelectorIO {
     inner: RelaySelector,
     config: Config,
-    next_relays: NextRelays,
-}
-
-#[derive(Clone)]
-struct NextRelays(Arc<Mutex<IntoIter<GetRelay>>>);
-
-impl NextRelays {
-    /// Arm the relay queue with relays matching the user query.
-    fn arm(&self, relay_selector: &RelaySelector, mut user_query: RelayQuery) {
-        let mut relays = vec![];
-
-        // First, we make a WireGuard-only attempt before using any obfuscations
-        if let Some(wg_query) = user_query.clone().wireguard_only()
-            && let Ok(wg_relay) = relay_selector.get_relay_by_query(&wg_query)
-        {
-            // TODO: Should we remove `direct` from the user query here so it isn't used on the next relay?
-            relays.push(wg_relay);
-        }
-
-        // Then, select a relay with multiplexed anti-censorship methods.
-        while let Ok(relay) = relay_selector.get_relay_by_query(&user_query) {
-            // All methods in the ObfuscationConstraints that are supported by the relay will be used by the multiplexer.
-            // The next relay is selected with only the remaining methods, until all methods have been used.
-            remove_supported_obfuscations(&mut user_query, &relay);
-            relays.push(relay);
-        }
-
-        *self.0.lock().unwrap() = relays.into_iter();
-    }
-
-    fn empty() -> Self {
-        Self(Arc::new(Mutex::new(Default::default())))
-    }
-
-    fn clear(&self) {
-        *self.0.lock().unwrap() = Default::default();
-    }
-
-    fn next(&self) -> Option<GetRelay> {
-        self.0.lock().unwrap().next()
-    }
 }
 
 impl Deref for RelaySelectorIO {
@@ -85,11 +41,7 @@ impl RelaySelectorIO {
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
         let config = Config::from(custom_lists);
-        RelaySelectorIO {
-            inner,
-            config,
-            next_relays: NextRelays::empty(),
-        }
+        RelaySelectorIO { inner, config }
     }
 
     /// Try to initialize [RelaySelectorIO] from cached relay list.
@@ -106,11 +58,7 @@ impl RelaySelectorIO {
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
         let config = Config::from(custom_lists);
-        Ok(RelaySelectorIO {
-            inner,
-            config,
-            next_relays: NextRelays::empty(),
-        })
+        Ok(RelaySelectorIO { inner, config })
     }
 
     /// Try to initialize [RelaySelectorIO] from cached relay list. If that fails, fall back to
@@ -131,23 +79,15 @@ impl RelaySelectorIO {
     ) -> RelaySelectorIO {
         let config = Config::from(settings);
         let inner = RelaySelector::new(relays, bridges);
-        RelaySelectorIO {
-            inner,
-            config,
-            next_relays: NextRelays::empty(),
-        }
+        RelaySelectorIO { inner, config }
     }
 
     pub fn set_ip_availability(&self, ip_availability: IpAvailability) {
         let mut ip_availability_lock = self.config.ip_availability.lock().unwrap();
         if *ip_availability_lock != ip_availability {
-            self.next_relays.clear();
+            self.clear_relay_queue();
         }
         *ip_availability_lock = ip_availability;
-    }
-
-    pub fn clear_relay_queue(&self) {
-        self.next_relays.clear();
     }
 
     /// Update the relay selector config.
@@ -177,43 +117,15 @@ impl RelaySelectorIO {
     /// The internal queue is automatically reset when exhausted, when the user settings
     /// or the IP availability changes, or when the user calls [RelaySelectorIO::clear_relay_queue].
     pub fn next_relay(&self) -> Result<GetRelay, mullvad_relay_selector::Error> {
-        if let Some(relay) = self.next_relays.next() {
+        if let Some(relay) = self.next_queued_relay() {
             return Ok(relay);
         }
         let mut query = self.query().clone();
         query.apply_ip_availability(*self.config.ip_availability.lock().unwrap())?;
-        self.next_relays.arm(&self.inner, query.clone());
+        self.inner.arm_relay_queue(&self.inner, query.clone());
 
-        self.next_relays
-            .next()
+        self.next_queued_relay()
             .ok_or_else(|| mullvad_relay_selector::Error::NoRelay(Box::new(query)))
-    }
-}
-
-/// Remove the obfuscation methods that the selected relay offers from the query.
-fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) {
-    let (direct, obf_configs) = match &relay.obfuscator {
-        None => (true, vec![]),
-        Some(Obfuscators::Multiplexer {
-            direct,
-            configs: (first, rest),
-        }) => (
-            direct.is_some(),
-            iter::once(first).chain(rest.iter()).collect(),
-        ),
-        Some(Obfuscators::Single(conf)) => (false, vec![conf]),
-    };
-    let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
-    if direct {
-        obfuscation.direct = None;
-    }
-    for config in obf_configs {
-        match config {
-            ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
-            ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
-            ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
-            ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
-        }
     }
 }
 
@@ -269,7 +181,3 @@ impl From<RelayQuery> for Config {
         }
     }
 }
-
-// TODO: Add tests
-// Test that `get_next_relays` interacts correctly with `when needed`:
-// All obfuscations reachable with singlehop should be used before multihop is used

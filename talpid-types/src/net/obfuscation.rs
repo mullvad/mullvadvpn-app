@@ -101,6 +101,23 @@ impl Obfuscators {
             }
         }
     }
+
+    pub fn obfuscator_configs(&self) -> Vec<ObfuscatorConfig> {
+        match self {
+            Obfuscators::Single(config) => vec![config.clone()],
+            Obfuscators::Multiplexer { configs, .. } => {
+                let (first, rest) = configs;
+                std::iter::once(first).chain(rest.iter()).cloned().collect()
+            }
+        }
+    }
+
+    pub fn direct(&self) -> Option<SocketAddr> {
+        match self {
+            Obfuscators::Single(_) => None,
+            Obfuscators::Multiplexer { direct, .. } => *direct,
+        }
+    }
 }
 
 impl ObfuscatorConfig {
