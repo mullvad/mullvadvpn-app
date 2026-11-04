@@ -48,7 +48,7 @@ jobs:
 
   ui-test-build:
     name: Build for ui tests (staging)
-    runs-on: macos-26
+    runs-on: macos-27
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
@@ -87,7 +87,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: macos-26
+    runs-on: macos-27
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm

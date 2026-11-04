@@ -9,7 +9,6 @@ inputs:
       - aarch64-apple-ios-sim
       - aarch64-apple-ios
     required: true
-
 runs:
   using: 'composite'
   steps:
@@ -18,7 +17,6 @@ runs:
         git config --global --add safe.directory '*'
         git submodule update --init --depth=1 --recursive ios/wireguard-apple
       shell: bash
-
     - name: Do not track changes to ${{ env.SOURCE_PACKAGES_PATH }}
       run: |
         # Record the pattern in .git/info/exclude (a local-only file).
@@ -32,20 +30,17 @@ runs:
           printf '%s\n' "$exclude_pattern" >> "$exclude_file"
         fi
       shell: bash
-
     - name: Configure cache
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ios/${{ env.SOURCE_PACKAGES_PATH }}
         key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-
-
     - name: Setup go-lang
-      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c  # v6.4.0
+      uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
       with:
         go-version: 1.21.13
-
     # Our scripts hard-code `$HOME/cargo/bin` as the expected path for `cargo`,
     # which is also documented as the default expected path.
     # Due to https://github.com/actions/runner-images/pull/14990, the path changed
@@ -69,39 +64,32 @@ runs:
 
         echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
       shell: bash
-
     - name: Configure Rust
       run: |
         which cargo
         rustup target add ${{ inputs.ios_rust_target }}
       shell: bash
-
     - name: Update brew's internal repository
       run: brew update
       shell: bash
-
     - name: Install xcbeautify
       run: |
         brew install xcbeautify
       shell: bash
-
     - name: Install protobuf
       run: |
         brew install protobuf
       shell: bash
-
     - name: Install ripgrep
       run: |
         brew install ripgrep
       shell: bash
-
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '26.6'
-
+        xcode-version: '27.1'
     - name: Configure Xcode project
       run: |
-          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+        for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
       working-directory: ios/Configurations
       shell: bash

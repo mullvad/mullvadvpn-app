@@ -25,7 +25,7 @@ jobs:
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Validate build schemas
-    runs-on: macos-26-xlarge
+    runs-on: macos-27-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
 
