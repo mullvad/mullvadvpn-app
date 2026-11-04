@@ -12,7 +12,6 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
 1. Clone the repository:
    ```bash
    git clone https://github.com/mullvad/mullvadvpn-app.git
-   cd mullvadvpn-app
    ```
 
 2. Install [rustup](https://rustup.rs/), a protobuf compiler and a C compiler:
@@ -23,11 +22,15 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
 3. Make sure new terminals and Android Studio get the `PATH` change from the rustup installer, for
    example by logging out and back in.
 
+   **On macOS**, start Android Studio from a terminal so the build can use your `PATH` to find
+   cargo.
+
 4. From the repository root, install the pinned Rust version and the Android targets:
    ```bash
    ./scripts/setup-rust android
    ```
-   Optionally, run `./scripts/setup-rust install-hook` and add
+
+   **Optionally**, run `./scripts/setup-rust install-hook` and add
    `export MULLVAD_SETUP_PLATFORM=android`, for example to `~/.zshrc` or `~/.bashrc`, to rerun this
    automatically when the Rust version in `rust-toolchain.toml` changes.
 
@@ -41,7 +44,7 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
 7. Open the `android` directory in Android Studio and click **Run**.
 
 The first build downloads the other Android SDK packages it needs and compiles the Rust daemon for
-all four Android ABIs, so it takes a while. To build for fewer ABIs, see
+all four Android ABIs, so it takes a while (several minutes). To build for fewer ABIs, see
 [Build the Rust library for fewer ABIs](#build-the-rust-library-for-fewer-abis).
 
 ### Enable command line builds
@@ -80,7 +83,8 @@ This is primarily supported on Linux, and might work on macOS and Windows to var
 
 1. Install [podman](https://podman.io/getting-started/installation.html) and make sure it's
    configured to run in rootless mode. To use another container runner such as
-   [docker](https://docs.docker.com/get-started/), set the `CONTAINER_RUNNER` environment variable.
+   [docker](https://docs.docker.com/get-started/) (which might work better on e.g. macOS),
+   set the `CONTAINER_RUNNER` environment variable.
 2. Build a debug APK from the repository root:
    ```bash
    ./building/containerized-build.sh android
