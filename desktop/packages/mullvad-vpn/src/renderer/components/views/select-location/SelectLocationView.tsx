@@ -15,7 +15,12 @@ import {
   SpacePreAllocationView,
   StyledSelectLocationHeader,
 } from './components';
-import { useLocationSlides, useMeasureLocationSelector } from './hooks';
+import {
+  useLocationSlides,
+  useMeasureLocationSelector,
+  useShowAutomaticEntryItem,
+  useShowEntryItem,
+} from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
@@ -50,7 +55,42 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)<{ $headerHeight:
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { setIsLocationSelectorExpanded, transitionState } = useSelectLocationViewContext();
+  const {
+    locationType,
+    setLocationType,
+    setIsolatedItem,
+    setSearchTerm,
+    setIsLocationSelectorExpanded,
+    transitionState,
+  } = useSelectLocationViewContext();
+
+  const showEntryItem = useShowEntryItem();
+  const showAutomaticEntryItem = useShowAutomaticEntryItem();
+
+  React.useEffect(() => {
+    const automaticEntryUnavailable = locationType === 'automaticEntry' && !showAutomaticEntryItem;
+    const entryUnavailable = locationType === 'entry' && !showEntryItem;
+
+    if (automaticEntryUnavailable || entryUnavailable) {
+      if (automaticEntryUnavailable && showEntryItem) {
+        // If we previously showed automatic entry we can switch over the "regular" entry
+        setLocationType('entry');
+      } else {
+        setLocationType('exit');
+      }
+
+      // Whenever we reset location type forcibly, reset search and isolation
+      setIsolatedItem(undefined);
+      setSearchTerm('');
+    }
+  }, [
+    locationType,
+    setIsolatedItem,
+    setLocationType,
+    setSearchTerm,
+    showAutomaticEntryItem,
+    showEntryItem,
+  ]);
 
   const onClose = React.useCallback(() => history.pop(), [history]);
 
