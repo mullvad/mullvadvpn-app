@@ -28,5 +28,9 @@ class InAppNotificationController(
                     )
                 )
             }
-            .stateIn(scope, SharingStarted.WhileSubscribed(replayExpiration = Duration.ZERO), emptyList())
+            .stateIn(
+                scope,
+                SharingStarted.WhileSubscribed(replayExpiration = Duration.ZERO),
+                emptyList(),
+            )
 }

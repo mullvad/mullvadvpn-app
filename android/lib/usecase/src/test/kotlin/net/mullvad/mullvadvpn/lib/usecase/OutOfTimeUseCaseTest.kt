@@ -52,8 +52,7 @@ class OutOfTimeUseCaseTest {
         every { mockAccountRepository.accountData } returns expiry
         every { mockConnectionProxy.tunnelState } returns events.consumeAsFlow()
 
-        outOfTimeUseCase =
-            OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository)
+        outOfTimeUseCase = OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository)
     }
 
     @AfterEach
