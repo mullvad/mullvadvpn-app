@@ -11,8 +11,8 @@
 /building/linux-container-image.txt @linus-mullvad @raksooo
 
 # Developer signing keys must be approved by team/tech leads
-/ci/keys/ @linus-mullvad @raksooo @pinkisemils @rawa
-/mullvad-update/trusted-metadata-signing-pubkeys @linus-mullvad @raksooo @pinkisemils @rawa
+/ci/keys/ @mullvad/appteam-lead
+/mullvad-update/trusted-metadata-signing-pubkeys @mullvad/appteam-lead
 
 # Desktop build server files owned by desktop leads
 /ci/buildserver* @linus-mullvad @raksooo
@@ -28,19 +28,19 @@
 **/deny.toml @linus-mullvad @raksooo
 
 # Changes to what CVEs are ignored must be approved by leads
-**/osv-scanner.toml @linus-mullvad @raksooo @pinkisemils @albin-mullvad @rawa
-/.github/workflows/osv-scanner*.yml @linus-mullvad @raksooo @pinkisemils @rawa
+**/osv-scanner.toml @mullvad/appteam-lead @albin-mullvad
+/.github/workflows/osv-scanner*.yml @mullvad/appteam-lead
 
 # Security related github action workflow changes must be approved by leads
-/.github/workflows/verify-locked-down-signatures.yml @linus-mullvad @raksooo @pinkisemils @rawa
-/ci/verify-locked-down-signatures.sh @linus-mullvad @raksooo @pinkisemils @rawa
-/.github/workflows/unicop.yml @linus-mullvad @raksooo @pinkisemils @rawa
+/.github/workflows/verify-locked-down-signatures.yml @mullvad/appteam-lead
+/ci/verify-locked-down-signatures.sh @mullvad/appteam-lead
+/.github/workflows/unicop.yml @mullvad/appteam-lead
 
 # Our own code ownership mapping and automation must be approved by leads
-/.github/workflows/code-owner-approval.yml @linus-mullvad @raksooo @pinkisemils @rawa
-/code-owners.json @linus-mullvad @raksooo @pinkisemils @rawa
+/.github/workflows/code-owner-approval.yml @mullvad/appteam-lead
+/code-owners.json @mullvad/appteam-lead
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
 # otherwise the protection becomes quite moot.
 # Keep this entry last, so it is sure to override any existing previous wildcard match
-/.github/CODEOWNERS @linus-mullvad @raksooo @pinkisemils @rawa
+/.github/CODEOWNERS @mullvad/appteam-lead
