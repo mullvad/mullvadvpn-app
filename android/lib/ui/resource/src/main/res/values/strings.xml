@@ -600,4 +600,6 @@
     <string name="direct_info_message_part2">This can be useful when you are not affected by censorship.</string>
     <string name="domain_fronting_info_message_part1">With the %s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor.</string>
     <string name="domain_fronting_info_message_part2">This can be useful when direct access and other methods are blocked by censorship.</string>
+    <string name="no_matching_relay_ip_availability">No servers match your settings, try changing server or device ip settings.</string>
+    <string name="no_matching_relay_entry_ip_availability">No entry server match your settings, try changing server or device ip settings.</string>
 </resources>

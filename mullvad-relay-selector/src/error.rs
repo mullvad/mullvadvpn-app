@@ -1,26 +1,29 @@
 //! Definition of relay selector errors
 #![allow(dead_code)]
 
-use crate::{
-    detailer,
-    relay_selector::{query::RelayQuery, relays::WireguardConfig},
-};
-use mullvad_types::relay_selector::{EntryConstraints, ExitConstraints};
+use crate::{detailer, relay_selector::relays::WireguardConfig};
+use mullvad_types::relay_selector::Reason;
 use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("The combination of relay constraints is invalid")]
-    InvalidConstraints,
-
     #[error("No relays matching current entry constraints: {0:?}")]
-    NoRelayEntry(Box<EntryConstraints>),
+    /// Reasons provided are only blocking reasons that are part of the enum Reasons
+    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
+    /// this is empty
+    NoRelayEntry(Box<Vec<Reason>>),
 
     #[error("No relays matching current exit constraints: {0:?}")]
-    NoRelayExit(Box<ExitConstraints>),
+    /// Reasons provided are only blocking reasons that are part of the enum Reasons
+    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
+    /// this is empty
+    NoRelayExit(Box<Vec<Reason>>),
 
     #[error("No relays matching current constraints: {0:?}")]
-    NoRelay(Box<RelayQuery>),
+    /// Reasons provided are only blocking reasons that are part of the enum Reasons
+    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
+    /// this is empty
+    NoRelay(Box<Vec<Reason>>),
 
     #[error("No bridges matching current constraints")]
     NoBridge,

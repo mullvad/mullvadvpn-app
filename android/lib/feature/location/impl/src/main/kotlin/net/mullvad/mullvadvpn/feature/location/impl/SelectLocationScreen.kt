@@ -974,18 +974,27 @@ private fun ColumnScope.Loading() {
 
 @Composable
 private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
-    when ((this as? ErrorStateCause.TunnelParameterError)?.error) {
-        ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
-            stringResource(R.string.no_matching_relay)
+    when (val error = (this as? ErrorStateCause.TunnelParameterError)?.error) {
+        is ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
+            if (error.unavailableIpVersion) {
+                stringResource(R.string.no_matching_relay_ip_availability)
+            } else {
+                stringResource(R.string.no_matching_relay)
+            }
 
         // This case happens if we are doing an auto multihop and the exit relay becomes invalid
         // e.g. because an incompatible owner or provider filter is set on the exit.
         ParameterGenerationError.NoMatchingRelayExit if relayListType is RelayListType.Single ->
             stringResource(R.string.no_matching_relay)
 
-        ParameterGenerationError.NoMatchingRelayEntry if
+        is ParameterGenerationError.NoMatchingRelayEntry if
             relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.ENTRY
-         -> stringResource(R.string.no_matching_relay)
+         ->
+            if (error.unavailableIpVersion) {
+                stringResource(R.string.no_matching_relay_ip_availability)
+            } else {
+                stringResource(R.string.no_matching_relay)
+            }
 
         ParameterGenerationError.NoMatchingRelayExit if
             relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.EXIT
