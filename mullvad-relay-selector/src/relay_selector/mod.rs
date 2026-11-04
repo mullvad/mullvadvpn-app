@@ -8,6 +8,7 @@ pub mod query;
 pub mod relays;
 
 use relays::{Multihop, Singlehop, WireguardConfig};
+use vec1::Vec1;
 
 use crate::{
     detailer::wireguard_endpoint,
