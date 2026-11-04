@@ -163,9 +163,9 @@ class LoginViewModel(
         newDeviceRepository.newDeviceCreated()
 
         viewModelScope.launch(ioDispatcher) {
-            launch { accountRepository.refreshAccountData(waitForDeviceState = true) }
             // Find if user is out of time
             val isOutOfTimeDeferred = async {
+                accountRepository.refreshAccountData(waitForDeviceState = true)
                 accountRepository.accountData
                     .mapNotNull { it?.expiryDate?.isBeforeNowInstant() }
                     .first()

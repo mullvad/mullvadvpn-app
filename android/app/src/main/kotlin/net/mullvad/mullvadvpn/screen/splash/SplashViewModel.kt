@@ -52,7 +52,10 @@ class SplashViewModel(
     // We know the user is logged in, but we need to find out if their account has expired
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
-        val expiry = viewModelScope.async { accountRepository.accountData.filterNotNull().first() }
+        val expiry = viewModelScope.async {
+            accountRepository.refreshAccountData()
+            accountRepository.accountData.filterNotNull().first()
+        }
 
         val accountData = select {
             expiry.onAwait { it }
