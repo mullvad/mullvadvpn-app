@@ -796,19 +796,19 @@ actor TunnelManager {
     /// Schedule a network path update with a delay to debounce rapid changes.
     private func scheduleNetworkPathUpdate(_ path: Network.NWPath) {
         dispatchPrecondition(condition: .onQueue(internalQueue))
-//        pendingNetworkPathUpdate?.cancel()
-//
-//        let workItem = DispatchWorkItem { [weak self] in
-//            Task {
-//                await self?.didUpdateNetworkPath(path)
-//            }
-//        }
-//        pendingNetworkPathUpdate = workItem
-//
-//        internalQueue.asyncAfter(
-//            deadline: .now().advanced(by: Self.networkPathUpdateDelay),
-//            execute: workItem
-//        )
+        pendingNetworkPathUpdate?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            Task {
+                await self?.didUpdateNetworkPath(path)
+            }
+        }
+        pendingNetworkPathUpdate = workItem
+
+        internalQueue.asyncAfter(
+            deadline: .now().advanced(by: Self.networkPathUpdateDelay),
+            execute: workItem
+        )
         didUpdateNetworkPath(path)
     }
 

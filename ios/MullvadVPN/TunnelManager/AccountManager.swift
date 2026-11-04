@@ -57,7 +57,6 @@ struct AccountManager: Sendable {
                 cancelUponExpiration: true
             ))
 
-
         // Unsetting (ie. logging out) or deleting the account should cancel all other
         // currently ongoing activity.
         switch action {
