@@ -3,6 +3,7 @@
 //! Most types in this module are equivalent to the ones in `mullvad-management-interface\proto\management_interface.proto`.
 //! See the proto file for more documentation.
 
+use std::collections::HashSet;
 use talpid_types::net::IpVersion;
 
 use crate::{
@@ -109,6 +110,29 @@ pub struct MultihopConstraints {
 pub struct RelayPartitions {
     pub matches: Vec<WireguardRelay>,
     pub discards: Vec<(WireguardRelay, Vec<Reason>)>,
+}
+
+impl RelayPartitions {
+    /// A Reason is defined for a given discarded relays as the list of constraints that need to be
+    /// loosened in order to turn it into a match.
+    /// This will return all reasons that if loosened will cause the number of matches to be more
+    /// than 0. If multiple reasons are required to be loosened to get any match, this will return
+    /// empty.
+    pub fn get_all_blocking_reasons(&self) -> Vec<Reason> {
+        self.discards
+            .iter()
+            .filter_map(|(_relay, reasons)| {
+                if reasons.len() == 1 {
+                    Some(&reasons[0])
+                } else {
+                    None
+                }
+            })
+            .collect::<HashSet<&Reason>>()
+            .into_iter()
+            .cloned()
+            .collect()
+    }
 }
 
 /// All possible reasons why a relay was filtered out for a particular query.
