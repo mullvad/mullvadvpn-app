@@ -178,7 +178,7 @@ impl RelaySelector {
 
         let endpoint_set = annotated
             .endpoint_set_for(entry)
-            .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
+            .ok_or_else(|| Error::NoRelay(Vec::default()))?;
 
         let entry_specific = query.entry_specific();
         let (wg_addr, obfuscator) = endpoint_set
@@ -261,9 +261,12 @@ fn select_wireguard_relay(
     match &query.hops {
         Hops::Single(constraints) => {
             let partitions = filter::partition_entry(relays, constraints);
+            if partitions.matches.is_empty() {
+                return Err(Error::NoRelay(partitions.get_all_blocking_reasons()));
+            }
             match helpers::pick_random_relay(&partitions.matches) {
                 Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
-                None => Err(Error::NoRelay(Box::new(query.clone()))),
+                None => Err(Error::NoRelay(Vec::default())),
             }
         }
         Hops::Auto(constraints) => {
@@ -294,11 +297,22 @@ fn select_from_multihop_partitions(
 ) -> Result<WireguardConfig, Error> {
     let MultihopConstraints {
         entry: entry_constraints,
-        exit: exit_constraints,
+        exit: _exit_constraints,
     } = multihop_constraints;
+    if partitions.exits.matches.is_empty() {
+        return Err(Error::NoRelayExit(
+            partitions.exits.get_all_blocking_reasons(),
+        ));
+    }
+
+    if partitions.entries.matches.is_empty() {
+        return Err(Error::NoRelayEntry(
+            partitions.entries.get_all_blocking_reasons(),
+        ));
+    }
 
     let exit = helpers::pick_random_relay(&partitions.exits.matches)
-        .ok_or_else(|| Error::NoRelayExit(Box::new(exit_constraints)))?;
+        .ok_or_else(|| Error::NoRelayExit(Vec::default()))?;
 
     let entry = if matches!(entry_constraints.general.location, Constraint::Any) {
         // `Constraint::Any` implies an automatic entry selection with no geographical constraints.
@@ -317,11 +331,11 @@ fn select_from_multihop_partitions(
             .map(|r| r.relay)
             .collect();
         helpers::pick_random_relay_excluding(&closest, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
+            .ok_or_else(|| Error::NoRelayEntry(Vec::default()))?
             .clone()
     } else {
         helpers::pick_random_relay_excluding(&partitions.entries.matches, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
+            .ok_or_else(|| Error::NoRelayEntry(Vec::default()))?
             .clone()
     };
 

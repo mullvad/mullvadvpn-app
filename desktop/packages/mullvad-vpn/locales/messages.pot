@@ -4018,6 +4018,9 @@ msgstr ""
 msgid "No email app available on the device"
 msgstr ""
 
+msgid "No entry server match your settings, try changing server or device ip settings."
+msgstr ""
+
 msgid "No entry server match your settings, try changing server or other settings."
 msgstr ""
 
@@ -4031,6 +4034,9 @@ msgid "No matching servers found."
 msgstr ""
 
 msgid "No result for \"%s\", please try a different search"
+msgstr ""
+
+msgid "No servers match your settings, try changing server or device ip settings."
 msgstr ""
 
 msgid "Not found"
