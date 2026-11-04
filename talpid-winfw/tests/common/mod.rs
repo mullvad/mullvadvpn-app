@@ -81,6 +81,7 @@ impl Firewall {
     pub fn reset(&mut self) -> Result<(), ApplyError> {
         match self.manager.as_mut() {
             Some(manager) => manager.reset(),
+            // TODO: Consider using same timeout as manager
             None => talpid_winfw::purge_all(),
         }
     }
