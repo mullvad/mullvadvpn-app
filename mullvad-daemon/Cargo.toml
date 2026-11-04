@@ -122,6 +122,10 @@ insta = { workspace = true, features = ["json"] }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
 
+[build-dependencies]
+mullvad-version = { path = "../mullvad-version" }
+winresource.workspace = true
+
 # In-app upgrades exist on Windows and macOS only, so only they need the
 # download-and-install half of `mullvad-update`. Keep in sync with the
 # `in_app_upgrade` cfg set in `build.rs`.
@@ -171,14 +175,6 @@ features = [
   "Win32_System_Memory",
   "Win32_System_Threading",
 ]
-
-[target."cfg(windows)".build-dependencies]
-mullvad-version = { path = "../mullvad-version" }
-winresource.workspace = true
-
-[target."cfg(windows)".build-dependencies.windows-sys]
-workspace = true
-features = ["Win32_System_SystemServices"]
 
 [features]
 default = ["default-allocator"]

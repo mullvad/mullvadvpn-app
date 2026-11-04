@@ -1,20 +1,15 @@
 use std::env;
 
-#[cfg(windows)]
-fn make_lang_id(p: u16, s: u16) -> u16 {
-    (s << 10) | p
-}
+// English (United States): `MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)`
+// Sourced from winnt.h: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-makelangid
+const LANG_ID_EN_US: u16 = 0x0409;
 
 fn main() {
-    #[cfg(windows)]
-    {
+    if matches!(target_os(), Os::Windows) {
         let mut res = winresource::WindowsResource::new();
         res.set("ProductVersion", mullvad_version::VERSION);
         res.set_icon("../dist-assets/icon.ico");
-        res.set_language(make_lang_id(
-            windows_sys::Win32::System::SystemServices::LANG_ENGLISH as u16,
-            windows_sys::Win32::System::SystemServices::SUBLANG_ENGLISH_US as u16,
-        ));
+        res.set_language(LANG_ID_EN_US);
         println!("cargo::rerun-if-env-changed=MULLVAD_ADD_MANIFEST");
         if env::var("MULLVAD_ADD_MANIFEST")
             .map(|s| s != "0")
