@@ -5,7 +5,6 @@ import { useActiveFilters, useEntryLocation } from '../../../../../../../feature
 import { useMultihop } from '../../../../../../../features/multihop/hooks';
 import { Menu } from '../../../../../../../lib/components/menu';
 import { useHeaderMenuContext } from '../../HeaderMenuContext';
-import { useSetMultihopWhenNeeded } from '../../hooks';
 
 export function MultihopWhenNeededMenuOption() {
   const { multihop } = useMultihop();
@@ -14,13 +13,13 @@ export function MultihopWhenNeededMenuOption() {
   const { onOpenChange } = useHeaderMenuContext();
 
   const { entryLocation } = useEntryLocation();
-  const setMultihopWhenNeeded = useSetMultihopWhenNeeded();
+  const { setMultihop } = useMultihop();
 
   const handleMultihopWhenNeeded = React.useCallback(async () => {
     if (multihop === 'always' && isAnyListEntryFilterActive && entryLocation !== 'any') {
       setEntryFiltersWarningDialogOpen(true);
     } else {
-      await setMultihopWhenNeeded();
+      await setMultihop({ multihop: 'when-needed' });
       onOpenChange?.(false);
     }
   }, [
@@ -29,7 +28,7 @@ export function MultihopWhenNeededMenuOption() {
     multihop,
     onOpenChange,
     setEntryFiltersWarningDialogOpen,
-    setMultihopWhenNeeded,
+    setMultihop,
   ]);
 
   return (

@@ -3,23 +3,16 @@ import React from 'react';
 import { messages } from '../../../../../../../../shared/gettext';
 import { useMultihop } from '../../../../../../../features/multihop/hooks';
 import { Menu } from '../../../../../../../lib/components/menu';
-import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 import { useHeaderMenuContext } from '../../HeaderMenuContext';
 
 export function MultihopAlwaysMenuOption() {
   const { multihop, setMultihop } = useMultihop();
   const { onOpenChange } = useHeaderMenuContext();
-  const { locationType, setLocationType } = useSelectLocationViewContext();
 
   const handleMultihopAlways = React.useCallback(async () => {
     await setMultihop({ multihop: 'always' });
     onOpenChange?.(false);
-    if (locationType === 'automaticEntry') {
-      setLocationType('entry');
-    } else {
-      setLocationType('exit');
-    }
-  }, [locationType, onOpenChange, setLocationType, setMultihop]);
+  }, [onOpenChange, setMultihop]);
 
   return (
     <Menu.Option>
