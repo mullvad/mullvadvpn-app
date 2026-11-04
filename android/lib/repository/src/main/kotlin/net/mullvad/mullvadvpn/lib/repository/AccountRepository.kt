@@ -23,19 +23,17 @@ class AccountRepository(
     private val deviceRepository: DeviceRepository,
     val scope: CoroutineScope,
 ) {
-    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
-
-    private val _mutableAccountDataCache: MutableStateFlow<AccountData?> = MutableStateFlow(null)
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
-    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
-
     val isNewAccount: StateFlow<Boolean> = _isNewAccount
 
+    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
     val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
 
-    val accountData: StateFlow<AccountData?> = _mutableAccountDataCache
+    private val _mutableAccountData: MutableStateFlow<AccountData?> = MutableStateFlow(null)
+    val accountData: StateFlow<AccountData?> = _mutableAccountData
+
+    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         managementService.createAccount().onRight { _isNewAccount.update { true } }
@@ -45,7 +43,7 @@ class AccountRepository(
 
     suspend fun logout() =
         managementService.logoutAccount().onRight {
-            _mutableAccountDataCache.update { null }
+            _mutableAccountData.update { null }
             _isNewAccount.update { false }
         }
 
@@ -83,7 +81,7 @@ class AccountRepository(
             // same account number
             deviceRepository.deviceState.value?.let {
                 if (it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber) {
-                    _mutableAccountDataCache.emit(accountData)
+                    _mutableAccountData.emit(accountData)
                 }
             }
         }
@@ -93,7 +91,7 @@ class AccountRepository(
         managementService.getWebsiteAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
-        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
+        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }
     }
 
     fun resetIsNewAccount() {
@@ -101,7 +99,7 @@ class AccountRepository(
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
-        managementService.deleteAccount().onRight { _mutableAccountDataCache.emit(null) }
+        managementService.deleteAccount().onRight { _mutableAccountData.emit(null) }
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))
