@@ -4,6 +4,10 @@ use std::{io, path::Path};
 const IDB_X64EXE: usize = 1;
 const IDB_ARM64EXE: usize = 2;
 
+// English (United States): `MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)`
+// Sourced from winnt.h: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-makelangid
+const LANG_ID_EN_US: u16 = 0x0409;
+
 fn main() -> anyhow::Result<()> {
     if !std::env::var("TARGET")
         .context("missing TARGET")?
@@ -39,10 +43,7 @@ IDB_ARM64EXE BINARY "{arm64_installer}"
 
     res.set("ProductVersion", mullvad_version::VERSION);
     res.set_icon("../dist-assets/icon.ico");
-    res.set_language(make_lang_id(
-        windows_sys::Win32::System::SystemServices::LANG_ENGLISH as u16,
-        windows_sys::Win32::System::SystemServices::SUBLANG_ENGLISH_US as u16,
-    ));
+    res.set_language(LANG_ID_EN_US);
 
     println!("cargo:rerun-if-changed=windows-installer.manifest");
     res.set_manifest_file("windows-installer.manifest");
@@ -60,9 +61,4 @@ fn build_resource_rust_header() -> io::Result<()> {
 pub const IDB_ARM64EXE: usize = {IDB_ARM64EXE};\n"
         ),
     )
-}
-
-// Sourced from winnt.h: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-makelangid
-fn make_lang_id(p: u16, s: u16) -> u16 {
-    (s << 10) | p
 }

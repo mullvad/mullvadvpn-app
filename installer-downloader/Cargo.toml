@@ -13,11 +13,6 @@ LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
 [build-dependencies]
 anyhow = { workspace = true }
-windows-sys = { workspace = true, features = [
-  "Win32_System",
-  "Win32_System_LibraryLoader",
-  "Win32_System_SystemServices"
-] }
 winresource.workspace = true
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
