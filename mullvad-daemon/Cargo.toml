@@ -172,13 +172,9 @@ features = [
   "Win32_System_Threading",
 ]
 
-[target."cfg(windows)".build-dependencies]
+[build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winresource.workspace = true
-
-[target."cfg(windows)".build-dependencies.windows-sys]
-workspace = true
-features = ["Win32_System_SystemServices"]
 
 [features]
 default = ["default-allocator"]
