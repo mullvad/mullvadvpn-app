@@ -234,18 +234,6 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     get_result.endpoint
 }
 
-/// All obfuscator configs of the returned [`Obfuscators`], whether a single one or a multiplexer.
-fn obfuscator_configs(obfuscator: Option<Obfuscators>) -> Vec<ObfuscatorConfig> {
-    match obfuscator {
-        Some(Obfuscators::Single(config)) => vec![config],
-        Some(Obfuscators::Multiplexer {
-            configs: (first, rest),
-            ..
-        }) => std::iter::once(first).chain(rest).collect(),
-        None => panic!("Relay selector should have picked an obfuscator"),
-    }
-}
-
 fn default_relay_selector() -> RelaySelector {
     RelaySelector::new(RELAYS.clone(), BRIDGES.clone())
 }
@@ -427,7 +415,8 @@ mod relay_selection {
             )
         };
         assert!(relay.obfuscator.is_some_and(|obfuscator| {
-            obfuscator_configs(Some(obfuscator))
+            obfuscator
+                .obfuscator_configs()
                 .iter()
                 .all(|config| matches!(config, ObfuscatorConfig::Shadowsocks { .. }))
         }));
@@ -454,7 +443,7 @@ mod relay_selection {
             )
         };
         // One Shadowsocks config per IP family, each with a dedicated extra address.
-        let configs = obfuscator_configs(obfuscator);
+        let configs = obfuscator.unwrap().obfuscator_configs();
         let endpoints: HashSet<IpAddr> = configs
             .iter()
             .map(|config| match config {
@@ -508,7 +497,8 @@ mod relay_selection {
             )
         };
         assert!(relay.obfuscator.is_some_and(|obfuscator| {
-            obfuscator_configs(Some(obfuscator))
+            obfuscator
+                .obfuscator_configs()
                 .iter()
                 .all(|config| matches!(config, ObfuscatorConfig::Quic { .. }))
         }));
@@ -582,7 +572,8 @@ mod relay_selection {
             )
         };
         assert!(relay.obfuscator.is_some_and(|obfuscator| {
-            obfuscator_configs(Some(obfuscator))
+            obfuscator
+                .obfuscator_configs()
                 .iter()
                 .all(|config| matches!(config, ObfuscatorConfig::Lwo { .. }))
         }));
@@ -730,7 +721,8 @@ mod relay_selection {
             )
         };
         assert!(relay.obfuscator.is_some_and(|obfuscator| {
-            obfuscator_configs(Some(obfuscator))
+            obfuscator
+                .obfuscator_configs()
                 .iter()
                 .all(|config| matches!(config, ObfuscatorConfig::Udp2Tcp { .. }))
         }));
@@ -780,7 +772,7 @@ mod relay_selection {
                 )
             };
             // One config per IP family, each with a valid port.
-            let configs = obfuscator_configs(relay.obfuscator);
+            let configs = relay.obfuscator.unwrap().obfuscator_configs();
             assert_eq!(configs.len(), 2);
             let mut families = HashSet::new();
             for config in configs {
