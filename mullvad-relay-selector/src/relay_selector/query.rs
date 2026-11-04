@@ -255,11 +255,12 @@ pub mod builder {
     /// `Any` is the typestate for "no choice made yet" on a given axis.
     pub struct Any;
 
-    /// QUIC obfuscation typestate (no user-configurable parameters).
+    // Anti-censorship typestate variants.
+    pub struct WireguardPort;
     pub struct Quic;
-
-    /// LWO obfuscation typestate (no user-configurable parameters at builder level).
     pub struct Lwo;
+    pub struct Shadowsocks;
+    pub struct Udp2Tcp;
 
     // TODO: Convert to type parameter and make builder typed on Hop count?
     #[derive(Default)]
@@ -432,7 +433,7 @@ pub mod builder {
     impl<Multihop> RelayQueryBuilder<Multihop, Any> {
         /// Pin the WireGuard port via the `Port` obfuscation mode (no actual
         /// obfuscation, just port pinning).
-        pub fn port(mut self, port: u16) -> RelayQueryBuilder<Multihop, WireguardPortSettings> {
+        pub fn port(mut self, port: u16) -> RelayQueryBuilder<Multihop, WireguardPort> {
             let port = WireguardPortSettings::from(port);
             self.entry_specific.obfuscation = ObfuscationConstraint::direct(port);
             RelayQueryBuilder {
@@ -441,35 +442,35 @@ pub mod builder {
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                obfuscation_state: port,
+                obfuscation_state: WireguardPort,
                 _phantom: PhantomData,
             }
         }
 
-        pub fn shadowsocks(mut self) -> RelayQueryBuilder<Multihop, ShadowsocksSettings> {
+        pub fn shadowsocks(mut self) -> RelayQueryBuilder<Multihop, Shadowsocks> {
             let settings = ShadowsocksSettings::default();
-            self.entry_specific.obfuscation = ObfuscationConstraint::shadowsocks(settings.clone());
+            self.entry_specific.obfuscation = ObfuscationConstraint::shadowsocks(settings);
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                obfuscation_state: settings,
+                obfuscation_state: Shadowsocks,
                 _phantom: PhantomData,
             }
         }
 
-        pub fn udp2tcp(mut self) -> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings> {
+        pub fn udp2tcp(mut self) -> RelayQueryBuilder<Multihop, Udp2Tcp> {
             let settings = Udp2TcpObfuscationSettings::default();
-            self.entry_specific.obfuscation = ObfuscationConstraint::udp2tcp(settings.clone());
+            self.entry_specific.obfuscation = ObfuscationConstraint::udp2tcp(settings);
             RelayQueryBuilder {
                 entry_specific: self.entry_specific,
                 exit: self.exit,
                 multihop_entry: self.multihop_entry,
                 hop_choice: self.hop_choice,
                 allowed_ips: self.allowed_ips,
-                obfuscation_state: settings,
+                obfuscation_state: Udp2Tcp,
                 _phantom: PhantomData,
             }
         }

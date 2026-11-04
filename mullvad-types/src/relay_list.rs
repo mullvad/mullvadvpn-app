@@ -485,9 +485,14 @@ impl WireguardRelayEndpointData {
         }
     }
 
-    /// Add `in_addrs` to the existing shadowsocks extra in addresses.
-    pub fn add_shadowsocks_extra_in_addrs(self, in_addrs: impl Iterator<Item = IpAddr>) -> Self {
-        let in_addrs = self.shadowsocks_extra_in_addrs().copied().chain(in_addrs);
+    /// Set shadowsocks extra in-addresses.
+    ///
+    /// Note that shadowsocks is always available on the WireGuard endpoint of the relay using
+    /// its dedicated ports.
+    pub fn set_shadowsocks_extra_in_addrs(
+        self,
+        in_addrs: impl IntoIterator<Item = IpAddr>,
+    ) -> Self {
         Self {
             shadowsocks_extra_addr_in: HashSet::from_iter(in_addrs),
             ..self
