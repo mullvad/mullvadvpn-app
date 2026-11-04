@@ -74,8 +74,6 @@ runs:
         [[ -d "${{ env.TEST_REPORT_BUNDLE_PATH }}" ]] \
           && xcrun xcresulttool get test-results summary --path "${{ env.TEST_REPORT_BUNDLE_PATH }}" \
           || echo "Skipping summary, report is not a directory"
-        "${{ inputs.outputs_path }}/mullvadvpn-app/ci/ios/recover-screen-recordings.sh" \
-          "${{ env.TEST_REPORT_BUNDLE_PATH }}"
       shell: bash
 
     - name: Set artifact name with branch and timestamp
