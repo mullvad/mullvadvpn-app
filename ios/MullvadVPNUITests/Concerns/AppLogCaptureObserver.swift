@@ -33,16 +33,16 @@ class AppLogCaptureObserver: NSObject, @preconcurrency XCTestObservation {
         XCTContext.runActivity(named: "Record app logs") { activity in
             let app = configurable.app
             do {
-                try app.relaunch(configurable.target)
+                try app.relaunch(configurable.target, authenticationState: .forceLoggedOut, settingsResetPolicy: .all)
             } catch {
                 return
             }
 
             HeaderBar(app).tapSettingsButton()
             SettingsPage(app).tapReportAProblemCell()
-            ProblemReportPage(app).tapViewAppLogsButton()
-
-            let text = AppLogsPage(app).getAppLogText()
+            let text = ProblemReportPage(app)
+                .tapViewAppLogsButton()
+                .getAppLogText()
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
