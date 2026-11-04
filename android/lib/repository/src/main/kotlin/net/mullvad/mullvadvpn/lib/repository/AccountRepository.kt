@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
@@ -69,7 +69,7 @@ class AccountRepository(
         // Only refresh if logged in
         val deviceState =
             if (waitForDeviceState) {
-                deviceRepository.deviceState.filterNotNull().first() as? DeviceState.LoggedIn
+                deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>().first()
             } else {
                 deviceRepository.deviceState.value as? DeviceState.LoggedIn
             } ?: return
