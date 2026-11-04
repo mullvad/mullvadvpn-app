@@ -1,3 +1,4 @@
+use crate::types::error_state::generation_error::ErrorType;
 use crate::types::{FromProtobufTypeError, proto};
 use talpid_types::net::IpVersion;
 
@@ -201,30 +202,51 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 error_state.cause()
                             {
                                 match reason {
-                                talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry => {
-                                    i32::from(GenerationError::NoMatchingRelayEntry)
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version } => {
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NoMatchingRelayEntry),
+                                        unavailable_ip_version: Some(*unavailable_ip_version),
+                                    })
                                 }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit => {
-                                    i32::from(GenerationError::NoMatchingRelayExit)
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NoMatchingRelayExit),
+                                        unavailable_ip_version: None,
+                                    })
                                 }
-                                    talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
-                                        i32::from(GenerationError::NoMatchingRelay)
-                                    }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version } => {
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NoMatchingRelay),
+                                        unavailable_ip_version: Some(*unavailable_ip_version),
+                                    })
+                                }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
-                                    i32::from(GenerationError::NoMatchingBridgeRelay)
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NoMatchingBridgeRelay),
+                                        unavailable_ip_version: None,
+                                    })
                                 }
                                 talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError => {
-                                    i32::from(GenerationError::CustomTunnelHostResolutionError)
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::CustomTunnelHostResolutionError),
+                                        unavailable_ip_version: None,
+                                    })
                                 }
                                 talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 } => {
-                                    i32::from(GenerationError::NetworkIpv4Unavailable)
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NetworkIpv4Unavailable),
+                                        unavailable_ip_version: None,
+                                    })
                                 }
                                 talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 } => {
-                                    i32::from(GenerationError::NetworkIpv6Unavailable)
+                                    Some(GenerationError {
+                                        r#type: i32::from(ErrorType::NetworkIpv6Unavailable),
+                                        unavailable_ip_version: None,
+                                    })
                                 }
                             }
                             } else {
-                                0
+                                None
                             },
                         policy_error:
                             if let talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(reason) =
@@ -414,16 +436,22 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         }
                     }
                     Ok(proto::error_state::Cause::TunnelParameterError) => {
-                        let parameter_error = match proto::error_state::GenerationError::try_from(parameter_error) {
-                            Ok(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError,
-                            Ok(proto::error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
-                            Ok(proto::error_state::GenerationError::NoMatchingRelayEntry) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry,
-                            Ok(proto::error_state::GenerationError::NoMatchingRelayExit) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit,
-                            Ok(proto::error_state::GenerationError::NetworkIpv4Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 },
-                            Ok(proto::error_state::GenerationError::NetworkIpv6Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 },
-                            Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
+                        let parameter_error = parameter_error.ok_or_else(|| {
+                            FromProtobufTypeError::invalid_argument(
+                                "missing tunnel parameter error",
+                            )
+                        })?;
+
+                        let parameter_error = match ErrorType::try_from(parameter_error.r#type) {
+                            Ok(ErrorType::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError,
+                            Ok(ErrorType::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
+                            Ok(ErrorType::NoMatchingRelayEntry) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version: parameter_error.unavailable_ip_version.unwrap() },
+                            Ok(ErrorType::NoMatchingRelayExit) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit,
+                            Ok(ErrorType::NetworkIpv4Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 },
+                            Ok(ErrorType::NetworkIpv6Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 },
+                            Ok(ErrorType::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version: parameter_error.unavailable_ip_version.unwrap() },
                             _ => return Err(FromProtobufTypeError::invalid_argument(
-                                "invalid parameter error",
+                                "invalid tunnel parameter error",
                             )),
                         };
                         talpid_tunnel::ErrorStateCause::TunnelParameterError(parameter_error)
