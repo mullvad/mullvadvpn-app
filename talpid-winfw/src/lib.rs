@@ -34,10 +34,15 @@ mod policy_rules {
         /// The tunnel interface alias.
         pub alias: T,
         /// The IP of the exit relay in a multihop tunnel, if any.
+        // TODO: Should be removed as multihop tunnel does not rely on routing back to tunnel
+        //       interface anymore.
         pub exit_ip: Option<IpAddr>,
         /// The processes allowed to reach the relays; empty means any process.
         pub clients: Vec<PathBuf>,
         /// What traffic is allowed inside the tunnel while connecting.
+        // TODO: Could be removed. Ephemeral peer service uses a different tunnel, so we no
+        //       longer need to use the firewall to block tunnel traffic while retrieving an
+        //       ephemeral peer.
         pub allowed_tunnel_traffic: AllowedTunnelTraffic,
     }
 
@@ -146,6 +151,9 @@ mod policy_rules {
     }
 
     /// Permit inbound traffic inside the tunnel.
+    // TODO: Consider blocking incoming connections as we no longer support port forwarding.
+    //       It may be useful for custom tunnels, if allow LAN does not already cover it.
+    //       Should be synced with all firewall implementations.
     fn tunnel_rule_in(
         alias: &str,
         clients: Vec<PathBuf>,
