@@ -53,7 +53,7 @@ class OutOfTimeUseCaseTest {
         every { mockConnectionProxy.tunnelState } returns events.consumeAsFlow()
 
         outOfTimeUseCase =
-            OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository, scope.backgroundScope)
+            OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository)
     }
 
     @AfterEach
