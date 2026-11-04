@@ -312,7 +312,7 @@ function convertFromAuthFailedError(error: grpcTypes.ErrorState.AuthFailedError)
 }
 
 function convertFromParameterError(
-  error: grpcTypes.ErrorState.GenerationError,
+  error?: grpcTypes.ErrorState.GenerationError,
 ): TunnelParameterError {
   switch (error) {
     case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY:
@@ -327,6 +327,8 @@ function convertFromParameterError(
       return TunnelParameterError.ipv4Unavailable;
     case grpcTypes.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE:
       return TunnelParameterError.ipv6Unavailable;
+    default:
+      return TunnelParameterError.noMatchingRelay;
   }
 }
 

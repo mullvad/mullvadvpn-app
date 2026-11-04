@@ -977,6 +977,9 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
     when ((this as? ErrorStateCause.TunnelParameterError)?.error) {
         ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
             stringResource(R.string.no_matching_relay)
+        ParameterGenerationError.NoMatchingRelayUnavailableIpVersion if
+            relayListType is RelayListType.Single
+         -> stringResource(R.string.no_matching_relay_ip_availability)
 
         // This case happens if we are doing an auto multihop and the exit relay becomes invalid
         // e.g. because an incompatible owner or provider filter is set on the exit.
@@ -986,6 +989,9 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
         ParameterGenerationError.NoMatchingRelayEntry if
             relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.ENTRY
          -> stringResource(R.string.no_matching_relay)
+        ParameterGenerationError.NoMatchingRelayEntryUnavailableIpVersion if
+            relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.ENTRY
+         -> stringResource(R.string.no_matching_relay_ip_availability)
 
         ParameterGenerationError.NoMatchingRelayExit if
             relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.EXIT

@@ -640,4 +640,6 @@
     <string name="show_private_key_auth_subtitle">Verify your identity to view the private key</string>
     <string name="advanced_feature">Advanced feature</string>
     <string name="custom_tunnels_advanced_warning">Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution.</string>
+    <string name="no_matching_relay_ip_availability">No servers match your settings, try changing server or device ip settings.</string>
+    <string name="no_matching_relay_entry_ip_availability">No entry server match your settings, try changing server or device ip settings.</string>
 </resources>
