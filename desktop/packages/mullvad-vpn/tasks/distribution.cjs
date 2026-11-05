@@ -60,6 +60,7 @@ function newConfig() {
       '!node_modules/@types',
       '!node_modules/nseventforwarder/debug',
       '!node_modules/windows-utils/debug',
+      '!node_modules/macos-utils/debug',
     ],
 
     // Make sure that all files declared in "extraResources" exists and abort if they don't.

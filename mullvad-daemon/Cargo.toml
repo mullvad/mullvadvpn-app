@@ -95,6 +95,7 @@ rand = { workspace = true }
 rolling-file.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
+smappservice-rs.workspace = true
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-error.workspace = true
