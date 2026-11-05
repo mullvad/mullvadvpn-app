@@ -71,6 +71,9 @@ export function useMapCustomListsToLocations(
     };
 
     const disabledReason = isCustomListDisabled(details, customListGeographicalLocations);
+    const needsOtherEntry =
+      customListGeographicalLocations.length > 0 &&
+      customListGeographicalLocations.every((location) => location.needsOtherEntry);
 
     return {
       type: 'customList',
@@ -83,6 +86,7 @@ export function useMapCustomListsToLocations(
       active: disabledReason !== DisabledReason.inactive,
       expanded: customListExpanded,
       selected: isLocationSelected(details, selectedLocation),
+      needsOtherEntry,
     };
   });
 
