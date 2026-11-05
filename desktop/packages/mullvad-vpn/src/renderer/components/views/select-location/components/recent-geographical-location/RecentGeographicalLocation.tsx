@@ -37,6 +37,8 @@ function RecentGeographicalLocationImpl({
     void handleSelect(location);
   }, [location, handleSelect]);
 
+  const showNeedsOtherEntry = location.needsOtherEntry;
+
   return (
     <Location root selected={location.selected}>
       <Location.Accordion expanded disabled={disabled}>
@@ -53,6 +55,7 @@ function RecentGeographicalLocationImpl({
                   </FootnoteMiniSemiBold>
                 )}
               </FlexColumn>
+              {showNeedsOtherEntry && <Location.Accordion.Header.Item.Icon icon="magic-multihop" />}
             </Location.Accordion.Header.Item>
           </Location.Accordion.Header.ItemTrigger>
           <RecentGeographicalLocationTrailingActions location={location} />
