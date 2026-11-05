@@ -191,7 +191,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_BASELINE)
-                .weight(class(0))
+                .weight(min_weight())
                 .action(ActionType::Block)
                 .add(cx.transaction)?;
             cx.recorder.record(Record::Filter(id));
@@ -229,7 +229,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_BASELINE)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(LoopbackConditionBuilder::new().build())
                 .add(cx.transaction)?;
@@ -247,7 +247,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::ConnectV4)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(local_port_condition(ports::DHCP_V4_CLIENT_PORT))
@@ -264,7 +264,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::AcceptV4)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(local_port_condition(ports::DHCP_V4_CLIENT_PORT))
@@ -284,7 +284,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::ConnectV6)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(
@@ -307,7 +307,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::AcceptV6)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(
@@ -411,7 +411,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_BASELINE)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(ProtocolConditionBuilder::icmpv6().build())
                 .condition(IcmpConditionBuilder::r#type().equal(icmp_type).build())
@@ -442,7 +442,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::AcceptV4)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(local_port_condition(ports::DHCP_V4_SERVER_PORT))
@@ -463,7 +463,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(Layer::ConnectV4)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(local_port_condition(ports::DHCP_V4_SERVER_PORT))
@@ -488,7 +488,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(layer)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit);
 
         for network in networks {
@@ -595,7 +595,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_BASELINE)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT))
                 .add(cx.transaction)?;
@@ -723,7 +723,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(layer)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(15))
+            .weight(max_weight())
             .action(ActionType::Permit)
             .condition(InterfaceConditionBuilder::local().alias(alias)?.build())
             .condition(remote_ip_condition(exit_ip));
@@ -739,7 +739,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(layer)
             .sublayer(SUBLAYER_BASELINE)
-            .weight(class(15))
+            .weight(max_weight())
             .action(ActionType::Block)
             .condition(InterfaceConditionBuilder::local().alias(alias)?.build())
             .condition(remote_ip_condition(exit_ip))
@@ -782,7 +782,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_BASELINE)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(InterfaceConditionBuilder::local().alias(alias)?.build());
 
@@ -830,7 +830,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_DNS)
-                .weight(class(0))
+                .weight(min_weight())
                 .action(ActionType::Block)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT))
                 .add(cx.transaction)?;
@@ -859,7 +859,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_DNS)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(LoopbackConditionBuilder::new().build())
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT))
@@ -900,7 +900,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_DNS)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT))
                 .condition(InterfaceConditionBuilder::local().alias(alias)?.build());
@@ -948,7 +948,7 @@ impl Rule {
                 .provider(PROVIDER)
                 .layer(layer)
                 .sublayer(SUBLAYER_DNS)
-                .weight(class(7))
+                .weight(medium_weight())
                 .action(ActionType::Permit)
                 .condition(remote_port_condition(ports::DNS_SERVER_PORT));
 
@@ -985,7 +985,7 @@ impl Rule {
             .provider(PROVIDER)
             .layer(layer)
             .sublayer(sublayer.guid())
-            .weight(class(7))
+            .weight(medium_weight())
             .action(ActionType::Permit)
             .condition(remote_ip_condition(endpoint.address.ip()))
             .condition(remote_port_condition(endpoint.address.port()))
@@ -995,6 +995,18 @@ impl Rule {
         cx.recorder.record(Record::Filter(id));
         Ok(())
     }
+}
+
+fn min_weight() -> FilterWeight {
+    class(0)
+}
+
+fn medium_weight() -> FilterWeight {
+    class(7)
+}
+
+fn max_weight() -> FilterWeight {
+    class(15)
 }
 
 /// The filter weight range `class`, from 0 to 15.
