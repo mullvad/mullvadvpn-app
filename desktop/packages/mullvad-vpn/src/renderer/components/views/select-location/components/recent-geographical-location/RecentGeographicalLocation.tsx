@@ -24,7 +24,7 @@ function RecentGeographicalLocationImpl({
 }: RecentGeographicalLocationProps) {
   const { handleSelect } = useLocationListsContext();
 
-  const ariaLabel = useLocationAriaLabel(location.label);
+  const ariaLabel = useLocationAriaLabel(location);
 
   const locationBreadcrumbs = useLocationBreadcrumbs(location);
   const breadcrumbsSubLabel = locationBreadcrumbs.join(', ');

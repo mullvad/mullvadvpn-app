@@ -35,7 +35,7 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
   const { handleSelect } = useLocationListsContext();
   const { loading } = useCustomListLocationContext();
 
-  const ariaLabel = useLocationAriaLabel(customList.label);
+  const ariaLabel = useLocationAriaLabel(customList);
 
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp || loading;

@@ -27,7 +27,7 @@ function CustomListGeographicalLocationImpl({
   const { loading, location, level } = useCustomListGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
 
-  const ariaLabel = useLocationAriaLabel(location.label);
+  const ariaLabel = useLocationAriaLabel(location);
 
   const locationChildren = getLocationChildren(location);
   const showChildren = locationChildren.length > 0 && expanded;
