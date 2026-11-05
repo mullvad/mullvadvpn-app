@@ -27,6 +27,9 @@ struct RootView: View {
             Spacer()
 
             LoginView(viewModel: viewModel)
+
+            Spacer()
+
             CreateAccountPromptView()
                 .background(Color.mullvadBackground)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 150)

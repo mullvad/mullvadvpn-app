@@ -34,6 +34,7 @@ enum LoggingInState: Sendable, Equatable {
 
 protocol LoggingIn {
     var state: LoggingInState { get set }
+    var isLoggedIn: Bool { get }
     func loginWith(_: String) async
     func createAccount() async
 }
@@ -43,6 +44,18 @@ class LoginViewModel: LoggingIn {
     var accountProxy: RESTAccountHandling!
     var deviceProxy: DeviceHandling!
     var state: LoggingInState = .`initial`
+
+    /// Whether settings hold a device, either from a login just now or from an earlier launch.
+    var isLoggedIn: Bool {
+        do {
+            return try settingsManager.readDeviceState().isLoggedIn
+        } catch {
+            // Expected when no one has logged in on this install yet, and the only trace of a
+            // keychain that refused the read otherwise.
+            logger.debug("Could not read a device state: \(error)")
+            return false
+        }
+    }
 
     private let logger = Logger(label: "LoginViewModel")
     private let settingsManager: SettingsManager
@@ -168,6 +181,7 @@ struct RelayListUpdaterStub: RelayListUpdating {
 @Observable
 final class LoginViewModelStub: LoggingIn {
     var state: LoggingInState = .`initial`
+    var isLoggedIn = false
 
     func loginWith(_: String) async {
         state = .authenticating

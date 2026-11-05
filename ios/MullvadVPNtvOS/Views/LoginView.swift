@@ -26,6 +26,14 @@ struct LoginView: View {
             Text("Authenticating")
         } else {
             mainContent()
+                // The success label carries the task for a login that just happened, but it
+                // renders nothing in the initial state, so a device stored by an earlier launch
+                // needs a task on a view that is always there.
+                .task {
+                    if case .initial = viewModel.state, viewModel.isLoggedIn {
+                        navigation.logIn()
+                    }
+                }
         }
     }
 
@@ -47,7 +55,9 @@ struct LoginView: View {
                 successLabel()
                     .task {
                         try? await Task.sleep(for: .seconds(1.5))
-                        navigation.logIn()
+                        if viewModel.isLoggedIn {
+                            navigation.logIn()
+                        }
                     }
                 loginErrorLabel()
             }
