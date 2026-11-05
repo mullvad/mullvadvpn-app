@@ -3587,6 +3587,7 @@ dependencies = [
  "dirs",
  "log",
  "once_cell",
+ "talpid-types",
  "thiserror 2.0.19",
  "widestring",
  "windows-sys 0.61.2",

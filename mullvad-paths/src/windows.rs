@@ -3,16 +3,19 @@ use once_cell::sync::OnceCell;
 use std::{
     ffi::c_void,
     io, mem,
-    os::windows::io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
+    os::windows::io::{
+        AsHandle as _, AsRawHandle, BorrowedHandle, FromRawHandle as _, OwnedHandle,
+    },
     path::{Path, PathBuf},
-    ptr,
+    ptr::{self, NonNull},
 };
+use talpid_types::{aligned_bytes::AlignedBytes, windows::LocalFreeGuard};
 use widestring::{U16CString, WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
         Foundation::{
             ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_EXECUTE, GENERIC_READ,
-            GENERIC_WRITE, HANDLE, LUID, LocalFree, S_OK,
+            GENERIC_WRITE, HANDLE, LUID, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
@@ -23,9 +26,9 @@ use windows_sys::{
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
             LUID_AND_ATTRIBUTES, LookupPrivilegeValueW, NO_INHERITANCE, RevertToSelf,
-            SE_PRIVILEGE_ENABLED, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
+            SE_PRIVILEGE_ENABLED, SID, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
             TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
-            TOKEN_QUERY, TOKEN_USER, TokenUser, WinAuthenticatedUserSid,
+            TOKEN_QUERY, TOKEN_USER, TokenUser, WELL_KNOWN_SID_TYPE, WinAuthenticatedUserSid,
             WinBuiltinAdministratorsSid, WinLocalSystemSid,
         },
         Storage::FileSystem::MAX_SID_SIZE,
@@ -144,87 +147,76 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
     create_dir_recursive_with_permissions(path, UserPermissions::read_only())
 }
 
-/// Sets security permissions for path such that admin has full ownership and access while
-/// authenticated users only have read access.
-fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
-    let wide_path = U16CString::from_os_str(path)?;
-    let security_information = Security::DACL_SECURITY_INFORMATION
-        | Security::PROTECTED_DACL_SECURITY_INFORMATION
-        | Security::GROUP_SECURITY_INFORMATION
-        | Security::OWNER_SECURITY_INFORMATION;
+/// Wrapper for a windows security identifier ([`SID`]).
+struct Sid {
+    /// Byte buffer for the dyn-sized [`SID`] struct.
+    pub buf: AlignedBytes<SID>,
+}
 
-    let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut admin_psid_len =
-        u32::try_from(admin_psid.len()).expect("admin_psid length fits in u32");
+impl Sid {
+    pub fn as_ptr(&self) -> *const c_void {
+        self.buf.as_ptr().cast::<c_void>()
+    }
+}
 
-    // SAFETY: The pointer to the PSID is valid for writes of `admin_psid_len` bytes
-    if unsafe {
+/// Get a [`SID`] from a [`WELL_KNOWN_SID_TYPE`].
+fn get_well_known_sid(sid: WELL_KNOWN_SID_TYPE) -> Result<Sid> {
+    // allocate a buf for the dyn-sized SID type.
+    let mut len = MAX_SID_SIZE;
+    let mut buf = AlignedBytes::<SID>::new(len as usize);
+
+    // SAFETY: The pointer to the PSID is owned and valid for writes of `len` bytes
+    let result = unsafe {
         CreateWellKnownSid(
-            WinBuiltinAdministratorsSid,
+            sid,
             ptr::null_mut(),
-            admin_psid.as_mut_ptr().cast::<c_void>(),
-            &raw mut admin_psid_len,
+            buf.as_mut_ptr().cast::<c_void>(),
+            &raw mut len,
         )
-    } == 0
-    {
+    };
+    if result == 0 {
         return Err(Error::SetDirPermissionFailed(
-            String::from("Could not create admin SID"),
+            format!("Could not get well-known SID: {sid:?}"),
             io::Error::last_os_error(),
         ));
     }
 
-    let trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: admin_psid.as_mut_ptr() as *mut _,
-    };
+    Ok(Sid { buf })
+}
 
-    let admin_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: GENERIC_ALL,
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: trustee,
-    };
-
-    let mut au_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut au_psid_len = u32::try_from(au_psid.len()).expect("au_psid length fits in u32");
-
-    // SAFETY: The pointer to the PSID is valid for writes of `au_psid_len` bytes
-    if unsafe {
-        CreateWellKnownSid(
-            WinAuthenticatedUserSid,
-            ptr::null_mut(),
-            au_psid.as_mut_ptr().cast::<c_void>(),
-            &raw mut au_psid_len,
-        )
-    } == 0
-    {
-        return Err(Error::SetDirPermissionFailed(
-            String::from("Could not create authenticated users SID"),
-            io::Error::last_os_error(),
-        ));
+/// Build a windows ACL (access-control-list)
+///
+// TODO: explain what this function does
+fn build_acl(user_permissions: UserPermissions) -> Result<LocalFreeGuard<Security::ACL>> {
+    fn new_explicit_access_entry(sid: &Sid, access_permissions: u32) -> EXPLICIT_ACCESS_W {
+        EXPLICIT_ACCESS_W {
+            grfAccessPermissions: access_permissions,
+            grfAccessMode: SET_ACCESS,
+            grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+            Trustee: TRUSTEE_W {
+                pMultipleTrustee: ptr::null_mut(),
+                MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
+                TrusteeForm: TRUSTEE_IS_SID,
+                TrusteeType: TRUSTEE_IS_GROUP,
+                // TODO is casting from a SID to a string really legit???
+                // Note that despite the type, this value is not actually mutated. FFI is just bad.
+                ptstrName: sid.as_ptr().cast::<u16>().cast_mut(),
+            },
+        }
     }
 
-    let trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: au_psid.as_mut_ptr().cast(),
-    };
+    // Grant admin user full access
+    let admin_sid = get_well_known_sid(WinBuiltinAdministratorsSid)?;
+    let admin_ea = new_explicit_access_entry(&admin_sid, GENERIC_ALL);
 
-    let authenticated_users_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: user_permissions.flags(),
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: trustee,
-    };
+    // Grant authenticated user the specified access
+    let au_sid = get_well_known_sid(WinAuthenticatedUserSid)?;
+    let authenticated_users_ea = new_explicit_access_entry(&au_sid, user_permissions.flags());
 
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
 
+    // Build ACL from access entries.
     // SAFETY: `ea_entries` is valid for reads of `ea_entries.len()` elements
     // `new_dacl` is a valid pointer to an ACL pointer
     let result = unsafe {
@@ -235,6 +227,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             &raw mut new_dacl,
         )
     };
+
     if result != ERROR_SUCCESS {
         return Err(Error::SetDirPermissionFailed(
             String::from("SetEntriesInAclW failed"),
@@ -243,34 +236,49 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             ),
         ));
     }
-    // new_dacl is now allocated and must be freed with FreeLocal
 
-    // SAFETY: All pointers are valid
+    let new_dacl = NonNull::new(new_dacl).expect("SetEntriesInAclW creates an ACL on success");
+    // SAFETY: new_dacl is a valid ACL pointer initialized by SetEntriesInAclW. We own it.
+    let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl) };
+    Ok(new_dacl)
+}
+
+/// Sets security permissions for path such that admin has full ownership and access while
+/// authenticated users have the access specified by `user_permissions`.
+fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
+    let wide_path = U16CString::from_os_str(path)?;
+    let security_information = Security::DACL_SECURITY_INFORMATION
+        | Security::PROTECTED_DACL_SECURITY_INFORMATION
+        | Security::GROUP_SECURITY_INFORMATION
+        | Security::OWNER_SECURITY_INFORMATION;
+    let admin_sid = get_well_known_sid(WinBuiltinAdministratorsSid)?;
+    let new_dacl = build_acl(user_permissions)?;
+
+    // SAFETY: All pointers are valid.
+    // Note that admin_sid is not actually mutated, the PSID
+    // type is simply *mut because the windows FFI is bad.
     let result = unsafe {
         SetNamedSecurityInfoW(
             wide_path.as_ptr(),
             SE_FILE_OBJECT,
             security_information,
-            admin_psid.as_mut_ptr().cast(),
-            admin_psid.as_mut_ptr().cast(),
-            new_dacl,
+            admin_sid.as_ptr().cast_mut(),
+            admin_sid.as_ptr().cast_mut(),
+            new_dacl.as_ptr(),
             ptr::null(),
         )
     };
 
-    // SAFETY: `new_dacl` is a valid pointer since `SetEntriesInAclW` succeeded
-    unsafe { LocalFree(new_dacl.cast()) };
-
     if result != ERROR_SUCCESS {
-        Err(Error::SetDirPermissionFailed(
+        return Err(Error::SetDirPermissionFailed(
             String::from("SetNamedSecurityInfoW failed"),
             io::Error::from_raw_os_error(
                 i32::try_from(result).expect("result does not fit in i32"),
             ),
-        ))
-    } else {
-        Ok(())
+        ));
     }
+
+    Ok(())
 }
 
 /// Get local AppData path for the system service user.
