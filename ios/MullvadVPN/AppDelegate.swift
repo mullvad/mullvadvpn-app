@@ -540,7 +540,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func setupNotifications(
         tunnelSettings: LatestTunnelSettings,
-    tunnelSettingsUpdater: SettingsUpdater,
+        tunnelSettingsUpdater: SettingsUpdater,
         manager: TunnelManager
     ) {
         let appVersionService = AppVersionService(
