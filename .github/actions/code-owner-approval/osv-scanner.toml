@@ -1,0 +1,8 @@
+# See repository root `osv-scanner.toml` for instructions and rules for this file.
+
+# Ignored because even though `minimatch` has released a fix, it has not trickled down into
+# the package(s) we use that depend on it.
+[[IgnoredVulns]]
+id = "CVE-2026-118764"  # GHSA-g3hv-75wg-m249
+ignoreUntil = 2027-02-01  # The vulnerability is ignored for 3 months, after which we'll check for updates again.
+reason = "This ReDoS vulnerability is triggered through input, which is supplied by us. Worst case the CI runner on which this job runs fails, which we do not consider as critical. A fix is present but has not trickled through to the affected packages."
