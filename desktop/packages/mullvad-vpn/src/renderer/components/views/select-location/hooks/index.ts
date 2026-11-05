@@ -12,4 +12,5 @@ export * from './use-is-location-selector-isolated';
 export * from './use-active-ownership';
 export * from './use-active-providers';
 export * from './use-location-invalid-reason';
+export * from './use-location-aria-description';
 export * from './use-effect-reset-invalid-location-type';
