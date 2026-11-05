@@ -41,7 +41,7 @@ function GeographicalLocationImpl({
   const { selectedLocationRef } = useScrollPositionContext();
   const { hasRecents } = useRecents();
 
-  const ariaLabel = useLocationAriaLabel(location.label);
+  const ariaLabel = useLocationAriaLabel(location);
 
   const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
     setExpanded(value);
