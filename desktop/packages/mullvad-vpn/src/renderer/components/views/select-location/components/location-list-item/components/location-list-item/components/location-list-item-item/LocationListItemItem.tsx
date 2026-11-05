@@ -1,5 +1,6 @@
 import { ListItem } from '../../../../../../../../../lib/components/list-item';
 import type { ListItemItemProps } from '../../../../../../../../../lib/components/list-item/components';
+import { LocationIcon } from '../../../location-icon';
 import { LocationListItemItemLabel } from './components';
 
 export type LocationListItemItemProps = ListItemItemProps;
@@ -10,6 +11,7 @@ function LocationListItemItem({ children, ...props }: LocationListItemItemProps)
 
 const LocationListItemItemNamespace = Object.assign(LocationListItemItem, {
   Label: LocationListItemItemLabel,
+  Icon: LocationIcon,
 });
 
 export { LocationListItemItemNamespace as LocationListItemItem };
