@@ -1,5 +1,6 @@
 import { Accordion } from '../../../../../../../../../../../lib/components/accordion';
 import type { AccordionHeaderItemProps } from '../../../../../../../../../../../lib/components/accordion/components/accordion-header/components';
+import { LocationIcon } from '../../../../../location-icon';
 import { LocationAccordionHeaderItemTitle } from './components';
 
 export type LocationAccordionHeaderItemProps = AccordionHeaderItemProps;
@@ -12,6 +13,7 @@ const LocationAccordionHeaderItemNamespace = Object.assign(LocationAccordionHead
   Title: LocationAccordionHeaderItemTitle,
   Chevron: Accordion.Header.Item.Chevron,
   ActionGroup: Accordion.Header.Item.ActionGroup,
+  Icon: LocationIcon,
 });
 
 export { LocationAccordionHeaderItemNamespace as LocationAccordionHeaderItem };
