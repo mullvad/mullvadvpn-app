@@ -103,7 +103,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             settingsManager: settingsManager
         )
 
-        #if DEBUG
+        #if DEBUG && os(iOS)
             if PacketTunnelDebugSettings.useWireGuard {
                 providerLogger.info("Using WireGuard implementation (debug)")
                 implementation = makeWireGuardGoImplementation(
@@ -151,7 +151,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: implementation.actor,
             apiRequestProxy: apiRequestProxy,
-            inAppLogBuffer: inAppLogBuffer
+            // inAppLogBuffer: inAppLogBuffer
         )
 
         newAppVersionSystemNotificationHandler = NewAppVersionSystemNotificationHandler(
@@ -294,23 +294,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
-    /// WireGuardGo wires its dependencies in a second phase; GotaTun takes them at init instead.
-    private func makeWireGuardGoImplementation(
-        ipOverrideWrapper: IPOverrideWrapper,
-        settingsReader: sending TunnelSettingsManager,
-        apiTransportProvider: APITransportProvider
-    ) -> WireGuardGoTunnelImplementation {
-        let wgImpl = WireGuardGoTunnelImplementation()
-        wgImpl.onDeviceCheck = { [weak self] in self?.startDeviceCheck() }
-        wgImpl.setUp(
-            provider: self,
-            internalQueue: internalQueue,
-            ipOverrideWrapper: ipOverrideWrapper,
-            settingsReader: settingsReader,
-            apiTransportProvider: apiTransportProvider
-        )
-        return wgImpl
-    }
+    #if os(iOS)
+        /// WireGuardGo wires its dependencies in a second phase; GotaTun takes them at init instead.
+        private func makeWireGuardGoImplementation(
+            ipOverrideWrapper: IPOverrideWrapper,
+            settingsReader: sending TunnelSettingsManager,
+            apiTransportProvider: APITransportProvider
+        ) -> WireGuardGoTunnelImplementation {
+            let wgImpl = WireGuardGoTunnelImplementation()
+            wgImpl.onDeviceCheck = { [weak self] in self?.startDeviceCheck() }
+            wgImpl.setUp(
+                provider: self,
+                internalQueue: internalQueue,
+                ipOverrideWrapper: ipOverrideWrapper,
+                settingsReader: settingsReader,
+                apiTransportProvider: apiTransportProvider
+            )
+            return wgImpl
+        }
+    #endif
 
     private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
         let settings = NEPacketTunnelNetworkSettings(
