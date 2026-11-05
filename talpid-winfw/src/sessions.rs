@@ -110,13 +110,10 @@ unsafe fn enumerate_sessions(
 
 /// The file name of the process's image, or its ID if that cannot be found.
 fn describe_process(pid: u32) -> String {
-    process_image_path(pid)
-        .ok()
-        .and_then(|path| {
-            path.file_name()
-                .map(|name| name.to_string_lossy().into_owned())
-        })
-        .unwrap_or_else(|| format!("PID:{pid}"))
+    match &process_image_path(pid) {
+        Ok(path) if let Some(name) = path.file_name() => name.to_string_lossy().into_owned(),
+        _ => format!("PID:{pid}"),
+    }
 }
 
 fn process_image_path(pid: u32) -> io::Result<PathBuf> {
