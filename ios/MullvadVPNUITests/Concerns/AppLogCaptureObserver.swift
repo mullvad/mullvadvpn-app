@@ -42,7 +42,9 @@ class AppLogCaptureObserver: NSObject, @preconcurrency XCTestObservation {
             SettingsPage(app).tapReportAProblemCell()
             ProblemReportPage(app).tapViewAppLogsButton()
 
-            let text = AppLogsPage(app).getAppLogText()
+            let text = ProblemReportPage(app)
+                .tapViewAppLogsButton()
+                .getAppLogText()
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"

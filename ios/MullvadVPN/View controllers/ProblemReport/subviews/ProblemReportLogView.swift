@@ -44,6 +44,7 @@ extension ProblemReportView {
                     .scrollContentBackground(.hidden)
                     .background(Color.MullvadLogView.backgroundColor)
                     .foregroundStyle(Color.MullvadLogView.foregroundColor)
+                    .accessibilityIdentifier(.problemReportAppLogsTextView)
             }.background(Color.mullvadBackground)
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier(.problemReportLogView)
