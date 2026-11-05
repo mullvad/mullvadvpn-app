@@ -16,7 +16,17 @@ struct ListItem<StatusIndicator: View>: View {
     var level: Int = 0
     var selected: Bool = false
     @ViewBuilder var statusIndicator: () -> StatusIndicator?
-
+    @Environment(\.segmentedListItemAppearence) var appearence
+    private var titleColor: Color {
+        if appearence == .error {
+            .mullvadDangerColor
+        } else if selected {
+            .mullvadSuccessColor
+        } else {
+            .mullvadTextPrimary
+        }
+    }
+    
     var body: some View {
         HStack {
             statusIndicator()
@@ -25,7 +35,7 @@ struct ListItem<StatusIndicator: View>: View {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.mullvadSmallSemiBold)
-                    .foregroundStyle(selected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary)
+                    .foregroundStyle(titleColor)
                     .multilineTextAlignment(.leading)
                 if let subtitle {
                     Text(subtitle)

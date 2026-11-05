@@ -12,7 +12,7 @@ extension MullvadAlert {
 
     @MainActor
     static func deleteCustomListAlert(
-        customList: LocationNode, onDelete: @escaping () -> Void, onCancel: @escaping () -> Void
+        customList: LocationNode, onDelete: @escaping () async -> Void, onCancel: @escaping () async -> Void
     )
         -> MullvadAlert
     {
@@ -25,14 +25,14 @@ extension MullvadAlert {
                     title: "Delete list",
                     identifier: .confirmDeleteCustomListButton,
                     handler: {
-                        onDelete()
+                        await onDelete()
                     }
                 ),
                 .init(
                     type: .secondary,
                     title: "Cancel",
                     handler: {
-                        onCancel()
+                        await onCancel()
                     }
                 ),
             ]

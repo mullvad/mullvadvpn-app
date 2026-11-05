@@ -14,6 +14,7 @@ struct SegmentedListItem<Leading: View>: View {
     var level: Int
     var isLastInList: Bool
     var userInteraction: UserInteraction
+    var appearence: SegmentedListItemAppearence
     var accessibilityIdentifier: AccessibilityIdentifier?
     var accessibilityLabel: String
     /// A `NavigationLink` destination, triggered by either tapping on the leading, or trailing view.
@@ -26,16 +27,17 @@ struct SegmentedListItem<Leading: View>: View {
     let segment: AnyView?
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
-    var footer: MullvadInfoView?
+    var footer: AnyView?
     let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
     /// only specify the slots they need. An omitted slot is detected via its `EmptyView` type and stored as `nil`
     /// rather than an empty `AnyView`.
-    init<Trailing: View, Segment: View, GroupedContent: View>(
+    init<Footer: View, Trailing: View, Segment: View, GroupedContent: View>(
         level: Int = 0,
         isLastInList: Bool = true,
         userInteraction: UserInteraction = .enabled,
+        appearence: SegmentedListItemAppearence = .normal,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leadingAndTrailingDestination: () -> any View = { EmptyView() },
@@ -43,12 +45,13 @@ struct SegmentedListItem<Leading: View>: View {
         @ViewBuilder trailing: () -> Trailing = { EmptyView() },
         @ViewBuilder segment: () -> Segment = { EmptyView() },
         @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
-        footer: MullvadInfoView? = nil,
+        @ViewBuilder footer: () -> Footer = { EmptyView() },
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
         self.isLastInList = isLastInList
         self.userInteraction = userInteraction
+        self.appearence = appearence
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leadingAndTrailingDestination = leadingAndTrailingDestination().typeErase()
@@ -56,7 +59,7 @@ struct SegmentedListItem<Leading: View>: View {
         self.trailing = trailing().typeErase()
         self.segment = segment().typeErase()
         self.groupedContent = groupedContent().typeErase()
-        self.footer = footer
+        self.footer = footer().typeErase()
         self.onSelect = onSelect
     }
 
@@ -75,11 +78,13 @@ struct SegmentedListItem<Leading: View>: View {
                 leadingAndTrailingDestination
             } label: {
                 leading()
+                    .environment(\.segmentedListItemAppearence, appearence)
                 Spacer()
                 trailing
             }
         } else {
             leading()
+                .environment(\.segmentedListItemAppearence, appearence)
             Spacer()
             trailing
         }
@@ -164,6 +169,7 @@ struct SegmentedListItem<Leading: View>: View {
                 )
             )
         )
+
         .if(level != 0, { $0.padding(.top, 1) })
 
         groupedContent
@@ -172,6 +178,23 @@ struct SegmentedListItem<Leading: View>: View {
         footer
             .padding(.horizontal, 16)
             .padding(.top, 2)
+            .environment(\.segmentedListItemAppearence, appearence)
+    }
+}
+
+enum SegmentedListItemAppearence {
+    case normal
+    case error
+}
+
+private struct SegmentedListItemAppearenceKey: EnvironmentKey {
+    static let defaultValue: SegmentedListItemAppearence = .normal
+}
+
+extension EnvironmentValues {
+    var segmentedListItemAppearence: SegmentedListItemAppearence {
+        get { self[SegmentedListItemAppearenceKey.self] }
+        set { self[SegmentedListItemAppearenceKey.self] = newValue }
     }
 }
 
@@ -196,11 +219,42 @@ struct SegmentedListItem<Leading: View>: View {
                     ])
                 )
             },
-            footer: MullvadInfoView(
-                bodyText: "Some text. ",
-                link: "A link",
-                onTapLink: { print("onLinkTap") }
-            )
+            footer: {
+                itemFactory.footer(
+                    for: .infoWithLink(
+                        text: "Some text. ",
+                        link: "A link",
+                        onTapLink: { print("onLinkTap") }
+                    )
+                )
+            }
+        )
+
+        SegmentedListItem(
+            appearence: .error,
+            leading: {
+                itemFactory
+                    .leading(
+                        for: .generic(title: "Setting - custom")
+                    )
+            },
+            trailing: {
+                itemFactory.trailing(
+                    for: .custom(items: [
+                        .breadcrumb(.warning(.root)),
+                        .string("Custom text"),
+                        .button(icon: .info, onSelect: { print("onSelect") }),
+                        .button(icon: .close, onSelect: { print("onClose") }),
+                    ])
+                )
+            },
+            footer: {
+                itemFactory.footer(
+                    for: .generic(
+                        text: "Some text. "
+                    )
+                )
+            }
         )
 
         Spacer()

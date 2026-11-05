@@ -43,11 +43,11 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             isLastInList: isLastInList,
             userInteraction: isCustomList && isDisabled
                 ? .inactive : (isDisabled ? .disabled : .enabled),
-            accessibilityIdentifier: (location as? CustomListSelectableLocationNode) != nil
+            accessibilityIdentifier: (location.asCustomListSelectableLocationNode) != nil
                 ? .customListLocationCheckmarkButton(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
             leading: {
-                if let location = location as? CustomListSelectableLocationNode {
+                if let location = location.asCustomListSelectableLocationNode {
                     @Bindable var location = location
                     itemFactory
                         .leading(
