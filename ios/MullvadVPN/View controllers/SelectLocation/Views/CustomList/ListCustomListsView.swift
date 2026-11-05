@@ -27,9 +27,16 @@ struct ListCustomListsView: View {
                         .editCustomListListItem(list.name),
                     leadingAndTrailingDestination: {
                         CustomListView(
-                            availableLocations: availableLocations,
-                            customList: list,
-                            viewModel: viewModel
+                            viewModel: CustomListViewModelImpl(
+                                customList: list,
+                                availableLocations: availableLocations,
+                                onSave: {
+                                    try viewModel.save(list: $0)
+                                },
+                                onDelete: {
+                                    viewModel.delete(customList: $0)
+                                }
+                            )
                         )
                     },
                     leading: {

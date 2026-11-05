@@ -11,7 +11,7 @@
 import Foundation
 import MullvadTypes
 
-public struct CustomList: Codable, Equatable {
+public struct CustomList: Codable, Equatable, Sendable {
     public let id: UUID
     public var name: String
     public var locations: [RelayLocation]

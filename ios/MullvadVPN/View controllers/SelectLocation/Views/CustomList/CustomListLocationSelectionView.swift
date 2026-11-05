@@ -11,17 +11,17 @@
 import MullvadTypes
 import SwiftUI
 
-struct CustomListLocationSelectionView: View {
-    @Bindable var availableLocations: CustomListSelectableLocationNode
+struct CustomListLocationSelectionView<ViewModel: CustomListViewModel>: View {
+    @Bindable var viewModel: ViewModel
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 LocationsListView(
-                    locations: $availableLocations.children,
-                    multihopContext: .entry,
+                    locations: $viewModel.availableLocations.children,
+                    multihopContext: .entry, // This is not used in this view
                     onSelectLocation: {
-                        ($0 as? CustomListSelectableLocationNode)?.isCustomListSelected.toggle()
+                        ($0.asCustomListSelectableLocationNode)?.isCustomListSelected.toggle()
                     },
                     contextMenu: { _ in EmptyView() }
                 )
@@ -34,9 +34,11 @@ struct CustomListLocationSelectionView: View {
 }
 
 #Preview {
-    @Previewable @State var availableLocations = MockSelectLocationViewModel().exitContext.locations
+    @Previewable @State var viewModel = CustomListViewModelImpl(
+        customList: nil,
+        availableLocations: MockSelectLocationViewModel().exitContext.locations
+    )
     CustomListLocationSelectionView(
-        availableLocations: CustomListSelectableLocationNode(
-            fromLocationNode: LocationNode(name: "", code: "", children: availableLocations))
+        viewModel: viewModel
     )
 }

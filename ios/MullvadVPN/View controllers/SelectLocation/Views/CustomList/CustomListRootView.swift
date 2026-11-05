@@ -20,9 +20,16 @@ struct CustomListRootView: View {
             switch type {
             case .add:
                 CustomListView(
-                    availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
-                    customList: nil,
-                    viewModel: viewModel,
+                    viewModel: CustomListViewModelImpl(
+                        customList: nil,
+                        availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
+                        onSave: {
+                            try viewModel.save(list: $0)
+                        },
+                        onDelete: {
+                            viewModel.delete(customList: $0)
+                        }
+                    ),
                     isRootView: true
                 )
             case .list:
@@ -34,9 +41,16 @@ struct CustomListRootView: View {
                 )
             case .edit(let customListNode):
                 CustomListView(
-                    availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
-                    customList: customListNode,
-                    viewModel: viewModel,
+                    viewModel: CustomListViewModelImpl(
+                        customList: customListNode,
+                        availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
+                        onSave: {
+                            try viewModel.save(list: $0)
+                        },
+                        onDelete: {
+                            viewModel.delete(customList: $0)
+                        }
+                    ),
                     isRootView: true
                 )
             }

@@ -18,7 +18,8 @@ struct SegmentedListItemFactory {
         case location(node: LocationNode, context: MultihopContext, level: Int = 0)
         case recentLocation(node: LocationNode, context: MultihopContext)
         case relayFilter(item: RelayFilterItem, isSelected: Binding<Bool>)
-        case generic(title: String, subtitle: String? = nil, level: Int = 0, isSelected: Bool = false)
+        case generic(
+            title: String, subtitle: String? = nil, level: Int = 0, isSelected: Bool = false)
     }
 
     enum Trailing {
@@ -76,6 +77,11 @@ struct SegmentedListItemFactory {
             isDisabled: Bool,
             accessibilityID: AccessibilityIdentifier? = nil,
             accessibilityRepresentation: (() -> AnyView)? = nil)
+    }
+
+    enum Footer {
+        case generic(text: String)
+        case infoWithLink(text: String, link: String, onTapLink: (() -> Void)?)
     }
 
     @ViewBuilder func leading(for leading: Leading) -> some View {
@@ -217,6 +223,33 @@ struct SegmentedListItemFactory {
         }
     }
 
+    func footer(for footer: Footer) -> some View {
+        struct FooterItemView: View {
+            let type: Footer
+            @Environment(\.segmentedListItemAppearence) var appearence
+
+            var textColor: Color {
+                switch appearence {
+                case .error: Color.mullvadDangerColor
+                case .normal: Color.mullvadTextPrimary
+                }
+            }
+            var body: some View {
+                switch type {
+                case .generic(let text):
+                    Text("\(text)")
+                        .foregroundStyle(textColor)
+                        .font(.mullvadTiny)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                case .infoWithLink(let text, let link, let onTapLink):
+                    MullvadInfoView(bodyText: text, link: link, onTapLink: onTapLink)
+                }
+            }
+        }
+        return FooterItemView(type: footer)
+    }
+
     func image(for icon: TrailingItem.Icon) -> Image {
         switch icon {
         case .chevron:
@@ -230,7 +263,7 @@ struct SegmentedListItemFactory {
         }
     }
 
-    func size(for size: TrailingItem.Sizing) -> CGSize {
+    private func size(for size: TrailingItem.Sizing) -> CGSize {
         switch size {
         case .button:
             CGSize(

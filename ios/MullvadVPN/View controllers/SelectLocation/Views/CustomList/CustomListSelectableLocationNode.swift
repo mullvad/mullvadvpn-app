@@ -32,7 +32,7 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
     }
 
     var customListAvailableChildren: [CustomListSelectableLocationNode] {
-        children.compactMap { $0 as? CustomListSelectableLocationNode }
+        children.compactMap { $0.asCustomListSelectableLocationNode }
     }
 
     private var iWasFirst = false
@@ -45,22 +45,21 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
         }
     }
 
-    func validateTree() {
-        let iWasReallyFirst = !root.flattened
-            .compactMap {
-                ($0 as? CustomListSelectableLocationNode)?._iWasFirst
-            }.contains(true)
-        guard iWasReallyFirst else { return }
-        iWasFirst = true
+    private func validateTree() {
         defer { iWasFirst = false }
+        iWasFirst = !root.flattened
+            .compactMap {
+                ($0.asCustomListSelectableLocationNode)?.iWasFirst
+            }.contains(true)
+        guard iWasFirst else { return }
         forEachDescendant {
-            ($0 as? CustomListSelectableLocationNode)?.isCustomListSelected = isCustomListSelected
+            ($0.asCustomListSelectableLocationNode)?.isCustomListSelected = isCustomListSelected
         }
 
         forEachAncestor {
-            ($0 as? CustomListSelectableLocationNode)?.isCustomListSelected =
+            ($0.asCustomListSelectableLocationNode)?.isCustomListSelected =
                 $0.children
-                .compactMap { $0 as? CustomListSelectableLocationNode }
+                .compactMap { $0.asCustomListSelectableLocationNode }
                 .allSatisfy { $0.isCustomListSelected }
         }
     }
