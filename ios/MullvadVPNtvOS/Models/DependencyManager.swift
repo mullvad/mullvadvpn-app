@@ -133,9 +133,13 @@ class DependencyManager {
         LoginViewModel(
             accountProxy: proxyFactory.createAccountsProxy(),
             deviceProxy: proxyFactory.createDevicesProxy(),
+            settingsManager: settingsManager,
             relayListUpdater: makeRelayListUpdater()
         )
     }
+
+    /// Shared, and created on first use, so that the relay list is fetched once per launch.
+    @ObservationIgnored private(set) lazy var relayLoader = RelayListLoader(updater: makeRelayListUpdater())
 
     public func makeRelayListUpdater() -> RelayListUpdater {
         RelayListUpdater(apiProxy: proxyFactory.createAPIProxy(), relayCache: relayCache)

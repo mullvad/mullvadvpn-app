@@ -45,15 +45,18 @@ class LoginViewModel: LoggingIn {
     var state: LoggingInState = .`initial`
 
     private let logger = Logger(label: "LoginViewModel")
+    private let settingsManager: SettingsManager
     private let relayListUpdater: RelayListUpdater
 
     init(
         accountProxy: RESTAccountHandling,
         deviceProxy: DeviceHandling,
+        settingsManager: SettingsManager,
         relayListUpdater: RelayListUpdater
     ) {
         self.accountProxy = accountProxy
         self.deviceProxy = deviceProxy
+        self.settingsManager = settingsManager
         self.relayListUpdater = relayListUpdater
     }
 
@@ -73,13 +76,15 @@ class LoginViewModel: LoggingIn {
                 let storedAccountData = StoredAccountData(
                     identifier: account.id, number: accountNumber, expiry: account.expiry)
                 let storedDeviceData = StoredDeviceData(with: device, privateKey: privateKey)
-                let loggedInState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
-                let data = try JSONEncoder().encode(loggedInState)
-                try SettingsManager().store.write(data, for: .deviceState)
-                // The relay the tunnel connects to is picked from the relay cache, so a logged in
-                // device alone is not enough to connect. A failure here must not void the login:
-                // the device already exists server-side, and logging in again would burn another
-                // device slot, so it is logged and the login stands.
+
+                try settingsManager.writeDeviceState(.loggedIn(storedAccountData, storedDeviceData))
+
+                // Initialize settings here if they are empty.
+                if (try? settingsManager.readSettings()) == nil {
+                    try settingsManager.writeSettings(LatestTunnelSettings())
+                }
+                try settingsManager.setLastUsedAccount(accountNumber)
+                // Updating the relay list because debug builds do not bundle one
                 do {
                     try await relayListUpdater.updateRelays()
                 } catch {
@@ -100,12 +105,19 @@ class LoginViewModel: LoggingIn {
     }
 }
 
+/// Updates relay list when logging in
+protocol RelayListUpdating: Sendable {
+    /// Number of WireGuard relays in the cache, and zero when it is empty or unreadable.
+    var cachedRelayCount: Int { get }
+    func updateRelays() async throws
+}
+
 /// Fetches the relay list and stores it in the relay cache shared with the packet tunnel.
 ///
 /// The tunnel's relay selector only ever reads this cache, and the prebundled relay list is empty
 /// in non-release builds. On iOS `RelayCacheTracker` keeps the cache fresh, but it lives in the app
 /// target and depends on UIKit background tasks, so tvOS populates the cache here instead.
-struct RelayListUpdater {
+struct RelayListUpdater: RelayListUpdating {
     private let logger = Logger(label: "RelayListUpdater")
     private let apiProxy: APIQuerying
     private let relayCache: RelayCacheProtocol
@@ -145,6 +157,12 @@ struct RelayListUpdater {
             logger.debug("Cached relay list is up to date.")
         }
     }
+}
+
+struct RelayListUpdaterStub: RelayListUpdating {
+    var cachedRelayCount = 0
+
+    func updateRelays() async throws {}
 }
 
 @Observable

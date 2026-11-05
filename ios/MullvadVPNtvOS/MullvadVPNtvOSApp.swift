@@ -21,7 +21,7 @@ struct MullvadVPNtvOSApp: App {
                 if let dependencies {
                     switch navigation.state {
                     case .loggedIn:
-                        MapView()
+                        MapView(relays: dependencies.relayLoader)
                     case .loggedOut:
                         RootView(viewModel: dependencies.makeLoginViewModel())
                     }

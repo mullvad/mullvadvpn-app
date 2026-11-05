@@ -33,6 +33,10 @@ struct HeaderBar: View {
                         .imageScale(.large)
                 }
             }
+            // Focus moves geometrically, and these buttons sit in the top right corner with
+            // nothing below them: without a focus section, a swipe up from a view that does not
+            // line up with them, such as the centred connect button, finds no candidate.
+            .focusSection()
         }
     }
 
