@@ -2,12 +2,13 @@ package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.core.Either
 import java.time.ZonedDateTime
-import kotlinx.coroutines.CoroutineScope
+import kotlin.time.Duration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -21,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 class AccountRepository(
     private val managementService: ManagementService,
     private val deviceRepository: DeviceRepository,
-    val scope: CoroutineScope,
 ) {
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -58,34 +58,37 @@ class AccountRepository(
 
     /*
      * Fetches the account data from the server, and updates the cache.
-     * Unless force is true, it will only fetch if no fetch was made in the last minute.
+     * Unless ignoreLastSuccessful is true, it will only fetch if no fetch was made in the last minute.
      */
-    suspend fun refreshAccountData(
-        ignoreTimeout: Boolean = true,
-        waitForDeviceState: Boolean = false,
-    ) {
-        // Only refresh if logged in
-        val deviceState =
-            if (waitForDeviceState) {
+    suspend fun fetchAccountData(
+        ignoreLastSuccessful: Boolean = true,
+        timeout: Duration = Duration.INFINITE,
+    ): AccountData? =
+        withTimeoutOrNull(timeout) {
+            // Only refresh if logged in
+            val deviceState =
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>().first()
-            } else {
-                deviceRepository.deviceState.value as? DeviceState.LoggedIn
-            } ?: return
 
-        if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
-            val accountData =
-                managementService.getAccountData(deviceState.accountNumber).getOrNull()
-            lastSuccessfulAccountDataFetch = ZonedDateTime.now()
+            if (ignoreLastSuccessful || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
+                val accountData =
+                    managementService
+                        .getAccountData(deviceState.accountNumber)
+                        .onRight { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
+                        .getOrNull()
 
-            // Update stateflow cache, only update if device state is still logged in and using the
-            // same account number
-            deviceRepository.deviceState.value?.let {
-                if (it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber) {
-                    _mutableAccountData.emit(accountData)
+                // Update stateflow cache and return value, only update and return if device state
+                // is still logged in and using the same account number
+                deviceRepository.deviceState.value?.let {
+                    if (
+                        it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber
+                    ) {
+                        _mutableAccountData.emit(accountData)
+                        return@withTimeoutOrNull accountData
+                    }
                 }
             }
+            null
         }
-    }
 
     suspend fun getWebsiteAuthToken(): WebsiteAuthToken? =
         managementService.getWebsiteAuthToken().getOrNull()
@@ -99,7 +102,7 @@ class AccountRepository(
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
-        managementService.deleteAccount().onRight { _mutableAccountData.emit(null) }
+        managementService.deleteAccount().onRight { _mutableAccountData.value = null }
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))

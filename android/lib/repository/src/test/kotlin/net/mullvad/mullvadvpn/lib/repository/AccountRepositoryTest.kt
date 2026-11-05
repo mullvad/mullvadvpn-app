@@ -7,7 +7,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertEquals
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -39,7 +38,6 @@ class AccountRepositoryTest {
             AccountRepository(
                 managementService = mockManagementService,
                 deviceRepository = mockDeviceRepository,
-                scope = MainScope(),
             )
     }
 
@@ -53,7 +51,7 @@ class AccountRepositoryTest {
 
         // Act
         mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-        accountRepository.refreshAccountData(ignoreTimeout = true)
+        accountRepository.fetchAccountData(ignoreLastSuccessful = true)
 
         // Assert
         coVerify { mockManagementService.getAccountData(accountNumber) }
@@ -71,7 +69,7 @@ class AccountRepositoryTest {
 
             // Act
             mockDeviceStateFlow.emit(DeviceState.LoggedIn(accountNumber, mockk(relaxed = true)))
-            accountRepository.refreshAccountData(ignoreTimeout = false)
+            accountRepository.fetchAccountData(ignoreLastSuccessful = false)
 
             // Assert
             coVerify { mockManagementService.getAccountData(accountNumber) }
@@ -92,7 +90,7 @@ class AccountRepositoryTest {
             )
 
         // Act, Assert
-        accountRepository.refreshAccountData()
+        accountRepository.fetchAccountData()
         accountRepository.accountData.test {
             // Check that the current account data is correct
             assertEquals(accountData, awaitItem())
@@ -130,7 +128,7 @@ class AccountRepositoryTest {
             )
 
         // Act, Assert
-        accountRepository.refreshAccountData()
+        accountRepository.fetchAccountData()
         accountRepository.accountData.test {
             // Check that the current account data is correct
             assertEquals(accountData, awaitItem())
