@@ -89,7 +89,7 @@ This affects all versions of the iOS app on all versions of iOS.
 
 [blog about TunnelCrack]: https://mullvad.net/blog/response-to-tunnelcrack-vulnerability-disclosure
 [blog about TunnelVision]: https://mullvad.net/blog/evaluating-the-impact-of-tunnelvision
-[blog about force all apps]: https://mullvad.net/en/blog/force-all-app-traffic-into-the-tunnel
+[blog about force all apps]: https://mullvad.net/blog/force-all-app-traffic-into-the-tunnel
 
 
 ### Excluded application traffic can sometimes go inside the tunnel
