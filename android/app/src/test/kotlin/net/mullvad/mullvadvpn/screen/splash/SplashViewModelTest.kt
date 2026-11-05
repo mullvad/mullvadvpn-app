@@ -97,7 +97,7 @@ class SplashViewModelTest {
     }
 
     @Test
-    fun `when revoked out should navigate to Revoked`() = runTest {
+    fun `when revoked should navigate to Revoked`() = runTest {
         // Arrange
         deviceStateFlow.update { DeviceState.Revoked }
 

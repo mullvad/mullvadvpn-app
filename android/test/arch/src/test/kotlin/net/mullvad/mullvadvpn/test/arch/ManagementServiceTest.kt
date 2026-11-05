@@ -20,7 +20,7 @@ class ManagementServiceTest {
     @Test
     fun `ensure no function calls execute directly, use executeWithRetry on a grpc call`() {
         managementServiceClass().functions(includeNested = true, includeLocal = true).assertFalse {
-            EXECUTE_CALL_REGEX.containsMatchIn(it.text)
+            it.text.contains(EXECUTE_FUN_PATTERN)
         }
     }
 
@@ -35,6 +35,6 @@ class ManagementServiceTest {
         private const val STOP = "stop"
         private const val ENTER_IDLE = "enterIdle"
         private const val EITHER_CLASS_NAME = "Either"
-        private val EXECUTE_CALL_REGEX = Regex("""\.execute\(""")
+        private const val EXECUTE_FUN_PATTERN = ".execute("
     }
 }

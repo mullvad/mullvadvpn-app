@@ -108,7 +108,7 @@ class AccountRepositoryTest {
         // Arrange
         coEvery { mockManagementService.deleteAccount() } returns Unit.right()
 
-        // Acy
+        // Act
         accountRepository.deleteAccount()
 
         // Assert
