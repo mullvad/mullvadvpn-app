@@ -12,10 +12,9 @@ export function useHandleFilterButtonClick() {
   const history = useHistory();
 
   const handleFilterButtonClick = React.useCallback(() => {
+    setLocationType(type);
+
     const locationType = type === 'automaticEntry' ? 'entry' : type;
-
-    setLocationType(locationType);
-
     history.push(RoutePath.filter, {
       options: [
         {
