@@ -8,7 +8,7 @@ use std::{
     path::PathBuf,
 };
 
-use ipnetwork::IpNetwork;
+use ipnetwork::{IpNetwork, Ipv6Network};
 use talpid_types::net::{
     ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, Endpoint, TransportProtocol,
 };
@@ -31,6 +31,23 @@ mod ports {
     pub const DHCP_V6_SERVER_PORT: u16 = 547;
     pub const DNS_SERVER_PORT: u16 = 53;
 }
+
+/// IPv6 link-local unicast addresses.
+const LINK_LOCAL: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0), 10).unwrap();
+
+/// IPv6 solicited-node multicast addresses.
+const SOLICITED_NODE_MULTICAST: Ipv6Network =
+    Ipv6Network::new_checked(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xff00, 0), 104).unwrap();
+
+/// All DHCPv6 relay agents and servers on the link.
+const LINK_LOCAL_DHCP_MULTICAST: IpAddr = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2));
+
+/// All DHCPv6 servers on the site.
+const SITE_LOCAL_DHCP_MULTICAST: IpAddr = IpAddr::V6(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3));
+
+/// All routers on the link.
+const LINK_LOCAL_ROUTER_MULTICAST: IpAddr = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
 
 /// The sublayer a rule belongs to.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -272,10 +289,6 @@ impl Rule {
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
 
-        let link_local = Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0);
-        let link_local_dhcp_multicast = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 1, 2));
-        let site_local_dhcp_multicast = IpAddr::V6(Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3));
-
         // #3 Permit outbound DHCPv6 requests.
         let id = FilterBuilder::default()
             .guid(FILTER_BASELINE_PERMIT_DHCP_OUTBOUND_REQUEST_IPV6)
@@ -289,12 +302,12 @@ impl Rule {
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(
                 IpAddressConditionBuilder::local()
-                    .subnet_v6(link_local, 10)
+                    .subnet_v6(LINK_LOCAL.ip(), LINK_LOCAL.prefix())
                     .build(),
             )
             .condition(local_port_condition(ports::DHCP_V6_CLIENT_PORT))
-            .condition(remote_ip_condition(link_local_dhcp_multicast))
-            .condition(remote_ip_condition(site_local_dhcp_multicast))
+            .condition(remote_ip_condition(LINK_LOCAL_DHCP_MULTICAST))
+            .condition(remote_ip_condition(SITE_LOCAL_DHCP_MULTICAST))
             .condition(remote_port_condition(ports::DHCP_V6_SERVER_PORT))
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -312,15 +325,11 @@ impl Rule {
             .condition(ProtocolConditionBuilder::udp().build())
             .condition(
                 IpAddressConditionBuilder::local()
-                    .subnet_v6(link_local, 10)
+                    .subnet_v6(LINK_LOCAL.ip(), LINK_LOCAL.prefix())
                     .build(),
             )
             .condition(local_port_condition(ports::DHCP_V6_CLIENT_PORT))
-            .condition(
-                IpAddressConditionBuilder::remote()
-                    .subnet_v6(link_local, 10)
-                    .build(),
-            )
+            .condition(remote_network_condition(IpNetwork::V6(LINK_LOCAL)))
             .condition(remote_port_condition(ports::DHCP_V6_SERVER_PORT))
             .add(cx.transaction)?;
         cx.recorder.record(Record::Filter(id));
@@ -328,14 +337,10 @@ impl Rule {
     }
 
     fn install_permit_ndp(cx: &mut Cx<'_>) -> io::Result<()> {
-        let link_local = IpAddr::V6(Ipv6Addr::new(0xfe80, 0, 0, 0, 0, 0, 0, 0));
-        let link_local_router_multicast = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2));
-        let solicited_node_multicast = IpAddr::V6(Ipv6Addr::new(0xff02, 0, 0, 0, 0, 1, 0xff00, 0));
-
         /// The remote match of one NDP message: a single address, or a network.
         enum Remote {
             Single(IpAddr),
-            Prefix(IpAddr, u8),
+            Network(Ipv6Network),
         }
 
         // (guid, layer, name, ICMP type, remote matches), one per message.
@@ -346,7 +351,7 @@ impl Rule {
                 Layer::ConnectV6,
                 "Permit outbound NDP router solicitation",
                 133,
-                vec![Remote::Single(link_local_router_multicast)],
+                vec![Remote::Single(LINK_LOCAL_ROUTER_MULTICAST)],
             ),
             // #2 Permit inbound router advertisement.
             (
@@ -354,7 +359,7 @@ impl Rule {
                 Layer::AcceptV6,
                 "Permit inbound NDP router advertisement",
                 134,
-                vec![Remote::Prefix(link_local, 10)],
+                vec![Remote::Network(LINK_LOCAL)],
             ),
             // #3 Permit inbound redirect message.
             (
@@ -362,7 +367,7 @@ impl Rule {
                 Layer::AcceptV6,
                 "Permit inbound NDP redirect",
                 137,
-                vec![Remote::Prefix(link_local, 10)],
+                vec![Remote::Network(LINK_LOCAL)],
             ),
             // #4 Permit outbound neighbor solicitation.
             (
@@ -371,8 +376,8 @@ impl Rule {
                 "Permit outbound NDP neighbor solicitation",
                 135,
                 vec![
-                    Remote::Prefix(solicited_node_multicast, 104),
-                    Remote::Prefix(link_local, 10),
+                    Remote::Network(SOLICITED_NODE_MULTICAST),
+                    Remote::Network(LINK_LOCAL),
                 ],
             ),
             // #5 Permit inbound neighbor solicitation.
@@ -381,7 +386,7 @@ impl Rule {
                 Layer::AcceptV6,
                 "Permit inbound NDP neighbor solicitation",
                 135,
-                vec![Remote::Prefix(link_local, 10)],
+                vec![Remote::Network(LINK_LOCAL)],
             ),
             // #6 Permit outbound neighbor advertisement.
             (
@@ -389,7 +394,7 @@ impl Rule {
                 Layer::ConnectV6,
                 "Permit outbound NDP neighbor advertisement",
                 136,
-                vec![Remote::Prefix(link_local, 10)],
+                vec![Remote::Network(LINK_LOCAL)],
             ),
             // #7 Permit inbound neighbor advertisement.
             (
@@ -420,8 +425,8 @@ impl Rule {
             for remote in remotes {
                 builder = match remote {
                     Remote::Single(addr) => builder.condition(remote_ip_condition(addr)),
-                    Remote::Prefix(addr, prefix) => {
-                        builder.condition(remote_prefix_condition(addr, prefix))
+                    Remote::Network(network) => {
+                        builder.condition(remote_network_condition(IpNetwork::V6(network)))
                     }
                 };
             }
@@ -492,7 +497,7 @@ impl Rule {
             .action(ActionType::Permit);
 
         for network in networks {
-            builder = builder.condition(remote_prefix_condition(network.ip(), network.prefix()));
+            builder = builder.condition(remote_network_condition(*network));
         }
 
         let id = builder.add(cx.transaction)?;
@@ -1036,14 +1041,14 @@ fn local_port_condition(port: u16) -> wfp::Condition {
     PortConditionBuilder::local().equal(port).build()
 }
 
-/// Match a remote network prefix.
-fn remote_prefix_condition(addr: IpAddr, prefix: u8) -> wfp::Condition {
-    match addr {
-        IpAddr::V4(ip) => IpAddressConditionBuilder::remote()
-            .subnet_v4(ip, prefix)
+/// Match a remote network.
+fn remote_network_condition(network: IpNetwork) -> wfp::Condition {
+    match network {
+        IpNetwork::V4(network) => IpAddressConditionBuilder::remote()
+            .subnet_v4(network.ip(), network.prefix())
             .build(),
-        IpAddr::V6(ip) => IpAddressConditionBuilder::remote()
-            .subnet_v6(ip, prefix)
+        IpNetwork::V6(network) => IpAddressConditionBuilder::remote()
+            .subnet_v6(network.ip(), network.prefix())
             .build(),
     }
 }
