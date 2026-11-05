@@ -54,7 +54,7 @@ the current state of the latest code in git, not necessarily any existing releas
 | Optional local network access           |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
 | [Externally audited](./audits)          |    ✓    |   ✓   |   ✓   |    ✓    |  ✓ |
 
-\* The local network is always accessible on iOS with the current implementation
+\* When using _Force all apps_, local network sharing has to be manually enabled. Without _Force all apps_ local network is somewhat accessible by default on iOS.
 
 [DAITA]: https://mullvad.net/en/blog/introducing-defense-against-ai-guided-traffic-analysis-daita
 
