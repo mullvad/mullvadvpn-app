@@ -53,7 +53,8 @@ fn active_session_processes() -> io::Result<BTreeSet<u32>> {
         FwpmSessionCreateEnumHandle0(engine_handle, ptr::null(), &raw mut enum_handle)
     })?;
 
-    let result = enumerate_sessions(engine_handle, enum_handle);
+    // SAFETY: `engine_handle` and `enum_handle` are valid WFP session handle and session enum handle.
+    let result = unsafe { enumerate_sessions(engine_handle, enum_handle) };
 
     // SAFETY: The enumeration handle was created above, on the same engine handle.
     unsafe { FwpmSessionDestroyEnumHandle0(engine_handle, enum_handle) };
@@ -61,13 +62,22 @@ fn active_session_processes() -> io::Result<BTreeSet<u32>> {
     result
 }
 
-fn enumerate_sessions(engine_handle: HANDLE, enum_handle: HANDLE) -> io::Result<BTreeSet<u32>> {
+/// Enumerate all process identifiers that have an open WFP sessions.
+///
+/// # Safety
+///
+/// * `engine_handle` must be a valid session handle for WFP (opened with `FwpmEngineOpen0`).
+/// * `enum_handle` must be a valid enum handle (opened with `FwpmSessionCreateEnumHandle0`).
+unsafe fn enumerate_sessions(
+    engine_handle: HANDLE,
+    enum_handle: HANDLE,
+) -> io::Result<BTreeSet<u32>> {
     let mut pids = BTreeSet::new();
     loop {
         let mut entries: *mut *mut FWPM_SESSION0 = ptr::null_mut();
         let mut num_entries = 0u32;
-        // SAFETY: Both handles are valid. On success, `entries` points to `num_entries`
-        // session pointers, owned by the engine until freed below.
+        // SAFETY: Both handles and pointers are valid. On success, `entries` points to
+        // `num_entries` session pointers, owned by the engine until freed below.
         check(unsafe {
             FwpmSessionEnum0(
                 engine_handle,
