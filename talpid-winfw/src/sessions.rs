@@ -125,7 +125,8 @@ fn process_image_path(pid: u32) -> io::Result<PathBuf> {
 
     let mut buffer = [0u16; MAX_PATH as usize];
     let mut size = buffer.len() as u32;
-    // SAFETY: `size` is the length of `buffer` in characters.
+    // SAFETY: `size` is the length of `buffer` in characters. `process` handle was created with
+    // `PROCESS_QUERY_LIMITED_INFORMATION` rights.
     let status = unsafe {
         QueryFullProcessImageNameW(
             process,
