@@ -11,8 +11,8 @@ cfg-if = "1.0"
 futures = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
-talpid-routing = { path = "../talpid-routing" }
-talpid-types = { path = "../talpid-types" }
+talpid-routing.workspace = true
+talpid-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 
@@ -30,7 +30,7 @@ netlink-sys.workspace = true
 rtnetlink.workspace = true
 
 [target."cfg(windows)".dependencies]
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 wintun-bindings = "0.7.39"
 
 [target."cfg(windows)".dependencies.windows-sys]

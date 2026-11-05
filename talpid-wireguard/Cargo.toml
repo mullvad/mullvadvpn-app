@@ -23,11 +23,11 @@ rand = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 surge-ping = { workspace = true }
 talpid-error.workspace = true
-talpid-net = { path = "../talpid-net" }
-talpid-routing = { path = "../talpid-routing" }
-talpid-tunnel = { path = "../talpid-tunnel" }
-talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
-talpid-types = { path = "../talpid-types" }
+talpid-net.workspace = true
+talpid-routing.workspace = true
+talpid-tunnel.workspace = true
+talpid-tunnel-config-client.workspace = true
+talpid-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
@@ -56,7 +56,7 @@ nix = { workspace = true, features = ["fs"] }
 [target."cfg(windows)".dependencies]
 bitflags = "1.2"
 chrono = { workspace = true, features = ["clock"] }
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 widestring = { workspace = true }
 windows-sys = { workspace = true }
 

@@ -26,10 +26,10 @@ which = { version = "4.0", default-features = false }
 [target.'cfg(target_os = "macos")'.dependencies]
 parking_lot = "0.12.0"
 system-configuration.workspace = true
-talpid-routing = { path = "../talpid-routing" }
+talpid-routing.workspace = true
 
 [target."cfg(windows)".dependencies]
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 windows-registry = { workspace = true }
 windows-result = { workspace = true }
 

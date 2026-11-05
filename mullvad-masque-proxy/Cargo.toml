@@ -33,7 +33,7 @@ criterion = { version = "0.7.0", features = ["html_reports"] }
 # The self-referential dependency is required for loading the masque server TLS config in tests.
 mullvad-masque-proxy = { path = ".", features = ["test"] }
 rand = { workspace = true }
-talpid-tunnel = { path = "../talpid-tunnel" }
+talpid-tunnel.workspace = true
 tokio = { workspace = true, features = ["fs", "io-util", "macros", "rt-multi-thread"] }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 
