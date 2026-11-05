@@ -59,8 +59,11 @@ class DeleteAccountConfirmationViewModel(
 
         try {
             val accountExpiry =
-                withTimeout(3.seconds) { accountRepository.accountData.filterNotNull().first() }
-            val daysLeft = accountExpiry.expiryDate.daysLeft()?.toInt()
+                withTimeout(3.seconds) {
+                    accountRepository.refreshAccountData(waitForDeviceState = true)
+                    accountRepository.accountData.filterNotNull().first().expiryDate
+                }
+            val daysLeft = accountExpiry.daysLeft()?.toInt()
             if (daysLeft == null) {
                 emit(DaysLeftState.NoDaysLeft)
             } else {
