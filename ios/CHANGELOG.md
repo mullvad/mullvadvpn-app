@@ -23,6 +23,16 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+## [2026.7]
+### Changed
+- Replace WireGuardGo with GotaTun.
+- Add domain fronting API access method.
+
+### Fixed
+- Fix accessibility in "Force all apps" view.
+
+
+## [2026.6 - 2026-10-29]
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
