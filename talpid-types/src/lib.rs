@@ -6,6 +6,8 @@ pub mod tunnel;
 #[cfg(target_os = "windows")]
 pub mod split_tunnel;
 
+pub mod windows;
+
 pub mod drop_guard;
 
 use std::time::SystemTime;
