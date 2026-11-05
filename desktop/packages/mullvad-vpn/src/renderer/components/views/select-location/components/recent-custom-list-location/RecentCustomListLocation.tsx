@@ -33,6 +33,8 @@ function RecentCustomListLocationImpl({
     void handleSelect(customList);
   }, [customList, handleSelect]);
 
+  const showNeedsOtherEntry = customList.needsOtherEntry;
+
   return (
     <Location root selected={customList.selected}>
       <Location.ListItem disabled={disabled} level={0} position={position}>
@@ -49,6 +51,11 @@ function RecentCustomListLocationImpl({
                 </FootnoteMiniSemiBold>
               )}
             </FlexColumn>
+            {showNeedsOtherEntry && (
+              <Location.ListItem.Item.ActionGroup>
+                <Location.ListItem.Item.Icon icon="magic-multihop" />
+              </Location.ListItem.Item.ActionGroup>
+            )}
           </Location.ListItem.Item>
         </Location.ListItem.Trigger>
         <RecentCustomListTrailingActions customList={customList} />

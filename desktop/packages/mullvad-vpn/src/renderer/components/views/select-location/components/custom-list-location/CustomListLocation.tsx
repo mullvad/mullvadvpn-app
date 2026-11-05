@@ -86,6 +86,8 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
     });
   };
 
+  const showNeedsOtherEntry = customList.needsOtherEntry;
+
   return (
     <StyledLocationContainer>
       <Location root selected={customList.selected}>
@@ -106,6 +108,11 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
                     </FootnoteMiniSemiBold>
                   )}
                 </FlexColumn>
+                {showNeedsOtherEntry && (
+                  <Location.Accordion.Header.Item.ActionGroup>
+                    <Location.Accordion.Header.Item.Icon icon="magic-multihop" />
+                  </Location.Accordion.Header.Item.ActionGroup>
+                )}
               </Location.Accordion.Header.Item>
             </Location.Accordion.Header.ItemTrigger>
             <CustomListTrailingActions customList={customList} />

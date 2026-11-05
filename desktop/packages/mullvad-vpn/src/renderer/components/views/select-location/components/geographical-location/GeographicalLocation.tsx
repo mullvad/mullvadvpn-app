@@ -89,6 +89,8 @@ function GeographicalLocationImpl({
   const shouldScrollToLocation = location.selected && !hasRecents;
   const refToScrollTo = shouldScrollToLocation ? selectedLocationRef : null;
 
+  const showNeedsOtherEntry = location.needsOtherEntry;
+
   return (
     <Location selected={location.selected} root={root}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
@@ -98,6 +100,11 @@ function GeographicalLocationImpl({
               <Location.Accordion.Header.Item.Title>
                 {location.label}
               </Location.Accordion.Header.Item.Title>
+              {showNeedsOtherEntry && (
+                <Location.Accordion.Header.Item.ActionGroup>
+                  <Location.Accordion.Header.Item.Icon icon="magic-multihop" />
+                </Location.Accordion.Header.Item.ActionGroup>
+              )}
             </Location.Accordion.Header.Item>
           </Location.Accordion.Header.ItemTrigger>
           <GeographicalLocationTrailingActions location={location} />

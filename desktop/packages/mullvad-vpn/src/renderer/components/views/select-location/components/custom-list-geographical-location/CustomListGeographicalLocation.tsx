@@ -66,6 +66,8 @@ function CustomListGeographicalLocationImpl({
     );
   });
 
+  const showNeedsOtherEntry = location.needsOtherEntry;
+
   return (
     <Location selected={location.selected}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
@@ -75,6 +77,11 @@ function CustomListGeographicalLocationImpl({
               <Location.Accordion.Header.Item.Title>
                 {location.label}
               </Location.Accordion.Header.Item.Title>
+              {showNeedsOtherEntry && (
+                <Location.Accordion.Header.Item.ActionGroup>
+                  <Location.Accordion.Header.Item.Icon icon="magic-multihop" />
+                </Location.Accordion.Header.Item.ActionGroup>
+              )}
             </Location.Accordion.Header.Item>
           </Location.Accordion.Header.ItemTrigger>
 
