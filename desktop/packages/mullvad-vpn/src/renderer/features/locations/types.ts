@@ -14,6 +14,7 @@ type LocationState = {
   selected: boolean;
   disabled?: boolean;
   disabledReason?: DisabledReason;
+  needsOtherEntry?: boolean;
 };
 
 export type CustomListLocation = LocationState & {

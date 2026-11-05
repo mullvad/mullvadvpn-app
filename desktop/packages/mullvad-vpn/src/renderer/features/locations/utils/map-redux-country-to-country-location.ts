@@ -1,4 +1,5 @@
 import type { RelayLocation as DaemonRelayLocation } from '../../../../shared/daemon-rpc-types';
+import type { RelaySelectorRelayMatch } from '../../../../shared/relay-selector-rpc-types';
 import type { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import type { useDisabledLocation } from '../hooks/use-disabled-location';
 import { type CountryLocation, DisabledReason } from '../types';
@@ -12,6 +13,7 @@ export function mapReduxCountryToCountryLocation(
   selectedLocation: DaemonRelayLocation | undefined,
   disabledLocation: ReturnType<typeof useDisabledLocation>,
   locale: string,
+  matches: RelaySelectorRelayMatch[],
 ): CountryLocation {
   {
     const countryLocation = { country: country.code };
@@ -26,6 +28,7 @@ export function mapReduxCountryToCountryLocation(
           disabledLocation,
           countryDisabledReason,
           locale,
+          matches,
         );
 
         return cityLocation;
@@ -35,6 +38,8 @@ export function mapReduxCountryToCountryLocation(
     const label = createLocationLabel(country.name, countryLocation, countryDisabledReason);
     const hasSelectedChild = cities.some(({ selected }) => selected);
     const hasExpandedChild = cities.some(({ expanded }) => expanded);
+    const needsOtherEntry =
+      cities.length > 0 && cities.every(({ needsOtherEntry }) => needsOtherEntry);
 
     return {
       type: 'country',
@@ -48,6 +53,7 @@ export function mapReduxCountryToCountryLocation(
       selected: isLocationSelected(countryLocation, selectedLocation),
       expanded: hasExpandedChild || hasSelectedChild,
       cities,
+      needsOtherEntry,
     };
   }
 }
