@@ -24,7 +24,7 @@ function RecentCustomListLocationImpl({
 }: RecentCustomListLocationProps) {
   const { handleSelect } = useLocationListsContext();
 
-  const ariaLabel = useLocationAriaLabel(customList.label);
+  const ariaLabel = useLocationAriaLabel(customList);
 
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp;
