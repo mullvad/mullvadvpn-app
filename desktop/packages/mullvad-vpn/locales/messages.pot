@@ -303,6 +303,9 @@ msgstr ""
 msgid "SECURE CONNECTION"
 msgstr ""
 
+msgid "Selected"
+msgstr ""
+
 #. Text for button that sets a location as entry relay.
 msgid "Set as entry"
 msgstr ""
@@ -430,6 +433,13 @@ msgstr ""
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
 msgid "Connect to %(location)s"
+msgstr ""
+
+#. Accessibility label for button that connects to a location and uses an automatic entry.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect to %(location)s, will connect via an automatic entry"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe a button
