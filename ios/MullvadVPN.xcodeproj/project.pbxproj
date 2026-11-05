@@ -49,6 +49,11 @@
 		016EE03C2F8524EB0035B25C /* WireGuardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016EE03B2F8524EB0035B25C /* WireGuardKey.swift */; };
 		016EE0422F8540B00035B25C /* IPAddressRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016EE0412F8540B00035B25C /* IPAddressRange.swift */; };
 		016EE0442F8640B00035B25C /* DaitaConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016EE0432F8640B00035B25C /* DaitaConfiguration.swift */; };
+		01953D2F3098A59100775553 /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		01953D333098A71500775553 /* PacketTunnelCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C7A4362A863F440060C66F /* PacketTunnelCore.framework */; };
+		01953D343098A71500775553 /* PacketTunnelCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58C7A4362A863F440060C66F /* PacketTunnelCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		01953D373098A75E00775553 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
+		01953D3A3098A76300775553 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
 		01C981E82F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */; };
 		01C981E92F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */; };
@@ -131,11 +136,11 @@
 		449EBA262B975B9700DFA4EB /* EphemeralPeerReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* EphemeralPeerReceiving.swift */; };
 		44A262422D6373B400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262412D6373B400085380 /* WireGuardKitTypes */; };
 		44A262432D6373B400085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262412D6373B400085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		44A262452D6373C400085380 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262442D6373C400085380 /* WireGuardKit */; };
+		44A262452D6373C400085380 /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 44A262442D6373C400085380 /* WireGuardKit */; };
 		44A262472D6373D300085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262462D6373D300085380 /* WireGuardKitTypes */; };
 		44A262492D6373D300085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262462D6373D300085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262512D63742B00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624E2D63742B00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		44A262572D63744400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262562D63744400085380 /* WireGuardKitTypes */; };
+		44A262572D63744400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 44A262562D63744400085380 /* WireGuardKitTypes */; };
 		44A2625B2D63744A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; };
 		44A2625D2D63744A00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262632D63745700085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262622D63745700085380 /* WireGuardKitTypes */; };
@@ -151,7 +156,7 @@
 		44B12CC93065B18500B071C2 /* ProblemReportMessageEditOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC83065B17100B071C2 /* ProblemReportMessageEditOverlay.swift */; };
 		44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */; };
 		44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */; };
-		44C18DE32C74DF93009BE3E1 /* TunnelPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275432C3C3029000526DE /* TunnelPinger.swift */; };
+		44C18DE32C74DF93009BE3E1 /* TunnelPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275432C3C3029000526DE /* TunnelPinger.swift */; platformFilter = ios; };
 		44CAEAA12D442F5E004A8E65 /* LocationIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CAEAA02D442F56004A8E65 /* LocationIdentifier.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
@@ -275,7 +280,7 @@
 		587DCCEF287D84A500CE821E /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 587DCCEE287D84A500CE821E /* countries.geo.json */; };
 		587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
 		587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB671271451E300123C75 /* VPNSettingsViewModel.swift */; };
-		588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */; };
+		588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */; platformFilter = ios; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		5888AD83227B11080051EB06 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* LocationCell.swift */; };
@@ -353,7 +358,7 @@
 		58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9FF2983FF0200BE19F7 /* LoginInteractor.swift */; };
 		58CAFA032985367600BE19F7 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAFA01298530DC00BE19F7 /* Promise.swift */; };
 		58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA0152242560B004F3011 /* UIColor+Palette.swift */; };
-		58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */; };
+		58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */; platformFilter = ios; };
 		58CE5E64224146200008646E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E63224146200008646E /* AppDelegate.swift */; };
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		58CEB2E92AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CEB2E82AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift */; };
@@ -429,7 +434,7 @@
 		58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */; };
 		58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */; };
 		58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DFF7D72B02774C00F864E0 /* ListItemPickerViewController.swift */; };
-		58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */; };
+		58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0729E28814ACC008902F8 /* WireGuardLogLevel+Logging.swift */; platformFilter = ios; };
 		58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E0A98727C8F46300FE6BDD /* Tunnel.swift */; };
 		58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E11187292FA11F009FCA84 /* SettingsMigrationUIHandler.swift */; };
 		58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E20770274672CA00DE5D77 /* LaunchViewController.swift */; };
@@ -437,7 +442,7 @@
 		58E45A5729F12C5100281ECF /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
-		58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */; };
+		58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */; platformFilter = ios; };
 		58EC067A2A8D208D00BEB973 /* TunnelDeviceInfoStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC06792A8D208D00BEB973 /* TunnelDeviceInfoStub.swift */; };
 		58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */; };
 		58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF581025D69DB400AEBA94 /* StatusImageView.swift */; };
@@ -886,7 +891,6 @@
 		A992DA242C24709F00DE7CE5 /* MullvadRustRuntime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A998DA812BD147AD001D61A2 /* ListCustomListsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A998DA802BD147AD001D61A2 /* ListCustomListsPage.swift */; };
 		A998DA832BD2B055001D61A2 /* EditCustomListLocationsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A998DA822BD2B055001D61A2 /* EditCustomListLocationsPage.swift */; };
-		A99D5FEE308742C300822780 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; };
 		A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
 		A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
@@ -997,7 +1001,7 @@
 		A9F9F8243020D30400ABA309 /* AntiCensorshipPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */; };
 		BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */; };
 		C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */; };
-		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; };
+		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; platformFilter = ios; };
 		D59CB43B2FE3FD6F000B06FB /* NetworkPathSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */; };
 		D59CB43D2FE40895000B06FB /* PathMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43C2FE40895000B06FB /* PathMonitor.swift */; };
 		D59CB43F2FE40B80000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43E2FE40B76000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift */; };
@@ -1362,6 +1366,34 @@
 			proxyType = 1;
 			remoteGlobalIDString = 58D223F2294C8FF00029F5F8;
 			remoteInfo = MullvadLogging;
+		};
+		01953D303098A59100775553 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58CE5E78224146470008646E;
+			remoteInfo = PacketTunnel;
+		};
+		01953D353098A71500775553 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58C7A4352A863F440060C66F;
+			remoteInfo = PacketTunnelCore;
+		};
+		01953D383098A75E00775553 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58D223F2294C8FF00029F5F8;
+			remoteInfo = MullvadLogging;
+		};
+		01953D3B3098A76300775553 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A992DA1C2C24709F00DE7CE5;
+			remoteInfo = MullvadRustRuntime;
 		};
 		01B2FF882D70B914004AED35 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1747,6 +1779,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		01953D323098A59100775553 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				01953D2F3098A59100775553 /* PacketTunnel.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		06799AD628F98E1D00ACD94E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1881,6 +1924,7 @@
 				A942FDED3077B6BE00CFAD89 /* MullvadLogging.framework in Embed Frameworks */,
 				F938CE1C3049926900E568EE /* MullvadRustRuntime.framework in Embed Frameworks */,
 				A92B84F5307FB6900012CD4C /* MullvadREST.framework in Embed Frameworks */,
+				01953D343098A71500775553 /* PacketTunnelCore.framework in Embed Frameworks */,
 				A942FDE93077B6BA00CFAD89 /* MullvadTypes.framework in Embed Frameworks */,
 				A92B84F7307FB6BB0012CD4C /* Operations.framework in Embed Frameworks */,
 				A942FDE53077B6B500CFAD89 /* MullvadSettings.framework in Embed Frameworks */,
@@ -2982,7 +3026,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A99D5FEE308742C300822780 /* WireGuardKitTypes in Frameworks */,
 				F0C3333C2B31A29C00D1A478 /* MullvadSettings.framework in Frameworks */,
 				58D223BF294C8AE90029F5F8 /* Operations.framework in Frameworks */,
 				58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */,
@@ -3168,10 +3211,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01953D373098A75E00775553 /* MullvadLogging.framework in Frameworks */,
 				A942FDE83077B6BA00CFAD89 /* MullvadTypes.framework in Frameworks */,
 				A942FDEC3077B6BE00CFAD89 /* MullvadLogging.framework in Frameworks */,
 				A92B84F4307FB6900012CD4C /* MullvadREST.framework in Frameworks */,
+				01953D333098A71500775553 /* PacketTunnelCore.framework in Frameworks */,
 				F938CE1B3049926900E568EE /* MullvadRustRuntime.framework in Frameworks */,
+				01953D3A3098A76300775553 /* MullvadRustRuntime.framework in Frameworks */,
 				A92B84F6307FB6BB0012CD4C /* Operations.framework in Frameworks */,
 				A942FDE43077B6B500CFAD89 /* MullvadSettings.framework in Frameworks */,
 			);
@@ -5684,7 +5730,6 @@
 			);
 			name = MullvadREST;
 			packageProductDependencies = (
-				44A2624A2D6373E000085380 /* WireGuardKitTypes */,
 			);
 			productName = MullvadREST;
 			productReference = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */;
@@ -6096,6 +6141,7 @@
 				F938CE0B3049920400E568EE /* Frameworks */,
 				F938CE0C3049920400E568EE /* Resources */,
 				F938CE1F3049926900E568EE /* Embed Frameworks */,
+				01953D323098A59100775553 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -6107,6 +6153,10 @@
 				A942FDEB3077B6BA00CFAD89 /* PBXTargetDependency */,
 				A942FDEF3077B6BE00CFAD89 /* PBXTargetDependency */,
 				A92B84F9307FB6BB0012CD4C /* PBXTargetDependency */,
+				01953D313098A59100775553 /* PBXTargetDependency */,
+				01953D363098A71500775553 /* PBXTargetDependency */,
+				01953D393098A75E00775553 /* PBXTargetDependency */,
+				01953D3C3098A76300775553 /* PBXTargetDependency */,
 			);
 			name = MullvadVPNtvOS;
 			packageProductDependencies = (
@@ -7857,6 +7907,26 @@
 			target = 58D223F2294C8FF00029F5F8 /* MullvadLogging */;
 			targetProxy = 014E8C2C2F28B09700837D0A /* PBXContainerItemProxy */;
 		};
+		01953D313098A59100775553 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58CE5E78224146470008646E /* PacketTunnel */;
+			targetProxy = 01953D303098A59100775553 /* PBXContainerItemProxy */;
+		};
+		01953D363098A71500775553 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58C7A4352A863F440060C66F /* PacketTunnelCore */;
+			targetProxy = 01953D353098A71500775553 /* PBXContainerItemProxy */;
+		};
+		01953D393098A75E00775553 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58D223F2294C8FF00029F5F8 /* MullvadLogging */;
+			targetProxy = 01953D383098A75E00775553 /* PBXContainerItemProxy */;
+		};
+		01953D3C3098A76300775553 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
+			targetProxy = 01953D3B3098A76300775553 /* PBXContainerItemProxy */;
+		};
 		01B2FF892D70B914004AED35 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
@@ -7980,6 +8050,7 @@
 		};
 		58FBDAA222A52A6800EB69A3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
 			targetProxy = 58FBDAA122A52A6800EB69A3 /* PBXContainerItemProxy */;
 		};
@@ -8434,12 +8505,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnelCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -8474,12 +8546,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnelCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -8732,9 +8805,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = Debug;
 		};
@@ -8754,8 +8831,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = Release;
 		};
@@ -9378,9 +9459,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = Staging;
 		};
@@ -9634,12 +9719,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnelCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -10236,8 +10322,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 			};
 			name = MockRelease;
 		};
@@ -10491,12 +10581,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnelCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.6;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -10819,11 +10910,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=appletvos*]" = CKG9MXH72F;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -10839,7 +10929,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNTvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=appletvos*]" = "MullvadVPN App for tvOS";
 				SDKROOT = appletvos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -10864,11 +10953,9 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=appletvos*]" = CKG9MXH72F;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -10884,7 +10971,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNTvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=appletvos*]" = "MullvadVPN App for tvOS";
 				SDKROOT = appletvos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -10948,11 +11034,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=appletvos*]" = CKG9MXH72F;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -10968,7 +11053,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNTvOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=appletvos*]" = "MullvadVPN App for tvOS";
 				SDKROOT = appletvos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -11252,11 +11336,6 @@
 			productName = WireGuardKit;
 		};
 		44A262462D6373D300085380 /* WireGuardKitTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKitTypes;
-		};
-		44A2624A2D6373E000085380 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
