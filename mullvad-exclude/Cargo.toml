@@ -8,7 +8,7 @@ license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = { workspace = true, features = ["process", "user"] }
-talpid-cgroup = { path = "../talpid-cgroup" }
+talpid-cgroup.workspace = true
 thiserror = { workspace = true }
 
 [features]

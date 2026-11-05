@@ -94,6 +94,22 @@ ipnetwork = "0.21.1"
 itertools = "0.14"
 log = "0.4"
 mockito = "1.7.2"
+mullvad-api = { path = "./mullvad-api" }
+mullvad-api-constants = { path = "./mullvad-api/mullvad-api-constants" }
+mullvad-daemon = { path = "./mullvad-daemon" }
+mullvad-daemon-relay-selector = { path = "./mullvad-daemon-relay-selector" }
+mullvad-encrypted-dns-proxy = { path = "./mullvad-encrypted-dns-proxy" }
+mullvad-fs = { path = "./mullvad-fs" }
+mullvad-leak-checker = { path = "./mullvad-leak-checker" }
+mullvad-logging = { path = "./mullvad-logging" }
+mullvad-management-interface = { path = "./mullvad-management-interface" }
+mullvad-masque-proxy = { path = "./mullvad-masque-proxy" }
+mullvad-paths = { path = "./mullvad-paths" }
+mullvad-relay-selector = { path = "./mullvad-relay-selector" }
+mullvad-tls-client = { path = "./mullvad-tls-client" }
+mullvad-types = { path = "./mullvad-types" }
+mullvad-update = { path = "./mullvad-update" }
+mullvad-version = { path = "./mullvad-version" }
 netlink-packet-core = "0.9.0"
 netlink-packet-route = "0.33.0"
 netlink-proto = "0.13.0"
@@ -141,10 +157,25 @@ socket2 = "0.6.5"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
 system-configuration = "0.7.0"
+talpid-cgroup = { path = "./talpid-cgroup" }
+talpid-core = { path = "./talpid-core" }
 talpid-dbus = { path = "./talpid-dbus", default-features = false, features = ["libdbus"] }
+talpid-dns = { path = "./talpid-dns" }
 talpid-error = { path = "./talpid-error" }
+talpid-future = { path = "./talpid-future" }
 talpid-logging = { path = "./talpid-logging" }
+talpid-macos = { path = "./talpid-macos" }
+talpid-net = { path = "./talpid-net" }
+talpid-netstack = { path = "./talpid-netstack" }
+talpid-platform-metadata = { path = "./talpid-platform-metadata" }
+talpid-routing = { path = "./talpid-routing" }
+talpid-time = { path = "./talpid-time" }
+talpid-tunnel = { path = "./talpid-tunnel" }
+talpid-tunnel-config-client = { path = "./talpid-tunnel-config-client" }
+talpid-types = { path = "./talpid-types" }
+talpid-windows = { path = "./talpid-windows" }
 talpid-winfw = { path = "./talpid-winfw" }
+talpid-wireguard = { path = "./talpid-wireguard" }
 tempfile = "3.27.0"
 thiserror = "2.0"
 tipsy = "0.7.0"

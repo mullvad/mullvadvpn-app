@@ -9,12 +9,12 @@ license.workspace = true
 [dependencies]
 anyhow = "1.0"
 clap = { workspace = true }
-mullvad-api = { path = "../mullvad-api" }
-mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
-mullvad-tls-client = { path = "../mullvad-tls-client", features = [
+mullvad-api.workspace = true
+mullvad-api-constants.workspace = true
+mullvad-tls-client = { workspace = true, features = [
   "releases-cdn",
 ] }
-mullvad-version = { path = "../mullvad-version", features = ["serde"] }
+mullvad-version = { workspace = true, features = ["serde"] }
 reqwest = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

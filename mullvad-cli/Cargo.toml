@@ -24,19 +24,19 @@ clap = { workspace = true }
 futures = { workspace = true }
 ipnetwork = { workspace = true }
 itertools = { workspace = true }
-mullvad-management-interface = { path = "../mullvad-management-interface" }
-mullvad-types = { path = "../mullvad-types", features = ["clap"] }
-mullvad-version = { path = "../mullvad-version" }
+mullvad-management-interface.workspace = true
+mullvad-types = { workspace = true, features = ["clap"] }
+mullvad-version.workspace = true
 natord = "1.0.9"
 serde = { workspace = true }
 serde_json = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 vec1 = { workspace = true }
 
 [build-dependencies]
-mullvad-version = { path = "../mullvad-version" }
+mullvad-version.workspace = true
 winresource.workspace = true
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]

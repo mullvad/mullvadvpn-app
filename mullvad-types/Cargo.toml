@@ -13,9 +13,9 @@ either = "1.11"
 intersection-derive = { path = "intersection-derive" }
 ipnetwork = { workspace = true }
 log = { workspace = true }
-mullvad-version = { path = "../mullvad-version", features = ["serde"] }
+mullvad-version = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["derive"] }
-talpid-types = { path = "../talpid-types" }
+talpid-types.workspace = true
 thiserror = { workspace = true }
 uuid = { version = "1.4.1", features = ["serde", "v4"] }
 vec1 = { workspace = true }

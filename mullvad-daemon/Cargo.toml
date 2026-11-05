@@ -80,30 +80,30 @@ ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"
-mullvad-api = { path = "../mullvad-api" }
-mullvad-daemon-relay-selector = { path = "../mullvad-daemon-relay-selector" }
-mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
-mullvad-fs = { path = "../mullvad-fs" }
-mullvad-leak-checker = { path = "../mullvad-leak-checker" }
-mullvad-logging = { path = "../mullvad-logging" }
-mullvad-management-interface = { path = "../mullvad-management-interface" }
-mullvad-paths = { path = "../mullvad-paths" }
-mullvad-relay-selector = { path = "../mullvad-relay-selector" }
-mullvad-types = { path = "../mullvad-types" }
-mullvad-version = { path = "../mullvad-version" }
+mullvad-api.workspace = true
+mullvad-daemon-relay-selector.workspace = true
+mullvad-encrypted-dns-proxy.workspace = true
+mullvad-fs.workspace = true
+mullvad-leak-checker.workspace = true
+mullvad-logging.workspace = true
+mullvad-management-interface.workspace = true
+mullvad-paths.workspace = true
+mullvad-relay-selector.workspace = true
+mullvad-types.workspace = true
+mullvad-version.workspace = true
 rand = { workspace = true }
 rolling-file.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
-talpid-core = { path = "../talpid-core" }
-talpid-dns = { path = "../talpid-dns" }
+talpid-core.workspace = true
+talpid-dns.workspace = true
 talpid-error.workspace = true
-talpid-future = { path = "../talpid-future" }
+talpid-future.workspace = true
 talpid-logging.workspace = true
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-talpid-routing = { path = "../talpid-routing" }
-talpid-time = { path = "../talpid-time" }
-talpid-types = { path = "../talpid-types" }
+talpid-platform-metadata.workspace = true
+talpid-routing.workspace = true
+talpid-time.workspace = true
+talpid-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = [
   "fs",
@@ -119,18 +119,18 @@ tracing-subscriber = { workspace = true, features = ["chrono"] }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }
-talpid-time = { path = "../talpid-time", features = ["test"] }
+talpid-time = { workspace = true, features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
 
 [build-dependencies]
-mullvad-version = { path = "../mullvad-version" }
+mullvad-version.workspace = true
 winresource.workspace = true
 
 # In-app upgrades exist on Windows and macOS only, so only they need the
 # download-and-install half of `mullvad-update`. Keep in sync with the
 # `in_app_upgrade` cfg set in `build.rs`.
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
+mullvad-update = { workspace = true, features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 async-trait = { workspace = true }
@@ -140,7 +140,7 @@ paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
 ctrlc = { workspace = true, features = ["termination"] }
-talpid-dbus = { path = "../talpid-dbus" }
+talpid-dbus.workspace = true
 tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
@@ -148,10 +148,10 @@ ctrlc = { workspace = true, features = ["termination"] }
 notify = "8.0.0"
 objc2-foundation = { workspace = true, features = ["NSProcessInfo", "NSString", "NSURL"] }
 objc2-service-management = { workspace = true, features = ["SMAppService", "objc2"] }
-talpid-macos = { path = "../talpid-macos" }
+talpid-macos.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
-mullvad-update = { path = "../mullvad-update" }
+mullvad-update.workspace = true
 
 [target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["signal", "user"] }
@@ -159,7 +159,7 @@ nix = { workspace = true, features = ["signal", "user"] }
 [target."cfg(windows)".dependencies]
 ctrlc = { workspace = true }
 dirs = { workspace = true }
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
 windows-service = "0.6.0"
 

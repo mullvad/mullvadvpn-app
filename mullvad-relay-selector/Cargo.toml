@@ -11,9 +11,9 @@ either = { workspace = true }
 ipnetwork = { workspace = true }
 itertools = { workspace = true }
 log = { workspace = true }
-mullvad-types = { path = "../mullvad-types" }
+mullvad-types.workspace = true
 rand = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-types.workspace = true
 thiserror = { workspace = true }
 vec1 = { workspace = true }
 
