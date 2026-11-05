@@ -26,6 +26,7 @@ class DependencyManager {
     private let apiContext: ApiContext
     private let shadowsocksCacheCleaner: ShadowsocksCacheCleaner
     private let ipOverrideRepository: IPOverrideRepository
+    private let relayCache: RelayCacheProtocol
     private let proxyFactory: ProxyFactoryProtocol
 
     private init(
@@ -36,6 +37,7 @@ class DependencyManager {
         apiContext: ApiContext,
         shadowsocksCacheCleaner: ShadowsocksCacheCleaner,
         ipOverrideRepository: IPOverrideRepository,
+        relayCache: RelayCacheProtocol,
         proxyFactory: ProxyFactoryProtocol
     ) {
         self.settingsManager = settingsManager
@@ -45,6 +47,7 @@ class DependencyManager {
         self.apiContext = apiContext
         self.shadowsocksCacheCleaner = shadowsocksCacheCleaner
         self.ipOverrideRepository = ipOverrideRepository
+        self.relayCache = relayCache
         self.proxyFactory = proxyFactory
     }
 
@@ -121,11 +124,20 @@ class DependencyManager {
             apiContext: apiContext,
             shadowsocksCacheCleaner: shadowsocksCacheCleaner,
             ipOverrideRepository: ipOverrideRepository,
+            relayCache: ipOverrideWrapper,
             proxyFactory: proxyFactory
         )
     }
 
     public func makeLoginViewModel() -> any LoggingIn {
-        LoginViewModel(accountProxy: proxyFactory.createAccountsProxy(), deviceProxy: proxyFactory.createDevicesProxy())
+        LoginViewModel(
+            accountProxy: proxyFactory.createAccountsProxy(),
+            deviceProxy: proxyFactory.createDevicesProxy(),
+            relayListUpdater: makeRelayListUpdater()
+        )
+    }
+
+    public func makeRelayListUpdater() -> RelayListUpdater {
+        RelayListUpdater(apiProxy: proxyFactory.createAPIProxy(), relayCache: relayCache)
     }
 }

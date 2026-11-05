@@ -44,9 +44,17 @@ class LoginViewModel: LoggingIn {
     var deviceProxy: DeviceHandling!
     var state: LoggingInState = .`initial`
 
-    init(accountProxy: RESTAccountHandling, deviceProxy: DeviceHandling) {
+    private let logger = Logger(label: "LoginViewModel")
+    private let relayListUpdater: RelayListUpdater
+
+    init(
+        accountProxy: RESTAccountHandling,
+        deviceProxy: DeviceHandling,
+        relayListUpdater: RelayListUpdater
+    ) {
         self.accountProxy = accountProxy
         self.deviceProxy = deviceProxy
+        self.relayListUpdater = relayListUpdater
     }
 
     func loginWith(_ accountNumber: String) async {
@@ -68,6 +76,15 @@ class LoginViewModel: LoggingIn {
                 let loggedInState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
                 let data = try JSONEncoder().encode(loggedInState)
                 try SettingsManager().store.write(data, for: .deviceState)
+                // The relay the tunnel connects to is picked from the relay cache, so a logged in
+                // device alone is not enough to connect. A failure here must not void the login:
+                // the device already exists server-side, and logging in again would burn another
+                // device slot, so it is logged and the login stands.
+                do {
+                    try await relayListUpdater.updateRelays()
+                } catch {
+                    logger.error(error: error, message: "Failed to update relay list on login.")
+                }
                 state = .success
             } catch {
                 state = .failure(error)
@@ -80,6 +97,53 @@ class LoginViewModel: LoggingIn {
 
     func createAccount() async {
         state = .authenticating
+    }
+}
+
+/// Fetches the relay list and stores it in the relay cache shared with the packet tunnel.
+///
+/// The tunnel's relay selector only ever reads this cache, and the prebundled relay list is empty
+/// in non-release builds. On iOS `RelayCacheTracker` keeps the cache fresh, but it lives in the app
+/// target and depends on UIKit background tasks, so tvOS populates the cache here instead.
+struct RelayListUpdater {
+    private let logger = Logger(label: "RelayListUpdater")
+    private let apiProxy: APIQuerying
+    private let relayCache: RelayCacheProtocol
+
+    init(apiProxy: APIQuerying, relayCache: RelayCacheProtocol) {
+        self.apiProxy = apiProxy
+        self.relayCache = relayCache
+    }
+
+    /// Number of WireGuard relays in the cache, and zero when it is empty or unreadable.
+    var cachedRelayCount: Int {
+        (try? relayCache.read())?.relays.wireguard.relays.count ?? 0
+    }
+
+    /// Fetches the relay list and writes it to the cache.
+    func updateRelays() async throws {
+        let cachedRelays = try? relayCache.read()
+        var sigsum: (String, Int64)?
+        if let digest = cachedRelays?.digest, let timestamp = cachedRelays?.timestamp {
+            sigsum = (digest, timestamp)
+        }
+
+        let response: REST.ServerRelaysCacheResponse? = try await withCheckedThrowingContinuation {
+            continuation in
+            _ = apiProxy.getRelays(sigsum: sigsum, retryStrategy: .apiRequest) { result in
+                continuation.resume(with: result)
+            }
+        }
+
+        switch response ?? .notModified {
+        case let .newContent(digest, timestamp, rawData):
+            try relayCache.write(
+                record: StoredRelays(
+                    digest: digest, timestamp: timestamp, rawData: rawData, updatedAt: Date()))
+            logger.debug("Updated cached relay list.")
+        case .notModified:
+            logger.debug("Cached relay list is up to date.")
+        }
     }
 }
 
