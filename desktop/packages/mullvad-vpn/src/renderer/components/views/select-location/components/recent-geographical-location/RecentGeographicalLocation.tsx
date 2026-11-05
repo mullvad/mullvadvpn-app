@@ -4,7 +4,7 @@ import type { GeographicalLocation } from '../../../../../features/locations/typ
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
-import { useLocationAriaLabel } from '../../hooks';
+import { useLocationAriaDescription, useLocationAriaLabel } from '../../hooks';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { RecentGeographicalLocationTrailingActions } from './components';
@@ -25,6 +25,7 @@ function RecentGeographicalLocationImpl({
   const { handleSelect } = useLocationListsContext();
 
   const ariaLabel = useLocationAriaLabel(location);
+  const ariaDescription = useLocationAriaDescription(location);
 
   const locationBreadcrumbs = useLocationBreadcrumbs(location);
   const breadcrumbsSubLabel = locationBreadcrumbs.join(', ');
@@ -43,7 +44,10 @@ function RecentGeographicalLocationImpl({
     <Location root selected={location.selected}>
       <Location.Accordion expanded disabled={disabled}>
         <Location.Accordion.Header level={0} position={position}>
-          <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
+          <Location.Accordion.Header.ItemTrigger
+            onClick={handleClick}
+            aria-label={ariaLabel}
+            aria-description={ariaDescription}>
             <Location.Accordion.Header.Item>
               <FlexColumn>
                 <Location.Accordion.Header.Item.Title>
