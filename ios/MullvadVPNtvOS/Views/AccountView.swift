@@ -12,6 +12,7 @@ import SwiftUI
 
 struct AccountView: View {
     @Environment(Navigation.self) private var navigation: Navigation
+    @Environment(DependencyManager.self) private var dependencies: DependencyManager?
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -34,7 +35,7 @@ struct AccountView: View {
             Spacer()
             VStack(alignment: .leading) {
                 Button("Log out") {
-                    print("LOG OUT")
+                    try! dependencies?.logOut()
                     navigation.logOut()
                 }.buttonStyle(DestructiveActionButton())
             }

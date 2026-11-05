@@ -18,6 +18,7 @@ import MullvadTypes
 @MainActor
 @Observable
 class DependencyManager {
+    private let logger = Logger(label: "DependencyManager")
     // TODO: Cut this into proper dependencies, it shouldn't be part of 2 different frameworks
     private let settingsManager: SettingsManager
     private let shadowsocksLoader: ShadowsocksLoader
@@ -138,10 +139,36 @@ class DependencyManager {
         )
     }
 
-    /// Shared, and created on first use, so that the relay list is fetched once per launch.
     @ObservationIgnored private(set) lazy var relayLoader = RelayListLoader(updater: makeRelayListUpdater())
 
     public func makeRelayListUpdater() -> RelayListUpdater {
         RelayListUpdater(apiProxy: proxyFactory.createAPIProxy(), relayCache: relayCache)
+    }
+
+    // FIXME: This functionality should be implemented by a different component, not a responsibility of the dependency manager
+    public func logOut() throws {
+        let deviceState = try settingsManager.readDeviceState()
+
+        guard case let .loggedIn(account, device) = deviceState else {
+            fatalError("Attempting to log out a logged in device")
+        }
+
+        let devices = proxyFactory.createDevicesProxy()
+        Task.detached {
+
+            do {
+                let _ =
+                    try await devices
+                    .deleteDevice(
+                        accountNumber: account.number,
+                        identifier: device.identifier,
+                        retryStrategy: .aggressive
+                    )
+            } catch {
+                self.logger.error("Failed to remove device from account: \(error)")
+            }
+        }
+
+        try settingsManager.writeDeviceState(.loggedOut)
     }
 }
