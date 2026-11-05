@@ -1,6 +1,7 @@
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 pub(crate) mod ffi;
 mod monitor;
+mod multiplex;
 mod obfuscation;
 pub(crate) mod params;
 mod pinger;
