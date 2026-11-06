@@ -889,6 +889,42 @@ test.describe('Select location', () => {
         // Multihop mode should now be updated
         await Promise.all([util.ipc.settings.setRelaySettings.ignore(), continueButton.click()]);
       });
+
+      test('Should display "Entry" or "Exit" filter chip when searching for an entry or exit location respectively', async () => {
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+
+        const entryFilterChip = routes.selectLocation.getFilterChipButton('Entry');
+
+        await routes.selectLocation.gotoEntryLocations();
+
+        // Present after search
+        await routes.selectLocation.getEntryInput().fill('this is a search term');
+        await expect(entryFilterChip).toBeVisible();
+
+        // Reset search via clear search button
+        await routes.selectLocation.getClearSearchButton().click();
+
+        // Entry filter not present when not searching
+        await expect(entryFilterChip).not.toBeVisible();
+
+        await routes.selectLocation.gotoExitLocations();
+
+        const exitFilterChip = routes.selectLocation.getFilterChipButton('Exit');
+
+        await routes.selectLocation.getExitInput().fill('this is a search term');
+        await expect(exitFilterChip).toBeVisible();
+
+        // Reset search via escape
+        await routes.selectLocation.getExitInput().press('Escape');
+
+        // Exit filter not present when not searching
+        await expect(exitFilterChip).not.toBeVisible();
+      });
     });
 
     test.describe('multihop: when-needed', () => {
