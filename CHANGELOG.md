@@ -79,6 +79,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Prevent local DNS resolver from hitting file descriptor limit when hundreds of DNS queries are
   in-flight. This could cause several other issues like firewall state failing.
+- Fix the app getting stuck in the offline state after switching network location. Previously,
+  the daemon had to be restarted to be able to connect again.
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
