@@ -7,6 +7,11 @@ import {
   StyledAccordionHeader,
 } from '../../../../../../../../../lib/components/accordion/components';
 import { StyledAccordionHeaderItem } from '../../../../../../../../../lib/components/accordion/components/accordion-header/components';
+import {
+  StyledListItemTrailingActions,
+  StyledListItemTrigger,
+} from '../../../../../../../../../lib/components/list-item/components';
+import { StyledListItemItemActionGroup } from '../../../../../../../../../lib/components/list-item/components/list-item-item/components';
 import { StyledListItemTrailingAction } from '../../../../../../../../../lib/components/list-item/components/list-item-trailing-actions/components';
 import {
   LocationAccordionHeaderItem,
@@ -41,6 +46,23 @@ export const StyledLocationAccordionHeader = styled(LocationAccordionHeaderRoot)
         }
       }
     }
+  }
+
+  // If the list item has both an item action group and trailing actions
+  // and the trailing actions have more than one child, it means it has a
+  // child other than the expand/collapse trigger. Then make the first column
+  // not take up default 48px, since this will be done by the other trailing action.
+  &:has(${StyledListItemItemActionGroup}):has(${StyledListItemTrailingActions} > :nth-child(2))
+    ${StyledListItemItemActionGroup} {
+    grid-template-columns: auto;
+  }
+
+  // If it only has one child, we need to check that it is not the expand/collapse trigger
+  &:has(${StyledListItemItemActionGroup}):has(${StyledListItemTrailingActions} > :nth-child(1)):not(
+      :has(${StyledListItemTrailingActions} > ${StyledListItemTrigger})
+    )
+    ${StyledListItemItemActionGroup} {
+    grid-template-columns: auto;
   }
 `;
 
