@@ -76,11 +76,7 @@ We have determined that from a security and privacy standpoint, in relation to t
 app, TunnelVision (CVE-2024-3661) and TunnelCrack LocalNet (CVE-2023-36672 and CVE-2023-35838)
 are virtually identical.
 
-The Mullvad VPN iOS app is unfortunately vulnerable to these attacks. The only solution we know
-against these leaks on iOS is to enable a flag called `includeAllNetworks` in iOS VPN terminology.
-This flag has not been compatible with our app, so we have not been able to turn it on. But
-work is being done in order to change the app so `includeAllNetworks` can be used, and this
-attack can be mitigated.
+This vulnerability can be mitigated by enabling the _Force all apps_ feature. Due to bugs in iOS relating to app updates, we are currently unable to enable the mitigation by default.
 
 This affects all versions of the iOS app on all versions of iOS.
 
@@ -88,9 +84,12 @@ This affects all versions of the iOS app on all versions of iOS.
 
 * August 9, 2023 - Mullvad [blog about TunnelCrack]
 * May 7, 2024 - Mullvad [blog about TunnelVision]
+* April 21, 2026 - Mullvad [blog about force all apps]
+* April 21, 2026 - iOS App 2026.2 has been released with the option to mitigate the attack.
 
 [blog about TunnelCrack]: https://mullvad.net/blog/response-to-tunnelcrack-vulnerability-disclosure
 [blog about TunnelVision]: https://mullvad.net/blog/evaluating-the-impact-of-tunnelvision
+[blog about force all apps]: https://mullvad.net/blog/force-all-app-traffic-into-the-tunnel
 
 
 ### Excluded application traffic can sometimes go inside the tunnel
