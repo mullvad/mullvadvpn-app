@@ -31,6 +31,8 @@ export function CustomListGeographicalLocationTrailingActions(
 
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
+  if (!showMenu && !showAccordionTrigger) return null;
+
   return (
     <Location.Accordion.Header.TrailingActions {...props}>
       {showMenu && (
