@@ -5,7 +5,11 @@ export function useShowFilterChips() {
   const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
-  const showFilterChips = isAnyFilterActive && locationType !== 'automaticEntry';
+  if (locationType === 'automaticEntry') {
+    return false;
+  }
+
+  const showFilterChips = isAnyFilterActive;
 
   return showFilterChips;
 }
