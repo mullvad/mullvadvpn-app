@@ -130,11 +130,11 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> combine(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T> Deferred<T>.getOrDefault(default: T) =
+fun <T> Deferred<T>.getOrNull() =
     try {
         getCompleted()
-    } catch (e: IllegalStateException) {
-        default
+    } catch (_: IllegalStateException) {
+        null
     }
 
 fun <T> Flow<T>.withPrev(): Flow<Pair<T, T?>> = flow {

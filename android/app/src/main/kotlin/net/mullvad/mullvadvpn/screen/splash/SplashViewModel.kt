@@ -1,16 +1,12 @@
 package net.mullvad.mullvadvpn.screen.splash
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
@@ -52,15 +48,10 @@ class SplashViewModel(
     // We know the user is logged in, but we need to find out if their account has expired
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
-        val expiry = viewModelScope.async { accountRepository.accountData.filterNotNull().first() }
+        val expiryDate =
+            accountRepository.fetchAccountData(timeout = ACCOUNT_EXPIRY_TIMEOUT)?.expiryDate
 
-        val accountData = select {
-            expiry.onAwait { it }
-            // If we don't get a response within 1 second, assume the account expiry is Missing
-            onTimeout(ACCOUNT_EXPIRY_TIMEOUT) { null }
-        }
-
-        return if (accountData != null && accountData.expiryDate.isBeforeNowInstant()) {
+        return if (expiryDate != null && expiryDate.isBeforeNowInstant()) {
             SplashUiSideEffect.NavigateToOutOfTime
         } else {
             SplashUiSideEffect.NavigateToConnect

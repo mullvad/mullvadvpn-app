@@ -155,8 +155,8 @@ class LoginViewModelTest {
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns Unit.right()
-            coEvery { mockedAccountRepository.accountData } returns
-                MutableStateFlow(AccountData.mock(ZonedDateTime.now().plusHours(3 * 24)))
+            coEvery { mockedAccountRepository.fetchAccountData(timeout = any()) } returns
+                AccountData.mock(ZonedDateTime.now().plusHours(3 * 24))
 
             // Act, Assert
             uiStates.skipDefaultItem()

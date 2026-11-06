@@ -102,7 +102,7 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch { accountRepository.refreshAccountData() }
+        viewModelScope.launch { accountRepository.fetchAccountData() }
     }
 
     private fun verifyPurchases() {

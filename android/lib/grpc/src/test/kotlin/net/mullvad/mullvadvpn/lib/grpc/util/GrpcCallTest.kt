@@ -1,0 +1,108 @@
+package net.mullvad.mullvadvpn.lib.grpc.util
+
+import com.squareup.wire.GrpcCall
+import io.mockk.awaits
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import java.io.IOException
+import kotlin.test.assertFailsWith
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class GrpcCallTest {
+    @Test
+    fun `when a call is successful it should return the result and the call should only called once`() =
+        runTest {
+            // Arrange
+            val mockCall = mockk<GrpcCall<Unit, String>>()
+            every { mockCall.clone() } returns mockCall
+            coEvery { mockCall.execute(Unit) } returns "result"
+
+            // Act, Assert
+            assertEquals("result", mockCall.executeWithRetry(Unit))
+            coVerify(exactly = 1) { mockCall.execute(Unit) }
+        }
+
+    @Test
+    fun `when a call fails due to LocalSocketException it should be retried until successful`() =
+        runTest {
+            // Arrange
+            val mockCall = mockk<GrpcCall<Unit, String>>()
+            val localSocketException = LocalSocketConnectException(Throwable())
+            every { mockCall.clone() } returns mockCall
+            coEvery { mockCall.execute(Unit) } throwsMany
+                listOf(localSocketException) andThen
+                "result"
+
+            // Act
+            val result = async { mockCall.executeWithRetry(Unit) }
+            // Needs to be above the retry delay to ensure the retry is triggered.
+            advanceTimeBy(150.milliseconds)
+            runCurrent()
+
+            // Assert
+            assertEquals("result", result.await())
+            coVerify(exactly = 2) { mockCall.execute(Unit) }
+        }
+
+    @Test
+    fun `when a call fails due to other IOException it should never retry`() = runTest {
+        // Arrange
+        val mockCall = mockk<GrpcCall<Unit, String>>()
+        every { mockCall.clone() } returns mockCall
+        coEvery { mockCall.execute(Unit) } throws IOException()
+
+        // Act, Assert
+        assertFailsWith<IOException> { mockCall.executeWithRetry(Unit) }
+        coVerify(exactly = 1) { mockCall.execute(Unit) }
+    }
+
+    @Test
+    fun `when cancelling a call it should stop retrying`() = runTest {
+        // Arrange
+        val mockCall = mockk<GrpcCall<Unit, String>>()
+        every { mockCall.clone() } returns mockCall
+        coEvery { mockCall.execute(Unit) } throws LocalSocketConnectException(Throwable())
+
+        // Act
+        val job = launch { mockCall.executeWithRetry(Unit) }
+        // Allow for a few attempts to be made before cancelling.
+        advanceTimeBy(300.milliseconds)
+        job.cancelAndJoin()
+
+        // Assert
+        assertTrue(job.isCancelled)
+        // Moving time forward must not trigger further attempts after cancellation.
+        advanceTimeBy(1000.milliseconds)
+        runCurrent()
+        coVerify(exactly = 3) { mockCall.execute(Unit) }
+    }
+
+    @Test
+    fun `when wrapping a call in withTimeout it should cancel properly`() = runTest {
+        // Arrange
+        val mockCall = mockk<GrpcCall<Unit, String>>()
+        every { mockCall.clone() } returns mockCall
+        coEvery { mockCall.execute(Unit) } just awaits
+
+        // Act, Assert
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(300.milliseconds) { mockCall.executeWithRetry(Unit) }
+        }
+    }
+}

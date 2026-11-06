@@ -135,7 +135,7 @@ class ConnectViewModel(
                     showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                 )
             }
-            .launchOnStart { accountRepository.refreshAccountData(ignoreTimeout = false) }
+            .launchOnStart { accountRepository.fetchAccountData(ignoreLastSuccessful = false) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -145,7 +145,7 @@ class ConnectViewModel(
     init {
         viewModelScope.launch {
             if (paymentUseCase.verifyPurchases().getOrNull() is VerificationResult.Success) {
-                accountRepository.refreshAccountData()
+                accountRepository.fetchAccountData()
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }

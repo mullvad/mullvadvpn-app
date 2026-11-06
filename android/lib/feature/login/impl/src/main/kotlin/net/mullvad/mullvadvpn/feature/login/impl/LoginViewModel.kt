@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.feature.login.impl
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -12,8 +13,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,7 +22,7 @@ import net.mullvad.mullvadvpn.feature.login.impl.LoginUiSideEffect.NavigateToWel
 import net.mullvad.mullvadvpn.feature.login.impl.LoginUiSideEffect.TooManyDevices
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
-import net.mullvad.mullvadvpn.lib.common.util.getOrDefault
+import net.mullvad.mullvadvpn.lib.common.util.getOrNull
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
@@ -165,16 +164,14 @@ class LoginViewModel(
         viewModelScope.launch(ioDispatcher) {
             // Find if user is out of time
             val isOutOfTimeDeferred = async {
-                accountRepository.accountData
-                    .mapNotNull { it?.expiryDate?.isBeforeNowInstant() }
-                    .first()
+                accountRepository.fetchAccountData()?.expiryDate?.isBeforeNowInstant()
             }
 
             // Always show successful login for some time.
-            delay(SHOW_SUCCESSFUL_LOGIN_MILLIS)
+            delay(SHOW_SUCCESSFUL_LOGIN)
 
             // Get the result of isOutOfTime or assume not out of time
-            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
+            val isOutOfTime = isOutOfTimeDeferred.getOrNull() ?: false
 
             if (isOutOfTime) {
                 _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
@@ -233,6 +230,6 @@ class LoginViewModel(
     private fun hasPreviouslyCreatedAccount(): Boolean = uiState.value.lastUsedAccount != null
 
     companion object {
-        private const val SHOW_SUCCESSFUL_LOGIN_MILLIS = 1000L
+        private val SHOW_SUCCESSFUL_LOGIN = 1.seconds
     }
 }
