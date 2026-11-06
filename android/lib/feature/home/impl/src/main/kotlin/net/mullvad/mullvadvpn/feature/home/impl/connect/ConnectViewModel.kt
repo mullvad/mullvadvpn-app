@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -22,7 +21,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.applisting.api.ResolveAppListingUseCase
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.common.util.DEVICE_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.daysLeft
 import net.mullvad.mullvadvpn.lib.common.util.launchOnStart
@@ -140,6 +138,7 @@ class ConnectViewModel(
                 )
             }
             .launchOnStart { accountRepository.refreshAccountData(ignoreTimeout = false) }
+            .launchOnStart { deviceRepository.updateDevice() }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -151,9 +150,6 @@ class ConnectViewModel(
             if (paymentUseCase.verifyPurchases().getOrNull() is VerificationResult.Success) {
                 accountRepository.refreshAccountData()
             }
-        }
-        viewModelScope.launch {
-            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { pollDeviceState() }
         }
     }
 
@@ -195,7 +191,7 @@ class ConnectViewModel(
                 // If we don't have vpn system settings available we assume that there is no other
                 // always-on-vpn active.
                 _uiSideEffect.send(
-                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase()),
+                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase())
                 )
             }
         }
@@ -258,16 +254,6 @@ class ConnectViewModel(
         hasShownNotificationPromptRepository.hasShowNotificationPrompt
             .filter { !it }
             .map { UiSideEffect.ShowNotificationPermissionPrompt }
-
-    private suspend fun pollDeviceState() {
-        while (true) {
-            // Ignore if we are connected, it should be handled by the relay instead
-            if (connectionProxy.tunnelState.first() !is TunnelState.Connected) {
-                deviceRepository.updateDevice()
-            }
-            delay(DEVICE_POLL_INTERVAL)
-        }
-    }
 
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
