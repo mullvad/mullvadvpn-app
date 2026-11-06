@@ -1,6 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
-import { InternalLink } from '../../renderer/components/InternalLink';
+import { NotificationInternalLink } from '../../renderer/components/notification-internal-link';
 import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
@@ -46,9 +46,12 @@ export class LockdownModeNotificationProvider
   public getInAppNotification(): InAppNotification {
     const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
     let subtitle = sprintf(
+      // TRANSLATORS: Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(lockdownModeSettingName)s - The name of the Lockdown mode setting
       messages.pgettext(
         'in-app-notifications',
-        '<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet.',
+        '<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode.',
       ),
       { lockdownModeSettingName },
     );
@@ -65,9 +68,8 @@ export class LockdownModeNotificationProvider
 
     const formattedSubtitle = formatHtml(subtitle, {
       a: (value) => (
-        <InternalLink
+        <NotificationInternalLink
           to={RoutePath.vpnSettings}
-          variant="labelTinySemiBold"
           locationState={{
             options: [
               {
@@ -76,8 +78,8 @@ export class LockdownModeNotificationProvider
               },
             ],
           }}>
-          <InternalLink.Text>{value}</InternalLink.Text>
-        </InternalLink>
+          <NotificationInternalLink.Text>{value}</NotificationInternalLink.Text>
+        </NotificationInternalLink>
       ),
     });
 

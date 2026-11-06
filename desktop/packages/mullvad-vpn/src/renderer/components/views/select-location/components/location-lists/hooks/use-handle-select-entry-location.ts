@@ -1,19 +1,21 @@
 import React from 'react';
 
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
-import { type AnyLocation, LocationType } from '../../../../../../features/locations/types';
+import { type AnyLocation } from '../../../../../../features/locations/types';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
-  const { setLocationType } = useSelectLocationViewContext();
+  const { setLocationType, setSearchTerm, setIsolatedItem } = useSelectLocationViewContext();
   const { selectEntryRelayLocation } = useRelayLocations();
 
   const handleSelectEntryLocation = React.useCallback(
-    async (entryLocation: AnyLocation) => {
-      setLocationType(LocationType.exit);
-      await selectEntryRelayLocation(entryLocation.details);
+    async (entryLocation: AnyLocation | 'any') => {
+      setLocationType('exit');
+      await selectEntryRelayLocation(entryLocation === 'any' ? 'any' : entryLocation.details);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
     },
-    [selectEntryRelayLocation, setLocationType],
+    [selectEntryRelayLocation, setIsolatedItem, setLocationType, setSearchTerm],
   );
 
   return handleSelectEntryLocation;

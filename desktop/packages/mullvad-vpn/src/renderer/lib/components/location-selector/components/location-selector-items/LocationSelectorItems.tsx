@@ -1,44 +1,59 @@
-import styled, { css } from 'styled-components';
+import { AnimatePresence, type AnimatePresenceProps, motion } from 'motion/react';
+import styled from 'styled-components';
 
-import { colors, Radius, spacings } from '../../../../foundations';
-import { AnimatedList } from '../../../animated-list';
-import type { LocationSelectorVariant } from '../../LocationSelector';
+import { colors, durationTokens, Radius, spacings } from '../../../../foundations';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
+import type { LocationSelectorVariant } from '../../types';
 import { LocationSelectorLine } from '../location-selector-line';
-import { LocationSelectorItem } from './components';
+import {
+  LocationSelectorButtonItem,
+  LocationSelectorTextFieldItem,
+  LocationSelectorTrailingButton,
+} from './components';
 
-export type LocationSelectorItemsProps = React.PropsWithChildren;
+export type LocationSelectorItemsProps = AnimatePresenceProps & React.PropsWithChildren;
 
-export const StyledLocationSelectorItems = styled(AnimatedList)<{
+export const StyledLocationSelectorItems = styled(motion.div)<{
   $variant?: LocationSelectorVariant;
 }>`
-  ${({ $variant }) => {
-    return css`
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-      background-color: ${$variant === 'primary' ? colors.darkerBlue10 : colors.darkerBlue10};
-      padding-top: ${spacings.tiny};
-      border-radius: ${Radius.radius16};
-      transition: background-color 0.15s ease-in-out;
-    `;
-  }}
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border-radius: ${Radius.radius16};
+  padding: ${spacings.tiny};
+  gap: ${spacings.tiny};
 `;
 
 function LocationSelectorItems({ children }: LocationSelectorItemsProps) {
   const { expanded, variant } = useLocationSelectorContext();
 
   return (
-    <StyledLocationSelectorItems $variant={variant}>
-      <LocationSelectorLine $visible={expanded} />
-      {children}
+    <StyledLocationSelectorItems
+      layout="size"
+      $variant={variant}
+      initial={false}
+      animate={{
+        backgroundColor: variant === 'primary' ? colors.darkBlue : colors.darkerBlue10,
+      }}
+      transition={{
+        layout: { duration: durationTokens.normal, ease: 'easeOut' },
+        backgroundColor: { duration: durationTokens.fast, ease: 'linear' },
+      }}>
+      <LocationSelectorLine
+        $visible={expanded}
+        layout
+        transition={{ duration: durationTokens.normal, ease: 'easeOut' }}
+      />
+      <AnimatePresence mode="popLayout">{children}</AnimatePresence>
     </StyledLocationSelectorItems>
   );
 }
 
 const LocationSelectorItemsNamespace = Object.assign(LocationSelectorItems, {
-  Item: LocationSelectorItem,
+  TextFieldItem: LocationSelectorTextFieldItem,
+  TrailingButton: LocationSelectorTrailingButton,
+  ButtonItem: LocationSelectorButtonItem,
 });
 
 export { LocationSelectorItemsNamespace as LocationSelectorItems };

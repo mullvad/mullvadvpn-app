@@ -444,6 +444,7 @@ private fun createGeoLocationEntry(
         RelayListItem.GeoLocationItem(
             item = item,
             isSelected = selectedByThisEntryExitList == item.id,
+            connected = relayMetadata[item.id]?.connectedRelay ?: false,
             state =
                 item.createState(
                     relayListType = relayListType,

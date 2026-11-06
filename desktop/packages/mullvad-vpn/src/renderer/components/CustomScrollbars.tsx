@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import { Scheduler } from '../../shared/scheduler';
+import { durations } from '../lib/foundations';
 import { useSelector } from '../redux/store';
 
 const StyledScrollableContent = styled.div({
@@ -20,10 +21,11 @@ const StyledCustomScrollbars = styled.div({
   height: '100%',
 });
 
-const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
+export const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
+  height: '100%',
   '&&::-webkit-scrollbar': {
     display: 'none',
   },
@@ -37,7 +39,7 @@ const StyledTrack = styled.div<{ $canScroll: boolean; $show: boolean }>((props) 
   width: '16px',
   backgroundColor: props.$show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
   borderRadius: '8px',
-  transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
+  transition: `width ${durations.faster} ease-in-out, background-color ${durations.normal} ease-in-out`,
   zIndex: 99,
   pointerEvents: props.$canScroll ? 'auto' : 'none',
 }));
@@ -49,15 +51,13 @@ const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: bo
     right: 0,
     borderRadius: props.$wide ? '6px' : '4px',
     width: props.$wide ? '12px' : '8px',
-    transition:
-      'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
+    transition: `width ${durations.normal} ease-in-out, border-radius ${durations.normal} ease-in-out, height ${durations.normal} ease-in-out, opacity ${durations.normal} ease-in-out, background-color ${durations.faster} ease-in-out`,
     opacity: props.$show ? 1 : 0,
     backgroundColor: props.$isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
-
-    // Thumb should be less transparent when track is hovered.
-    [`${StyledTrack}:hover &&`]: {
+    '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.65)',
     },
+    zIndex: 100,
   }),
 );
 
@@ -70,6 +70,7 @@ interface IProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  showScrollIndicators?: boolean;
 }
 
 interface IState {
@@ -257,9 +258,13 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      showScrollIndicators,
       ...otherProps
     } = this.props;
-    const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
+    const showScrollbars =
+      showScrollIndicators !== undefined
+        ? showScrollIndicators
+        : this.state.canScroll && this.state.showScrollIndicators;
 
     return (
       <StyledCustomScrollbars {...otherProps}>
@@ -268,15 +273,15 @@ class CustomScrollbars extends React.Component<IProps, IState> {
           $show={showScrollbars && this.state.active}
           $canScroll={this.state.canScroll}
           onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}>
-          <StyledThumb
-            ref={this.thumbRef}
-            $show={showScrollbars}
-            $isDragging={this.state.isDragging}
-            $wide={this.state.active}
-            onMouseDown={this.handleMouseDown}
-          />
-        </StyledTrack>
+          onMouseLeave={this.handleMouseLeave}
+        />
+        <StyledThumb
+          ref={this.thumbRef}
+          $show={showScrollbars}
+          $isDragging={this.state.isDragging}
+          $wide={this.state.active}
+          onMouseDown={this.handleMouseDown}
+        />
         <StyledScrollable
           $fillContainer={fillContainer}
           onScroll={this.onScroll}
@@ -401,9 +406,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
       // calculate the thumb boundary to make sure that the visual appearance of
       // a thumb at the lowest point matches the bottom of scrollable view
-      const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
-      const thumbTop =
-        pointInScrollContainer.y - this.state.dragStart.y - (this.props.trackPadding?.y ?? 0);
+      const trackPaddingY = this.props.trackPadding?.y ?? 0;
+      const thumbBoundary =
+        this.computeTrackHeight(scrollable.offsetHeight, trackPaddingY) - thumb.clientHeight;
+      const thumbTop = pointInScrollContainer.y - this.state.dragStart.y - trackPaddingY;
       const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
 
       scrollable.scrollTop = newScrollTop;
@@ -450,8 +456,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     };
   }
 
-  private computeTrackLength(scrollable: HTMLElement) {
-    return scrollable.offsetHeight - (this.props.trackPadding?.y ?? 0) * 2;
+  private computeTrackHeight(offsetHeight: number, trackPaddingY?: number) {
+    // Compute the height of the track height, accounting for optional vertical padding.
+    return Math.max(0, offsetHeight - (trackPaddingY ?? 0));
   }
 
   // Computes the position of child element within scrollable container
@@ -508,7 +515,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
 
     // calculate the thumb boundary to make sure that the visual appearance of
     // a thumb at the lowest point matches the bottom of scrollable view
-    const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
+    const thumbBoundary =
+      this.computeTrackHeight(scrollable.offsetHeight, this.props.trackPadding?.y) -
+      thumb.clientHeight;
 
     // calculate thumb position based on scroll progress and thumb boundary
     // adding vertical inset to adjust the thumb's appearance
@@ -520,11 +529,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     };
   }
 
-  private computeThumbHeight(scrollable: HTMLElement) {
-    const scrollHeight = scrollable.scrollHeight;
-    const visibleHeight = scrollable.offsetHeight;
-
-    const thumbHeight = (visibleHeight / scrollHeight) * visibleHeight;
+  private computeThumbHeight(trackHeight: number, scrollHeight: number) {
+    // Calculate the height of the scroll thumb based on the ratio
+    // of the track height to the total scrollable content height.
+    const thumbHeight = (trackHeight / scrollHeight) * trackHeight;
 
     // ensure that the scroll thumb doesn't shrink to nano size
     return Math.max(thumbHeight, 8);
@@ -533,23 +541,42 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private updateScrollbarsHelper(updateFlags: Partial<IScrollbarUpdateContext>) {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
-    if (scrollable && thumb) {
-      this.updateScrollbars(scrollable, thumb, updateFlags);
+    const track = this.trackRef.current;
+    if (scrollable && thumb && track) {
+      this.updateScrollbars(scrollable, thumb, track, updateFlags);
     }
   }
 
   private updateScrollbars(
     scrollable: HTMLElement,
     thumb: HTMLElement,
+    track: HTMLElement,
     context: Partial<IScrollbarUpdateContext>,
   ) {
     if (context.size) {
-      const thumbHeight = this.computeThumbHeight(scrollable);
+      const {
+        // Visible height of scrollable
+        offsetHeight,
+        // Total height of scrollable, including content not currently
+        // visible within the viewport.
+        scrollHeight,
+      } = scrollable;
+      const { trackPadding: { y: trackPaddingY } = {} } = this.props;
+
+      // Compute and set height of track
+      const trackHeight = this.computeTrackHeight(offsetHeight, trackPaddingY);
+      track.style.setProperty('height', trackHeight + 'px');
+      if (trackPaddingY !== undefined) {
+        // Move the track down by the vertical padding amount.
+        track.style.setProperty('top', trackPaddingY + 'px');
+      }
+
+      const thumbHeight = this.computeThumbHeight(trackHeight, scrollHeight);
       thumb.style.setProperty('height', thumbHeight + 'px');
 
       // hide thumb when there is nothing to scroll. We've had issues with scrollHeight being
       // off-by-one, to ensure this doesn't happen we subtract 1 here.
-      const canScroll = thumbHeight < scrollable.offsetHeight - 1;
+      const canScroll = scrollHeight > offsetHeight + 1;
       if (this.state.canScroll !== canScroll) {
         this.setState({ canScroll });
 

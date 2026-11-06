@@ -47,6 +47,7 @@ export function GeographicalLocationTrailingActions({
       </Location.Accordion.Header.TrailingActions.Action>
       {showAccordionTrigger && (
         <Location.Accordion.Header.AccordionTrigger
+          disabled={false}
           aria-label={sprintf(
             expanded
               ? messages.pgettext('accessibility', 'Collapse %(location)s')

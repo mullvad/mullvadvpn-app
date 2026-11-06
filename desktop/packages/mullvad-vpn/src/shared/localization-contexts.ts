@@ -41,4 +41,6 @@ export type LocalizationContexts =
   | 'anti-censorship-view'
   | 'lwo-settings-view'
   | 'custom-list-feature'
-  | 'locations-feature';
+  | 'locations-feature'
+  | 'kill-switch-view'
+  | 'migrated-settings-view';

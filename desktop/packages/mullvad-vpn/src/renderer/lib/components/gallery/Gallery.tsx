@@ -8,9 +8,12 @@ import { GalleryText, GalleryTextGroup, StyledGalleryTextGroup } from './compone
 export type GalleryProps = FlexProps;
 
 export const StyledGallery = styled(Flex)`
+  height: 100%;
+  min-height: 0;
+
   &:has(${StyledImage} + ${StyledGalleryTextGroup}) {
     ${StyledImage} {
-      margin-bottom: ${spacings.small};
+      margin-bottom: ${spacings.medium};
     }
   }
 `;

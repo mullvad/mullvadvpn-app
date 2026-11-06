@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useCustomLists } from '.';
+import { useSettingsCustomLists } from '../../../redux/hooks';
 
 export function useIsCustomListNameValid() {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
   const existingNames = React.useMemo(
     () => new Set(customLists.map((list) => list.name)),
     [customLists],

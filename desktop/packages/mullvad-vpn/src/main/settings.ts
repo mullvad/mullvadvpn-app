@@ -132,6 +132,14 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.upgradeVersion.handleDismissedUpgrade((version: string) => {
       this.guiSettings.updateDismissedForVersion = version;
     });
+
+    IpcMainEventChannel.guiSettings.handleDismissedSettingsMigrationNotification(() => {
+      this.guiSettings.settingsMigrationNotificationDismissedForVersion = this.currentVersion.gui;
+    });
+
+    IpcMainEventChannel.guiSettings.handleCompletedSettingsMigration((migrationKey: string) => {
+      this.guiSettings.addCompletedSettingsMigration(migrationKey);
+    });
   }
 
   public get all() {

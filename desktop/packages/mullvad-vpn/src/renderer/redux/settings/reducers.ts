@@ -32,6 +32,8 @@ export type NormalRelaySettingsRedux = {
     ipVersion: LiftedConstraint<IpVersion>;
     multihop: MultihopMode;
     entryLocation: LiftedConstraint<RelayLocation>;
+    entryProviders: string[];
+    entryOwnership: Ownership;
   };
 };
 
@@ -124,6 +126,8 @@ const initialState: ISettingsReduxState = {
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
     updateDismissedForVersion: '',
+    settingsMigrationNotificationDismissedForVersion: '',
+    completedSettingsMigrations: [],
     animateMap: true,
   },
   relaySettings: {
@@ -135,6 +139,8 @@ const initialState: ISettingsReduxState = {
         ipVersion: 'any',
         multihop: 'when-needed',
         entryLocation: 'any',
+        entryOwnership: Ownership.any,
+        entryProviders: [],
       },
     },
   },

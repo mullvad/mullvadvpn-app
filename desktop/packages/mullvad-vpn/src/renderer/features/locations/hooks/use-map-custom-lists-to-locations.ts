@@ -1,5 +1,5 @@
 import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
-import { useCustomLists } from '../../custom-lists/hooks';
+import { useSettingsCustomLists } from '../../../redux/hooks';
 import {
   type CountryLocation,
   type CustomListLocation,
@@ -14,14 +14,18 @@ import {
 } from '../utils';
 
 export function useMapCustomListsToLocations(
-  countryLocations: CountryLocation[],
+  searchedCountryLocations: CountryLocation[],
+  filteredCountryLocations: CountryLocation[],
   searchTerm: string,
   selectedLocation?: RelayLocation,
 ): CustomListLocation[] {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
-    const locationMap = createCountryLocationMap(countryLocations);
+    const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
+    // If the custom list name matches search, show all locations it contains.
+    const locations = customListMatchesSearch ? filteredCountryLocations : searchedCountryLocations;
+    const locationMap = createCountryLocationMap(locations);
 
     // Get all ids of locations that are in the custom list
     const customListLocationIds = customList.locations.flatMap((location) => {
@@ -58,7 +62,6 @@ export function useMapCustomListsToLocations(
       }
     }
 
-    const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
     // Expand if one of the child locations are expanded or selected, or if the custom list itself does
     // not match the search, since that means one of the children must have matched.
     const customListExpanded = !customListMatchesSearch || childLocationExpandedOrSelected;

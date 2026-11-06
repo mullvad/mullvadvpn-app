@@ -10,10 +10,14 @@ impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
             latitude: geoip.latitude,
             longitude: geoip.longitude,
             mullvad_exit_ip: geoip.mullvad_exit_ip,
-            hostname: geoip.hostname,
-            entry_hostname: geoip.entry_hostname,
             entry_city: geoip.entry_city,
             entry_country: geoip.entry_country,
+            location: geoip
+                .location
+                .map(proto::GeographicLocationConstraint::from),
+            entry_location: geoip
+                .entry_location
+                .map(proto::GeographicLocationConstraint::from),
         }
     }
 }
@@ -36,10 +40,16 @@ impl TryFrom<proto::GeoIpLocation> for mullvad_types::location::GeoIpLocation {
             latitude: geoip.latitude,
             longitude: geoip.longitude,
             mullvad_exit_ip: geoip.mullvad_exit_ip,
-            hostname: geoip.hostname,
-            entry_hostname: geoip.entry_hostname,
             entry_city: geoip.entry_city,
             entry_country: geoip.entry_country,
+            location: geoip
+                .location
+                .map(mullvad_types::relay_constraints::GeographicLocationConstraint::try_from)
+                .transpose()?,
+            entry_location: geoip
+                .entry_location
+                .map(mullvad_types::relay_constraints::GeographicLocationConstraint::try_from)
+                .transpose()?,
         })
     }
 }

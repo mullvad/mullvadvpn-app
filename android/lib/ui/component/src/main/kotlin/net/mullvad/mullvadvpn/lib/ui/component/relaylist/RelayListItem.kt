@@ -33,6 +33,7 @@ sealed interface RelayListItem {
 
     sealed interface SelectableItem : RelayListItem {
         val item: RelayItem
+        val connected: Boolean
         val hierarchy: Hierarchy
         val isSelected: Boolean
         val expanded: Boolean
@@ -59,6 +60,7 @@ sealed interface RelayListItem {
         override val hierarchy = Hierarchy.Parent
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ITEM
         override val canExpand: Boolean = item.hasChildren
+        override val connected: Boolean = false
     }
 
     data class CustomListEntryItem(
@@ -76,6 +78,7 @@ sealed interface RelayListItem {
 
         // Can't be displayed as selected
         override val isSelected: Boolean = false
+        override val connected: Boolean = false
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ENTRY_ITEM
         override val canExpand: Boolean = item.hasChildren
     }
@@ -120,6 +123,7 @@ sealed interface RelayListItem {
         override val state: RelayListItemState? = null,
         override val highlights: List<IntRange>? = null,
         override val itemPosition: Position,
+        override val connected: Boolean = false,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM
@@ -143,6 +147,7 @@ sealed interface RelayListItem {
         override val hierarchy: Hierarchy = Hierarchy.Parent
         override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
         override val canExpand: Boolean = false
+        override val connected: Boolean = false
     }
 
     data object RecentsListFooter : RelayListItem {

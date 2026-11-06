@@ -1,6 +1,8 @@
 import { type HTMLMotionProps, motion } from 'motion/react';
 import styled from 'styled-components';
 
+import { durationTokens } from '../../../../foundations';
+
 export type ExpandableContentProps = HTMLMotionProps<'div'>;
 
 export const StyledExpandableContent = styled(motion.div)`
@@ -16,11 +18,12 @@ const variants = {
 export function ExpandableContent({ children, ...props }: ExpandableContentProps) {
   return (
     <StyledExpandableContent
+      layout="preserve-aspect"
       initial="collapsed"
       animate="expanded"
       exit="collapsed"
       variants={variants}
-      transition={{ duration: 0.25, ease: 'easeInOut' }}
+      transition={{ duration: durationTokens.normal, ease: 'easeInOut' }}
       {...props}>
       {children}
     </StyledExpandableContent>

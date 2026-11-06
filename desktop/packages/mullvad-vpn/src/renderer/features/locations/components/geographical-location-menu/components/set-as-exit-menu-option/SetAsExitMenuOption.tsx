@@ -5,9 +5,10 @@ import { Menu } from '../../../../../../lib/components/menu';
 import { useMenuContext } from '../../../../../../lib/components/menu/MenuContext';
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
 import { useMultihop } from '../../../../../multihop/hooks';
-import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
+import { useEntryLocation, useExitLocation, useRelayLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
 import { isLocationSelected } from '../../../../utils';
+import { useDisabled } from './hooks';
 
 export type SetAsExitMenuOptionProps = MenuOptionProps & {
   location: GeographicalLocation;
@@ -17,25 +18,27 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   const { selectExitRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
   const { multihop, setMultihop } = useMultihop();
-  const { entry, exit } = useSelectedLocations();
+  const { entryLocation } = useEntryLocation();
+  const { exitLocation } = useExitLocation();
+  const disabled = useDisabled(location);
 
-  const isEntrySingleRelay = entry && 'hostname' in entry;
-  const isEntrySelected = isLocationSelected(location.details, entry);
+  const isEntrySingleRelay = entryLocation !== 'any' && 'hostname' in entryLocation;
+  const isEntrySelected = isLocationSelected(location.details, entryLocation);
 
   const handleClick = React.useCallback(async () => {
     if (isEntrySingleRelay && isEntrySelected) {
       // Swap entry and exit location
       await setMultihop({
         multihop,
-        entryLocation: exit,
-        exitLocation: location.details,
+        exit: exitLocation,
+        entry: location.details,
       });
     } else {
       await selectExitRelayLocation(location.details);
     }
     onOpenChange?.(false);
   }, [
-    exit,
+    exitLocation,
     isEntrySelected,
     isEntrySingleRelay,
     location.details,
@@ -46,7 +49,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   ]);
 
   return (
-    <Menu.Option {...props}>
+    <Menu.Option disabled={disabled} {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />

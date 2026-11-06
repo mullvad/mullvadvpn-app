@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-import { Colors, colors } from '../../foundations';
+import { dimensions } from '../../../../shared/constants';
+import { Colors, colors, durations } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
 import { MainHeaderIconButton } from './components';
@@ -13,8 +14,8 @@ export type HeaderProps = React.PropsWithChildren<{
 }>;
 
 const sizes = {
-  '1': '68px',
-  '2': '80px',
+  '1': `${dimensions.headerHeightSmall}px`,
+  '2': `${dimensions.headerHeightLarge}px`,
 };
 
 const variants: Record<HeaderVariant, Colors> = {
@@ -31,7 +32,7 @@ const StyledHeader = styled.header<TransientProps<HeaderProps>>(
       minHeight: sizes[$size],
 
       backgroundColor,
-      transition: 'height 250ms ease-in-out, min-height 250ms ease-in-out',
+      transition: `height ${durations.normal} ease-in-out, min-height ${durations.normal} ease-in-out`,
     };
   },
 );

@@ -5,9 +5,10 @@ import { Menu } from '../../../../../../lib/components/menu';
 import { useMenuContext } from '../../../../../../lib/components/menu/MenuContext';
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
 import { useMultihop } from '../../../../../multihop/hooks';
-import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
+import { useEntryLocation, useExitLocation, useRelayLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
 import { isLocationSelected } from '../../../../utils';
+import { useDisabled } from './hooks';
 
 export type SetAsEntryMenuOptionProps = MenuOptionProps & {
   location: GeographicalLocation;
@@ -17,14 +18,16 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   const { multihop, setMultihop } = useMultihop();
   const { selectEntryRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
-  const { entry, exit } = useSelectedLocations();
-  const isExitSingleRelay = exit && 'hostname' in exit;
-  const isExitSelected = isLocationSelected(location.details, exit);
+  const { entryLocation } = useEntryLocation();
+  const { exitLocation } = useExitLocation();
+  const isExitSingleRelay = exitLocation !== 'any' && 'hostname' in exitLocation;
+  const isExitSelected = isLocationSelected(location.details, exitLocation);
+  const disabled = useDisabled(location);
 
   const handleClick = React.useCallback(async () => {
     if (isExitSingleRelay && isExitSelected) {
       // Swap entry and exit location
-      await setMultihop({ multihop, entryLocation: location.details, exitLocation: entry });
+      await setMultihop({ multihop, entry: location.details, exit: entryLocation });
     } else {
       await selectEntryRelayLocation(location.details);
     }
@@ -36,12 +39,12 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
     setMultihop,
     multihop,
     location.details,
-    entry,
+    entryLocation,
     selectEntryRelayLocation,
   ]);
 
   return (
-    <Menu.Option {...props}>
+    <Menu.Option disabled={disabled} {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />

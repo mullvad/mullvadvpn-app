@@ -66,6 +66,18 @@ export class FilterRouteObjectModel {
     await this.selectors.ownershipOption(ownership).click();
   }
 
+  getHeading(title: string) {
+    return this.selectors.heading(title);
+  }
+
+  getFilterChipLink(label: string) {
+    return this.selectors.filterChipLink(label);
+  }
+
+  getFilterOverriddenText() {
+    return this.selectors.filterOverriddenText();
+  }
+
   private async isExpanded(locator: Locator): Promise<boolean> {
     const ariaExpanded = await locator.getAttribute('aria-expanded');
     return ariaExpanded === 'true';

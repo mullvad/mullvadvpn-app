@@ -2,8 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { spacings } from '../../foundations';
-import { Divider } from '../divider';
-import { SectionTitleIconButton, SectionTitleText, SectionTitleTitle } from './components';
+import {
+  SectionTitleDivider,
+  SectionTitleIconButton,
+  SectionTitleText,
+  SectionTitleTitle,
+} from './components';
 
 export type SectionTitleProps = React.ComponentProps<'div'>;
 
@@ -29,7 +33,7 @@ function SectionTitle(props: SectionTitleProps) {
 const SectionTitleNamespace = Object.assign(SectionTitle, {
   Title: SectionTitleTitle,
   IconButton: SectionTitleIconButton,
-  Divider: Divider,
+  Divider: SectionTitleDivider,
   Text: SectionTitleText,
 });
 

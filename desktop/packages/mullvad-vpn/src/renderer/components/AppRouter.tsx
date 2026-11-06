@@ -24,11 +24,13 @@ import {
   EditApiAccessView,
   ExpiredAccountErrorView,
   FilterView,
+  KillSwitchView,
   LaunchView,
   LoginView,
   LwoSettingsView,
   MainView,
   ManageDevicesView,
+  MigratedSettingsView,
   MultihopSettingsView,
   ProblemReportView,
   SelectLanguageView,
@@ -64,6 +66,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.tooManyDevices} component={TooManyDevicesView} />
           <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
           <Route exact path={RoutePath.main} component={MainView} />
+          <Route exact path={RoutePath.migratedSettings} component={MigratedSettingsView} />
           <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
           <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
           <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
@@ -99,6 +102,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
           <Route exact path={RoutePath.lwo} component={LwoSettingsView} />
+          <Route exact path={RoutePath.killSwitch} component={KillSwitchView} />
         </Switch>
       </Focus>
     </>

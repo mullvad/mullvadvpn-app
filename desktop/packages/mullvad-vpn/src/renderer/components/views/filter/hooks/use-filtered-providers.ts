@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { Ownership } from '../../../../../shared/daemon-rpc-types';
-import { filterLocationsByOwnershipAndProviders } from '../../../../features/locations/utils';
+import { filterCountriesByOwnershipAndProviders } from '../../../../features/locations/utils';
 import { useSelector } from '../../../../redux/store';
 import { providersFromRelays } from '../utils';
 
@@ -10,7 +10,7 @@ export function useFilteredProviders(providers: string[], ownership: Ownership):
   const locations = useSelector((state) => state.settings.relayLocations);
 
   const availableProviders = useMemo(() => {
-    const relaylistForFilters = filterLocationsByOwnershipAndProviders(
+    const relaylistForFilters = filterCountriesByOwnershipAndProviders(
       locations,
       ownership,
       providers,

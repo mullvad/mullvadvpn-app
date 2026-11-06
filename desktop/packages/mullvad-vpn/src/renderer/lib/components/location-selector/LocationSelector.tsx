@@ -1,24 +1,26 @@
+import { LayoutGroup } from 'motion/react';
 import React from 'react';
 import styled from 'styled-components';
 
 import { FlexColumn } from '../flex-column';
 import { LocationSelectorItems, LocationSelectorRow } from './components';
 import { LocationSelectorProvider } from './LocationSelectorContext';
-
-export type LocationSelectorPositions = 'top' | 'middle' | 'bottom';
-export type LocationSelectorVariant = 'primary' | 'secondary';
+import type { LocationSelectorItemType, LocationSelectorVariant } from './types';
 
 export type LocationSelectorProps = React.PropsWithChildren<{
   expanded?: boolean;
-  selectedItem?: string;
-  onSelectedItemChange?: (itemId: string) => void;
+  selectedItem?: LocationSelectorItemType;
+  onSelectedItemChange?: (itemId: LocationSelectorItemType) => void;
   variant: LocationSelectorVariant;
 }>;
 
 export const StyledLocationSelector = styled(FlexColumn)`
-  --line-z-index: 5;
-  --above-line-z-index: 6;
+  --location-selector-z-index: 10;
+  --location-selector-line-z-index: var(--location-selector-z-index);
+  --location-selector-above-line-z-index: 11;
+
   position: relative;
+  z-index: var(--location-selector-z-index);
 `;
 
 function LocationSelector({
@@ -34,7 +36,9 @@ function LocationSelector({
       onSelectedItemChange={onSelectedItemChange}
       expanded={expanded}
       variant={variant}>
-      <StyledLocationSelector>{children}</StyledLocationSelector>
+      <LayoutGroup>
+        <StyledLocationSelector>{children}</StyledLocationSelector>
+      </LayoutGroup>
     </LocationSelectorProvider>
   );
 }

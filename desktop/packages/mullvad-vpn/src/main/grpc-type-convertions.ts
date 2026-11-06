@@ -352,6 +352,11 @@ function convertFromTunnelStateRelayInfo(
           state.tunnelEndpoint.entryEndpoint &&
           convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
       },
+      location: state.location && {
+        ...state.location,
+        hostname: state.location.location?.hostname,
+        entryHostname: state.location.entryLocation?.hostname,
+      },
     };
   }
   return undefined;
@@ -372,9 +377,9 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
+      return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.MULTIHOP_AUTO:
       return FeatureIndicator.multihopAuto;
-      return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
       return FeatureIndicator.lockdownMode;
     case grpcTypes.FeatureIndicator.UDP_2_TCP:
@@ -448,6 +453,7 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   const relayOverrides = settingsObject.relayOverridesList;
   const recents = convertFromRecents(settings.getRecents());
+
   return {
     ...settings.toObject(),
     relaySettings,
@@ -523,7 +529,13 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
 
   const entries = recents
     .getEntriesList()
-    .map((entry) => convertFromLocationConstraint(entry.getLocation()))
+    .map((entry) => {
+      const automatic = entry.getAutomatic();
+      if (automatic) {
+        return 'automatic';
+      }
+      return convertFromLocationConstraint(entry.getLocation());
+    })
     .filter((location) => location !== undefined);
   const exits = recents
     .getExitsList()
@@ -888,6 +900,8 @@ function convertFromWireguardConstraints(
     multihop,
     ipVersion: 'any',
     entryLocation: 'any',
+    entryOwnership: Ownership.any,
+    entryProviders: [],
   };
 
   // `getIpVersion()` is not falsy if type is 'any'
@@ -906,6 +920,16 @@ function convertFromWireguardConstraints(
   if (entryLocation) {
     const location = convertFromLocationConstraint(entryLocation);
     result.entryLocation = wrapConstraint(location);
+  }
+
+  const entryProviders = constraints.getEntryProvidersList();
+  if (entryProviders) {
+    result.entryProviders = entryProviders;
+  }
+
+  const entryOwnership = constraints.getEntryOwnership();
+  if (entryOwnership) {
+    result.entryOwnership = convertFromOwnership(entryOwnership);
   }
 
   return result;
@@ -1073,6 +1097,14 @@ function convertToWireguardConstraints(
 
     if (constraint.multihop !== undefined) {
       wireguardConstraints.setMultihop(convertToMultihop(constraint.multihop));
+    }
+
+    if (constraint.entryProviders) {
+      wireguardConstraints.setEntryProvidersList(constraint.entryProviders);
+    }
+
+    if (constraint.entryOwnership) {
+      wireguardConstraints.setEntryOwnership(convertToOwnership(constraint.entryOwnership));
     }
 
     const entryLocation = unwrapConstraint(constraint.entryLocation);

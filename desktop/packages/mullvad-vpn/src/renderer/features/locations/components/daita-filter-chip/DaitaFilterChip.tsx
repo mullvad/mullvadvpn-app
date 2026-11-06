@@ -1,0 +1,38 @@
+import React from 'react';
+
+import { strings } from '../../../../../shared/constants';
+import { messages } from '../../../../../shared/gettext';
+import { RoutePath } from '../../../../../shared/routes';
+import { FilterChip, type FilterChipProps } from '../../../../lib/components';
+import { TransitionType, useHistory } from '../../../../lib/history';
+
+export type DaitaFilterChipProps = FilterChipProps;
+
+export function DaitaFilterChip(props: DaitaFilterChipProps) {
+  const history = useHistory();
+  const gotoEnableDaitaFeature = React.useCallback(() => {
+    history.push(RoutePath.daitaSettings, {
+      transition: TransitionType.show,
+      options: [
+        {
+          type: 'scroll-to-anchor',
+          id: 'daita-enable-setting',
+        },
+      ],
+    });
+  }, [history]);
+
+  return (
+    <FilterChip
+      as="a"
+      tabIndex={0}
+      aria-label={
+        // TRANSLATORS: Accessibility label for link to DAITA settings.
+        messages.pgettext('accessibility', 'DAITA settings')
+      }
+      onClick={gotoEnableDaitaFeature}
+      {...props}>
+      <FilterChip.Text>{strings.daita}</FilterChip.Text>
+    </FilterChip>
+  );
+}

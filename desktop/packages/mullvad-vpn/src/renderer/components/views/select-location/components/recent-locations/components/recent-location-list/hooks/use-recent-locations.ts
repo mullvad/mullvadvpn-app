@@ -1,14 +1,11 @@
-import { LocationType } from '../../../../../../../../features/locations/types';
-import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
+import { useLocationListsContext } from '../../../../location-lists/LocationListsContext';
 
 export function useRecentLocations() {
-  const { locationType, recentEntryLocations, recentExitLocations } =
-    useSelectLocationViewContext();
-  if (recentEntryLocations && locationType === LocationType.entry) {
+  const { type, recentEntryLocations, recentExitLocations } = useLocationListsContext();
+  if (recentEntryLocations && type === 'entry') {
     return recentEntryLocations;
-  } else if (recentExitLocations && locationType === LocationType.exit) {
+  } else if (recentExitLocations && type === 'exit') {
     return recentExitLocations;
   }
-
   return [];
 }

@@ -1,10 +1,12 @@
-import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
+import type { LiftedConstraint, RelayLocation } from '../../../../shared/daemon-rpc-types';
 import { LocationType } from '../types';
-import { useSelectedLocations } from './use-selected-locations';
+import { useEntryLocation } from './use-entry-location';
+import { useExitLocation } from './use-exit-location';
 
 export function useSelectedEntryOrExitLocation(
   locationType: LocationType,
-): RelayLocation | undefined {
-  const selectedLocations = useSelectedLocations();
-  return locationType === LocationType.entry ? selectedLocations.entry : selectedLocations.exit;
+): LiftedConstraint<RelayLocation> {
+  const { entryLocation } = useEntryLocation();
+  const { exitLocation } = useExitLocation();
+  return locationType === 'entry' ? entryLocation : exitLocation;
 }

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+import { durations } from '../../../foundations';
 import { TitleMedium, TitleMediumProps } from '../../text';
 import { useNavigationHeader } from '../NavigationHeaderContext';
 
@@ -7,7 +8,7 @@ export type NavigationHeaderTitleProps = TitleMediumProps;
 
 export const StyledText = styled(TitleMedium)<{ $visible?: boolean }>(({ $visible = true }) => ({
   opacity: $visible ? 1 : 0,
-  transition: 'opacity 250ms ease-in-out',
+  transition: `opacity ${durations.normal} ease-in-out`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',

@@ -1,39 +1,42 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { useHasCustomLists } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListLocation } from '../custom-list-location';
+import { useHasCustomLists } from '../location-lists/hooks';
+import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { CustomListsSectionTitle } from './components';
 import {
   CustomListLocationsProvider,
   useCustomListLocationsContext,
 } from './CustomListLocationsContext';
 
-const StyledAnimatedList = styled(AnimatedList)`
-  display: flex;
-  flex-direction: column;
-`;
-
 function CustomListLocationsImpl() {
   const { addingCustomList } = useCustomListLocationsContext();
-  const { customListLocations } = useSelectLocationViewContext();
+  const { customListLocations } = useLocationListsContext();
   const titleId = React.useId();
 
   const hasCustomLists = useHasCustomLists();
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
   const showAddLocationToCustomListText = hasCustomLists;
 
+  const { searchTerm } = useSelectLocationViewContext();
+  const customListsKey = searchTerm ? `custom-lists-${searchTerm}` : 'custom-lists';
+
   return (
-    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+    <FlexColumn
+      as="section"
+      aria-labelledby={titleId}
+      gap="tiny"
+      tabIndex={-1}
+      data-focusable-heading>
       <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
-        <StyledAnimatedList>
+        <AnimatedList key={customListsKey}>
           {customListLocations.map((customList) => {
             const { key } = getLocationListItemMapProps(customList, undefined);
             return (
@@ -42,7 +45,7 @@ function CustomListLocationsImpl() {
               </AnimatedList.Item>
             );
           })}
-        </StyledAnimatedList>
+        </AnimatedList>
 
         {showAddCustomListText && (
           <Text variant="labelTiny" color="whiteAlpha60">

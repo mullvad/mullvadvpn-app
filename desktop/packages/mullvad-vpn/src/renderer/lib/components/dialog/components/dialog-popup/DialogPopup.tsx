@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { colors, Radius, spacings } from '../../../../foundations';
+import { colors, durations, Radius, spacings } from '../../../../foundations';
 import { Popup } from '../../../popup';
 import { useDialogContext } from '../../DialogContext';
 
 export type DialogPopupProps = React.ComponentPropsWithoutRef<'dialog'>;
 
 export const StyledDialogPopup = styled(Popup)`
-  --transition-duration: 0.25s;
+  --transition-duration: ${durations.normal};
   --initial-opacity: 0;
   --initial-scale: 0.9;
 
