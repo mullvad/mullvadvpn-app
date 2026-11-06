@@ -1,5 +1,6 @@
 use futures::StreamExt;
 use inotify::{Inotify, WatchMask};
+use log::trace;
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{fs, io, net::IpAddr, path::Path, sync::Arc};
@@ -131,7 +132,7 @@ impl DnsWatcher {
 
         let (cancel_trigger, cancel_listener) = trigger();
 
-        tokio::spawn(async move { Self::event_loop(watcher, cancel_listener, &state).await });
+        tokio::spawn(Self::event_loop(watcher, cancel_listener, state));
 
         Ok(DnsWatcher { cancel_trigger })
     }
@@ -139,7 +140,7 @@ impl DnsWatcher {
     async fn event_loop(
         watcher: Inotify,
         mut cancel_listener: Listener,
-        state: &Arc<Mutex<Option<State>>>,
+        state: Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
@@ -154,7 +155,9 @@ impl DnsWatcher {
                 },
                 Some(_) = events.next() => {
                     let mut locked_state = state.lock();
-                    if let Err(error) = Self::update(locked_state.as_mut()) {
+                    if let Some(state) = locked_state.as_mut()
+                        && let Err(error) = Self::update(state)
+                    {
                         log::error!(
                             "{}",
                             error.display_chain_with_msg(
@@ -167,29 +170,25 @@ impl DnsWatcher {
         }
     }
 
-    fn update(state: Option<&mut State>) -> Result<()> {
-        if let Some(state) = state {
-            let mut new_config = read_config()?.unwrap_or_default();
-            let desired_nameservers = state
-                .desired_dns
-                .iter()
-                .map(|&address| ScopedIp::from(address))
-                .collect();
+    fn update(state: &mut State) -> Result<()> {
+        let mut new_config = read_config()?.unwrap_or_default();
+        let desired_nameservers = state
+            .desired_dns
+            .iter()
+            .map(|&address| ScopedIp::from(address))
+            .collect();
 
-            if new_config.nameservers != desired_nameservers {
-                state.backup = new_config.clone();
-                new_config.nameservers = desired_nameservers;
+        if new_config.nameservers != desired_nameservers {
+            state.backup = new_config.clone();
+            new_config.nameservers = desired_nameservers;
 
-                write_config(&new_config)
-            } else {
-                new_config.nameservers.clear();
-                new_config.nameservers.append(&mut state.backup.nameservers);
-                state.backup = new_config;
-
-                write_backup(&state.backup)
-            }
+            write_config(&new_config)
         } else {
-            Ok(())
+            new_config.nameservers.clear();
+            new_config.nameservers.append(&mut state.backup.nameservers);
+            state.backup = new_config;
+
+            write_backup(&state.backup)
         }
     }
 }
@@ -220,11 +219,13 @@ fn read_config_at(path: impl AsRef<Path>) -> Result<Option<Config>> {
 }
 
 fn write_config(config: &Config) -> Result<()> {
+    trace!("Writing to resolve.conf config");
     fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
         .map_err(|e| Error::WriteResolvConf(RESOLV_CONF_PATH, e))
 }
 
 fn write_backup(backup: &Config) -> Result<()> {
+    trace!("Writing to resolve.conf backup");
     fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
         .map_err(|e| Error::WriteResolvConf(RESOLV_CONF_BACKUP_PATH, e))
 }
