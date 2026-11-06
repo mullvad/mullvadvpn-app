@@ -13,24 +13,19 @@ LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
 [build-dependencies]
 anyhow = { workspace = true }
-windows-sys = { workspace = true, features = [
-  "Win32_System",
-  "Win32_System_LibraryLoader",
-  "Win32_System_SystemServices"
-] }
 winresource.workspace = true
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 log = { workspace = true }
-mullvad-paths = { path = "../mullvad-paths" }
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
-mullvad-version = { path = "../mullvad-version" }
+mullvad-paths.workspace = true
+mullvad-update = { workspace = true, features = ["client"] }
+mullvad-version.workspace = true
 rand = { workspace = true }
 safelog = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-platform-metadata.workspace = true
 tokio = { workspace = true, features = ["fs", "rt-multi-thread"] }
 tracing-appender = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["chrono"] }

@@ -14,7 +14,7 @@ dirs = { workspace = true }
 futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
-mullvad-paths = { path = "../../mullvad-paths" }
+mullvad-paths.workspace = true
 rand = { workspace = true }
 serde_json = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
@@ -41,20 +41,20 @@ default-features = false
 features = ["codec"]
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
-talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
+talpid-platform-metadata.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 plist = "1"
-talpid-macos = { path = "../../talpid-macos" }
+talpid-macos.workspace = true
 
 [target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["user"] }
 
 [target."cfg(windows)".dependencies]
-talpid-windows = { path = "../../talpid-windows" }
+talpid-windows.workspace = true
 windows-registry = { workspace = true }
 windows-service = "0.6"
 

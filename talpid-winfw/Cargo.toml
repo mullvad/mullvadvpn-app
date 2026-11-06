@@ -12,7 +12,7 @@ insta.workspace = true
 [target."cfg(windows)".dependencies]
 ipnetwork = { workspace = true }
 log = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-types.workspace = true
 thiserror = { workspace = true }
 wfp = { workspace = true }
 

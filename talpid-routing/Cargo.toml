@@ -19,7 +19,7 @@ tokio = { workspace = true, features = ["test-util"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.2", features = ["derive"] }
-talpid-types = { path = "../talpid-types" }
+talpid-types.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
@@ -34,7 +34,7 @@ nix = { workspace = true, features = ["fs", "net", "socket"] }
 system-configuration.workspace = true
 
 [target."cfg(windows)".dependencies]
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 widestring = { workspace = true }
 
 [target."cfg(windows)".dependencies.windows-sys]

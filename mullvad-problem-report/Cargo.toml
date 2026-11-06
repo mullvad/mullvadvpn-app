@@ -16,30 +16,24 @@ OriginalFilename = "mullvad-problem-report.exe"
 [dependencies]
 dirs = { workspace = true }
 log = { workspace = true }
-mullvad-api = { path = "../mullvad-api" }
-mullvad-paths = { path = "../mullvad-paths" }
-mullvad-version = { path = "../mullvad-version" }
+mullvad-api.workspace = true
+mullvad-paths.workspace = true
+mullvad-version.workspace = true
 regex = "1.0"
 talpid-error.workspace = true
 talpid-logging.workspace = true
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-platform-metadata.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 
+[build-dependencies]
+mullvad-version.workspace = true
+winresource.workspace = true
+
 [target.'cfg(not(target_os="android"))'.dependencies]
 clap = { workspace = true }
 tracing-subscriber = { workspace = true }
-
-[target."cfg(windows)".build-dependencies]
-mullvad-version = { path = "../mullvad-version" }
-winresource.workspace = true
-
-[target."cfg(windows)".build-dependencies.windows-sys]
-workspace = true
-features = [
-  "Win32_System_SystemServices",
-]
 
 [lints]
 workspace = true
