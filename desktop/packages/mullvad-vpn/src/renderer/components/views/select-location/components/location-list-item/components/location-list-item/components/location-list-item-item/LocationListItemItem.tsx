@@ -12,6 +12,7 @@ function LocationListItemItem({ children, ...props }: LocationListItemItemProps)
 const LocationListItemItemNamespace = Object.assign(LocationListItemItem, {
   Label: LocationListItemItemLabel,
   Icon: LocationIcon,
+  ActionGroup: ListItem.Item.ActionGroup,
 });
 
 export { LocationListItemItemNamespace as LocationListItemItem };
