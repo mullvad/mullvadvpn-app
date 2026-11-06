@@ -42,33 +42,29 @@ function RecentGeographicalLocationImpl({
 
   return (
     <Location root selected={location.selected}>
-      <Location.Accordion expanded disabled={disabled}>
-        <Location.Accordion.Header level={0} position={position}>
-          <Location.Accordion.Header.ItemTrigger
-            onClick={handleClick}
-            aria-label={ariaLabel}
-            aria-description={ariaDescription}>
-            <Location.Accordion.Header.Item>
-              <FlexColumn>
-                <Location.Accordion.Header.Item.Title>
-                  {location.label}
-                </Location.Accordion.Header.Item.Title>
-                {showParents && (
-                  <FootnoteMiniSemiBold color="whiteAlpha60">
-                    {breadcrumbsSubLabel}
-                  </FootnoteMiniSemiBold>
-                )}
-              </FlexColumn>
-              {showNeedsOtherEntry && (
-                <Location.Accordion.Header.Item.ActionGroup>
-                  <Location.Accordion.Header.Item.Icon icon="magic-multihop" />
-                </Location.Accordion.Header.Item.ActionGroup>
+      <Location.ListItem disabled={disabled} level={0} position={position}>
+        <Location.ListItem.Trigger
+          onClick={handleClick}
+          aria-label={ariaLabel}
+          aria-description={ariaDescription}>
+          <Location.ListItem.Item>
+            <FlexColumn>
+              <Location.ListItem.Item.Label>{location.label}</Location.ListItem.Item.Label>
+              {showParents && (
+                <FootnoteMiniSemiBold color="whiteAlpha60">
+                  {breadcrumbsSubLabel}
+                </FootnoteMiniSemiBold>
               )}
-            </Location.Accordion.Header.Item>
-          </Location.Accordion.Header.ItemTrigger>
-          <RecentGeographicalLocationTrailingActions location={location} />
-        </Location.Accordion.Header>
-      </Location.Accordion>
+            </FlexColumn>
+            {showNeedsOtherEntry && (
+              <Location.ListItem.Item.ActionGroup>
+                <Location.ListItem.Item.Icon icon="magic-multihop" />
+              </Location.ListItem.Item.ActionGroup>
+            )}
+          </Location.ListItem.Item>
+        </Location.ListItem.Trigger>
+        <RecentGeographicalLocationTrailingActions location={location} />
+      </Location.ListItem>
     </Location>
   );
 }
