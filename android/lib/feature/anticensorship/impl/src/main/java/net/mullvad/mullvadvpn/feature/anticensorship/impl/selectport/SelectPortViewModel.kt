@@ -102,7 +102,7 @@ class SelectPortViewModel(
     }
 
     private suspend fun updatePort(
-        port: Constraint<Port>
+        port: Constraint<Port>,
     ): Either<SetObfuscationOptionsError, Unit> =
         when (portType) {
             PortType.Udp2Tcp -> settingsRepository.setCustomUdp2TcpObfuscationPort(port)

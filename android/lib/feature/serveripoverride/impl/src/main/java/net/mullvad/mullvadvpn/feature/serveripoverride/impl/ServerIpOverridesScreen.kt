@@ -82,7 +82,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewServerIpOverridesScreen(
     @PreviewParameter(ServerIpOverridesUiStatePreviewParameterProvider::class)
-    state: Lc<Boolean, ServerIpOverridesUiState>
+    state: Lc<Boolean, ServerIpOverridesUiState>,
 ) {
     AppTheme {
         ServerIpOverridesScreen(
@@ -212,7 +212,7 @@ fun ServerIpOverridesScreen(
                     .verticalScroll(state = scrollState)
                     .animateContentSize()
                     .testTag(SERVER_IP_OVERRIDE_COLUMN_TEST_TAG)
-                    .padding(horizontal = Dimens.sideMarginNew)
+                    .padding(horizontal = Dimens.sideMarginNew),
         ) {
             ServerIpOverridesListItem(active = state.contentOrNull()?.overridesActive)
 

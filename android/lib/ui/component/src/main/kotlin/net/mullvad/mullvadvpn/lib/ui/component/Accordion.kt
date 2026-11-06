@@ -50,7 +50,7 @@ fun Accordion(
                     shape = MaterialTheme.shapes.medium,
                 )
                 .clip(MaterialTheme.shapes.medium)
-                .animateContentSize()
+                .animateContentSize(),
     ) {
         Row(
             modifier =
@@ -61,7 +61,7 @@ fun Accordion(
                         start = Dimens.smallPadding,
                         end = Dimens.smallPadding,
                         bottom = if (isExpanded) Dimens.tinyPadding else Dimens.smallPadding,
-                    )
+                    ),
         ) {
             Icon(imageVector = icon, contentDescription = iconContentDescription, tint = iconTint)
             Text(
@@ -107,7 +107,7 @@ private fun PreviewAccordion() {
                     expandedText =
                         buildAnnotatedString {
                             appendLine(
-                                annotatedStringResource(R.string.local_network_sharing_info3)
+                                annotatedStringResource(R.string.local_network_sharing_info3),
                             )
                             appendLine()
                             append(annotatedStringResource(R.string.local_network_sharing_info4))

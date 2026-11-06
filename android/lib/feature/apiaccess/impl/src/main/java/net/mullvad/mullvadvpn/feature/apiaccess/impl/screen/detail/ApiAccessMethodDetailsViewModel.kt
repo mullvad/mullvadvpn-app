@@ -65,8 +65,8 @@ class ApiAccessMethodDetailsViewModel(
                 .onLeft {
                     _uiSideEffect.send(
                         ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(
-                            testMethodFailed = it is TestApiAccessMethodError
-                        )
+                            testMethodFailed = it is TestApiAccessMethodError,
+                        ),
                     )
                 }
         }
@@ -76,7 +76,7 @@ class ApiAccessMethodDetailsViewModel(
         testingJob = viewModelScope.launch {
             val result = testMethodById()
             _uiSideEffect.send(
-                ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight())
+                ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight()),
             )
         }
     }

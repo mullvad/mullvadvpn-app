@@ -35,7 +35,7 @@ object TunnelStatePreviewData {
 
     fun generateErrorState(isBlocking: Boolean) =
         TunnelState.Error(
-            errorState = ErrorState(cause = ErrorStateCause.DnsError, isBlocking = isBlocking)
+            errorState = ErrorState(cause = ErrorStateCause.DnsError, isBlocking = isBlocking),
         )
 
     private fun generateTunnelEndpoint(quantumResistant: Boolean, daita: Boolean): TunnelEndpoint =

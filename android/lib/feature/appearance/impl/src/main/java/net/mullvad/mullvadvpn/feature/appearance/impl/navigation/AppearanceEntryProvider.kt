@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.appearance.impl.Appearance
 
 fun EntryProviderScope<NavKey2>.appearanceEntry(navigator: Navigator) {
     entry<AppearanceNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) {
         Appearance(navigator = navigator)
     }

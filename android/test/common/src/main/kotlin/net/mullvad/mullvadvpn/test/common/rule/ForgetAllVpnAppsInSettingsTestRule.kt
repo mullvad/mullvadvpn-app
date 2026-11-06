@@ -23,7 +23,7 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
         targetContext.startActivity(
             Intent(Settings.ACTION_VPN_SETTINGS).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+            },
         )
 
         val vpnSettingsSelector = By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID)

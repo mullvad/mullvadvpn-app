@@ -71,7 +71,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewSplitTunnelingScreen(
     @PreviewParameter(SplitTunnelingUiStatePreviewParameterProvider::class)
-    state: Lc<Loading, SplitTunnelingUiState>
+    state: Lc<Loading, SplitTunnelingUiState>,
 ) {
     AppTheme {
         SplitTunnelingScreen(

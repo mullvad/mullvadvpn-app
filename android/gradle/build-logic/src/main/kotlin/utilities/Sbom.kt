@@ -25,7 +25,7 @@ fun Project.registerSbomTasks(versionName: String) {
                 ExternalReference().apply {
                     type = ExternalReference.Type.VCS
                     url = "https://github.com/mullvad/mullvadvpn-app/"
-                }
+                },
             )
             jsonOutput.set(layout.buildDirectory.file("reports/$variant.jvm.cdx.json"))
         }

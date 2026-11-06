@@ -139,7 +139,7 @@ fun InfoDialog(
                                 // fromHtml may add a trailing newline when using HTML tags, so we
                                 // remove it
                                 AnnotatedString(
-                                    htmlAnnotated.substring(0, htmlAnnotated.trimEnd().length)
+                                    htmlAnnotated.substring(0, htmlAnnotated.trimEnd().length),
                                 )
                             }
                             else ->

@@ -186,7 +186,7 @@ class SaveApiAccessMethodViewModelTest {
                     name = apiAccessMethodName,
                     enabled = true,
                     apiAccessMethod = customProxy,
-                )
+                ),
             )
         } returns ApiAccessMethodId.fromString(uuid).right()
         createSaveApiAccessMethodViewModel(
@@ -202,7 +202,7 @@ class SaveApiAccessMethodViewModelTest {
                     name = apiAccessMethodName,
                     enabled = true,
                     apiAccessMethod = customProxy,
-                )
+                ),
             )
         }
     }

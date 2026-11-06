@@ -64,7 +64,7 @@ abstract class EndToEndTest {
                     Logger.d("onActivityCreated")
                     targetActivity = activity
                 }
-            }
+            },
         )
 
     companion object {

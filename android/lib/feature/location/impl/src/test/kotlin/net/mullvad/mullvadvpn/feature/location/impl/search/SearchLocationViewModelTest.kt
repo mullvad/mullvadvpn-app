@@ -116,7 +116,7 @@ class SearchLocationViewModelTest {
             assertTrue(
                 actualState.value.relayListItems
                     .filterIsInstance<RelayListItem.GeoLocationItem>()
-                    .any { it.item is RelayItem.Location.City && it.item.name == "Gothenburg" }
+                    .any { it.item is RelayItem.Location.City && it.item.name == "Gothenburg" },
             )
         }
     }

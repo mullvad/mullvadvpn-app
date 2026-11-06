@@ -100,7 +100,7 @@ class CustomListLocationsViewModel(
                                                 selectedLocations != _initialLocations.value,
                                         hasUnsavedChanges =
                                             selectedLocations != _initialLocations.value,
-                                    )
+                                    ),
                                 ),
                         )
                     }
@@ -141,14 +141,14 @@ class CustomListLocationsViewModel(
                                 CustomListAction.UpdateLocations(
                                     navArgs.customListId,
                                     locationsToSave.map { it.id },
-                                )
+                                ),
                             )
                             .bind()
                     calculateResultData(success, locationsToSave)
                 }
                     .getOrElse { CustomListActionResultData.GenericError }
                 _uiSideEffect.send(
-                    CustomListLocationsSideEffect.ReturnWithResultData(result = result)
+                    CustomListLocationsSideEffect.ReturnWithResultData(result = result),
                 )
             }
         }
@@ -195,7 +195,7 @@ class CustomListLocationsViewModel(
     }
 
     private fun Set<RelayItem.Location>.deselectParents(
-        relayItem: RelayItem.Location
+        relayItem: RelayItem.Location,
     ): Set<RelayItem.Location> {
         val availableLocations = relayListRepository.relayList.value
         val updateSelectionList = this.toMutableSet()
@@ -281,7 +281,7 @@ class CustomListLocationsViewModel(
                         else -> Position.Middle
                     },
                 searchMatch = highlights[this@toRelayItems.id],
-            )
+            ),
         )
         if (expanded) {
             when (this@toRelayItems) {
@@ -295,7 +295,7 @@ class CustomListLocationsViewModel(
                                 isLastChild = isLastChild && index == relays.lastIndex,
                                 highlights = highlights,
                             )
-                        }
+                        },
                     )
 
                 is RelayItem.Location.Country ->
@@ -308,7 +308,7 @@ class CustomListLocationsViewModel(
                                 isLastChild = isLastChild && index == cities.lastIndex,
                                 highlights = highlights,
                             )
-                        }
+                        },
                     )
 
                 is RelayItem.Location.Relay -> {

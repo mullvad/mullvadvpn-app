@@ -66,11 +66,12 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(
     "Loading|oss|LoadingSitePayment|" +
-        "PaymentLoading|NoPayment|NoProductsFound|PaymentAvailable|PaymentPending|PaymentError"
+        "PaymentLoading|NoPayment|NoProductsFound|PaymentAvailable|PaymentPending|PaymentError",
 )
 @Composable
 private fun PreviewAddTimeBottomSheet(
-    @PreviewParameter(AddTimeUiStatePreviewParameterProvider::class) state: Lc<Unit, AddTimeUiState>
+    @PreviewParameter(AddTimeUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, AddTimeUiState>,
 ) {
     AppTheme {
         AddTimeBottomSheetContent(
@@ -472,7 +473,7 @@ private fun ColumnScope.PurchaseStateVerificationError(
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
     )
     Row(
-        modifier = Modifier.padding(top = Dimens.mediumPadding).align(Alignment.CenterHorizontally)
+        modifier = Modifier.padding(top = Dimens.mediumPadding).align(Alignment.CenterHorizontally),
     ) {
         SmallPrimaryButton(text = stringResource(android.R.string.ok), onClick = close)
         if (isRecoverable) {

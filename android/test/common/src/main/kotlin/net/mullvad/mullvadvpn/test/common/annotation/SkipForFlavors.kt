@@ -13,11 +13,11 @@ annotation class SkipForFlavors(val currentFlavor: String, vararg val skipForFla
             val annotation = p0?.element?.get()?.getAnnotation(SkipForFlavors::class.java)
             return if (annotation?.skipForFlavors?.contains(annotation.currentFlavor) == true) {
                 ConditionEvaluationResult.disabled(
-                    "Skipping test for flavor: ${annotation.currentFlavor}"
+                    "Skipping test for flavor: ${annotation.currentFlavor}",
                 )
             } else {
                 ConditionEvaluationResult.enabled(
-                    "Running test for flavor: ${annotation?.currentFlavor}"
+                    "Running test for flavor: ${annotation?.currentFlavor}",
                 )
             }
         }

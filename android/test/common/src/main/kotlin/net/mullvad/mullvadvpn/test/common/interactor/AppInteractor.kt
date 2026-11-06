@@ -69,7 +69,7 @@ class AppInteractor(
     }
 
     fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
-        timeout: Long = DEFAULT_TIMEOUT
+        timeout: Long = DEFAULT_TIMEOUT,
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             // Skipping as notification permissions are not shown.

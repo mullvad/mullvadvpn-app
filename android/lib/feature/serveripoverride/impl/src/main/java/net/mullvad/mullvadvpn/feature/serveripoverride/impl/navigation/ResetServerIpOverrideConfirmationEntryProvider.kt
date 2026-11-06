@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverride
 import net.mullvad.mullvadvpn.feature.serveripoverride.impl.reset.ResetServerIpOverridesConfirmation
 
 internal fun EntryProviderScope<NavKey2>.resetServerIpOverrideConfirmationEntry(
-    navigator: Navigator
+    navigator: Navigator,
 ) {
     entry<ResetServerIpOverrideConfirmationNavKey>(metadata = DialogSceneStrategy.dialog()) {
         ResetServerIpOverridesConfirmation(navigator = navigator)

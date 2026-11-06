@@ -54,7 +54,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewViewLogsScreen(
     @PreviewParameter(ViewLogsUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, ViewLogsUiState>
+    state: Lc<Unit, ViewLogsUiState>,
 ) {
     AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }

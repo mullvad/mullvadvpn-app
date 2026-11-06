@@ -139,7 +139,7 @@ class MullvadApplication : Application() {
                         violation,
                     )
                 }
-                .build()
+                .build(),
         )
 
         StrictMode.setVmPolicy(
@@ -152,7 +152,7 @@ class MullvadApplication : Application() {
                     }
                     android.util.Log.e("StrictMode", "StrictMode VM policy violation:", violation)
                 }
-                .build()
+                .build(),
         )
     }
 

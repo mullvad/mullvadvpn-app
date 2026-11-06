@@ -132,6 +132,6 @@ class SelectableRelayListItemPreviewParameterProvider :
                     needsOtherEntry = false,
                     state = RelayListItemState.USED_AS_ENTRY,
                 ),
-            )
+            ),
         )
 }

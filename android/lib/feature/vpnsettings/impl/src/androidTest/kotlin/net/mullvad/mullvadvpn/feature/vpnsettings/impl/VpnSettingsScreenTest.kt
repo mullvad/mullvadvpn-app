@@ -125,7 +125,7 @@ class VpnSettingsScreenTest {
         initScreen(
             state =
                 createDefaultUiState(mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!)
-                    .toLc()
+                    .toLc(),
         )
 
         onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)

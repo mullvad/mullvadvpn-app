@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfi
 import net.mullvad.mullvadvpn.feature.managedevices.impl.confirmation.ManageDevicesRemoveConfirmation
 
 internal fun EntryProviderScope<NavKey2>.manageDevicesRemoveConfirmationEntry(
-    navigator: Navigator
+    navigator: Navigator,
 ) {
     entry<ManageDevicesRemoveConfirmationNavKey>(metadata = DialogSceneStrategy.dialog()) { navKey
         ->

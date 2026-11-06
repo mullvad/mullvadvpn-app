@@ -45,7 +45,7 @@ class AppInfoViewModel(
                             },
                         isPlayBuild = isPlayBuild,
                         showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
-                    )
+                    ),
                 )
             }
             .stateIn(

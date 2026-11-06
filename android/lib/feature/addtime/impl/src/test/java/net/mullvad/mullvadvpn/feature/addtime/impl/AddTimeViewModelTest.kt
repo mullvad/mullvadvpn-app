@@ -213,7 +213,7 @@ class AddTimeViewModelTest {
             paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
             awaitItem()
             purchaseResult.emit(
-                purchaseResultLoading
+                purchaseResultLoading,
             ) // Set up loading state so we get a new state when we emit the error
             val loadingItem = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(loadingItem)
@@ -241,7 +241,7 @@ class AddTimeViewModelTest {
             paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
             awaitItem()
             purchaseResult.emit(
-                purchaseResultLoading
+                purchaseResultLoading,
             ) // Set up loading state so we get a new state when we emit canceled
             val loadingItem = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(loadingItem)

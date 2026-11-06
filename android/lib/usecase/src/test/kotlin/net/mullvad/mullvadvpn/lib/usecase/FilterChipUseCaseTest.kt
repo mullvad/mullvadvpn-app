@@ -41,7 +41,7 @@ class FilterChipUseCaseTest {
             mockk(relaxed = true) {
                 every { obfuscationSettings.shadowsocks } returns
                     ShadowsocksObfuscationSettings(Constraint.Any)
-            }
+            },
         )
 
     private lateinit var filterChipUseCase: FilterChipUseCase

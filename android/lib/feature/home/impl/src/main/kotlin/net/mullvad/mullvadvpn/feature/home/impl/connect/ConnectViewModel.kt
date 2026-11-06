@@ -189,7 +189,7 @@ class ConnectViewModel(
                 // If we don't have vpn system settings available we assume that there is no other
                 // always-on-vpn active.
                 _uiSideEffect.send(
-                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase())
+                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase()),
                 )
             }
         }

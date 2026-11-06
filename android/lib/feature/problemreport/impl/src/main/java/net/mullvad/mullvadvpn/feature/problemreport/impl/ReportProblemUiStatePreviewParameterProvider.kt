@@ -19,7 +19,7 @@ class ReportProblemUiStatePreviewParameterProvider :
                 ReportProblemUiState(sendingState = SendingReportUiState.Success("email@mail.com")),
                 ReportProblemUiState(
                     sendingState =
-                        SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog)
+                        SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog),
                 ),
             )
 }

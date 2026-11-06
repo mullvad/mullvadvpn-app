@@ -41,7 +41,7 @@ class SettingsRepository(
                 state = state,
                 customOptions = CustomDnsOptions(ArrayList(dnsList)),
                 defaultOptions = contentBlockersOptions,
-            )
+            ),
         )
 
     suspend fun updateContentBlockers(update: (DefaultDnsOptions) -> DefaultDnsOptions) =

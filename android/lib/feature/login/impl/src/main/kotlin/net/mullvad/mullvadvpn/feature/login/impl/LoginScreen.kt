@@ -120,7 +120,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview("Default|Loading.LoggingIn|Loading.CreatingAccount|LoginError|Success")
 @Composable
 private fun PreviewLoginScreen(
-    @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
+    @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState,
 ) {
     AppTheme {
         LoginScreen(
@@ -169,7 +169,7 @@ fun Login(
             ApiUnreachableInfoDialogResult.Error ->
                 scope.launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred),
                     )
                 }
             is ApiUnreachableInfoDialogResult.Success -> {
@@ -196,7 +196,7 @@ fun Login(
             LoginUiSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred),
                     )
                 }
             is LoginUiSideEffect.CreateAccount ->
@@ -248,7 +248,7 @@ private fun LoginScreen(
                 Modifier.padding(it)
                     .padding(horizontal = Dimens.sideMargin)
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
         ) {
             Spacer(modifier = Modifier.weight(TOP_SPACER_WEIGHT))
             LoginIcon(
@@ -454,7 +454,7 @@ private fun ColumnScope.LoginInput(
     )
 
     AnimatedVisibility(
-        visible = state.lastUsedAccount != null && state.loginState is LoginState.Idle
+        visible = state.lastUsedAccount != null && state.loginState is LoginState.Idle,
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             AccountDropDownItem(
@@ -518,7 +518,7 @@ private fun LoginState.title(): String =
                 is LoginState.Loading.LoggingIn -> R.string.logging_in_title
                 is LoginState.Loading.CreatingAccount -> R.string.creating_new_account
                 LoginState.Success -> R.string.logged_in_title
-            }
+            },
     )
 
 @Composable
@@ -534,7 +534,7 @@ private fun SupportingText(modifier: Modifier = Modifier, text: AnnotatedString)
 @Composable
 @Suppress("CyclomaticComplexMethod")
 private fun LoginState.supportingText(
-    onShowApiUnreachableDialog: (LoginAction) -> Unit
+    onShowApiUnreachableDialog: (LoginAction) -> Unit,
 ): AnnotatedString? =
     when (this) {
         is LoginState.Idle if loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ->
@@ -598,7 +598,7 @@ private fun AccountDropDownItem(
                     MaterialTheme.shapes.medium.copy(
                         topStart = CornerSize(0f),
                         topEnd = CornerSize(0f),
-                    )
+                    ),
                 )
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .height(IntrinsicSize.Min),
@@ -674,7 +674,7 @@ private suspend fun SnackbarHostState.showCreateAccountSnackbar(
                 LoginUiSideEffect.CreateAccount.TooManyAttempts ->
                     R.string.login_error_too_many_attempts
                 is LoginUiSideEffect.CreateAccount.Unknown -> R.string.failed_to_create_account
-            }
+            },
         )
     showSnackbarImmediately(
         message = message,

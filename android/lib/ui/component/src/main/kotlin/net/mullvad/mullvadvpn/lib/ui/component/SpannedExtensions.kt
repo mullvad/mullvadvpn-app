@@ -26,7 +26,7 @@ fun Spanned.toAnnotatedString(boldFontWeight: FontWeight = FontWeight.Bold): Ann
     }
 
 fun Spanned.toAnnotatedString(
-    boldSpanStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.ExtraBold)
+    boldSpanStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.ExtraBold),
 ): AnnotatedString = buildAnnotatedString {
     val spanned = this@toAnnotatedString
     append(spanned.toString())

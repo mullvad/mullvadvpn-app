@@ -18,7 +18,7 @@ class Android16UpdateWarningReceiver : BroadcastReceiver(), KoinComponent {
             // Check that we run Android 16 (Baklava)
             goAsync {
                 userPreferencesRepository.setShowAndroid16ConnectWarning(
-                    Build.VERSION.SDK_INT == Build.VERSION_CODES.BAKLAVA
+                    Build.VERSION.SDK_INT == Build.VERSION_CODES.BAKLAVA,
                 )
             }
         }

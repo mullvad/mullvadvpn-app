@@ -76,7 +76,7 @@ fun ChangelogScreen(state: ChangelogUiState, onBackClick: () -> Unit) {
                     text = state.version,
                     style =
                         MaterialTheme.typography.headlineSmall.copy(
-                            textDirection = TextDirection.Ltr
+                            textDirection = TextDirection.Ltr,
                         ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )

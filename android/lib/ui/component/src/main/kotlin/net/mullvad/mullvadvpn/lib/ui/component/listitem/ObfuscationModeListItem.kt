@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Composable
 private fun PreviewObfuscationListItem(
     @PreviewParameter(SelectObfuscationListItemPreviewParameterProvider::class)
-    selectedObfuscationCellData: Triple<ObfuscationMode, Constraint<Port>, Boolean>
+    selectedObfuscationCellData: Triple<ObfuscationMode, Constraint<Port>, Boolean>,
 ) {
     AppTheme {
         ObfuscationModeListItem(

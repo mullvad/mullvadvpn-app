@@ -110,7 +110,7 @@ class RecentsUseCaseTest {
             val singlehopRecent = ExitRecent(STOCKHOLM_ID)
             val filteredOutRecent =
                 ExitRecent(
-                    GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx")
+                    GeoLocationId.City(country = GeoLocationId.Country("xx"), code = "xx-xxx-xx"),
                 )
 
             settingsFlow.value =

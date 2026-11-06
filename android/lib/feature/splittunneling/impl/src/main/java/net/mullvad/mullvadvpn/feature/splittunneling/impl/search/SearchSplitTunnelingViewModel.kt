@@ -32,7 +32,7 @@ class SearchSplitTunnelingViewModel(
                         searchTerm = searchTerm,
                         excludedApps = splitApps.excludedApps.search(searchTerm),
                         includedApps = splitApps.includedApps.search(searchTerm),
-                    )
+                    ),
                 )
             }
             .stateIn(

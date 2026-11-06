@@ -32,7 +32,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewSaveApiAccessMethodDialog(
     @PreviewParameter(SaveApiAccessMethodUiStatePreviewParameterProvider::class)
-    state: SaveApiAccessMethodUiState
+    state: SaveApiAccessMethodUiState,
 ) {
     AppTheme { SaveApiAccessMethodDialog(state = state, onCancel = {}, onSave = {}) }
 }
@@ -70,13 +70,14 @@ fun SaveApiAccessMethodDialog(
                                 id =
                                     if (testingState is TestApiAccessMethodState.Result.Successful)
                                         R.drawable.icon_success
-                                    else R.drawable.icon_fail
+                                    else R.drawable.icon_fail,
                             ),
                         contentDescription = null,
                     )
                 TestApiAccessMethodState.Testing ->
                     MullvadCircularProgressIndicatorLarge(
-                        modifier = Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG)
+                        modifier =
+                            Modifier.testTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG),
                     )
             }
         },
@@ -123,5 +124,5 @@ private fun SaveApiAccessMethodUiState.descriptionText() =
                         R.string.api_unreachable_save_anyway
                     }
                 }
-            }
+            },
     )

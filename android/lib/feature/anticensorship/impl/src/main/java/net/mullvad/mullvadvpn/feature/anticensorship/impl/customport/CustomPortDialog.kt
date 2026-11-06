@@ -101,7 +101,7 @@ fun CustomPortDialog(
                     stringResource(
                         id = R.string.custom_port_dialog_valid_ranges,
                         allowedPortRanges.asString(),
-                    )
+                    ),
                 )
                 if (recommendedPortRanges.isNotEmpty()) {
                     append(annotatedStringResource(R.string.custom_port_recommended_range_first))
@@ -109,7 +109,7 @@ fun CustomPortDialog(
                         stringResource(
                             id = R.string.custom_port_recommended_range_second,
                             recommendedPortRanges.asString(),
-                        )
+                        ),
                     )
                 }
             },

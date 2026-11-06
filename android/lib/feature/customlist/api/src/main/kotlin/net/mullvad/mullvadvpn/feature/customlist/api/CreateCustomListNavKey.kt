@@ -10,5 +10,5 @@ import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 
 @Parcelize
 data class CreateCustomListNavResult(
-    val value: CustomListActionResultData.Success.CreatedWithLocations
+    val value: CustomListActionResultData.Success.CreatedWithLocations,
 ) : NavResult

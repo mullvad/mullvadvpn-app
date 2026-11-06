@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.search
 
 fun CustomList.toRelayItemCustomList(
-    relayCountries: List<RelayItem.Location.Country>
+    relayCountries: List<RelayItem.Location.Country>,
 ): RelayItem.CustomList =
     RelayItem.CustomList(
         customList = this,

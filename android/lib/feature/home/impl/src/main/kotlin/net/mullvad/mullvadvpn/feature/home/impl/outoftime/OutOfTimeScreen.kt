@@ -68,7 +68,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class)
-    state: Lc<Unit, OutOfTimeUiState>
+    state: Lc<Unit, OutOfTimeUiState>,
 ) {
     AppTheme {
         OutOfTimeScreen(
@@ -100,7 +100,7 @@ fun OutOfTime(navigator: Navigator) {
                 navigator.navigate(ConnectNavKey, clearBackStack = true)
             OutOfTimeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred),
                 )
             OutOfTimeViewModel.UiSideEffect.DeviceRevoked ->
                 navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
@@ -166,14 +166,14 @@ fun OutOfTimeScreen(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
-                    .background(color = MaterialTheme.colorScheme.surface)
+                    .background(color = MaterialTheme.colorScheme.surface),
         ) {
             when (state) {
                 is Lc.Content -> {
                     Content(showSitePayment = state.value.showSitePayment)
                     Spacer(
                         modifier =
-                            Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace)
+                            Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace),
                     )
                     // Button area
                     ButtonPanel(
@@ -256,7 +256,7 @@ private fun ButtonPanel(
                                     PaymentStatus.PENDING -> R.string.payment_status_pending_short
                                     PaymentStatus.PURCHASED_UNVERIFIED ->
                                         R.string.payment_status_verification_failed
-                                }
+                                },
                         ),
                 )
             }
@@ -269,6 +269,6 @@ private fun ButtonPanel(
 private fun ColumnScope.Loading() {
     MullvadCircularProgressIndicatorLarge(
         modifier =
-            Modifier.align(Alignment.CenterHorizontally).padding(vertical = Dimens.smallPadding)
+            Modifier.align(Alignment.CenterHorizontally).padding(vertical = Dimens.smallPadding),
     )
 }

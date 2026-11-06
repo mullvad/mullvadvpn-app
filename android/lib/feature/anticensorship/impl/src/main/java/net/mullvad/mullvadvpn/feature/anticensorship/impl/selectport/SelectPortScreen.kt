@@ -48,7 +48,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewSelectPortScreen(
     @PreviewParameter(SelectPortUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, SelectPortUiState>
+    state: Lc<Unit, SelectPortUiState>,
 ) {
     AppTheme {
         SelectPortScreen(
@@ -87,7 +87,7 @@ fun SelectPort(navArgs: SelectPortNavKey, navigator: Navigator) {
                         allowedPortRanges = state.allowedPortRanges,
                         recommendedPortRanges = state.recommendedPortRanges,
                         customPort = customPort,
-                    )
+                    ),
                 )
             },
         onBackClick = dropUnlessResumed { navigator.goBack() },

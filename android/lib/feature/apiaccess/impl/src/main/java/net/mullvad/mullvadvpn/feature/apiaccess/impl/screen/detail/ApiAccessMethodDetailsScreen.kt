@@ -78,7 +78,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewApiAccessMethodDetailsScreen(
     @PreviewParameter(ApiAccessMethodDetailsUiStatePreviewParameterProvider::class)
-    state: ApiAccessMethodDetailsUiState
+    state: ApiAccessMethodDetailsUiState,
 ) {
     AppTheme {
         ApiAccessMethodDetailsScreen(
@@ -112,7 +112,7 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
             ApiAccessMethodDetailsSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        resources.getString(R.string.error_occurred)
+                        resources.getString(R.string.error_occurred),
                     )
                 }
             is ApiAccessMethodDetailsSideEffect.OpenEditPage ->
@@ -125,8 +125,8 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
                                 R.string.api_reachable
                             } else {
                                 R.string.api_unreachable
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
             }
@@ -138,8 +138,8 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
                                 R.string.failed_to_set_current_test_error
                             } else {
                                 R.string.failed_to_set_current_unknown_error
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
         }
@@ -176,7 +176,7 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
             } else {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.this_is_already_set_as_current)
+                        message = resources.getString(R.string.this_is_already_set_as_current),
                     )
                 }
             }
@@ -214,7 +214,7 @@ fun ApiAccessMethodDetailsScreen(
                 Actions(
                     onDeleteAccessMethod = {
                         onDeleteApiAccessMethodClicked(state.apiAccessMethodId)
-                    }
+                    },
                 )
             }
         },
@@ -228,7 +228,7 @@ fun ApiAccessMethodDetailsScreen(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(state = scrollState)
-                    .padding(horizontal = Dimens.sideMarginNew)
+                    .padding(horizontal = Dimens.sideMarginNew),
         ) {
             when (state) {
                 is ApiAccessMethodDetailsUiState.Loading -> Loading()

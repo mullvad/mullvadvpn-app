@@ -44,7 +44,7 @@ fun CheckboxConfirmation(
                     end = Dimens.tinyPadding,
                     start = Dimens.tinyPadding,
                     top = Dimens.tinyPadding,
-                )
+                ),
     ) {
         Row(
             modifier =

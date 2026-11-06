@@ -37,7 +37,7 @@ class NewDeviceNotificationUseCaseTest {
                     name = deviceName,
                     creationDate = ZonedDateTime.now(),
                 ),
-            )
+            ),
         )
     private val isNewDeviceState = MutableStateFlow(false)
 

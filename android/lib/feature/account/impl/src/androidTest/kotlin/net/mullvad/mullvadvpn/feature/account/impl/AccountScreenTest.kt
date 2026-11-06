@@ -61,7 +61,7 @@ class AccountScreenTest {
                     accountExpiry = null,
                     showLogoutLoading = false,
                     paymentStatus = null,
-                )
+                ),
         )
 
         // Assert
@@ -102,7 +102,7 @@ class AccountScreenTest {
                     accountExpiry = null,
                     showLogoutLoading = false,
                     paymentStatus = PaymentStatus.PENDING,
-                )
+                ),
         )
 
         // Assert

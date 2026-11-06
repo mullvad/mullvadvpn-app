@@ -43,7 +43,7 @@ fun createSimpleRelayListItemList(
                         } else {
                             Position.Single
                         },
-                )
+                ),
             )
             if (descendantIsSelected) {
                 country.cities.forEach { city ->
@@ -60,7 +60,7 @@ fun createSimpleRelayListItemList(
                                 } else {
                                     Position.Middle
                                 },
-                        )
+                        ),
                     )
                     if (childIsSelected) {
                         city.relays.forEach { relay ->
@@ -75,7 +75,7 @@ fun createSimpleRelayListItemList(
                                         } else {
                                             Position.Middle
                                         },
-                                )
+                                ),
                             )
                         }
                     }

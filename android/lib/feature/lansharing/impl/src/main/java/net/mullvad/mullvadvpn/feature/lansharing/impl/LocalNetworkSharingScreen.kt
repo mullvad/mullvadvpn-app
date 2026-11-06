@@ -53,7 +53,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewLocalNetworkSharingScreen(
     @PreviewParameter(LocalNetworkSharingUiStatePreviewParameterProvider::class)
-    state: Lc<Boolean, LocalNetworkSharingUiState>
+    state: Lc<Boolean, LocalNetworkSharingUiState>,
 ) {
     AppTheme {
         LocalNetworkSharingScreen(
@@ -153,8 +153,8 @@ private fun LocalNetworkSharingContent(
                     appendLine(annotatedStringResource(R.string.local_network_sharing_info))
                     append(
                         annotatedStringResource(
-                            R.string.local_network_sharing_info_block_connections_warning
-                        )
+                            R.string.local_network_sharing_info_block_connections_warning,
+                        ),
                     )
                     appendLine()
                     appendLine()

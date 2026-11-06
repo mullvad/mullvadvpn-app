@@ -124,7 +124,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -147,7 +147,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -170,7 +170,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -222,7 +222,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -272,13 +272,13 @@ class AddTimeBottomSheetTest {
                                         productId = productId,
                                         price = ProductPrice("$30"),
                                         status = null,
-                                    )
-                                )
+                                    ),
+                                ),
                             ),
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -300,13 +300,13 @@ class AddTimeBottomSheetTest {
                                     productId = productId,
                                     price = ProductPrice("$30"),
                                     status = null,
-                                )
-                            )
+                                ),
+                            ),
                         ),
                     tunnelStateBlocked = false,
                     showSitePayment = false,
                 )
-                .toLc()
+                .toLc(),
         )
 
         // Assert
@@ -329,18 +329,18 @@ class AddTimeBottomSheetTest {
                                         productId = productId,
                                         price = ProductPrice("$30"),
                                         status = null,
-                                    )
-                                )
+                                    ),
+                                ),
                             ),
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
         onNodeWithText(
-                "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+                "We were unable to start the payment process, please make sure you have the latest version of Google Play.",
             )
             .assertExists()
     }
@@ -356,7 +356,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = false,
                         showSitePayment = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -374,7 +374,7 @@ class AddTimeBottomSheetTest {
                         tunnelStateBlocked = true,
                         showSitePayment = true,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert

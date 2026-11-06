@@ -23,10 +23,10 @@ import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     suspend fun createRule(rule: DropRule) {
         Logger.v(
-            "Sending create rule request with body: ${Json.encodeToString(DropRule.serializer(), rule)}"
+            "Sending create rule request with body: ${Json.encodeToString(DropRule.serializer(), rule)}",
         )
         Logger.v(
-            "Requesting firewall API to block ${rule.protocols} traffic from ${rule.source} to ${rule.destination}"
+            "Requesting firewall API to block ${rule.protocols} traffic from ${rule.source} to ${rule.destination}",
         )
         val response =
             httpClient.post("rule") {
@@ -57,7 +57,7 @@ private fun defaultHttpClient(): HttpClient =
                     ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = true
-                }
+                },
             )
         }
 

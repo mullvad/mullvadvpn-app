@@ -16,7 +16,7 @@ sealed interface Packet {
 data class RxPacket(
     @SerialName("timestamp")
     @Serializable(with = NanoSecondsTimestampSerializer::class)
-    override val date: ZonedDateTime
+    override val date: ZonedDateTime,
 ) : Packet {
     @SerialName("from_peer") override val fromPeer: Boolean = false
 }
@@ -25,7 +25,7 @@ data class RxPacket(
 data class TxPacket(
     @SerialName("timestamp")
     @Serializable(with = NanoSecondsTimestampSerializer::class)
-    override val date: ZonedDateTime
+    override val date: ZonedDateTime,
 ) : Packet {
     @SerialName("from_peer") override val fromPeer: Boolean = true
 }

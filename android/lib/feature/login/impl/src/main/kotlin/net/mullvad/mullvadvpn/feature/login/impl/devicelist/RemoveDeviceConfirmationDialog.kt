@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog(
-    @PreviewParameter(RemoveDeviceConfirmationPreviewParameterProvider::class) device: Device
+    @PreviewParameter(RemoveDeviceConfirmationPreviewParameterProvider::class) device: Device,
 ) {
     AppTheme { RemoveDeviceConfirmation(EmptyNavigator, device = device) }
 }
@@ -37,7 +37,7 @@ fun RemoveDeviceConfirmation(navigator: Navigator, device: Device) {
                     SpanStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
-                    )
+                    ),
             )
 
     NegativeConfirmationDialog(

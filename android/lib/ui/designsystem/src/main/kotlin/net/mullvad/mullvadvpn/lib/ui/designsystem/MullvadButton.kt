@@ -395,7 +395,8 @@ private fun RowScope.BaseButtonContent(
         trailingIcon != null ->
             // Used to center the text
             Box(
-                modifier = Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible)
+                modifier =
+                    Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible),
             ) {
                 trailingIcon()
             }
@@ -421,7 +422,8 @@ private fun RowScope.BaseButtonContent(
         leadingIcon != null ->
             // Used to center the text
             Box(
-                modifier = Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible)
+                modifier =
+                    Modifier.padding(horizontal = Dimens.mediumPadding).alpha(AlphaInvisible),
             ) {
                 leadingIcon()
             }

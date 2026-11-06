@@ -23,6 +23,6 @@ class RelayItemCheckableCellPreviewParameterProvider :
                     cityNames = listOf("Expanded city A", "Expanded city B"),
                     relaysPerCity = 2,
                 ),
-            )
+            ),
         )
 }

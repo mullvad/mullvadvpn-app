@@ -38,7 +38,7 @@ class HopArc(
 
         attribLocations =
             AttribLocations(
-                vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition")
+                vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"),
             )
 
         uniformLocation =

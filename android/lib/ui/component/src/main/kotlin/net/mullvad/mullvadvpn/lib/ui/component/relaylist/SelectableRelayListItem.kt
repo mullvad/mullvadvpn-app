@@ -48,7 +48,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 @Preview
 private fun PreviewSelectableRelayLocationItem(
     @PreviewParameter(SelectableRelayListItemPreviewParameterProvider::class)
-    relayItems: List<RelayListItem.SelectableItem>
+    relayItems: List<RelayListItem.SelectableItem>,
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
@@ -245,6 +245,6 @@ fun InactiveRelayIndicator(modifier: Modifier = Modifier, tint: Color) {
             modifier
                 .size(Dimens.listIconSize)
                 .padding(Dimens.relayCirclePadding)
-                .background(color = tint, shape = CircleShape)
+                .background(color = tint, shape = CircleShape),
     )
 }

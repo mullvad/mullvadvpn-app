@@ -55,7 +55,7 @@ import org.koin.core.parameter.parametersOf
 @Preview
 @Composable
 private fun PreviewFilterScreen(
-    @PreviewParameter(FilterUiStatePreviewParameterProvider::class) state: FilterUiState
+    @PreviewParameter(FilterUiStatePreviewParameterProvider::class) state: FilterUiState,
 ) {
     AppTheme {
         FilterScreen(
@@ -314,8 +314,8 @@ private fun BottomBar(
                 .background(color = backgroundColor)
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                    )
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                    ),
                 )
                 .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMarginNew),
         contentAlignment = Alignment.BottomCenter,

@@ -105,8 +105,8 @@ fun ApiUnreachableInfoDialog(
 
                                 LoginAction.CREATE_ACCOUNT ->
                                     R.string.unable_to_reach_api_dialog_message_first_create_account
-                            }
-                    )
+                            },
+                    ),
                 )
                 append(stringResource(id = R.string.unable_to_reach_api_dialog_message_second))
                 val firstItem =

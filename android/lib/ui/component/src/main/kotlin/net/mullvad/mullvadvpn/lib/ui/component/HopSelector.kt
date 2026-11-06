@@ -371,7 +371,7 @@ fun MultihopSelector(
         Box(
             Modifier.layoutId(AnimationKey.Panel)
                 .clip(RoundedCornerShape(Dimens.multihopSelectorPanelRadius))
-                .background(colors.panelColor)
+                .background(colors.panelColor),
         ) {}
         Hop(
             modifier =
@@ -660,7 +660,7 @@ private fun Hop(
 ) {
     CompositionLocalProvider(
         LocalContentColor provides
-            if (selected) MaterialTheme.colorScheme.onPrimary else deselectedColor
+            if (selected) MaterialTheme.colorScheme.onPrimary else deselectedColor,
     ) {
         val filterButtonRequester = remember { FocusRequester() }
         val rowRequester = remember { FocusRequester() }

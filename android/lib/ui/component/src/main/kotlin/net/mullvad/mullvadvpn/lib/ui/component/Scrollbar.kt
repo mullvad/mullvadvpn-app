@@ -311,7 +311,7 @@ private fun PreviewScrollbar() {
                         state = state,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
-                    .verticalScroll(state)
+                    .verticalScroll(state),
         ) {
             repeat(50) {
                 Text(text = "Item ${it + 1}", modifier = Modifier.fillMaxWidth().padding(16.dp))
@@ -348,7 +348,7 @@ private fun PreviewHorizontalScrollbar() {
                     state = state,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                 )
-                .horizontalScroll(state)
+                .horizontalScroll(state),
     ) {
         repeat(50) {
             Text(

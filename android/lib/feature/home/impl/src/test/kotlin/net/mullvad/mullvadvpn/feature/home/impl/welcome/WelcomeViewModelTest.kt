@@ -181,8 +181,8 @@ class WelcomeViewModelTest {
                                 productId = ProductId("test_product_id"),
                                 price = ProductPrice("9.99"),
                                 status = PaymentStatus.PENDING,
-                            )
-                        )
+                            ),
+                        ),
                 )
 
             // Act, Assert

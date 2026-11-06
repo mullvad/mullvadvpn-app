@@ -31,7 +31,7 @@ private fun PreviewSpinningGlobe() {
             targetValue = 360f,
             animationSpec =
                 infiniteRepeatable(
-                    animation = tween(durationMillis = 30000, easing = LinearEasing)
+                    animation = tween(durationMillis = 30000, easing = LinearEasing),
                 ),
         )
     val longitude = Longitude.fromFloat(rawLongitude)
@@ -42,6 +42,6 @@ private fun PreviewSpinningGlobe() {
                 latLong = LatLong(Latitude(0f), longitude),
                 zoom = 1.9f,
                 verticalBias = 0.5f,
-            )
+            ),
     )
 }

@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.splitTunnelingEntry(navigator: Navigator) {
     entry<SplitTunnelingNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navArgs ->
         LocalSharedTransitionScope.current?.SplitTunneling(
             isModal = navArgs.isModal,

@@ -13,7 +13,7 @@ class RemoveDeviceConfirmationPreviewParameterProvider : PreviewParameterProvide
                 id = DeviceId.fromString("12345678-1234-5678-1234-567812345678"),
                 name = "Secure Mole",
                 creationDate = DEVICE_CREATION_DATE,
-            )
+            ),
         )
 
     companion object {

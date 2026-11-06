@@ -56,13 +56,13 @@ class FilteredRelayListUseCase(
                                                             RelayHopType.ENTRY,
                                                     ),
                                                 exitConstraints = it.toExitConstraint(),
-                                            )
+                                            ),
                                     )
 
                                 RelayHopType.EXIT ->
                                     if (it.isWhenNeededMultihop()) {
                                         RelaySelectorPredicate.Autohop(
-                                            it.toEntryConstraint(Constraint.Any)
+                                            it.toEntryConstraint(Constraint.Any),
                                         )
                                     } else {
                                         RelaySelectorPredicate.Exit(
@@ -71,7 +71,7 @@ class FilteredRelayListUseCase(
                                                     entryConstraints = it.toEntryConstraint(),
                                                     exitConstraints =
                                                         it.toExitConstraint(Constraint.Any),
-                                                )
+                                                ),
                                         )
                                     }
                             }
@@ -81,7 +81,7 @@ class FilteredRelayListUseCase(
                                 RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
                             } else {
                                 RelaySelectorPredicate.SingleHop(
-                                    it.toEntryConstraint(Constraint.Any)
+                                    it.toEntryConstraint(Constraint.Any),
                                 )
                             }
                     }
@@ -119,7 +119,7 @@ class FilteredRelayListUseCase(
         }
 
     private fun List<RelayItem.Location.Country>.filter(
-        validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+        validHostnames: Map<PartitionHostname, NeedsOtherEntry>,
     ): List<FilteredCountry> = mapNotNull { it.filter(validHostnames) }
 }
 
@@ -150,7 +150,7 @@ private fun Settings.toEntryConstraint(
     )
 
 private fun Settings.toExitConstraint(
-    overrideEntryLocation: Constraint<RelayItemId>? = null
+    overrideEntryLocation: Constraint<RelayItemId>? = null,
 ): ExitConstraints =
     ExitConstraints(
         location = overrideEntryLocation ?: relaySettings.relayConstraints.location,

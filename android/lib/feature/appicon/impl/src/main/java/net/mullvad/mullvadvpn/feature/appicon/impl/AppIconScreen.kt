@@ -60,7 +60,7 @@ private fun PreviewAppIconScreen() {
                     AppIconUiState(
                         availableObfuscations = AppObfuscation.entries,
                         currentAppObfuscation = AppObfuscation.DEFAULT,
-                    )
+                    ),
                 ),
             snackbarHostState = SnackbarHostState(),
             onObfuscationSelected = {},
@@ -138,7 +138,7 @@ private fun LazyGridScope.content(
             enabled = !state.applyingChange,
             colors =
                 CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 ),
             border =
                 if (item == state.currentAppObfuscation) {

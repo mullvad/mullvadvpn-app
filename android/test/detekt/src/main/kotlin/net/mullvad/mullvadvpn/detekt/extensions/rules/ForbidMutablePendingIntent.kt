@@ -30,7 +30,7 @@ class ForbidMutablePendingIntent(config: Config) :
                         Finding(
                             entity = Entity.from(expression),
                             message = description,
-                        )
+                        ),
                     )
                 }
             }

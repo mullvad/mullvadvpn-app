@@ -82,11 +82,11 @@ class MockApiRouter {
                 accessTokenJsonResponse(
                     accessToken = DUMMY_ACCESS_TOKEN,
                     expiry = ZonedDateTime.now().plusHours(24),
-                )
+                ),
             )
         } else {
             Logger.e(
-                "Unexpected account number (expected=$expectedAccountNumber was=$accountNumber)"
+                "Unexpected account number (expected=$expectedAccountNumber was=$accountNumber)",
             )
             call.respondError()
         }
@@ -107,7 +107,7 @@ class MockApiRouter {
                     name = devices!![deviceId]!!, // Should always exist
                     publicKey = cachedKey,
                     creationDate = ZonedDateTime.now().minusDays(1),
-                )
+                ),
             )
         } ?: call.respondError()
     }
@@ -125,7 +125,7 @@ class MockApiRouter {
                             name = devicePendingToGetCreated!!.second,
                             publicKey = newKey,
                             creationDate = ZonedDateTime.now().minusDays(1),
-                        )
+                        ),
                     )
                 } else {
                     call.respondErrorJson(tooManyDevicesJsonResponse())
@@ -143,7 +143,7 @@ class MockApiRouter {
                         name = entry.value,
                         publicKey = cachedKey,
                         creationDate = ZonedDateTime.now().minusDays((index + 1).toLong()),
-                    )
+                    ),
                 )
             }
             call.respondOkJson(body)
@@ -157,7 +157,7 @@ class MockApiRouter {
                     id = DUMMY_ID_1,
                     expiry = ZonedDateTime.now(),
                     accountNumber = expectedAccountNumber,
-                )
+                ),
             )
         } ?: call.respondError()
     }

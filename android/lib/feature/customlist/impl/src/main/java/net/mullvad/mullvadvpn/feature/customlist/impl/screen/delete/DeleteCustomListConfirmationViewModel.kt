@@ -52,8 +52,8 @@ class DeleteCustomListConfirmationViewModel(
                                 CustomListActionResultData.Success.Deleted(
                                     customListName = it.name,
                                     undo = it.undo,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     },
                 )

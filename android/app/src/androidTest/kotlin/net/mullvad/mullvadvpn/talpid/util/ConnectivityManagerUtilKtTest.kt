@@ -179,7 +179,7 @@ class ConnectivityManagerUtilKtTest {
                     NetworkEvent.LinkPropertiesChanged(
                         cellularNetwork,
                         cellularNetworkLinkProperties,
-                    )
+                    ),
                 )
                 delay(5.seconds)
                 // Turning on WiFi, we'll have duplicate networks until phone decides to turn of
@@ -221,7 +221,7 @@ class ConnectivityManagerUtilKtTest {
                     NetworkEvent.LinkPropertiesChanged(
                         cellularNetwork,
                         cellularNetworkLinkProperties,
-                    )
+                    ),
                 )
                 awaitClose {}
             }
@@ -255,7 +255,7 @@ class ConnectivityManagerUtilKtTest {
                     NetworkEvent.LinkPropertiesChanged(
                         cellularNetwork,
                         cellularNetworkLinkProperties,
-                    )
+                    ),
                 )
                 awaitClose {}
             }
@@ -332,7 +332,7 @@ class ConnectivityManagerUtilKtTest {
             buildList {
                 if (ipv4) add(IPV4_ADDRESS)
                 if (ipv6) add(IPV6_GLOBAL_ADDRESS)
-            }
+            },
         )
 
     private fun mockLinkProperties(addresses: List<String>): LinkProperties {

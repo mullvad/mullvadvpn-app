@@ -123,7 +123,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
             // Make sure we reset the list of notifications emitted when new time is added
             setExpiry(
-                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusHours(24)
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusHours(24),
             )
             assertNull(expectMostRecentItem())
         }

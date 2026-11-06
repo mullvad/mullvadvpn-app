@@ -78,7 +78,8 @@ fun MullvadModalBottomSheet(
     ) {
         content(paddingValues.calculateBottomPadding())
         Spacer(
-            modifier = Modifier.height(paddingValues.calculateBottomPadding() + Dimens.smallPadding)
+            modifier =
+                Modifier.height(paddingValues.calculateBottomPadding() + Dimens.smallPadding),
         )
     }
 }

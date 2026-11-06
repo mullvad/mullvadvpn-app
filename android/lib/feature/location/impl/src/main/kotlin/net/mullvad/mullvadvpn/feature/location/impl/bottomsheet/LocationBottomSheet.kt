@@ -488,7 +488,7 @@ private fun SubHeader(text: String, onBackgroundColor: Color) {
             Modifier.weight(1f, true).padding(start = Dimens.smallPadding),
             color =
                 MaterialTheme.colorScheme.onBackground.copy(
-                    alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha
+                    alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha,
                 ),
         )
     }
@@ -533,7 +533,7 @@ private fun <T : RelayItem> MultihopOptions(
                         R.string.set_as_multihop_exit
                     } else {
                         R.string.set_as_multihop_exit_unavailable
-                    }
+                    },
                 ),
             colors =
                 ListItemDefaults.colors(
@@ -578,7 +578,7 @@ private fun <T : RelayItem> MultihopOptions(
                         R.string.set_as_multihop_entry
                     } else {
                         R.string.set_as_multihop_entry_unavailable
-                    }
+                    },
                 ),
             colors =
                 ListItemDefaults.colors(

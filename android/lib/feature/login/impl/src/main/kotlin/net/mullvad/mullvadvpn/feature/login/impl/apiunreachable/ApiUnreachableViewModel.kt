@@ -54,7 +54,7 @@ class ApiUnreachableViewModel(
     init {
         viewModelScope.launch {
             hasEnabledAllApiAccessMethods.emit(
-                apiAccessRepository.accessMethods.filterNotNull().first().all { it.enabled }
+                apiAccessRepository.accessMethods.filterNotNull().first().all { it.enabled },
             )
         }
     }
@@ -69,7 +69,7 @@ class ApiUnreachableViewModel(
                     },
                     {
                         _uiSideEffect.send(
-                            ApiUnreachableSideEffect.EnableAllApiAccessMethods.Success(navArgs)
+                            ApiUnreachableSideEffect.EnableAllApiAccessMethods.Success(navArgs),
                         )
                     },
                 )
@@ -85,7 +85,7 @@ class ApiUnreachableViewModel(
                     address = supportEmail.address,
                     subject = supportEmail.subject,
                     logs = supportEmail.logs.joinToString(NEWLINE_STRING),
-                )
+                ),
             )
         }
     }

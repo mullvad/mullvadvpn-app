@@ -48,7 +48,7 @@ class RelayApi(billingFlavor: String, private val baseDomain: String) {
 
             ipRegex.find(body)?.groups?.get(1)?.value
                 ?: error(
-                    "Could not find ${relayProvider.getDefaultRelay().relay} IP address in relay list"
+                    "Could not find ${relayProvider.getDefaultRelay().relay} IP address in relay list",
                 )
         }
 

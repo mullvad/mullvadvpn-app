@@ -21,7 +21,7 @@ class MullvadFileProvider : FileProvider(R.xml.provider_paths) {
 }
 
 enum class ProviderCacheDirectory(val directoryName: String) {
-    LOGS("logs")
+    LOGS("logs"),
 }
 
 fun Context.createShareLogFile(logContent: String): Uri {

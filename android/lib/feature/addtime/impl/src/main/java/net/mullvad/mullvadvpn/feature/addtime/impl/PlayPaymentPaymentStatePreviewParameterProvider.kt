@@ -24,7 +24,7 @@ class PlayPaymentPaymentStatePreviewParameterProvider : PreviewParameterProvider
                                 price = ProductPrice("$30"),
                                 status = null,
                             ),
-                        )
+                        ),
                 ),
                 // Product pending
                 PaymentState.PaymentAvailable(
@@ -40,7 +40,7 @@ class PlayPaymentPaymentStatePreviewParameterProvider : PreviewParameterProvider
                                 price = ProductPrice("$30"),
                                 status = null,
                             ),
-                        )
+                        ),
                 ),
                 // Product verification in progress
                 PaymentState.PaymentAvailable(
@@ -56,7 +56,7 @@ class PlayPaymentPaymentStatePreviewParameterProvider : PreviewParameterProvider
                                 price = ProductPrice("$30"),
                                 status = null,
                             ),
-                        )
+                        ),
                 ),
             )
 }

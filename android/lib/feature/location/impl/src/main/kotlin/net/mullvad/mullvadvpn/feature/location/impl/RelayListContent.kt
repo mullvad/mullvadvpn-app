@@ -221,7 +221,7 @@ private fun GeoLocationItem(
                 LocationBottomSheetState.ShowLocationBottomSheet(
                     item = listItem.item,
                     relayListType = relayListType,
-                )
+                ),
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
@@ -267,7 +267,7 @@ private fun RecentListItem(
                         LocationBottomSheetState.ShowEditCustomListBottomSheet(
                             item = entry,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
 
                 is RelayItem.Location ->
@@ -275,7 +275,7 @@ private fun RecentListItem(
                         LocationBottomSheetState.ShowLocationBottomSheet(
                             item = entry,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
             }
         },
@@ -300,7 +300,7 @@ private fun CustomListItem(
                 LocationBottomSheetState.ShowEditCustomListBottomSheet(
                     item = listItem.item,
                     relayListType = relayListType,
-                )
+                ),
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
@@ -328,7 +328,7 @@ private fun CustomListEntryItem(
                             customListId = listItem.parentId,
                             item = listItem.item,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
                 }
             } else {
@@ -374,7 +374,7 @@ private fun CustomListFooter(item: RelayListItem.CustomListFooter) {
                 stringResource(R.string.to_add_locations_to_a_list)
             } else {
                 stringResource(R.string.to_create_a_custom_list)
-            }
+            },
     )
 }
 
@@ -383,7 +383,7 @@ private fun RelayLocationHeader() {
     ListHeader(
         content = {
             Text(text = stringResource(R.string.all_locations), overflow = TextOverflow.Ellipsis)
-        }
+        },
     )
 }
 
@@ -392,7 +392,7 @@ private fun RecentsListHeader() {
     ListHeader(
         content = {
             Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
-        }
+        },
     )
 }
 
