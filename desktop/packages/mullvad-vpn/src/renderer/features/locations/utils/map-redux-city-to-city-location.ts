@@ -1,4 +1,5 @@
 import type { RelayLocation as DaemonRelayLocation } from '../../../../shared/daemon-rpc-types';
+import type { RelaySelectorRelayMatch } from '../../../../shared/relay-selector-rpc-types';
 import type {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
@@ -17,6 +18,7 @@ export function mapReduxCityToCityLocation(
   disabledLocation: ReturnType<typeof useDisabledLocation>,
   parentDisabledReason: DisabledReason | undefined,
   locale: string,
+  matches: RelaySelectorRelayMatch[],
 ): CityLocation {
   const relays = city.relays
     .map((relay) => {
@@ -27,6 +29,7 @@ export function mapReduxCityToCityLocation(
         selectedLocation,
         disabledLocation,
         parentDisabledReason,
+        matches,
       );
       return relayLocation;
     })
@@ -37,6 +40,8 @@ export function mapReduxCityToCityLocation(
     parentDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
   const label = createLocationLabel(city.name, cityLocation, cityDisabledReason);
   const hasSelectedChild = relays.some(({ selected }) => selected);
+  const needsOtherEntry =
+    relays.length > 0 && relays.every(({ needsOtherEntry }) => needsOtherEntry);
 
   return {
     type: 'city',
@@ -51,5 +56,6 @@ export function mapReduxCityToCityLocation(
     selected: isLocationSelected(cityLocation, selectedLocation),
     expanded: hasSelectedChild,
     relays,
+    needsOtherEntry,
   };
 }

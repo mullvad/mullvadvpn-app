@@ -4,7 +4,7 @@ import type { GeographicalLocation } from '../../../../../features/locations/typ
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
-import { useLocationAriaLabel } from '../../hooks';
+import { useLocationAriaDescription, useLocationAriaLabel } from '../../hooks';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { RecentGeographicalLocationTrailingActions } from './components';
@@ -24,7 +24,8 @@ function RecentGeographicalLocationImpl({
 }: RecentGeographicalLocationProps) {
   const { handleSelect } = useLocationListsContext();
 
-  const ariaLabel = useLocationAriaLabel(location.label);
+  const ariaLabel = useLocationAriaLabel(location);
+  const ariaDescription = useLocationAriaDescription(location);
 
   const locationBreadcrumbs = useLocationBreadcrumbs(location);
   const breadcrumbsSubLabel = locationBreadcrumbs.join(', ');
@@ -37,27 +38,33 @@ function RecentGeographicalLocationImpl({
     void handleSelect(location);
   }, [location, handleSelect]);
 
+  const showNeedsOtherEntry = location.needsOtherEntry;
+
   return (
     <Location root selected={location.selected}>
-      <Location.Accordion expanded disabled={disabled}>
-        <Location.Accordion.Header level={0} position={position}>
-          <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
-            <Location.Accordion.Header.Item>
-              <FlexColumn>
-                <Location.Accordion.Header.Item.Title>
-                  {location.label}
-                </Location.Accordion.Header.Item.Title>
-                {showParents && (
-                  <FootnoteMiniSemiBold color="whiteAlpha60">
-                    {breadcrumbsSubLabel}
-                  </FootnoteMiniSemiBold>
-                )}
-              </FlexColumn>
-            </Location.Accordion.Header.Item>
-          </Location.Accordion.Header.ItemTrigger>
-          <RecentGeographicalLocationTrailingActions location={location} />
-        </Location.Accordion.Header>
-      </Location.Accordion>
+      <Location.ListItem disabled={disabled} level={0} position={position}>
+        <Location.ListItem.Trigger
+          onClick={handleClick}
+          aria-label={ariaLabel}
+          aria-description={ariaDescription}>
+          <Location.ListItem.Item>
+            <FlexColumn>
+              <Location.ListItem.Item.Label>{location.label}</Location.ListItem.Item.Label>
+              {showParents && (
+                <FootnoteMiniSemiBold color="whiteAlpha60">
+                  {breadcrumbsSubLabel}
+                </FootnoteMiniSemiBold>
+              )}
+            </FlexColumn>
+            {showNeedsOtherEntry && (
+              <Location.ListItem.Item.ActionGroup>
+                <Location.ListItem.Item.Icon icon="magic-multihop" />
+              </Location.ListItem.Item.ActionGroup>
+            )}
+          </Location.ListItem.Item>
+        </Location.ListItem.Trigger>
+        <RecentGeographicalLocationTrailingActions location={location} />
+      </Location.ListItem>
     </Location>
   );
 }

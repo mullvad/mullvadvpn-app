@@ -5,7 +5,7 @@ import type { CustomListLocation } from '../../../../../features/locations/types
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
-import { useLocationAriaLabel } from '../../hooks';
+import { useLocationAriaDescription, useLocationAriaLabel } from '../../hooks';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { RecentCustomListTrailingActions } from './components';
@@ -24,7 +24,8 @@ function RecentCustomListLocationImpl({
 }: RecentCustomListLocationProps) {
   const { handleSelect } = useLocationListsContext();
 
-  const ariaLabel = useLocationAriaLabel(customList.label);
+  const ariaLabel = useLocationAriaLabel(customList);
+  const ariaDescription = useLocationAriaDescription(customList);
 
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp;
@@ -33,10 +34,15 @@ function RecentCustomListLocationImpl({
     void handleSelect(customList);
   }, [customList, handleSelect]);
 
+  const showNeedsOtherEntry = customList.needsOtherEntry;
+
   return (
     <Location root selected={customList.selected}>
       <Location.ListItem disabled={disabled} level={0} position={position}>
-        <Location.ListItem.Trigger onClick={handleClick} aria-label={ariaLabel}>
+        <Location.ListItem.Trigger
+          onClick={handleClick}
+          aria-label={ariaLabel}
+          aria-description={ariaDescription}>
           <Location.ListItem.Item>
             <FlexColumn>
               <Location.ListItem.Item.Label>{customList.label}</Location.ListItem.Item.Label>
@@ -49,6 +55,11 @@ function RecentCustomListLocationImpl({
                 </FootnoteMiniSemiBold>
               )}
             </FlexColumn>
+            {showNeedsOtherEntry && (
+              <Location.ListItem.Item.ActionGroup>
+                <Location.ListItem.Item.Icon icon="magic-multihop" />
+              </Location.ListItem.Item.ActionGroup>
+            )}
           </Location.ListItem.Item>
         </Location.ListItem.Trigger>
         <RecentCustomListTrailingActions customList={customList} />

@@ -29,7 +29,7 @@ export const StyledListItemTrigger = styled.button<{ disabled?: boolean }>`
             background-color: ${colors.whiteOnBlue10};
           }
           ~ ${StyledListItemTrailingActions} {
-            & > ${StyledListItemTrailingAction}:not(:last-child) {
+            & > ${StyledListItemTrailingAction} {
               background-color: ${colors.whiteOnBlue10};
             }
           }
@@ -43,7 +43,7 @@ export const StyledListItemTrigger = styled.button<{ disabled?: boolean }>`
             background-color: ${colors.whiteOnBlue20};
           }
           ~ ${StyledListItemTrailingActions} {
-            & > ${StyledListItemTrailingAction}:not(:last-child) {
+            & > ${StyledListItemTrailingAction} {
               background-color: ${colors.whiteOnBlue20};
             }
           }
