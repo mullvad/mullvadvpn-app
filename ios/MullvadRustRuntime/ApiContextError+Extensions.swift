@@ -8,14 +8,13 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-public final class MullvadApiCompletion: RequestCompletion {
-    public let completion: @Sendable (ApiResponse) -> Void
-
-    public init(completion: @Sendable @escaping (ApiResponse) -> Void) {
-        self.completion = completion
-    }
-
-    public func finish(result: ApiResponse) {
-        self.completion(result)
+extension ApiContextError: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case let .ApiError(code, description):
+            "\(code): \(description)"
+        case let .Other(error):
+            error.error()
+        }
     }
 }

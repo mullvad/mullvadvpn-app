@@ -1115,53 +1115,53 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
      */
     func useAccessMethod(id: String) 
     
-    func createAccount(retryStrategy: RetryStrategy)  -> RequestCancelHandle
+    func createAccount(retryStrategy: RetryStrategy) async throws  -> ApiResponse
     
-    func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
-    func getAccount(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func getAccount(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
-    func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper)  -> RequestCancelHandle
+    func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) async throws  -> ApiResponse
     
-    func getAddresses(retryStrategy: RetryStrategy)  -> RequestCancelHandle
+    func getAddresses(retryStrategy: RetryStrategy) async throws  -> ApiResponse
     
-    func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?)  -> RequestCancelHandle
+    func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?) async throws  -> ApiResponse
     
     /**
      * create device via the Mullvad API client.
      */
-    func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data)  -> RequestCancelHandle
+    func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) async throws  -> ApiResponse
     
     /**
      * Delete device via the Mullvad API client.
      */
-    func deleteDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String)  -> RequestCancelHandle
+    func deleteDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String) async throws  -> ApiResponse
     
     /**
      * Get device info via the Mullvad API client.
      */
-    func getDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String)  -> RequestCancelHandle
+    func getDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String) async throws  -> ApiResponse
     
     /**
      * Get devices info via the Mullvad API client.
      */
-    func getDevices(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func getDevices(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
     /**
      * Rotate device key via the Mullvad API client.
      */
-    func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data)  -> RequestCancelHandle
+    func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) async throws  -> ApiResponse
     
     func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy) async throws  -> AmIMullvadResponse
     
     /**
      * Send a problem report via the Mullvad API client.
      */
-    func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest)  -> RequestCancelHandle
+    func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest) async throws  -> ApiResponse
     
-    func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)  -> RequestCancelHandle
+    func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) async throws  -> ApiResponse
     
-    func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String)  -> RequestCancelHandle
+    func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String) async throws  -> ApiResponse
     
 }
 open class ApiContext: ApiContextProtocol, @unchecked Sendable {
@@ -1273,133 +1273,206 @@ open func useAccessMethod(id: String)  {try! rustCall() {
 }
 }
     
-open func createAccount(retryStrategy: RetryStrategy) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_create_account(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),$0
-    )
-})
+open func createAccount(retryStrategy: RetryStrategy)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_create_account(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_delete_account(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func deleteAccount(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_delete_account(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func getAccount(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_account(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func getAccount(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_account(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_api_addrs_available(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterTypeAccessMethodSettingWrapper_lower(accessMethodSetting),$0
-    )
-})
+open func apiAddrsAvailable(retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_api_addrs_available(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterTypeAccessMethodSettingWrapper_lower(accessMethodSetting)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func getAddresses(retryStrategy: RetryStrategy) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_addresses(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),$0
-    )
-})
+open func getAddresses(retryStrategy: RetryStrategy)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_addresses(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_relays(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterOptionString.lower(digest),
-        FfiConverterOptionInt64.lower(digestTimestamp),$0
-    )
-})
+open func getRelays(retryStrategy: RetryStrategy, digest: String?, digestTimestamp: Int64?)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_relays(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterOptionString.lower(digest),FfiConverterOptionInt64.lower(digestTimestamp)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
     /**
      * create device via the Mullvad API client.
      */
-open func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_create_device(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterData.lower(publicKey),$0
-    )
-})
+open func createDevice(retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_create_device(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterData.lower(publicKey)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
     /**
      * Delete device via the Mullvad API client.
      */
-open func deleteDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_delete_device(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterString.lower(identifier),$0
-    )
-})
+open func deleteDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_delete_device(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterString.lower(identifier)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
     /**
      * Get device info via the Mullvad API client.
      */
-open func getDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_device(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterString.lower(identifier),$0
-    )
-})
+open func getDevice(retryStrategy: RetryStrategy, accountNumber: String, identifier: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_device(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterString.lower(identifier)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
     /**
      * Get devices info via the Mullvad API client.
      */
-open func getDevices(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_get_devices(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func getDevices(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_get_devices(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
     /**
      * Rotate device key via the Mullvad API client.
      */
-open func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),
-        FfiConverterString.lower(identifier),
-        FfiConverterData.lower(publicKey),$0
-    )
-})
+open func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber),FfiConverterString.lower(identifier),FfiConverterData.lower(publicKey)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
 open func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy)async throws  -> AmIMullvadResponse  {
@@ -1422,34 +1495,55 @@ open func amIMullvad(ipv6: Bool, retryStrategy: RetryStrategy)async throws  -> A
     /**
      * Send a problem report via the Mullvad API client.
      */
-open func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterTypeProblemReportRequest_lower(request),$0
-    )
-})
+open func sendProblemReport(retryStrategy: RetryStrategy, request: ProblemReportRequest)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterTypeProblemReportRequest_lower(request)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_check_storekit_payment(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterData.lower(body),$0
-    )
-})
+open func checkStorekitPayment(retryStrategy: RetryStrategy, body: Data)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_check_storekit_payment(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterData.lower(body)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
-open func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
-    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_init_storekit_payment(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterString.lower(accountNumber),$0
-    )
-})
+open func initStorekitPayment(retryStrategy: RetryStrategy, accountNumber: String)async throws  -> ApiResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_init_storekit_payment(
+                    self.uniffiCloneHandle(),
+                    FfiConverterTypeRetryStrategy_lower(retryStrategy),FfiConverterString.lower(accountNumber)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeApiResponse_lift,
+            errorHandler: FfiConverterTypeApiContextError_lift
+        )
 }
     
 
@@ -1685,344 +1779,6 @@ public func FfiConverterTypeGotaTunTunnel_lift(_ handle: UInt64) throws -> GotaT
 #endif
 public func FfiConverterTypeGotaTunTunnel_lower(_ value: GotaTunTunnel) -> UInt64 {
     return FfiConverterTypeGotaTunTunnel.lower(value)
-}
-
-
-
-
-
-
-public protocol RequestCancelHandleProtocol: AnyObject, Sendable {
-    
-    /**
-     * Called by the Swift side to signal that a Mullvad API call should be cancelled.
-     * Does nothing on repeated calls.
-     */
-    func cancelTask() 
-    
-    /**
-     * Called by the Swift side to signal that a Mullvad API call should be started.
-     * Does nothing on repeated calls.
-     */
-    func startTask(completionCookie: RequestCompletion) 
-    
-}
-open class RequestCancelHandle: RequestCancelHandleProtocol, @unchecked Sendable {
-    fileprivate let handle: UInt64
-
-    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public struct NoHandle {
-        public init() {}
-    }
-
-    // TODO: We'd like this to be `private` but for Swifty reasons,
-    // we can't implement `FfiConverter` without making this `required` and we can't
-    // make it `required` without making it `public`.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    required public init(unsafeFromHandle handle: UInt64) {
-        self.handle = handle
-    }
-
-    // This constructor can be used to instantiate a fake object.
-    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
-    //
-    // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public init(noHandle: NoHandle) {
-        self.handle = 0
-    }
-
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public func uniffiCloneHandle() -> UInt64 {
-        return try! rustCall { uniffi_mullvad_ios_fn_clone_requestcancelhandle(self.handle, $0) }
-    }
-    // No primary constructor declared for this class.
-
-    deinit {
-        if handle == 0 {
-            // Mock objects have handle=0 don't try to free them
-            return
-        }
-
-        try! rustCall { uniffi_mullvad_ios_fn_free_requestcancelhandle(handle, $0) }
-    }
-
-    
-
-    
-    /**
-     * Called by the Swift side to signal that a Mullvad API call should be cancelled.
-     * Does nothing on repeated calls.
-     */
-open func cancelTask()  {try! rustCall() {
-    uniffi_mullvad_ios_fn_method_requestcancelhandle_cancel_task(
-            self.uniffiCloneHandle(),$0
-    )
-}
-}
-    
-    /**
-     * Called by the Swift side to signal that a Mullvad API call should be started.
-     * Does nothing on repeated calls.
-     */
-open func startTask(completionCookie: RequestCompletion)  {try! rustCall() {
-    uniffi_mullvad_ios_fn_method_requestcancelhandle_start_task(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeRequestCompletion_lower(completionCookie),$0
-    )
-}
-}
-    
-
-    
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeRequestCancelHandle: FfiConverter {
-    typealias FfiType = UInt64
-    typealias SwiftType = RequestCancelHandle
-
-    public static func lift(_ handle: UInt64) throws -> RequestCancelHandle {
-        return RequestCancelHandle(unsafeFromHandle: handle)
-    }
-
-    public static func lower(_ value: RequestCancelHandle) -> UInt64 {
-        return value.uniffiCloneHandle()
-    }
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RequestCancelHandle {
-        let handle: UInt64 = try readInt(&buf)
-        return try lift(handle)
-    }
-
-    public static func write(_ value: RequestCancelHandle, into buf: inout [UInt8]) {
-        writeInt(&buf, lower(value))
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeRequestCancelHandle_lift(_ handle: UInt64) throws -> RequestCancelHandle {
-    return try FfiConverterTypeRequestCancelHandle.lift(handle)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeRequestCancelHandle_lower(_ value: RequestCancelHandle) -> UInt64 {
-    return FfiConverterTypeRequestCancelHandle.lower(value)
-}
-
-
-
-
-
-
-public protocol RequestCompletion: AnyObject, Sendable {
-    
-    func finish(result: ApiResponse) 
-    
-}
-open class RequestCompletionImpl: RequestCompletion, @unchecked Sendable {
-    fileprivate let handle: UInt64
-
-    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public struct NoHandle {
-        public init() {}
-    }
-
-    // TODO: We'd like this to be `private` but for Swifty reasons,
-    // we can't implement `FfiConverter` without making this `required` and we can't
-    // make it `required` without making it `public`.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    required public init(unsafeFromHandle handle: UInt64) {
-        self.handle = handle
-    }
-
-    // This constructor can be used to instantiate a fake object.
-    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
-    //
-    // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public init(noHandle: NoHandle) {
-        self.handle = 0
-    }
-
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public func uniffiCloneHandle() -> UInt64 {
-        return try! rustCall { uniffi_mullvad_ios_fn_clone_requestcompletion(self.handle, $0) }
-    }
-    // No primary constructor declared for this class.
-
-    deinit {
-        if handle == 0 {
-            // Mock objects have handle=0 don't try to free them
-            return
-        }
-
-        try! rustCall { uniffi_mullvad_ios_fn_free_requestcompletion(handle, $0) }
-    }
-
-    
-
-    
-open func finish(result: ApiResponse)  {try! rustCall() {
-    uniffi_mullvad_ios_fn_method_requestcompletion_finish(
-            self.uniffiCloneHandle(),
-        FfiConverterTypeApiResponse_lower(result),$0
-    )
-}
-}
-    
-
-    
-}
-
-
-
-// Put the implementation in a struct so we don't pollute the top-level namespace
-fileprivate struct UniffiCallbackInterfaceRequestCompletion {
-
-    // Create the VTable using a series of closures.
-    // Swift automatically converts these into C callback functions.
-    //
-    // Store the vtable directly.
-    static let vtable: UniffiVTableCallbackInterfaceRequestCompletion = UniffiVTableCallbackInterfaceRequestCompletion(
-        uniffiFree: { (uniffiHandle: UInt64) -> () in
-            do {
-                try FfiConverterTypeRequestCompletion.handleMap.remove(handle: uniffiHandle)
-            } catch {
-                print("Uniffi callback interface RequestCompletion: handle missing in uniffiFree")
-            }
-        },
-        uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
-            do {
-                return try FfiConverterTypeRequestCompletion.handleMap.clone(handle: uniffiHandle)
-            } catch {
-                fatalError("Uniffi callback interface RequestCompletion: handle missing in uniffiClone")
-            }
-        },
-        finish: { (
-            uniffiHandle: UInt64,
-            result: RustBuffer,
-            uniffiOutReturn: UnsafeMutableRawPointer,
-            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
-        ) in
-            let makeCall = {
-                () throws -> () in
-                guard let uniffiObj = try? FfiConverterTypeRequestCompletion.handleMap.get(handle: uniffiHandle) else {
-                    throw UniffiInternalError.unexpectedStaleHandle
-                }
-                return uniffiObj.finish(
-                     result: try FfiConverterTypeApiResponse_lift(result)
-                )
-            }
-
-            
-            let writeReturn = { () }
-            uniffiTraitInterfaceCall(
-                callStatus: uniffiCallStatus,
-                makeCall: makeCall,
-                writeReturn: writeReturn
-            )
-        }
-    )
-
-    // Rust stores this pointer for future callback invocations, so it must live
-    // for the process lifetime (not just for the init function call).
-    //
-    // `nonisolated(unsafe)` is needed under Swift 6 strict concurrency.
-    // This is safe because the pointee is initialized once during static init
-    // and never mutated by either side of the FFI.  Its fields are C function pointers.
-    nonisolated(unsafe) static let vtablePtr: UnsafePointer<UniffiVTableCallbackInterfaceRequestCompletion> = {
-        let ptr = UnsafeMutablePointer<UniffiVTableCallbackInterfaceRequestCompletion>.allocate(capacity: 1)
-        ptr.initialize(to: vtable)
-        return UnsafePointer(ptr)
-    }()
-}
-
-private func uniffiCallbackInitRequestCompletion() {
-    uniffi_mullvad_ios_fn_init_callback_vtable_requestcompletion(UniffiCallbackInterfaceRequestCompletion.vtablePtr)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeRequestCompletion: FfiConverter {
-    fileprivate static let handleMap = UniffiHandleMap<RequestCompletion>()
-
-    typealias FfiType = UInt64
-    typealias SwiftType = RequestCompletion
-
-    public static func lift(_ handle: UInt64) throws -> RequestCompletion {
-        if ((handle & 1) == 0) {
-            // Rust-generated handle, construct a new class that uses the handle to implement the
-            // interface
-            return RequestCompletionImpl(unsafeFromHandle: handle)
-        } else {
-            // Swift-generated handle, get the object from the handle map
-            return try handleMap.remove(handle: handle)
-        }
-    }
-
-    public static func lower(_ value: RequestCompletion) -> UInt64 {
-         if let rustImpl = value as? RequestCompletionImpl {
-             // Rust-implemented object.  Clone the handle and return it
-            return rustImpl.uniffiCloneHandle()
-         } else {
-            // Swift object, generate a new vtable handle and return that.
-            return handleMap.insert(obj: value)
-         }
-    }
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RequestCompletion {
-        let handle: UInt64 = try readInt(&buf)
-        return try lift(handle)
-    }
-
-    public static func write(_ value: RequestCompletion, into buf: inout [UInt8]) {
-        writeInt(&buf, lower(value))
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeRequestCompletion_lift(_ handle: UInt64) throws -> RequestCompletion {
-    return try FfiConverterTypeRequestCompletion.lift(handle)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeRequestCompletion_lower(_ value: RequestCompletion) -> UInt64 {
-    return FfiConverterTypeRequestCompletion.lower(value)
 }
 
 
@@ -3097,6 +2853,92 @@ public func FfiConverterTypeProblemReportRequest_lower(_ value: ProblemReportReq
     return FfiConverterTypeProblemReportRequest.lower(value)
 }
 
+
+public enum ApiContextError: Swift.Error, Foundation.LocalizedError {
+
+    
+    
+    case ApiError(UInt16,String
+    )
+    case Other(AnyError
+    )
+
+    
+
+    
+
+    
+    public var errorDescription: String? {
+        String(reflecting: self)
+    }
+    
+}
+
+#if compiler(>=6)
+extension ApiContextError: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeApiContextError: FfiConverterRustBuffer {
+    typealias SwiftType = ApiContextError
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ApiContextError {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+
+        
+
+        
+        case 1: return .ApiError(
+            try FfiConverterUInt16.read(from: &buf), 
+            try FfiConverterString.read(from: &buf)
+            )
+        case 2: return .Other(
+            try FfiConverterTypeAnyError.read(from: &buf)
+            )
+
+         default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: ApiContextError, into buf: inout [UInt8]) {
+        switch value {
+
+        
+
+        
+        
+        case let .ApiError(v1,v2):
+            writeInt(&buf, Int32(1))
+            FfiConverterUInt16.write(v1, into: &buf)
+            FfiConverterString.write(v2, into: &buf)
+            
+        
+        case let .Other(v1):
+            writeInt(&buf, Int32(2))
+            FfiConverterTypeAnyError.write(v1, into: &buf)
+            
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeApiContextError_lift(_ buf: RustBuffer) throws -> ApiContextError {
+    return try FfiConverterTypeApiContextError.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeApiContextError_lower(_ value: ApiContextError) -> RustBuffer {
+    return FfiConverterTypeApiContextError.lower(value)
+}
+
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
@@ -4109,61 +3951,52 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_use_access_method() != 12521) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_create_account() != 41832) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_create_account() != 25369) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_account() != 38112) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_account() != 15379) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 11520) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_account() != 19914) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_api_addrs_available() != 37698) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_api_addrs_available() != 58462) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_addresses() != 6260) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_addresses() != 51223) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 15144) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_relays() != 52941) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 4233) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_create_device() != 15564) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_device() != 65370) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_delete_device() != 622) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_device() != 62549) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_device() != 46734) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_get_devices() != 15065) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_get_devices() != 19751) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 10270) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 25852) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad() != 38253) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 59490) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 63507) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 52986) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_check_storekit_payment() != 40138) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment() != 63152) {
+    if (uniffi_mullvad_ios_checksum_method_apicontext_init_storekit_payment() != 25850) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_shadowsocksbridgeprovider_bridge() != 3536) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_method_requestcancelhandle_cancel_task() != 26405) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_method_requestcancelhandle_start_task() != 60422) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_method_requestcompletion_finish() != 22882) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_anyerror_error() != 14183) {
@@ -4213,7 +4046,6 @@ private let initializationResult: InitializationResult = {
     }
 
     uniffiCallbackInitAccessMethodChangeCallback()
-    uniffiCallbackInitRequestCompletion()
     uniffiCallbackInitShadowsocksBridgeProvider()
     uniffiCallbackInitGotaTunCallback()
     return InitializationResult.ok

@@ -23,105 +23,119 @@ public struct MullvadApiRequestFactory: Sendable {
     public func makeRequest(_ request: APIRequest) throws -> MullvadApiCancellable {
         switch request {
         case let .getAddressList(retryStrategy):
-            return MullvadApiCancellable(
-                handle: apiContext.getAddresses(
+            return MullvadApiCancellable {
+                try await apiContext.getAddresses(
                     retryStrategy: retryStrategy.toRustStrategy()
-                ))
+                )
+            }
 
         case let .getRelayList(retryStrategy, digest, timestamp):
-            return MullvadApiCancellable(
-                handle: apiContext.getRelays(
+            return MullvadApiCancellable {
+                try await apiContext.getRelays(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     digest: digest,
                     digestTimestamp: timestamp
-                ))
+                )
+            }
 
         case let .sendProblemReport(retryStrategy, problemReportRequest):
-            return MullvadApiCancellable(
-                handle: apiContext.sendProblemReport(
+            return MullvadApiCancellable {
+                try await apiContext.sendProblemReport(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     request: problemReportRequest
-                ))
+                )
+            }
         case let .getAccount(retryStrategy, accountNumber: accountNumber):
-            return MullvadApiCancellable(
-                handle: apiContext.getAccount(
+            return MullvadApiCancellable {
+                try await apiContext.getAccount(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
-                ))
+                )
+            }
         case let .createAccount(retryStrategy):
-            return MullvadApiCancellable(
-                handle: apiContext.createAccount(
+            return MullvadApiCancellable {
+                try await apiContext.createAccount(
                     retryStrategy: retryStrategy.toRustStrategy()
-                ))
+                )
+            }
         case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
-            return MullvadApiCancellable(
-                handle: apiContext.deleteAccount(
+            return MullvadApiCancellable {
+                try await apiContext.deleteAccount(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
-                ))
+                )
+            }
 
         // Device Proxy
         case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
-            return MullvadApiCancellable(
-                handle: apiContext.getDevice(
+            return MullvadApiCancellable {
+                try await apiContext.getDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier
-                ))
+                )
+            }
 
         case let .getDevices(retryStrategy, accountNumber):
-            return MullvadApiCancellable(
-                handle: apiContext.getDevices(
+            return MullvadApiCancellable {
+                try await apiContext.getDevices(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
-                ))
+                )
+            }
 
         case let .deleteDevice(retryStrategy, accountNumber, identifier):
-            return MullvadApiCancellable(
-                handle: apiContext.deleteDevice(
+            return MullvadApiCancellable {
+                try await apiContext.deleteDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier
-                ))
+                )
+            }
         case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
-            return MullvadApiCancellable(
-                handle: apiContext.rotateDeviceKey(
+            return MullvadApiCancellable {
+                try await apiContext.rotateDeviceKey(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier,
                     publicKey: publicKey.rawValue
-                ))
+                )
+            }
         case let .createDevice(retryStrategy, accountNumber, request):
-            return MullvadApiCancellable(
-                handle: apiContext.createDevice(
+            return MullvadApiCancellable {
+                try await apiContext.createDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     publicKey: request.publicKey.rawValue
-                ))
+                )
+            }
         case let .checkApiAvailability(retryStrategy, accessMethod):
-            return MullvadApiCancellable(
-                handle: apiContext.apiAddrsAvailable(
+            return MullvadApiCancellable {
+                try await apiContext.apiAddrsAvailable(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!
-                ))
+                )
+            }
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber
         ):
-            return MullvadApiCancellable(
-                handle: apiContext.initStorekitPayment(
+            return MullvadApiCancellable {
+                try await apiContext.initStorekitPayment(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
-                ))
+                )
+            }
         case let .checkStorekitPayment(
             retryStrategy: retryStrategy,
             transaction: transaction
         ):
-            return MullvadApiCancellable(
-                handle: apiContext.checkStorekitPayment(
+            return MullvadApiCancellable {
+                try await apiContext.checkStorekitPayment(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     body: try encoder.encode(transaction)
-                ))
+                )
+            }
         }
     }
 }

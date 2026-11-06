@@ -11,20 +11,40 @@
 import MullvadTypes
 
 public final class MullvadApiCancellable: Cancellable, Sendable {
-    private let handle: RequestCancelHandle
+    private let handle: Task<ApiResponse, Error>
 
-    public init(handle: consuming RequestCancelHandle) {
-        self.handle = handle
+    public init(_ task: @Sendable @escaping () async throws -> ApiResponse) {
+        self.handle = Task {
+            try await task()
+        }
     }
 
-    public func start(_ completion: (@Sendable (ApiResponse) throws -> Void)?) {
-        let completionCookie = MullvadApiCompletion { apiResponse in
-            try? completion?(apiResponse)
+    public func start(_ completion: (@Sendable (ApiResponse) -> Void)?) {
+        Task {
+            let response: ApiResponse
+            do {
+                response = try await handle.value
+            } catch {
+                if let error = error as? ApiContextError,
+                    case let .ApiError(statusCode, errorDescription) = error
+                {
+                    response = .error(
+                        statusCode: statusCode,
+                        errorDescription: nil,
+                        serverResponseCode: errorDescription)
+                } else {
+                    response = .error(
+                        statusCode: 0,
+                        errorDescription: error.localizedDescription,
+                        serverResponseCode: nil)
+                }
+            }
+
+            completion?(response)
         }
-        handle.startTask(completionCookie: completionCookie)
     }
 
     public func cancel() {
-        handle.cancelTask()
+        handle.cancel()
     }
 }
