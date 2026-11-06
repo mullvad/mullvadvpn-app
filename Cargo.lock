@@ -5908,6 +5908,7 @@ dependencies = [
  "talpid-tunnel",
  "talpid-types",
  "talpid-windows",
+ "talpid-winfw",
  "talpid-wireguard",
  "test-log",
  "thiserror 2.0.19",
@@ -5915,8 +5916,6 @@ dependencies = [
  "tokio-util",
  "tun",
  "typed-builder 0.20.1",
- "wfp",
- "widestring",
  "windows",
  "windows-registry",
  "windows-service",
@@ -6150,6 +6149,19 @@ dependencies = [
  "talpid-error",
  "thiserror 2.0.19",
  "tokio",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "talpid-winfw"
+version = "0.0.0"
+dependencies = [
+ "insta",
+ "ipnetwork",
+ "log",
+ "talpid-types",
+ "thiserror 2.0.19",
+ "wfp",
  "windows-sys 0.61.2",
 ]
 
@@ -7337,9 +7349,9 @@ dependencies = [
 
 [[package]]
 name = "wfp"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f0382780f5db1e7101e69eb4f9b5950463e75c115967e805bef66968786c97c"
+checksum = "d1a00d160bcc49e02afc5fc587e22ff2329f31b821970be0686be6492a414226"
 dependencies = [
  "log",
  "windows-sys 0.61.2",
