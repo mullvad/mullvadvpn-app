@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
@@ -103,6 +104,8 @@ class ConnectViewModelTest {
 
     private val mockMultihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase = mockk()
 
+    private val mockActivityLifecycle: Lifecycle = mockk(relaxed = true)
+
     @BeforeEach
     fun setup() {
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -148,6 +151,7 @@ class ConnectViewModelTest {
                 connectionPath = mockConnectionPathUseCase,
                 multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
                 hasShownNotificationPromptRepository = mockk(relaxed = true),
+                activityLifecycle = mockActivityLifecycle,
             )
     }
 

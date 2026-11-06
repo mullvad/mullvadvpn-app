@@ -2,15 +2,18 @@ package net.mullvad.mullvadvpn.feature.home.impl.connect
 
 import android.net.Uri
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.applisting.api.ResolveAppListingUseCase
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.DEVICE_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.daysLeft
 import net.mullvad.mullvadvpn.lib.common.util.launchOnStart
@@ -66,6 +70,7 @@ class ConnectViewModel(
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
     private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
+    activityLifecycle: Lifecycle,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -77,7 +82,6 @@ class ConnectViewModel(
             showNotificationPromptEffect(),
         )
 
-    @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 connectionPath(),
@@ -148,7 +152,9 @@ class ConnectViewModel(
                 accountRepository.refreshAccountData()
             }
         }
-        viewModelScope.launch { deviceRepository.updateDevice() }
+        viewModelScope.launch {
+            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { pollDeviceState() }
+        }
     }
 
     fun onDisconnectClick() {
@@ -252,6 +258,16 @@ class ConnectViewModel(
         hasShownNotificationPromptRepository.hasShowNotificationPrompt
             .filter { !it }
             .map { UiSideEffect.ShowNotificationPermissionPrompt }
+
+    private suspend fun pollDeviceState() {
+        while (true) {
+            // Ignore if we are connected, it should be handled by the relay instead
+            if (connectionProxy.tunnelState.first() !is TunnelState.Connected) {
+                deviceRepository.updateDevice()
+            }
+            delay(DEVICE_POLL_INTERVAL)
+        }
+    }
 
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect

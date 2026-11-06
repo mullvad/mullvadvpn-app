@@ -324,7 +324,7 @@ val uiModule = module {
             multihopGuideMigrationHintUseCase = get(),
         )
     }
-    viewModel {
+    viewModel { params ->
         ConnectViewModel(
             accountRepository = get(),
             deviceRepository = get(),
@@ -344,6 +344,7 @@ val uiModule = module {
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
             hasShownNotificationPromptRepository = get(),
+            activityLifecycle = params.get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
