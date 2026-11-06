@@ -36,9 +36,9 @@ import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic.Companion.VERIFICA
 
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
+    deviceRepository: DeviceRepository,
     activityLifecycle: Lifecycle,
     isPlayBuild: Boolean,
 ) : ViewModel() {
@@ -50,12 +50,12 @@ class WelcomeViewModel(
                 connectionProxy.tunnelState,
                 deviceRepository.deviceState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
-            ) { tunnelState, accountState, paymentAvailability ->
+            ) { tunnelState, deviceState, paymentAvailability ->
                 Lc.Content(
                     WelcomeUiState(
                         tunnelState = tunnelState,
-                        accountNumber = accountState.accountNumber(),
-                        deviceName = accountState.displayName(),
+                        accountNumber = deviceState.accountNumber(),
+                        deviceName = deviceState.displayName(),
                         showSitePayment = !isPlayBuild,
                         paymentStatus = paymentAvailability?.status(),
                     ),
@@ -76,7 +76,6 @@ class WelcomeViewModel(
                 pollPurchaseVerification()
             }
         }
-        viewModelScope.launch { deviceRepository.updateDevice() }
         viewModelScope.launch {
             val accountNumber = uiState.mapNotNull { it.contentOrNull()?.accountNumber }.first()
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
