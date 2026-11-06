@@ -49,27 +49,6 @@ pub enum LwoVersion {
 }
 
 impl Obfuscators {
-    /// Create a multiplexer obfuscator configuration.
-    ///
-    /// See [Obfuscators::Multiplexer] for more details.
-    ///
-    /// # Arguments
-    /// * `direct` - Optional direct connection endpoint (no obfuscation)
-    /// * `obfuscators` - List of obfuscation methods to try, at least one.
-    ///
-    /// # Returns
-    /// * `Some(Obfuscators::Multiplexer)` if at least one obfuscation method is provided
-    /// * `None` if the obfuscators list is empty
-    pub fn multiplexer(
-        direct: Option<SocketAddr>,
-        obfuscators: &[ObfuscatorConfig],
-    ) -> Option<Self> {
-        Some(Obfuscators::Multiplexer {
-            direct,
-            configs: Vec1::try_from(obfuscators).ok()?,
-        })
-    }
-
     /// Return all potential endpoints that this obfuscation configuration might connect to.
     ///
     /// For single obfuscators, return one endpoint. For `Obfuscators::Multiplexer`, return
@@ -99,7 +78,7 @@ impl Obfuscators {
     pub fn obfuscator_configs(&self) -> Vec<ObfuscatorConfig> {
         match self {
             Obfuscators::Single(config) => vec![config.clone()],
-            Obfuscators::Multiplexer { configs, .. } => configs.iter().cloned().collect(),
+            Obfuscators::Multiplexer { configs, .. } => configs.to_vec(),
         }
     }
 
