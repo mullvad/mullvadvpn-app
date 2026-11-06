@@ -126,7 +126,7 @@ class MultihopMigrationUiStatePreviewParameterProvider :
                             currentPageIndex = index,
                             entryLocation = null,
                             multihopMode = null,
-                        )
+                        ),
                     )
                 }
             }

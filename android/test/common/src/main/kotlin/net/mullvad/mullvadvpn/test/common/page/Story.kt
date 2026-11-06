@@ -98,7 +98,7 @@ fun ConnectPage.enableServerIpOverrideStory(relay: String, overrideIp: String) {
     on<ImportOverridesBottomSheet> { clickText() }
     on<ImportViaTextPage> {
         input(
-            "{ \"relay_overrides\": [ { \"hostname\": \"$relay\", \"ipv4_addr_in\": \"$overrideIp\" } ] }"
+            "{ \"relay_overrides\": [ { \"hostname\": \"$relay\", \"ipv4_addr_in\": \"$overrideIp\" } ] }",
         )
         uiDevice.waitForStableInActiveWindow()
         clickImport()

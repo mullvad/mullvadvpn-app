@@ -85,7 +85,7 @@ class SplitTunnelingScreenTest {
                         includedApps = listOf(includedApp),
                         showSystemApps = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -111,7 +111,7 @@ class SplitTunnelingScreenTest {
                         includedApps = listOf(includedApp),
                         showSystemApps = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert

@@ -82,7 +82,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     @Suppress("Unused") fun bypass(socket: Int): Boolean = protect(socket)
 
     private fun createTun(
-        config: TunConfig
+        config: TunConfig,
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
 
@@ -171,7 +171,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         }
 
     private fun Builder.addDnsServersSafe(
-        config: TunConfig
+        config: TunConfig,
     ): Either<ConfigError.InvalidDns, Builder> {
         // We don't care if adding DNS servers fails at this point, since we can still create a
         // tunnel to consume traffic and then notify daemon to later enter blocked state.
@@ -192,7 +192,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         if (shouldAddFallbackDns) {
             Logger.w(
                 "All DNS servers invalid or non set, using fallback DNS server to " +
-                    "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
+                    "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}",
             )
             addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
         }
@@ -209,7 +209,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
 
     private fun Builder.addAddressesAndRoutesSafe(
-        config: TunConfig
+        config: TunConfig,
     ): Either<ConfigError.InvalidIpv6, Builder> =
         if (config.validIpv6Routes()) {
             config.addresses.forEach { addAddress(it, it.prefixLength()) }

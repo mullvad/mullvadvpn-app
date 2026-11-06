@@ -90,7 +90,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewEditApiAccessMethodScreen(
     @PreviewParameter(EditApiAccessMethodUiStatePreviewParameterProvider::class)
-    state: EditApiAccessMethodUiState
+    state: EditApiAccessMethodUiState,
 ) {
     AppTheme {
         EditApiAccessMethodScreen(
@@ -128,7 +128,7 @@ fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Naviga
                         id = it.id,
                         name = it.name,
                         customProxy = it.customProxy,
-                    )
+                    ),
                 )
 
             is EditApiAccessSideEffect.TestApiAccessMethodResult -> {
@@ -140,8 +140,8 @@ fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Naviga
                                     R.string.api_reachable
                                 } else {
                                     R.string.api_unreachable
-                                }
-                            )
+                                },
+                            ),
                     )
                 }
             }
@@ -157,7 +157,7 @@ fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Naviga
             // Show error snackbar
             scope.launch {
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred),
                 )
             }
         }
@@ -228,7 +228,7 @@ fun EditApiAccessMethodScreen(
                     R.string.edit_method
                 } else {
                     R.string.add_method
-                }
+                },
             ),
     ) { modifier ->
         val scrollState = rememberScrollState()
@@ -240,7 +240,7 @@ fun EditApiAccessMethodScreen(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .verticalScroll(scrollState)
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin)
+                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin),
         ) {
             when (state) {
                 is EditApiAccessMethodUiState.Loading -> Loading()
@@ -447,7 +447,7 @@ private fun ServerIpInput(
 
                             InvalidDataError.ServerIpError.Required ->
                                 R.string.this_field_is_required
-                        }
+                        },
                 )
             },
         modifier = Modifier.animateContentSize(),
@@ -476,7 +476,7 @@ private fun PortInput(
                                 R.string.please_enter_a_valid_remote_server_port
 
                             InvalidDataError.PortError.Required -> R.string.this_field_is_required
-                        }
+                        },
                 )
             },
         modifier = Modifier.animateContentSize(),
@@ -523,8 +523,8 @@ private fun PasswordInput(
                             R.string.password_optional
                         } else {
                             R.string.password
-                        }
-                )
+                        },
+                ),
             )
         },
         trailingIcon = {
@@ -599,7 +599,7 @@ private fun EnableAuthentication(
                         R.string.on
                     } else {
                         R.string.off
-                    }
+                    },
             ),
         colors = mullvadDarkTextFieldColors(),
     ) { close ->
@@ -668,7 +668,7 @@ private fun AddMethodButton(isNew: Boolean, onAddMethod: () -> Unit) {
                         R.string.add
                     } else {
                         R.string.save
-                    }
+                    },
             ),
     )
 }
@@ -680,5 +680,5 @@ private fun ApiAccessMethodTypes.text(): String =
             when (this) {
                 ApiAccessMethodTypes.SHADOWSOCKS -> R.string.shadowsocks
                 ApiAccessMethodTypes.SOCKS5_REMOTE -> R.string.socks5_remote
-            }
+            },
     )

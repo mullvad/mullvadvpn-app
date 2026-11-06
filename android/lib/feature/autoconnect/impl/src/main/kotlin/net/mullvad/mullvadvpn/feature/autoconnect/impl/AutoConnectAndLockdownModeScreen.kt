@@ -79,7 +79,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewAutoConnectAndLockdownModeScreen(
     @PreviewParameter(AutoConnectAndLockdownModeUiStatePreviewParameterProvider::class)
-    state: AutoConnectAndLockdownModeUiState
+    state: AutoConnectAndLockdownModeUiState,
 ) {
     AppTheme { AutoConnectAndLockdownModeScreen(state = state, onBackClick = {}) }
 }
@@ -114,8 +114,8 @@ fun AutoConnectAndLockdownModeScreen(
                 modifier =
                     Modifier.windowInsetsPadding(
                             WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                            )
+                                WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                            ),
                         )
                         .padding(
                             horizontal = Dimens.sideMarginNew,
@@ -230,7 +230,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 modifier = Modifier.padding(horizontal = Dimens.largePadding),
                 style =
                     MaterialTheme.typography.labelLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                 text = annotatedTopText,
             )
@@ -254,7 +254,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                                 SpanStyle(
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.onSurface,
-                                )
+                                ),
                         ),
             )
         }
@@ -285,7 +285,7 @@ private fun ConstraintLayoutScope.PageIndicator(
 ) {
     Row(
         Modifier.wrapContentHeight().fillMaxWidth().padding(top = Dimens.mediumSpacer).constrainAs(
-            pageIndicatorRef
+            pageIndicatorRef,
         ) {
             top.linkTo(pager.bottom)
             end.linkTo(parent.end)
@@ -303,7 +303,7 @@ private fun ConstraintLayoutScope.PageIndicator(
                     Modifier.padding(Dimens.indicatorPadding)
                         .clip(CircleShape)
                         .background(color)
-                        .size(Dimens.indicatorSize)
+                        .size(Dimens.indicatorSize),
             )
         }
     }
@@ -321,20 +321,20 @@ private fun buildLockdownTopText(isPlayBuild: Boolean) = buildAnnotatedString {
 
     withLink(
         LinkAnnotation.Url(
-            stringResource(id = R.string.lockdown_url).appendHideNavOnPlayBuild(isPlayBuild)
-        )
+            stringResource(id = R.string.lockdown_url).appendHideNavOnPlayBuild(isPlayBuild),
+        ),
     ) {
         withStyle(
             style =
                 SpanStyle(
                     color = MaterialTheme.colorScheme.onSurface,
                     textDecoration = TextDecoration.Underline,
-                )
+                ),
         ) {
             append(
                 stringResource(
-                    id = R.string.auto_connect_carousel_third_slide_top_text_website_link
-                )
+                    id = R.string.auto_connect_carousel_third_slide_top_text_website_link,
+                ),
             )
             append(".")
         }

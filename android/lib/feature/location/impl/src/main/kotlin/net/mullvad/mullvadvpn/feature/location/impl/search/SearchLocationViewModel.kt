@@ -137,7 +137,7 @@ class SearchLocationViewModel(
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
-                    )
+                    ),
                 )
             }
             .stateIn(
@@ -164,7 +164,7 @@ class SearchLocationViewModel(
                         when (relayListType.hopType) {
                             RelayHopType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
                             RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
-                        }
+                        },
                     )
 
                 RelayListType.Single -> selectSinglehop(item = relayItem)
@@ -189,7 +189,7 @@ class SearchLocationViewModel(
                 {
                     change.itemOrNull()?.let { changedItem ->
                         _uiSideEffect.send(
-                            it.toSideEffect(change = change, changedItem = changedItem)
+                            it.toSideEffect(change = change, changedItem = changedItem),
                         )
                     }
                 },

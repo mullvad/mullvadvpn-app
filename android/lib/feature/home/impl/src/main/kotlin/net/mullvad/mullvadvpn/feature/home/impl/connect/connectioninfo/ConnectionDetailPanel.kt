@@ -99,7 +99,7 @@ fun ConnectionDetails(
                     bottom.linkTo(inAddrBarrier)
                     height = Dimension.wrapContent
                     width = Dimension.fillToConstraints
-                }
+                },
         ) {
             Text(
                 text = inIPV4,
@@ -141,7 +141,7 @@ fun ConnectionDetails(
                         bottom.linkTo(outAddrV4Barrier)
                         height = Dimension.wrapContent
                         width = Dimension.fillToConstraints
-                    }
+                    },
             ) {
                 val outIpV4Text =
                     @Composable {
@@ -192,7 +192,7 @@ fun ConnectionDetails(
                         bottom.linkTo(outAddrV6Barrier)
                         height = Dimension.wrapContent
                         width = Dimension.fillToConstraints
-                    }
+                    },
             ) {
                 val outIpV6Text =
                     @Composable {
@@ -235,7 +235,7 @@ fun TunnelEndpoint.toInAddress(): String {
             when (protocol) {
                 TransportProtocol.Tcp -> stringResource(id = R.string.tcp)
                 TransportProtocol.Udp -> stringResource(id = R.string.udp)
-            }
+            },
         )
     }
 }

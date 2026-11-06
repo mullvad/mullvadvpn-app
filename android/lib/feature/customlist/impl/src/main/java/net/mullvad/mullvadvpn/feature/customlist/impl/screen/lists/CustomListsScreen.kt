@@ -53,7 +53,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview("Content|Empty|Loading")
 @Composable
 private fun PreviewAccountScreen(
-    @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState
+    @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState,
 ) {
     AppTheme {
         CustomListsScreen(

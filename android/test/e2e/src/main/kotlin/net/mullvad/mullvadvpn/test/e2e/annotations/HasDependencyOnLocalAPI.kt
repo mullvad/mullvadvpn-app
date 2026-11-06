@@ -16,18 +16,18 @@ import org.junit.jupiter.api.extension.ExtensionContext
 annotation class HasDependencyOnLocalAPI {
     class ShouldRunWhenHaveAccessToLocalAPI : ExecutionCondition {
         override fun evaluateExecutionCondition(
-            context: ExtensionContext?
+            context: ExtensionContext?,
         ): ConditionEvaluationResult {
 
             val enable = InstrumentationRegistry.getArguments().isRaasEnabled()
 
             return if (enable) {
                 ConditionEvaluationResult.enabled(
-                    "Running test which requires access to local APIs."
+                    "Running test which requires access to local APIs.",
                 )
             } else {
                 ConditionEvaluationResult.disabled(
-                    "Skipping test which requires access to local APIs."
+                    "Skipping test which requires access to local APIs.",
                 )
             }
         }

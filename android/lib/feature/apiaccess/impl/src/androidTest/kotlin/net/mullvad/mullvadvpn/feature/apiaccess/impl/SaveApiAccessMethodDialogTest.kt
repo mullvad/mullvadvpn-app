@@ -40,7 +40,7 @@ class SaveApiAccessMethodDialogTest {
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Testing,
                     isSaving = false,
-                )
+                ),
         )
 
         // Assert
@@ -56,7 +56,7 @@ class SaveApiAccessMethodDialogTest {
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Failure,
                     isSaving = false,
-                )
+                ),
         )
 
         // Assert
@@ -72,7 +72,7 @@ class SaveApiAccessMethodDialogTest {
                 SaveApiAccessMethodUiState(
                     testingState = TestApiAccessMethodState.Result.Successful,
                     isSaving = true,
-                )
+                ),
         )
 
         // Assert

@@ -19,7 +19,7 @@ sealed interface NotificationSettingsSideEffect {
 }
 
 class NotificationSettingsViewModel(
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<NotificationSettingsSideEffect>()
@@ -30,7 +30,7 @@ class NotificationSettingsViewModel(
             .preferencesFlow()
             .map { settings ->
                 NotificationSettingsUiState(
-                        locationInNotificationEnabled = settings.showLocationInSystemNotification
+                        locationInNotificationEnabled = settings.showLocationInSystemNotification,
                     )
                     .toLc<Unit, NotificationSettingsUiState>()
             }

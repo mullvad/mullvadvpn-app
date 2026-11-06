@@ -18,7 +18,7 @@ class ScheduleNotificationBootCompletedReceiver : BroadcastReceiver(), KoinCompo
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             context?.let {
                 Logger.d(
-                    "Scheduling notification alarm from ScheduleNotificationBootCompletedReceiver"
+                    "Scheduling notification alarm from ScheduleNotificationBootCompletedReceiver",
                 )
                 goAsync { scheduleAccountExpiryNotification(context) }
             }

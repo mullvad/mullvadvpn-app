@@ -58,7 +58,7 @@ class WelcomeViewModel(
                         deviceName = accountState.displayName(),
                         showSitePayment = !isPlayBuild,
                         paymentStatus = paymentAvailability?.status(),
-                    )
+                    ),
                 )
             }
             .stateIn(

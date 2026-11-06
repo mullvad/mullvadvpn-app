@@ -46,7 +46,7 @@ class HopSelectionUseCase(
                 )
             } else {
                 HopSelection.Single(
-                    selectedExitLocation.toRelayItemConstraint(customLists, relayList)
+                    selectedExitLocation.toRelayItemConstraint(customLists, relayList),
                 )
             }
         }

@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownMod
 
 fun EntryProviderScope<NavKey2>.autoConnectEntry(navigator: Navigator) {
     entry<AutoConnectNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) {
         AutoConnectAndLockdownMode(navigator = navigator)
     }

@@ -92,7 +92,7 @@ class TalpidVpnServiceInvalidIpv6ConfigTest {
             baseTunConfig.copy(
                 routes =
                     (baseTunConfig.routes + listOf(InetNetwork(Inet6Address.getByName("::"), 0)))
-                        as ArrayList<InetNetwork>
+                        as ArrayList<InetNetwork>,
             )
 
         val result = talpidVpnService.openTun(tunConfig)
@@ -106,7 +106,7 @@ class TalpidVpnServiceInvalidIpv6ConfigTest {
             baseTunConfig.copy(
                 addresses =
                     (baseTunConfig.addresses + listOf(Inet6Address.getByName("::")))
-                        as ArrayList<InetAddress>
+                        as ArrayList<InetAddress>,
             )
 
         val result = talpidVpnService.openTun(tunConfig)
@@ -118,7 +118,7 @@ class TalpidVpnServiceInvalidIpv6ConfigTest {
     fun `config with only a IPv6 dns server should return InvalidIpv6Config`() {
         val tunConfig =
             baseTunConfig.copy(
-                dnsServers = mutableListOf(Inet6Address.getByName("::")) as ArrayList<InetAddress>
+                dnsServers = mutableListOf(Inet6Address.getByName("::")) as ArrayList<InetAddress>,
             )
 
         val result = talpidVpnService.openTun(tunConfig)

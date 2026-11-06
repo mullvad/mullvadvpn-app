@@ -551,7 +551,7 @@ class ConnectionTest : EndToEndTest() {
 
     @Test
     @Disabled(
-        "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. "
+        "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. ",
     )
     fun testConnectUsingIpv6() = runTest {
         // Given

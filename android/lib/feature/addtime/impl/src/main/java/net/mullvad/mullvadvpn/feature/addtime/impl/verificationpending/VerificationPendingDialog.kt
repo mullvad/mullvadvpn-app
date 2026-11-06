@@ -41,8 +41,8 @@ fun VerificationPendingDialog(paymentStatus: PaymentStatus, onClose: () -> Unit)
                                 PaymentStatus.PENDING -> R.string.verifying_purchase
                                 PaymentStatus.PURCHASED_UNVERIFIED ->
                                     R.string.verifying_purchase_error
-                            }
-                    )
+                            },
+                    ),
             )
         },
         text = {
@@ -54,7 +54,7 @@ fun VerificationPendingDialog(paymentStatus: PaymentStatus, onClose: () -> Unit)
                                 PaymentStatus.PENDING -> R.string.payment_pending_dialog_message
                                 PaymentStatus.PURCHASED_UNVERIFIED ->
                                     R.string.verification_failed_dialog_message
-                            }
+                            },
                     ),
                 style = MaterialTheme.typography.labelLarge,
             )

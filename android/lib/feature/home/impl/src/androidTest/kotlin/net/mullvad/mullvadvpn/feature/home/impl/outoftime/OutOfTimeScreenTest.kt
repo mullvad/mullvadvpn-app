@@ -139,7 +139,7 @@ class OutOfTimeScreenTest {
         initScreen(
             state =
                 OutOfTimeUiState(showSitePayment = true, paymentStatus = PaymentStatus.PENDING)
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert

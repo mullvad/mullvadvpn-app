@@ -50,7 +50,7 @@ private fun PreviewLanguageScreen() {
                                     displayName = "Svenska",
                                     isSelected = false,
                                 ),
-                            )
+                            ),
                     )
                     .toLc(),
             onLanguageSelected = {},

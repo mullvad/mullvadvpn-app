@@ -66,7 +66,7 @@ class SelectLocationScreenTest {
             module {
                 viewModel { listViewModel }
                 viewModel { bottomSheetViewModel }
-            }
+            },
         )
         every { listViewModel.uiState } returns MutableStateFlow(Lce.Loading(Unit))
         every { bottomSheetViewModel.uiState } returns MutableStateFlow(Lc.Loading(Unit))
@@ -157,8 +157,8 @@ class SelectLocationScreenTest {
                                 )
                             },
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         initScreen(state = Lc.Content(defaultUiState()))
 
@@ -181,8 +181,8 @@ class SelectLocationScreenTest {
                         relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                         relayListType = RelayListType.Single,
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         initScreen(state = Lc.Content(defaultUiState()))
 
@@ -201,8 +201,8 @@ class SelectLocationScreenTest {
                         relayListItems = listOf(RelayListItem.CustomListItem(customList)),
                         relayListType = RelayListType.Single,
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
@@ -228,8 +228,8 @@ class SelectLocationScreenTest {
                         relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
                         relayListType = RelayListType.Single,
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
@@ -255,8 +255,8 @@ class SelectLocationScreenTest {
                         relayListItems = listOf(RelayListItem.CustomListItem(item = customList)),
                         relayListType = RelayListType.Single,
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         every { bottomSheetViewModel.uiState } returns
             MutableStateFlow(
@@ -266,8 +266,8 @@ class SelectLocationScreenTest {
                         setAsExitState = SetAsState.HIDDEN,
                         setAsEntryState = SetAsState.ENABLED,
                         canDisableMultihop = false,
-                    )
-                )
+                    ),
+                ),
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
@@ -294,12 +294,12 @@ class SelectLocationScreenTest {
                                     itemPosition = Position.Single,
                                     hierarchy = Hierarchy.Parent,
                                     needsOtherEntry = false,
-                                )
+                                ),
                             ),
                         relayListType = RelayListType.Single,
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         every { bottomSheetViewModel.uiState } returns
             MutableStateFlow(
@@ -310,8 +310,8 @@ class SelectLocationScreenTest {
                         setAsExitState = SetAsState.HIDDEN,
                         setAsEntryState = SetAsState.ENABLED,
                         canDisableMultihop = false,
-                    )
-                )
+                    ),
+                ),
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
@@ -341,8 +341,8 @@ class SelectLocationScreenTest {
                                 ),
                             relayListType = RelayListType.Single,
                             recentsEnabled = false,
-                        )
-                    )
+                        ),
+                    ),
                 )
             initScreen(state = Lc.Content(defaultUiState()))
 
@@ -373,8 +373,8 @@ class SelectLocationScreenTest {
                                 ),
                             relayListType = RelayListType.Single,
                             recentsEnabled = false,
-                        )
-                    )
+                        ),
+                    ),
                 )
             initScreen(state = Lc.Content(defaultUiState().copy(isRecentsEnabled = false)))
 
@@ -404,15 +404,15 @@ class SelectLocationScreenTest {
                                 selectedItem = null,
                             ),
                         recentsEnabled = false,
-                    )
-                )
+                    ),
+                ),
             )
         initScreen(
             state =
                 Lc.Content(
                     defaultUiState()
-                        .copy(isSearchButtonEnabled = false, isEntryFilterButtonEnabled = false)
-                )
+                        .copy(isSearchButtonEnabled = false, isEntryFilterButtonEnabled = false),
+                ),
         )
 
         // Assert

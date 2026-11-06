@@ -47,7 +47,7 @@ fun DeviceListItem(
         trailingContent = {
             if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
-                    modifier = Modifier.padding(Dimens.smallPadding)
+                    modifier = Modifier.padding(Dimens.smallPadding),
                 )
             } else if (isCurrentDevice) {
                 Text(

@@ -73,7 +73,7 @@ fun stringResourceWithIcons(
                 width = 1.5.em,
                 height = 1.5.em,
                 placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
-            )
+            ),
         ) {
             Icon(
                 imageVector = icon.icon,

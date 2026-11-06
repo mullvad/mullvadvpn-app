@@ -86,7 +86,7 @@ class SelectLocationViewModelTest {
             FilterActiveState(
                 hasAnyEntryFilter = false,
                 hasAnyExitFilter = false,
-            )
+            ),
         )
 
     @BeforeEach

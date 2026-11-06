@@ -113,7 +113,7 @@ fun DeleteAccountConfirmation(navigator: Navigator) {
 
             is DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed ->
                 snackbarHostState.showSnackbarImmediately(
-                    it.deleteAccountError.toErrorMessage(resources)
+                    it.deleteAccountError.toErrorMessage(resources),
                 )
         }
     }

@@ -65,7 +65,7 @@ class EditCustomListNameDialogTest {
         // Arrange
         val state =
             EditCustomListNameUiState(
-                error = RenameError(NameAlreadyExists(CustomListName.fromString("name")))
+                error = RenameError(NameAlreadyExists(CustomListName.fromString("name"))),
             )
         initDialog(state = state)
 
@@ -79,7 +79,7 @@ class EditCustomListNameDialogTest {
         // Arrange
         val state =
             EditCustomListNameUiState(
-                error = RenameError(UnknownCustomListError(RuntimeException("")))
+                error = RenameError(UnknownCustomListError(RuntimeException(""))),
             )
         initDialog(state = state)
 

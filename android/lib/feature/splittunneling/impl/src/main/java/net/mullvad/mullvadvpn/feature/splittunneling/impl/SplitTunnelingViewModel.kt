@@ -43,7 +43,7 @@ class SplitTunnelingViewModel(
                             },
                         showSystemApps = showSystemApps,
                         isModal = isModal,
-                    )
+                    ),
                 )
             }
             .stateIn(

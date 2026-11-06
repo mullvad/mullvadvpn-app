@@ -43,7 +43,7 @@ class ApiAccessListScreenTest {
         // Arrange
         val currentApiAccessMethod = DIRECT_ACCESS_METHOD
         initScreen(
-            state = ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
+            state = ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod),
         )
 
         // Assert

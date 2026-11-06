@@ -24,7 +24,7 @@ fun DomainFrontingInfo(navigator: Navigator) {
                     stringResource(
                         id = R.string.domain_fronting_info_message_part1,
                         stringResource(R.string.domain_fronting),
-                    )
+                    ),
                 )
                 appendLine()
                 appendLine(stringResource(id = R.string.domain_fronting_info_message_part2))

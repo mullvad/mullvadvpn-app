@@ -50,7 +50,7 @@ fun AnimatedIconButton(
                 }
                 ButtonState.PRESSED -> {}
             }
-        }
+        },
     ) {
         AnimatedContent(targetState = state, label = contentDescription) { targetState ->
             val imageVector: ImageVector

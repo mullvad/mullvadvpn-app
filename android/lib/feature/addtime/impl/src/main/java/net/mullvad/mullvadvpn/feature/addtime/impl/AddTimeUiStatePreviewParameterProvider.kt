@@ -55,7 +55,7 @@ class AddTimeUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             price = ProductPrice("$30"),
                             status = null,
                         ),
-                    )
+                    ),
             ),
             PaymentState.PaymentAvailable(
                 products =
@@ -70,7 +70,7 @@ class AddTimeUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             price = ProductPrice("$30"),
                             status = null,
                         ),
-                    )
+                    ),
             ),
             PaymentState.Error.Billing,
         )

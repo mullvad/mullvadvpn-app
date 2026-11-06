@@ -48,15 +48,15 @@ private fun PreviewCarousel() {
                                 @Composable {
                                     CarouselParagraph(
                                         annotatedStringResource(
-                                            R.string.api_access_method_info_first_line
-                                        )
+                                            R.string.api_access_method_info_first_line,
+                                        ),
                                     )
                                 },
                                 @Composable {
                                     CarouselParagraph(
                                         annotatedStringResource(
-                                            R.string.api_access_method_info_second_line
-                                        )
+                                            R.string.api_access_method_info_second_line,
+                                        ),
                                     )
                                 },
                             ),
@@ -144,7 +144,7 @@ private fun PageIndicator(pagerState: PagerState) {
                     Modifier.padding(Dimens.indicatorPadding)
                         .clip(CircleShape)
                         .background(color)
-                        .size(Dimens.indicatorSize)
+                        .size(Dimens.indicatorSize),
             )
         }
     }

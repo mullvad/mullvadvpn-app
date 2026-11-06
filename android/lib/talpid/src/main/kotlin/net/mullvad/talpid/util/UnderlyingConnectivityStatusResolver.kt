@@ -13,7 +13,7 @@ import net.mullvad.talpid.model.isUsableForInternet
 
 /** This class is used to check the ip version of the underlying network when a VPN is active. */
 class UnderlyingConnectivityStatusResolver(
-    private val protect: (socket: DatagramSocket) -> Boolean
+    private val protect: (socket: DatagramSocket) -> Boolean,
 ) {
     fun currentStatus(): Connectivity =
         Connectivity.fromIpAvailability(ipv4 = hasIpv4(), ipv6 = hasIpv6())

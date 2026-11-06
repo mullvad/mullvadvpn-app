@@ -165,7 +165,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                     floatArrayOf(0.0f, 0.0f, 0.0f),
                     colors.perimeterColors,
                     colors.perimeterColors,
-                )
+                ),
             )
         }
 
@@ -177,7 +177,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                 floatArrayOf(0.0f, -0.05f, 0.00002f),
                 colors.shadowColor,
                 colors.shadowColor.copy(alpha = 0.0f),
-            )
+            ),
         )
 
         // White ring
@@ -188,7 +188,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                 floatArrayOf(0.0f, 0.0f, 0.00006f),
                 colors.ringBorderColor,
                 colors.ringBorderColor,
-            )
+            ),
         )
 
         // Center colored circle
@@ -199,7 +199,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                 floatArrayOf(0.0f, 0.0f, 0.00007f),
                 colors.centerColor,
                 colors.centerColor,
-            )
+            ),
         )
     }
 

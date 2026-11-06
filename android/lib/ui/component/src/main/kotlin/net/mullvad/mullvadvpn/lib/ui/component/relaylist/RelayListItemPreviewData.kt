@@ -33,7 +33,7 @@ object RelayListItemPreviewData {
                                         cityNames = listOf("City"),
                                         relaysPerCity = 2,
                                         active = true,
-                                    )
+                                    ),
                                 ),
                         ),
                     isSelected = false,
@@ -119,7 +119,7 @@ object RelayListItemPreviewData {
                     itemPosition = Position.Bottom,
                     needsOtherEntry = false,
                 ),
-            )
+            ),
         )
     }
 
@@ -129,6 +129,6 @@ object RelayListItemPreviewData {
                 RelayListItem.LocationsEmptyText(searchTerm)
             } else {
                 RelayListItem.EmptyRelayList
-            }
+            },
         )
 }

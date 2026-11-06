@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfo
 
 internal fun EntryProviderScope<NavKey2>.appInfoEntry(navigator: Navigator) {
     entry<AppInfoNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) {
         AppInfo(navigator = navigator)
     }

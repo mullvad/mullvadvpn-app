@@ -46,7 +46,7 @@ private fun PreviewCreateCustomListDialogError() {
         CreateCustomListDialog(
             state =
                 CreateCustomListUiState(
-                    error = CreateWithLocationsError.Create(CustomListAlreadyExists)
+                    error = CreateWithLocationsError.Create(CustomListAlreadyExists),
                 ),
             createCustomList = {},
             onInputChanged = {},
@@ -67,7 +67,7 @@ fun CreateCustomList(locationCode: GeoLocationId?, navigator: Navigator) {
                         EditCustomListLocationsNavKey(
                             customListId = sideEffect.customListId,
                             newList = true,
-                        )
+                        ),
                     )
                 }
                 is CreateCustomListDialogSideEffect.ReturnWithResult -> {
@@ -126,5 +126,5 @@ private fun CreateWithLocationsError.errorString() =
             is CreateWithLocationsError.Create if this.error is NameIsEmpty ->
                 R.string.custom_list_error_list_is_empty
             else -> R.string.error_occurred
-        }
+        },
     )

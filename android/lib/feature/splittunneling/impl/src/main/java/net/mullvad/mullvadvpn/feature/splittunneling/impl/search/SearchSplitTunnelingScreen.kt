@@ -100,7 +100,7 @@ fun SearchSplitTunnelingScreen(
                 snackbarHostState,
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
-        }
+        },
     ) {
         val focusManager = LocalFocusManager.current
         Column(modifier = Modifier.fillMaxSize().padding(it).consumeWindowInsets(it).imePadding()) {

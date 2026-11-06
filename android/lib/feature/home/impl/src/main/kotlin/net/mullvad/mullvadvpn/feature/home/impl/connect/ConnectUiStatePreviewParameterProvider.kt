@@ -25,10 +25,10 @@ private val otherStates =
                 quantumResistant = false,
             ),
             TunnelStatePreviewData.generateDisconnectingState(
-                actionAfterDisconnect = ActionAfterDisconnect.Reconnect
+                actionAfterDisconnect = ActionAfterDisconnect.Reconnect,
             ),
             TunnelStatePreviewData.generateDisconnectingState(
-                actionAfterDisconnect = ActionAfterDisconnect.Block
+                actionAfterDisconnect = ActionAfterDisconnect.Block,
             ),
             TunnelStatePreviewData.generateErrorState(isBlocking = true),
         )

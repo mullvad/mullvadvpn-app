@@ -35,7 +35,7 @@ class NavigationState(val backStack: SnapshotStateList<NavKey2>) {
 /** Convert NavigationState into NavEntries. */
 @Composable
 fun NavigationState.toEntries(
-    entryProvider: (NavKey2) -> NavEntry<NavKey2>
+    entryProvider: (NavKey2) -> NavEntry<NavKey2>,
 ): SnapshotStateList<NavEntry<NavKey2>> =
     rememberDecoratedNavEntries(
             entryDecorators =
@@ -58,7 +58,7 @@ fun <T : Parcelable> rememberParcelableNavBackStack(vararg initial: T): Snapshot
             listSaver(
                 save = { backStack -> backStack.toList() },
                 restore = { savedList -> savedList.toMutableStateList() },
-            )
+            ),
     ) {
         initial.toList().toMutableStateList()
     }

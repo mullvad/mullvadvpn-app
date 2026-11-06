@@ -96,7 +96,7 @@ class AntiCensorshipSettingsScreenTest {
     fun testWireguardPortShouldBeDisplayed() = composeExtension.use {
         // Arrange
         initScreen(
-            state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc()
+            state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc(),
         )
 
         // Act
@@ -106,7 +106,7 @@ class AntiCensorshipSettingsScreenTest {
         // Assert
         onNode(
                 hasText("Port: 53") and
-                    hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
+                    hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG)),
             )
             .assertExists()
     }

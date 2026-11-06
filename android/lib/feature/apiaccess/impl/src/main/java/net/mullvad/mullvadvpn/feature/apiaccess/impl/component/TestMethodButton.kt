@@ -12,7 +12,8 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewTestMethodButton(
-    @PreviewParameter(provider = TestMethodButtonPreviewParameterProvider::class) isTesting: Boolean
+    @PreviewParameter(provider = TestMethodButtonPreviewParameterProvider::class)
+    isTesting: Boolean,
 ) {
     AppTheme { TestMethodButton(isTesting = isTesting, onTestMethod = {}) }
 }
@@ -30,7 +31,7 @@ fun TestMethodButton(modifier: Modifier = Modifier, isTesting: Boolean, onTestMe
                         R.string.testing
                     } else {
                         R.string.test_method
-                    }
+                    },
             ),
     )
 }

@@ -26,7 +26,7 @@ class VpnSettingsPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(
             By.hasAncestor(By.res(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
                 .res(SWITCH_TEST_TAG)
-                .checked(enabled)
+                .checked(enabled),
         )
     }
 

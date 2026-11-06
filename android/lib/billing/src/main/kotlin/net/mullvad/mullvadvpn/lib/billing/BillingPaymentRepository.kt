@@ -67,7 +67,7 @@ class BillingPaymentRepository(
         emit(
             billingRepository
                 .queryProducts(listOf(ProductIds.OneMonth, ProductIds.ThreeMonths))
-                .toPaymentAvailability(productIdToPaymentStatus)
+                .toPaymentAvailability(productIdToPaymentStatus),
         )
     }
 
@@ -94,7 +94,7 @@ class BillingPaymentRepository(
                         PurchaseResult.Error.FetchProductsError(
                             productId,
                             productDetailsResult.toBillingException(),
-                        )
+                        ),
                     )
                     return@flow
                 }
@@ -127,8 +127,8 @@ class BillingPaymentRepository(
                     BillingException(
                         responseCode = result.responseCode,
                         message = result.debugMessage,
-                    )
-                )
+                    ),
+                ),
             )
             return@flow
         }
@@ -154,7 +154,7 @@ class BillingPaymentRepository(
                                 // This is used to filter out purchases that are returned from
                                 // the billing library, but have already been verified.
                                 userPreferenceRepository.setLatestSuccessfulPurchase(
-                                    purchase.purchaseToken
+                                    purchase.purchaseToken,
                                 )
                             }
                             .fold(
@@ -162,7 +162,7 @@ class BillingPaymentRepository(
                                 { verifiedProductId ->
                                     PurchaseResult.Completed.Success(verifiedProductId)
                                 },
-                            )
+                            ),
                     )
                 }
             }
@@ -212,7 +212,7 @@ class BillingPaymentRepository(
         }
 
     private suspend fun verifyPurchase(
-        purchase: Purchase
+        purchase: Purchase,
     ): Either<PlayPurchaseVerifyError, ProductId> = either {
         ensure(purchase.products.isNotEmpty()) {
             Logger.e("Purchase has no products")
@@ -231,14 +231,14 @@ class BillingPaymentRepository(
                 PlayPurchase(
                     productId = purchase.products.first(),
                     purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
-                )
+                ),
             )
             .also { Logger.i("Purchase verification result $it") }
             .bind()
     }
         .onLeft {
             Logger.e(
-                "Failed to verify purchase token ending with ${purchase.purchaseToken.takeLast(2)}"
+                "Failed to verify purchase token ending with ${purchase.purchaseToken.takeLast(2)}",
             )
         }
         .map { ProductId(purchase.products.first()) }

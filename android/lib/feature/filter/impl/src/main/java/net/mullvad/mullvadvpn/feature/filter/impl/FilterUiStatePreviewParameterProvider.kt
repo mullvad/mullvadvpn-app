@@ -16,6 +16,6 @@ class FilterUiStatePreviewParameterProvider : PreviewParameterProvider<FilterUiS
                 providerToOwnerships = PROVIDER_TO_OWNERSHIPS,
                 selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
                 selectedProviders = Constraint.Only(PROVIDER_TO_OWNERSHIPS.keys),
-            )
+            ),
         )
 }

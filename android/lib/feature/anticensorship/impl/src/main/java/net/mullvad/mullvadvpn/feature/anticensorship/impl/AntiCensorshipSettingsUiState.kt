@@ -24,48 +24,48 @@ data class AntiCensorshipSettingsUiState(
                     buildList {
                         add(
                             ObfuscationSettingItem.Obfuscation.Automatic(
-                                obfuscationMode == ObfuscationMode.Auto
-                            )
+                                obfuscationMode == ObfuscationMode.Auto,
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.WireguardPort(
                                 obfuscationMode == ObfuscationMode.WireguardPort,
                                 selectedWireguardPort,
-                            )
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.Lwo(
                                 obfuscationMode == ObfuscationMode.Lwo,
                                 selectedLwoObfuscationPort,
-                            )
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.Quic(
-                                obfuscationMode == ObfuscationMode.Quic
-                            )
+                                obfuscationMode == ObfuscationMode.Quic,
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.Shadowsocks(
                                 obfuscationMode == ObfuscationMode.Shadowsocks,
                                 selectedShadowsocksObfuscationPort,
-                            )
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.UdpOverTcp(
                                 obfuscationMode == ObfuscationMode.Udp2Tcp,
                                 selectedUdp2TcpObfuscationPort,
-                            )
+                            ),
                         )
                         add(ObfuscationSettingItem.Divider)
                         add(
                             ObfuscationSettingItem.Obfuscation.Off(
-                                obfuscationMode == ObfuscationMode.Off
-                            )
+                                obfuscationMode == ObfuscationMode.Off,
+                            ),
                         )
                     },
             )

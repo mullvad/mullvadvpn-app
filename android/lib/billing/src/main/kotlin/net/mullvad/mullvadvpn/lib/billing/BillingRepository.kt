@@ -51,8 +51,8 @@ class BillingRepository(context: Context) {
                                     responseCode = result.responseCode,
                                     subResponseCode = result.onPurchasesUpdatedSubResponseCode,
                                     message = result.debugMessage,
-                                )
-                        )
+                                ),
+                        ),
                     )
                 }
             }
@@ -65,7 +65,7 @@ class BillingRepository(context: Context) {
         billingClient =
             BillingClient.newBuilder(context)
                 .enablePendingPurchases(
-                    PendingPurchasesParams.newBuilder().enableOneTimeProducts().build()
+                    PendingPurchasesParams.newBuilder().enableOneTimeProducts().build(),
                 )
                 .setListener(purchaseUpdateListener)
                 .build()
@@ -106,12 +106,12 @@ class BillingRepository(context: Context) {
                                 BillingException(
                                     responseCode = result.responseCode,
                                     message = result.debugMessage,
-                                )
+                                ),
                             )
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -136,7 +136,7 @@ class BillingRepository(context: Context) {
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(productDetails)
-                        .build()
+                        .build(),
                 )
 
             val billingFlowParams =

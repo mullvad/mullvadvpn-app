@@ -59,7 +59,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewEditCustomListScreen(
     @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
-    state: EditCustomListUiState
+    state: EditCustomListUiState,
 ) {
     AppTheme {
         EditCustomListScreen(
@@ -95,7 +95,7 @@ fun EditCustomList(customListId: CustomListId, navigator: Navigator) {
         onLocationsClicked =
             dropUnlessResumed { id ->
                 navigator.navigate(
-                    EditCustomListLocationsNavKey(customListId = id, newList = false)
+                    EditCustomListLocationsNavKey(customListId = id, newList = false),
                 )
             },
         onBackClick = dropUnlessResumed { navigator.goBack() },

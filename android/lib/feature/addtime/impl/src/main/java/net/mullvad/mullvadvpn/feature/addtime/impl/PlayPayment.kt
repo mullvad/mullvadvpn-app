@@ -39,11 +39,11 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Preview(
     "Loading|NoPayment|NoProductsFound|Error.Generic|Error.Billing" +
-        "|PaymentAvailable|PaymentAvailable.Pending|PaymentAvailable.VerificationInProgress"
+        "|PaymentAvailable|PaymentAvailable.Pending|PaymentAvailable.VerificationInProgress",
 )
 @Composable
 private fun PreviewPlayPayment(
-    @PreviewParameter(PlayPaymentPaymentStatePreviewParameterProvider::class) state: PaymentState
+    @PreviewParameter(PlayPaymentPaymentStatePreviewParameterProvider::class) state: PaymentState,
 ) {
     AppTheme {
         Column(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)) {
@@ -136,7 +136,7 @@ private fun PaymentAvailable(
                     enabled = status != null,
                     onClick = { onInfoClick(status ?: PaymentStatus.PENDING) },
                 )
-                .testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG)
+                .testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
     ) {
         val enabled = status == null
         status?.let {

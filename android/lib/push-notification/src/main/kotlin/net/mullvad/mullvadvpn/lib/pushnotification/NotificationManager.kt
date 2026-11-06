@@ -33,7 +33,7 @@ class NotificationManager(
                     when (notificationUpdate) {
                         is NotificationUpdate.Cancel ->
                             notificationManagerCompat.cancel(
-                                notificationUpdate.notificationId.value
+                                notificationUpdate.notificationId.value,
                             )
 
                         is NotificationUpdate.Notify -> {

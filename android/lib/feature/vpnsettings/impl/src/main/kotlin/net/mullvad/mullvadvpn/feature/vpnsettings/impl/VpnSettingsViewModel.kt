@@ -84,7 +84,7 @@ class VpnSettingsViewModel(
                         QuantumResistantState.On
                     } else {
                         QuantumResistantState.Off
-                    }
+                    },
                 )
                 .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }

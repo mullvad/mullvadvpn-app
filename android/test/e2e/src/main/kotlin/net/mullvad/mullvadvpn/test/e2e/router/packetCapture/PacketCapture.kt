@@ -69,7 +69,7 @@ private fun defaultHttpClient(): HttpClient =
                     ignoreUnknownKeys = true
                     isLenient = true
                     prettyPrint = true
-                }
+                },
             )
         }
 
@@ -78,7 +78,7 @@ private fun defaultHttpClient(): HttpClient =
                 val statusCode = response.status.value
                 if (statusCode >= 400) {
                     fail(
-                        "Request failed with response status code $statusCode: ${response.body<String>()}"
+                        "Request failed with response status code $statusCode: ${response.body<String>()}",
                     )
                 }
             }

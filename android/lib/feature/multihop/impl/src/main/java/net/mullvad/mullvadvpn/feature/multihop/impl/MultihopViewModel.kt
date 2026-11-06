@@ -33,7 +33,7 @@ class MultihopViewModel(
                         showExtraWhenNeededInfo =
                             multihopInEffect == MultihopInEffectStatus.WhenNeededInEffect,
                         isModal = isModal,
-                    )
+                    ),
                 )
             }
             .stateIn(

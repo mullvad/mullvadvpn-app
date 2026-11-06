@@ -31,13 +31,13 @@ private fun PreviewNotificationBanner() {
             val bannerDataList =
                 listOf(
                     InAppNotification.UnsupportedVersion(
-                        versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
+                        versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false),
                     ),
                     InAppNotification.AccountExpiry(expiry = Duration.ZERO),
                     InAppNotification.TunnelStateBlocked,
                     InAppNotification.NewDevice("Courageous Turtle"),
                     InAppNotification.TunnelStateError(
-                        error = ErrorState(ErrorStateCause.FirewallPolicyError.Generic, true)
+                        error = ErrorState(ErrorStateCause.FirewallPolicyError.Generic, true),
                     ),
                     InAppNotification.NewVersionChangelog,
                 )

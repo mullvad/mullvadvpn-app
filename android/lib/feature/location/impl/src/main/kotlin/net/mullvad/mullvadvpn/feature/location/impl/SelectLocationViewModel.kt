@@ -107,7 +107,7 @@ class SelectLocationViewModel(
                             !settings.isEntryBlocked() && selectedHop.entry() != Constraint.Any,
                         lastKnownLocation = lastKnownLocation?.country,
                         entryCountry = tunnelState.entryCountry,
-                    )
+                    ),
                 )
             }
             .stateIn(
@@ -189,7 +189,7 @@ class SelectLocationViewModel(
     }
 
     private fun ModifyMultihopError.toSideEffect(
-        multihopChange: MultihopChange
+        multihopChange: MultihopChange,
     ): SelectLocationSideEffect =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->

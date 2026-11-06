@@ -31,7 +31,7 @@ fun UiDevice.findObjectWithTimeout(
 ): UiObject2 =
     wait(Until.findObject(selector), timeout)
         ?: throw UiObjectNotFoundException(
-            "No matches for selector within timeout ($timeout ms): $selector"
+            "No matches for selector within timeout ($timeout ms): $selector",
         )
 
 fun UiDevice.findOneOrMoreObjectsWithTimeout(
@@ -42,7 +42,7 @@ fun UiDevice.findOneOrMoreObjectsWithTimeout(
 
     if (foundObjects.isEmpty()) {
         throw UiObjectNotFoundException(
-            "No matches for selector within timeout ($timeout ms): $selector"
+            "No matches for selector within timeout ($timeout ms): $selector",
         )
     }
 
@@ -112,7 +112,7 @@ fun UiObject2.findObjectWithTimeout(
 ): UiObject2 =
     wait(Until.findObject(selector), timeout)
         ?: throw UiObjectNotFoundException(
-            "No matches for selector within timeout ($timeout ms): $selector"
+            "No matches for selector within timeout ($timeout ms): $selector",
         )
 
 fun UiObject2.findAncestor(selector: BySelector): UiObject2 {

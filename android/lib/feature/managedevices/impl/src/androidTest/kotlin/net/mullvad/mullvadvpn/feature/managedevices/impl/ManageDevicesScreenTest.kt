@@ -128,7 +128,7 @@ class ManageDevicesScreenTest {
                                 isLoading = true,
                                 isCurrentDevice = false,
                             ),
-                        )
+                        ),
                 )
             initScreen(state = Lce.Content(state))
 

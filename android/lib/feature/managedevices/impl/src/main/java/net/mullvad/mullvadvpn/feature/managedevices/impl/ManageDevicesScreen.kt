@@ -55,7 +55,7 @@ import org.koin.core.parameter.parametersOf
 @Preview("Normal|TooMany|Empty|Loading|Error")
 private fun PreviewDeviceListScreenContent(
     @PreviewParameter(ManageDevicesUiStatePreviewParameterProvider::class)
-    state: Lce<Unit, ManageDevicesUiState, GetDeviceListError>
+    state: Lce<Unit, ManageDevicesUiState, GetDeviceListError>,
 ) {
     AppTheme {
         ManageDevicesScreen(
@@ -89,7 +89,7 @@ fun ManageDevices(accountNumber: AccountNumber, navigator: Navigator) {
             ManageDevicesSideEffect.FailedToRemoveDevice -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.failed_to_remove_device)
+                        message = resources.getString(R.string.failed_to_remove_device),
                     )
                 }
             }
@@ -148,7 +148,7 @@ private fun Content(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
             )
             .verticalScroll(state = scrollState)
-            .padding(horizontal = Dimens.sideMarginNew)
+            .padding(horizontal = Dimens.sideMarginNew),
     ) {
         Text(
             text = stringResource(id = R.string.manage_devices_description),

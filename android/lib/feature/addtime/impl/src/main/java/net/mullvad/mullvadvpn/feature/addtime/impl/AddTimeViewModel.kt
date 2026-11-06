@@ -45,7 +45,7 @@ class AddTimeViewModel(
                         billingPaymentState = paymentAvailability.toPaymentState(),
                         tunnelStateBlocked = tunnelState.isBlocked(),
                         showSitePayment = !isPlayBuild,
-                    )
+                    ),
                 )
             }
             .stateIn(

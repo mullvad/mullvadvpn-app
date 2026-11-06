@@ -167,7 +167,7 @@ class MullvadTileService : TileService() {
     ): TileState {
         if (!isSetup) {
             return TileState.Unavailable(
-                subtitle = resources.getString(R.string.disconnected_vpn_permission_error)
+                subtitle = resources.getString(R.string.disconnected_vpn_permission_error),
             )
         }
 
@@ -183,7 +183,7 @@ class MullvadTileService : TileService() {
                     when (tunnelState.actionAfterDisconnect) {
                         ActionAfterDisconnect.Nothing ->
                             TileState.Inactive(
-                                subtitle = resources.getString(R.string.disconnecting)
+                                subtitle = resources.getString(R.string.disconnecting),
                             )
                         ActionAfterDisconnect.Block ->
                             TileState.Active(subtitle = resources.getString(R.string.blocking))

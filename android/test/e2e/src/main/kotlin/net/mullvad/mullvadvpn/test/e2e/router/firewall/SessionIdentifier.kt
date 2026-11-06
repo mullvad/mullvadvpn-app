@@ -21,7 +21,7 @@ value class SessionIdentifier(val value: String) {
                 )
 
             return SessionIdentifier(
-                UUID.nameUUIDFromBytes(deviceIdentifier.toByteArray()).toString()
+                UUID.nameUUIDFromBytes(deviceIdentifier.toByteArray()).toString(),
             )
         }
     }

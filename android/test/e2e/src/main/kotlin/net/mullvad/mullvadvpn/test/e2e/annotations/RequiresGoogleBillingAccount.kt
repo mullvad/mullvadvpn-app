@@ -15,18 +15,18 @@ import org.junit.jupiter.api.extension.ExtensionContext
 annotation class RequiresGoogleBillingAccount {
     class AccessToBillingTestAccount : ExecutionCondition {
         override fun evaluateExecutionCondition(
-            context: ExtensionContext?
+            context: ExtensionContext?,
         ): ConditionEvaluationResult {
 
             val enable = InstrumentationRegistry.getArguments().isBillingEnabled()
 
             return if (enable) {
                 ConditionEvaluationResult.enabled(
-                    "Running test which requires access to billing test account."
+                    "Running test which requires access to billing test account.",
                 )
             } else {
                 ConditionEvaluationResult.disabled(
-                    "Skipping test which requires access to billing test account."
+                    "Skipping test which requires access to billing test account.",
                 )
             }
         }

@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 @Composable
 @Preview
 private fun PreviewConnectionButton(
-    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState
+    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState,
 ) {
     AppTheme {
         ConnectionButton(
@@ -67,7 +67,7 @@ fun ConnectionButton(
                             R.string.dismiss
                         }
                     }
-                }
+                },
         )
 
     val onClick =

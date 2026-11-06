@@ -181,7 +181,7 @@ fun MullvadListItem(
                                 onLongClick = onLongClick,
                             )
                         }
-                        .padding(start = ListTokens.listItemPaddingStart + hierarchy.paddingStart)
+                        .padding(start = ListTokens.listItemPaddingStart + hierarchy.paddingStart),
             ) {
                 if (leadingContent != null) {
                     Box(

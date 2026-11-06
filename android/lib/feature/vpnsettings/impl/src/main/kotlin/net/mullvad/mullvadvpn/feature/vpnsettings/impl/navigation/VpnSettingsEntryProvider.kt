@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.vpnSettingsEntry(navigator: Navigator) {
     entry<VpnSettingsNavKey>(
-        metadata = ListDetailSceneStrategy.listPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.listPane() + slideInHorizontalTransition(),
     ) { navArgs ->
         LocalSharedTransitionScope.current?.VpnSettings(
             navArgs = navArgs,

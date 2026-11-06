@@ -100,7 +100,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewVpnSettings(
     @PreviewParameter(VpnSettingsUiStatePreviewParameterProvider::class)
-    state: Lc<Boolean, VpnSettingsUiState>
+    state: Lc<Boolean, VpnSettingsUiState>,
 ) {
     AppTheme {
         VpnSettingsScreen(
@@ -451,7 +451,7 @@ fun VpnSettingsContent(
                             modifier =
                                 Modifier.animateItem()
                                     .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU)
+                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_MTU),
                                     )
                                     .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG),
                             mtuValue = it.mtu,
@@ -467,8 +467,8 @@ fun VpnSettingsContent(
                                 Modifier.animateItem()
                                     .focusRequester(
                                         focusRequesters.getValue(
-                                            FeatureIndicator.QUANTUM_RESISTANCE
-                                        )
+                                            FeatureIndicator.QUANTUM_RESISTANCE,
+                                        ),
                                     ),
                             position = Position.Single,
                             hierarchy = Hierarchy.Parent,

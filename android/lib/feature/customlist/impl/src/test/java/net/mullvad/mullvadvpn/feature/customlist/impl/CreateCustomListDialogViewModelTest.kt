@@ -83,7 +83,7 @@ class CreateCustomListDialogViewModelTest {
                 viewModel.createCustomList(customListName.value)
                 val sideEffect = awaitItem()
                 assertIs<CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen>(
-                    sideEffect
+                    sideEffect,
                 )
                 assertEquals(createdId, sideEffect.customListId)
             }

@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.anticensorshipEntry(navigator: Navigator) {
     entry<AntiCensorshipNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navKey ->
         LocalSharedTransitionScope.current?.AntiCensorshipSettings(
             navigator = navigator,

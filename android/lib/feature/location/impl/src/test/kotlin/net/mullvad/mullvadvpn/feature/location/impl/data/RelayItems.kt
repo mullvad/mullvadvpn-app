@@ -38,9 +38,9 @@ val RELAY_COUNTRY_SWEDEN =
                                 daita = false,
                                 quic = null,
                                 lwo = false,
-                            )
+                            ),
                         ),
-                )
+                ),
             ),
     )
 
@@ -115,7 +115,7 @@ val RELAY_COUNTRY_BELGIUM =
                             RELAY_BE_BRU_WG_101,
                             RELAY_BE_BRU_WG_102,
                         ),
-                )
+                ),
             ),
     )
 
