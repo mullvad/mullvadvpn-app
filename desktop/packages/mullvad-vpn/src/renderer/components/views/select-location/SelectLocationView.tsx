@@ -15,7 +15,11 @@ import {
   SpacePreAllocationView,
   StyledSelectLocationHeader,
 } from './components';
-import { useLocationSlides, useMeasureLocationSelector } from './hooks';
+import {
+  useEffectResetInvalidLocationType,
+  useLocationSlides,
+  useMeasureLocationSelector,
+} from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
@@ -51,6 +55,8 @@ export function SelectLocationViewImpl() {
   const history = useHistory();
   const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
   const { setIsLocationSelectorExpanded, transitionState } = useSelectLocationViewContext();
+
+  useEffectResetInvalidLocationType();
 
   const onClose = React.useCallback(() => history.pop(), [history]);
 

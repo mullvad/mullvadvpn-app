@@ -2,21 +2,19 @@ import React from 'react';
 import { useHistory } from 'react-router';
 
 import { RoutePath } from '../../../../../../../../../shared/routes';
-import useActions from '../../../../../../../../lib/actionsHook';
-import userInterface from '../../../../../../../../redux/userinterface/actions';
+import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 import { useFilterTrailingButtonContext } from '../FilterTrailingButtonContext';
 
 export function useHandleFilterButtonClick() {
-  const { setSelectLocationView } = useActions(userInterface);
+  const { setLocationType } = useSelectLocationViewContext();
 
   const { type } = useFilterTrailingButtonContext();
   const history = useHistory();
 
   const handleFilterButtonClick = React.useCallback(() => {
+    setLocationType(type);
+
     const locationType = type === 'automaticEntry' ? 'entry' : type;
-
-    setSelectLocationView(locationType);
-
     history.push(RoutePath.filter, {
       options: [
         {
@@ -25,7 +23,7 @@ export function useHandleFilterButtonClick() {
         },
       ],
     });
-  }, [history, setSelectLocationView, type]);
+  }, [history, setLocationType, type]);
 
   return handleFilterButtonClick;
 }
