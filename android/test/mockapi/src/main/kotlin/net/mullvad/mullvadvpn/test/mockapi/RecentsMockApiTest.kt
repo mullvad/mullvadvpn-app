@@ -113,7 +113,7 @@ class RecentsMockApiTest : MockApiTest() {
             device.findOneOrMoreObjectsWithTimeout(By.res(RECENT_CELL_TEST_TAG)).forEach {
                 assert(
                     it.findObject(By.text("Sweden")) != null ||
-                        it.findObject(By.text("Albania")) != null
+                        it.findObject(By.text("Albania")) != null,
                 )
             }
 

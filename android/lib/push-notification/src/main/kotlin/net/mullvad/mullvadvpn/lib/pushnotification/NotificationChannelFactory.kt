@@ -33,7 +33,7 @@ class NotificationChannelFactory(
         NotificationChannelCompat.Builder(id.value, NotificationManager.IMPORTANCE_LOW)
             .setName(resources.getString(R.string.foreground_notification_channel_name))
             .setDescription(
-                resources.getString(R.string.foreground_notification_channel_description)
+                resources.getString(R.string.foreground_notification_channel_description),
             )
             .setShowBadge(false)
             .setVibrationEnabled(false)
@@ -43,7 +43,7 @@ class NotificationChannelFactory(
         NotificationChannelCompat.Builder(id.value, NotificationManager.IMPORTANCE_HIGH)
             .setName(resources.getString(R.string.account_time_notification_channel_name))
             .setDescription(
-                resources.getString(R.string.account_time_notification_channel_description)
+                resources.getString(R.string.account_time_notification_channel_description),
             )
             .setShowBadge(true)
             .setVibrationEnabled(true)

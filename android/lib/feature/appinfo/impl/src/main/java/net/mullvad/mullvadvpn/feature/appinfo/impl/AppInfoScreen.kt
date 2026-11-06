@@ -51,7 +51,8 @@ import org.koin.androidx.compose.koinViewModel
 @Preview("Loading|Supported|Unsupported")
 @Composable
 private fun PreviewAppInfoScreen(
-    @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class) state: Lc<Unit, AppInfoUiState>
+    @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, AppInfoUiState>,
 ) {
     AppTheme {
         AppInfo(
@@ -98,8 +99,8 @@ fun AppInfo(navigator: Navigator) {
                             MultihopMigrationData(
                                 splitFilterMigration = splitFilterMigration,
                                 userBlocked = false,
-                            )
-                    )
+                            ),
+                    ),
                 )
             },
     )

@@ -63,7 +63,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewSelectLocationList(
     @PreviewParameter(SelectLocationsListUiStatePreviewParameterProvider::class)
-    state: Lce<Unit, SelectLocationListUiState, Unit>
+    state: Lce<Unit, SelectLocationListUiState, Unit>,
 ) {
     AppTheme {
         Surface {

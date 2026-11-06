@@ -96,7 +96,7 @@ class CustomListLocationsViewModelTest {
                             hasUnsavedChanges = false,
                             searchTerm = "",
                             locations = expectedList,
-                        )
+                        ),
                     ),
                 )
             val viewModel = createViewModel(customListId, true)
@@ -369,13 +369,13 @@ class CustomListLocationsViewModelTest {
                                             countryName = "Sweden",
                                             cityName = "Gothenburg",
                                             latLong = LatLong(0f, 0f),
-                                        )
+                                        ),
                                     ),
                                 countryName = "Sweden",
                                 latLong = LatLong(0f, 0f),
-                            )
+                            ),
                         ),
-                )
+                ),
             )
         private val DUMMY_RELAY =
             RelayItem.Location.Relay(

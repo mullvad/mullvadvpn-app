@@ -55,7 +55,7 @@ fun ServerIpOverridesListItem(
                                         else -> inactiveColor
                                     },
                                 shape = CircleShape,
-                            )
+                            ),
                 )
             }
         },

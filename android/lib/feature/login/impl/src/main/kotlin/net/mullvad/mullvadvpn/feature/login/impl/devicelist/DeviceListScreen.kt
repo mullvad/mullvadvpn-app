@@ -57,7 +57,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 @Preview("Normal|TooMany|Empty|Loading|Error")
 private fun PreviewDeviceListScreenContent(
-    @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
+    @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState,
 ) {
     AppTheme {
         DeviceListScreen(
@@ -91,14 +91,14 @@ fun DeviceList(navigator: Navigator, accountNumber: AccountNumber) {
             DeviceListSideEffect.FailedToRemoveDevice -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.failed_to_remove_device)
+                        message = resources.getString(R.string.failed_to_remove_device),
                     )
                 }
             }
             DeviceListSideEffect.FailedToLogin -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.remove_a_device_before_logging_in)
+                        message = resources.getString(R.string.remove_a_device_before_logging_in),
                     )
                 }
             }
@@ -148,7 +148,7 @@ fun DeviceListScreen(
                         bottom = Dimens.screenBottomMargin,
                         start = Dimens.sideMarginNew,
                         end = Dimens.sideMarginNew,
-                    )
+                    ),
         ) {
             val scrollState = rememberScrollState()
             Column(
@@ -157,7 +157,7 @@ fun DeviceListScreen(
                         .padding(top = Dimens.screenTopMargin)
                         .verticalScroll(scrollState)
                         .weight(1f)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
             ) {
                 DeviceListHeader(state)
                 when (state) {
@@ -223,7 +223,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                                 R.drawable.icon_fail
                             } else {
                                 R.drawable.icon_success
-                            }
+                            },
                     ),
                 contentDescription = null, // No meaningful user info or action.
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -236,7 +236,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
             )
         DeviceListUiState.Loading ->
             MullvadCircularProgressIndicatorLarge(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
     }
 
@@ -248,7 +248,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                         R.string.max_devices_resolved_title
                     } else {
                         R.string.max_devices_warning_title
-                    }
+                    },
             ),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
@@ -264,7 +264,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
                             R.string.max_devices_warning_description
                         } else {
                             R.string.max_devices_resolved_description
-                        }
+                        },
                 ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,

@@ -80,7 +80,7 @@ fun CustomDns(navArgs: CustomDnsNavKey, navigator: Navigator) {
                     is CustomDnsDialogSideEffect.Complete ->
                         CustomDnsNavResult.Success(it.isDnsListEmpty)
                     CustomDnsDialogSideEffect.Error -> CustomDnsNavResult.Error
-                }
+                },
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()

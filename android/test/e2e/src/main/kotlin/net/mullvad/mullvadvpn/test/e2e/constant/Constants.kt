@@ -14,13 +14,13 @@ fun Bundle.getPartnerAuth() =
 fun Bundle.getValidAccountNumber() =
     InstrumentationRegistry.getArguments()
         .getRequiredArgument(
-            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid"
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.valid",
         )
 
 fun Bundle.getInvalidAccountNumber() =
     InstrumentationRegistry.getArguments()
         .getRequiredArgument(
-            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid"
+            "mullvad.test.e2e.${BuildConfig.FLAVOR_infrastructure}.accountNumber.invalid",
         )
 
 fun Bundle.isBillingEnabled(): Boolean =

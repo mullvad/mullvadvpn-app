@@ -15,7 +15,7 @@ fun EntryProviderScope<NavKey2>.homeEntry(navigator: Navigator) {
             homeTransition {
                 // Fade in if we came from the login screen
                 navigator.previousBackStack.last() is LoginNavKey
-            }
+            },
     ) {
         Connect(
             navigator = navigator,

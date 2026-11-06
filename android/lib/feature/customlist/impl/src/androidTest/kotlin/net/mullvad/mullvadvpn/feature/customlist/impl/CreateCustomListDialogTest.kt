@@ -64,7 +64,7 @@ class CreateCustomListDialogTest {
         // Arrange
         val state =
             CreateCustomListUiState(
-                error = CreateWithLocationsError.Create(CustomListAlreadyExists)
+                error = CreateWithLocationsError.Create(CustomListAlreadyExists),
             )
         initDialog(state)
 
@@ -78,7 +78,7 @@ class CreateCustomListDialogTest {
         // Arrange
         val state =
             CreateCustomListUiState(
-                error = CreateWithLocationsError.Create(UnknownCustomListError(Throwable()))
+                error = CreateWithLocationsError.Create(UnknownCustomListError(Throwable())),
             )
         initDialog(state)
 

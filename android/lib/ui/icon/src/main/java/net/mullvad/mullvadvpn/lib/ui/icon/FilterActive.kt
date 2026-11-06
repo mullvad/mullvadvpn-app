@@ -31,7 +31,7 @@ val FilterSelectedActive: ImageVector
                                 verticalLineToRelative(24f)
                                 horizontalLineToRelative(-24f)
                                 close()
-                            }
+                            },
                     ) {
                         path(fill = SolidColor(Color.White)) {
                             moveTo(13f, 16f)

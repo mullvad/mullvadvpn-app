@@ -84,7 +84,7 @@ class SearchLocationScreenTest {
                         filterChips = emptyList(),
                         relayListItems = emptyList(),
                         customLists = emptyList(),
-                    )
+                    ),
                 ),
             onSearchInputChanged = mockedSearchTermInput,
         )
@@ -110,8 +110,8 @@ class SearchLocationScreenTest {
                         filterChips = emptyList(),
                         relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
                         customLists = emptyList(),
-                    )
-                )
+                    ),
+                ),
         )
 
         // Assert
@@ -132,8 +132,8 @@ class SearchLocationScreenTest {
                         filterChips = emptyList(),
                         relayListItems = emptyList(),
                         customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                    )
-                )
+                    ),
+                ),
         )
 
         // Assert

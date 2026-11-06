@@ -192,8 +192,8 @@ internal fun ModelRelaySettings.fromDomain(): RelaySettings =
                     location = relayConstraints.location.fromDomain(),
                     ownership = relayConstraints.ownership.fromDomain(),
                     providers = relayConstraints.providers.fromDomain(),
-                )
-            )
+                ),
+            ),
     )
 
 internal fun Constraint<ModelOwnership>.fromDomain(): Ownership =
@@ -214,7 +214,7 @@ internal fun ModelNewAccessMethodSetting.fromDomain(): NewAccessMethodSetting =
         enabled = enabled,
         access_method =
             AccessMethod(
-                access_method = AccessMethod.AccessMethod.Custom(apiAccessMethod.fromDomain())
+                access_method = AccessMethod.AccessMethod.Custom(apiAccessMethod.fromDomain()),
             ),
     )
 
@@ -262,7 +262,7 @@ internal fun ApiAccessMethod.fromDomain(): AccessMethod =
                 AccessMethod.AccessMethod.EncryptedDnsProxy(AccessMethod.EncryptedDnsProxy())
             ApiAccessMethod.DomainFronting ->
                 AccessMethod.AccessMethod.DomainFronting(AccessMethod.DomainFronting())
-        }
+        },
     )
 
 internal fun ModelShadowsocksObfuscationSettings.fromDomain(): ObfuscationSettings.Shadowsocks =

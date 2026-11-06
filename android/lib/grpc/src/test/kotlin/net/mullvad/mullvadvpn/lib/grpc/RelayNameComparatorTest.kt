@@ -334,7 +334,7 @@ class RelayNameComparatorTest {
     }
 
     private infix fun RelayItem.Location.Relay.assertOrderBothDirection(
-        other: RelayItem.Location.Relay
+        other: RelayItem.Location.Relay,
     ) {
         assertTrue(RelayNameComparator.compare(this, other) < 0)
         assertTrue(RelayNameComparator.compare(other, this) > 0)

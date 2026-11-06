@@ -184,7 +184,7 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
         }
     } catch (_: RuntimeException) {
         Logger.e(
-            "Unable to get active network or properties and capabilities of the active network"
+            "Unable to get active network or properties and capabilities of the active network",
         )
         null
     }
@@ -208,7 +208,7 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
  */
 @OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(
-    resolver: UnderlyingConnectivityStatusResolver
+    resolver: UnderlyingConnectivityStatusResolver,
 ): Flow<Connectivity> =
     combine(nonVpnInternetNetworksEvents(), defaultRawNetworkStateFlow()) { _, defaultEvent ->
             defaultEvent

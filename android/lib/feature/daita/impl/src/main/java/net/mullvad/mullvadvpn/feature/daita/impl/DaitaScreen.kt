@@ -44,7 +44,7 @@ import org.koin.core.parameter.parametersOf
 @Preview("Loading|Disabled|Enabled")
 @Composable
 private fun PreviewDaitaScreen(
-    @PreviewParameter(DaitaUiStatePreviewParameterProvider::class) state: Lc<Boolean, DaitaUiState>
+    @PreviewParameter(DaitaUiStatePreviewParameterProvider::class) state: Lc<Boolean, DaitaUiState>,
 ) {
     AppTheme {
         DaitaScreen(
@@ -157,8 +157,8 @@ private val DaitaPages =
                     @Composable {
                         CarouselParagraph(
                             annotatedStringResource(
-                                R.string.daita_description_slide_1_first_paragraph
-                            )
+                                R.string.daita_description_slide_1_first_paragraph,
+                            ),
                         )
                     },
                     @Composable {
@@ -168,14 +168,14 @@ private val DaitaPages =
                                     stringResource(id = R.string.daita),
                                     stringResource(id = R.string.daita_full),
                                 )
-                                .toAnnotatedString()
+                                .toAnnotatedString(),
                         )
                     },
                     @Composable {
                         CarouselParagraph(
                             annotatedStringResource(
-                                R.string.daita_description_slide_1_third_paragraph
-                            )
+                                R.string.daita_description_slide_1_third_paragraph,
+                            ),
                         )
                     },
                 ),
@@ -191,7 +191,7 @@ private val DaitaPages =
                                     R.string.daita_description_slide_2_first_paragraph,
                                     stringResource(id = R.string.daita),
                                 )
-                                .toAnnotatedString()
+                                .toAnnotatedString(),
                         )
                     },
                     @Composable {
@@ -200,7 +200,7 @@ private val DaitaPages =
                                     R.string.daita_description_slide_2_second_paragraph,
                                     stringResource(id = R.string.daita),
                                 )
-                                .toAnnotatedString()
+                                .toAnnotatedString(),
                         )
                     },
                 ),

@@ -38,7 +38,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewDeviceRevokedScreen(
     @PreviewParameter(DeviceRevokedUiStatePreviewParameterProvider::class)
-    state: DeviceRevokedUiState
+    state: DeviceRevokedUiState,
 ) {
     AppTheme { DeviceRevokedScreen(state = state, onSettingsClicked = {}, onGoToLoginClicked = {}) }
 }
@@ -97,7 +97,7 @@ fun DeviceRevokedScreen(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
-                    .background(color = MaterialTheme.colorScheme.surface)
+                    .background(color = MaterialTheme.colorScheme.surface),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),

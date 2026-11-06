@@ -56,8 +56,8 @@ data class VpnSettingsUiState(
                     // Quantum Resistance
                     add(
                         VpnSettingItem.QuantumResistantSetting(
-                            quantumResistant == QuantumResistantState.On
-                        )
+                            quantumResistant == QuantumResistantState.On,
+                        ),
                     )
 
                     add(VpnSettingItem.Spacer)

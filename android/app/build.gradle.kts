@@ -81,7 +81,7 @@ android {
                     appVersion.isStable -> "production"
                     appVersion.isBeta -> "beta"
                     else -> "internal"
-                }
+                },
             )
         }
     }
@@ -320,7 +320,7 @@ kotlin {
         allWarningsAsErrors = true
         freeCompilerArgs.addAll(
             // Opt-in option for Koin annotation of KoinComponent.
-            "-opt-in=kotlin.RequiresOptIn"
+            "-opt-in=kotlin.RequiresOptIn",
         )
     }
 }

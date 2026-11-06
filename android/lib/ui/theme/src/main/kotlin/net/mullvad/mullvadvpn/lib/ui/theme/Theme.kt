@@ -105,7 +105,8 @@ fun AppTheme(content: @Composable () -> Unit) {
             typography = typography,
             content = {
                 CompositionLocalProvider(
-                    LocalRippleConfiguration provides RippleConfiguration(rippleAlpha = rippleAlpha)
+                    LocalRippleConfiguration provides
+                        RippleConfiguration(rippleAlpha = rippleAlpha),
                 ) {
                     content()
                 }

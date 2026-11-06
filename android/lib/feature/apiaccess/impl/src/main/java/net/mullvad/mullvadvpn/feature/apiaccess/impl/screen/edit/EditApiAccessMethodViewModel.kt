@@ -130,7 +130,7 @@ class EditApiAccessMethodViewModel(
                                 apiAccessRepository.testCustomApiAccessMethod(customProxy)
                             }
                         _uiSideEffect.send(
-                            EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
+                            EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight()),
                         )
                         isTestingApiAccessMethod.value = false
                     },
@@ -150,7 +150,7 @@ class EditApiAccessMethodViewModel(
                                 id = apiAccessMethodId,
                                 name = name,
                                 customProxy = customProxy,
-                            )
+                            ),
                         )
                     },
                 )
@@ -175,7 +175,7 @@ class EditApiAccessMethodViewModel(
                         accessMethod.name,
                         accessMethod.apiAccessMethod as? ApiAccessMethod.CustomProxy
                             ?: error(
-                                "${accessMethod.apiAccessMethod} api access type can not be edited"
+                                "${accessMethod.apiAccessMethod} api access type can not be edited",
                             ),
                     )
                 }
@@ -199,7 +199,7 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseShadowSocksFormData(
-        formData: EditApiAccessFormData
+        formData: EditApiAccessFormData,
     ): EitherNel<InvalidDataError, ApiAccessMethod.CustomProxy.Shadowsocks> =
         parseIpAndPort(formData.serverIp, formData.port).map { (ip, port) ->
             ApiAccessMethod.CustomProxy.Shadowsocks(
@@ -227,7 +227,7 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseSocks5RemoteFormData(
-        formData: EditApiAccessFormData
+        formData: EditApiAccessFormData,
     ): EitherNel<InvalidDataError, ApiAccessMethod.CustomProxy.Socks5Remote> =
         zipOrAccumulate(
             parseIpAndPort(formData.serverIp, formData.port),
@@ -271,7 +271,7 @@ class EditApiAccessMethodViewModel(
         }
 
     private fun parseName(
-        input: String
+        input: String,
     ): EitherNel<InvalidDataError.NameError, ApiAccessMethodName> = either {
         ensure(input.isNotBlank()) { InvalidDataError.NameError.Required.nel() }
         ApiAccessMethodName.fromString(input)

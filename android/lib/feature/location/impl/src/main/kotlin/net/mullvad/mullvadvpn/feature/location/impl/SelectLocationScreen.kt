@@ -138,7 +138,7 @@ const val ANIMATION_DELAY_FADE_IN = 90
 @Composable
 private fun PreviewSelectLocationScreen(
     @PreviewParameter(SelectLocationsUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, SelectLocationUiState>
+    state: Lc<Unit, SelectLocationUiState>,
 ) {
     AppTheme {
         SelectLocationScreen(
@@ -167,7 +167,7 @@ private fun PreviewSelectLocationScreen(
                                     ),
                                 relayListType = relayListType,
                                 recentsEnabled = true,
-                            )
+                            ),
                         ),
                     bottomMargin = bottomMargin,
                     relayListType = relayListType,
@@ -205,7 +205,7 @@ fun SelectLocation(navigator: Navigator) {
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred),
                     )
                 }
 
@@ -216,7 +216,7 @@ fun SelectLocation(navigator: Navigator) {
                             resources.getString(
                                 R.string.relay_item_already_selected_as_entry,
                                 it.relayItem.name,
-                            )
+                            ),
                     )
                 }
 
@@ -227,7 +227,7 @@ fun SelectLocation(navigator: Navigator) {
                             resources.getString(
                                 R.string.relay_item_already_selected_as_exit,
                                 it.relayItem.name,
-                            )
+                            ),
                     )
                 }
 
@@ -235,14 +235,14 @@ fun SelectLocation(navigator: Navigator) {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name),
                     )
                 }
 
             SelectLocationSideEffect.EntryAndExitAreSame ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.entry_and_exit_are_same)
+                        message = resources.getString(R.string.entry_and_exit_are_same),
                     )
                 }
 
@@ -250,7 +250,7 @@ fun SelectLocation(navigator: Navigator) {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            resources.getString(R.string.updating_server_list_in_the_background)
+                            resources.getString(R.string.updating_server_list_in_the_background),
                     )
                 }
         }
@@ -267,7 +267,7 @@ fun SelectLocation(navigator: Navigator) {
 
             LocationBottomSheetNavResult.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred),
                 )
 
             is LocationBottomSheetNavResult.EntryAlreadySelected ->
@@ -276,7 +276,7 @@ fun SelectLocation(navigator: Navigator) {
                         resources.getString(
                             R.string.relay_item_already_selected_as_entry,
                             result.relayItem.name,
-                        )
+                        ),
                 )
 
             is LocationBottomSheetNavResult.ExitAlreadySelected ->
@@ -285,18 +285,18 @@ fun SelectLocation(navigator: Navigator) {
                         resources.getString(
                             R.string.relay_item_already_selected_as_exit,
                             result.relayItem.name,
-                        )
+                        ),
                 )
 
             is LocationBottomSheetNavResult.RelayItemInactive ->
                 snackbarHostState.showSnackbarImmediately(
                     message =
-                        resources.getString(R.string.relayitem_is_inactive, result.relayItem.name)
+                        resources.getString(R.string.relayitem_is_inactive, result.relayItem.name),
                 )
 
             LocationBottomSheetNavResult.EntryAndExitAreSame ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.entry_and_exit_are_same)
+                    message = resources.getString(R.string.entry_and_exit_are_same),
                 )
 
             is LocationBottomSheetNavResult.MultihopChanged -> {
@@ -310,7 +310,7 @@ fun SelectLocation(navigator: Navigator) {
                                     R.string.multihop_is_enabled
 
                                 else -> R.string.multihop_is_disabled
-                            }
+                            },
                         ),
                     actionLabel = resources.getString(R.string.undo),
                     onAction = { vm.undoMultihopAction(result.undoChangeMultihopAction) },

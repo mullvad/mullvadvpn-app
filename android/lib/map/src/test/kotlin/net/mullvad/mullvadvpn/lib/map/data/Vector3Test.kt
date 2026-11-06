@@ -23,7 +23,7 @@ class Vector3Test {
                 -0.9999999f,
                 -1f,
                 -1.0000001f,
-            ]
+            ],
     )
     fun `given a vector3 y should produce a valid latitude`(y: Float) {
         val vector = Vector3(0f, y, 0f)

@@ -25,7 +25,7 @@ class SpeedTest : BenchmarkTest() {
 
     @Test
     @Disabled(
-        "Testing iperf3 without a VPN connection to the stagemole relay is currently not possible"
+        "Testing iperf3 without a VPN connection to the stagemole relay is currently not possible",
     )
     fun noVpn() {
         val result = runIperf3(context, targetContext)

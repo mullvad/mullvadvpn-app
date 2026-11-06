@@ -92,5 +92,5 @@ private fun RenameError.errorString() =
             is NameIsEmpty -> R.string.custom_list_error_list_is_empty
             is GetCustomListError,
             is UnknownCustomListError -> R.string.error_occurred
-        }
+        },
     )

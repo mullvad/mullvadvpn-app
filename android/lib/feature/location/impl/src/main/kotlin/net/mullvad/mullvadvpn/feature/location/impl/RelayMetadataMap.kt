@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.SearchMatch
 
 internal fun RelayMetadataMap.withHighlights(
-    highlights: Map<RelayItemId, SearchMatch>
+    highlights: Map<RelayItemId, SearchMatch>,
 ): RelayMetadataMap {
     val highlightsMetadata = highlights.mapValues { (_, match) ->
         RelayMetadata(titleHighlights = match.matchRange)

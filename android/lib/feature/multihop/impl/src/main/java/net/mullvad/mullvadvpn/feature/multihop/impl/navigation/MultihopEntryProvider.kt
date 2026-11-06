@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.multihopEntry(navigator: Navigator) {
     entry<MultihopNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navKey ->
         LocalSharedTransitionScope.current?.Multihop(
             isModal = navKey.isModal,

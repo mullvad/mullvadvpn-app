@@ -63,7 +63,7 @@ class SaveApiAccessMethodViewModel(
                         name = apiAccessMethodName,
                         enabled = true,
                         apiAccessMethod = customProxy,
-                    )
+                    ),
                 )
             }
         }

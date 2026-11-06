@@ -50,7 +50,7 @@ class AccountViewModelTest {
 
     private val deviceState: MutableStateFlow<DeviceState?> =
         MutableStateFlow(
-            DeviceState.LoggedIn(accountNumber = dummyAccountNumber, device = dummyDevice)
+            DeviceState.LoggedIn(accountNumber = dummyAccountNumber, device = dummyDevice),
         )
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val accountExpiryState = MutableStateFlow(null)
@@ -112,8 +112,8 @@ class AccountViewModelTest {
                             productId = ProductId("test_product_id"),
                             price = ProductPrice("9.99"),
                             status = PaymentStatus.PENDING,
-                        )
-                    )
+                        ),
+                    ),
             )
 
         // Act, Assert

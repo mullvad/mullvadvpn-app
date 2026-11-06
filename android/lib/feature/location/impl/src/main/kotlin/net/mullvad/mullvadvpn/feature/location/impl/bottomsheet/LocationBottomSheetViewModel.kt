@@ -72,7 +72,7 @@ class LocationBottomSheetViewModel(
                                 item = locationBottomSheetState.item,
                                 setAsEntryState =
                                     canBeSelectedAs.entryIds?.validate(
-                                        locationBottomSheetState.item
+                                        locationBottomSheetState.item,
                                     ) ?: SetAsState.HIDDEN,
                                 setAsExitState =
                                     canBeSelectedAs.exitIds?.validate(locationBottomSheetState.item)
@@ -87,9 +87,9 @@ class LocationBottomSheetViewModel(
                                                 it.id == locationBottomSheetState.customListId
                                             }
                                             ?.name
-                                            .orEmpty()
+                                            .orEmpty(),
                                     ),
-                            )
+                            ),
                         )
 
                     is LocationBottomSheetState.ShowEditCustomListBottomSheet ->
@@ -98,7 +98,7 @@ class LocationBottomSheetViewModel(
                                 item = locationBottomSheetState.item,
                                 setAsEntryState =
                                     canBeSelectedAs.entryIds?.validate(
-                                        locationBottomSheetState.item
+                                        locationBottomSheetState.item,
                                     ) ?: SetAsState.HIDDEN,
                                 setAsExitState =
                                     canBeSelectedAs.exitIds?.validate(locationBottomSheetState.item)
@@ -106,7 +106,7 @@ class LocationBottomSheetViewModel(
                                 canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
                                         locationBottomSheetState.item.id,
-                            )
+                            ),
                         )
 
                     is LocationBottomSheetState.ShowLocationBottomSheet ->
@@ -116,7 +116,7 @@ class LocationBottomSheetViewModel(
                                 customLists = customLists,
                                 setAsEntryState =
                                     canBeSelectedAs.entryIds?.validate(
-                                        locationBottomSheetState.item
+                                        locationBottomSheetState.item,
                                     ) ?: SetAsState.HIDDEN,
                                 setAsExitState =
                                     canBeSelectedAs.exitIds?.validate(locationBottomSheetState.item)
@@ -124,7 +124,7 @@ class LocationBottomSheetViewModel(
                                 canDisableMultihop =
                                     selectedLocation.entryLocation()?.getOrNull() ==
                                         locationBottomSheetState.item.id,
-                            )
+                            ),
                         )
                 }
             }
@@ -166,7 +166,7 @@ class LocationBottomSheetViewModel(
                                     UndoChangeMultihopAction.DisableAndSetEntry(previousEntry)
                                 } else {
                                     UndoChangeMultihopAction.Disable
-                                }
+                                },
                             )
                         }
                     },
@@ -207,7 +207,7 @@ class LocationBottomSheetViewModel(
                                     UndoChangeMultihopAction.DisableAndSetExit(previousExit.id)
                                 } else {
                                     UndoChangeMultihopAction.Disable
-                                }
+                                },
                             )
                         }
                     },
@@ -267,13 +267,13 @@ class LocationBottomSheetViewModel(
     fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
         viewModelScope.launch {
             _uiSideEffect.send(
-                LocationBottomSheetNavResult.MultihopChanged(undoChangeMultihopAction)
+                LocationBottomSheetNavResult.MultihopChanged(undoChangeMultihopAction),
             )
         }
     }
 
     private fun ModifyMultihopError.toSideEffect(
-        multihopChange: MultihopChange
+        multihopChange: MultihopChange,
     ): LocationBottomSheetNavResult =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->

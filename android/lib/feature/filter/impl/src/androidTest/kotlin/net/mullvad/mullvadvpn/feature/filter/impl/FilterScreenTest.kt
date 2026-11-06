@@ -48,7 +48,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
         onNodeWithText("Ownership").assertExists()
         onNodeWithText("Providers").assertExists()
@@ -63,7 +63,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
         onNodeWithText("Any").assertExists()
     }
@@ -77,7 +77,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
         onNodeWithText("Mullvad owned only").assertExists()
     }
@@ -91,7 +91,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Only(Ownership.Rented),
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
         onNodeWithText("Rented only").assertExists()
     }
@@ -105,7 +105,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
 
         onNodeWithText("Creanova").assertExists()
@@ -144,7 +144,7 @@ class FilterScreenTest {
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),
                     filterTarget = RelayHopType.EXIT,
-                )
+                ),
         )
 
         // Asset

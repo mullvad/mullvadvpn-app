@@ -97,7 +97,7 @@ class WelcomeScreenTest {
                         showSitePayment = false,
                         paymentStatus = null,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -140,7 +140,7 @@ class WelcomeScreenTest {
                         showSitePayment = false,
                         paymentStatus = PaymentStatus.PENDING,
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert

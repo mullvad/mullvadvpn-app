@@ -104,7 +104,7 @@ private fun createRelayListItems(
                 recents = recents,
                 itemSelection = selectedItem,
                 relayListType = relayListType,
-            )
+            ),
         )
     }
     addAll(
@@ -115,7 +115,7 @@ private fun createRelayListItems(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = customLists,
             isExpanded = isExpanded,
-        )
+        ),
     )
     addAll(
         createLocationSection(
@@ -126,7 +126,7 @@ private fun createRelayListItems(
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
-        )
+        ),
     )
 }
 
@@ -147,7 +147,7 @@ private fun createRecentsSection(
                     }
                     RecentItem.Automatic ->
                         RelayListItem.AutomaticEntryItem.Recent(
-                            isSelected = itemSelection.isEntryLocationAutomatic()
+                            isSelected = itemSelection.isEntryLocationAutomatic(),
                         )
                 }
             }
@@ -278,7 +278,7 @@ private fun createCustomListRelayItems(
                     } else {
                         Position.Single
                     },
-            )
+            ),
         )
 
         if (expanded) {
@@ -294,7 +294,7 @@ private fun createCustomListRelayItems(
                         isExpanded = isExpanded,
                         isLast = index == customList.locations.lastIndex,
                     )
-                }
+                },
             )
         }
     }
@@ -313,8 +313,8 @@ private fun createLocationSection(
     if (relayListType.isMultihopEntry) {
         add(
             RelayListItem.AutomaticEntryItem.RelayList(
-                isSelected = selectedItem.isEntryLocationAutomatic()
-            )
+                isSelected = selectedItem.isEntryLocationAutomatic(),
+            ),
         )
     }
     addAll(
@@ -328,7 +328,7 @@ private fun createLocationSection(
                 isExpanded = isExpanded,
                 isLast = true,
             )
-        }
+        },
     )
 }
 
@@ -353,7 +353,7 @@ private fun createLocationSectionSearching(
                     isExpanded = isExpanded,
                     isLast = true,
                 )
-            }
+            },
         )
     }
 }
@@ -389,7 +389,7 @@ private fun createCustomListEntry(
                 },
             needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
             connected = relayMetadata[item.id]?.connectedRelay ?: false,
-        )
+        ),
     )
 
     if (expanded) {
@@ -407,7 +407,7 @@ private fun createCustomListEntry(
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
                         )
-                    }
+                    },
                 )
             is RelayItem.Location.Country ->
                 addAll(
@@ -422,7 +422,7 @@ private fun createCustomListEntry(
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
                         )
-                    }
+                    },
                 )
             is RelayItem.Location.Relay -> {} // No children to add
         }
@@ -474,7 +474,7 @@ private fun createGeoLocationEntry(
                     }
                 },
             needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
-        )
+        ),
     )
 
     if (expanded) {
@@ -492,7 +492,7 @@ private fun createGeoLocationEntry(
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.relays.lastIndex,
                         )
-                    }
+                    },
                 )
             is RelayItem.Location.Country ->
                 addAll(
@@ -507,7 +507,7 @@ private fun createGeoLocationEntry(
                             isExpanded = isExpanded,
                             isLast = isLast && index == item.cities.lastIndex,
                         )
-                    }
+                    },
                 )
             is RelayItem.Location.Relay -> {} // Do nothing
         }

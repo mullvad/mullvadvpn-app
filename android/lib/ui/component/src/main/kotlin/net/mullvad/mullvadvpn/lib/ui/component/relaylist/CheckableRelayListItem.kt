@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 @Preview
 private fun PreviewCheckableRelayListItem(
     @PreviewParameter(RelayItemCheckableCellPreviewParameterProvider::class)
-    relayItems: List<RelayItem.Location.Country>
+    relayItems: List<RelayItem.Location.Country>,
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
@@ -54,7 +54,7 @@ fun CheckableRelayListItem(
         position = item.itemPosition,
         title =
             item.searchMatch?.toAnnotatedString(
-                highlightColor = MaterialTheme.colorScheme.highlight
+                highlightColor = MaterialTheme.colorScheme.highlight,
             ) ?: item.item.name.toAnnotatedString(),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },

@@ -91,7 +91,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewMultihopMigrationScreen(
     @PreviewParameter(MultihopMigrationUiStatePreviewParameterProvider::class)
-    state: MultihopMigrationUiState
+    state: MultihopMigrationUiState,
 ) {
     AppTheme {
         MultihopMigrationScreen(
@@ -121,7 +121,7 @@ fun MultihopMigration(navKey: MultihopMigrationNavKey, navigator: Navigator) {
             MultihopMigrationScreenSideEffect.CloseScreen -> navigator.goBack()
             MultihopMigrationScreenSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred),
                 )
         }
     }
@@ -157,7 +157,7 @@ fun MultihopMigrationScreen(
             } else {
                 onCloseClick()
             }
-        }
+        },
     )
 
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -286,7 +286,7 @@ private fun AnnotatedString.Builder.MultihopModeDescription(
     withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) { appendLine(fromModeToMode) }
     appendLine()
     withStyle(
-        SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+        SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold),
     ) {
         appendLine(newMode)
     }
@@ -501,7 +501,7 @@ private fun BottomBar(
     Column(
         modifier =
             Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-                .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMarginNew)
+                .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMarginNew),
     ) {
         if (pages > 1) {
             PageIndicator(currentPage = currentPage, pages = pages)
@@ -537,7 +537,7 @@ private fun BottomBar(
                                 .testTag(MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG),
                     )
                     Spacer(
-                        modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp)
+                        modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp),
                     )
                 }
                 val nextMessage =
@@ -578,7 +578,7 @@ private fun PageIndicator(currentPage: Int, pages: Int) {
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.onPrimary)
                             .height(Dimens.indicatorSize)
-                            .width(Dimens.indicatorWidthSelected)
+                            .width(Dimens.indicatorWidthSelected),
                 )
             } else {
                 Box(
@@ -586,7 +586,7 @@ private fun PageIndicator(currentPage: Int, pages: Int) {
                         Modifier.padding(Dimens.indicatorPadding)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary)
-                            .size(Dimens.indicatorSize)
+                            .size(Dimens.indicatorSize),
                 )
             }
         }

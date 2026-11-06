@@ -36,7 +36,7 @@ fun runIperf3(context: Context, targetContext: Context): IperfResult {
                                 InstrumentationRegistry.getArguments().getTargetUsername(),
                                 "--rsa-public-key-path",
                                 publicKeyPath,
-                            )
+                            ),
                         )
                     val env = it.environment()
                     env[PASSWORD_ENV] = InstrumentationRegistry.getArguments().getTargetPassword()

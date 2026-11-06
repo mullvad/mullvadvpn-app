@@ -44,7 +44,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewNotificationSettingsScreen(
     @PreviewParameter(NotificationSettingsUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, NotificationSettingsUiState>
+    state: Lc<Unit, NotificationSettingsUiState>,
 ) {
     AppTheme {
         NotificationSettingsScreen(
@@ -97,8 +97,8 @@ fun NotificationSettingsScreen(
                     modifier =
                         Modifier.windowInsetsPadding(
                                 WindowInsets.safeDrawing.only(
-                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                                )
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                                ),
                             )
                             .padding(
                                 horizontal = Dimens.sideMarginNew,

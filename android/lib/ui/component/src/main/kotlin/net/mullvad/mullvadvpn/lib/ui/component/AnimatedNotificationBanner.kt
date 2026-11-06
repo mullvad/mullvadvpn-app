@@ -114,7 +114,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
                     bottom = Dimens.smallPadding,
                 )
                 .animateContentSize()
-                .testTag(NOTIFICATION_BANNER_TEST_TAG)
+                .testTag(NOTIFICATION_BANNER_TEST_TAG),
     ) {
         val (status, textTitle, textMessage, actionIcon) = createRefs()
         NotificationDot(
@@ -216,7 +216,7 @@ private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
                         },
                     shape = CircleShape,
                 )
-                .size(Dimens.notificationStatusIconSize)
+                .size(Dimens.notificationStatusIconSize),
     )
 }
 

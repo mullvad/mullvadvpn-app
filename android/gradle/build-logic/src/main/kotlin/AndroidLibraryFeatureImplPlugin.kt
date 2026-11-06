@@ -26,7 +26,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
                         pickFirsts +=
                             setOf(
                                 // Fixes packaging error caused by: jetified-junit-*
-                                "META-INF/LICENSE.md"
+                                "META-INF/LICENSE.md",
                             )
                     }
                 }
@@ -57,7 +57,7 @@ class AndroidLibraryFeatureImplPlugin : Plugin<Project> {
 
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.core").get())
                 "androidTestImplementation"(
-                    libs.findLibrary("junit5.android.test.extensions").get()
+                    libs.findLibrary("junit5.android.test.extensions").get(),
                 )
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.runner").get())
             }

@@ -134,7 +134,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -164,7 +164,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -191,7 +191,7 @@ class ConnectScreenTest {
                         hops = ConnectionPath(),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -219,7 +219,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -246,11 +246,11 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification =
                             InAppNotification.TunnelStateError(
-                                ErrorState(ErrorStateCause.StartTunnelError, true)
+                                ErrorState(ErrorStateCause.StartTunnelError, true),
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -278,11 +278,11 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification =
                             InAppNotification.TunnelStateError(
-                                ErrorState(ErrorStateCause.StartTunnelError, false)
+                                ErrorState(ErrorStateCause.StartTunnelError, false),
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -311,7 +311,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -340,7 +340,7 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -547,7 +547,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Act
@@ -584,13 +584,13 @@ class ConnectScreenTest {
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
             onNodeWithText("UNSUPPORTED VERSION").assertExists()
             onNodeWithText(
-                    "Your privacy might be at risk with this unsupported app version. Please update now."
+                    "Your privacy might be at risk with this unsupported app version. Please update now.",
                 )
                 .assertExists()
         }
@@ -613,11 +613,11 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification =
                             InAppNotification.AccountExpiry(
-                                Duration.between(Instant.now(), expiryDate)
+                                Duration.between(Instant.now(), expiryDate),
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Assert
@@ -677,7 +677,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification =
                             InAppNotification.AccountExpiry(
-                                Duration.between(Instant.now(), expiryDate)
+                                Duration.between(Instant.now(), expiryDate),
                             ),
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
@@ -779,7 +779,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Act
@@ -840,7 +840,7 @@ class ConnectScreenTest {
                         inAppNotification = null,
                         isPlayBuild = false,
                         showMigrationGuideNotificationDot = false,
-                    )
+                    ),
             )
 
             // Act

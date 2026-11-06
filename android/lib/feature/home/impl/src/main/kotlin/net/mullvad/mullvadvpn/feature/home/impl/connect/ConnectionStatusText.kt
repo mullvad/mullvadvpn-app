@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 @Preview
 @Composable
 private fun PreviewConnectionStatusText(
-    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState
+    @PreviewParameter(TunnelStatePreviewParameterProvider::class) tunnelState: TunnelState,
 ) {
     AppTheme {
         Column(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
@@ -54,7 +54,8 @@ private fun TunnelState.text() =
         is TunnelState.Error ->
             stringResource(
                 id =
-                    if (errorState.isBlocking) R.string.blocked_connection else R.string.error_state
+                    if (errorState.isBlocking) R.string.blocked_connection
+                    else R.string.error_state,
             )
     }.uppercase()
 

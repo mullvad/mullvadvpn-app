@@ -149,7 +149,7 @@ fun SharedTransitionScope.DnsSettings(
             DnsSettingsSideEffect.ShowToast.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred),
                     )
                 }
         }
@@ -284,7 +284,7 @@ private fun Content(
                     FeatureIndicator.DNS_CONTENT_BLOCKERS -> CONTENT_BLOCKERS_INDEX
                     FeatureIndicator.CUSTOM_DNS -> 0 // Scroll to bottom
                     else -> 0
-                }
+                },
         )
 
     LaunchedEffect(state.customDnsEnabled) {
@@ -354,12 +354,14 @@ private fun Content(
                             text =
                                 buildString {
                                     appendLine(
-                                        stringResource(R.string.dns_settings_issues_first_paragraph)
+                                        stringResource(
+                                            R.string.dns_settings_issues_first_paragraph,
+                                        ),
                                     )
                                     append(
                                         stringResource(
-                                            R.string.dns_settings_issues_second_paragraph
-                                        )
+                                            R.string.dns_settings_issues_second_paragraph,
+                                        ),
                                     )
                                 },
                             argument = stringResource(R.string.system_network_settings),

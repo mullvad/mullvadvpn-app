@@ -67,7 +67,7 @@ class SettingsScreenTest {
                         multihopMode = MultihopMode.NEVER,
                         showMigrationGuideNotificationDot = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
         // Assert
         onNodeWithText("VPN settings").assertExists()
@@ -92,7 +92,7 @@ class SettingsScreenTest {
                         splitTunnelingIsActive = false,
                         showMigrationGuideNotificationDot = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
         // Assert
         onNodeWithText("VPN settings").assertDoesNotExist()
@@ -117,7 +117,7 @@ class SettingsScreenTest {
                         splitTunnelingIsActive = true,
                         showMigrationGuideNotificationDot = false,
                     )
-                    .toLc()
+                    .toLc(),
         )
         // Assert
         onNodeWithText("VPN settings").assertDoesNotExist()

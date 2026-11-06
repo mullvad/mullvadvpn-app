@@ -28,6 +28,6 @@ data object UserPreferencesMigration {
                     .toBuilder()
                     .setIsPrivacyDisclosureAccepted(privacyDisclosureAccepted)
                     .build()
-            }
+            },
         )
 }

@@ -25,7 +25,7 @@ class RelayItemListCreatorTest {
                         needsOtherEntry = false,
                         titleHighlights = null,
                         connectedRelay = true,
-                    )
+                    ),
             )
         val relayListItems =
             relayListItems(
@@ -84,7 +84,7 @@ class RelayItemListCreatorTest {
             )
 
         assertTrue(
-            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().none { it.connected }
+            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().none { it.connected },
         )
     }
 
@@ -97,7 +97,7 @@ class RelayItemListCreatorTest {
                         needsOtherEntry = false,
                         titleHighlights = null,
                         connectedRelay = true,
-                    )
+                    ),
             )
         val relayListItems =
             relayListItems(
@@ -113,7 +113,7 @@ class RelayItemListCreatorTest {
             )
 
         assertTrue(
-            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().none { it.connected }
+            relayListItems.filterIsInstance<RelayListItem.SelectableItem>().none { it.connected },
         )
     }
 }

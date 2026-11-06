@@ -21,7 +21,7 @@ class ChangelogViewModel(
                 navArgs.isModal,
                 buildVersion.name,
                 changelogRepository.getLastVersionChanges(),
-            )
+            ),
         )
 
     fun dismissChangelogNotification() = viewModelScope.launch {

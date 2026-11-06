@@ -57,7 +57,7 @@ private class DrawerValueProvider : PreviewParameterProvider<DrawerValue> {
 @Preview("Closed|Open")
 @Composable
 private fun PreviewNavigationDrawerTvClosed(
-    @PreviewParameter(DrawerValueProvider::class) drawerValue: DrawerValue
+    @PreviewParameter(DrawerValueProvider::class) drawerValue: DrawerValue,
 ) {
     AppTheme {
         NavigationDrawerTv(
@@ -91,7 +91,7 @@ fun NavigationDrawerTv(
             onBack = {
                 drawerState.setValue(DrawerValue.Closed)
                 focusManager.moveFocus(FocusDirection.Right)
-            }
+            },
         )
     }
 
@@ -109,12 +109,12 @@ fun NavigationDrawerTv(
                         end = Dimens.tvDrawerHorizontalPadding,
                     )
                     .focusRestorer()
-                    .focusGroup()
+                    .focusGroup(),
             ) {
                 val animatedPadding =
                     animateDpAsState(
                         if (hasFocus) Dimens.tvDrawerHeaderWithFocusStartPadding
-                        else Dimens.tvDrawerHeaderStartPadding
+                        else Dimens.tvDrawerHeaderStartPadding,
                     )
 
                 NavigationDrawerTvHeader(
@@ -182,8 +182,8 @@ private fun NavigationDrawerTvHeader(
         modifier =
             modifier.width(
                 if (isExpanded) NavigationDrawerItemDefaults.ExpandedDrawerItemWidth
-                else NavigationDrawerItemDefaults.CollapsedDrawerItemWidth
-            )
+                else NavigationDrawerItemDefaults.CollapsedDrawerItemWidth,
+            ),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

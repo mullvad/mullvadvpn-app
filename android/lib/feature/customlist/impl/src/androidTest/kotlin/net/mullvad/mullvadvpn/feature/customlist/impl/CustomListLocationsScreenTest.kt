@@ -68,7 +68,7 @@ class CustomListLocationsScreenTest {
         // Arrange
         val newList = true
         initScreen(
-            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit)),
         )
 
         // Assert
@@ -80,7 +80,7 @@ class CustomListLocationsScreenTest {
         // Arrange
         val newList = false
         initScreen(
-            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit)),
         )
 
         // Assert
@@ -111,9 +111,9 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
-                            )
+                            ),
                         ),
-                )
+                ),
         )
 
         // Assert
@@ -138,7 +138,7 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
-                            )
+                            ),
                         ),
                 ),
             onRelaySelectionClick = mockedOnRelaySelectionClicked,
@@ -166,7 +166,7 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
-                            )
+                            ),
                         ),
                 ),
             onSearchTermInput = mockedSearchTermInput,
@@ -198,7 +198,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
                                 locations = emptyList(),
-                            )
+                            ),
                         ),
                 ),
             onSearchTermInput = mockedSearchTermInput,
@@ -232,7 +232,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = true,
                                 hasUnsavedChanges = true,
                                 searchTerm = "",
-                            )
+                            ),
                         ),
                 ),
             onSaveClick = mockOnSaveClick,
@@ -260,7 +260,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
                                 searchTerm = "",
-                            )
+                            ),
                         ),
                 ),
             onSaveClick = mockOnSaveClick,

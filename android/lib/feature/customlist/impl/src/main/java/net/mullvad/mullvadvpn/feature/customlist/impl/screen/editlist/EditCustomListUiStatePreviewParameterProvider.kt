@@ -17,7 +17,7 @@ class EditCustomListUiStatePreviewParameterProvider :
                         GeoLocationId.Hostname(
                             GeoLocationId.City(GeoLocationId.Country("country"), code = "city"),
                             "hostname",
-                        )
+                        ),
                     ),
             ),
             EditCustomListUiState.Loading,

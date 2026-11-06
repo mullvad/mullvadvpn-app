@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 
 class ResetServerIpOverridesConfirmationViewModel(
-    private val relayOverridesRepository: RelayOverridesRepository
+    private val relayOverridesRepository: RelayOverridesRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<ResetServerIpOverridesConfirmationUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -20,12 +20,12 @@ class ResetServerIpOverridesConfirmationViewModel(
             .fold(
                 {
                     _uiSideEffect.send(
-                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesError(it)
+                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesError(it),
                     )
                 },
                 {
                     _uiSideEffect.send(
-                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared
+                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared,
                     )
                 },
             )

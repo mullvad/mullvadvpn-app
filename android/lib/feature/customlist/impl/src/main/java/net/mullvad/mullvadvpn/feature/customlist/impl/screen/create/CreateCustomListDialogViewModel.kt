@@ -46,7 +46,7 @@ class CreateCustomListDialogViewModel(
                     CustomListAction.Create(
                         CustomListName.fromString(name),
                         listOfNotNull(locationCode),
-                    )
+                    ),
                 )
                 .fold(
                     { _error.emit(it) },
@@ -54,7 +54,7 @@ class CreateCustomListDialogViewModel(
                         if (it.locationNames.isEmpty()) {
                             _uiSideEffect.send(
                                 CreateCustomListDialogSideEffect
-                                    .NavigateToCustomListLocationsScreen(it.id)
+                                    .NavigateToCustomListLocationsScreen(it.id),
                             )
                         } else {
                             _uiSideEffect.send(
@@ -63,8 +63,8 @@ class CreateCustomListDialogViewModel(
                                         customListName = it.name,
                                         locationNames = it.locationNames,
                                         undo = it.undo,
-                                    )
-                                )
+                                    ),
+                                ),
                             )
                         }
                     },
@@ -83,6 +83,6 @@ sealed interface CreateCustomListDialogSideEffect {
         CreateCustomListDialogSideEffect
 
     data class ReturnWithResult(
-        val result: CustomListActionResultData.Success.CreatedWithLocations
+        val result: CustomListActionResultData.Success.CreatedWithLocations,
     ) : CreateCustomListDialogSideEffect
 }

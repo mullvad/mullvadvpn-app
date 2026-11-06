@@ -135,7 +135,7 @@ class VpnSettingsViewModelTest {
                 assertTrue(
                     content.value.settings
                         .filterIsInstance<VpnSettingItem.QuantumResistantSetting>()
-                        .any { it.enabled }
+                        .any { it.enabled },
                 )
             }
         }
@@ -154,7 +154,7 @@ class VpnSettingsViewModelTest {
                 val content = awaitItem()
                 assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
                 assertTrue(
-                    content.value.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode }
+                    content.value.settings.any { it is VpnSettingItem.AutoConnectAndLockdownMode },
                 )
             }
         }
@@ -175,7 +175,7 @@ class VpnSettingsViewModelTest {
             val content = awaitItem()
             assertInstanceOf<Lc.Content<VpnSettingsUiState>>(content)
             assertTrue(
-                content.value.settings.any { it is VpnSettingItem.ConnectDeviceOnStartUpSetting }
+                content.value.settings.any { it is VpnSettingItem.ConnectDeviceOnStartUpSetting },
             )
         }
     }
@@ -263,7 +263,7 @@ class VpnSettingsViewModelTest {
                                 providers = Constraint.Any,
                                 ownership = Constraint.Any,
                                 location = Constraint.Any,
-                            )
+                            ),
                     ),
                 obfuscationSettings =
                     ObfuscationSettings(

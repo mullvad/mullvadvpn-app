@@ -47,7 +47,7 @@ class EditCustomListNameDialogViewModel(
                         id = navArgs.customListId,
                         name = navArgs.initialName,
                         newName = CustomListName.fromString(name),
-                    )
+                    ),
                 )
                 .fold(
                     { _error.emit(it) },
@@ -57,8 +57,8 @@ class EditCustomListNameDialogViewModel(
                                 CustomListActionResultData.Success.Renamed(
                                     newName = it.name,
                                     undo = it.undo,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     },
                 )

@@ -109,7 +109,7 @@ fun SplitTunnelingListItem(
                 contentDescription = null,
                 tint =
                     MaterialTheme.colorScheme.onSurface.copy(
-                        alpha = if (isEnabled) 1f else AlphaDisabled
+                        alpha = if (isEnabled) 1f else AlphaDisabled,
                     ),
                 modifier = Modifier.size(size = iconSize),
             )
@@ -127,7 +127,9 @@ private fun BoxScope.Icon(iconState: IconState, isEnabled: Boolean) {
                         .padding(end = Dimens.smallPadding)
                         .size(iconSize)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled))
+                        .background(
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled),
+                        ),
             )
         is IconState.Icon -> {
             Image(

@@ -59,7 +59,7 @@ class ApiAccessRepository(
                     id = apiAccessMethodId,
                     name = apiAccessMethodName,
                     apiAccessMethod = apiAccessMethod,
-                )
+                ),
             )
             .bind()
     }

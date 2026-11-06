@@ -37,7 +37,7 @@ class SelectedLocationUseCaseTest {
                 endpoint = mockk(),
                 location = mockk(),
                 featureIndicators = listOf(FeatureIndicator.MULTIHOP_AUTO),
-            )
+            ),
         )
 
     private val selectedLocation = MutableStateFlow<Constraint<RelayItemId>>(Constraint.Any)

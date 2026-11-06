@@ -35,7 +35,7 @@ interface PaymentLogic {
     suspend fun resetPurchaseResult()
 
     suspend fun verifyPurchases(
-        maxAttempts: Long? = null
+        maxAttempts: Long? = null,
     ): Either<VerificationError, VerificationResult>
 
     suspend fun allAvailableProducts(): List<PaymentProduct>?

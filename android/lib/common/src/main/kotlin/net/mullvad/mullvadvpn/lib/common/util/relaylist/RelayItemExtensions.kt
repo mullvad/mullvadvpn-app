@@ -98,7 +98,7 @@ private data class FilteredCity(
 private data class FilteredRelay(val relay: RelayItem.Location.Relay, val needsOtherEntry: Boolean)
 
 fun RelayItem.Location.Country.filter(
-    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>,
 ): FilteredCountry? {
     val cities = cities.mapNotNull { it.filter(validHostnames) }
 
@@ -115,7 +115,7 @@ fun RelayItem.Location.Country.filter(
 }
 
 private fun RelayItem.Location.City.filter(
-    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>,
 ): FilteredCity? {
     val relays = relays.mapNotNull { it.filter(validHostnames) }
 
@@ -134,7 +134,7 @@ private fun RelayItem.Location.City.filter(
 }
 
 private fun RelayItem.Location.Relay.filter(
-    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>,
 ): FilteredRelay? {
     // If host name is not in validHostnames return null
     val needsOtherEntry = validHostnames[id.code] ?: return null
@@ -142,7 +142,7 @@ private fun RelayItem.Location.Relay.filter(
 }
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
-    geoLocationId: GeoLocationId
+    geoLocationId: GeoLocationId,
 ): RelayItem.Location? =
     when (geoLocationId) {
         is GeoLocationId.Country -> find { country -> country.id == geoLocationId }
@@ -151,7 +151,7 @@ fun List<RelayItem.Location.Country>.findByGeoLocationId(
     }
 
 fun List<RelayItem.Location.Country>.findCity(
-    geoLocationId: GeoLocationId.City
+    geoLocationId: GeoLocationId.City,
 ): RelayItem.Location.City? = find { country ->
     country.id == geoLocationId.country
 }
@@ -159,7 +159,7 @@ fun List<RelayItem.Location.Country>.findCity(
     ?.find { city -> city.id == geoLocationId }
 
 fun List<RelayItem.Location.Country>.findRelay(
-    geoLocationId: GeoLocationId.Hostname
+    geoLocationId: GeoLocationId.Hostname,
 ): RelayItem.Location.Relay? = find { country ->
     country.id == geoLocationId.country
 }

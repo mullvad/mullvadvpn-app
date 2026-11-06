@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.serverIpOverrideEntry(navigator: Navigator) {
     entry<ServerIpOverrideNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navKey ->
         LocalSharedTransitionScope.current?.ServerIpOverrides(
             navArgs = navKey,

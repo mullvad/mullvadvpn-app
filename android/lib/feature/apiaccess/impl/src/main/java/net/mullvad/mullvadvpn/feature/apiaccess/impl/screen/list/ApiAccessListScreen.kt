@@ -49,7 +49,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewApiAccessList(
     @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)
-    state: ApiAccessListUiState
+    state: ApiAccessListUiState,
 ) {
     AppTheme {
         ApiAccessListScreen(
@@ -190,7 +190,7 @@ private fun ApiAccessMethodItem(
                         R.string.on
                     } else {
                         R.string.off
-                    }
+                    },
             ),
         onClick = { onApiAccessMethodClick(apiAccessMethodSetting) },
         position = position,

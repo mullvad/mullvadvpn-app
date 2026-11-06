@@ -65,7 +65,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, SettingsUiState>
+    state: Lc<Unit, SettingsUiState>,
 ) {
     AppTheme {
         SettingsScreen(
@@ -303,7 +303,7 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 
     val openPrivacyPolicy =
         LocalUriHandler.current.createUriHook(
-            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(state.isPlayBuild)
+            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(state.isPlayBuild),
         )
 
     ExternalLinkListItem(
@@ -324,7 +324,7 @@ private fun DaitaListItem(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
                     R.string.on
                 } else {
                     R.string.off
-                }
+                },
             ),
         onClick = onDaitaClick,
         position = Position.Top,
@@ -343,7 +343,7 @@ private fun MultihopCell(multihopMode: MultihopMode, onMultihopClick: () -> Unit
                     MultihopMode.WHEN_NEEDED -> R.string.when_needed
                     MultihopMode.ALWAYS -> R.string.always
                     MultihopMode.NEVER -> R.string.never
-                }
+                },
             ),
         onClick = onMultihopClick,
         position = Position.Middle,

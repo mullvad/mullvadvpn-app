@@ -14,21 +14,21 @@ class MultihopUiStatePreviewParameterProvider :
                     mode = MultihopMode.ALWAYS,
                     isModal = false,
                     showExtraWhenNeededInfo = false,
-                )
+                ),
             ),
             Lc.Content(
                 MultihopUiState(
                     mode = MultihopMode.WHEN_NEEDED,
                     isModal = false,
                     showExtraWhenNeededInfo = true,
-                )
+                ),
             ),
             Lc.Content(
                 MultihopUiState(
                     mode = MultihopMode.NEVER,
                     isModal = true,
                     showExtraWhenNeededInfo = false,
-                )
+                ),
             ),
         )
 }

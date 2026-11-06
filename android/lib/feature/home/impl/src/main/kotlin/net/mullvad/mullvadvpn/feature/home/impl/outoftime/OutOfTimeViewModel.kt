@@ -60,7 +60,7 @@ class OutOfTimeViewModel(
                         deviceName = deviceState.displayName(),
                         showSitePayment = !isPlayBuild,
                         paymentStatus = paymentAvailability?.status(),
-                    )
+                    ),
                 )
             }
             .stateIn(

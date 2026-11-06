@@ -24,7 +24,7 @@ class CustomListsUiStatePreviewParameterProvider : PreviewParameterProvider<Cust
                                                 code = "code",
                                             ),
                                         code = "code",
-                                    )
+                                    ),
                                 ),
                         ),
                         CustomList(
@@ -39,10 +39,10 @@ class CustomListsUiStatePreviewParameterProvider : PreviewParameterProvider<Cust
                                                 code = "code",
                                             ),
                                         code = "code",
-                                    )
+                                    ),
                                 ),
                         ),
-                    )
+                    ),
             ),
             CustomListsUiState.Content(),
             CustomListsUiState.Loading,

@@ -96,7 +96,7 @@ fun InAppNotification.toNotificationData(
                 message =
                     Text(
                         stringResource(id = R.string.new_device_notification_message, deviceName)
-                            .formatWithHtml()
+                            .formatWithHtml(),
                     ),
                 statusLevel = statusLevel,
                 action =
@@ -115,7 +115,7 @@ fun InAppNotification.toNotificationData(
                             R.string.you_can_add_more_time_play
                         } else {
                             R.string.you_can_add_more_time_oss
-                        }
+                        },
                     ),
                 statusLevel = statusLevel,
                 action =
@@ -156,8 +156,8 @@ fun InAppNotification.toNotificationData(
                                 withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
                                     append(
                                         stringResource(
-                                            id = R.string.new_changelog_notification_message
-                                        )
+                                            id = R.string.new_changelog_notification_message,
+                                        ),
                                     )
                                 }
                             },
@@ -181,14 +181,16 @@ fun InAppNotification.toNotificationData(
                         text =
                             buildAnnotatedString {
                                 append(
-                                    stringResource(id = R.string.android_16_upgrade_warning_message)
+                                    stringResource(
+                                        id = R.string.android_16_upgrade_warning_message,
+                                    ),
                                 )
                                 append(SPACE_CHAR)
                                 withStyle(
                                     SpanStyle(
                                         textDecoration = TextDecoration.Underline,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                    )
+                                    ),
                                 ) {
                                     append(stringResource(R.string.click_here))
                                 }
@@ -215,21 +217,21 @@ fun InAppNotification.toNotificationData(
                             buildAnnotatedString {
                                 appendLine(
                                     stringResource(
-                                        id = R.string.multihop_migration_in_app_message_description
-                                    )
+                                        id = R.string.multihop_migration_in_app_message_description,
+                                    ),
                                 )
                                 withStyle(
                                     SpanStyle(
                                         textDecoration = TextDecoration.Underline,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                    )
+                                    ),
                                 ) {
                                     append(stringResource(R.string.click_here_to_read_more))
                                 }
                             },
                         onClick = {
                             onClickShowMultihopMigrationWizard(
-                                MultihopMigrationData(splitFilterMigration, false)
+                                MultihopMigrationData(splitFilterMigration, false),
                             )
                         },
                         contentDescription = stringResource(id = R.string.click_here_to_read_more),
@@ -255,21 +257,21 @@ fun InAppNotification.toNotificationData(
                                     stringResource(
                                         id =
                                             R.string
-                                                .multihop_migration_blocked_in_app_message_description
-                                    )
+                                                .multihop_migration_blocked_in_app_message_description,
+                                    ),
                                 )
                                 withStyle(
                                     SpanStyle(
                                         textDecoration = TextDecoration.Underline,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                    )
+                                    ),
                                 ) {
                                     append(stringResource(R.string.click_here_to_read_more))
                                 }
                             },
                         onClick = {
                             onClickShowMultihopMigrationWizard(
-                                MultihopMigrationData(splitFilterMigration, true)
+                                MultihopMigrationData(splitFilterMigration, true),
                             )
                         },
                         contentDescription = stringResource(id = R.string.click_here_to_read_more),
@@ -299,7 +301,7 @@ private fun String.formatWithHtml(): AnnotatedString =
                 SpanStyle(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold,
-                )
+                ),
         )
 
 @Composable
@@ -390,24 +392,27 @@ private fun InetAddress.addressString(): String {
 
 @Composable
 private fun ErrorStateCause.NoRelaysMatchSelectedPort.message(
-    onClickShowWireguardPortSettings: () -> Unit
+    onClickShowWireguardPortSettings: () -> Unit,
 ) = buildAnnotatedString {
     append(
-        stringResource(R.string.wireguard_port_is_not_supported, stringResource(R.string.wireguard))
+        stringResource(
+            R.string.wireguard_port_is_not_supported,
+            stringResource(R.string.wireguard),
+        ),
     )
     append(" ")
     withStyle(
         SpanStyle(
             color = MaterialTheme.colorScheme.onSurface,
             textDecoration = TextDecoration.Underline,
-        )
+        ),
     ) {
         withLink(
             LinkAnnotation.Clickable(
                 tag = stringResource(R.string.wireguard),
                 linkInteractionListener =
                     LinkInteractionListener { onClickShowWireguardPortSettings() },
-            )
+            ),
         ) {
             append(stringResource(R.string.wireguard_settings, stringResource(R.string.wireguard)))
         }

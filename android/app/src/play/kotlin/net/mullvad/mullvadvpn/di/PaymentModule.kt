@@ -15,7 +15,7 @@ val paymentModule = module {
                 billingRepository = get(),
                 playPurchaseRepository = get(),
                 userPreferenceRepository = get(),
-            )
+            ),
         )
     }
     single { PlayPurchaseRepository(get()) }

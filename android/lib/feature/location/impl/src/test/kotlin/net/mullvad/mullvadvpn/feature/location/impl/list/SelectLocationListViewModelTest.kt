@@ -126,7 +126,7 @@ class SelectLocationListViewModelTest {
                 actualState.value.relayListItems
                     .filterIsInstance<RelayListItem.SelectableItem>()
                     .first { it.relayItemId() == selectedId }
-                    .isSelected
+                    .isSelected,
             )
         }
     }
@@ -149,7 +149,7 @@ class SelectLocationListViewModelTest {
             assertTrue(
                 actualState.value.relayListItems
                     .filterIsInstance<RelayListItem.SelectableItem>()
-                    .all { !it.isSelected }
+                    .all { !it.isSelected },
             )
         }
     }
@@ -278,7 +278,7 @@ class SelectLocationListViewModelTest {
                 assertTrue(
                     actualState.value.relayListItems
                         .filterIsInstance<RelayListItem.GeoLocationItem>()
-                        .any { it.relayItemId() == connectedRelay.id && it.connected }
+                        .any { it.relayItemId() == connectedRelay.id && it.connected },
                 )
             }
         }

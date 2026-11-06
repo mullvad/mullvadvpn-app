@@ -47,7 +47,7 @@ class FileLogWriterTest {
 
     @Test
     fun `the oldest log should be deleted when the max log file count is reached`(
-        @TempDir tempDir: Path
+        @TempDir tempDir: Path,
     ) = runTest {
         val log1 = tempDir.resolve("app_log_2025-10-26.txt").createFile()
         // Sleep is needed to ensure the files have different last modified timestamps
@@ -66,7 +66,7 @@ class FileLogWriterTest {
 
     @Test
     fun `temporary files should be deleted when the file writer is created`(
-        @TempDir tempDir: Path
+        @TempDir tempDir: Path,
     ) = runTest {
         tempDir.resolve("app_log_2025-10-26.txt").createFile()
         val tmp = tempDir.resolve("app_log_2025-10-26.txt.tmp").createFile()
@@ -122,7 +122,7 @@ class FileLogWriterTest {
 
     @Test
     fun `multiple log files that are larger than the max size should truncate the oldest log if big enough`(
-        @TempDir tempDir: Path
+        @TempDir tempDir: Path,
     ) = runTest {
         val maxBytes = 1024L * 10
         val log1 =
@@ -161,7 +161,7 @@ class FileLogWriterTest {
 
     @Test
     fun `multiple log files that are larger than the max size should remove the oldest log if small enough`(
-        @TempDir tempDir: Path
+        @TempDir tempDir: Path,
     ) = runTest {
         val maxBytes = 1024L * 10
         val log1 =

@@ -50,7 +50,7 @@ class ResultStore {
     @Composable
     @SuppressLint("ComposableNaming", "CoroutineCreationDuringComposition")
     inline fun <reified T : NavResult> consumeResult(
-        crossinline block: suspend CoroutineScope.(result: T) -> Unit
+        crossinline block: suspend CoroutineScope.(result: T) -> Unit,
     ) {
         // We need to remember the scope here instead of using a LaunchedEffect to call the block
         // because when a result is set with setResult it can trigger this function through
@@ -82,7 +82,7 @@ private fun resultStoreSaver(): Saver<ResultStore, *> =
         restore = {
             ResultStore().apply {
                 resultStateMap.putAll(
-                    it.mapValues { entry -> ResultStoreStateHolder(entry.value as? NavResult) }
+                    it.mapValues { entry -> ResultStoreStateHolder(entry.value as? NavResult) },
                 )
             }
         },
