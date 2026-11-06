@@ -15,7 +15,7 @@ import Operations
 public protocol RESTAccountHandling: Sendable {
     func createAccount(
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<NewAccountData>
+        completion: @escaping ProxyCompletionHandler<NewAccountData>
     ) -> Cancellable
 
     func getAccountData(
@@ -107,7 +107,7 @@ extension REST {
         private func createNetworkOperation<Success: Decodable>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
-            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
+            completionHandler: @escaping ProxyCompletionHandler<Success>
         ) -> MullvadApiNetworkOperation<Success> {
             let networkOperation = MullvadApiNetworkOperation(
                 name: request.name,

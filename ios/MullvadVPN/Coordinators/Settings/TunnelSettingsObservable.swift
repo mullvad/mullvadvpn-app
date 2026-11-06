@@ -10,6 +10,7 @@
 
 import MullvadSettings
 
+@MainActor
 protocol TunnelSettingsObservable<TunnelSetting>: ObservableObject {
     associatedtype TunnelSetting
 
@@ -27,6 +28,7 @@ class MockTunnelSettingsViewModel<TunnelSetting>: TunnelSettingsObservable {
     func evaluate(setting: TunnelSetting) {}
 }
 
+@MainActor
 protocol TunnelSettingsObserver<TunnelSetting>: TunnelSettingsObservable {
     associatedtype TunnelSetting
 
