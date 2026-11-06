@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -22,8 +23,10 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.common.util.DEVICE_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
@@ -36,14 +39,15 @@ import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic.Companion.VERIFICA
 
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
+    private val deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
     activityLifecycle: Lifecycle,
     isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
+    val uiSideEffect =
+        merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect(), revokedDeviceEffect())
 
     val uiState =
         combine(
@@ -76,7 +80,9 @@ class WelcomeViewModel(
                 pollPurchaseVerification()
             }
         }
-        viewModelScope.launch { deviceRepository.updateDevice() }
+        viewModelScope.launch {
+            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { pollDeviceState() }
+        }
         viewModelScope.launch {
             val accountNumber = uiState.mapNotNull { it.contentOrNull()?.accountNumber }.first()
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
@@ -130,10 +136,24 @@ class WelcomeViewModel(
         }
     }
 
+    private suspend fun pollDeviceState() {
+        while (true) {
+            deviceRepository.updateDevice()
+            delay(DEVICE_POLL_INTERVAL)
+        }
+    }
+
+    private fun revokedDeviceEffect() =
+        deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
+            UiSideEffect.DeviceRevoked
+        }
+
     sealed interface UiSideEffect {
         data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+
+        data object DeviceRevoked : UiSideEffect
 
         data class StoreCredentialsRequest(val accountNumber: AccountNumber) : UiSideEffect
 
