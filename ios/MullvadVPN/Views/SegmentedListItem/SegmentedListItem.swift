@@ -11,6 +11,7 @@ struct SegmentedListItem<Leading: View>: View {
     @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
     @State private var segmentHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
 
+    @Binding var borderStyle: BorderStyle
     var level: Int
     var isLastInList: Bool
     var userInteraction: UserInteraction
@@ -26,7 +27,7 @@ struct SegmentedListItem<Leading: View>: View {
     let segment: AnyView?
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
-    var footer: MullvadInfoView?
+    var footer: InlineLinkText?
     let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
@@ -38,12 +39,13 @@ struct SegmentedListItem<Leading: View>: View {
         userInteraction: UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
+        borderStyle: Binding<BorderStyle> = .constant(.none),
         @ViewBuilder leadingAndTrailingDestination: () -> any View = { EmptyView() },
         @ViewBuilder leading: @escaping () -> Leading,
         @ViewBuilder trailing: () -> Trailing = { EmptyView() },
         @ViewBuilder segment: () -> Segment = { EmptyView() },
         @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
-        footer: MullvadInfoView? = nil,
+        footer: InlineLinkText? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -51,6 +53,7 @@ struct SegmentedListItem<Leading: View>: View {
         self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
+        self._borderStyle = borderStyle
         self.leadingAndTrailingDestination = leadingAndTrailingDestination().typeErase()
         self.leading = leading
         self.trailing = trailing().typeErase()
@@ -67,6 +70,18 @@ struct SegmentedListItem<Leading: View>: View {
         isLastInList && groupedContent == nil
             ? UIMetrics.LocationList.cellCornerRadius
             : 0
+    }
+
+    private var effectiveBorderStyle: BorderStyle {
+        switch borderStyle {
+        case .normal:
+            return .normal
+
+        case .error,
+            .none,
+            .focused:
+            return borderStyle
+        }
     }
 
     @ViewBuilder func leadingAndTrailing() -> some View {
@@ -164,6 +179,20 @@ struct SegmentedListItem<Leading: View>: View {
                 )
             )
         )
+        .overlay {
+            UnevenRoundedRectangle(
+                cornerRadii: .init(
+                    topLeading: topRadius,
+                    bottomLeading: bottomRadius,
+                    bottomTrailing: bottomRadius,
+                    topTrailing: topRadius
+                )
+            )
+            .strokeBorder(
+                effectiveBorderStyle.color,
+                lineWidth: effectiveBorderStyle.lineWidth
+            )
+        }
         .if(level != 0, { $0.padding(.top, 1) })
 
         groupedContent
@@ -196,11 +225,12 @@ struct SegmentedListItem<Leading: View>: View {
                     ])
                 )
             },
-            footer: MullvadInfoView(
-                bodyText: "Some text. ",
-                link: "A link",
-                onTapLink: { print("onLinkTap") }
-            )
+            footer: InlineLinkText(
+                text: "Some body text ",
+                linkTitle: "A link"
+            ) {
+                print("onTapLink")
+            }
         )
 
         Spacer()

@@ -37,7 +37,6 @@ extension UINavigationBar {
             UIColor.NavigationBar.buttonColor,
             renderingMode: .alwaysOriginal
         )
-        let backIndicatorTransitionMask = UIImage.backTransitionMask
 
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.NavigationBar.titleColor
@@ -75,7 +74,7 @@ extension UINavigationBar {
 
         navigationBarAppearance.setBackIndicatorImage(
             backIndicatorImage,
-            transitionMaskImage: backIndicatorTransitionMask
+            transitionMaskImage: nil
         )
 
         return navigationBarAppearance

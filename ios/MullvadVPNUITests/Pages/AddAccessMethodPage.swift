@@ -14,7 +14,7 @@ import XCTest
 class AddAccessMethodPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.tables[.addAccessMethodTableView]
+        self.pageElement = app.otherElements[.addAccessMethodTableView]
         waitForPageToBeShown()
     }
 
@@ -31,30 +31,29 @@ class AddAccessMethodPage: Page {
     }
 
     @discardableResult func tapShadowsocksTypeValueCell() -> Self {
-        app.tables[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["Shadowsocks"].tap()
+        app.otherElements[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["Shadowsocks"].tap()
         return self
     }
 
     @discardableResult func tapSOCKS5TypeValueCell() -> Self {
-        app.tables[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["SOCKS5"].tap()
+        app.otherElements[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["SOCKS5"].tap()
         return self
     }
 
     @discardableResult func tapServerCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5ServerCell]
+        app.buttons[AccessibilityIdentifier.addAccessMethodServerCell]
             .tap()
         return self
     }
 
     @discardableResult func tapPortCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5PortCell]
+        app.buttons[AccessibilityIdentifier.addAccessMethodPortCell]
             .tap()
         return self
     }
 
     @discardableResult func tapAuthenticationSwitch() -> Self {
-        app.switches[AccessibilityIdentifier.socks5AuthenticationSwitch]
-            .tap()
+        app.switches[.socks5AuthenticationSwitch].switches.firstMatch.tap()
         return self
     }
 

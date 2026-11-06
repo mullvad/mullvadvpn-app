@@ -103,10 +103,6 @@ extension UIImage {
     }
 
     // miscellaneous images
-    static var backTransitionMask: UIImage {
-        UIImage(named: "IconBackTransitionMask")!
-    }
-
     static var spinner: UIImage {
         UIImage(named: "IconSpinner")!
     }

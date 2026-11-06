@@ -11,13 +11,17 @@ struct AboutView: View {
                 if let header {
                     Text(header)
                         .font(.mullvadLarge)
-                        .padding(.bottom, 32)
+                        .foregroundStyle(Color.mullvadTextPrimary)
+                        .padding(.bottom, 16.0)
+                        .multilineTextAlignment(.center)
                 }
 
                 if let preamble {
                     Text(preamble)
                         .font(.mullvadSmall)
-                        .padding(.bottom, 24)
+                        .foregroundStyle(Color.mullvadTextPrimary)
+                        .padding(.bottom, 16.0)
+                        .multilineTextAlignment(.center)
                 }
 
                 ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, paragraph in
@@ -28,8 +32,7 @@ struct AboutView: View {
                         .padding(.bottom, 15)
                 }
             }
-            .padding(UIMetrics.contentInsets.toEdgeInsets)
-            .foregroundStyle(Color.mullvadTextPrimary)
+            .padding(.horizontal, 16.0)
         }
         .background(Color.mullvadBackground)
     }

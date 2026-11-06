@@ -21,31 +21,25 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
     }
 
     var itemsPublisher: AnyPublisher<[ListAccessMethodItem], Never> {
-        repository.accessMethodsPublisher
+        Publishers.CombineLatest(repository.accessMethodsPublisher, repository.currentAccessMethodPublisher)
             .receive(on: RunLoop.main)
-            .map { methods in
-                methods.map { $0.toListItem() }
-            }
-            .eraseToAnyPublisher()
-    }
+            .map { methods, currentMethod in
+                methods.map { method in
+                    let cipherIsValid =
+                        if case let .shadowsocks(configuration) = method.proxyConfiguration {
+                            shadowsocksCiphers.contains(configuration.cipher)
+                        } else {
+                            true
+                        }
+                    return method.toListItem(
+                        isInUse: method.id == currentMethod.id, configurationIsValid: cipherIsValid)
+                }
+            }.eraseToAnyPublisher()
 
-    var itemInUsePublisher: AnyPublisher<ListAccessMethodItem?, Never> {
-        repository.currentAccessMethodPublisher
-            .receive(on: RunLoop.main)
-            .map { $0.toListItem() }
-            .eraseToAnyPublisher()
     }
 
     var shadowsocksCiphers: [String] {
         repository.shadowsocksCiphers
-    }
-
-    func item(by id: UUID) -> ListAccessMethodItem? {
-        accessMethod(by: id)?.toListItem()
-    }
-
-    func fetch() -> [ListAccessMethodItem] {
-        repository.fetchAll().map { $0.toListItem() }
     }
 
     func accessMethod(by id: UUID) -> PersistentAccessMethod? {
@@ -54,15 +48,27 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
 }
 
 extension PersistentAccessMethod {
-    func toListItem() -> ListAccessMethodItem {
-        let sanitizedName = name.trimmingCharacters(in: .whitespaces)
+    fileprivate func toListItem(
+        isInUse: Bool,
+        configurationIsValid: Bool
+    ) -> ListAccessMethodItem {
+        let sanitizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let itemName = sanitizedName.isEmpty ? kind.localizedDescription : sanitizedName
+
+        var status: AccessMethodStatus = isEnabled ? .on : .off
+
+        if !configurationIsValid {
+            status = .warning("Unsupported cipher")
+        } else if isInUse {
+            status = .inUse
+        }
 
         return ListAccessMethodItem(
             id: id,
             name: itemName,
             detail: kind.localizedDescription,
-            isEnabled: isEnabled
+            isEnabled: isEnabled,
+            status: status
         )
     }
 }
