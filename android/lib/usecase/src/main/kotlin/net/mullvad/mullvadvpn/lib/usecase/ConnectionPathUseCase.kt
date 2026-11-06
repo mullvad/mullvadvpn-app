@@ -49,7 +49,7 @@ class ConnectionPathUseCase(
         }
 
     private fun List<RelayItem.Location.Country>.findRelay(
-        hostname: String
+        hostname: String,
     ): RelayItem.Location.Relay? =
         withDescendants().filterIsInstance<RelayItem.Location.Relay>().firstOrNull {
             it.id.code == hostname

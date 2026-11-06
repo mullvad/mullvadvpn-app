@@ -27,7 +27,7 @@ class AppIconViewModel(private val appObfuscationRepository: AppObfuscationRepos
                         availableObfuscations = availableObfuscations,
                         currentAppObfuscation = currentAppObfuscation,
                         applyingChange = applying,
-                    )
+                    ),
                 )
             }
             .stateIn(

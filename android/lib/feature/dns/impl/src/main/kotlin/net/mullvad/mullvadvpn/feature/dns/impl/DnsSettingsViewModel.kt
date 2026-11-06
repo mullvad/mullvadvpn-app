@@ -69,7 +69,7 @@ class DnsSettingsViewModel(
                         customDnsEntries = settings.customDnsAddresses().asStringAddressList(),
                         showUnreachableLocalDnsWarning = !settings.allowLan,
                         showUnreachableIpv6DnsWarning = !settings.tunnelOptions.enableIpv6,
-                    )
+                    ),
                 )
             }
             .stateIn(

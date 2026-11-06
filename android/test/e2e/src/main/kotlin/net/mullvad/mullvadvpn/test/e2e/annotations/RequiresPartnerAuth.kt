@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 annotation class RequiresPartnerAuth {
     class HasPartnerAuth : ExecutionCondition {
         override fun evaluateExecutionCondition(
-            context: ExtensionContext?
+            context: ExtensionContext?,
         ): ConditionEvaluationResult {
 
             val provided =
@@ -21,11 +21,11 @@ annotation class RequiresPartnerAuth {
 
             return if (provided) {
                 ConditionEvaluationResult.enabled(
-                    "Running test which requires partner authentication."
+                    "Running test which requires partner authentication.",
                 )
             } else {
                 ConditionEvaluationResult.disabled(
-                    "Skipping test which requires partner authentication."
+                    "Skipping test which requires partner authentication.",
                 )
             }
         }

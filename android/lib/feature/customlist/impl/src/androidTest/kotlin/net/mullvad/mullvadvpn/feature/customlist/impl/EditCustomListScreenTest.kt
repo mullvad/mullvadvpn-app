@@ -79,7 +79,7 @@ class EditCustomListScreenTest {
                     id = customList.id,
                     name = customList.name,
                     locations = customList.locations,
-                )
+                ),
         )
 
         // Assert
@@ -96,7 +96,7 @@ class EditCustomListScreenTest {
                     id = customList.id,
                     name = customList.name,
                     locations = customList.locations,
-                )
+                ),
         )
 
         // Assert

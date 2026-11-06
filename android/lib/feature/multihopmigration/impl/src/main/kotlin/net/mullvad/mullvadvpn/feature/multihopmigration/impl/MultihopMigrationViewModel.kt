@@ -71,7 +71,7 @@ class MultihopMigrationViewModel(
 
     @Suppress("CyclomaticComplexMethod")
     private fun generatePages(
-        multihopMigrationData: MultihopMigrationData
+        multihopMigrationData: MultihopMigrationData,
     ): List<MultihopMigrationPage> = buildList {
         // Scenarios to page conversion is based on the scenario flow chart.
         when (multihopMigrationData.splitFilterMigration.scenario) {
@@ -84,7 +84,9 @@ class MultihopMigrationViewModel(
             }
             Scenario.TWO -> {
                 add(
-                    MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_WHEN_NEEDED)
+                    MultihopMigrationPage.NewMultihopMode(
+                        MultihopMigrationState.OFF_TO_WHEN_NEEDED,
+                    ),
                 )
             }
             Scenario.THREE_A -> {

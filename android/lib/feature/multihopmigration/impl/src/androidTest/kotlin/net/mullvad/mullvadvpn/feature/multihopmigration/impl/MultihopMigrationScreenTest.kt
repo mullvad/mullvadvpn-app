@@ -61,7 +61,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -82,7 +82,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -106,7 +106,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -130,7 +130,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -150,7 +150,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -168,7 +168,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -186,7 +186,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert
@@ -204,7 +204,7 @@ class MultihopMigrationScreenTest {
                     currentPageIndex = 0,
                     entryLocation = null,
                     multihopMode = null,
-                )
+                ),
         )
 
         // Assert

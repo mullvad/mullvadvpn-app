@@ -100,14 +100,14 @@ fun NavigationListItem(
                 modifier =
                     Modifier.applyIf(showNotificationDot) {
                         padding(end = Dimens.notificationDotSize)
-                    }
+                    },
             ) {
                 if (showNotificationDot) {
                     Box(
                         modifier =
                             Modifier.align(Alignment.CenterVertically)
                                 .size(Dimens.notificationDotSize)
-                                .background(MaterialTheme.colorScheme.warning, CircleShape)
+                                .background(MaterialTheme.colorScheme.warning, CircleShape),
                     )
                 }
                 Icon(

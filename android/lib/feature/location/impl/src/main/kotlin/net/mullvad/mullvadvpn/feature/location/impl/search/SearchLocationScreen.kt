@@ -76,7 +76,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
-    state: Lce<Unit, SearchLocationUiState, Unit>
+    state: Lce<Unit, SearchLocationUiState, Unit>,
 ) {
     AppTheme {
         SearchLocationScreen(
@@ -115,7 +115,7 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
             SearchLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
+                        message = resources.getString(R.string.error_occurred),
                     )
                 }
             is SearchLocationSideEffect.EntryAlreadySelected ->
@@ -125,7 +125,7 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
                             resources.getString(
                                 R.string.relay_item_already_selected_as_entry,
                                 it.relayItem.name,
-                            )
+                            ),
                     )
                 }
             is SearchLocationSideEffect.ExitAlreadySelected ->
@@ -135,14 +135,14 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
                             resources.getString(
                                 R.string.relay_item_already_selected_as_exit,
                                 it.relayItem.name,
-                            )
+                            ),
                     )
                 }
             is SearchLocationSideEffect.RelayItemInactive -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
-                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name),
                     )
                 }
             }
@@ -224,7 +224,7 @@ fun SearchLocationScreen(
                 snackbarHostState,
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
-        }
+        },
     ) {
         Column(modifier = Modifier.testTag(SEARCH_LOCATION_SCREEN_TEST_TAG).padding(it)) {
             val focusRequester = remember { FocusRequester() }
@@ -290,7 +290,7 @@ fun SearchLocationScreen(
                                             text = stringResource(R.string.custom_lists),
                                             overflow = TextOverflow.Ellipsis,
                                         )
-                                    }
+                                    },
                                 )
                             },
                             locationHeader = {
@@ -300,7 +300,7 @@ fun SearchLocationScreen(
                                             text = stringResource(R.string.locations),
                                             overflow = TextOverflow.Ellipsis,
                                         )
-                                    }
+                                    },
                                 )
                             },
                         )

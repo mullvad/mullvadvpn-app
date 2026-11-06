@@ -70,7 +70,7 @@ class TunnelStateNotificationUseCase(
                         ErrorState(
                             cause = ErrorStateCause.NoRelaysMatchSelectedPort(port = it),
                             isBlocking = error.isBlocking,
-                        )
+                        ),
                 )
             } ?: this
         } else this

@@ -39,7 +39,7 @@ class ConnectivityTest {
             .map { InetAddress.getByName(it.first) to it.second }
             .map { (input, expected) ->
                 DynamicTest.dynamicTest(
-                    "when address is ${input.hostAddress} it should return $expected"
+                    "when address is ${input.hostAddress} it should return $expected",
                 ) {
                     assertEquals(
                         expected,

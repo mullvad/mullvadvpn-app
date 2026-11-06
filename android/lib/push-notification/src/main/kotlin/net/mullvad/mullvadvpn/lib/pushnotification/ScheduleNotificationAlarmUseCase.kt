@@ -39,7 +39,7 @@ class ScheduleNotificationAlarmUseCase(
 
             // Change to UTC to avoid leaking the user's time zone in the logs
             Logger.d(
-                "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}"
+                "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}",
             )
         }
 

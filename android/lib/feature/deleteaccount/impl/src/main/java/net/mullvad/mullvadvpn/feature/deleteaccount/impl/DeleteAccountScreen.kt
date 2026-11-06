@@ -127,8 +127,8 @@ private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
     Column(
         Modifier.windowInsetsPadding(
                 WindowInsets.safeDrawing.only(
-                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                )
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                ),
             )
             .padding(horizontal = Dimens.sideMarginNew, vertical = Dimens.screenBottomMargin),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumSpacer),

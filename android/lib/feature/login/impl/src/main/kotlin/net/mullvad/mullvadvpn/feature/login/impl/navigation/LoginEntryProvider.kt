@@ -24,7 +24,7 @@ fun EntryProviderScope<NavKey2>.loginEntry(navigator: Navigator) {
                     is DeviceListNavKey -> true
                     else -> false
                 }
-            }
+            },
     ) { navKey ->
         Login(navigator = navigator, accountNumber = navKey.accountNumber)
     }

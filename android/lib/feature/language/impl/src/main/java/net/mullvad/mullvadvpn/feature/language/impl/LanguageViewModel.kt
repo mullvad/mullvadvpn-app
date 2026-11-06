@@ -40,10 +40,10 @@ class LanguageViewModel(private val languageRepository: LanguageRepository) : Vi
                                                 selected != null &&
                                                     locale.toLanguageTag() ==
                                                         selected.toLanguageTag(),
-                                        )
+                                        ),
                                     )
                                 }
-                            }
+                            },
                     )
                     .toLc<Unit, LanguageUiState>()
             }

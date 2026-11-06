@@ -23,7 +23,7 @@ class InAppNotificationController(
                     compareBy(
                         { notification -> -notification.priority },
                         { notification -> notification.statusLevel.ordinal },
-                    )
+                    ),
                 )
             }
             .stateIn(scope, SharingStarted.Eagerly, emptyList())

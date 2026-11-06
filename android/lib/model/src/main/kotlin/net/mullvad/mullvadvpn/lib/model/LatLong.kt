@@ -13,7 +13,7 @@ data class LatLong(val latitude: Latitude, val longitude: Longitude) : Parcelabl
     fun degreeDistanceTo(other: LatLong): Float =
         sqrt(
             latitude.distanceTo(other.latitude).pow(2f) +
-                (longitude.distanceTo(other.longitude).pow(2f))
+                (longitude.distanceTo(other.longitude).pow(2f)),
         )
 
     operator fun plus(other: LatLong) =
@@ -37,7 +37,7 @@ data class LatLong(val latitude: Latitude, val longitude: Longitude) : Parcelabl
                 latitude.distanceTo(other.latitude).toRadians().pow(2) +
                     (cos(mean(latitude, other.latitude).value.toRadians()) *
                             longitude.distanceTo(other.longitude).toRadians())
-                        .pow(2)
+                        .pow(2),
             )
 
     companion object {

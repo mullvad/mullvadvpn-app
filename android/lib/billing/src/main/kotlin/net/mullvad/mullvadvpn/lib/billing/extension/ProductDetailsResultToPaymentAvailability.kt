@@ -7,14 +7,14 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 
 fun ProductDetailsResult.toPaymentAvailability(
-    productIdToPaymentStatus: Map<String, PaymentStatus?>
+    productIdToPaymentStatus: Map<String, PaymentStatus?>,
 ) =
     when (this.billingResult.responseCode) {
         BillingClient.BillingResponseCode.OK -> {
             val productDetailsList = this.productDetailsList
             if (productDetailsList?.isNotEmpty() == true) {
                 PaymentAvailability.ProductsAvailable(
-                    productDetailsList.toPaymentProducts(productIdToPaymentStatus)
+                    productDetailsList.toPaymentProducts(productIdToPaymentStatus),
                 )
             } else {
                 PaymentAvailability.NoProductsFound

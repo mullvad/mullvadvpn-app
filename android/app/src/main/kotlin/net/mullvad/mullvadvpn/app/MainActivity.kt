@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         when (val action = intent.action) {
             Intent.ACTION_MAIN ->
                 apiEndpointFromIntentHolder.setApiEndpointOverride(
-                    intent.getApiEndpointConfigurationExtras()
+                    intent.getApiEndpointConfigurationExtras(),
                 )
             KEY_REQUEST_VPN_PROFILE -> handleRequestVpnProfileIntent()
             else -> Logger.w("Unhandled intent action: $action")

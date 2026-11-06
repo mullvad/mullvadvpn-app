@@ -112,7 +112,7 @@ class ModifyMultihopUseCaseTest {
                 Constraint.Only(mockRelayItemId)
             coEvery {
                 mockWireguardConstraintsRepository.setEntryLocation(
-                    Constraint.Only(mockRelayItemId)
+                    Constraint.Only(mockRelayItemId),
                 )
             } returns Unit.right()
             val change = MultihopChange.Entry(Constraint.Only(mockRelayItem))
@@ -124,7 +124,7 @@ class ModifyMultihopUseCaseTest {
             // Assert
             coVerify {
                 mockWireguardConstraintsRepository.setEntryLocation(
-                    Constraint.Only(mockRelayItemId)
+                    Constraint.Only(mockRelayItemId),
                 )
             }
             assertNotNull(result)

@@ -156,7 +156,7 @@ internal class MapCameraController(
         returnToIdleJob = scope.launch {
             var (longVelocity, latVelocity) =
                 tracker.calculateVelocity(
-                    maximumVelocity = Velocity(MAX_FLING_VELOCITY, MAX_FLING_VELOCITY)
+                    maximumVelocity = Velocity(MAX_FLING_VELOCITY, MAX_FLING_VELOCITY),
                 )
             tracker.resetTracking()
             do {
@@ -292,7 +292,7 @@ fun InteractiveMap(
             markers + hopMarkers + locationMarkers,
             hops.map {
                 it.copy(
-                    color = it.color.copy(alpha = it.color.alpha * controller.alphaAnimation.value)
+                    color = it.color.copy(alpha = it.color.alpha * controller.alphaAnimation.value),
                 )
             },
             globeColors,
@@ -309,7 +309,7 @@ fun InteractiveMap(
                         onTap = {
                             val result = view?.closestMarker(it) ?: return@detectTapGestures
                             onMarkerClick?.invoke(result.first)
-                        }
+                        },
                     )
                 }
                 .pointerInput(lifeCycleState, systemGestureRegions) {

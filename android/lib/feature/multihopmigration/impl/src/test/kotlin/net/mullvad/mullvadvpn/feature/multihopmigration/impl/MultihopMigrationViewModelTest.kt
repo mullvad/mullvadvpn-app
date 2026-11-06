@@ -226,7 +226,7 @@ class MultihopMigrationViewModelTest {
                 assertEquals(MultihopMigrationState.OFF_TO_ALWAYS, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
                 assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
-                    state.multihopMigrationPages[2]
+                    state.multihopMigrationPages[2],
                 )
             }
         }
@@ -361,7 +361,7 @@ class MultihopMigrationViewModelTest {
                 assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
                 assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
-                    state.multihopMigrationPages[2]
+                    state.multihopMigrationPages[2],
                 )
             }
         }
@@ -409,7 +409,7 @@ class MultihopMigrationViewModelTest {
                 assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[2])
                 assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
-                    state.multihopMigrationPages[3]
+                    state.multihopMigrationPages[3],
                 )
             }
         }

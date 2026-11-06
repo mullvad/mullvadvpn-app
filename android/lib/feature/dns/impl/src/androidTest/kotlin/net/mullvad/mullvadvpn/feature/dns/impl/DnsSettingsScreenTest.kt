@@ -118,7 +118,7 @@ class DnsSettingsScreenTest {
                                 ),
                             ),
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Act
@@ -145,10 +145,10 @@ class DnsSettingsScreenTest {
                                     address = DUMMY_DNS_ADDRESS,
                                     isLocal = false,
                                     isIpv6 = false,
-                                )
+                                ),
                             ),
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -170,10 +170,10 @@ class DnsSettingsScreenTest {
                                     address = DUMMY_DNS_ADDRESS,
                                     isLocal = true,
                                     isIpv6 = false,
-                                )
+                                ),
                             ),
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Assert
@@ -194,10 +194,10 @@ class DnsSettingsScreenTest {
                                         address = DUMMY_DNS_ADDRESS,
                                         isLocal = false,
                                         isIpv6 = false,
-                                    )
+                                    ),
                                 ),
                         )
-                        .toLc()
+                        .toLc(),
             )
 
             // Assert
@@ -218,10 +218,10 @@ class DnsSettingsScreenTest {
                                         address = DUMMY_DNS_ADDRESS,
                                         isLocal = false,
                                         isIpv6 = false,
-                                    )
+                                    ),
                                 ),
                         )
-                        .toLc()
+                        .toLc(),
             )
 
             // Assert
@@ -242,10 +242,10 @@ class DnsSettingsScreenTest {
                                     address = DUMMY_DNS_ADDRESS,
                                     isLocal = true,
                                     isIpv6 = false,
-                                )
+                                ),
                             ),
                     )
-                    .toLc()
+                    .toLc(),
         )
 
         // Act

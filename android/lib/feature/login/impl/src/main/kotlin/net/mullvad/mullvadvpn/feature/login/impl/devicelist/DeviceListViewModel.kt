@@ -50,7 +50,7 @@ class DeviceListViewModel(
                     error != null -> DeviceListUiState.Error(error)
                     else ->
                         DeviceListUiState.Content(
-                            devices.map { DeviceItemUiState(it, loadingDevices.contains(it.id)) }
+                            devices.map { DeviceItemUiState(it, loadingDevices.contains(it.id)) },
                         )
                 }
             }

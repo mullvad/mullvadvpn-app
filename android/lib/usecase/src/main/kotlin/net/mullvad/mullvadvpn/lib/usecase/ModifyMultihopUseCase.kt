@@ -79,7 +79,7 @@ internal fun validate(
 }
 
 private fun RelayItemId.convertCustomListWithOnlyHostnameToHostname(
-    customListsRepository: CustomListsRepository
+    customListsRepository: CustomListsRepository,
 ): Either<ModifyMultihopError.GenericError, RelayItemId> =
     when (this) {
         is CustomListId ->

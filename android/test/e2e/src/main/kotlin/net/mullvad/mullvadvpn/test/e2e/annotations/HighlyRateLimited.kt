@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 annotation class HighlyRateLimited {
     class ShouldRunWhenSeverelyAffectedByRateLimiting : ExecutionCondition {
         override fun evaluateExecutionCondition(
-            context: ExtensionContext?
+            context: ExtensionContext?,
         ): ConditionEvaluationResult {
             val enable = InstrumentationRegistry.getArguments().isHighlyRateLimitedTestsEnabled()
 
@@ -24,7 +24,7 @@ annotation class HighlyRateLimited {
                 ConditionEvaluationResult.enabled("Running test highly affected by rate limiting.")
             } else {
                 ConditionEvaluationResult.disabled(
-                    "Skipping test highly affected by rate limiting."
+                    "Skipping test highly affected by rate limiting.",
                 )
             }
         }

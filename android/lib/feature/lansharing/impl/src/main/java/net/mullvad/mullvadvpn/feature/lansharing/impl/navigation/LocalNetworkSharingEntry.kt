@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.localNetworkSharingEntry(navigator: Navigator) {
     entry<LocalNetworkSharingNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navKey ->
         LocalSharedTransitionScope.current?.LocalNetworkSharing(
             navigator = navigator,

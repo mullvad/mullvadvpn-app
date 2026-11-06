@@ -67,7 +67,7 @@ class CustomListActionUseCaseTest {
                     id = locationId,
                     name = locationName,
                     cities = emptyList(),
-                )
+                ),
             )
 
         // Act

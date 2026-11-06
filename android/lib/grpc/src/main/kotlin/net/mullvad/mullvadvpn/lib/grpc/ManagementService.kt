@@ -204,7 +204,7 @@ class ManagementService(
     }
 
     suspend fun partitionRelays(
-        predicate: RelaySelectorPredicate
+        predicate: RelaySelectorPredicate,
     ): Either<PartitionRelaysError, RelayPartitions> =
         Either.catch {
                 service.PartitionRelays().execute(predicate.fromDomain()).toDomain().also {
@@ -334,7 +334,7 @@ class ManagementService(
                         DeviceRemoval(
                             account_number = token.value,
                             device_id = deviceId.value.toString(),
-                        )
+                        ),
                     )
             }
             .onLeft { Logger.e("Remove device error") }
@@ -447,7 +447,7 @@ class ManagementService(
     }
 
     suspend fun getAccountData(
-        accountNumber: AccountNumber
+        accountNumber: AccountNumber,
     ): Either<GetAccountDataError, AccountData> =
         Either.catch {
                 grpc
@@ -476,7 +476,7 @@ class ManagementService(
             }
 
     suspend fun updateDnsContentBlockers(
-        update: (DefaultDnsOptions) -> DefaultDnsOptions
+        update: (DefaultDnsOptions) -> DefaultDnsOptions,
     ): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
@@ -557,7 +557,7 @@ class ManagementService(
             .mapLeft(SetWireguardMtuError::Unknown)
 
     suspend fun setWireguardQuantumResistant(
-        value: ModelQuantumResistantState
+        value: ModelQuantumResistantState,
     ): Either<SetWireguardQuantumResistantError, Unit> =
         Either.catch { grpc.SetQuantumResistantTunnel().execute(value.fromDomain()) }
             .onLeft { Logger.e("Set wireguard quantum resistant error") }
@@ -567,7 +567,7 @@ class ManagementService(
         Either.catch {
                 val updatedObfuscationSettings =
                     ObfuscationSettings.selectedObfuscationMode.modify(
-                        getSettings().obfuscationSettings
+                        getSettings().obfuscationSettings,
                     ) {
                         value
                     }
@@ -577,7 +577,7 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
     suspend fun setWireguardObfuscationPort(
-        portConstraint: Constraint<Port>
+        portConstraint: Constraint<Port>,
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
                 val updatedSettings =
@@ -590,7 +590,7 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
     suspend fun setUdp2TcpObfuscationPort(
-        portConstraint: Constraint<Port>
+        portConstraint: Constraint<Port>,
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
                 val updatedSettings =
@@ -603,7 +603,7 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
     suspend fun setShadowsocksObfuscationPort(
-        portConstraint: Constraint<Port>
+        portConstraint: Constraint<Port>,
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
                 val updatedSettings =
@@ -615,7 +615,7 @@ class ManagementService(
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
     suspend fun setLwoObfuscationPort(
-        portConstraint: Constraint<Port>
+        portConstraint: Constraint<Port>,
     ): Either<SetObfuscationOptionsError, Unit> =
         Either.catch {
                 val updatedSettings =
@@ -682,7 +682,7 @@ class ManagementService(
                         NewCustomList(
                             name = name.value,
                             locations = locations.map(GeoLocationId::fromDomain),
-                        )
+                        ),
                     )
             }
             .map { CustomListId(it.value) }
@@ -785,7 +785,7 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun submitVoucher(
-        voucher: VoucherCode
+        voucher: VoucherCode,
     ): Either<RedeemVoucherError, RedeemVoucherSuccess> =
         Either.catch { grpc.SubmitVoucher().execute(voucher.value.toStringValue()).toDomain() }
             .mapLeftStatus {
@@ -829,14 +829,14 @@ class ManagementService(
             .mapLeft(AddSplitTunnelingAppError::Unknown)
 
     suspend fun removeSplitTunnelingApp(
-        app: PackageName
+        app: PackageName,
     ): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.RemoveSplitTunnelApp().execute(app.value.toStringValue()) }
             .onLeft { Logger.e("Remove split tunneling app error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
 
     suspend fun setSplitTunnelingState(
-        enabled: Boolean
+        enabled: Boolean,
     ): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.SetSplitTunnelState().execute(enabled.toBoolValue()) }
             .onLeft { Logger.e("Set split tunneling state error") }
@@ -848,7 +848,7 @@ class ManagementService(
             .map { WebsiteAuthToken.fromString(it.value) }
 
     suspend fun addApiAccessMethod(
-        newAccessMethodSetting: NewAccessMethodSetting
+        newAccessMethodSetting: NewAccessMethodSetting,
     ): Either<AddApiAccessMethodError, ApiAccessMethodId> =
         Either.catch { grpc.AddApiAccessMethod().execute(newAccessMethodSetting.fromDomain()) }
             .onLeft { Logger.e("Add api access method error") }
@@ -856,28 +856,28 @@ class ManagementService(
             .map { ApiAccessMethodId.fromString(it.value) }
 
     suspend fun removeApiAccessMethod(
-        apiAccessMethodId: ApiAccessMethodId
+        apiAccessMethodId: ApiAccessMethodId,
     ): Either<RemoveApiAccessMethodError, Unit> =
         Either.catch { grpc.RemoveApiAccessMethod().execute(apiAccessMethodId.fromDomain()) }
             .onLeft { Logger.e("Remove api access method error") }
             .mapLeft(RemoveApiAccessMethodError::Unknown)
 
     suspend fun setApiAccessMethod(
-        apiAccessMethodId: ApiAccessMethodId
+        apiAccessMethodId: ApiAccessMethodId,
     ): Either<SetApiAccessMethodError, Unit> =
         Either.catch { grpc.SetApiAccessMethod().execute(apiAccessMethodId.fromDomain()) }
             .onLeft { Logger.e("Set api access method error") }
             .mapLeft(SetApiAccessMethodError::Unknown)
 
     suspend fun updateApiAccessMethod(
-        apiAccessMethodSetting: ApiAccessMethodSetting
+        apiAccessMethodSetting: ApiAccessMethodSetting,
     ): Either<UpdateApiAccessMethodError, Unit> =
         Either.catch { grpc.UpdateApiAccessMethod().execute(apiAccessMethodSetting.fromDomain()) }
             .onLeft { Logger.e("Update api access method error") }
             .mapLeft(::UnknownApiAccessMethodError)
 
     suspend fun testCustomApiAccessMethod(
-        customProxy: ApiAccessMethod.CustomProxy
+        customProxy: ApiAccessMethod.CustomProxy,
     ): Either<TestApiAccessMethodError, Unit> =
         Either.catch { grpc.TestCustomApiAccessMethod().execute(customProxy.fromDomain()) }
             .onLeft { Logger.e("Test custom api access method error") }
@@ -887,7 +887,7 @@ class ManagementService(
             }
 
     suspend fun testApiAccessMethodById(
-        apiAccessMethodId: ApiAccessMethodId
+        apiAccessMethodId: ApiAccessMethodId,
     ): Either<TestApiAccessMethodError, Unit> =
         Either.catch { grpc.TestApiAccessMethodById().execute(apiAccessMethodId.fromDomain()) }
             .onLeft { Logger.e("Test api access method error") }
@@ -910,7 +910,7 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun setEntryLocation(
-        entryLocation: Constraint<RelayItemId>
+        entryLocation: Constraint<RelayItemId>,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
@@ -925,7 +925,7 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
 
     suspend fun setDeviceIpVersion(
-        ipVersion: Constraint<IpVersion>
+        ipVersion: Constraint<IpVersion>,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
@@ -990,7 +990,7 @@ class ManagementService(
     private fun Int.toUInt32Value() = WireUInt32Value(this)
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
-        f: (GrpcException) -> C
+        f: (GrpcException) -> C,
     ): Either<C, B> = mapLeft {
         if (it is GrpcException) {
             f(it)
@@ -1008,7 +1008,7 @@ class ManagementService(
                     // since all traffic will be to the same dummy host.
                     maxRequests = MAX_GRPC_REQUESTS
                     maxRequestsPerHost = MAX_GRPC_REQUESTS
-                }
+                },
             )
             .callTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .readTimeout(timeout = 0, TimeUnit.MILLISECONDS)
@@ -1034,7 +1034,7 @@ class ManagementService(
                             } else {
                                 HttpLoggingInterceptor.Level.NONE
                             }
-                    }
+                    },
             )
             .build()
     }

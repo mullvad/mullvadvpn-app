@@ -76,7 +76,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
-    state: ReportProblemUiState
+    state: ReportProblemUiState,
 ) {
     AppTheme {
         ReportProblemScreen(
@@ -149,7 +149,7 @@ private fun ReportProblemScreen(
                     modifier.padding(
                         vertical = Dimens.mediumPadding,
                         horizontal = Dimens.sideMargin,
-                    )
+                    ),
             ) {
                 when (state.sendingState) {
                     SendingReportUiState.Sending -> SendingContent()
@@ -274,7 +274,7 @@ private fun IncludeAccountInformationCheckBox(
 ) {
     val openPrivacyPolicy =
         LocalUriHandler.current.createUriHook(
-            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(isPlayBuild)
+            stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(isPlayBuild),
         )
     CheckboxConfirmation(
         text = stringResource(R.string.include_account_token_checkbox_text),
@@ -304,10 +304,10 @@ private fun AccountInformationWarning(
                 text =
                     buildString {
                         appendLine(
-                            stringResource(R.string.include_account_token_warning_message_first)
+                            stringResource(R.string.include_account_token_warning_message_first),
                         )
                         append(
-                            stringResource(R.string.include_account_token_warning_message_second)
+                            stringResource(R.string.include_account_token_warning_message_second),
                         )
                     },
                 argument = stringResource(R.string.privacy_policy_lower_case),
@@ -324,7 +324,7 @@ private fun AccountInformationWarning(
         iconContentDescription = stringResource(R.string.warning),
         onClick = {
             toggleShowIncludeAccountInformationWarningMessage(
-                !showIncludeAccountInformationWarningMessage
+                !showIncludeAccountInformationWarningMessage,
             )
         },
     )

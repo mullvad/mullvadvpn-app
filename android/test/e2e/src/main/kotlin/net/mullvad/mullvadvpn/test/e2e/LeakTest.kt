@@ -187,7 +187,7 @@ class LeakTest : EndToEndTest() {
                 PacketCapture().capturePackets {
                     TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
                         delay(
-                            1000.milliseconds
+                            1000.milliseconds,
                         ) // Give it some time for generating traffic in tunnel before changing
                         // settings
 
@@ -196,7 +196,7 @@ class LeakTest : EndToEndTest() {
                         on<ConnectPage> { waitForConnectedLabel() }
 
                         delay(
-                            1000.milliseconds
+                            1000.milliseconds,
                         ) // Give it some time for generating traffic in tunnel after enabling
                         // settings
                     }

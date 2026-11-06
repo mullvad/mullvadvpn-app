@@ -62,7 +62,7 @@ class ApiAccessMethodDetailsScreenTest {
                     isDisableable = true,
                     isCurrentMethod = true,
                     isTestingAccessMethod = false,
-                )
+                ),
         )
 
         // Assert

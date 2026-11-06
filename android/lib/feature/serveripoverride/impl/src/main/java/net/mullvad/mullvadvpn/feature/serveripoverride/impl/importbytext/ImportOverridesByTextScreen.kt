@@ -67,7 +67,7 @@ fun ImportOverridesByText(navigator: Navigator) {
             } else {
                 scope.launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.import_overrides_empty_text_error)
+                        message = resources.getString(R.string.import_overrides_empty_text_error),
                     )
                 }
             }
@@ -99,7 +99,7 @@ fun ImportOverridesByTextScreen(
                     TextButton(
                         modifier =
                             Modifier.testTag(
-                                SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG
+                                SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG,
                             ),
                         colors =
                             ButtonDefaults.textButtonColors()

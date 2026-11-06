@@ -58,7 +58,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
-    state: CustomListLocationsUiState
+    state: CustomListLocationsUiState,
 ) {
     AppTheme {
         CustomListLocationsScreen(
@@ -123,7 +123,7 @@ fun CustomListLocationsScreen(
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
-                }
+                },
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {

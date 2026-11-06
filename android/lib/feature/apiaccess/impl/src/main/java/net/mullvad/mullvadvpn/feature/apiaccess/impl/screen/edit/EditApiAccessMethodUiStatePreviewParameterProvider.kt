@@ -72,7 +72,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                                 InvalidDataError.ServerIpError.Required,
                                 InvalidDataError.UserNameError.Required,
                                 InvalidDataError.PasswordError.Required,
-                            )
+                            ),
                         ),
                 isTestingApiAccessMethod = false,
                 shadowSocksCiphers = emptyList(),

@@ -133,7 +133,7 @@ class ConnectPage internal constructor() : Page() {
         val hasObject =
             uiDevice.hasObjectWithTimeout(
                 // Text exist and contains IPv6 address
-                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains(":")
+                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains(":"),
             )
         if (hasObject) {
             error("Expected to not find an out IPv6 address, but one was found.")

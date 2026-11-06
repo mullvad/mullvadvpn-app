@@ -25,7 +25,7 @@ class CustomListActionUseCase(
     private val relayListRepository: RelayListRepository,
 ) {
     suspend operator fun invoke(
-        action: CustomListAction
+        action: CustomListAction,
     ): Either<CustomListActionError, CustomListSuccess> {
         return when (action) {
             is CustomListAction.Create -> {
@@ -55,7 +55,7 @@ class CustomListActionUseCase(
         }
 
     suspend operator fun invoke(
-        action: CustomListAction.Create
+        action: CustomListAction.Create,
     ): Either<CreateWithLocationsError, Created> = either {
         ensure(action.name.value.isNotBlank()) {
             CreateWithLocationsError.Create(NameIsEmpty(action.name))
@@ -86,7 +86,7 @@ class CustomListActionUseCase(
     }
 
     suspend operator fun invoke(
-        action: CustomListAction.Delete
+        action: CustomListAction.Delete,
     ): Either<DeleteWithUndoError, Deleted> = either {
         val customList =
             customListsRepository
@@ -101,7 +101,7 @@ class CustomListActionUseCase(
     }
 
     suspend operator fun invoke(
-        action: CustomListAction.UpdateLocations
+        action: CustomListAction.UpdateLocations,
     ): Either<UpdateLocationsError, LocationsChanged> = either {
         val customList =
             customListsRepository

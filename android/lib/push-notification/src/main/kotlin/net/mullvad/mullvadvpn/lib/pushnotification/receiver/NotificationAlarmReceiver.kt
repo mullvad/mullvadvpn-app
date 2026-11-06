@@ -31,7 +31,7 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
                     }
                 }
                 .setConstraints(
-                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
                 )
                 .build()
         WorkManager.getInstance(context).enqueue(work)

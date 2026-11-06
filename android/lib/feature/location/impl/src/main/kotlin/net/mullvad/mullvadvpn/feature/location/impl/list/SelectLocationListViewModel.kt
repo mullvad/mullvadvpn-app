@@ -71,7 +71,7 @@ class SelectLocationListViewModel(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
                             recentsEnabled = settings.recents is Recents.Enabled,
-                        )
+                        ),
                     )
                 }
             }
@@ -118,7 +118,7 @@ class SelectLocationListViewModel(
                     relayMetadata =
                         filteredCountries.relayMetadata.withConnectedRelay(
                             connectedRelay =
-                                tunnelState.location()?.connectedLocationIn(relayListType)
+                                tunnelState.location()?.connectedLocationIn(relayListType),
                         ),
                     relayListType = relayListType,
                     customLists = customLists,

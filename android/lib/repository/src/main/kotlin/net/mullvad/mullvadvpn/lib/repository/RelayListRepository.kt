@@ -43,7 +43,7 @@ class RelayListRepository(
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
 
     private fun List<RelayItem.Location.Country>.translateRelays(
-        translations: Translations
+        translations: Translations,
     ): List<RelayItem.Location.Country> {
         if (translations.isEmpty()) {
             return this

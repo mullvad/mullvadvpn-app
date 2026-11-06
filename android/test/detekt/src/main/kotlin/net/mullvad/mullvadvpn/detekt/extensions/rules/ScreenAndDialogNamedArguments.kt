@@ -31,7 +31,7 @@ class ScreenAndDialogNamedArguments(config: Config) :
                 Finding(
                     entity = Entity.from(element = expression.originalElement, offset = 0),
                     message = "Call to composable `$name` must use only named arguments.",
-                )
+                ),
             )
         }
     }

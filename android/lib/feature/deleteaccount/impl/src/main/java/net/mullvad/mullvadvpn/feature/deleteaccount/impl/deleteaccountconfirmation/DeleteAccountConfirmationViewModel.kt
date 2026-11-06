@@ -91,7 +91,7 @@ class DeleteAccountConfirmationViewModel(
             .fold(
                 {
                     _uiSideEffect.send(
-                        DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it)
+                        DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it),
                     )
                     isLoading.value = false
                 },

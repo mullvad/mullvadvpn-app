@@ -92,7 +92,7 @@ fun CustomTextField(
                 if (newTextFieldValueState.text.length <= maxCharLength && isValidInput) {
                     // Remove any newline chars added by enter key clicks
                     onValueChanged(
-                        newTextFieldValueState.text.replace(NEWLINE_STRING, EMPTY_STRING)
+                        newTextFieldValueState.text.replace(NEWLINE_STRING, EMPTY_STRING),
                     )
                 }
             }

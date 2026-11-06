@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunn
 
 fun EntryProviderScope<NavKey2>.searchSplitTunnelingEntry(navigator: Navigator) {
     entry<SearchSplitTunnelingNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { _ ->
         SearchSplitTunnelingScreen(navigator = navigator)
     }

@@ -34,7 +34,7 @@ class TrafficGenerator(val destinationHost: String, val destinationPort: Int) {
                 while (true) {
                     socket.send(packet)
                     Logger.v(
-                        "TrafficGenerator sending UDP packet to $destinationHost:$destinationPort"
+                        "TrafficGenerator sending UDP packet to $destinationHost:$destinationPort",
                     )
                     delay(interval)
                 }

@@ -68,7 +68,7 @@ fun ListHeader(
                 Modifier.weight(1f, true).padding(start = Dimens.smallPadding),
                 color =
                     MaterialTheme.colorScheme.onBackground.copy(
-                        alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha
+                        alpha = RelayListHeaderTokens.RelayListHeaderDividerAlpha,
                     ),
             )
             actions?.invoke(this)

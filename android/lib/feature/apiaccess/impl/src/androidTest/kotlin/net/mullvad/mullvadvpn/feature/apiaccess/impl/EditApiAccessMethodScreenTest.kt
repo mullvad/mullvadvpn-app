@@ -68,7 +68,7 @@ class EditApiAccessMethodScreenTest {
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
                     shadowSocksCiphers = emptyList(),
-                )
+                ),
         )
 
         // Assert
@@ -86,7 +86,7 @@ class EditApiAccessMethodScreenTest {
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
                     shadowSocksCiphers = emptyList(),
-                )
+                ),
         )
 
         // Assert
@@ -112,7 +112,7 @@ class EditApiAccessMethodScreenTest {
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
                     shadowSocksCiphers = emptyList(),
-                )
+                ),
         )
 
         // Assert
@@ -138,7 +138,7 @@ class EditApiAccessMethodScreenTest {
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
                     shadowSocksCiphers = emptyList(),
-                )
+                ),
         )
 
         // Assert
@@ -161,13 +161,13 @@ class EditApiAccessMethodScreenTest {
                             port = "1111111111",
                             portError =
                                 InvalidDataError.PortError.Invalid(
-                                    ParsePortError.OutOfRange(1111111111)
+                                    ParsePortError.OutOfRange(1111111111),
                                 ),
                         ),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
                     shadowSocksCiphers = emptyList(),
-                )
+                ),
         )
 
         // Assert
@@ -220,7 +220,7 @@ class EditApiAccessMethodScreenTest {
                         hasChanges = false,
                         isTestingApiAccessMethod = false,
                         shadowSocksCiphers = emptyList(),
-                    )
+                    ),
             )
 
             // Assert

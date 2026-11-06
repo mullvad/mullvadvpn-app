@@ -68,7 +68,7 @@ fun SwitchLocationButton(
     reconnectButtonTestTag: String = "",
 ) {
     ConstraintLayout(
-        modifier = modifier.padding(vertical = Dimens.connectButtonExtraPadding).fillMaxWidth()
+        modifier = modifier.padding(vertical = Dimens.connectButtonExtraPadding).fillMaxWidth(),
     ) {
         // initial height set at 0.dp
         var componentHeight by remember { mutableStateOf(0.dp) }
@@ -79,7 +79,7 @@ fun SwitchLocationButton(
         val (connectionButton, reconnectButton) = createRefs()
         CompositionLocalProvider(
             LocalMinimumInteractiveComponentSize provides
-                Dimens.reconnectButtonMinInteractiveComponentSize
+                Dimens.reconnectButtonMinInteractiveComponentSize,
         ) {
             val dividerSize = Dimens.reconnectButtonDivider
 
@@ -122,7 +122,7 @@ fun SwitchLocationButton(
                         if (isReconnectButtonEnabled) {
                             Modifier.padding(
                                 start =
-                                    componentHeight + Dimens.listItemDivider + Dimens.smallPadding
+                                    componentHeight + Dimens.listItemDivider + Dimens.smallPadding,
                             )
                         } else {
                             Modifier

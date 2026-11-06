@@ -295,7 +295,7 @@ fun MullvadTopBarWithDeviceName(
             modifier =
                 Modifier.background(appBarContainerColor)
                     .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
                     )
                     .padding(
                         bottom = Dimens.smallPadding,
@@ -368,7 +368,7 @@ private fun SettingsIconButtonWithDot(
                             .size(Dimens.notificationDotSize)
                             .background(containerColor, CircleShape)
                             .padding(Dimens.notificationDotInset)
-                            .background(MaterialTheme.colorScheme.warning, CircleShape)
+                            .background(MaterialTheme.colorScheme.warning, CircleShape),
                 )
             }
         }

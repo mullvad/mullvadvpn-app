@@ -64,7 +64,7 @@ fun NotificationBannerTv(
                         bottomStart = Dimens.mediumPadding,
                         topStart = 0.dp,
                         topEnd = 0.dp,
-                    )
+                    ),
                 ),
         notification = notification,
         isPlayBuild = isPlayBuild,

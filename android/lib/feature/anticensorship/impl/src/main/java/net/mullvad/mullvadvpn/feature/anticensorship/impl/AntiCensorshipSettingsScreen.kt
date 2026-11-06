@@ -63,7 +63,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewAntiCensorshipSettingsScreen(
     @PreviewParameter(AntiCensorshipUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, AntiCensorshipSettingsUiState>
+    state: Lc<Unit, AntiCensorshipSettingsUiState>,
 ) {
     AppTheme {
         AntiCensorshipSettingsScreen(
@@ -90,7 +90,7 @@ fun SharedTransitionScope.AntiCensorshipSettings(
     AntiCensorshipSettingsScreen(
         modifier =
             Modifier.testTag(ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG).applyIfNotNull(
-                navArgs.selectedFeature
+                navArgs.selectedFeature,
             ) {
                 sharedBounds(
                     rememberSharedContentState(key = it),

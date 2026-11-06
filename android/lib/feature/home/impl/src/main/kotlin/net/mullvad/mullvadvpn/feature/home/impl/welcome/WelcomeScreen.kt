@@ -77,7 +77,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewWelcomeScreen(
     @PreviewParameter(WelcomeScreenUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, WelcomeUiState>
+    state: Lc<Unit, WelcomeUiState>,
 ) {
     AppTheme {
         WelcomeScreen(
@@ -111,7 +111,7 @@ fun Welcome(navigator: Navigator) {
             }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
-                    message = resources.getString(R.string.error_occurred)
+                    message = resources.getString(R.string.error_occurred),
                 )
             is WelcomeViewModel.UiSideEffect.StoreCredentialsRequest -> {
                 // UserId is not allowed to be empty
@@ -171,7 +171,7 @@ fun WelcomeScreen(
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-                    )
+                    ),
         ) {
             // Welcome info area
             WelcomeInfo(snackbarHostState, state, navigateToDeviceInfoDialog)
@@ -229,7 +229,7 @@ private fun WelcomeInfo(
                         Modifier.padding(
                             horizontal = Dimens.sideMargin,
                             vertical = Dimens.smallPadding,
-                        )
+                        ),
                 )
             is Lc.Content -> {
                 // Content is English or numbers so we should keep Ltr direction.
@@ -345,7 +345,7 @@ private fun ButtonPanel(
                     top = Dimens.mediumPadding,
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                )
+                ),
     ) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenTopMargin))
         if (showDisconnectButton) {
@@ -377,7 +377,7 @@ private fun ButtonPanel(
                                     PaymentStatus.PENDING -> R.string.payment_status_pending_short
                                     PaymentStatus.PURCHASED_UNVERIFIED ->
                                         R.string.payment_status_verification_failed
-                                }
+                                },
                         ),
                 )
             }

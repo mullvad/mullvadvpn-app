@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblem
 
 fun EntryProviderScope<NavKey2>.problemReportEntry(navigator: Navigator) {
     entry<ProblemReportNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) {
         ReportProblem(navigator = navigator)
     }

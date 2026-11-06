@@ -34,7 +34,7 @@ class ResetServerIpOverridesConfirmationViewModelTest {
 
         viewModel =
             ResetServerIpOverridesConfirmationViewModel(
-                relayOverridesRepository = mockRelayOverridesRepository
+                relayOverridesRepository = mockRelayOverridesRepository,
             )
     }
 

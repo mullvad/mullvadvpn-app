@@ -109,8 +109,8 @@ class RedeemVoucherDialogTest {
             state =
                 VoucherDialogUiState(
                     voucherState =
-                        VoucherDialogState.Error.DaemonError(RedeemVoucherError.InvalidVoucher)
-                )
+                        VoucherDialogState.Error.DaemonError(RedeemVoucherError.InvalidVoucher),
+                ),
         )
 
         // Assert

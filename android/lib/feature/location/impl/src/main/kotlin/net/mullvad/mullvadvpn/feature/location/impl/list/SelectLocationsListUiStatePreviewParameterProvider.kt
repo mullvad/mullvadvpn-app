@@ -19,7 +19,7 @@ class SelectLocationsListUiStatePreviewParameterProvider :
                         ),
                     relayListType = RelayListType.Multihop(RelayHopType.EXIT),
                     recentsEnabled = false,
-                )
+                ),
             ),
             Lce.Loading(Unit),
             Lce.Error(Unit),

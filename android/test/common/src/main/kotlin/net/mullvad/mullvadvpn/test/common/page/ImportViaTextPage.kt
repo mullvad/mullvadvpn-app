@@ -19,7 +19,7 @@ class ImportViaTextPage internal constructor() : Page() {
     fun clickImport() {
         uiDevice
             .findObjectWithTimeout(
-                By.res(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG)
+                By.res(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_IMPORT_BUTTON_TEST_TAG),
             )
             .click()
     }

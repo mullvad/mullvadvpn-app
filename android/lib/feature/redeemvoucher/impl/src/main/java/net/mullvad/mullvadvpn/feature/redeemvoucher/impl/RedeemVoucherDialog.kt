@@ -142,7 +142,7 @@ fun RedeemVoucherDialog(
                             id =
                                 if (state.voucherState is VoucherDialogState.Success)
                                     R.string.got_it
-                                else R.string.cancel
+                                else R.string.cancel,
                         ),
                     onClick = { onDismiss(state.voucherState is VoucherDialogState.Success) },
                 )
@@ -193,7 +193,7 @@ fun RedeemVoucherDialog(
         properties =
             DialogProperties(
                 securePolicy =
-                    if (BuildConfig.DEBUG) SecureFlagPolicy.Inherit else SecureFlagPolicy.SecureOn
+                    if (BuildConfig.DEBUG) SecureFlagPolicy.Inherit else SecureFlagPolicy.SecureOn,
             ),
     )
 }
