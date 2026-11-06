@@ -40,7 +40,7 @@ class AndroidLibraryInstrumentedTestPlugin : Plugin<Project> {
             dependencies {
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.core").get())
                 "androidTestImplementation"(
-                    libs.findLibrary("junit5.android.test.extensions").get()
+                    libs.findLibrary("junit5.android.test.extensions").get(),
                 )
                 "androidTestImplementation"(libs.findLibrary("junit5.android.test.runner").get())
             }
