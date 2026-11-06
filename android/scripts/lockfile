@@ -119,14 +119,17 @@ function update_keys {
     log "Temporarily enabling key servers..."
     sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
 
+    log "Removing old ignored keys..."
+    sed -i '/<ignored-keys>/,/<\/ignored-keys>/d' verification-metadata.xml
+
+    log "Removing old trusted keys..."
+    sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+
     log "Removing old components..."
     sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
 
     if [ "$renew_keys" = true ]; then
         log_info "Renewing all keys"
-
-        log "Removing old trusted keys..."
-        sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
 
         log "Removing old keyring..."
         rm verification-keyring.keys
