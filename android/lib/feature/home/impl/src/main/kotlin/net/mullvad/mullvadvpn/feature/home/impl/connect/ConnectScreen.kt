@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.res.Resources
 import android.os.Build
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -149,7 +147,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 private val SCREEN_HEIGHT_THRESHOLD = 700.dp
@@ -192,8 +189,7 @@ private fun PreviewAccountScreen(
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilityScope) {
-    val activity = LocalActivity.current as ComponentActivity
-    val connectViewModel: ConnectViewModel = koinViewModel { parametersOf(activity.lifecycle) }
+    val connectViewModel: ConnectViewModel = koinViewModel()
 
     val state by connectViewModel.uiState.collectAsStateWithLifecycle()
 

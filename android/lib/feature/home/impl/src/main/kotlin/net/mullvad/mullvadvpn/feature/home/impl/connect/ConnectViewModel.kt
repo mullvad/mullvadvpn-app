@@ -2,9 +2,7 @@ package net.mullvad.mullvadvpn.feature.home.impl.connect
 
 import android.net.Uri
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -68,7 +65,6 @@ class ConnectViewModel(
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
     private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
-    activityLifecycle: Lifecycle,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -191,7 +187,7 @@ class ConnectViewModel(
                 // If we don't have vpn system settings available we assume that there is no other
                 // always-on-vpn active.
                 _uiSideEffect.send(
-                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase())
+                    UiSideEffect.ConnectError.PermissionDenied(systemVpnSettingsUseCase()),
                 )
             }
         }
