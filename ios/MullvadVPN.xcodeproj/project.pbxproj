@@ -9841,10 +9841,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/dev-ios";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
@@ -9892,10 +9892,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/dev-ios";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/dev-ios";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
