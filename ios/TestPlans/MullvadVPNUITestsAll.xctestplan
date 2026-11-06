@@ -10,10 +10,20 @@
   ],
   "defaultOptions" : {
     "diagnosticCollectionPolicy" : "Never",
+    "mainThreadCheckerDetectionPolicy" : {
+      "enabled" : false
+    },
+    "preferredScreenCaptureFormat" : "screenshot",
+    "runtimeIssueDetection" : {
+      "enabled" : false
+    },
     "targetForVariableExpansion" : {
       "containerPath" : "container:MullvadVPN.xcodeproj",
       "identifier" : "58CE5E5F224146200008646E",
       "name" : "MullvadVPN"
+    },
+    "threadPerformanceCheckerRuntimeIssueDetection" : {
+      "enabled" : false
     }
   },
   "testTargets" : [

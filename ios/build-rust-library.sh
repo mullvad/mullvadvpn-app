@@ -25,7 +25,7 @@ fi
 RELFLAG=
 LOCKEDFLAG=
 LIBFOLDER=debug
-if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
+if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" || "$CONFIGURATION" == "StagingRelease" ]]; then
     LIBFOLDER=release
     RELFLAG=--release
     LOCKEDFLAG=--locked

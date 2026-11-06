@@ -21,12 +21,14 @@ CODE_SIGN_STYLE = Manual
 CODE_SIGN_IDENTITY[config=Debug] = Apple Development
 CODE_SIGN_IDENTITY[config=Staging] = Apple Development
 CODE_SIGN_IDENTITY[config=MockRelease] = Apple Development
+CODE_SIGN_IDENTITY[config=StagingRelease] = Apple Development
 CODE_SIGN_IDENTITY[config=Release] = Apple Distribution
 
 // Flag used to conditionally show features that are in development
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Debug] = DEBUG NEVER_IN_PRODUCTION
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Staging] = DEBUG NEVER_IN_PRODUCTION
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=MockRelease] =
+SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=StagingRelease] = NEVER_IN_PRODUCTION
 SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Release] =
 
 // This must be set so that `xcrun` and `xcodebuild` do not create stray cache

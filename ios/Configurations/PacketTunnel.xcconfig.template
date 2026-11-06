@@ -6,4 +6,5 @@
 PROVISIONING_PROFILE_SPECIFIER[config=Debug][sdk=*][arch=*] = Packet Tunnel Development
 PROVISIONING_PROFILE_SPECIFIER[config=Staging][sdk=*][arch=*] = Packet Tunnel Development
 PROVISIONING_PROFILE_SPECIFIER[config=MockRelease][sdk=*][arch=*] = Packet Tunnel Development
+PROVISIONING_PROFILE_SPECIFIER[config=StagingRelease][sdk=*][arch=*] = Packet Tunnel Development
 PROVISIONING_PROFILE_SPECIFIER[config=Release][sdk=*][arch=*] = Packet Tunnel Release

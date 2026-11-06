@@ -10,7 +10,7 @@
 
 import Foundation
 
-#if DEBUG
+#if NEVER_IN_PRODUCTION
     /// Debug settings for switching between packet tunnel implementations.
     /// Stored in the shared App Group UserDefaults so both the main app and the
     /// packet tunnel extension can access them.
