@@ -56,11 +56,9 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-/// This recursively creates directories, if set_security_permissions is true it will set
-/// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
-/// Access. Only directories that do not already exist and the leaf directory will have their
-/// permissions set.
-#[cfg(windows)]
+/// This recursively creates directories, if `user_permissions` is Some they will be set for the
+/// Authenticated Users group. Only directories that do not already exist and the leaf directory
+/// will have their permissions set.
 pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> Result<PathBuf> {
     if let Some(user_permissions) = user_permissions {
         create_dir_recursive_with_permissions(&path, user_permissions)?;
