@@ -17,4 +17,5 @@ enum class FeatureIndicator {
     CUSTOM_DNS,
     SERVER_IP_OVERRIDE,
     CUSTOM_MTU,
+    CUSTOM_VPN,
 }

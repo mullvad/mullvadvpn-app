@@ -28,13 +28,11 @@ private fun PreviewDividerButton() {
 }
 
 @Composable
-fun DividerButton(
+fun DividerBox(
     modifier: Modifier = Modifier,
-    iconModifier: Modifier = Modifier,
     isEnabled: Boolean = true,
-    icon: ImageVector,
-    iconContentDescriptions: String? = null,
     onClick: () -> Unit = {},
+    content: @Composable () -> Unit,
 ) {
     Row(modifier) {
         VerticalDivider(thickness = VerticalDividerWidth)
@@ -45,15 +43,33 @@ fun DividerButton(
                     .clickable(enabled = isEnabled, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                modifier = iconModifier,
-                imageVector = icon,
-                contentDescription = iconContentDescriptions,
-                tint =
-                    if (isEnabled) LocalContentColor.current
-                    else LocalContentColor.current.copy(AlphaInactive),
-            )
+            content()
         }
+    }
+}
+
+@Composable
+fun DividerButton(
+    modifier: Modifier = Modifier,
+    iconModifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
+    icon: ImageVector,
+    iconContentDescriptions: String? = null,
+    onClick: () -> Unit = {},
+) {
+    DividerBox(
+        modifier = modifier,
+        isEnabled = isEnabled,
+        onClick = onClick,
+    ) {
+        Icon(
+            modifier = iconModifier,
+            imageVector = icon,
+            contentDescription = iconContentDescriptions,
+            tint =
+                if (isEnabled) LocalContentColor.current
+                else LocalContentColor.current.copy(AlphaInactive),
+        )
     }
 }
 
