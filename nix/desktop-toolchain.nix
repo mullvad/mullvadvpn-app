@@ -13,6 +13,5 @@ in
   packages = common-toolchain.commonPackages ++ [
     desktop-rust-toolchain
     pkgs.pkg-config
-    pkgs.dbus.dev
   ];
 }
