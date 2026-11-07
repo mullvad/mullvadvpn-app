@@ -1,15 +1,2 @@
 # talpid-dbus
 Communicate with different system components over Dbus.
-
-## zbus
-Enable the `zbus` feature to use [zbus] as the Dbus backend. This is experimental and incomplete, but functional!
-The following table list the system components that `talpid-dbus` can communicate with using `zbus` instead of [dbus-rs].
-
-| System component | `zbus` |
-| ---------------- | ------ |
-| NetworkManager   |   ❌   |
-| systemd          |   ✅   |
-| systemd-resolved |   ✅   |
-
-[zbus]: https://github.com/z-galaxy/zbus
-[dbus-rs]: https://github.com/diwic/dbus-rs
