@@ -58,7 +58,7 @@ These are instructions on how to build the app on desktop platforms. See the
 
 ```bash
 # For building the daemon
-sudo apt install gcc libdbus-1-dev
+sudo apt install gcc
 # For building the installer
 sudo apt install rpm
 ```
@@ -67,7 +67,7 @@ sudo apt install rpm
 
 ```bash
 # For building the daemon
-sudo dnf install gcc dbus-devel
+sudo dnf install gcc
 # For building the installer
 sudo dnf install rpm-build
 ```
@@ -97,7 +97,7 @@ for ARM64 on x64.
 # As root
 dpkg --add-architecture arm64 && \
     apt update && \
-    apt install libdbus-1-dev:arm64 gcc-aarch64-linux-gnu
+    apt install gcc-aarch64-linux-gnu
 ```
 
 ```bash
@@ -109,10 +109,6 @@ To make sure the right linker and libraries are used, add the following to `~/.c
 ```
 [target.aarch64-unknown-linux-gnu]
 linker = "aarch64-linux-gnu-gcc"
-
-[target.aarch64-unknown-linux-gnu.dbus]
-rustc-link-search = ["/usr/aarch64-linux-gnu/lib"]
-rustc-link-lib = ["dbus-1"]
 ```
 
 ## Windows
@@ -240,7 +236,7 @@ Install dependencies:
 # As root
 dpkg --add-architecture riscv64 && \
     apt update && \
-    apt install libdbus-1-dev:riscv64 gcc-riscv64-linux-gnu
+    apt install gcc-riscv64-linux-gnu
 ```
 
 Add target to Rust toolchain:
@@ -253,10 +249,6 @@ following `~/.cargo/config.toml`:
 ```
 [target.riscv64gc-unknown-linux-gnu]
 linker = "riscv64-linux-gnu-gcc"
-
-[target.riscv64gc-unknown-linux-gnu.dbus]
-rustc-link-search = ["/usr/riscv64-linux-gnu/lib"]
-rustc-link-lib = ["dbus-1"]
 ```
 
 Build and package:
