@@ -140,7 +140,7 @@ socket2 = "0.6.5"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
 system-configuration = "0.7.0"
-talpid-dbus = { path = "./talpid-dbus", default-features = false, features = ["libdbus"] }
+talpid-dbus = { path = "./talpid-dbus" }
 talpid-error = { path = "./talpid-error" }
 talpid-logging = { path = "./talpid-logging" }
 tempfile = "3.27.0"
