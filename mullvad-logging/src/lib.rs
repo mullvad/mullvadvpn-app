@@ -35,6 +35,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "shadowsocks::relay::udprelay",
     "quinn_proto",
     "quinn",
+    "zbus",
 ];
 
 /// Crates that are silenced one level below the configured level
