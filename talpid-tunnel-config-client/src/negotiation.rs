@@ -80,10 +80,15 @@ pub struct NegotiationConfig {
     pub relays: Relays,
     /// WireGuard timers to use with the ingress relay, if they differ from the defaults.
     pub ingress_timer_params: Option<TimerParams>,
-    /// Time limit for the exchange with each config service.
-    pub timeout: Duration,
-    /// TCP timeout. See [`talpid_netstack::smoltcp_network::SmoltcpHandle::tcp_connect`].
+    /// Time limit for the exchange with each config service. `None` only relies on
+    /// [`Self::tcp_timeout`].
+    pub timeout: Option<Duration>,
+    /// TCP timeout. See [`talpid_netstack::smoltcp_network::SmoltcpHandle::set_timeout`].
     pub tcp_timeout: Option<Duration>,
+    /// Interval between TCP keep-alive probes. With [`Self::tcp_timeout`], this makes a connection
+    /// that receives nothing for that long fail, even while nothing is being sent. See
+    /// [`talpid_netstack::smoltcp_network::SmoltcpHandle::set_keep_alive`].
+    pub tcp_keep_alive: Option<Duration>,
     /// Time limit for the WireGuard handshake with each relay. A relay that does not complete a
     /// handshake in time is unreachable, so there is no point in waiting for [`Self::timeout`].
     pub handshake_timeout: Duration,
@@ -220,7 +225,8 @@ pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
 /// `ingress_transport` creates for a device with the given public key.
 ///
 /// For each relay, the WireGuard handshake takes at most [`NegotiationConfig::handshake_timeout`],
-/// and the exchange with its config service then takes at most [`NegotiationConfig::timeout`].
+/// and the exchange with its config service is then limited by [`NegotiationConfig::timeout`] and
+/// [`NegotiationConfig::tcp_timeout`].
 pub async fn negotiate_ephemeral_peers_over<F: UdpTransportFactory, G: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
@@ -415,6 +421,7 @@ async fn request_ephemeral_peer_through(
     let exchange = async {
         let stream = net
             .set_timeout(config.tcp_timeout)
+            .set_keep_alive(config.tcp_keep_alive)
             .log_stats()
             .tcp_connect(config_service)
             .await
@@ -429,10 +436,13 @@ async fn request_ephemeral_peer_through(
         .await
     };
 
-    tokio::time::timeout(config.timeout, exchange)
-        .await
-        .map_err(|_elapsed| NegotiationError::Timeout)?
-        .map_err(NegotiationError::Exchange)
+    let result = match config.timeout {
+        Some(timeout) => tokio::time::timeout(timeout, exchange)
+            .await
+            .map_err(|_elapsed| NegotiationError::Timeout)?,
+        None => exchange.await,
+    };
+    result.map_err(NegotiationError::Exchange)
 }
 
 /// A userspace network stack that uses the tunnel address of this device.

@@ -535,9 +535,10 @@ impl IosTunnelAdapter {
             relays,
             // iOS only uses LWO v1, which keeps the default timers.
             ingress_timer_params: None,
-            timeout: params.establish_timeout(),
+            timeout: Some(params.establish_timeout()),
             handshake_timeout: params.establish_timeout(),
             tcp_timeout: Some(params.establish_timeout()),
+            tcp_keep_alive: None,
             // Each relay has a device of its own, so it can have a key of its own.
             separate_exit_key: true,
         };
