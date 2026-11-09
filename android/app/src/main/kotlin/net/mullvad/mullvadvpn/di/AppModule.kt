@@ -64,7 +64,7 @@ val appModule = module {
     single { androidContext().userPreferencesStore }
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
     single { ApiEndpointFromIntentHolder() }
-    single { AccountRepository(get(), get(), MainScope()) }
+    single { AccountRepository(get(), get()) }
     single { DeviceRepository(get()) }
     single { UserPreferencesRepository(get(), get()) }
     single { ConnectionProxy(androidContext(), get(), get()) }

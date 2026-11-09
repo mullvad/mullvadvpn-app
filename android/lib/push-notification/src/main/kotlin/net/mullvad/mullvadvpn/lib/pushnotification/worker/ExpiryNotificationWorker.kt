@@ -9,7 +9,7 @@ import co.touchlab.kermit.Logger
 import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.getValue
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.seconds
 import net.mullvad.mullvadvpn.lib.common.serviceconnection.bindVpnService
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
@@ -32,14 +32,7 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
         // Bind to the VPN service to make sure the daemon is started
         val serviceConnection = appContext.bindVpnService()
 
-        val expiry =
-            withTimeoutOrNull(ACCOUNT_WAIT_TIMEOUT_MS) {
-                // Call for an account expiry update
-                accountRepository.refreshAccountData(waitForDeviceState = true)
-
-                // Check account data
-                accountRepository.accountData.value?.expiryDate
-            }
+        val expiry = accountRepository.fetchAccountData(timeout = ACCOUNT_WAIT_TIMEOUT)?.expiryDate
 
         // If we get a null we should just exit and not schedule a new notification.
         // This either because we were unable to update the account data or that we are no longer
@@ -77,7 +70,7 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
     }
 
     companion object {
-        private const val ACCOUNT_WAIT_TIMEOUT_MS = 5000L
+        private val ACCOUNT_WAIT_TIMEOUT = 5.seconds
         private const val NOTIFICATION_ID = 2
     }
 }

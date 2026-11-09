@@ -11,13 +11,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.daysLeft
 import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
@@ -59,8 +56,8 @@ class DeleteAccountConfirmationViewModel(
 
         try {
             val accountExpiry =
-                withTimeout(3.seconds) { accountRepository.accountData.filterNotNull().first() }
-            val daysLeft = accountExpiry.expiryDate.daysLeft()?.toInt()
+                accountRepository.fetchAccountData(timeout = ACCOUNT_EXPIRY_TIMEOUT)?.expiryDate
+            val daysLeft = accountExpiry?.daysLeft()?.toInt()
             if (daysLeft == null) {
                 emit(DaysLeftState.NoDaysLeft)
             } else {
@@ -102,6 +99,10 @@ class DeleteAccountConfirmationViewModel(
     fun onAccountInputChanged(input: String) {
         verificationError.value = null
         accountInput.value = input
+    }
+
+    companion object {
+        private val ACCOUNT_EXPIRY_TIMEOUT = 3.seconds
     }
 }
 
