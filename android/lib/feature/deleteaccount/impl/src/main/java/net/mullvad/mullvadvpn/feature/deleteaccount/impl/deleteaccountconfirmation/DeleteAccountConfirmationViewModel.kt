@@ -62,7 +62,7 @@ class DeleteAccountConfirmationViewModel(
             return@flow
         }
 
-        val daysLeft = accountExpiry?.daysLeft()?.toInt()
+        val daysLeft = accountExpiry.daysLeft()?.toInt()
         if (daysLeft == null) {
             emit(DaysLeftState.NoDaysLeft)
         } else {
