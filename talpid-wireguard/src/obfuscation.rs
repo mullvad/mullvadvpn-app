@@ -3,6 +3,7 @@
 use crate::{
     CloseMsg, Error, Result,
     config::Config,
+    connectivity,
     ephemeral::{self, IngressSession},
 };
 use std::{
@@ -203,6 +204,7 @@ pub async fn run_multiplexer(
             transports,
             client_public_key,
             selected_transport: selected_tx,
+            timeout: Some(connectivity::establish_timeout(retry_attempt)),
         },
     );
     let multiplexer = RunningObfuscation::Transport(Arc::new(multiplexer));

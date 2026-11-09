@@ -28,7 +28,10 @@ use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::PublicKey;
-use tokio::sync::{Mutex, mpsc, oneshot, watch};
+use tokio::{
+    sync::{Mutex, mpsc, oneshot, watch},
+    time::Instant,
+};
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::{
@@ -103,14 +106,8 @@ impl Multiplexer {
     /// # Arguments
     /// * `settings` - Configuration containing the list of transports to try and network settings
     pub fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> Self {
-        let Settings {
-            transports,
-            client_public_key,
-            selected_transport,
-        } = settings;
-
         // Use the largest transport overhead.
-        let packet_overhead = packet_overhead(&transports);
+        let packet_overhead = packet_overhead(&settings.transports);
 
         let (outgoing, outgoing_rx) = mpsc::channel(DATAGRAM_QUEUE_LEN);
         let (incoming_tx, incoming) = mpsc::channel(DATAGRAM_QUEUE_LEN);
@@ -120,10 +117,8 @@ impl Multiplexer {
             outgoing_rx,
             incoming_tx,
             phase_tx,
-            VecDeque::from(transports),
             bypass,
-            client_public_key,
-            selected_transport,
+            settings,
         ));
 
         Self {
@@ -149,20 +144,25 @@ async fn discover(
     mut outgoing: mpsc::Receiver<Box<[u8]>>,
     incoming: mpsc::Sender<Box<[u8]>>,
     phase_tx: watch::Sender<Phase>,
-    pending: VecDeque<Transport>,
     bypass: Arc<dyn SocketBypass>,
-    client_public_key: PublicKey,
-    selected_transport_tx: SelectedTransportTx,
+    settings: Settings,
 ) {
     log::debug!("Running multiplexer obfuscation");
 
+    let Settings {
+        transports,
+        client_public_key,
+        selected_transport,
+        timeout,
+    } = settings;
     let result = run_discovery(
         &mut outgoing,
         &incoming,
-        pending,
+        VecDeque::from(transports),
         bypass,
         &client_public_key,
-        selected_transport_tx,
+        selected_transport,
+        timeout,
     )
     .await;
 
@@ -178,6 +178,10 @@ fn stopped() -> io::Error {
         io::ErrorKind::BrokenPipe,
         "the multiplexer stopped before selecting a transport",
     )
+}
+
+fn all_failed() -> io::Error {
+    io::Error::new(io::ErrorKind::NotConnected, "every transport failed")
 }
 
 /// [io::Error] is not [Clone], and every caller that waited on the same failure needs one.
@@ -253,7 +257,8 @@ impl ObfuscatedTransport for Multiplexer {
 /// 3. Spawn new transports at timed intervals
 ///
 /// Returns the selected transport, or `None` if the caller went away before any transport was
-/// selected.
+/// selected. Fails with [io::ErrorKind::TimedOut] if no transport answers within `timeout` of the
+/// last one being spawned.
 async fn run_discovery(
     outgoing: &mut mpsc::Receiver<Box<[u8]>>,
     incoming: &mpsc::Sender<Box<[u8]>>,
@@ -261,6 +266,7 @@ async fn run_discovery(
     bypass: Arc<dyn SocketBypass>,
     client_public_key: &PublicKey,
     selected_transport_tx: SelectedTransportTx,
+    timeout: Option<Duration>,
 ) -> io::Result<Option<Arc<dyn ObfuscatedTransport>>> {
     enum Event {
         /// A packet from the local WireGuard instance, or `None` if it went away.
@@ -269,6 +275,8 @@ async fn run_discovery(
         Transport(TransportId, io::Result<usize>),
         /// Time to spawn the next pending transport.
         Spawn,
+        /// No transport answered in time.
+        TimedOut,
     }
 
     let mut running: Vec<RunningTransport> = vec![];
@@ -278,6 +286,8 @@ async fn run_discovery(
     let mut scratch = vec![0u8; MAX_DATAGRAM_SIZE];
 
     let mut spawn_timer = tokio::time::interval(SPAWN_INTERVAL);
+    // Set once the last transport has been spawned.
+    let mut deadline = None;
 
     loop {
         let event = tokio::select! {
@@ -289,6 +299,9 @@ async fn run_discovery(
 
             // Spawning the next transport
             _ = spawn_timer.tick() => Event::Spawn,
+
+            // Giving up on all transports
+            _ = sleep_until(deadline) => Event::TimedOut,
         };
 
         match event {
@@ -322,6 +335,11 @@ async fn run_discovery(
                 // A single failing transport is not fatal; the others may still connect.
                 log::error!("Dropping transport {id}, which failed to receive traffic: {err}");
                 running.remove(id);
+                // Try the next transport without waiting for its turn.
+                spawn_timer.reset_immediately();
+                if running.is_empty() && pending.is_empty() {
+                    return Err(all_failed());
+                }
             }
             Event::Transport(id, Ok(n)) => match handshakes.classify(&running[id].buf[..n]) {
                 // Not an answer to anything WireGuard sent. Whatever it is, it is no reason to
@@ -372,10 +390,37 @@ async fn run_discovery(
                             buf: vec![0u8; MAX_DATAGRAM_SIZE].into_boxed_slice(),
                         });
                     }
-                    Err(err) => log::error!("Failed to spawn new transport: {err}"),
+                    Err(err) => {
+                        log::error!("Failed to spawn new transport: {err}");
+                        // Try the next transport without waiting for its turn.
+                        spawn_timer.reset_immediately();
+                    }
+                }
+                if pending.is_empty() {
+                    if running.is_empty() {
+                        return Err(all_failed());
+                    }
+                    if let Some(timeout) = timeout {
+                        deadline = Some(Instant::now() + timeout);
+                    }
                 }
             }
+
+            Event::TimedOut => {
+                return Err(io::Error::new(
+                    io::ErrorKind::TimedOut,
+                    "no transport answered in time",
+                ));
+            }
         }
+    }
+}
+
+/// Wait until `deadline`, or forever if there is none.
+async fn sleep_until(deadline: Option<Instant>) {
+    match deadline {
+        Some(deadline) => tokio::time::sleep_until(deadline).await,
+        None => std::future::pending().await,
     }
 }
 
@@ -468,6 +513,9 @@ pub struct Settings {
     /// Notified with the selected transport, once one has been selected. The value is only ever
     /// set once, as the multiplexer never reconsiders its choice.
     pub selected_transport: SelectedTransportTx,
+    /// How long to wait for a transport to answer after the last one was spawned, before giving
+    /// up on all of them. `None` waits indefinitely.
+    pub timeout: Option<Duration>,
 }
 
 /// Represents a transport method that the multiplexer can use.
@@ -549,6 +597,7 @@ mod tests {
             ],
             client_public_key: client_key(),
             selected_transport: selected_tx,
+            timeout: None,
         };
 
         let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
@@ -628,6 +677,82 @@ mod tests {
         assert_eq!(&server_buf[..bytes_received], second_test_data);
     }
 
+    /// If every transport fails, the multiplexer should give up right away, rather than wait for
+    /// the next transport's turn or for a timeout.
+    #[tokio::test]
+    async fn test_multiplexer_fails_when_every_transport_fails() {
+        // Nothing listens on these ports, so the transports' receives fail as soon as they have
+        // sent something.
+        let closed_port = || async {
+            let socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+            socket.local_addr().unwrap()
+        };
+
+        let (selected_tx, selected_rx) = oneshot::channel();
+        let settings = Settings {
+            transports: vec![
+                Transport::Direct(closed_port().await),
+                Transport::Direct(closed_port().await),
+            ],
+            client_public_key: client_key(),
+            selected_transport: selected_tx,
+            timeout: None,
+        };
+
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let start = Instant::now();
+        multiplexer
+            .send(&mut handshake_initiation(SESSION))
+            .await
+            .unwrap();
+
+        tokio::time::timeout(SPAWN_INTERVAL, selected_rx)
+            .await
+            .expect("the multiplexer should give up before the next transport's turn")
+            .expect_err("no transport should be selected");
+        assert!(start.elapsed() < SPAWN_INTERVAL);
+
+        let mut buf = [0u8; 64];
+        let error = multiplexer.recv(&mut buf).await.unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::NotConnected);
+    }
+
+    /// If no transport answers within the timeout of the last one being spawned, the multiplexer
+    /// should give up without selecting one.
+    #[tokio::test(start_paused = true)]
+    async fn test_multiplexer_times_out() {
+        const TIMEOUT: Duration = Duration::from_secs(4);
+
+        let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let relay2 = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+
+        let (selected_tx, selected_rx) = oneshot::channel();
+        let settings = Settings {
+            transports: vec![
+                Transport::Direct(relay.local_addr().unwrap()),
+                Transport::Direct(relay2.local_addr().unwrap()),
+            ],
+            client_public_key: client_key(),
+            selected_transport: selected_tx,
+            timeout: Some(TIMEOUT),
+        };
+
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let start = Instant::now();
+
+        assert!(
+            selected_rx.await.is_err(),
+            "no transport should be selected"
+        );
+
+        // The second transport is spawned one interval after the first.
+        assert_eq!(start.elapsed(), SPAWN_INTERVAL + TIMEOUT);
+
+        let mut buf = [0u8; 64];
+        let error = multiplexer.recv(&mut buf).await.unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::TimedOut);
+    }
+
     #[tokio::test(start_paused = true)]
     async fn test_multiplexer_ignores_invalid_handshake_responses() {
         let liar = UdpSocket::bind("127.0.0.1:0").await.unwrap();
@@ -641,6 +766,7 @@ mod tests {
             transports: vec![Transport::Direct(liar_addr), Transport::Direct(relay_addr)],
             client_public_key: client_key(),
             selected_transport: selected_tx,
+            timeout: None,
         };
 
         let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
@@ -711,6 +837,7 @@ mod tests {
             }))],
             client_public_key: client_key.clone(),
             selected_transport: selected_tx,
+            timeout: None,
         };
 
         let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
