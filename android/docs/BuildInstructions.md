@@ -14,18 +14,18 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
    git clone https://github.com/mullvad/mullvadvpn-app.git
    ```
 
-2. Install [rustup](https://rustup.rs/), a protobuf compiler and a C compiler:
+1. Install [rustup](https://rustup.rs/), a protobuf compiler and a C compiler:
    - macOS (with [Homebrew](https://brew.sh/)): `brew install protobuf`
    - Debian/Ubuntu: `sudo apt install protobuf-compiler libprotobuf-dev gcc`
    - Fedora: `sudo dnf install protobuf-compiler protobuf-devel gcc`
 
-3. Make sure new terminals and Android Studio get the `PATH` change from the rustup installer, for
+1. Make sure new terminals and Android Studio get the `PATH` change from the rustup installer, for
    example by logging out and back in.
 
    **On macOS**, start Android Studio from a terminal so the build can use your `PATH` to find
    cargo.
 
-4. From the repository root, install the pinned Rust version and the Android targets:
+1. From the repository root, install the pinned Rust version and the Android targets:
    ```bash
    ./scripts/setup-rust android
    ```
@@ -34,14 +34,14 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
    `export MULLVAD_SETUP_PLATFORM=android`, for example to `~/.zshrc` or `~/.bashrc`, to rerun this
    automatically when the Rust version in `rust-toolchain.toml` changes.
 
-5. Install [Android Studio](https://developer.android.com/studio) and complete the setup wizard.
+1. Install [Android Studio](https://developer.android.com/studio) and complete the setup wizard.
 
-6. Install the NDK. The build doesn't download it, so this is needed even if you already use Android
+1. Install the NDK. The build doesn't download it, so this is needed even if you already use Android
    Studio: in **Settings > Languages & Frameworks > Android SDK > SDK Tools**, check **Show Package
    Details**, select **NDK (Side by side)** version `27.3.13750724` (the `ndk` version in
    [`gradle/libs.versions.toml`](../gradle/libs.versions.toml)) and click **Apply**.
 
-7. Open the `android` directory in Android Studio and click **Run**.
+1. Open the `android` directory in Android Studio and click **Run**.
 
 The first build downloads the other Android SDK packages it needs and compiles the Rust daemon for
 all four Android ABIs, so it takes a while (several minutes). To build for fewer ABIs, see
@@ -54,7 +54,8 @@ the SDK location in `android/local.properties`, so Gradle only needs a JDK. You 
 bundled with Android Studio by setting `JAVA_HOME` to
 `"/Applications/Android Studio.app/Contents/jbr/Contents/Home"` on macOS, or on Linux
 `/usr/local/android-studio/jbr` or `/opt/android-studio/jbr` depending on where you unpacked it.
-You can then build a debug APK by running `./gradlew debug` from the `android` directory.
+You can then build a debug APK by running `./gradlew debug` from the `android` directory, which
+will end up as: `app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk`
 
 ## Other ways to build
 
@@ -68,11 +69,12 @@ environment variables. For release builds it's strongly recommended to use the
 This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
 
 1. Install the nix package manager by following the [official instructions](https://nixos.org/download/).
-2. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
-3. Build a debug APK:
+1. Enable the experimental `nix-command` and `flake` features by following [these instructions](https://nixos.wiki/wiki/flakes).
+1. Build a debug APK:
    ```bash
    nix develop .#android -c build
    ```
+   Artifact path: `app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk`
 
 To run another command in the devshell, pass it after `-c`, for example
 `nix develop .#android -c ./gradlew tasks`, or run `nix develop .#android` to enter an interactive
@@ -85,10 +87,11 @@ This is primarily supported on Linux, and might work on macOS and Windows to var
    configured to run in rootless mode. To use another container runner such as
    [docker](https://docs.docker.com/get-started/) (which might work better on e.g. macOS),
    set the `CONTAINER_RUNNER` environment variable.
-2. Build a debug APK from the repository root:
+1. Build a debug APK from the repository root:
    ```bash
    ./building/containerized-build.sh android
    ```
+   Artifact path: `android/app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk`
 
 To run another Gradle task in the container, pass it after `android`, for example
 `./building/containerized-build.sh android tasks`.
@@ -99,24 +102,25 @@ This works on Linux and macOS.
 1. Clone the repository and install rustup, a protobuf compiler, a C compiler, the pinned Rust
    version and the Android targets as in steps 1 to 4 of the
    [quick start](#quick-start-with-android-studio).
-2. Install a JDK:
+1. Install a JDK:
    - macOS: `brew install openjdk@21`, then set `JAVA_HOME` to
      `$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home`.
    - Debian/Ubuntu: `sudo apt install zip openjdk-21-jdk`
    - Fedora: `sudo dnf install java-21-openjdk-devel`
-3. Install the Android command line tools as described in the
-   [sdkmanager docs](https://developer.android.com/tools/sdkmanager) and export the SDK directory
-   as `ANDROID_HOME`, for example in `~/.zshrc` or `~/.bashrc`. Then accept the SDK licenses and
-   install the NDK:
-   ```bash
-   yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
-   "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.3.13750724"
-   ```
+1. Install the Android development tooling:
+   - Install the Android command line tools as described in the [sdkmanager docs](https://developer.android.com/tools/sdkmanager).
+   - Set the `ANDROID_HOME` environment variable, for example in `~/.zshrc` or `~/.bashrc`.
+   - Accept the SDK licenses and install the NDK:
+      ```bash
+      yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+      "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.3.13750724"
+      ```
    The build downloads the SDK platform and build tools it needs.
-4. Build a debug APK from the `android` directory:
+1. Build a debug APK from the `android` directory:
    ```bash
    ./gradlew debug
    ```
+   Artifact path: `app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk`
 
 ### Build the Rust library directly with cargo
 
@@ -159,7 +163,7 @@ cargo build --target aarch64-linux-android --package mullvad-jni
 ## Releases and build configuration
 
 ### Gradle properties
-Some Gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
+Some Gradle properties can be set to simplify development, for the full list see [`gradle.properties`](../gradle.properties).
 In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
 [gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
 for more info of the prioritization of properties.
@@ -208,7 +212,7 @@ in the following way:
 
    If you're on macOS make sure GNU sed is installed. Install with `brew install gnu-sed` and add it to your `PATH` so that it is used instead of the `sed` macOS ships with `PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"`
 
-2. Check diff before committing.
+1. Check diff before committing.
 
 #### Disable during development
 This is easiest done by temporarily removing the lockfile:
@@ -218,13 +222,13 @@ rm ./gradle/verification-metadata.xml
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Build the release artifacts in the [container](#build-using-the-container) from the repository
+1. Build the release artifacts in the [container](#build-using-the-container) from the repository
    root:
    ```bash
    ./building/containerized-build.sh android fullRelease
    ```
    Without the container, run `./gradlew fullRelease` from the `android` directory instead.
-3. Sign the release artifacts using apksigner with the following command:
+1. Sign the release artifacts using apksigner with the following command:
    ```bash
    apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
    ```
