@@ -151,7 +151,7 @@ fn lwo_settings(relay_addr: SocketAddr) -> tunnel_obfuscation::Settings {
     let (client_public_key, server_public_key) = keys();
     tunnel_obfuscation::Settings::Lwo(lwo::Settings {
         server_addr: relay_addr,
-        client_public_key,
+        client_public_key: client_public_key.into(),
         server_public_key,
         version: LwoVersion::V1,
     })

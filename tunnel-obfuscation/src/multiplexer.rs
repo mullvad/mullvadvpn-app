@@ -154,7 +154,11 @@ async fn discover(
     client_public_key: PublicKey,
     selected_transport_tx: SelectedTransportTx,
 ) {
-    log::debug!("Running multiplexer obfuscation");
+    log::info!(
+        "Multiplexing {} anti-censorship transports: {}",
+        pending.len(),
+        pending.iter().join(", ")
+    );
 
     let result = run_discovery(
         &mut outgoing,
@@ -363,6 +367,12 @@ async fn run_discovery(
                 let Some(config) = pending.pop_front() else {
                     continue;
                 };
+                log::trace!(
+                    "Spawning {config} ({}/{})",
+                    running.len() + 1,
+                    running.len() + pending.len() + 1
+                );
+
                 match spawn_transport(&bypass, config.clone()).await {
                     Ok(transport) => {
                         send_initial_packets(&transport, &initial_packets, &mut scratch).await;
@@ -402,12 +412,8 @@ async fn spawn_transport(
     transport: Transport,
 ) -> crate::Result<Arc<dyn ObfuscatedTransport>> {
     match transport {
-        Transport::Direct(addr) => {
-            log::info!("Spawning direct forwarder");
-            Ok(Arc::new(Direct::new(bypass, addr).await?))
-        }
+        Transport::Direct(addr) => Ok(Arc::new(Direct::new(bypass, addr).await?)),
         Transport::Obfuscated(settings) => {
-            log::info!("Spawning new obfuscator");
             crate::create_transport(Arc::clone(bypass), &settings).await
         }
     }
@@ -477,6 +483,28 @@ pub enum Transport {
     Direct(SocketAddr),
     /// An obfuscated transport (UDP2TCP, Shadowsocks, QUIC, etc.)
     Obfuscated(crate::Settings),
+}
+
+impl Display for Transport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ip_version = |addr| match addr {
+            SocketAddr::V4(_) => "IPv4",
+            SocketAddr::V6(_) => "IPv6",
+        };
+        use crate::Settings::*;
+        use Transport::*;
+        match self {
+            Direct(addr) => {
+                write!(f, "Direct WireGuard over {}", ip_version(*addr))
+            }
+            Obfuscated(Udp2Tcp(c)) => write!(f, "Udp2Tcp over {}", ip_version(c.peer)),
+            Obfuscated(Shadowsocks(c)) => {
+                write!(f, "Shadowsocks over {}", ip_version(c.shadowsocks_endpoint))
+            }
+            Obfuscated(Quic(c)) => write!(f, "Quic over {}", ip_version(c.quic_endpoint())),
+            Obfuscated(Lwo(c)) => write!(f, "Lwo over {}", ip_version(c.server_addr)),
+        }
+    }
 }
 
 impl Transport {
@@ -704,7 +732,7 @@ mod tests {
         let settings = Settings {
             transports: vec![Transport::Obfuscated(crate::Settings::Lwo(lwo::Settings {
                 server_addr: server_socket.local_addr().unwrap(),
-                client_public_key: client_key.clone(),
+                client_public_key: client_key.clone().into(),
                 server_public_key: server_key.clone(),
                 // TODO: support v2
                 version: LwoVersion::V1,
