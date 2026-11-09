@@ -68,6 +68,7 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
             ))],
             client_public_key: keys().0,
             selected_transport: selected_tx,
+            timeout: None,
         };
         let multiplexer = multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings);
         let runner =
