@@ -168,10 +168,10 @@ impl<F: UdpTransportFactory> IngressSession<F> {
         })
     }
 
-    /// Complete a handshake with the ingress relay, or fail with [`NegotiationError::Timeout`] if
-    /// that takes longer than [`NegotiationConfig::handshake_timeout`].
-    pub async fn handshake(&self, config: &NegotiationConfig) -> Result<(), NegotiationError> {
-        handshake(&self.device, config.handshake_timeout).await
+    /// Complete a handshake with the ingress relay. This waits indefinitely until a handshake
+    /// arrives, and returns immediately if there's already an active session.
+    pub async fn handshake(&self) -> Result<(), NegotiationError> {
+        force_handshake(&self.device).await
     }
 
     /// Use [`NegotiationConfig::ingress_timer_params`] for the ingress relay.
@@ -381,6 +381,16 @@ async fn handshake(
     device: &Device<impl DeviceTransports>,
     timeout: Duration,
 ) -> Result<(), NegotiationError> {
+    tokio::time::timeout(timeout, force_handshake(device))
+        .await
+        .inspect_err(|_| {
+            log::debug!("No handshake with the relay within {timeout:?}");
+        })
+        .map_err(|_| NegotiationError::Timeout)?
+}
+
+/// Complete a handshake between `device` and its only peer, however long that takes.
+async fn force_handshake(device: &Device<impl DeviceTransports>) -> Result<(), NegotiationError> {
     let pubkey = device
         .peers()
         .await
@@ -388,12 +398,9 @@ async fn handshake(
         .expect("has a peer")
         .peer
         .public_key;
-    tokio::time::timeout(timeout, device.force_handshake(&pubkey))
+    device
+        .force_handshake(&pubkey)
         .await
-        .inspect_err(|_| {
-            log::debug!("No handshake with the relay within {timeout:?}");
-        })
-        .map_err(|_| NegotiationError::Timeout)?
         .map_err(NegotiationError::Handshake)
 }
 

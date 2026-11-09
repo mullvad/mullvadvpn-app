@@ -211,21 +211,25 @@ pub async fn run_multiplexer(
 
     let session =
         ephemeral::open_ingress_session(config, retry_attempt, Some(multiplexer), bypass).await?;
-    if let Err(error) = ephemeral::handshake(&session, config, retry_attempt).await {
-        session.stop().await;
-        return Err(error);
-    }
 
-    // The multiplexer only lets a handshake response through once it has selected a transport.
-    match selected_rx.await {
-        Ok(selected) => {
+    // The multiplexer only lets a handshake response through once it has selected a transport, and
+    // gives up once the last transport has had time to answer. So the handshake needs no timeout
+    // of its own, as long as it is abandoned when the multiplexer gives up.
+    let selected = async {
+        selected_rx.await.map_err(|_| {
+            log::warn!("The multiplexer stopped before selecting a transport");
+            CloseMsg::PingErr
+        })
+    };
+    let result = tokio::try_join!(ephemeral::handshake(&session), selected);
+    match result {
+        Ok(((), selected)) => {
             log::debug!("Selected obfuscation: {:?}", selected.config);
             Ok((selected, session))
         }
-        Err(_) => {
-            log::error!("The multiplexer stopped before selecting a transport");
+        Err(error) => {
             session.stop().await;
-            Err(CloseMsg::SetupError(Error::UnknownSelectedObfuscator))
+            Err(error)
         }
     }
 }

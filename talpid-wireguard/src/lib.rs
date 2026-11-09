@@ -80,11 +80,6 @@ pub enum Error {
     #[error("Tunnel obfuscation failed")]
     ObfuscationError(#[source] tunnel_obfuscation::Error),
 
-    /// Failed to determine which obfuscator the multiplexer settled on. Without it, the firewall
-    /// cannot be restricted to the endpoint that is actually in use.
-    #[error("Failed to determine the selected obfuscator")]
-    UnknownSelectedObfuscator,
-
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
     ConnectivityMonitorError(#[source] connectivity::Error),
@@ -106,7 +101,6 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::ObfuscationError(_) => true,
-            Error::UnknownSelectedObfuscator => true,
             Error::EphemeralPeerNegotiationError(_) => true,
             Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
