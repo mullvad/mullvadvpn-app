@@ -19,7 +19,6 @@ use talpid_types::net::{
     obfuscation::{ObfuscatorConfig, Obfuscators},
     wireguard::PublicKey,
 };
-use tokio::sync::oneshot;
 use tunnel_obfuscation::{
     create_transport, lwo,
     multiplexer::{self, Multiplexer, Selected, Transport},
@@ -197,41 +196,45 @@ pub async fn run_multiplexer(
     client_public_key: PublicKey,
     bypass: &Arc<dyn SocketBypass>,
 ) -> std::result::Result<(Selected, IngressSession), CloseMsg> {
-    let (selected_tx, selected_rx) = oneshot::channel();
-    let multiplexer = Multiplexer::new(
+    let (multiplexer, transport) = Multiplexer::new(
         Arc::clone(bypass),
         multiplexer::Settings {
             transports,
             client_public_key,
-            selected_transport: selected_tx,
             timeout: Some(connectivity::establish_timeout(retry_attempt)),
         },
     );
-    let multiplexer = RunningObfuscation::Transport(Arc::new(multiplexer));
+    let obfuscation = RunningObfuscation::Transport(Arc::new(transport));
 
     let session =
-        ephemeral::open_ingress_session(config, retry_attempt, Some(multiplexer), bypass).await?;
+        ephemeral::open_ingress_session(config, retry_attempt, Some(obfuscation), bypass).await?;
 
-    // The multiplexer only lets a handshake response through once it has selected a transport, and
-    // gives up once the last transport has had time to answer. So the handshake needs no timeout
-    // of its own, as long as it is abandoned when the multiplexer gives up.
-    let selected = async {
-        selected_rx.await.map_err(|_| {
-            log::warn!("The multiplexer stopped before selecting a transport");
-            CloseMsg::PingErr
-        })
-    };
-    let result = tokio::try_join!(ephemeral::handshake(&session), selected);
-    match result {
-        Ok(((), selected)) => {
-            log::debug!("Selected obfuscation: {:?}", selected.config);
-            Ok((selected, session))
-        }
-        Err(error) => {
-            session.stop().await;
-            Err(error)
-        }
-    }
+    // Start the handshake before awaiting the multiplexer
+    let handshake = tokio::spawn(async move {
+        ephemeral::handshake(&session).await?;
+        Ok(session)
+    });
+
+    let selected = multiplexer.discover().await.map_err(|error| {
+        log::warn!("The multiplexer stopped before selecting a transport: {error}");
+        CloseMsg::PingErr
+    })?;
+
+    log::debug!("Selected obfuscation: {:?}", selected.config);
+
+    // `ephemeral::handshake` will not return if the handshake is invalid. The multiplexer verifies
+    // the handshake, but only using the `mac1` field. If it is valid but the entire handshake is
+    // not, `ephemeral::handshake` would hang indefinitely, so we add a timeout here to prevent
+    // that.
+    let session = tokio::time::timeout(std::time::Duration::from_secs(5), handshake)
+        .await
+        .map_err(|_| {
+            log::debug!("ephemeral::handshake failed");
+            CloseMsg::EphemeralPeerNegotiationTimeout
+        })?
+        .expect("wait task should never panic")?;
+
+    Ok((selected, session))
 }
 
 /// Return the obfuscation to reach the ingress relay with, using only the `selected` transport.
