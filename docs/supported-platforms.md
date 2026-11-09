@@ -40,6 +40,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 
 | Version          | Architecture   | Type of test |
 |------------------|----------------|--------------|
+| 15 (Sequoia)     | x86-64 (Intel) | manual       |
 | 15 (Sequoia)     | ARM64          | e2e, manual  |
 | 26 (Tahoe)       | ARM64          | e2e, manual  |
 | 27 (Golden Gate) | ARM64          | e2e, manual  |
