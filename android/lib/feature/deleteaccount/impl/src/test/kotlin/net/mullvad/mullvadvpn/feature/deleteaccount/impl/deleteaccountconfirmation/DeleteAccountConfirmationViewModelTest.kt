@@ -7,11 +7,14 @@ import io.mockk.mockk
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class DeleteAccountConfirmationViewModelTest {
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
