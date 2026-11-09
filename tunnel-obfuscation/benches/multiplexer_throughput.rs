@@ -16,7 +16,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use std::{net::SocketAddr, ops::Range, sync::Arc, time::Duration};
 use talpid_net::bypass::NoopBypass;
 use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
-use tokio::{net::UdpSocket, sync::oneshot};
+use tokio::net::UdpSocket;
 use tunnel_obfuscation::{LocalSocketObfuscator, lwo, multiplexer};
 
 const SESSION: u32 = 1;
@@ -61,20 +61,19 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
 
     let (wg, relay) = rt.block_on(async {
         let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
-        let (selected_tx, _selected_rx) = oneshot::channel();
         let settings = multiplexer::Settings {
             transports: vec![multiplexer::Transport::Obfuscated(lwo_settings(
                 relay.local_addr().unwrap(),
             ))],
             client_public_key: keys().0,
-            selected_transport: selected_tx,
             timeout: None,
         };
-        let multiplexer = multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings);
-        let runner =
-            tunnel_obfuscation::local_socket::LocalSocketRunner::new(Arc::new(multiplexer))
-                .await
-                .unwrap();
+        // Keep `multiplexer` around, since dropping it aborts discovery.
+        let (multiplexer, transport) =
+            multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings);
+        let runner = tunnel_obfuscation::local_socket::LocalSocketRunner::new(Arc::new(transport))
+            .await
+            .unwrap();
         let endpoint = runner.endpoint();
         tokio::spawn(Box::new(runner).run());
 
@@ -92,6 +91,10 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
                 break;
             }
         }
+
+        // Wait for the multiplexer to publish the selected transport, so that the handle can be
+        // dropped without aborting discovery mid-commit.
+        multiplexer.wait().await.unwrap();
 
         (wg, relay)
     });

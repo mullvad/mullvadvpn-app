@@ -29,7 +29,7 @@ use futures::{StreamExt, stream::FuturesUnordered};
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{
-    sync::{Mutex, mpsc, oneshot, watch},
+    sync::{Mutex, mpsc, watch},
     time::Instant,
 };
 use tokio_util::task::AbortOnDropHandle;
@@ -41,7 +41,7 @@ use crate::{
 };
 
 /// How long to wait before spawning the next transport in the queue.
-const SPAWN_INTERVAL: Duration = Duration::from_secs(1);
+const SPAWN_INTERVAL: Duration = Duration::from_millis(500);
 
 /// Max number of initial outgoing packets to buffer for replaying to new transports
 const MAX_INITIAL_PACKETS: usize = 100;
@@ -60,21 +60,8 @@ type TransportId = usize;
 /// 2. **Connected Phase**: Once a transport responds with a valid handshake response, switch to
 ///    forwarding to that transport only
 pub struct Multiplexer {
-    /// Which phase the multiplexer is in.
-    phase: watch::Receiver<Phase>,
-
-    /// Datagrams to fan out, drained by the discovery task while it is still racing.
-    outgoing: mpsc::Sender<Box<[u8]>>,
-
-    /// Datagrams that a raced transport received before one was selected.
-    ///
-    /// The [Mutex] is uncontended in practice.
-    incoming: Mutex<mpsc::Receiver<Box<[u8]>>>,
-
-    packet_overhead: u16,
-
     /// Stops discovery when this transport is dropped.
-    _discovery_task: AbortOnDropHandle<()>,
+    discovery_task: AbortOnDropHandle<io::Result<Selected>>,
 }
 
 /// Which phase the multiplexer is in.
@@ -97,6 +84,22 @@ struct RunningTransport {
     buf: Box<[u8]>,
 }
 
+pub struct MultiplexerTransport {
+    /// Which phase the multiplexer is in.
+    phase: watch::Receiver<Phase>,
+
+    /// The largest overhead among the raced transports.
+    packet_overhead: u16,
+
+    /// Datagrams to fan out, drained by the discovery task while it is still racing.
+    outgoing: mpsc::Sender<Box<[u8]>>,
+
+    /// Datagrams that a raced transport received before one was selected.
+    ///
+    /// The [Mutex] is uncontended in practice.
+    incoming: Mutex<mpsc::Receiver<Box<[u8]>>>,
+}
+
 impl Multiplexer {
     /// Create a new multiplexer with the specified transports (obfuscators) and settings.
     ///
@@ -105,7 +108,7 @@ impl Multiplexer {
     ///
     /// # Arguments
     /// * `settings` - Configuration containing the list of transports to try and network settings
-    pub fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> Self {
+    pub fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> (Self, MultiplexerTransport) {
         // Use the largest transport overhead.
         let packet_overhead = packet_overhead(&settings.transports);
 
@@ -113,46 +116,56 @@ impl Multiplexer {
         let (incoming_tx, incoming) = mpsc::channel(DATAGRAM_QUEUE_LEN);
         let (phase_tx, phase) = watch::channel(Phase::Discovery);
 
-        let discovery_task = tokio::spawn(discover(
-            outgoing_rx,
-            incoming_tx,
-            phase_tx,
-            bypass,
-            settings,
-        ));
+        let discovery_task =
+            Self::spawn_discovery(outgoing_rx, incoming_tx, phase_tx, bypass, settings);
 
-        Self {
-            phase,
-            outgoing,
-            incoming: Mutex::new(incoming),
+        let transport = MultiplexerTransport {
+            phase: phase.clone(),
             packet_overhead,
-            _discovery_task: AbortOnDropHandle::new(discovery_task),
-        }
+            outgoing: outgoing.clone(),
+            incoming: Mutex::new(incoming),
+        };
+
+        (Self { discovery_task }, transport)
     }
 
-    /// Which phase the multiplexer is in, as of now.
-    fn phase(&self) -> Phase {
-        self.phase.borrow().clone()
+    /// Spawn the task that races the transports until one of them answers, and publishes the
+    /// outcome to the phase channel.
+    fn spawn_discovery(
+        outgoing: mpsc::Receiver<Box<[u8]>>,
+        incoming: mpsc::Sender<Box<[u8]>>,
+        phase_tx: watch::Sender<Phase>,
+        bypass: Arc<dyn SocketBypass>,
+        settings: Settings,
+    ) -> AbortOnDropHandle<io::Result<Selected>> {
+        AbortOnDropHandle::new(tokio::spawn(discover(
+            outgoing, incoming, phase_tx, bypass, settings,
+        )))
+    }
+
+    pub async fn wait(self) -> io::Result<Selected> {
+        self.discovery_task
+            .await
+            .expect("the discovery task should not panic")
     }
 }
 
 /// Race the transports until one of them answers, and publish the result.
 ///
-/// Whatever happens, `phase_tx` is told about it, since [Multiplexer::send] and
-/// [Multiplexer::recv] have nowhere else to learn that the race is over.
+/// Whatever happens, `phase_tx` is told about it, since [MultiplexerTransport::send] and
+/// [MultiplexerTransport::recv] have nowhere else to learn that the race is over.
 async fn discover(
     mut outgoing: mpsc::Receiver<Box<[u8]>>,
     incoming: mpsc::Sender<Box<[u8]>>,
     phase_tx: watch::Sender<Phase>,
     bypass: Arc<dyn SocketBypass>,
     settings: Settings,
-) {
+) -> io::Result<Selected> {
     log::debug!("Running multiplexer obfuscation");
 
     let Settings {
         transports,
         client_public_key,
-        selected_transport,
         timeout,
     } = settings;
     let result = run_discovery(
@@ -161,16 +174,16 @@ async fn discover(
         VecDeque::from(transports),
         bypass,
         &client_public_key,
-        selected_transport,
         timeout,
     )
     .await;
 
-    let _ = phase_tx.send(match result {
-        Ok(Some(transport)) => Phase::Connected(transport),
-        Ok(None) => Phase::Failed(Arc::new(stopped())),
-        Err(err) => Phase::Failed(Arc::new(err)),
+    let _ = phase_tx.send(match &result {
+        Ok(selected) => Phase::Connected(selected.transport.clone()),
+        Err(err) => Phase::Failed(Arc::new(clone_error(err))),
     });
+
+    result
 }
 
 fn stopped() -> io::Error {
@@ -197,9 +210,10 @@ fn copy_datagram(datagram: &[u8], buf: &mut [u8]) -> io::Result<usize> {
 }
 
 #[async_trait]
-impl ObfuscatedTransport for Multiplexer {
+impl ObfuscatedTransport for MultiplexerTransport {
     async fn send(&self, packet: &mut [u8]) -> io::Result<()> {
-        match self.phase() {
+        let phase = self.phase.borrow().clone();
+        match phase {
             // Just forward to the selected transport.
             Phase::Connected(transport) => transport.send(packet).await,
             Phase::Failed(err) => Err(clone_error(&err)),
@@ -265,9 +279,8 @@ async fn run_discovery(
     mut pending: VecDeque<Transport>,
     bypass: Arc<dyn SocketBypass>,
     client_public_key: &PublicKey,
-    selected_transport_tx: SelectedTransportTx,
     timeout: Option<Duration>,
-) -> io::Result<Option<Arc<dyn ObfuscatedTransport>>> {
+) -> io::Result<Selected> {
     enum Event {
         /// A packet from the local WireGuard instance, or `None` if it went away.
         Wireguard(Option<Box<[u8]>>),
@@ -307,7 +320,7 @@ async fn run_discovery(
         match event {
             Event::Wireguard(None) => {
                 log::debug!("The local WireGuard instance went away before a transport answered");
-                return Ok(None);
+                return Err(stopped());
             }
             Event::Wireguard(Some(packet)) => {
                 let n = packet.len();
@@ -359,21 +372,17 @@ async fn run_discovery(
                 // A handshake response means this transport reached the relay, so use it from
                 // now on.
                 Received::HandshakeResponse => {
-                    let selected = running.swap_remove(id);
+                    let running_transport = running.swap_remove(id);
                     log::debug!(
                         "Selecting {:?} as the valid transport configuration",
-                        selected.config
+                        running_transport.config
                     );
-                    forward(incoming, &selected.buf[..n]).await?;
+                    forward(incoming, &running_transport.buf[..n]).await?;
 
-                    // Announce the selected transport, so that it can be used without the
-                    // multiplexer, and the firewall can be restricted to its endpoint.
-                    let _ = selected_transport_tx.send(Selected {
-                        config: selected.config,
-                        transport: Arc::clone(&selected.transport),
+                    return Ok(Selected {
+                        config: running_transport.config,
+                        transport: running_transport.transport,
                     });
-
-                    return Ok(Some(selected.transport));
                 }
             },
 
@@ -481,9 +490,6 @@ async fn forward(incoming: &mpsc::Sender<Box<[u8]>>, datagram: &[u8]) -> io::Res
         .map_err(|_| stopped())
 }
 
-/// Notifies interested parties about which transport the multiplexer has committed to.
-pub type SelectedTransportTx = oneshot::Sender<Selected>;
-
 /// The transport that the multiplexer committed to.
 pub struct Selected {
     /// The configuration that the transport was spawned from.
@@ -510,9 +516,6 @@ pub struct Settings {
     pub transports: Vec<Transport>,
     /// Public key of the local WireGuard instance.
     pub client_public_key: PublicKey,
-    /// Notified with the selected transport, once one has been selected. The value is only ever
-    /// set once, as the multiplexer never reconsiders its choice.
-    pub selected_transport: SelectedTransportTx,
     /// How long to wait for a transport to answer after the last one was spawned, before giving
     /// up on all of them. `None` waits indefinitely.
     pub timeout: Option<Duration>,
@@ -563,8 +566,8 @@ mod tests {
     use talpid_types::net::obfuscation::LwoVersion;
     use tokio::net::UdpSocket;
 
-    async fn local_socket(multiplexer: Multiplexer) -> Box<dyn LocalSocketObfuscator> {
-        let runner = LocalSocketRunner::new(Arc::new(multiplexer)).await.unwrap();
+    async fn local_socket(transport: MultiplexerTransport) -> Box<dyn LocalSocketObfuscator> {
+        let runner = LocalSocketRunner::new(Arc::new(transport)).await.unwrap();
         Box::new(runner)
     }
 
@@ -589,24 +592,23 @@ mod tests {
         let server_addr2 = server_socket2.local_addr().unwrap();
 
         // Create multiplexer pointing to direct transports
-        let (selected_tx, selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![
                 Transport::Direct(server_addr),
                 Transport::Direct(server_addr2),
             ],
             client_public_key: client_key(),
-            selected_transport: selected_tx,
             timeout: None,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
-        let multiplexer = local_socket(multiplexer).await;
-        let multiplexer_endpoint = multiplexer.endpoint();
+        // Keep `multiplexer` around, since dropping it aborts discovery.
+        let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let obfuscator = local_socket(transport).await;
+        let multiplexer_endpoint = obfuscator.endpoint();
 
         let client_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
-        tokio::spawn(multiplexer.run());
+        tokio::spawn(obfuscator.run());
 
         // Send a handshake initiation from client to multiplexer and verify that it is received
         let test_data = handshake_initiation(SESSION);
@@ -643,9 +645,13 @@ mod tests {
 
         assert_eq!(&client_buf[..bytes_received], response_data);
 
-        // The first server, and not the second, should have been announced as selected
-        let selected = selected_rx.await.unwrap().config;
-        assert!(matches!(selected, Transport::Direct(addr) if addr == server_addr));
+        // The first server, and not the second, should have been selected
+        let selected = multiplexer.wait().await.unwrap();
+        assert!(
+            matches!(selected.config, Transport::Direct(addr) if addr == server_addr),
+            "the first transport should have been selected, got {:?}",
+            selected.config
+        );
 
         // Packets from unselected transports should not be forwarded after the
         // multiplexer has picked a transport.
@@ -688,32 +694,31 @@ mod tests {
             socket.local_addr().unwrap()
         };
 
-        let (selected_tx, selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![
                 Transport::Direct(closed_port().await),
                 Transport::Direct(closed_port().await),
             ],
             client_public_key: client_key(),
-            selected_transport: selected_tx,
             timeout: None,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
         let start = Instant::now();
-        multiplexer
+        transport
             .send(&mut handshake_initiation(SESSION))
             .await
             .unwrap();
 
-        tokio::time::timeout(SPAWN_INTERVAL, selected_rx)
+        let error = tokio::time::timeout(SPAWN_INTERVAL, multiplexer.wait())
             .await
             .expect("the multiplexer should give up before the next transport's turn")
             .expect_err("no transport should be selected");
+        assert_eq!(error.kind(), io::ErrorKind::NotConnected);
         assert!(start.elapsed() < SPAWN_INTERVAL);
 
         let mut buf = [0u8; 64];
-        let error = multiplexer.recv(&mut buf).await.unwrap_err();
+        let error = transport.recv(&mut buf).await.unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::NotConnected);
     }
 
@@ -726,30 +731,26 @@ mod tests {
         let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let relay2 = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
-        let (selected_tx, selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![
                 Transport::Direct(relay.local_addr().unwrap()),
                 Transport::Direct(relay2.local_addr().unwrap()),
             ],
             client_public_key: client_key(),
-            selected_transport: selected_tx,
             timeout: Some(TIMEOUT),
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
         let start = Instant::now();
 
-        assert!(
-            selected_rx.await.is_err(),
-            "no transport should be selected"
-        );
+        let error = multiplexer.wait().await.unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::TimedOut);
 
         // The second transport is spawned one interval after the first.
         assert_eq!(start.elapsed(), SPAWN_INTERVAL + TIMEOUT);
 
         let mut buf = [0u8; 64];
-        let error = multiplexer.recv(&mut buf).await.unwrap_err();
+        let error = transport.recv(&mut buf).await.unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::TimedOut);
     }
 
@@ -761,18 +762,18 @@ mod tests {
         let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let relay_addr = relay.local_addr().unwrap();
 
-        let (selected_tx, mut selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![Transport::Direct(liar_addr), Transport::Direct(relay_addr)],
             client_public_key: client_key(),
-            selected_transport: selected_tx,
             timeout: None,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
-        let multiplexer = local_socket(multiplexer).await;
-        let multiplexer_endpoint = multiplexer.endpoint();
-        tokio::spawn(multiplexer.run());
+        let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        // The phase carries the multiplexer's progress, e.g. whether it has selected a transport.
+        let phase = transport.phase.clone();
+        let obfuscator = local_socket(transport).await;
+        let multiplexer_endpoint = obfuscator.endpoint();
+        tokio::spawn(obfuscator.run());
 
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         wg_socket
@@ -795,9 +796,8 @@ mod tests {
             liar.send_to(&packet, liar_client_addr).await.unwrap();
             // Time only advances once every task is idle, so this drains the multiplexer.
             tokio::time::sleep(Duration::from_millis(50)).await;
-            assert_matches!(
-                selected_rx.try_recv(),
-                Err(oneshot::error::TryRecvError::Empty),
+            assert!(
+                matches!(*phase.borrow(), Phase::Discovery),
                 "a packet that answers no initiation selected a transport",
             );
         }
@@ -810,7 +810,7 @@ mod tests {
         let (n, _) = wg_socket.recv_from(&mut buf).await.unwrap();
         assert_eq!(&buf[..n], &response[..]);
 
-        let selected = selected_rx.await.unwrap().config;
+        let selected = multiplexer.wait().await.unwrap().config;
         assert_matches!(
             selected, Transport::Direct(addr) if addr == relay_addr,
             "the transport that answered the handshake should have been selected, got {selected:?}",
@@ -826,7 +826,6 @@ mod tests {
 
         let server_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
-        let (selected_tx, selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![Transport::Obfuscated(crate::Settings::Lwo(lwo::Settings {
                 server_addr: server_socket.local_addr().unwrap(),
@@ -836,14 +835,14 @@ mod tests {
                 version: LwoVersion::V1,
             }))],
             client_public_key: client_key.clone(),
-            selected_transport: selected_tx,
             timeout: None,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
-        let multiplexer = local_socket(multiplexer).await;
-        let multiplexer_endpoint = multiplexer.endpoint();
-        tokio::spawn(multiplexer.run());
+        // Keep `multiplexer` around, since dropping it aborts discovery.
+        let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let obfuscator = local_socket(transport).await;
+        let multiplexer_endpoint = obfuscator.endpoint();
+        tokio::spawn(obfuscator.run());
 
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
@@ -879,8 +878,8 @@ mod tests {
         let (n, _) = wg_socket.recv_from(&mut wg_buf).await.unwrap();
         assert_eq!(&wg_buf[..n], &response[..]);
 
-        // The LWO transport should have been announced as selected
-        let selected = selected_rx.await.unwrap().config;
+        // The LWO transport should have been selected
+        let selected = multiplexer.wait().await.unwrap().config;
         assert!(matches!(
             selected,
             Transport::Obfuscated(crate::Settings::Lwo(_))
