@@ -98,10 +98,11 @@ impl CancelToken {
 /// How long [`Check::establish_connectivity`] waits for the tunnel to work, on attempt
 /// `retry_attempt` to connect.
 pub fn establish_timeout(retry_attempt: u32) -> Duration {
-    MAX_ESTABLISH_TIMEOUT.min(
+    if retry_attempt == 0 {
         ESTABLISH_TIMEOUT
-            .saturating_mul(ESTABLISH_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
-    )
+    } else {
+        RETRY_ESTABLISH_TIMEOUT
+    }
 }
 
 impl Check {
@@ -157,14 +158,8 @@ impl Check {
         // Hack: This always worked previously but it was never intended.
         let config_service = SocketAddr::from((self.gateway, CONFIG_SERVICE_PORT));
         let _tcp_ping = AbortOnDropHandle::new(tokio::spawn(TcpStream::connect(config_service)));
-        self.establish_connectivity_inner(
-            self.retry_attempt,
-            ESTABLISH_TIMEOUT,
-            ESTABLISH_TIMEOUT_MULTIPLIER,
-            MAX_ESTABLISH_TIMEOUT,
-            tunnel_handle,
-        )
-        .await
+        self.establish_connectivity_inner(establish_timeout(self.retry_attempt), tunnel_handle)
+            .await
     }
 
     pub(crate) async fn reset(&mut self, current_iteration: Instant) {
@@ -174,18 +169,12 @@ impl Check {
 
     async fn establish_connectivity_inner(
         &mut self,
-        retry_attempt: u32,
-        timeout_initial: Duration,
-        timeout_multiplier: u32,
-        max_timeout: Duration,
+        check_timeout: Duration,
         tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
         }
-
-        let check_timeout = max_timeout
-            .min(timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)));
 
         // Begin polling tunnel traffic stats periodically
         let poll_check = async {
@@ -662,9 +651,7 @@ mod test {
     #[tokio::test(start_paused = true)]
     /// Verify that the timeout for setting up a tunnel works as expected.
     async fn test_establish_timeout() {
-        const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
         const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
-        const MAX_ESTABLISH_TIMEOUT: Duration = Duration::from_secs(2);
 
         let (result_tx, mut result_rx) = mpsc::channel(1);
 
@@ -683,13 +670,7 @@ mod test {
             result_tx
                 .send(
                     monitor
-                        .establish_connectivity_inner(
-                            0,
-                            ESTABLISH_TIMEOUT,
-                            ESTABLISH_TIMEOUT_MULTIPLIER,
-                            MAX_ESTABLISH_TIMEOUT,
-                            tunnel.as_ref(),
-                        )
+                        .establish_connectivity_inner(ESTABLISH_TIMEOUT, tunnel.as_ref())
                         .await,
                 )
                 .await
