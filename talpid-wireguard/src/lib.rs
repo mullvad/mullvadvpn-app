@@ -17,6 +17,7 @@ use std::{
     net::IpAddr,
     path::Path,
     sync::{Arc, mpsc as sync_mpsc},
+    time::Duration,
 };
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
@@ -224,7 +225,17 @@ impl WireguardMonitor {
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
 
-            let connection = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            let connection = tokio::time::timeout(
+                INGRESS_CONNECT_TIMEOUT,
+                connect_to_ingress(config, args.retry_attempt, &bypass),
+            )
+            .await
+            .unwrap_or_else(|_| {
+                log::warn!(
+                    "Failed to connect to the ingress relay within {INGRESS_CONNECT_TIMEOUT:?}"
+                );
+                Err(CloseMsg::EphemeralPeerNegotiationTimeout)
+            })?;
             let endpoint_addr = connection.endpoint_addr();
             let IngressConnection {
                 mut config,
@@ -487,7 +498,17 @@ impl WireguardMonitor {
                 obfuscation,
                 selected_obfuscation,
                 daita,
-            } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            } = tokio::time::timeout(
+                INGRESS_CONNECT_TIMEOUT,
+                connect_to_ingress(config, args.retry_attempt, &bypass),
+            )
+            .await
+            .unwrap_or_else(|_| {
+                log::warn!(
+                    "Failed to connect to the ingress relay within {INGRESS_CONNECT_TIMEOUT:?}"
+                );
+                Err(CloseMsg::EphemeralPeerNegotiationTimeout)
+            })?;
 
             let gotatun = gotatun::start_gotatun(
                 tun,
@@ -1029,6 +1050,11 @@ impl IngressConnection {
         }
     }
 }
+
+/// How long connecting to the ingress relay may take. Individual steps have their own timeouts.
+/// The outer timeout is the total timeout for all steps (WG handshakes, multiplexer selection,
+/// and ephemeral peer exchanges).
+const INGRESS_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Establish a way to reach the ingress relay, and then negotiate ephemeral peers through it.
 ///
