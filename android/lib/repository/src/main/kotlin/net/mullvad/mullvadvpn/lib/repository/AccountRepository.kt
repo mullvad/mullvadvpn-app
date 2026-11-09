@@ -2,18 +2,13 @@ package net.mullvad.mullvadvpn.lib.repository
 
 import arrow.core.Either
 import java.time.ZonedDateTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlin.time.Duration
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -27,38 +22,18 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 class AccountRepository(
     private val managementService: ManagementService,
     private val deviceRepository: DeviceRepository,
-    val scope: CoroutineScope,
 ) {
-    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
-
-    private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
-    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
-
     val isNewAccount: StateFlow<Boolean> = _isNewAccount
 
+    private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
     val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
 
-    val accountData: StateFlow<AccountData?> =
-        merge(
-                managementService.deviceState.map { deviceState ->
-                    when (deviceState) {
-                        is DeviceState.LoggedIn -> {
-                            managementService
-                                .getAccountData(deviceState.accountNumber)
-                                .getOrNull()
-                                ?.also { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
-                        }
-                        DeviceState.LoggedOut,
-                        DeviceState.Revoked -> null
-                    }
-                },
-                _mutableAccountDataCache,
-            )
-            .distinctUntilChanged()
-            .stateIn(scope = scope, SharingStarted.Eagerly, null)
+    private val _mutableAccountData: MutableStateFlow<AccountData?> = MutableStateFlow(null)
+    val accountData: StateFlow<AccountData?> = _mutableAccountData
+
+    private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
         managementService.createAccount().onRight { _isNewAccount.update { true } }
@@ -67,7 +42,10 @@ class AccountRepository(
         managementService.loginAccount(accountNumber)
 
     suspend fun logout() =
-        managementService.logoutAccount().onRight { _isNewAccount.update { false } }
+        managementService.logoutAccount().onRight {
+            _mutableAccountData.update { null }
+            _isNewAccount.update { false }
+        }
 
     suspend fun fetchAccountHistory(): AccountNumber? =
         managementService
@@ -80,40 +58,43 @@ class AccountRepository(
 
     /*
      * Fetches the account data from the server, and updates the cache.
-     * Unless force is true, it will only fetch if no fetch was made in the last minute.
+     * Unless ignoreLastSuccessful is true, it will only fetch if no fetch was made in the last minute.
      */
-    suspend fun refreshAccountData(
-        ignoreTimeout: Boolean = true,
-        waitForDeviceState: Boolean = false,
-    ) {
-        // Only refresh if logged in
-        val deviceState =
-            if (waitForDeviceState) {
-                deviceRepository.deviceState.filterNotNull().first() as? DeviceState.LoggedIn
-            } else {
-                deviceRepository.deviceState.value as? DeviceState.LoggedIn
-            } ?: return
+    suspend fun fetchAccountData(
+        ignoreLastSuccessful: Boolean = true,
+        timeout: Duration = Duration.INFINITE,
+    ): AccountData? =
+        withTimeoutOrNull(timeout) {
+            // Only refresh if logged in
+            val deviceState =
+                deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>().first()
 
-        if (ignoreTimeout || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
-            val accountData =
-                managementService.getAccountData(deviceState.accountNumber).getOrNull()
-            lastSuccessfulAccountDataFetch = ZonedDateTime.now()
+            if (ignoreLastSuccessful || lastSuccessfulAccountDataFetch.canFetchAccountData()) {
+                val accountData =
+                    managementService
+                        .getAccountData(deviceState.accountNumber)
+                        .onRight { lastSuccessfulAccountDataFetch = ZonedDateTime.now() }
+                        .getOrNull()
 
-            // Update stateflow cache, only update if device state is still logged in and using the
-            // same account number
-            deviceRepository.deviceState.value?.let {
-                if (it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber) {
-                    _mutableAccountDataCache.emit(accountData)
+                // Update stateflow cache and return value, only update and return if device state
+                // is still logged in and using the same account number
+                deviceRepository.deviceState.value?.let {
+                    if (
+                        it is DeviceState.LoggedIn && it.accountNumber == accountData?.accountNumber
+                    ) {
+                        _mutableAccountData.emit(accountData)
+                        return@withTimeoutOrNull accountData
+                    }
                 }
             }
+            null
         }
-    }
 
     suspend fun getWebsiteAuthToken(): WebsiteAuthToken? =
         managementService.getWebsiteAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
-        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
+        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }
     }
 
     fun resetIsNewAccount() {
@@ -121,7 +102,7 @@ class AccountRepository(
     }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
-        managementService.deleteAccount()
+        managementService.deleteAccount().onRight { _mutableAccountData.value = null }
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))

@@ -208,7 +208,7 @@ val uiModule = module {
         )
     } bind InAppNotificationUseCase::class
 
-    single { OutOfTimeUseCase(get(), get(), MainScope()) }
+    single { OutOfTimeUseCase(get(), get()) }
     single { InternetAvailableUseCase(get()) }
     single { SystemVpnSettingsAvailableUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }

@@ -109,7 +109,7 @@ class WelcomeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.refreshAccountData()
+        accountRepository.fetchAccountData()
     }
 
     private suspend fun pollAccountExpiry() {

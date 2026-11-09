@@ -108,6 +108,10 @@ class ReportProblemViewModel(
     private val _uiSideEffect = Channel<ReportProblemSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    init {
+        viewModelScope.launch { accountRepository.fetchAccountData() }
+    }
+
     fun sendReport(email: String, description: String, skipEmptyEmailCheck: Boolean = false) {
         viewModelScope.launch {
             if (description.isBlank()) {
