@@ -44,6 +44,7 @@ pub(super) enum SocketCmd {
         addr: SocketAddr,
         response: oneshot::Sender<io::Result<SmoltcpTcpStream>>,
         timeout: Option<Duration>,
+        keep_alive: Option<Duration>,
     },
     CreateIcmpSocket {
         ident: u16,
@@ -311,12 +312,14 @@ impl SmoltcpStack {
                 addr,
                 response,
                 timeout,
+                keep_alive,
             } => {
                 let rx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
                 let tx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
                 let mut tcp_socket = tcp::Socket::new(rx_buffer, tx_buffer);
 
                 tcp_socket.set_timeout(timeout.map(Into::into));
+                tcp_socket.set_keep_alive(keep_alive.map(Into::into));
 
                 let local_port = self
                     .next_local_port
@@ -435,6 +438,7 @@ mod tests {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
                 timeout: None,
+                keep_alive: None,
             },
             &notify,
         );
@@ -484,6 +488,7 @@ mod tests {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
                 timeout: None,
+                keep_alive: None,
             },
             &notify,
         );
@@ -539,6 +544,7 @@ mod tests {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
                 timeout: None,
+                keep_alive: None,
             },
             &notify,
         );
