@@ -55,7 +55,7 @@ impl TunnelObfuscatorRuntime {
     ) -> Self {
         let settings = ObfuscationSettings::Lwo(lwo::Settings {
             server_addr: peer,
-            client_public_key,
+            client_public_key: client_public_key.into(),
             server_public_key,
             version: LwoVersion::V1,
         });

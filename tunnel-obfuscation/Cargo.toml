@@ -29,6 +29,7 @@ gotatun = { workspace = true, optional = true }
 log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 rand = { workspace = true, features = ["small_rng"] }
+safelog.workspace = true
 shadowsocks = { workspace = true }
 talpid-net = { path = "../talpid-net" }
 talpid-types = { path = "../talpid-types" }

@@ -6844,6 +6844,7 @@ dependencies = [
  "log",
  "mullvad-masque-proxy",
  "rand 0.9.4",
+ "safelog",
  "shadowsocks",
  "talpid-net",
  "talpid-types",

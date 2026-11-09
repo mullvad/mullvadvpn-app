@@ -35,7 +35,7 @@ impl RunningObfuscation {
     /// Obfuscate for a WireGuard device that uses `client_public_key`, which LWO keys off.
     pub fn with_client_public_key(mut self, client_public_key: PublicKey) -> Self {
         if let RunningObfuscation::Lwo(settings) = &mut self {
-            settings.client_public_key = client_public_key;
+            settings.client_public_key = client_public_key.into();
         }
         self
     }
