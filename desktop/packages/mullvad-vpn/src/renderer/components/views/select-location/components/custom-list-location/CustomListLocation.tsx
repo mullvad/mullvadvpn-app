@@ -8,7 +8,7 @@ import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
-import { useLocationAriaLabel } from '../../hooks';
+import { useLocationAriaDescription, useLocationAriaLabel } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
@@ -35,7 +35,8 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
   const { handleSelect } = useLocationListsContext();
   const { loading } = useCustomListLocationContext();
 
-  const ariaLabel = useLocationAriaLabel(customList.label);
+  const ariaLabel = useLocationAriaLabel(customList);
+  const ariaDescription = useLocationAriaDescription(customList);
 
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp || loading;
@@ -86,12 +87,17 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
     });
   };
 
+  const showNeedsOtherEntry = customList.needsOtherEntry;
+
   return (
     <StyledLocationContainer>
       <Location root selected={customList.selected}>
         <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
           <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
+            <Location.Accordion.Header.ItemTrigger
+              onClick={handleClick}
+              aria-label={ariaLabel}
+              aria-description={ariaDescription}>
               <Location.Accordion.Header.Item>
                 <FlexColumn>
                   <Location.Accordion.Header.Item.Title>
@@ -106,6 +112,11 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
                     </FootnoteMiniSemiBold>
                   )}
                 </FlexColumn>
+                {showNeedsOtherEntry && (
+                  <Location.Accordion.Header.Item.ActionGroup>
+                    <Location.Accordion.Header.Item.Icon icon="magic-multihop" />
+                  </Location.Accordion.Header.Item.ActionGroup>
+                )}
               </Location.Accordion.Header.Item>
             </Location.Accordion.Header.ItemTrigger>
             <CustomListTrailingActions customList={customList} />

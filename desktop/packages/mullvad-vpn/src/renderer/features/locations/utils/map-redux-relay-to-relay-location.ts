@@ -1,4 +1,5 @@
 import type { RelayLocation as DaemonRelayLocation } from '../../../../shared/daemon-rpc-types';
+import type { RelaySelectorRelayMatch } from '../../../../shared/relay-selector-rpc-types';
 import type {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
@@ -9,6 +10,7 @@ import { DisabledReason, type RelayLocation } from '../types';
 import { createLocationLabel } from './create-location-label';
 import { isLocationSelected } from './is-location-selected';
 import { isRelayDisabled } from './is-relay-disabled';
+import { relayNeedsOtherEntry } from './relay-needs-other-entry';
 
 export function mapReduxRelayToRelayLocation(
   country: IRelayLocationCountryRedux,
@@ -17,6 +19,7 @@ export function mapReduxRelayToRelayLocation(
   selectedLocation: DaemonRelayLocation | undefined,
   disabledLocation: ReturnType<typeof useDisabledLocation>,
   parentDisabledReason: DisabledReason | undefined,
+  matches: RelaySelectorRelayMatch[],
 ): RelayLocation {
   const relayLocation: DaemonRelayLocation = {
     country: country.code,
@@ -27,6 +30,7 @@ export function mapReduxRelayToRelayLocation(
   const relayDisabledReason =
     parentDisabledReason ?? isRelayDisabled(relay, relayLocation, disabledLocation);
   const label = createLocationLabel(relay.hostname, relayLocation, relayDisabledReason);
+  const needsOtherEntry = relayNeedsOtherEntry(relay.hostname, matches);
 
   return {
     type: 'relay',
@@ -41,5 +45,6 @@ export function mapReduxRelayToRelayLocation(
     disabledReason: relayDisabledReason,
     selected: isLocationSelected(relayLocation, selectedLocation),
     expanded: false,
+    needsOtherEntry,
   };
 }
