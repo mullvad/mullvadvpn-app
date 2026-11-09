@@ -213,7 +213,7 @@ pub async fn run_multiplexer(
     // The multiplexer only lets a handshake response through once it has selected a transport.
     match selected_rx.await {
         Ok(selected) => {
-            log::debug!("Selected obfuscation: {:?}", selected.config);
+            log::info!("Multiplexer selected transport: {}", selected.config);
             Ok((selected, session))
         }
         Err(_) => {

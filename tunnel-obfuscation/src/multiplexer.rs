@@ -22,10 +22,11 @@
 //!
 //! See the [Transport] enum.
 
-use std::{collections::VecDeque, io, net::SocketAddr, sync::Arc, time::Duration};
+use std::{collections::VecDeque, fmt::Display, io, net::SocketAddr, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
+use itertools::Itertools;
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::sync::{Mutex, mpsc, oneshot, watch};
@@ -312,10 +313,13 @@ async fn run_discovery(
                 handshakes.record_initiation(&packet);
 
                 // Fan out the latest WG packet to all currently spawned transports.
-                for (id, running) in running.iter().enumerate() {
+                for running in &running {
                     scratch[..n].copy_from_slice(&packet);
                     if let Err(err) = running.transport.send(&mut scratch[..n]).await {
-                        log::error!("Failed to send packet to transport {id}: {err}");
+                        log::error!(
+                            "Failed to send packet to transport {}: {err}",
+                            running.config
+                        );
                     }
                 }
 
@@ -324,21 +328,30 @@ async fn run_discovery(
 
             Event::Transport(id, Err(err)) => {
                 // A single failing transport is not fatal; the others may still connect.
-                log::error!("Dropping transport {id}, which failed to receive traffic: {err}");
+                log::error!(
+                    "Dropping transport {}, which failed to receive traffic: {err}",
+                    running[id].config
+                );
                 running.remove(id);
             }
             Event::Transport(id, Ok(n)) => match handshakes.classify(&running[id].buf[..n]) {
                 // Not an answer to anything WireGuard sent. Whatever it is, it is no reason to
                 // believe this transport reaches the relay.
                 Received::Unrecognized => {
-                    log::debug!("Ignoring unsolicited packet from transport {id}");
+                    log::trace!(
+                        "Ignoring unsolicited packet from transport {}",
+                        running[id].config
+                    );
                 }
 
                 // The relay is rate limiting us. WireGuard needs the cookie in order to retry the
                 // initiation with a valid `mac2`, but reaching a rate limiter is not proof that
                 // this transport carries a handshake, so keep fanning out.
                 Received::CookieReply => {
-                    log::debug!("Forwarding cookie reply from transport {id}");
+                    log::trace!(
+                        "Forwarding cookie reply from transport {}",
+                        running[id].config
+                    );
                     forward(incoming, &running[id].buf[..n]).await?;
                 }
 
@@ -346,10 +359,6 @@ async fn run_discovery(
                 // now on.
                 Received::HandshakeResponse => {
                     let selected = running.swap_remove(id);
-                    log::debug!(
-                        "Selecting {:?} as the valid transport configuration",
-                        selected.config
-                    );
                     forward(incoming, &selected.buf[..n]).await?;
 
                     // Announce the selected transport, so that it can be used without the
@@ -368,9 +377,9 @@ async fn run_discovery(
                     continue;
                 };
                 log::trace!(
-                    "Spawning {config} ({}/{})",
+                    "Spawning {config:?} at #{}/{}",
                     running.len() + 1,
-                    running.len() + pending.len() + 1
+                    running.len() + pending.len() + 1,
                 );
 
                 match spawn_transport(&bypass, config.clone()).await {
@@ -382,7 +391,7 @@ async fn run_discovery(
                             buf: vec![0u8; MAX_DATAGRAM_SIZE].into_boxed_slice(),
                         });
                     }
-                    Err(err) => log::error!("Failed to spawn new transport: {err}"),
+                    Err(err) => log::error!("Failed to spawn transport {config}: {err}"),
                 }
             }
         }
@@ -429,7 +438,7 @@ async fn send_initial_packets(
         let n = packet.len();
         scratch[..n].copy_from_slice(packet);
         if let Err(err) = transport.send(&mut scratch[..n]).await {
-            log::error!("Failed to forward packet to new transport: {err}");
+            log::trace!("Failed to forward initial packet to new transport: {err}");
         }
     }
 }
