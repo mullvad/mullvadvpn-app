@@ -19,7 +19,7 @@ struct CustomListLocationSelectionView<ViewModel: CustomListViewModel>: View {
             LazyVStack(spacing: 0) {
                 LocationsListView(
                     locations: $viewModel.availableLocations.children,
-                    multihopContext: .entry, // This is not used in this view
+                    multihopContext: .entry,  // This is not used in this view
                     onSelectLocation: {
                         ($0.asCustomListSelectableLocationNode)?.isCustomListSelected.toggle()
                     },
@@ -28,7 +28,7 @@ struct CustomListLocationSelectionView<ViewModel: CustomListViewModel>: View {
             }
             .padding()
         }
-        .background(Color.mullvadBackground)
+        .background(Color.mullvadBackground.ignoresSafeArea())
         .accessibilityIdentifier(.editCustomListEditLocationsView)
     }
 }
@@ -36,7 +36,8 @@ struct CustomListLocationSelectionView<ViewModel: CustomListViewModel>: View {
 #Preview {
     @Previewable @State var viewModel = CustomListViewModelImpl(
         customList: nil,
-        availableLocations: MockSelectLocationViewModel().exitContext.locations
+        interactor: MockCustomListInteractor(),
+        context: .exit
     )
     CustomListLocationSelectionView(
         viewModel: viewModel

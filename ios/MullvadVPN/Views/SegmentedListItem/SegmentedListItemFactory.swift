@@ -14,7 +14,10 @@ import SwiftUI
 @MainActor
 struct SegmentedListItemFactory {
     enum Leading {
-        case customListLocation(node: LocationNode, level: Int = 0, isSelected: Binding<Bool>)
+        case customListLocation(
+            node: CustomListSelectableLocationNode,
+            level: Int = 0
+        )
         case location(node: LocationNode, context: MultihopContext, level: Int = 0)
         case recentLocation(node: LocationNode, context: MultihopContext)
         case relayFilter(item: RelayFilterItem, isSelected: Binding<Bool>)
@@ -86,8 +89,8 @@ struct SegmentedListItemFactory {
 
     @ViewBuilder func leading(for leading: Leading) -> some View {
         switch leading {
-        case .customListLocation(let node, let level, let isSelected):
-            CustomListLocationItemView(node: node, level: level, isSelected: isSelected)
+        case .customListLocation(let node, let level):
+            CustomListLocationItemView(node: node, level: level)
         case .location(let node, let context, let level):
             LocationItemView(node: node, multihopContext: context, level: level)
         case .recentLocation(let node, let context):

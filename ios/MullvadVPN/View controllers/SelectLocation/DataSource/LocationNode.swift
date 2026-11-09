@@ -235,7 +235,7 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
 
     /// Recursively copies a node, its parent and its descendants from another
     /// node (tree), with an optional custom root parent.
-    override func copy(withParent parent: LocationNode? = nil) -> LocationNode {
+    override func copy(withParent parent: LocationNode? = nil) -> CustomListLocationNode {
         let node = CustomListLocationNode(
             name: name,
             code: code,

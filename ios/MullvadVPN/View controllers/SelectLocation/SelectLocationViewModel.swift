@@ -29,6 +29,9 @@ protocol SelectLocationViewModel: AnyObject, Observable {
     func multihopStateIsIncompatible(_ state: MultihopState) -> Bool
     func toggleRecents()
     func manuallyFetchRelayList()
+    func customListsChanged()
+    // remove when proper dependency injection is in place
+    var customListInteractor: CustomListInteractorProtocol { get }
 }
 
 struct SelectLocationDelegate {
@@ -78,12 +81,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private let entryRecentsDataSource: RecentListDataSource
     private let exitRecentsDataSource: RecentListDataSource
 
-    private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relaySelector: RelaySelectorProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let tunnelManager: TunnelManager
-    private let customListInteractor: CustomListInteractorProtocol
+    let customListInteractor: CustomListInteractorProtocol
     private let recentsInteractor: RecentsInteractorProtocol
-    @ObservationIgnored private var relaysCandidates: RelayCandidates?
     @ObservationIgnored private var tunnelObserver: TunnelBlockObserver?
     private let delegate: SelectLocationDelegate
     @ObservationIgnored private var cancellables = Set<Combine.AnyCancellable>()
@@ -94,18 +96,19 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     init(
         tunnelManager: TunnelManager,
-        relaySelectorWrapper: RelaySelectorWrapper,
+        relaySelector: RelaySelectorProtocol,
         relayCacheTracker: RelayCacheTrackerProtocol,
         customListRepository: CustomListRepositoryProtocol,
         recentConnectionsRepository: RecentConnectionsRepositoryProtocol,
         delegate: SelectLocationDelegate
     ) {
         self.tunnelManager = tunnelManager
-        self.relaySelectorWrapper = relaySelectorWrapper
+        self.relaySelector = relaySelector
         self.relayCacheTracker = relayCacheTracker
         self.customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
-            repository: customListRepository
+            repository: customListRepository,
+            relaySelector: relaySelector
         )
         self.recentsInteractor = RecentsInteractor(
             selectedEntryConstraint: tunnelManager.settings.relayConstraints.entryLocations,
@@ -371,11 +374,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func fetchLocations() {
-        relaysCandidates = try? relaySelectorWrapper.findCandidates(
+        let relaysCandidates = try? relaySelector.findCandidates(
             tunnelSettings: tunnelManager.settings.withAnyLocation,
             includeInactive: true
         )
-        if let allRelaysCandidates = try? relaySelectorWrapper.findCandidates(
+        if let allRelaysCandidates = try? relaySelector.findCandidates(
             tunnelSettings: .init(
                 tunnelMultihopState: tunnelManager.settings.tunnelMultihopState
             ),
@@ -446,7 +449,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateSelections() {
-        let exclusionCandidates = try? relaySelectorWrapper.findCandidates(
+        let exclusionCandidates = try? relaySelector.findCandidates(
             tunnelSettings: tunnelManager.settings,
             includeInactive: false
         )

@@ -12,9 +12,10 @@ import SwiftUI
 
 struct CustomListRootView: View {
     var viewModel: SelectLocationViewModel
+    let type: CustomListSheetType
+
     @Environment(\.dismiss) private var dismiss
 
-    let type: CustomListSheetType
     var body: some View {
         NavigationStack {
             switch type {
@@ -22,34 +23,24 @@ struct CustomListRootView: View {
                 CustomListView(
                     viewModel: CustomListViewModelImpl(
                         customList: nil,
-                        availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
-                        onSave: {
-                            try viewModel.save(list: $0)
-                        },
-                        onDelete: {
-                            viewModel.delete(customList: $0)
-                        }
+                        interactor: viewModel.customListInteractor,
+                        context: viewModel.multihopContext
                     ),
                     isRootView: true
                 )
             case .list:
                 ListCustomListsView(
-                    customLists: viewModel.currentLocationContext.customLists
-                        .compactMap { $0.asCustomListNode },
-                    availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
-                    viewModel: viewModel
+                    viewModel: ListCustomListsViewModelImpl(
+                        customListInteractor: viewModel.customListInteractor,
+                        multihopContext: viewModel.multihopContext
+                    )
                 )
-            case .edit(let customListNode):
+            case .edit(let customList):
                 CustomListView(
                     viewModel: CustomListViewModelImpl(
-                        customList: customListNode,
-                        availableLocations: viewModel.currentLocationContext.customListAvailableLocations,
-                        onSave: {
-                            try viewModel.save(list: $0)
-                        },
-                        onDelete: {
-                            viewModel.delete(customList: $0)
-                        }
+                        customList: customList,
+                        interactor: viewModel.customListInteractor,
+                        context: viewModel.multihopContext
                     ),
                     isRootView: true
                 )

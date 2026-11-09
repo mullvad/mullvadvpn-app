@@ -17,7 +17,13 @@ struct CustomListInteractorTests {
         let tunnelManager = SettingsUpdatingMock()
         let customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
-            repository: CustomListsRepositoryStub()
+            repository: CustomListsRepositoryStub(),
+            relaySelector: RelaySelectorStub(
+                selectedRelaysResult: { _ in
+                    throw NoRelaysSatisfyingConstraintsError(
+                        .relayConstraintNotMatching
+                    )
+                })
         )
 
         return (customListInteractor, tunnelManager)

@@ -1255,6 +1255,9 @@
 		F983B75A307E327D0072A589 /* CustomListLocationSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F983B759307E327D0072A589 /* CustomListLocationSelectionView.swift */; };
 		F9A73BEC309B1DBD008D549E /* CustomListSelectableLocationNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A73BEB309B1DBA008D549E /* CustomListSelectableLocationNodeTests.swift */; };
 		F9A73BED309B21D2008D549E /* CustomListSelectableLocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F82A653080BDDB00890DB9 /* CustomListSelectableLocationNode.swift */; };
+		F9A73BEF309CA7A8008D549E /* CustomListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A73BEE309CA7A8008D549E /* CustomListViewModel.swift */; };
+		F9A73C04309CB994008D549E /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A73C03309CB994008D549E /* LazyView.swift */; };
+		F9A73C0630A1E3C7008D549E /* ListCustomListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A73C0530A1E3C7008D549E /* ListCustomListViewModel.swift */; };
 		F9B2CF613064FDF4005B85E1 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B2CF603064FDF0005B85E1 /* AccountView.swift */; };
 		F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C32E8FE08600C90C50 /* LocationListItem.swift */; };
 		F9C579C62E8FE0D000C90C50 /* SegmentedListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C52E8FE0D000C90C50 /* SegmentedListItem.swift */; };
@@ -2934,6 +2937,9 @@
 		F983B759307E327D0072A589 /* CustomListLocationSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListLocationSelectionView.swift; sourceTree = "<group>"; };
 		F99E32412E7AA109004A7EFE /* MultihopContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopContext.swift; sourceTree = "<group>"; };
 		F9A73BEB309B1DBA008D549E /* CustomListSelectableLocationNodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListSelectableLocationNodeTests.swift; sourceTree = "<group>"; };
+		F9A73BEE309CA7A8008D549E /* CustomListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListViewModel.swift; sourceTree = "<group>"; };
+		F9A73C03309CB994008D549E /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
+		F9A73C0530A1E3C7008D549E /* ListCustomListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCustomListViewModel.swift; sourceTree = "<group>"; };
 		F9B2CF603064FDF0005B85E1 /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
 		F9C579C32E8FE08600C90C50 /* LocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationListItem.swift; sourceTree = "<group>"; };
 		F9C579C52E8FE0D000C90C50 /* SegmentedListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedListItem.swift; sourceTree = "<group>"; };
@@ -3748,6 +3754,7 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F9A73C02309CB98E008D549E /* Helper */,
 				F9C66352306FD03900C224CA /* MullvadDoneToolbarItem.swift */,
 				F95FF983303C7B9E0028B28E /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
@@ -5485,6 +5492,8 @@
 		F983B754307E0A130072A589 /* CustomList */ = {
 			isa = PBXGroup;
 			children = (
+				F9A73C0530A1E3C7008D549E /* ListCustomListViewModel.swift */,
+				F9A73BEE309CA7A8008D549E /* CustomListViewModel.swift */,
 				F97A71073080F07000907E54 /* CustomListRootView.swift */,
 				F9F82A653080BDDB00890DB9 /* CustomListSelectableLocationNode.swift */,
 				F983B759307E327D0072A589 /* CustomListLocationSelectionView.swift */,
@@ -5493,6 +5502,14 @@
 				7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */,
 			);
 			path = CustomList;
+			sourceTree = "<group>";
+		};
+		F9A73C02309CB98E008D549E /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				F9A73C03309CB994008D549E /* LazyView.swift */,
+			);
+			path = Helper;
 			sourceTree = "<group>";
 		};
 		F9C579C02E8FB4A800C90C50 /* DataSource */ = {
@@ -7110,6 +7127,7 @@
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */,
 				F95CDDA22EE03052000E9D97 /* MultihopLabel.swift in Sources */,
+				F9A73C04309CB994008D549E /* LazyView.swift in Sources */,
 				7AFF5B9E2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */,
 				7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */,
 				F09E81FC302311CB00F6F2B8 /* InputViewAppearance.swift in Sources */,
@@ -7125,6 +7143,7 @@
 				A9E3B6F0306E37E5001EDDEA /* SendTunnelMessageService.swift in Sources */,
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */,
+				F9A73C0630A1E3C7008D549E /* ListCustomListViewModel.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
 				F02BFFCD2ED89886007CEA69 /* RecentLocationListItem.swift in Sources */,
 				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
@@ -7262,6 +7281,7 @@
 				F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
 				7ABBE0182F1A2D4100AD8176 /* IncludeAllNetworksSettingsView.swift in Sources */,
+				F9A73BEF309CA7A8008D549E /* CustomListViewModel.swift in Sources */,
 				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
 				F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,

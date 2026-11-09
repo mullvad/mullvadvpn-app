@@ -37,12 +37,17 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         if level == 0 {
             Color.clear.frame(height: 4).accessibilityHidden(true)
         }
-
+        var userInteraction: UserInteraction {
+            if location.asCustomListSelectableLocationNode != nil {
+                return .enabled
+            }
+            return isCustomList && isDisabled
+                ? .inactive : (isDisabled ? .disabled : .enabled)
+        }
         SegmentedListItem(
             level: level,
             isLastInList: isLastInList,
-            userInteraction: isCustomList && isDisabled
-                ? .inactive : (isDisabled ? .disabled : .enabled),
+            userInteraction: userInteraction,
             accessibilityIdentifier: (location.asCustomListSelectableLocationNode) != nil
                 ? .customListLocationCheckmarkButton(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
@@ -52,7 +57,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     itemFactory
                         .leading(
                             for: .customListLocation(
-                                node: location, level: level, isSelected: $location.isCustomListSelected)
+                                node: location, level: level)
                         )
                 } else {
                     itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))

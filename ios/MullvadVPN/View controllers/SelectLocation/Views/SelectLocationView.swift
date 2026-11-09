@@ -6,7 +6,7 @@ enum CustomListSheetType: Hashable, Identifiable {
     var id: Self { self }
     case add
     case list
-    case edit(CustomListLocationNode)
+    case edit(CustomList)
 }
 
 struct SelectLocationView<ViewModel: SelectLocationViewModel>: View {
@@ -155,7 +155,7 @@ struct SelectLocationView<ViewModel: SelectLocationViewModel>: View {
                 viewModel.searchText = ""
             }
         }
-        .background(Color.mullvadDarkBackground)
+        .background(Color.mullvadDarkBackground.ignoresSafeArea())
         .navigationTitle("Select location")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -242,7 +242,9 @@ struct SelectLocationView<ViewModel: SelectLocationViewModel>: View {
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
         .mullvadAlert(item: $multihopWarningAlert)
-        .sheet(item: $customListSheetType) { type in
+        .sheet(item: $customListSheetType) {
+            viewModel.customListsChanged()
+        } content: { type in
             CustomListRootView(viewModel: viewModel, type: type)
         }
     }

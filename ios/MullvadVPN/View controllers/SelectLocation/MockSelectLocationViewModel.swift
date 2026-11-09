@@ -4,6 +4,8 @@ import MullvadTypes
 
 @Observable
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    let customListInteractor: any CustomListInteractorProtocol = MockCustomListInteractor()
+
     var isRecentsEnabled: Bool = true
     var isMultihopActive: Bool = true
     var multihopState: MultihopState = .always

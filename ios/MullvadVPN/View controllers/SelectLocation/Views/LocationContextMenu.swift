@@ -10,7 +10,7 @@ extension ExitLocationView {
             case let location as CustomListLocationNode:
                 Section(LocalizedStringKey(location.name)) {
                     Button {
-                        customListSheetType = .edit(location)
+                        customListSheetType = .edit(location.customList)
                     } label: {
                         HStack {
                             Text("Edit list")
@@ -21,7 +21,7 @@ extension ExitLocationView {
 
                     Button(role: .destructive) {
                         alert = .deleteCustomListAlert(
-                            customList: location,
+                            customListName: location.name,
                             onDelete: {
                                 viewModel.delete(customList: location.customList)
                                 alert = nil

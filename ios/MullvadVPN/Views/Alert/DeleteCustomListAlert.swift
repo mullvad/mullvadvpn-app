@@ -12,13 +12,13 @@ extension MullvadAlert {
 
     @MainActor
     static func deleteCustomListAlert(
-        customList: LocationNode, onDelete: @escaping () async -> Void, onCancel: @escaping () async -> Void
+        customListName: String, onDelete: @escaping () async -> Void, onCancel: @escaping () async -> Void
     )
         -> MullvadAlert
     {
         .init(
             type: .warning,
-            messages: ["Do you want to delete the list **\(customList.name)**?"],
+            messages: ["Do you want to delete the list **\(customListName)**?"],
             actions: [
                 .init(
                     type: .destructivePrimary,

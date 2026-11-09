@@ -1,12 +1,13 @@
 import SwiftUI
 
+enum UserInteraction {
+    case enabled
+    case enabledWithoutHighlight
+    case inactive
+    case disabled
+}
+
 struct SegmentedListItem<Leading: View>: View {
-    enum UserInteraction {
-        case enabled
-        case enabledWithoutHighlight
-        case inactive
-        case disabled
-    }
 
     @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
     @State private var segmentHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
@@ -169,6 +170,20 @@ struct SegmentedListItem<Leading: View>: View {
                 )
             )
         )
+        .overlay {
+            if appearence == .error {
+                UnevenRoundedRectangle(
+                    cornerRadii: .init(
+                        topLeading: topRadius,
+                        bottomLeading: bottomRadius,
+                        bottomTrailing: bottomRadius,
+                        topTrailing: topRadius
+                    )
+                )
+                .inset(by: 1)
+                .stroke(Color.mullvadDangerColor, lineWidth: 2)
+            }
+        }
 
         .if(level != 0, { $0.padding(.top, 1) })
 

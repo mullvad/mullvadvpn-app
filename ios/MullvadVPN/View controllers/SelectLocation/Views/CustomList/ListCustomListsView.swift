@@ -12,30 +12,25 @@ import MullvadSettings
 import SwiftUI
 
 struct ListCustomListsView: View {
-    let customLists: [CustomListLocationNode]
-    let availableLocations: [LocationNode]
-    let viewModel: SelectLocationViewModel
+    let viewModel: ListCustomListsViewModel
     private let itemFactory = SegmentedListItemFactory()
 
     @Environment(\.dismissSheet) private var dismiss
 
     var body: some View {
         VStack(spacing: 4) {
-            ForEach(customLists, id: \.id) { list in
+            ForEach(viewModel.customLists, id: \.id) { list in
                 SegmentedListItem(
                     accessibilityIdentifier:
                         .editCustomListListItem(list.name),
                     leadingAndTrailingDestination: {
-                        CustomListView(
-                            viewModel: CustomListViewModelImpl(
-                                customList: list,
-                                availableLocations: availableLocations,
-                                onSave: {
-                                    try viewModel.save(list: $0)
-                                },
-                                onDelete: {
-                                    viewModel.delete(customList: $0)
-                                }
+                        LazyView(
+                            CustomListView(
+                                viewModel: CustomListViewModelImpl(
+                                    customList: list,
+                                    interactor: viewModel.customListInteractor,
+                                    context: viewModel.multihopContext
+                                )
                             )
                         )
                     },
@@ -68,20 +63,7 @@ struct ListCustomListsView: View {
 #Preview {
     NavigationStack {
         ListCustomListsView(
-            customLists: [
-                .init(
-                    name: "My Custom list",
-                    code: "my-list",
-                    customList: .init(name: "", locations: [])
-                ),
-                .init(
-                    name: "My Custom list 2",
-                    code: "my-list",
-                    customList: .init(name: "", locations: [])
-                ),
-            ],
-            availableLocations: [],
-            viewModel: MockSelectLocationViewModel()
+            viewModel: MockListCustomListsViewModel()
         )
     }
 }

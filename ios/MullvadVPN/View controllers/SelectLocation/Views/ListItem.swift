@@ -26,11 +26,20 @@ struct ListItem<StatusIndicator: View>: View {
             .mullvadTextPrimary
         }
     }
-    
+
     var body: some View {
         HStack {
-            statusIndicator()
-                .frame(width: 24, height: 24)
+            if #available(iOS 18.0, *) {
+                Group(subviews: statusIndicator()) { indicators in
+                    ForEach(indicators) { indicator in
+                        indicator
+                            .frame(width: 24, height: 24)
+                    }
+                }
+            } else {
+                statusIndicator()
+                    .frame(width: 24, height: 24)
+            }
 
             VStack(alignment: .leading) {
                 Text(title)

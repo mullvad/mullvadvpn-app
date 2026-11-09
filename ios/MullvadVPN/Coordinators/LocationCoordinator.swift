@@ -51,7 +51,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     func start() {
         let selectLocationViewModelImpl = SelectLocationViewModelImpl(
             tunnelManager: tunnelManager,
-            relaySelectorWrapper: relaySelectorWrapper,
+            relaySelector: relaySelectorWrapper,
             relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository,
             recentConnectionsRepository: recentConnectionsRepository,

@@ -8,6 +8,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
@@ -17,6 +18,7 @@ protocol CustomListInteractorProtocol {
     func fetchAll() -> [CustomList]
     func save(list: CustomList) throws
     func delete(customList: CustomList)
+    func availableLocations(context: MultihopContext) -> [LocationNode]
     func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws
     func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws
 }
@@ -29,13 +31,16 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
     private let tunnelManager: SettingsUpdating
     private let repository: CustomListRepositoryProtocol
+    private let relaySelector: RelaySelectorProtocol
 
     init(
         tunnelManager: SettingsUpdating,
-        repository: CustomListRepositoryProtocol
+        repository: CustomListRepositoryProtocol,
+        relaySelector: RelaySelectorProtocol
     ) {
         self.tunnelManager = tunnelManager
         self.repository = repository
+        self.relaySelector = relaySelector
     }
 
     func fetch(by id: UUID) -> CustomList? {
@@ -54,6 +59,29 @@ struct CustomListInteractor: CustomListInteractorProtocol {
     func delete(customList: CustomList) {
         repository.delete(id: customList.id)
         updateCustomListRelayConstraints(list: customList, action: .delete)
+    }
+
+    func availableLocations(context: MultihopContext) -> [LocationNode] {
+        var availableLocations = [LocationNode]()
+        if let relaysCandidates = try? relaySelector.findCandidates(
+            tunnelSettings: tunnelManager.settings.withAnyLocation,
+            includeInactive: true
+        ) {
+            switch context {
+            case .entry:
+                if let entryRelays = relaysCandidates.entryRelays {
+                    let dataSource = AllLocationDataSource()
+                    dataSource.reload(entryRelays.toLocationRelays())
+                    availableLocations = dataSource.nodes
+                }
+            case .exit:
+                let dataSource = AllLocationDataSource()
+                dataSource
+                    .reload(relaysCandidates.exitRelays.toLocationRelays())
+                availableLocations = dataSource.nodes
+            }
+        }
+        return availableLocations
     }
 
     func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
@@ -220,6 +248,28 @@ class SettingsUpdatingMock: SettingsUpdating {
     }
 
     var settings = LatestTunnelSettings()
+}
+
+struct MockCustomListInteractor: CustomListInteractorProtocol {
+    func availableLocations(context: MultihopContext) -> [LocationNode] {
+        []
+    }
+
+    func fetch(by id: UUID) -> MullvadSettings.CustomList? {
+        nil
+    }
+
+    func fetchAll() -> [MullvadSettings.CustomList] {
+        []
+    }
+
+    func save(list: MullvadSettings.CustomList) throws {}
+
+    func delete(customList: MullvadSettings.CustomList) {}
+
+    func addLocationToCustomList(relayLocations: [MullvadTypes.RelayLocation], customListName: String) throws {}
+
+    func removeLocationFromCustomList(relayLocations: [MullvadTypes.RelayLocation], customListName: String) throws {}
 }
 
 extension TunnelManager: SettingsUpdating {}

@@ -257,11 +257,13 @@ import SwiftUI
 
     let itemFactory = SegmentedListItemFactory()
     let servers = [
-        LocationNode(name: "se-sto-wg-001", code: "se-sto-wg-001"),
-        LocationNode(name: "se-sto-wg-002", code: "se-sto-wg-002"),
+        CustomListSelectableLocationNode(fromLocationNode: LocationNode(name: "se-sto-wg-001", code: "se-sto-wg-001")),
+        CustomListSelectableLocationNode(fromLocationNode: LocationNode(name: "se-sto-wg-002", code: "se-sto-wg-002")),
     ]
-    let city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
-    let country = LocationNode(name: "Sweden", code: "se", children: [city])
+    let city = CustomListSelectableLocationNode(
+        fromLocationNode: LocationNode(name: "Stockholm", code: "se-sto", children: servers))
+    let country = CustomListSelectableLocationNode(
+        fromLocationNode: LocationNode(name: "Sweden", code: "se", children: [city]))
 
     VStack(spacing: 0) {
         SegmentedListItem(
@@ -269,8 +271,7 @@ import SwiftUI
             leading: {
                 itemFactory.leading(
                     for: .customListLocation(
-                        node: country,
-                        isSelected: $checkboxState
+                        node: country
                     )
                 )
             },
@@ -294,8 +295,7 @@ import SwiftUI
                             itemFactory.leading(
                                 for: .customListLocation(
                                     node: city,
-                                    level: level,
-                                    isSelected: $checkboxState
+                                    level: level
                                 )
                             )
                         },
@@ -320,8 +320,7 @@ import SwiftUI
                                             itemFactory.leading(
                                                 for: .customListLocation(
                                                     node: server,
-                                                    level: level,
-                                                    isSelected: $checkboxState
+                                                    level: level
                                                 )
                                             )
                                         }

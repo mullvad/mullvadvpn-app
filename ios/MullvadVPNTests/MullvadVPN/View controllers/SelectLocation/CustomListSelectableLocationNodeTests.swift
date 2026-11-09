@@ -26,13 +26,13 @@ struct CustomListSelectableLocationNodeTests {
         verifySelectedNodes(tree, expectedCodes: ["got-1"])
     }
 
-    @Test func testSelectAllRelaysSelectsParent() async throws {
+    @Test func testSelectAllRelaysDoesNotSelectsParent() async throws {
         let tree = buildNodeTree()
 
         tree.selectNode("got-1")
         tree.selectNode("got-2")
 
-        verifySelectedNodes(tree, expectedCodes: ["got-1", "got-2", "got"])
+        verifySelectedNodes(tree, expectedCodes: ["got-1", "got-2"])
     }
 
     @Test func testUnselectRelaysUnselectsParent() async throws {
@@ -47,18 +47,10 @@ struct CustomListSelectableLocationNodeTests {
         verifySelectedNodes(tree, expectedCodes: ["got-1"])
     }
 
-    @Test func testSelectAllRelaysSelectsCountry() async throws {
-        let tree = buildNodeTree()
-
-        tree.selectNodes(["got-1", "got-2", "sth-1", "sth-2"])
-
-        verifySelectedNodes(tree, expectedCodes: ["got-1", "got-2", "sth-1", "sth-2", "got", "sth", "se"])
-    }
-
     @Test func testUnselectCountryUnselectsAllChildren() async throws {
         let tree = buildNodeTree()
 
-        tree.selectNodes(["got-1", "got-2", "sth-1", "sth-2"])
+        tree.selectNodes(["se"])
 
         verifySelectedNodes(tree, expectedCodes: ["got-1", "got-2", "sth-1", "sth-2", "got", "sth", "se"])
 

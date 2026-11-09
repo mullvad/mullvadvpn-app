@@ -31,6 +31,10 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
         children.forEach { $0.parent = self }
     }
 
+    convenience init(fromLocationNodes locationNodes: [LocationNode]) {
+        self.init(fromLocationNode: RootLocationNode(children: locationNodes))
+    }
+
     var customListAvailableChildren: [CustomListSelectableLocationNode] {
         children.compactMap { $0.asCustomListSelectableLocationNode }
     }
@@ -52,15 +56,20 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
                 ($0.asCustomListSelectableLocationNode)?.iWasFirst
             }.contains(true)
         guard iWasFirst else { return }
+
         forEachDescendant {
             ($0.asCustomListSelectableLocationNode)?.isCustomListSelected = isCustomListSelected
         }
 
         forEachAncestor {
-            ($0.asCustomListSelectableLocationNode)?.isCustomListSelected =
+            let allChildrenSelected =
                 $0.children
                 .compactMap { $0.asCustomListSelectableLocationNode }
                 .allSatisfy { $0.isCustomListSelected }
+
+            if !allChildrenSelected {
+                $0.asCustomListSelectableLocationNode?.isCustomListSelected = false
+            }
         }
     }
 }
