@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -77,7 +76,6 @@ class ConnectViewModel(
             showNotificationPromptEffect(),
         )
 
-    @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 connectionPath(),
@@ -136,6 +134,7 @@ class ConnectViewModel(
                 )
             }
             .launchOnStart { accountRepository.refreshAccountData(ignoreTimeout = false) }
+            .launchOnStart { deviceRepository.updateDevice() }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -148,7 +147,6 @@ class ConnectViewModel(
                 accountRepository.refreshAccountData()
             }
         }
-        viewModelScope.launch { deviceRepository.updateDevice() }
     }
 
     fun onDisconnectClick() {
