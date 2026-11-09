@@ -428,8 +428,8 @@ impl IosTunnelAdapter {
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
     ) -> Result<Option<ActiveConnection>, TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
-        let tun_dev =
-            IosTunDevice::new(params.tun_fd, params.mtu).map_err(TunnelError::TunnelDevice)?;
+        let tun_dev = IosTunDevice::new(params.tun_fd, params.mtu, IosTunDevice::DEFAULT_BLOCKED)
+            .map_err(TunnelError::TunnelDevice)?;
         let user_tx = tun_dev.tx_packets();
         let obfuscation = create_obfuscation(&params)
             .await
