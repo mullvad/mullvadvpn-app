@@ -3,6 +3,7 @@
 use async_trait::async_trait;
 use bytes::BytesMut;
 use mullvad_masque_proxy::client::ClientConfig;
+use safelog::Sensitive;
 use std::{io, net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
 use tokio::{
@@ -49,7 +50,7 @@ pub struct Settings {
     hostname: String,
     /// Authentication token to set for the CONNECT request when establishing a QUIC connection.
     /// Must NOT be prefixed with "Bearer".
-    token: AuthToken,
+    token: Sensitive<AuthToken>,
     /// MTU for the QUIC client. This needs to account for the *additional* headers other than IP
     /// and UDP, but not for those specifically.
     mtu: Option<u16>,
@@ -67,7 +68,7 @@ impl Settings {
             quic_endpoint: quic_server_endpoint,
             wireguard_endpoint: target_endpoint,
             hostname,
-            token,
+            token: token.into(),
             mtu: None,
         }
     }

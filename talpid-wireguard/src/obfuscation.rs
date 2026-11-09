@@ -132,7 +132,7 @@ fn settings_from_single_config(
         ObfuscatorConfig::Lwo { endpoint, version } => {
             tunnel_obfuscation::Settings::Lwo(lwo::Settings {
                 server_addr: *endpoint,
-                client_public_key,
+                client_public_key: client_public_key.into(),
                 server_public_key,
                 version: *version,
             })

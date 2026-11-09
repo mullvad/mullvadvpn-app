@@ -809,7 +809,7 @@ mod tests {
         let settings = Settings {
             transports: vec![Transport::Obfuscated(crate::Settings::Lwo(lwo::Settings {
                 server_addr: server_socket.local_addr().unwrap(),
-                client_public_key: client_key.clone(),
+                client_public_key: client_key.clone().into(),
                 server_public_key: server_key.clone(),
                 // TODO: support v2
                 version: LwoVersion::V1,

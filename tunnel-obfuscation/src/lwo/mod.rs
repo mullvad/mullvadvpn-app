@@ -6,6 +6,7 @@ use std::{io, net::SocketAddr, sync::Arc};
 
 use async_trait::async_trait;
 use rand::RngCore;
+use safelog::Sensitive;
 use talpid_net::bypass::{BypassSocket, SocketBypass};
 use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
 use tokio::net::UdpSocket;
@@ -24,7 +25,7 @@ pub struct Settings {
     /// Remote LWO/WG server
     pub server_addr: SocketAddr,
     /// Public key of the WG client
-    pub client_public_key: PublicKey,
+    pub client_public_key: Sensitive<PublicKey>,
     /// Public key of the WG server
     pub server_public_key: PublicKey,
     /// Which version of the protocol the server speaks
@@ -48,7 +49,7 @@ impl Keys {
     fn new(settings: &Settings) -> Self {
         match settings.version {
             LwoVersion::V1 => Keys::V1 {
-                rx_key: settings.client_public_key.clone(),
+                rx_key: settings.client_public_key.clone().into_inner(),
                 tx_key: settings.server_public_key.clone(),
             },
             LwoVersion::V2 => Keys::V2 {
@@ -268,7 +269,7 @@ mod test {
 
         let settings = Settings {
             server_addr: endpoint.local_addr().unwrap(),
-            client_public_key: client_public_key.clone(),
+            client_public_key: client_public_key.clone().into(),
             server_public_key: server_public_key.clone(),
             version: LwoVersion::V1,
         };
@@ -318,7 +319,9 @@ mod test {
         let endpoint = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
         let client_public_key =
-            PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
+            PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=")
+                .unwrap()
+                .into();
         let server_public_key =
             PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap();
         let key = server_public_key.as_bytes();
