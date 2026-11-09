@@ -1,6 +1,8 @@
 use tokio::signal::ctrl_c;
 #[cfg(unix)]
 use tokio::signal::unix::{SignalKind, signal};
+#[cfg(target_os = "windows")]
+use tokio::signal::windows::{ctrl_break, ctrl_close, ctrl_logoff, ctrl_shutdown};
 
 pub fn install_shutdown_signal_handler(daemon: &crate::Daemon) {
     let shutdown_handle = daemon.shutdown_handle();
@@ -8,7 +10,17 @@ pub fn install_shutdown_signal_handler(daemon: &crate::Daemon) {
     tokio::spawn(async move {
         cfg_select! {
             target_os = "windows" => {
-                ctrl_c().await.unwrap();
+                let mut ctrl_break = ctrl_break().unwrap();
+                let mut ctrl_close = ctrl_close().unwrap();
+                let mut ctrl_logoff = ctrl_logoff().unwrap();
+                let mut ctrl_shutdown = ctrl_shutdown().unwrap();
+                tokio::select! {
+                    _ = ctrl_c() => {}
+                    _ = ctrl_break.recv() => {}
+                    _ = ctrl_close.recv() => {}
+                    _ = ctrl_logoff.recv() => {}
+                    _ = ctrl_shutdown.recv() => {}
+                }
             }
             unix => {
                 let mut sigint = signal(SignalKind::interrupt()).unwrap();
