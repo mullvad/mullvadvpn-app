@@ -216,7 +216,7 @@ pub async fn run_multiplexer(
         CloseMsg::PingErr
     })?;
 
-    log::debug!("Selected obfuscation: {:?}", selected.config);
+    log::info!("Multiplexer selected transport: {}", selected.config);
 
     // `ephemeral::handshake` will not return if the handshake is invalid. The multiplexer verifies
     // the handshake, but only using the `mac1` field. If it is valid but the entire handshake is

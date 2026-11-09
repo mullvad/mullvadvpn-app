@@ -6841,6 +6841,7 @@ dependencies = [
  "fearless_simd_macros",
  "futures",
  "gotatun",
+ "itertools 0.14.0",
  "log",
  "mullvad-masque-proxy",
  "rand 0.9.4",

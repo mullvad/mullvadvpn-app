@@ -22,10 +22,11 @@
 //!
 //! See the [Transport] enum.
 
-use std::{collections::VecDeque, io, net::SocketAddr, sync::Arc, time::Duration};
+use std::{collections::VecDeque, fmt::Display, io, net::SocketAddr, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
+use itertools::Itertools;
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{
@@ -139,13 +140,17 @@ impl Multiplexer {
 
     /// Race the transports until one of them answers, and return the selected obfuscation method.
     pub async fn discover(mut self) -> io::Result<Selected> {
-        log::debug!("Running multiplexer obfuscation");
-
         let Settings {
             transports,
             client_public_key,
             timeout,
         } = self.settings;
+        log::info!(
+            "Multiplexing {} anti-censorship transports: {}",
+            transports.len(),
+            transports.iter().join(", ")
+        );
+
         let result = run_discovery(
             &mut self.outgoing_rx,
             &self.incoming_tx,
@@ -313,10 +318,13 @@ async fn run_discovery(
                 handshakes.record_initiation(&packet);
 
                 // Fan out the latest WG packet to all currently spawned transports.
-                for (id, running) in running.iter().enumerate() {
+                for running in &running {
                     scratch[..n].copy_from_slice(&packet);
                     if let Err(err) = running.transport.send(&mut scratch[..n]).await {
-                        log::error!("Failed to send packet to transport {id}: {err}");
+                        log::error!(
+                            "Failed to send packet to transport {}: {err}",
+                            running.config
+                        );
                     }
                 }
 
@@ -325,7 +333,10 @@ async fn run_discovery(
 
             Event::Transport(id, Err(err)) => {
                 // A single failing transport is not fatal; the others may still connect.
-                log::error!("Dropping transport {id}, which failed to receive traffic: {err}");
+                log::error!(
+                    "Dropping transport {}, which failed to receive traffic: {err}",
+                    running[id].config
+                );
                 running.remove(id);
                 // Try the next transport without waiting for its turn.
                 spawn_timer.reset_immediately();
@@ -337,14 +348,20 @@ async fn run_discovery(
                 // Not an answer to anything WireGuard sent. Whatever it is, it is no reason to
                 // believe this transport reaches the relay.
                 Received::Unrecognized => {
-                    log::debug!("Ignoring unsolicited packet from transport {id}");
+                    log::trace!(
+                        "Ignoring unsolicited packet from transport {}",
+                        running[id].config
+                    );
                 }
 
                 // The relay is rate limiting us. WireGuard needs the cookie in order to retry the
                 // initiation with a valid `mac2`, but reaching a rate limiter is not proof that
                 // this transport carries a handshake, so keep fanning out.
                 Received::CookieReply => {
-                    log::debug!("Forwarding cookie reply from transport {id}");
+                    log::trace!(
+                        "Forwarding cookie reply from transport {}",
+                        running[id].config
+                    );
                     forward(incoming, &running[id].buf[..n]).await?;
                 }
 
@@ -352,10 +369,6 @@ async fn run_discovery(
                 // now on.
                 Received::HandshakeResponse => {
                     let running_transport = running.swap_remove(id);
-                    log::debug!(
-                        "Selecting {:?} as the valid transport configuration",
-                        running_transport.config
-                    );
                     forward(incoming, &running_transport.buf[..n]).await?;
 
                     return Ok(Selected {
@@ -369,6 +382,12 @@ async fn run_discovery(
                 let Some(config) = pending.pop_front() else {
                     continue;
                 };
+                log::trace!(
+                    "Spawning {config:?} at #{}/{}",
+                    running.len() + 1,
+                    running.len() + pending.len() + 1,
+                );
+
                 match spawn_transport(&bypass, config.clone()).await {
                     Ok(transport) => {
                         send_initial_packets(&transport, &initial_packets, &mut scratch).await;
@@ -379,7 +398,7 @@ async fn run_discovery(
                         });
                     }
                     Err(err) => {
-                        log::error!("Failed to spawn new transport: {err}");
+                        log::error!("Failed to spawn transport {config}: {err}");
                         // Try the next transport without waiting for its turn.
                         spawn_timer.reset_immediately();
                     }
@@ -435,12 +454,8 @@ async fn spawn_transport(
     transport: Transport,
 ) -> crate::Result<Arc<dyn ObfuscatedTransport>> {
     match transport {
-        Transport::Direct(addr) => {
-            log::info!("Spawning direct forwarder");
-            Ok(Arc::new(Direct::new(bypass, addr).await?))
-        }
+        Transport::Direct(addr) => Ok(Arc::new(Direct::new(bypass, addr).await?)),
         Transport::Obfuscated(settings) => {
-            log::info!("Spawning new obfuscator");
             crate::create_transport(Arc::clone(bypass), &settings).await
         }
     }
@@ -456,7 +471,7 @@ async fn send_initial_packets(
         let n = packet.len();
         scratch[..n].copy_from_slice(packet);
         if let Err(err) = transport.send(&mut scratch[..n]).await {
-            log::error!("Failed to forward packet to new transport: {err}");
+            log::trace!("Failed to forward initial packet to new transport: {err}");
         }
     }
 }
@@ -507,6 +522,28 @@ pub enum Transport {
     Direct(SocketAddr),
     /// An obfuscated transport (UDP2TCP, Shadowsocks, QUIC, etc.)
     Obfuscated(crate::Settings),
+}
+
+impl Display for Transport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ip_version = |addr| match addr {
+            SocketAddr::V4(_) => "IPv4",
+            SocketAddr::V6(_) => "IPv6",
+        };
+        use crate::Settings::*;
+        use Transport::*;
+        match self {
+            Direct(addr) => {
+                write!(f, "Direct WireGuard over {}", ip_version(*addr))
+            }
+            Obfuscated(Udp2Tcp(c)) => write!(f, "Udp2Tcp over {}", ip_version(c.peer)),
+            Obfuscated(Shadowsocks(c)) => {
+                write!(f, "Shadowsocks over {}", ip_version(c.shadowsocks_endpoint))
+            }
+            Obfuscated(Quic(c)) => write!(f, "Quic over {}", ip_version(c.quic_endpoint())),
+            Obfuscated(Lwo(c)) => write!(f, "Lwo over {}", ip_version(c.server_addr)),
+        }
+    }
 }
 
 impl Transport {
