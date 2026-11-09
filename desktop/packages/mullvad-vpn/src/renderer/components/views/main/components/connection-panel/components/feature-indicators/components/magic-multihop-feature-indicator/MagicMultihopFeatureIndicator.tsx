@@ -22,7 +22,13 @@ export function MagicMultihopFeatureIndicator() {
 
   return (
     <FeatureIndicator data-testid="feature-indicator" onClick={gotoMultihopFeature}>
-      <FeatureIndicator.Icon icon="magic-multihop" aria-label={messages.gettext('Magic')} />
+      <FeatureIndicator.Icon
+        icon="magic-multihop"
+        aria-label={
+          // TRANSLATORS: Accessible explanation for the symbol indicating automatic multihop.
+          messages.pgettext('accessibility', 'Automatic multihop symbol')
+        }
+      />
       <FeatureIndicator.Text>{messages.gettext('Multihop')}</FeatureIndicator.Text>
     </FeatureIndicator>
   );
