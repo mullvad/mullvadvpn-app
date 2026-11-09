@@ -52,7 +52,10 @@ export function getToMultihopModeDescription(to: ToMultihopMode) {
               img: () => (
                 <StyledIcon
                   icon="magic-multihop"
-                  aria-label={messages.gettext('Magic multihop')}
+                  aria-label={
+                    // TRANSLATORS: Accessible explanation for the symbol indicating automatic multihop.
+                    messages.pgettext('accessibility', 'Automatic multihop')
+                  }
                   color="whiteAlpha60"
                   size="small"
                 />
