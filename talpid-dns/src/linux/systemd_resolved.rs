@@ -139,7 +139,10 @@ impl Backup {
     fn restore(self) -> io::Result<()> {
         trace!("Restoring backup {self:?}");
         match self {
-            Backup::Symlink { original } => symlink(original.as_path(), "/etc/resolv.conf"),
+            Backup::Symlink { original } => {
+                fs::remove_file("/etc/resolv.conf")?;
+                symlink(original.as_path(), "/etc/resolv.conf")
+            }
             Backup::File { content } => fs::write("/etc/resolv.conf", *content.as_ref()),
         }
     }
