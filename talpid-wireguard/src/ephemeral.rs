@@ -47,27 +47,12 @@ pub async fn open_ingress_session(
         .map_err(|error| CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)))
 }
 
-/// Complete a handshake with the ingress relay through `session`.
-pub async fn handshake(
-    session: &IngressSession,
-    config: &Config,
-    retry_attempt: u32,
-) -> Result<(), CloseMsg> {
-    let negotiation_config = negotiation_config(config, retry_attempt)?;
+/// Complete a handshake with the ingress relay through `session`. This waits indefinitely.
+pub async fn handshake(session: &IngressSession) -> Result<(), CloseMsg> {
     session
-        .handshake(&negotiation_config)
+        .handshake()
         .await
-        .map_err(|error| match error {
-            NegotiationError::Timeout => {
-                log::warn!(
-                    "Timeout while completing a handshake with the ingress relay (retry {retry_attempt}, \
-                     handshake timeout {:?})",
-                    negotiation_config.handshake_timeout,
-                );
-                CloseMsg::PingErr
-            }
-            error => CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)),
-        })
+        .map_err(|error| CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)))
 }
 
 /// Negotiate ephemeral peers with the relays in `config`, starting with the ingress relay, which
