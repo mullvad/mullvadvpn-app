@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,17 +53,20 @@ class DeleteAccountConfirmationViewModel(
     private fun timeLeftFlow(): Flow<DaysLeftState> = flow {
         emit(DaysLeftState.Loading)
 
-        try {
-            val accountExpiry =
-                accountRepository.fetchAccountData(timeout = ACCOUNT_EXPIRY_TIMEOUT)?.expiryDate
-            val daysLeft = accountExpiry?.daysLeft()?.toInt()
-            if (daysLeft == null) {
-                emit(DaysLeftState.NoDaysLeft)
-            } else {
-                emit(DaysLeftState.DaysLeft(daysLeft))
-            }
-        } catch (_: TimeoutCancellationException) {
+        val accountExpiry =
+            accountRepository.fetchAccountData(timeout = ACCOUNT_EXPIRY_TIMEOUT)?.expiryDate
+
+        // Expiry timeout, the daemon returned and error or user was logged out for some reason
+        if (accountExpiry == null) {
             emit(DaysLeftState.Error)
+            return@flow
+        }
+
+        val daysLeft = accountExpiry?.daysLeft()?.toInt()
+        if (daysLeft == null) {
+            emit(DaysLeftState.NoDaysLeft)
+        } else {
+            emit(DaysLeftState.DaysLeft(daysLeft))
         }
     }
 
@@ -88,7 +90,7 @@ class DeleteAccountConfirmationViewModel(
             .fold(
                 {
                     _uiSideEffect.send(
-                        DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it),
+                        DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it)
                     )
                     isLoading.value = false
                 },
