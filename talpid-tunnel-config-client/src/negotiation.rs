@@ -366,9 +366,16 @@ async fn negotiate_through_entry<F: UdpTransportFactory>(
         ..negotiate
     };
 
-    // The exit device reaches the exit relay through the entry relay, so it cannot complete a
-    // handshake unless both relays are reachable.
-    let handshake_result = handshake(&exit_device, config.handshake_timeout).await;
+    let handshake_result = async {
+        // The entry device uses a new key, so it needs a new handshake
+        handshake(&entry_device, config.handshake_timeout)
+            .await
+            .inspect_err(|_| log::debug!("Failed to complete a handshake with the entry relay"))?;
+        handshake(&exit_device, config.handshake_timeout)
+            .await
+            .inspect_err(|_| log::debug!("Failed to complete a handshake with the exit relay"))
+    }
+    .await;
     if let Err(err) = handshake_result {
         entry_device.stop().await;
         exit_device.stop().await;
