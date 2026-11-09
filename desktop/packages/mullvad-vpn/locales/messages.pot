@@ -215,12 +215,6 @@ msgstr ""
 msgid "Lockdown mode"
 msgstr ""
 
-msgid "Magic"
-msgstr ""
-
-msgid "Magic multihop"
-msgstr ""
-
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -395,6 +389,16 @@ msgstr ""
 #. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
 msgid "Anti-censorship settings"
+msgstr ""
+
+#. Accessible explanation for the symbol indicating automatic multihop.
+msgctxt "accessibility"
+msgid "Automatic"
+msgstr ""
+
+#. Accessible explanation for the symbol indicating automatic multihop.
+msgctxt "accessibility"
+msgid "Automatic multihop"
 msgstr ""
 
 msgctxt "accessibility"
