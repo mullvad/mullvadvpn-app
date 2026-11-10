@@ -157,6 +157,11 @@ static FORCE_KERNEL_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::
         .unwrap_or(false)
 });
 
+/// How long connecting to the ingress relay may take. Individual steps have their own timeouts.
+/// The outer timeout is the total timeout for all steps (WG handshakes, multiplexer selection,
+/// and ephemeral peer exchanges).
+const INGRESS_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
+
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     #[cfg(not(target_os = "android"))]
@@ -1050,11 +1055,6 @@ impl IngressConnection {
         }
     }
 }
-
-/// How long connecting to the ingress relay may take. Individual steps have their own timeouts.
-/// The outer timeout is the total timeout for all steps (WG handshakes, multiplexer selection,
-/// and ephemeral peer exchanges).
-const INGRESS_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Establish a way to reach the ingress relay, and then negotiate ephemeral peers through it.
 ///
