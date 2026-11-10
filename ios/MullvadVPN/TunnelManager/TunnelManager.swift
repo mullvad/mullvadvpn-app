@@ -41,7 +41,7 @@ actor TunnelManager {
     private let operationQueue = AsyncOperationQueue()
 
     private var statusObserver: TunnelStatusBlockObserver?
-    nonisolated let observerList = ObserverList<TunnelObserver>()
+    let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
     private var pendingNetworkPathUpdate: DispatchWorkItem?
     private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(5)
