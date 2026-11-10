@@ -87,7 +87,7 @@ pub async fn negotiate_ephemeral_peers(
     )
     .await
     .map_err(|error| match error {
-        NegotiationError::Timeout => {
+        NegotiationError::Timeout(_) => {
             log::warn!(
                 "Timeout while negotiating ephemeral peers \
                  (retry {retry_attempt}, handshake timeout {:?}, PQ={}, DAITA={})",

@@ -25,6 +25,7 @@ use talpid_netstack::smoltcp_network::{
     smoltcp_network,
 };
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
+use tokio::time::error::Elapsed;
 
 /// MTU of the userspace network stack. This is the lowest possible IPv4 MTU, since the path MTU may
 /// be lower than the tunnel MTU, and has not been detected yet.
@@ -125,7 +126,7 @@ pub struct NegotiatedPeers {
 pub enum NegotiationError {
     /// A config service did not respond in time.
     #[error("Timed out while negotiating ephemeral peer")]
-    Timeout,
+    Timeout(#[from] Elapsed),
     /// Failed to create a GotaTun device.
     #[error("Failed to create GotaTun device")]
     Device(#[source] gotatun::device::Error),
@@ -399,7 +400,7 @@ async fn handshake(
         .inspect_err(|_| {
             log::debug!("No handshake with the relay within {timeout:?}");
         })
-        .map_err(|_| NegotiationError::Timeout)?
+        .map_err(NegotiationError::Timeout)?
 }
 
 /// Complete a handshake between `device` and its only peer, however long that takes.
@@ -446,7 +447,7 @@ async fn request_ephemeral_peer_through(
     let result = match config.timeout {
         Some(timeout) => tokio::time::timeout(timeout, exchange)
             .await
-            .map_err(|_elapsed| NegotiationError::Timeout)?,
+            .map_err(NegotiationError::Timeout)?,
         None => exchange.await,
     };
     result.map_err(NegotiationError::Exchange)
