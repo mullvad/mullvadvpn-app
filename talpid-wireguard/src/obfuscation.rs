@@ -19,6 +19,7 @@ use talpid_types::net::{
     obfuscation::{ObfuscatorConfig, Obfuscators},
     wireguard::PublicKey,
 };
+use tokio_util::task::AbortOnDropHandle;
 use tunnel_obfuscation::{
     create_transport, lwo,
     multiplexer::{self, Multiplexer, Selected, Transport},
@@ -206,6 +207,8 @@ pub async fn run_multiplexer(
     );
     let obfuscation = RunningObfuscation::Transport(Arc::new(transport));
 
+    let discover = AbortOnDropHandle::new(tokio::spawn(multiplexer.discover()));
+
     let session =
         ephemeral::open_ingress_session(config, retry_attempt, Some(obfuscation), bypass).await?;
 
@@ -215,10 +218,13 @@ pub async fn run_multiplexer(
         Ok(session)
     });
 
-    let selected = multiplexer.wait().await.map_err(|error| {
-        log::warn!("The multiplexer stopped before selecting a transport: {error}");
-        CloseMsg::PingErr
-    })?;
+    let selected = discover
+        .await
+        .expect("discover never panics")
+        .map_err(|error| {
+            log::warn!("The multiplexer stopped before selecting a transport: {error}");
+            CloseMsg::PingErr
+        })?;
 
     log::debug!("Selected obfuscation: {:?}", selected.config);
 

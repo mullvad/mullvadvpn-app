@@ -60,8 +60,11 @@ type TransportId = usize;
 /// 2. **Connected Phase**: Once a transport responds with a valid handshake response, switch to
 ///    forwarding to that transport only
 pub struct Multiplexer {
-    /// Stops discovery when this transport is dropped.
-    discovery_task: AbortOnDropHandle<io::Result<Selected>>,
+    outgoing_rx: mpsc::Receiver<Box<[u8]>>,
+    incoming_tx: mpsc::Sender<Box<[u8]>>,
+    phase_tx: watch::Sender<Phase>,
+    bypass: Arc<dyn SocketBypass>,
+    settings: Settings,
 }
 
 /// Which phase the multiplexer is in.
@@ -116,9 +119,6 @@ impl Multiplexer {
         let (incoming_tx, incoming) = mpsc::channel(DATAGRAM_QUEUE_LEN);
         let (phase_tx, phase) = watch::channel(Phase::Discovery);
 
-        let discovery_task =
-            Self::spawn_discovery(outgoing_rx, incoming_tx, phase_tx, bypass, settings);
-
         let transport = MultiplexerTransport {
             phase: phase.clone(),
             packet_overhead,
@@ -126,64 +126,45 @@ impl Multiplexer {
             incoming: Mutex::new(incoming),
         };
 
-        (Self { discovery_task }, transport)
+        (
+            Self {
+                outgoing_rx,
+                incoming_tx,
+                phase_tx,
+                bypass,
+                settings,
+            },
+            transport,
+        )
     }
 
-    /// Spawn the task that races the transports until one of them answers, and publishes the
-    /// outcome to the phase channel.
-    fn spawn_discovery(
-        outgoing: mpsc::Receiver<Box<[u8]>>,
-        incoming: mpsc::Sender<Box<[u8]>>,
-        phase_tx: watch::Sender<Phase>,
-        bypass: Arc<dyn SocketBypass>,
-        settings: Settings,
-    ) -> AbortOnDropHandle<io::Result<Selected>> {
-        AbortOnDropHandle::new(tokio::spawn(discover(
-            outgoing, incoming, phase_tx, bypass, settings,
-        )))
+    /// Spawn the task that races the transports until one of them answers, and returns the
+    /// selected obfuscation method.
+    pub async fn discover(mut self) -> io::Result<Selected> {
+        log::debug!("Running multiplexer obfuscation");
+
+        let Settings {
+            transports,
+            client_public_key,
+            timeout,
+        } = self.settings;
+        let result = run_discovery(
+            &mut self.outgoing_rx,
+            &self.incoming_tx,
+            VecDeque::from(transports),
+            self.bypass,
+            &client_public_key,
+            timeout,
+        )
+        .await;
+
+        let _ = self.phase_tx.send(match &result {
+            Ok(selected) => Phase::Connected(selected.transport.clone()),
+            Err(err) => Phase::Failed(Arc::new(clone_error(err))),
+        });
+
+        result
     }
-
-    pub async fn wait(self) -> io::Result<Selected> {
-        self.discovery_task
-            .await
-            .expect("the discovery task should not panic")
-    }
-}
-
-/// Race the transports until one of them answers, and publish the result.
-///
-/// Whatever happens, `phase_tx` is told about it, since [MultiplexerTransport::send] and
-/// [MultiplexerTransport::recv] have nowhere else to learn that the race is over.
-async fn discover(
-    mut outgoing: mpsc::Receiver<Box<[u8]>>,
-    incoming: mpsc::Sender<Box<[u8]>>,
-    phase_tx: watch::Sender<Phase>,
-    bypass: Arc<dyn SocketBypass>,
-    settings: Settings,
-) -> io::Result<Selected> {
-    log::debug!("Running multiplexer obfuscation");
-
-    let Settings {
-        transports,
-        client_public_key,
-        timeout,
-    } = settings;
-    let result = run_discovery(
-        &mut outgoing,
-        &incoming,
-        VecDeque::from(transports),
-        bypass,
-        &client_public_key,
-        timeout,
-    )
-    .await;
-
-    let _ = phase_tx.send(match &result {
-        Ok(selected) => Phase::Connected(selected.transport.clone()),
-        Err(err) => Phase::Failed(Arc::new(clone_error(err))),
-    });
-
-    result
 }
 
 fn stopped() -> io::Error {
