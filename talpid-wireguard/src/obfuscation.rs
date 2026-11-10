@@ -209,6 +209,7 @@ pub async fn run_multiplexer(
     let session =
         ephemeral::open_ingress_session(config, retry_attempt, Some(obfuscation), bypass).await?;
 
+    // Start the handshake before awaiting the multiplexer
     let handshake = tokio::spawn(async move {
         ephemeral::handshake(&session).await?;
         Ok(session)
