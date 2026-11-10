@@ -889,6 +889,42 @@ test.describe('Select location', () => {
         // Multihop mode should now be updated
         await Promise.all([util.ipc.settings.setRelaySettings.ignore(), continueButton.click()]);
       });
+
+      test('Should display "Entry" or "Exit" filter chip when searching for an entry or exit location respectively', async () => {
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'always',
+          },
+          settings,
+        );
+
+        const entryFilterChip = routes.selectLocation.getFilterChipButton('Entry');
+
+        await routes.selectLocation.gotoEntryLocations();
+
+        // Present after search
+        await routes.selectLocation.getEntryInput().fill('this is a search term');
+        await expect(entryFilterChip).toBeVisible();
+
+        // Reset search via clear search button
+        await routes.selectLocation.getClearSearchButton().click();
+
+        // Entry filter not present when not searching
+        await expect(entryFilterChip).not.toBeVisible();
+
+        await routes.selectLocation.gotoExitLocations();
+
+        const exitFilterChip = routes.selectLocation.getFilterChipButton('Exit');
+
+        await routes.selectLocation.getExitInput().fill('this is a search term');
+        await expect(exitFilterChip).toBeVisible();
+
+        // Reset search via escape
+        await routes.selectLocation.getExitInput().press('Escape');
+
+        // Exit filter not present when not searching
+        await expect(exitFilterChip).not.toBeVisible();
+      });
     });
 
     test.describe('multihop: when-needed', () => {
@@ -1033,6 +1069,51 @@ test.describe('Select location', () => {
         // Not present on exit
         await routes.selectLocation.gotoExitFilter();
         await expect(quicFilterChip).not.toBeVisible();
+      });
+
+      test('Should display "Exit" filter chip only when connected and searching for a location', async () => {
+        // Enter search mode
+        await routes.selectLocation.getExitInput().fill('this is a search term');
+
+        // Filter chip shouldn't be visible when searching if an automatic entry isn't used
+        const exitFilterChip = routes.selectLocation.getFilterChipButton('Exit');
+        await expect(exitFilterChip).not.toBeVisible();
+
+        // Need to set up all the circumstances that makes the Automatic entry appear
+        settings = await helpers.mockSettings(
+          {
+            multihop: 'when-needed',
+          },
+          settings,
+        );
+
+        settings = await helpers.mockEntryAndExitLocations(
+          {
+            entryLocation: {
+              only: {
+                country: relayList.countries[0].code,
+              },
+            },
+            exitLocation: {
+              only: {
+                country: relayList.countries[0].code,
+              },
+            },
+          },
+          settings,
+        );
+
+        await helpers.mockConnectTunnel({
+          ...mockData.location,
+          entryHostname: relayList.countries[0].cities[0].relays[0].hostname,
+        });
+
+        // We are now connected and have an automatic entry location, which means the Filter chip should be visible
+        await expect(exitFilterChip).toBeVisible();
+
+        // Reset search via clear search button and Filter chip should no longer be visible
+        await routes.selectLocation.getClearSearchButton().click();
+        await expect(exitFilterChip).not.toBeVisible();
       });
     });
 

@@ -10,8 +10,11 @@ import {
 import { useActiveFilters } from '../../../../../features/locations/hooks/use-active-filters';
 import { durationTokens, spacings } from '../../../../../lib/foundations';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
+import { EntryFilterChip } from '../entry-filter-chip';
+import { ExitFilterChip } from '../exit-filter-chip';
 import { OwnershipFilterChip } from '../ownership-filter-chip';
 import { ProvidersFilterChip } from '../providers-filter-chip';
+import { useShowEntryFilterChip, useShowExitFilterChip } from './hooks';
 
 export const StyledFilterChips = styled(motion.ul)`
   display: flex;
@@ -33,6 +36,9 @@ export function FilterChips() {
     isQuicFilterActive,
   } = useActiveFilters(locationType);
 
+  const showEntryFilterChip = useShowEntryFilterChip();
+  const showExitFilterChip = useShowExitFilterChip();
+
   return (
     <StyledFilterChips
       layout="position"
@@ -46,6 +52,16 @@ export function FilterChips() {
         duration: durationTokens.fast,
         ease: 'easeOut',
       }}>
+      {showEntryFilterChip && (
+        <li>
+          <EntryFilterChip />
+        </li>
+      )}
+      {showExitFilterChip && (
+        <li>
+          <ExitFilterChip />
+        </li>
+      )}
       {isOwnershipFilterActive && (
         <li>
           <OwnershipFilterChip />
