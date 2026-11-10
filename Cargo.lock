@@ -5893,6 +5893,7 @@ dependencies = [
  "pfctl",
  "pnet_packet 0.35.0",
  "rand 0.9.4",
+ "regex-lite",
  "serde",
  "serde_json",
  "socket2",

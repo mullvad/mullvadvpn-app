@@ -1,0 +1,99 @@
+---
+source: talpid-core/tests/nftables_snapshot.rs
+expression: dump_nftables()
+---
+table inet mullvad {
+	chain prerouting {
+		type filter hook prerouting priority -199; policy accept;
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff02::1:2 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff05::1:3 udp dport 547 accept
+		ip6 daddr ff02::2 icmpv6 type nd-router-solicit icmpv6 code 0 accept
+		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		udp dport 53 reject
+		tcp dport 53 reject with tcp reset
+		ip daddr 10.0.0.0/8 accept
+		ip daddr 172.16.0.0/12 accept
+		ip daddr 192.168.0.0/16 accept
+		ip daddr 169.254.0.0/16 accept
+		ip6 daddr fe80::/10 accept
+		ip6 daddr fc00::/7 accept
+		ip daddr 255.255.255.255 accept
+		ip daddr 224.0.0.0/24 accept
+		ip daddr 239.0.0.0/8 accept
+		ip6 daddr ff01::/16 accept
+		ip6 daddr ff02::/16 accept
+		ip6 daddr ff03::/16 accept
+		ip6 daddr ff04::/16 accept
+		ip6 daddr ff05::/16 accept
+		udp sport 67 udp dport 68 accept
+		reject
+	}
+
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		udp sport 67 udp dport 68 accept
+		ip6 saddr fe80::/10 udp sport 547 ip6 daddr fe80::/10 udp dport 546 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-router-advert icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		ip saddr 10.0.0.0/8 accept
+		ip saddr 172.16.0.0/12 accept
+		ip saddr 192.168.0.0/16 accept
+		ip saddr 169.254.0.0/16 accept
+		ip6 saddr fe80::/10 accept
+		ip6 saddr fc00::/7 accept
+		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
+		udp sport 67 udp dport 68 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff02::1:2 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff05::1:3 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 547 ip6 daddr fe80::/10 udp dport 546 accept
+		ip6 daddr ff02::2 icmpv6 type nd-router-solicit icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-router-advert icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
+		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		udp dport 53 reject
+		tcp dport 53 reject with tcp reset
+		ip daddr 10.0.0.0/8 accept
+		ip daddr 172.16.0.0/12 accept
+		ip daddr 192.168.0.0/16 accept
+		ip daddr 169.254.0.0/16 accept
+		ip6 daddr fe80::/10 accept
+		ip6 daddr fc00::/7 accept
+		ip daddr 255.255.255.255 accept
+		ip daddr 224.0.0.0/24 accept
+		ip daddr 239.0.0.0/8 accept
+		ip6 daddr ff01::/16 accept
+		ip6 daddr ff02::/16 accept
+		ip6 daddr ff03::/16 accept
+		ip6 daddr ff04::/16 accept
+		ip6 daddr ff05::/16 accept
+		reject
+	}
+
+	chain mangle {
+		type route hook output priority mangle; policy accept;
+	}
+
+	chain nat {
+		type nat hook postrouting priority srcnat; policy accept;
+	}
+}
