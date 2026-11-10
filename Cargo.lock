@@ -7671,6 +7671,8 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.19",
  "windows",
+ "windows-registry",
+ "windows-result",
 ]
 
 [[package]]

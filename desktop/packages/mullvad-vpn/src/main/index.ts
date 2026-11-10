@@ -30,6 +30,7 @@ import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
 import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
+import { isDeviceInstallDisabledError } from '../shared/notifications';
 import {
   SystemNotification,
   SystemNotificationCategory,
@@ -45,6 +46,7 @@ import {
   printElectronOptions,
 } from './command-line-options';
 import { DaemonRpc, SubscriptionListener } from './daemon-rpc';
+import { isDeviceInstallDisabled } from './device-install';
 import Expectation from './expectation';
 import { ConnectionObserver } from './grpc-client';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -119,6 +121,8 @@ class ApplicationMain
   private linuxSplitTunneling?: typeof import('./linux-split-tunneling');
   private splitTunneling?: ISplitTunnelingAppListRetriever;
   private splitTunnelingSupported = false;
+
+  private deviceInstallDisabled?: boolean;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -1255,12 +1259,15 @@ class ApplicationMain
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
     this.userInterface?.updateTray(this.account.isLoggedIn(), tunnelState);
 
+    this.updateDeviceInstallDisabled(tunnelState);
+
     this.notificationController.notifyTunnelState(
       tunnelState,
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.userInterface?.isWindowVisible() ?? false,
       this.settings.gui.enableSystemNotifications,
       this.splitTunnelingSupported,
+      this.deviceInstallDisabled,
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);
@@ -1269,6 +1276,39 @@ class ApplicationMain
       this.account.detectStaleAccountExpiry(tunnelState);
     }
   };
+
+  /**
+   * Check the `DeviceInstallDisabled` registry value when the tunnel error indicates that device
+   * installation is disabled, and push the result to the renderer, which uses it to show accurate
+   * error information. The value is cleared whenever the error goes away, so that it is read
+   * again the next time the error occurs, in case it has been changed in between.
+   */
+  private updateDeviceInstallDisabled(tunnelState: TunnelState) {
+    if (process.platform !== 'win32') {
+      // The tunnel adapter os errors only occur on Windows.
+      return;
+    }
+
+    const isDeviceInstallError =
+      tunnelState.state === 'error' &&
+      tunnelState.details.cause === ErrorStateCause.createTunnelDeviceError &&
+      isDeviceInstallDisabledError(tunnelState.details.osError);
+
+    if (!isDeviceInstallError) {
+      this.setDeviceInstallDisabled(undefined);
+      return;
+    }
+
+    this.setDeviceInstallDisabled(isDeviceInstallDisabled());
+  }
+
+  private setDeviceInstallDisabled(deviceInstallDisabled: boolean | undefined) {
+    if (this.deviceInstallDisabled === deviceInstallDisabled) {
+      return;
+    }
+    this.deviceInstallDisabled = deviceInstallDisabled;
+    IpcMainEventChannel.deviceInstall.notify?.(deviceInstallDisabled);
+  }
 
   // SettingsDelegate
   public handleMonochromaticIconChange = (value: boolean) =>

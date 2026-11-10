@@ -126,6 +126,9 @@ export default function NotificationArea(props: IProps) {
   const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
 
   const { isLatestMigrationIncomplete, dismissedMigrationNotification } = useSettingsMigrations();
+  const deviceInstallDisabled = useSelector(
+    (state: IReduxState) => state.connection.deviceInstallDisabled,
+  );
   const handleCloseSettingsMigratedNotification = useCallback(() => {
     setDismissedSettingsMigrationNotification();
   }, [setDismissedSettingsMigrationNotification]);
@@ -168,6 +171,7 @@ export default function NotificationArea(props: IProps) {
       showFullDiskAccessSettings,
       disableSplitTunneling,
       splitTunnelingSupported,
+      deviceInstallDisabled,
     }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),

@@ -2367,6 +2367,10 @@ msgid "Unable to start tunnel connection. This could be because of conflicts wit
 msgstr ""
 
 msgctxt "notifications"
+msgid "Unable to start tunnel connection. This might be because device installation is disabled on this system, please troubleshoot."
+msgstr ""
+
+msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
 msgstr ""
 
@@ -2967,6 +2971,10 @@ msgid "Connecting. %(location)s"
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "Check if security software or a system policy on your device disables device installation."
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Disable split tunneling"
 msgstr ""
 
@@ -2987,11 +2995,19 @@ msgid "If you have installed another VPN then try to uninstall that."
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "In the registry editor, go to HKEY_LOCAL_MACHINE > SYSTEM > CurrentControlSet > Services > DeviceInstall > Parameters."
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr ""
 
 msgctxt "troubleshoot"
 msgid "Open system settings"
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Set the registry value “DeviceInstallDisabled” to 0, or delete it."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -3024,6 +3040,10 @@ msgstr ""
 
 msgctxt "troubleshoot"
 msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr ""
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This might be caused by device installation being disabled on this system."
 msgstr ""
 
 msgctxt "troubleshoot"

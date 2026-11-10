@@ -121,9 +121,11 @@ impl Error {
     #[cfg(windows)]
     pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
         match self {
-            Error::TunnelError(TunnelError::SetupTunnelDevice(tun_provider::Error::Io(error))) => {
-                Some(error)
-            }
+            Error::TunnelError(TunnelError::SetupTunnelDevice(error)) => match error {
+                tun_provider::Error::Io(error) => Some(error),
+                tun_provider::Error::CreateAdapter(_, error) => Some(error),
+                _ => None,
+            },
             _ => None,
         }
     }

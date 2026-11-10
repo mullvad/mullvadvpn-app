@@ -193,6 +193,9 @@ export const ipcSchema = {
     disconnect: invoke<DisconnectSource, void>(),
     reconnect: invoke<void, void>(),
   },
+  deviceInstall: {
+    '': notifyRenderer<boolean | undefined>(),
+  },
   settings: {
     '': notifyRenderer<ISettings>(),
     importFile: invoke<string, void>(),

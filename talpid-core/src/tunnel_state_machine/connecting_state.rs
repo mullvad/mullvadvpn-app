@@ -349,7 +349,7 @@ impl ConnectingState {
                         "{}",
                         error.display_chain_with_msg("Tunnel has stopped unexpectedly")
                     );
-                    Some(ErrorStateCause::StartTunnelError)
+                    Some(error.into())
                 }
                 error => {
                     log::warn!(
