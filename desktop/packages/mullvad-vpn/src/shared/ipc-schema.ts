@@ -69,6 +69,7 @@ export interface IAppStateSnapshot {
   accountData?: IAccountData;
   accountHistory?: AccountNumber;
   tunnelState: TunnelState;
+  deviceInstallDisabled?: boolean;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
   daemonAllowed?: boolean;
@@ -192,6 +193,9 @@ export const ipcSchema = {
     connect: invoke<void, void>(),
     disconnect: invoke<DisconnectSource, void>(),
     reconnect: invoke<void, void>(),
+  },
+  deviceInstall: {
+    '': notifyRenderer<boolean | undefined>(),
   },
   settings: {
     '': notifyRenderer<ISettings>(),
