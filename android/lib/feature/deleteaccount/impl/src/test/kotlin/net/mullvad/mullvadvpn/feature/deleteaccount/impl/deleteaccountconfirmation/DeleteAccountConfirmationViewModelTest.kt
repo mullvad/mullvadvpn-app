@@ -31,7 +31,7 @@ class DeleteAccountConfirmationViewModelTest {
         runTest {
             // Arrange
             val accountData: AccountData = mockk(relaxed = true)
-            every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(4)
+            every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(3).plusHours(2)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
 
             // Act, Assert
