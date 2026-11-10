@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
 - Move notification permission request dialog prompt to the connect screen.
 - Improve how the quick settings tile shows the connection state.
+- Improve daemon log rotation by automatically rotating after 7 days or if files reach 2GB,
+  the latter having been more of an issue on desktop than on Android.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
