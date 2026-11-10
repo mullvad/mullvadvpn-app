@@ -2,30 +2,46 @@ import React from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
-import { useSelector } from '../../../redux/store';
+import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 
 export function useOwnership(): {
-  activeOwnership: Ownership;
-  setOwnership: (selectedOwnership: Ownership) => Promise<void>;
+  entryOwnership: Ownership;
+  exitOwnership: Ownership;
+  setEntryOwnership: (entryOwnership: Ownership) => Promise<void>;
+  setExitOwnership: (exitOwnership: Ownership) => Promise<void>;
 } {
   const relaySettingsUpdater = useRelaySettingsUpdater();
+  const normalRelaySettings = useNormalRelaySettings();
 
-  const activeOwnership = useSelector((state) =>
-    'normal' in state.settings.relaySettings
-      ? state.settings.relaySettings.normal.ownership
-      : Ownership.any,
-  );
-  const setOwnership = React.useCallback(
-    async (ownership: Ownership) => {
+  const exitOwnership = normalRelaySettings?.ownership || Ownership.any;
+  const entryOwnership = normalRelaySettings?.wireguard.entryOwnership || Ownership.any;
+
+  const setEntryOwnership = React.useCallback(
+    async (entryOwnership: Ownership) => {
       await relaySettingsUpdater((settings) => {
         return {
           ...settings,
-          ownership,
+          wireguardConstraints: {
+            ...settings.wireguardConstraints,
+            entryOwnership,
+          },
         };
       });
     },
     [relaySettingsUpdater],
   );
 
-  return { activeOwnership, setOwnership };
+  const setExitOwnership = React.useCallback(
+    async (exitOwnership: Ownership) => {
+      await relaySettingsUpdater((settings) => {
+        return {
+          ...settings,
+          ownership: exitOwnership,
+        };
+      });
+    },
+    [relaySettingsUpdater],
+  );
+
+  return { entryOwnership, exitOwnership, setEntryOwnership, setExitOwnership };
 }

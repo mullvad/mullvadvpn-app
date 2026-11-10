@@ -9,12 +9,5 @@ export type LocationSelectorRowIconProps = LocationSelectorIconProps;
 export function LocationSelectorRowIcon(props: LocationSelectorRowIconProps) {
   const { position } = useLocationSelectorRowContext();
 
-  return (
-    <LocationSelectorIcon
-      color="whiteAlpha60"
-      backgroundColor="darkBlue"
-      position={position}
-      {...props}
-    />
-  );
+  return <LocationSelectorIcon color="whiteAlpha60" position={position} {...props} />;
 }

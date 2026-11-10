@@ -5,10 +5,7 @@ import {
   RelayLocationRelay as DaemonRelayLocationRelay,
 } from '../../../shared/daemon-rpc-types';
 
-export enum LocationType {
-  entry = 0,
-  exit,
-}
+export type LocationType = 'entry' | 'exit' | 'automaticEntry';
 
 type LocationState = {
   active: boolean;
@@ -17,6 +14,7 @@ type LocationState = {
   selected: boolean;
   disabled?: boolean;
   disabledReason?: DisabledReason;
+  needsOtherEntry?: boolean;
 };
 
 export type CustomListLocation = LocationState & {
@@ -51,7 +49,10 @@ export enum DisabledReason {
   inactive,
 }
 
+export type RecentEntryLocation = 'automatic' | AnyLocation;
+export type RecentExitLocation = AnyLocation;
+
 export type RecentLocations = {
-  entries: AnyLocation[];
-  exits: AnyLocation[];
+  entries: RecentEntryLocation[];
+  exits: RecentExitLocation[];
 };

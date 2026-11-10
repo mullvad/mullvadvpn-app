@@ -3,8 +3,8 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
 import { Menu, type MenuProps } from '../../../../lib/components/menu';
+import { useSettingsCustomLists } from '../../../../redux/hooks';
 import { CreateCustomListDialog } from '../../../custom-lists/components';
-import { useCustomLists } from '../../../custom-lists/hooks';
 import { type GeographicalLocation } from '../../types';
 import {
   AddLocationToCustomListMenuOption,
@@ -23,7 +23,7 @@ export function GeographicalLocationMenu({
   location,
   ...props
 }: GeographicalMenuProps) {
-  const { customLists } = useCustomLists();
+  const { customLists } = useSettingsCustomLists();
   const [createCustomListDialogOpen, setCreateCustomListDialogOpen] = React.useState(false);
 
   const handleOpenCreateCustomListDialog = React.useCallback(() => {

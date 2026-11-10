@@ -14,12 +14,19 @@ export function useMapReduxCountriesToCountryLocations(
   const locale = useSelector((state) => state.userInterface.locale);
   const selectedLocation = useSelectedEntryOrExitLocation(locationType);
   const disabledLocation = useDisabledLocation(locationType);
+  const matches = useSelector((state) => state.settings.relayLocationsFiltered['exit'].matches);
 
   return React.useMemo(() => {
     return relayList
       .map((country) =>
-        mapReduxCountryToCountryLocation(country, selectedLocation, disabledLocation, locale),
+        mapReduxCountryToCountryLocation(
+          country,
+          selectedLocation === 'any' ? undefined : selectedLocation,
+          disabledLocation,
+          locale,
+          matches,
+        ),
       )
       .sort((a, b) => a.label.localeCompare(b.label, locale));
-  }, [relayList, disabledLocation, selectedLocation, locale]);
+  }, [relayList, selectedLocation, disabledLocation, locale, matches]);
 }

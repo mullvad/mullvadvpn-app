@@ -6,7 +6,7 @@ import { messages } from '../../../shared/gettext';
 import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
 import { RoutePath } from '../../../shared/routes';
 import { isInRanges } from '../../../shared/utils';
-import { InternalLink } from '../../components/InternalLink';
+import { NotificationInternalLink } from '../../components/notification-internal-link';
 import { IConnectionReduxState } from '../../redux/connection/reducers';
 import { formatHtml } from '../html-formatter';
 
@@ -18,7 +18,7 @@ interface UnsupportedWireGuardPortNotificationContext {
 
 const transformerMap = {
   a: (value: string) => (
-    <InternalLink
+    <NotificationInternalLink
       aria-label={sprintf(
         // TRANSLATORS: Accessibility label for link to VPN settings where
         // TRANSLATORS: the user can change WireGuard port.
@@ -30,10 +30,9 @@ const transformerMap = {
         ),
         { wireGuard: strings.wireguard },
       )}
-      variant="labelTinySemiBold"
       to={RoutePath.antiCensorship}>
-      <InternalLink.Text>{value}</InternalLink.Text>
-    </InternalLink>
+      <NotificationInternalLink.Text>{value}</NotificationInternalLink.Text>
+    </NotificationInternalLink>
   ),
 };
 

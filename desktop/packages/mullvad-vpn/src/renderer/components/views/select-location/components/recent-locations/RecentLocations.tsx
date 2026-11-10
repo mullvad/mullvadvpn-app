@@ -9,9 +9,14 @@ export function RecentLocations() {
   const titleId = React.useId();
 
   return (
-    <FlexColumn as="section" gap="tiny" margin={{ bottom: 'large' }} aria-labelledby={titleId}>
+    <FlexColumn
+      as="section"
+      gap="tiny"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      data-focusable-heading>
       <SectionTitle>
-        <SectionTitle.Title as="h3" id={titleId}>
+        <SectionTitle.Title as="h2" id={titleId}>
           {
             // TRANSLATORS: Title for section showing recently used locations.
             messages.pgettext('select-location-view', 'Recents')

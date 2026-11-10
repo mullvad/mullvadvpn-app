@@ -1,5 +1,6 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 
+import { dimensions } from '../shared/constants';
 import { IWindowShapeParameters } from '../shared/ipc-types';
 import { Scheduler } from '../shared/scheduler';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -217,7 +218,7 @@ export default class WindowController {
 
   public static getContentSize(unpinnedWindow: boolean): { width: number; height: number } {
     return {
-      width: WindowController.getContentWidth(unpinnedWindow),
+      width: dimensions.contentWidth,
       height: WindowController.getContentHeight(unpinnedWindow),
     };
   }
@@ -315,29 +316,11 @@ export default class WindowController {
     }
   }
 
-  private static getContentWidth(unpinnedWindow: boolean): number {
-    // The width we want to achieve.
-    const contentWidth = 320;
-
-    switch (process.platform) {
-      case 'win32':
-        // On Windows when the window is pinned the window is 16px less in width than the bounds we set.
-        // Likely related to the following issue:
-        // https://github.com/electron/electron/issues/50783
-        // See also:
-        // https://github.com/electron/electron/pull/51179
-        // https://github.com/electron/electron/pull/50706
-        return unpinnedWindow ? contentWidth : contentWidth + 16;
-      default:
-        return contentWidth;
-    }
-  }
-
   // On Windows the app height is applied incorrectly:
   // https://github.com/electron/electron/issues/28777
   private static getContentHeight(unpinnedWindow: boolean): number {
     // The height we want to achieve.
-    const contentHeight = 568;
+    const contentHeight = dimensions.contentHeight;
 
     switch (process.platform) {
       case 'win32':
@@ -347,7 +330,10 @@ export default class WindowController {
         // See also:
         // https://github.com/electron/electron/pull/51179
         // https://github.com/electron/electron/pull/50706
-        return unpinnedWindow ? contentHeight : contentHeight + 8;
+        //
+        // NOTE: If this value is changed, then update the calculation of the map's initial height in
+        // the `src/renderer/components/Map.tsx` file to reflect that change.
+        return unpinnedWindow ? contentHeight : dimensions.contentHeightWindowsPinnedWindow;
       default:
         return contentHeight;
     }

@@ -1,43 +1,92 @@
 import { type Locator, Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/shared/routes';
+import { type MockLocationType } from '../../utils';
 import { TestUtils } from '../../utils';
 import { createSelectors } from './selectors';
 
 export class SelectLocationRouteObjectModel {
   private readonly utils: TestUtils;
   private readonly selectors: ReturnType<typeof createSelectors>;
+  private readonly page: Page;
 
   constructor(page: Page, util: TestUtils) {
     this.utils = util;
+    this.page = page;
     this.selectors = createSelectors(page);
   }
 
-  async toggleAccordion(accordionName: string) {
-    const expandAccordion = this.selectors.expandAccordionButton(accordionName);
-    if ((await expandAccordion.count()) > 0) {
-      await expandAccordion.click();
+  async expandAccordion(accordionName: string) {
+    const accordionLocator = this.selectors.accordionButton(accordionName);
+    const label = await accordionLocator.getAttribute('aria-label');
+    if (label?.startsWith('Expand')) {
+      await accordionLocator.click();
     }
   }
 
-  getEntryButton() {
-    return this.selectors.entryButton();
+  async gotoEntryLocations() {
+    await this.getEntryInput().click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
   }
 
-  getExitButton() {
-    return this.selectors.exitButton();
+  async gotoEntryAutomatic(country: string) {
+    await this.getEntryAutomaticButton(country).click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
   }
 
-  getSearchInput() {
-    return this.selectors.searchInput();
+  async gotoExitLocations() {
+    await this.getExitInput().click();
+    await this.page.waitForFunction(() =>
+      document.getAnimations().every((animation) => animation.playState === 'finished'),
+    );
   }
 
-  getRelaysMatching(relayNames: string[]) {
-    return this.selectors.relaysMatching(relayNames);
+  async gotoLocations(locationType: MockLocationType) {
+    if (locationType === 'exit') {
+      await this.gotoExitLocations();
+    } else {
+      await this.gotoEntryLocations();
+    }
   }
 
-  getFilterChip(label: string) {
-    return this.selectors.filterChip(label);
+  getEntryInput() {
+    return this.selectors.entryInput();
+  }
+
+  getEntryAutomaticButton(country: string) {
+    return this.selectors.entryAutomaticButton(country);
+  }
+
+  getExitInput() {
+    return this.selectors.exitInput();
+  }
+
+  getNonMatchingFilterErrorMessage() {
+    return this.selectors.nonMatchingFilterErrorMessage();
+  }
+
+  getLocationsMatching(relayNames: string[]) {
+    return this.selectors.locationsMatching(relayNames);
+  }
+
+  getAutomaticLocation() {
+    return this.selectors.automaticLocation();
+  }
+
+  getAutomaticEntryMultihopModeToAlwaysButton() {
+    return this.selectors.entryAutomaticMultihopModeToAlwaysButton();
+  }
+
+  getFilterChipButton(label: string) {
+    return this.selectors.filterChipButton(label);
+  }
+
+  getFilterChipLink(label: string) {
+    return this.selectors.filterChipLink(label);
   }
 
   getAllLocationsSection() {
@@ -83,9 +132,34 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.deleteCustomListButton();
   }
 
-  async gotoFilter() {
-    await this.selectors.selectLocationMenuButton().click();
-    await this.selectors.filterMenuOption().click();
+  getAutomaticLocationWarningDialogContinueButton() {
+    return this.selectors.automaticLocationWarningDialogContinueButton();
+  }
+
+  getHeaderMenuItem(label: string) {
+    return this.selectors.headerMenuItem(label);
+  }
+
+  getEntryFiltersOverrideDialogButton(label: string) {
+    return this.selectors.entryFiltersOverrideDialogButton(label);
+  }
+
+  async gotoEntryFilter() {
+    await this.selectors.filterEntryButton().click();
     await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoEntryAutomaticFilter() {
+    await this.selectors.filterEntryAutomaticButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async gotoExitFilter() {
+    await this.selectors.filterExitButton().click();
+    await this.utils.expectRoute(RoutePath.filter);
+  }
+
+  async openHeaderMenu() {
+    await this.selectors.headerMenu().click();
   }
 }

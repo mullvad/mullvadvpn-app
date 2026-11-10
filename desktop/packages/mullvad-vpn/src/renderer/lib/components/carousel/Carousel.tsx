@@ -1,19 +1,39 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { spacings } from '../../foundations';
 import { Flex } from '../flex';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
-import { CarouselControls, CarouselSlides } from './components';
-import { useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
+import {
+  CarouselControls,
+  CarouselSlides,
+  StyledCarouselControls,
+  StyledCarouselSlides,
+} from './components';
+import { useEffectScrollToSlide, useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
-export const StyledCarousel = styled.section``;
+export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
+  slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
+};
 
-export type CarouselProps = React.ComponentPropsWithRef<'section'>;
+export const StyledCarousel = styled.section`
+  width: 100%;
+`;
+
+export const StyledFlex = styled(Flex)`
+  width: 100%;
+
+  > ${StyledCarouselSlides} + ${StyledCarouselControls} {
+    margin-top: ${spacings.medium};
+  }
+`;
 
 function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
   const { carouselRef } = useCarouselContext();
 
+  useEffectScrollToSlide();
   useFocusCarousel();
 
   return (
@@ -23,16 +43,14 @@ function CarouselImpl({ children, ...props }: CarouselProps) {
       aria-roledescription="carousel"
       tabIndex={-1}
       {...props}>
-      <Flex flexDirection="column" gap="medium">
-        {children}
-      </Flex>
+      <StyledFlex flexDirection="column">{children}</StyledFlex>
     </StyledCarousel>
   );
 }
 
-function Carousel({ children, ...props }: CarouselProps) {
+function Carousel({ slideIndex, onSlideIndexChange, children, ...props }: CarouselProps) {
   return (
-    <CarouselProvider>
+    <CarouselProvider slideIndex={slideIndex} onSlideIndexChange={onSlideIndexChange}>
       <CarouselImpl {...props}>{children}</CarouselImpl>
     </CarouselProvider>
   );
