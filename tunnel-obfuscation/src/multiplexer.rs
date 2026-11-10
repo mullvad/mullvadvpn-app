@@ -32,7 +32,6 @@ use tokio::{
     sync::{Mutex, mpsc, watch},
     time::Instant,
 };
-use tokio_util::task::AbortOnDropHandle;
 
 use crate::{
     direct::Direct,
@@ -94,7 +93,7 @@ pub struct MultiplexerTransport {
     /// The largest overhead among the raced transports.
     packet_overhead: u16,
 
-    /// Datagrams to fan out, drained by the discovery task while it is still racing.
+    /// Datagrams to fan out, drained by [`Multiplexer::discover`] while it is still racing.
     outgoing: mpsc::Sender<Box<[u8]>>,
 
     /// Datagrams that a raced transport received before one was selected.
@@ -106,8 +105,8 @@ pub struct MultiplexerTransport {
 impl Multiplexer {
     /// Create a new multiplexer with the specified transports (obfuscators) and settings.
     ///
-    /// Discovery starts racing as soon as the first datagram is sent, and the multiplexer steps
-    /// aside once it has a winner.
+    /// Racing starts once [`Multiplexer::discover`] is called, and the multiplexer steps aside
+    /// once a transport has won.
     ///
     /// # Arguments
     /// * `settings` - Configuration containing the list of transports to try and network settings
@@ -138,8 +137,7 @@ impl Multiplexer {
         )
     }
 
-    /// Spawn the task that races the transports until one of them answers, and returns the
-    /// selected obfuscation method.
+    /// Race the transports until one of them answers, and return the selected obfuscation method.
     pub async fn discover(mut self) -> io::Result<Selected> {
         log::debug!("Running multiplexer obfuscation");
 
@@ -582,8 +580,8 @@ mod tests {
             timeout: None,
         };
 
-        // Keep `multiplexer` around, since dropping it aborts discovery.
         let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let discover = tokio::spawn(multiplexer.discover());
         let obfuscator = local_socket(transport).await;
         let multiplexer_endpoint = obfuscator.endpoint();
 
@@ -627,7 +625,7 @@ mod tests {
         assert_eq!(&client_buf[..bytes_received], response_data);
 
         // The first server, and not the second, should have been selected
-        let selected = multiplexer.wait().await.unwrap();
+        let selected = discover.await.unwrap().unwrap();
         assert!(
             matches!(selected.config, Transport::Direct(addr) if addr == server_addr),
             "the first transport should have been selected, got {:?}",
@@ -691,7 +689,7 @@ mod tests {
             .await
             .unwrap();
 
-        let error = tokio::time::timeout(SPAWN_INTERVAL, multiplexer.wait())
+        let error = tokio::time::timeout(SPAWN_INTERVAL, multiplexer.discover())
             .await
             .expect("the multiplexer should give up before the next transport's turn")
             .expect_err("no transport should be selected");
@@ -724,7 +722,7 @@ mod tests {
         let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
         let start = Instant::now();
 
-        let error = multiplexer.wait().await.unwrap_err();
+        let error = multiplexer.discover().await.unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::TimedOut);
 
         // The second transport is spawned one interval after the first.
@@ -750,6 +748,7 @@ mod tests {
         };
 
         let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let discover = tokio::spawn(multiplexer.discover());
         // The phase carries the multiplexer's progress, e.g. whether it has selected a transport.
         let phase = transport.phase.clone();
         let obfuscator = local_socket(transport).await;
@@ -791,7 +790,7 @@ mod tests {
         let (n, _) = wg_socket.recv_from(&mut buf).await.unwrap();
         assert_eq!(&buf[..n], &response[..]);
 
-        let selected = multiplexer.wait().await.unwrap().config;
+        let selected = discover.await.unwrap().unwrap().config;
         assert_matches!(
             selected, Transport::Direct(addr) if addr == relay_addr,
             "the transport that answered the handshake should have been selected, got {selected:?}",
@@ -819,8 +818,8 @@ mod tests {
             timeout: None,
         };
 
-        // Keep `multiplexer` around, since dropping it aborts discovery.
         let (multiplexer, transport) = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let discover = tokio::spawn(multiplexer.discover());
         let obfuscator = local_socket(transport).await;
         let multiplexer_endpoint = obfuscator.endpoint();
         tokio::spawn(obfuscator.run());
@@ -860,7 +859,7 @@ mod tests {
         assert_eq!(&wg_buf[..n], &response[..]);
 
         // The LWO transport should have been selected
-        let selected = multiplexer.wait().await.unwrap().config;
+        let selected = discover.await.unwrap().unwrap().config;
         assert!(matches!(
             selected,
             Transport::Obfuscated(crate::Settings::Lwo(_))

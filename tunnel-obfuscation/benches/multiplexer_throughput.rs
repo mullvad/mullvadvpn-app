@@ -68,9 +68,9 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
             client_public_key: keys().0,
             timeout: None,
         };
-        // Keep `multiplexer` around, since dropping it aborts discovery.
         let (multiplexer, transport) =
             multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings);
+        let discovery = tokio::spawn(multiplexer.discover());
         let runner = tunnel_obfuscation::local_socket::LocalSocketRunner::new(Arc::new(transport))
             .await
             .unwrap();
@@ -92,9 +92,9 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
             }
         }
 
-        // Wait for the multiplexer to publish the selected transport, so that the handle can be
-        // dropped without aborting discovery mid-commit.
-        multiplexer.wait().await.unwrap();
+        // Wait for discovery to commit to the selected transport, so that the benchmark
+        // measures connected mode.
+        discovery.await.unwrap().unwrap();
 
         (wg, relay)
     });
