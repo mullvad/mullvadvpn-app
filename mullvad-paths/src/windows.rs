@@ -20,9 +20,9 @@ use windows_sys::{
         Security::{
             self, AdjustTokenPrivileges,
             Authorization::{
-                EXPLICIT_ACCESS_W, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, SET_ACCESS,
-                SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID,
-                TRUSTEE_W,
+                EXPLICIT_ACCESS_W, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
+                SET_ACCESS, SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP,
+                TRUSTEE_IS_SID, TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
             InitializeSecurityDescriptor, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
@@ -64,17 +64,26 @@ pub const PRODUCT_NAME: &str = "Mullvad VPN";
 pub fn data_dir() -> Result<PathBuf> {
     let path = get_data_dir()?;
 
-    let acl = build_acl(UserPermissions {
+    let dacl = build_acl(UserPermissions {
         read: true,
         write: false, // no write-access for normal users
         execute: true,
     })?;
 
     // We assume that allusersprofile_dir exists
-    match create_dir_with_acl(&path, &acl) {
+    match create_dir_with_dacl(&path, &dacl) {
         Ok(()) => (),
         Err(Error::CreateDirFailed(_, src)) if src.kind() == io::ErrorKind::AlreadyExists => {
-            todo!("check if permissions of existing folder are acceptable")
+            let actual_dacl = get_dacl(&path)?;
+            if let Some(actual_dacl) = actual_dacl
+                // SAFETY: TODO:
+                && unsafe { acl_eq(&dacl, &actual_dacl) }
+            {
+                // all good!
+                // TODO: describe reasoning of why all good
+            } else {
+                todo!("bad permissions! bail out and burn everything to the ground.")
+            }
         }
         Err(e) => return Err(e),
     }
@@ -100,7 +109,7 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
 ///
 /// Will return [`io::ErrorKind::AlreadyExists`] if the directory already exists,
 /// in this case the existing directory's ACL will be **unchanged**.
-fn create_dir_with_acl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Result<()> {
+fn create_dir_with_dacl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Result<()> {
     let wpath = U16CString::from_os_str(path)?;
 
     let mut security_descriptor = SECURITY_DESCRIPTOR::default();
@@ -290,6 +299,85 @@ fn get_well_known_sid(sid: WELL_KNOWN_SID_TYPE) -> Result<Sid> {
     }
 
     Ok(Sid { buf })
+}
+
+/// Get the DACL of a file. [Read more](get_file_security_descriptor)
+fn get_dacl(path: &Path) -> Result<Option<LocalFreeGuard<Security::ACL>>> {
+    let security_descriptor =
+        get_file_security_descriptor(path, Security::DACL_SECURITY_INFORMATION)?;
+
+    // If file does not have a DACL, return None
+    // SAFETY: security_descriptor was allocated by GetNamedSecurityInfoW and is owned by us.
+    if unsafe { security_descriptor.as_ref() }.Dacl.is_null() {
+        return Ok(None);
+    };
+
+    // SAFETY: security_descriptor was allocated by GetNamedSecurityInfoW and is owned by us.
+    let dacl = security_descriptor.map(|mut sd| unsafe {
+        NonNull::new(sd.as_mut().Dacl).expect("we've checkked that Dacl is Some")
+    });
+
+    Ok(Some(dacl))
+}
+
+/// Check if two ACLs are equal.
+unsafe fn acl_eq(
+    dacl: &LocalFreeGuard<Security::ACL>,
+    actual_dacl: &LocalFreeGuard<Security::ACL>,
+) -> bool {
+    todo!()
+}
+
+/// Get the security descriptor of a file. `mask` defines which fields of the descriptor to get.
+///
+/// ## Example
+/// ```ignore
+/// let sd = get_file_security_descriptor(/* path */, Security::DACL_SECURITY_INFORMATION);
+/// let dacl = unsafe { sd.as_ptr().as_ref_unchecked() }.Dacl;
+/// ```
+///
+/// ## Further reading
+/// - https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-security_descriptor
+/// - https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow
+fn get_file_security_descriptor(
+    path: &Path,
+    mask: Security::OBJECT_SECURITY_INFORMATION,
+) -> Result<LocalFreeGuard<SECURITY_DESCRIPTOR>> {
+    let wide_path = U16CString::from_os_str(path)?;
+
+    let mut security_descriptor: *mut SECURITY_DESCRIPTOR = ptr::null_mut();
+
+    let result = unsafe {
+        GetNamedSecurityInfoW(
+            wide_path.as_ptr(),
+            SE_FILE_OBJECT,
+            mask,
+            // These null_mut()s are helper args for getting pointers to fields inside the
+            // security descriptor. Ignore them to stay sane.
+            ptr::null_mut(),
+            ptr::null_mut(),
+            ptr::null_mut(),
+            ptr::null_mut(),
+            (&raw mut security_descriptor).cast::<*mut c_void>(),
+        )
+    };
+
+    if result != ERROR_SUCCESS {
+        if result == ERROR_INSUFFICIENT_BUFFER {
+            // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow
+            todo!("This is a race condition in the syscall. Retry in this case.");
+        }
+        return Err(Error::GetDirPermissionFailed(
+            format!("Could not security desciptor for file: {path:?}"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    let security_descriptor = NonNull::new(security_descriptor)
+        .expect("GetNamedSecurityInfoW returns non-null on success");
+    // SAFETY: GetNamedSecurityInfoW created this object and requires us to LocalFree it.
+    let security_descriptor = unsafe { LocalFreeGuard::from_ptr(security_descriptor) };
+    Ok(security_descriptor)
 }
 
 /// Build a windows ACL (access-control-list)
