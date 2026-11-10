@@ -1,4 +1,5 @@
 Multihop is now split into three modes: Always, Never and When Needed.
+Filters for locations are now applied separately for entry and exit.
 New API access method: Domain Fronting.
 [Linux] Add back support for managing DNS via NetworkManager.
 Improved LWO obfuscation.
