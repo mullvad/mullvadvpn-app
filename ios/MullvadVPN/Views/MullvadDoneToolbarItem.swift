@@ -11,6 +11,7 @@
 import SwiftUI
 
 struct MullvadDoneToolbarItem: ToolbarContent {
+    var accessibilityIdentifier: AccessibilityIdentifier? = nil
     let onDone: () -> Void
     var body: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
@@ -18,6 +19,7 @@ struct MullvadDoneToolbarItem: ToolbarContent {
                 onDone()
             }
             .foregroundStyle(Color.mullvadTextPrimary)
+            .accessibilityIdentifier(accessibilityIdentifier)
         }
         .hideLiquidGlassEffect()
     }

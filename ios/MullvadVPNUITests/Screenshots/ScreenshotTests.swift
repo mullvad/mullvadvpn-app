@@ -63,7 +63,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
             .tapLocationCellExpandButton(withName: "Sweden")
             .tapLocationCellExpandButton(withName: "Gothenburg")
             .toggleLocationCheckmarkWith(identifier: "se-got-wg-101")
-            .tapBackButton(title: customListName)
+            .tapBackButton()
 
         CustomListPage(app)
             .tapCreateListButton()

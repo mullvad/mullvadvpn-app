@@ -68,8 +68,8 @@ class EditCustomListLocationsPage: Page {
         return self
     }
 
-    @discardableResult func tapBackButton(title: String) -> Self {
-        app.navigationBars[title].buttons.firstMatch.tap()
+    @discardableResult func tapBackButton() -> Self {
+        app.navigationBars["Locations"].buttons.firstMatch.tap()
         return self
     }
 }

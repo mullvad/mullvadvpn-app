@@ -108,6 +108,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
             repository: customListRepository,
+            recentsRepository: recentConnectionsRepository,
             relaySelector: relaySelector
         )
         self.recentsInteractor = RecentsInteractor(
@@ -303,7 +304,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func delete(customList: CustomList) {
         customListInteractor.delete(customList: customList)
-        recentsInteractor.cleanup(customList.id)
         customListsChanged()
     }
 

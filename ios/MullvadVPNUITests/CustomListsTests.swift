@@ -67,7 +67,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         EditCustomListLocationsPage(app)
             .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultCountryName)
-            .tapBackButton(title: customListName)
+            .tapBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()
@@ -98,7 +98,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
             .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCityName)
             .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultRelayName)
-            .tapBackButton(title: customListName)
+            .tapBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()
@@ -127,7 +127,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
             .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultMullvadOwnedCityName)
             .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultMullvadOwnedRelayName)
-            .tapBackButton(title: customListName)
+            .tapBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()

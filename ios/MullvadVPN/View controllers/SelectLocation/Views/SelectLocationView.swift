@@ -242,9 +242,7 @@ struct SelectLocationView<ViewModel: SelectLocationViewModel>: View {
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
         .mullvadAlert(item: $multihopWarningAlert)
-        .sheet(item: $customListSheetType) {
-            viewModel.customListsChanged()
-        } content: { type in
+        .sheet(item: $customListSheetType) { type in
             CustomListRootView(viewModel: viewModel, type: type)
         }
     }

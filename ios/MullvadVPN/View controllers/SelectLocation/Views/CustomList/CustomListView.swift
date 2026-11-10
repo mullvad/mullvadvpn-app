@@ -35,7 +35,7 @@ struct CustomListView<ViewModel: CustomListViewModel>: View {
         SettingsContainerView {
             VStack(spacing: 2) {
                 SegmentedListItem(
-                    appearence: viewModel.error != nil ? .error : .normal,
+                    appearance: viewModel.error != nil ? .error : .normal,
                     leading: {
                         itemFactory
                             .leading(
@@ -101,7 +101,7 @@ struct CustomListView<ViewModel: CustomListViewModel>: View {
                     alert = .deleteCustomListAlert(
                         customListName: customList.name,
                         onDelete: {
-                            await viewModel.delete()
+                            viewModel.delete()
                             alert = nil
                             dismissSheet()
                         },
@@ -184,7 +184,7 @@ struct CustomListView<ViewModel: CustomListViewModel>: View {
             let title: LocalizedStringKey = viewModel.isNewList ? "Create" : "Save"
             Button(title) {
                 Task { @MainActor in
-                    if await viewModel.save() {
+                    if viewModel.save() {
                         dismiss()
                     }
                 }

@@ -24,7 +24,8 @@ struct CustomListRootView: View {
                     viewModel: CustomListViewModelImpl(
                         customList: nil,
                         interactor: viewModel.customListInteractor,
-                        context: viewModel.multihopContext
+                        context: viewModel.multihopContext,
+                        onDidSave: viewModel.customListsChanged
                     ),
                     isRootView: true
                 )
@@ -32,7 +33,8 @@ struct CustomListRootView: View {
                 ListCustomListsView(
                     viewModel: ListCustomListsViewModelImpl(
                         customListInteractor: viewModel.customListInteractor,
-                        multihopContext: viewModel.multihopContext
+                        multihopContext: viewModel.multihopContext,
+                        customListsChanged: viewModel.customListsChanged
                     )
                 )
             case .edit(let customList):
@@ -40,7 +42,8 @@ struct CustomListRootView: View {
                     viewModel: CustomListViewModelImpl(
                         customList: customList,
                         interactor: viewModel.customListInteractor,
-                        context: viewModel.multihopContext
+                        context: viewModel.multihopContext,
+                        onDidSave: viewModel.customListsChanged
                     ),
                     isRootView: true
                 )

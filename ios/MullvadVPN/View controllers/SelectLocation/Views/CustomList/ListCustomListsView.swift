@@ -29,7 +29,8 @@ struct ListCustomListsView: View {
                                 viewModel: CustomListViewModelImpl(
                                     customList: list,
                                     interactor: viewModel.customListInteractor,
-                                    context: viewModel.multihopContext
+                                    context: viewModel.multihopContext,
+                                    onDidSave: viewModel.customListsChanged
                                 )
                             )
                         )
@@ -52,7 +53,7 @@ struct ListCustomListsView: View {
         .navigationTitle("Edit custom list")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            MullvadDoneToolbarItem { dismiss() }
+            MullvadDoneToolbarItem(accessibilityIdentifier: .listCustomListDoneButton) { dismiss() }
         }
         .padding()
         .background(Color.mullvadBackground.ignoresSafeArea())

@@ -31,15 +31,18 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
     private let tunnelManager: SettingsUpdating
     private let repository: CustomListRepositoryProtocol
+    private let recentsRepository: RecentConnectionsRepositoryProtocol
     private let relaySelector: RelaySelectorProtocol
 
     init(
         tunnelManager: SettingsUpdating,
         repository: CustomListRepositoryProtocol,
+        recentsRepository: RecentConnectionsRepositoryProtocol,
         relaySelector: RelaySelectorProtocol
     ) {
         self.tunnelManager = tunnelManager
         self.repository = repository
+        self.recentsRepository = recentsRepository
         self.relaySelector = relaySelector
     }
 
@@ -58,6 +61,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
     func delete(customList: CustomList) {
         repository.delete(id: customList.id)
+        recentsRepository.deleteCustomList(customList.id)
         updateCustomListRelayConstraints(list: customList, action: .delete)
     }
 

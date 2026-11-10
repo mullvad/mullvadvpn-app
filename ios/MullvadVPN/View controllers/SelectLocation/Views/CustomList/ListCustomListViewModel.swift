@@ -17,6 +17,7 @@ protocol ListCustomListsViewModel {
     var customLists: [CustomList] { get }
     var customListInteractor: CustomListInteractorProtocol { get }
     var multihopContext: MultihopContext { get }
+    var customListsChanged: () -> Void { get }
 }
 
 @Observable
@@ -25,13 +26,16 @@ class ListCustomListsViewModelImpl: ListCustomListsViewModel {
 
     let customListInteractor: any CustomListInteractorProtocol
     let multihopContext: MultihopContext
+    let customListsChanged: () -> Void
 
     init(
         customListInteractor: any CustomListInteractorProtocol,
-        multihopContext: MultihopContext
+        multihopContext: MultihopContext,
+        customListsChanged: @escaping () -> Void
     ) {
         self.customListInteractor = customListInteractor
         self.multihopContext = multihopContext
+        self.customListsChanged = customListsChanged
         Task {
             self.customLists = customListInteractor.fetchAll()
         }
@@ -39,6 +43,8 @@ class ListCustomListsViewModelImpl: ListCustomListsViewModel {
 }
 
 class MockListCustomListsViewModel: ListCustomListsViewModel {
+    let customListsChanged: () -> Void = {}
+
     let customLists: [CustomList] = [
         .init(name: "List 1", locations: []),
         .init(name: "List 2", locations: []),

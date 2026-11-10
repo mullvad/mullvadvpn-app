@@ -15,7 +15,7 @@ struct SegmentedListItem<Leading: View>: View {
     var level: Int
     var isLastInList: Bool
     var userInteraction: UserInteraction
-    var appearence: SegmentedListItemAppearence
+    var appearance: SegmentedListItemAppearance
     var accessibilityIdentifier: AccessibilityIdentifier?
     var accessibilityLabel: String
     /// A `NavigationLink` destination, triggered by either tapping on the leading, or trailing view.
@@ -38,7 +38,7 @@ struct SegmentedListItem<Leading: View>: View {
         level: Int = 0,
         isLastInList: Bool = true,
         userInteraction: UserInteraction = .enabled,
-        appearence: SegmentedListItemAppearence = .normal,
+        appearance: SegmentedListItemAppearance = .normal,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leadingAndTrailingDestination: () -> any View = { EmptyView() },
@@ -52,7 +52,7 @@ struct SegmentedListItem<Leading: View>: View {
         self.level = level
         self.isLastInList = isLastInList
         self.userInteraction = userInteraction
-        self.appearence = appearence
+        self.appearance = appearance
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leadingAndTrailingDestination = leadingAndTrailingDestination().typeErase()
@@ -79,13 +79,13 @@ struct SegmentedListItem<Leading: View>: View {
                 leadingAndTrailingDestination
             } label: {
                 leading()
-                    .environment(\.segmentedListItemAppearence, appearence)
+                    .environment(\.segmentedListItemAppearance, appearance)
                 Spacer()
                 trailing
             }
         } else {
             leading()
-                .environment(\.segmentedListItemAppearence, appearence)
+                .environment(\.segmentedListItemAppearance, appearance)
             Spacer()
             trailing
         }
@@ -171,7 +171,7 @@ struct SegmentedListItem<Leading: View>: View {
             )
         )
         .overlay {
-            if appearence == .error {
+            if appearance == .error {
                 UnevenRoundedRectangle(
                     cornerRadii: .init(
                         topLeading: topRadius,
@@ -193,23 +193,23 @@ struct SegmentedListItem<Leading: View>: View {
         footer
             .padding(.horizontal, 16)
             .padding(.top, 2)
-            .environment(\.segmentedListItemAppearence, appearence)
+            .environment(\.segmentedListItemAppearance, appearance)
     }
 }
 
-enum SegmentedListItemAppearence {
+enum SegmentedListItemAppearance {
     case normal
     case error
 }
 
-private struct SegmentedListItemAppearenceKey: EnvironmentKey {
-    static let defaultValue: SegmentedListItemAppearence = .normal
+private struct SegmentedListItemAppearanceKey: EnvironmentKey {
+    static let defaultValue: SegmentedListItemAppearance = .normal
 }
 
 extension EnvironmentValues {
-    var segmentedListItemAppearence: SegmentedListItemAppearence {
-        get { self[SegmentedListItemAppearenceKey.self] }
-        set { self[SegmentedListItemAppearenceKey.self] = newValue }
+    var segmentedListItemAppearance: SegmentedListItemAppearance {
+        get { self[SegmentedListItemAppearanceKey.self] }
+        set { self[SegmentedListItemAppearanceKey.self] = newValue }
     }
 }
 
@@ -246,7 +246,7 @@ extension EnvironmentValues {
         )
 
         SegmentedListItem(
-            appearence: .error,
+            appearance: .error,
             leading: {
                 itemFactory
                     .leading(

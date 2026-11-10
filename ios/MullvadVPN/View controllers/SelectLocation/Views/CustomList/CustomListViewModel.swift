@@ -20,8 +20,8 @@ protocol CustomListViewModel: Observable, AnyObject {
     var customListName: String { set get }
     var error: CustomRelayListError? { get }
 
-    func delete() async
-    func save() async -> Bool
+    func delete()
+    func save() -> Bool
 }
 
 extension CustomListViewModel {
@@ -67,11 +67,13 @@ class CustomListViewModelImpl: CustomListViewModel {
 
     private let existingNames: [String]
     private let interactor: CustomListInteractorProtocol
+    private let onDidSave: () -> Void
 
     init(
         customList: CustomList?,
         interactor: CustomListInteractorProtocol,
-        context: MultihopContext
+        context: MultihopContext,
+        onDidSave: @escaping () -> Void
     ) {
 
         self.customListName = customList?.name ?? ""
@@ -91,6 +93,7 @@ class CustomListViewModelImpl: CustomListViewModel {
             interactor.fetchAll()
             .map(\.name)
             .filter { $0 != customList?.name }
+        self.onDidSave = onDidSave
     }
 
     private static func setupAvailableLocations(
@@ -130,6 +133,7 @@ class CustomListViewModelImpl: CustomListViewModel {
     func delete() {
         guard let customList else { return }
         interactor.delete(customList: customList)
+        onDidSave()
     }
 
     func save() -> Bool {
@@ -157,6 +161,7 @@ class CustomListViewModelImpl: CustomListViewModel {
         customList.locations = locations
         do {
             try interactor.save(list: customList)
+            onDidSave()
             return true
         } catch is CustomRelayListError {
             self.error = error
@@ -194,11 +199,11 @@ class MockCustomListViewModel: CustomListViewModel {
         self.error = error
     }
 
-    func delete() async {
+    func delete() {
 
     }
 
-    func save() async -> Bool {
+    func save() -> Bool {
         return false
     }
 

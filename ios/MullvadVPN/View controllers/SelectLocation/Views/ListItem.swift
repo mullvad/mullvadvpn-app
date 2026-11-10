@@ -16,9 +16,9 @@ struct ListItem<StatusIndicator: View>: View {
     var level: Int = 0
     var selected: Bool = false
     @ViewBuilder var statusIndicator: () -> StatusIndicator?
-    @Environment(\.segmentedListItemAppearence) var appearence
+    @Environment(\.segmentedListItemAppearance) var appearance
     private var titleColor: Color {
-        if appearence == .error {
+        if appearance == .error {
             .mullvadDangerColor
         } else if selected {
             .mullvadSuccessColor

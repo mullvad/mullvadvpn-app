@@ -37,7 +37,8 @@ struct CustomListLocationSelectionView<ViewModel: CustomListViewModel>: View {
     @Previewable @State var viewModel = CustomListViewModelImpl(
         customList: nil,
         interactor: MockCustomListInteractor(),
-        context: .exit
+        context: .exit,
+        onDidSave: {}
     )
     CustomListLocationSelectionView(
         viewModel: viewModel

@@ -229,10 +229,10 @@ struct SegmentedListItemFactory {
     func footer(for footer: Footer) -> some View {
         struct FooterItemView: View {
             let type: Footer
-            @Environment(\.segmentedListItemAppearence) var appearence
+            @Environment(\.segmentedListItemAppearance) var appearance
 
             var textColor: Color {
-                switch appearence {
+                switch appearance {
                 case .error: Color.mullvadDangerColor
                 case .normal: Color.mullvadTextPrimary
                 }
