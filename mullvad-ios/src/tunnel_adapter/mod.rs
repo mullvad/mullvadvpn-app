@@ -400,7 +400,7 @@ impl IosTunnelAdapter {
         match Self::run_inner(params, udp, &*callback, &mut rx).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(
-                TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiationError::Timeout),
+                TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiationError::Timeout(_)),
             ) => Self::fire_timeout(&stopped, &callback),
             Err(error) => Self::fire_error(&stopped, &callback, error),
         }
