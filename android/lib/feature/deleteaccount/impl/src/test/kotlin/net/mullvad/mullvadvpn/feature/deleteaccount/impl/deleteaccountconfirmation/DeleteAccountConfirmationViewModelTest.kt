@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmat
 import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.impl.log.Logger
 import io.mockk.mockk
+import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
@@ -31,7 +33,7 @@ class DeleteAccountConfirmationViewModelTest {
         runTest {
             // Arrange
             val accountData: AccountData = mockk(relaxed = true)
-            every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(4)
+            every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(3).plusHours(1)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
 
             // Act, Assert
