@@ -54,9 +54,6 @@ function main {
     "-r"|"--renew-keys")
         setup_gradle
         update_keys true
-        # First run can produce a pgp entry in among the checksums, a second run clears this out.
-        log_info "Running second time to flush out impurities"
-        update_keys false
         ;;
     "-h"|"--help")
         print_usage
