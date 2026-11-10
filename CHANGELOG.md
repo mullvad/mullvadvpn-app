@@ -42,12 +42,19 @@ Line wrap the file at 100 chars.                                              Th
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
 - Perform the ephemeral peer exchange using smoltcp.
+- Migrate Multihop modes from `on`/`off` to `never`, `when-needed` or `always`.
+- Filters are now applied separately for entry and exit location, whereas previously the filter
+  was used for both.
+- Update the Lockdown mode and Kill switch settings to better explain their purpose and where they
+  intersect and where they differ.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
 - Stop embedding a `dpkg-sig` signature in `.deb` packages. apt verifies the signature on the
   repository, not one inside the package, and the tool making these signatures has been removed
   from Debian. `.rpm` packages are still signed, since dnf does verify that signature.
+- Fix regression introduced in 2026.5 where the "Start minimized" setting disappeared from the UI.
+- Fix issue where a fractional scaling value below 100% could cause the app to scale improperly.
 
 #### Windows
 - Reuse the tunnel adapter when reconnecting instead of creating a new one every time. This saves
@@ -58,6 +65,7 @@ Line wrap the file at 100 chars.                                              Th
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
+- Fix bug where the UI was partially cut off by a few pixels on the right side.
 
 ### Removed
 #### Windows
