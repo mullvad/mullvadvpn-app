@@ -51,7 +51,7 @@ pub enum Error {
     ObtainDevices,
 }
 
-// settings are a{sa{sv}}
+/// settings are a{sa{sv}}
 pub type DeviceConfig = HashMap<String, HashMap<String, zbus::OwnedVariant>>;
 
 /// Implements functionality to control NetworkManager over DBus.
