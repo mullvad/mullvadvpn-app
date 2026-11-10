@@ -172,6 +172,10 @@ Building this requires at least 1GB of memory.
 ## Notes on options
 
 - `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
+- `--disable-update-notification` - This disables the update notification of the GUI in the Linux
+  packages. The setting is baked into the GUI at build time, replacing the runtime check of the
+  `MULLVAD_DISABLE_UPDATE_NOTIFICATION` environment variable. This is intended for packages that
+  are handled by repositories.
 
 ## Notes on targeting ARM64
 
