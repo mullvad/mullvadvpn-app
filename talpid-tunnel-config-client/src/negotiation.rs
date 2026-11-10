@@ -173,8 +173,8 @@ impl<F: UdpTransportFactory> IngressSession<F> {
         })
     }
 
-    /// Complete a handshake with the ingress relay. This waits indefinitely, since the caller may
-    /// know better when to give up, e.g. when a multiplexer runs out of transports to try.
+    /// Complete a handshake with the ingress relay. This waits indefinitely until a handshake
+    /// arrives, and returns immediately if there's already an active session.
     pub async fn handshake(&self) -> Result<(), NegotiationError> {
         force_handshake(&self.device).await
     }
