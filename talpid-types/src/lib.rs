@@ -1,4 +1,3 @@
-pub mod aligned_bytes;
 #[cfg(target_os = "android")]
 pub mod android;
 pub mod net;

@@ -9,7 +9,7 @@ use std::{
     path::{Path, PathBuf},
     ptr::{self, NonNull},
 };
-use talpid_types::{aligned_bytes::AlignedBytes, windows::LocalFreeGuard};
+use talpid_types::windows::LocalFreeGuard;
 use widestring::{U16CString, WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
@@ -265,9 +265,9 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
 }
 
 /// Wrapper for a windows security identifier ([`SID`]).
-struct Sid {
-    /// Byte buffer for the dyn-sized [`SID`] struct.
-    pub buf: AlignedBytes<SID>,
+#[repr(C, align(4))] // must be aligned to align_of::<SID>()
+pub struct Sid {
+    buf: [u8; MAX_SID_SIZE as usize],
 }
 
 impl Sid {
@@ -277,28 +277,31 @@ impl Sid {
 }
 
 /// Get a [`SID`] from a [`WELL_KNOWN_SID_TYPE`].
-fn get_well_known_sid(sid: WELL_KNOWN_SID_TYPE) -> Result<Sid> {
+fn get_well_known_sid(well_known: WELL_KNOWN_SID_TYPE) -> Result<Sid> {
     // allocate a buf for the dyn-sized SID type.
-    let mut len = MAX_SID_SIZE;
-    let mut buf = AlignedBytes::<SID>::new(len as usize);
+    const { assert!(align_of::<Sid>() == align_of::<SID>()) }
+    let mut sid = Sid {
+        buf: [0u8; MAX_SID_SIZE as usize],
+    };
+    let mut len = sid.buf.len() as u32;
 
     // SAFETY: The pointer to the PSID is owned and valid for writes of `len` bytes
     let result = unsafe {
         CreateWellKnownSid(
-            sid,
+            well_known,
             ptr::null_mut(),
-            buf.as_mut_ptr().cast::<c_void>(),
+            sid.buf.as_mut_ptr().cast::<c_void>(),
             &raw mut len,
         )
     };
     if result == 0 {
         return Err(Error::SetDirPermissionFailed(
-            format!("Could not get well-known SID: {sid:?}"),
+            format!("Could not get well-known SID: {well_known:?}"),
             io::Error::last_os_error(),
         ));
     }
 
-    Ok(Sid { buf })
+    Ok(sid)
 }
 
 /// Get the DACL of a file. [Read more](get_file_security_descriptor)
