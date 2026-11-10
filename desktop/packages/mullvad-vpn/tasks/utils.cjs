@@ -56,8 +56,8 @@ async function removeRecursively(path) {
   });
 }
 
-async function runNpmScript(scriptName) {
-  const command = `npm run ${scriptName}`;
+async function runNpmScript(scriptName, args = []) {
+  const command = `npm run ${scriptName} ${args.join(' ')}`.trim();
 
   try {
     await runCommand(command);

@@ -35,6 +35,7 @@ startup.exit = async () => {
 
 const MAIN = process.env.NODE_ENV === 'test' ? 'test/e2e/setup/main.ts' : 'src/main/index.ts';
 const OUT_DIR = 'build';
+const DISABLE_UPDATE_NOTIFICATION = process.argv.includes('--disable-update-notification');
 
 const viteConfig = defineConfig({
   define: {
@@ -75,6 +76,10 @@ const viteConfig = defineConfig({
           // replace the references in the production build with the string value.
           define: {
             'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
+            // Disable update notifications always if disabled at build-time.
+            ...(DISABLE_UPDATE_NOTIFICATION && {
+              'process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION': '"1"',
+            }),
           },
           build: {
             outDir: OUT_DIR,
