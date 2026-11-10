@@ -34,7 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update LWO to improved v2 protocol.
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
 - Move notification permission request dialog prompt to the connect screen.
-- Improve how the quick settings tile show the connection state.
+- Improve how the quick settings tile shows the connection state.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
