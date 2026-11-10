@@ -228,11 +228,11 @@ impl NetworkManagerConnection {
     /// Enabled NetworkManager's connectivity check. Fails silently.
     pub async fn enable_connectivity_check(&self) -> zbus::Result<()> {
         let nm = NetworkManagerProxy::new(&self.connection).await?;
-
-        if let Err(err) = nm.set_connectivity_check_enabled(true).await {
+        let result = nm.set_connectivity_check_enabled(true).await;
+        if let Err(err) = result.as_ref() {
             log::error!("Failed to reset NetworkManager connectivity check: {}", err);
         }
-        Ok(())
+        result
     }
 
     pub async fn ensure_network_manager_exists(&self) -> Result<(), Error> {
