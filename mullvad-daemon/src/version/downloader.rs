@@ -136,7 +136,7 @@ where
 async fn create_download_dir() -> Result<PathBuf> {
     let download_dir = mullvad_paths::cache_dir()?.join("mullvad-update");
     log::trace!("Download directory: {download_dir:?}");
-    fs::create_dir_all(&download_dir)
+    fs::create_dir(&download_dir)
         .await
         .map_err(Error::CreateDownloadDir)?;
     Ok(download_dir)
