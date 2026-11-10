@@ -1,15 +1,34 @@
-use crate::Result;
+use crate::{Result, UserPermissions};
 use std::{env, path::PathBuf};
+
+/// Permissions of the cache directory.
+const PERMISSIONS: UserPermissions = UserPermissions {
+    read: true,
+    write: false,
+    execute: true,
+};
 
 /// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
 /// one if that variable is unset.
+#[cfg(not(windows))]
 pub fn cache_dir() -> Result<PathBuf> {
-    let permissions = Some(crate::UserPermissions {
-        read: true,
-        write: false,
-        execute: true,
-    });
-    crate::create_dir(get_cache_dir()?, permissions)
+    crate::create_dir(get_cache_dir()?, Some(PERMISSIONS))
+}
+
+/// Creates and returns the cache directory pointed to by `MULLVAD_CACHE_DIR`, or the default
+/// one if that variable is unset.
+#[cfg(windows)]
+pub fn cache_dir() -> Result<PathBuf> {
+    use std::fs;
+    if let Some(path) = env::var_os("MULLVAD_CACHE_DIR") {
+        let path = PathBuf::from(path);
+        return crate::windows::create_dir(path, Some(PERMISSIONS));
+    }
+
+    let path = crate::windows::data_dir()?.join("cache");
+    fs::create_dir(&path)
+        .map_err(|e| crate::Error::CreateDirFailed(format!("Failed to create {path:?}"), e))?;
+    Ok(path)
 }
 
 pub fn get_cache_dir() -> Result<PathBuf> {
@@ -27,10 +46,7 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 pub fn get_default_cache_dir() -> Result<PathBuf> {
-    let dir = crate::windows::get_allusersprofile_dir()?
-        .join(crate::PRODUCT_NAME)
-        .join("cache");
-    Ok(dir)
+    Ok(crate::windows::get_data_dir()?.join("cache"))
 }
 
 #[cfg(target_os = "macos")]

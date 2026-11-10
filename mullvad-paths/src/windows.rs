@@ -25,16 +25,18 @@ use windows_sys::{
                 TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
-            LUID_AND_ATTRIBUTES, LookupPrivilegeValueW, NO_INHERITANCE, RevertToSelf,
-            SE_PRIVILEGE_ENABLED, SID, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
-            TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
-            TOKEN_QUERY, TOKEN_USER, TokenUser, WELL_KNOWN_SID_TYPE, WinAuthenticatedUserSid,
-            WinBuiltinAdministratorsSid, WinLocalSystemSid,
+            InitializeSecurityDescriptor, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
+            NO_INHERITANCE, RevertToSelf, SE_PRIVILEGE_ENABLED, SECURITY_ATTRIBUTES,
+            SECURITY_DESCRIPTOR, SID, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
+            SetSecurityDescriptorDacl, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
+            TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER, TokenUser, WELL_KNOWN_SID_TYPE,
+            WinAuthenticatedUserSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
         },
-        Storage::FileSystem::MAX_SID_SIZE,
+        Storage::FileSystem::{CreateDirectoryW, MAX_SID_SIZE},
         System::{
             Com::CoTaskMemFree,
             ProcessStatus::EnumProcesses,
+            SystemServices::SECURITY_DESCRIPTOR_REVISION,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
                 PROCESS_QUERY_INFORMATION,
@@ -49,6 +51,44 @@ use windows_sys::{
 
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
 
+/// Get the path to the daemon data directory, creating it if it doesn't exist.
+///
+/// The following permissions are enforced:
+/// - The directory is NOT writeable by anyone other than SYSTEM.
+/// - The directory is readable & executable by any authenticated user.
+///
+/// # Errors
+/// This functions returns `Err`:
+/// - A syscall unexpectedly errors.
+/// - If the directory exists, but has unexpected permissions.
+pub fn data_dir() -> Result<PathBuf> {
+    let path = get_data_dir()?;
+
+    let acl = build_acl(UserPermissions {
+        read: true,
+        write: false, // no write-access for normal users
+        execute: true,
+    })?;
+
+    // We assume that allusersprofile_dir exists
+    match create_dir_with_acl(&path, &acl) {
+        Ok(()) => (),
+        Err(Error::CreateDirFailed(_, src)) if src.kind() == io::ErrorKind::AlreadyExists => {
+            todo!("check if permissions of existing folder are acceptable")
+        }
+        Err(e) => return Err(e),
+    }
+
+    Ok(path)
+}
+
+/// Get the path to the daemon data directory in `C:\ProgramData`.
+///
+/// Use [`data_dir`] if you intend to access this directory for any reason.
+pub fn get_data_dir() -> Result<PathBuf> {
+    Ok(get_allusersprofile_dir()?.join(PRODUCT_NAME))
+}
+
 pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     match std::env::var_os("ALLUSERSPROFILE") {
         Some(dir) => Ok(PathBuf::from(&dir)),
@@ -56,8 +96,78 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-/// This recursively creates directories, if `user_permissions` is Some they will be set for the
-/// Authenticated Users group. Only directories that do not already exist and the leaf directory
+/// Create a directory with a specified access control list.
+///
+/// Will return [`io::ErrorKind::AlreadyExists`] if the directory already exists,
+/// in this case the existing directory's ACL will be **unchanged**.
+fn create_dir_with_acl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Result<()> {
+    let wpath = U16CString::from_os_str(path)?;
+
+    let mut security_descriptor = SECURITY_DESCRIPTOR::default();
+
+    // SAFETY: This function is trivially safe.
+    let success = unsafe {
+        InitializeSecurityDescriptor(
+            (&raw mut security_descriptor).cast::<c_void>(),
+            SECURITY_DESCRIPTOR_REVISION,
+        )
+    };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("InitializeSecurityDescriptor(...)"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    // SAFETY: security_descriptor has been initialized. ACL is valid.
+    // SAFETY: TODO: ACL members must be in "abolute format" (pointers, not offsets). How do we know whether this is the case?
+    let success = unsafe {
+        SetSecurityDescriptorDacl(
+            (&raw mut security_descriptor).cast::<c_void>(),
+            true.into(), // DACL is present
+            acl.as_ptr(),
+            false.into(), // DACL is not defaulted; it's user-specfied
+        )
+    };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("SetSecurityDescriptorDacl(...)"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    // TODO: is SetSecurityDescriptorOwner interesting?
+    // TODO: is SetSecurityDescriptorGroup interesting?
+    // TODO: is SetSecurityDescriptorRMControl interesting?
+    // TODO: is SetSecurityDescriptorSacl interesting?
+
+    let attrs = SECURITY_ATTRIBUTES {
+        nLength: size_of::<SECURITY_ATTRIBUTES>() as u32,
+        lpSecurityDescriptor: (&raw mut security_descriptor).cast::<c_void>(),
+        bInheritHandle: false.into(),
+    };
+
+    // SAFETY: TODO:
+    let success = unsafe { CreateDirectoryW(wpath.as_ptr(), &raw const attrs) };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("CreateDirectoryW({path:?})"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    Ok(())
+}
+
+/// Create a directory at `path`.
+///
+/// Parent directories are created as-needed.
+/// If `user_permissions` is None, directory permissions are inherited from their parent.
+/// If `user_permissions` is Some, the directory is configured as:
+/// - Full access by SYSTEM
+/// - Limited access according to `user_permissions` by any authenticated user.
+///
+/// Only directories that do not already exist and the leaf directory
 /// will have their permissions set.
 pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> Result<PathBuf> {
     if let Some(user_permissions) = user_permissions {
