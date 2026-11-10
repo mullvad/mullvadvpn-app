@@ -23,7 +23,6 @@ export function AccordionHeaderTrigger({ children, ...props }: AccordionHeaderTr
       id={triggerId}
       aria-labelledby={titleId}
       aria-controls={contentId}
-      aria-expanded={expanded ? 'true' : 'false'}
       onClick={onClick}
       {...props}>
       {children}
