@@ -222,9 +222,10 @@ pub async fn run_multiplexer(
 
     log::debug!("Selected obfuscation: {:?}", selected.config);
 
-    // The multiplexer only verifies `mac1`. Add a timeout here too in case gotatun rejects the
-    // handshake response. `ephemeral::handshake` will not return if the handshake is
-    // invalid.
+    // `ephemeral::handshake` will not return if the handshake is invalid. The multiplexer verifies
+    // the handshake, but only using the `mac1` field. If it is valid but the entire handshake is
+    // not, `ephemeral::handshake` would hang indefinitely, so we add a timeout here to prevent
+    // that.
     let session = tokio::time::timeout(std::time::Duration::from_secs(5), handshake)
         .await
         .map_err(|_| {
