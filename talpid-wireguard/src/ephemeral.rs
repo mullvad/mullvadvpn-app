@@ -18,9 +18,12 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
-const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
-const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
+/// How long the TCP handshake with a config service may take, and how long the connection may
+/// then go without receiving anything.
+const TCP_TIMEOUT: Duration = Duration::from_secs(4);
+/// How often to probe an idle TCP connection to a config service, so that the relay keeps sending
+/// something while it prepares a response, and [`TCP_TIMEOUT`] only fires if the relay is gone.
+const TCP_KEEP_ALIVE: Duration = Duration::from_secs(1);
 
 /// A WireGuard session with the ingress relay.
 pub type IngressSession = negotiation::IngressSession<TransportFactory>;
@@ -47,27 +50,12 @@ pub async fn open_ingress_session(
         .map_err(|error| CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)))
 }
 
-/// Complete a handshake with the ingress relay through `session`.
-pub async fn handshake(
-    session: &IngressSession,
-    config: &Config,
-    retry_attempt: u32,
-) -> Result<(), CloseMsg> {
-    let negotiation_config = negotiation_config(config, retry_attempt)?;
+/// Complete a handshake with the ingress relay through `session`. This waits indefinitely.
+pub async fn handshake(session: &IngressSession) -> Result<(), CloseMsg> {
     session
-        .handshake(&negotiation_config)
+        .handshake()
         .await
-        .map_err(|error| match error {
-            NegotiationError::Timeout => {
-                log::warn!(
-                    "Timeout while completing a handshake with the ingress relay (retry {retry_attempt}, \
-                     handshake timeout {:?})",
-                    negotiation_config.handshake_timeout,
-                );
-                CloseMsg::PingErr
-            }
-            error => CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)),
-        })
+        .map_err(|error| CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)))
 }
 
 /// Negotiate ephemeral peers with the relays in `config`, starting with the ingress relay, which
@@ -99,12 +87,10 @@ pub async fn negotiate_ephemeral_peers(
     )
     .await
     .map_err(|error| match error {
-        NegotiationError::Timeout => {
+        NegotiationError::Timeout(_) => {
             log::warn!(
                 "Timeout while negotiating ephemeral peers \
-                 (retry {retry_attempt}, timeout {:?}, \
-                 handshake timeout {:?}, PQ={}, DAITA={})",
-                negotiation_config.timeout,
+                 (retry {retry_attempt}, handshake timeout {:?}, PQ={}, DAITA={})",
                 negotiation_config.handshake_timeout,
                 negotiate.post_quantum,
                 negotiate.daita,
@@ -146,21 +132,14 @@ fn negotiation_config(config: &Config, retry_attempt: u32) -> Result<Negotiation
         config_service_ip: config.ipv4_gateway,
         relays: relays(config),
         ingress_timer_params: (lwo_version(config) == Some(LwoVersion::V2)).then(lwo_timer_params),
-        timeout: psk_exchange_timeout(retry_attempt),
+        // A stalled exchange is caught by the TCP timeout.
+        timeout: None,
         handshake_timeout,
-        tcp_timeout: Some(handshake_timeout),
+        tcp_timeout: Some(TCP_TIMEOUT),
+        tcp_keep_alive: Some(TCP_KEEP_ALIVE),
         // `Config` has a single private key, since some tunnels use one device for multihop.
         separate_exit_key: false,
     })
-}
-
-/// How long to wait for a config service to respond, on attempt `retry_attempt` to connect.
-fn psk_exchange_timeout(retry_attempt: u32) -> Duration {
-    std::cmp::min(
-        MAX_PSK_EXCHANGE_TIMEOUT,
-        INITIAL_PSK_EXCHANGE_TIMEOUT
-            .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
-    )
 }
 
 /// The relays of `config` to negotiate ephemeral peers with.

@@ -130,7 +130,7 @@ impl TunnelCallbackHandler for CallbackBridge {
             | TunnelError::RebindUdpSocket(_)
             | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
             TunnelError::NegotiatePQError(
-                NegotiationError::Exchange(_) | NegotiationError::Timeout,
+                NegotiationError::Exchange(_) | NegotiationError::Timeout(_),
             ) => GotaTunFfiError::PQNegotiation(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };

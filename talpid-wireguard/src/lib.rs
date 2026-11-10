@@ -17,6 +17,7 @@ use std::{
     net::IpAddr,
     path::Path,
     sync::{Arc, mpsc as sync_mpsc},
+    time::Duration,
 };
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
@@ -80,11 +81,6 @@ pub enum Error {
     #[error("Tunnel obfuscation failed")]
     ObfuscationError(#[source] tunnel_obfuscation::Error),
 
-    /// Failed to determine which obfuscator the multiplexer settled on. Without it, the firewall
-    /// cannot be restricted to the endpoint that is actually in use.
-    #[error("Failed to determine the selected obfuscator")]
-    UnknownSelectedObfuscator,
-
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
     ConnectivityMonitorError(#[source] connectivity::Error),
@@ -106,7 +102,6 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::ObfuscationError(_) => true,
-            Error::UnknownSelectedObfuscator => true,
             Error::EphemeralPeerNegotiationError(_) => true,
             Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
@@ -161,6 +156,11 @@ static FORCE_KERNEL_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::
         .map(|v| v != "0")
         .unwrap_or(false)
 });
+
+/// How long connecting to the ingress relay may take. Individual steps have their own timeouts.
+/// The outer timeout is the total timeout for all steps (WG handshakes, multiplexer selection,
+/// and ephemeral peer exchanges).
+const INGRESS_CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
@@ -230,7 +230,17 @@ impl WireguardMonitor {
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
 
-            let connection = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            let connection = tokio::time::timeout(
+                INGRESS_CONNECT_TIMEOUT,
+                connect_to_ingress(config, args.retry_attempt, &bypass),
+            )
+            .await
+            .unwrap_or_else(|_| {
+                log::warn!(
+                    "Failed to connect to the ingress relay within {INGRESS_CONNECT_TIMEOUT:?}"
+                );
+                Err(CloseMsg::EphemeralPeerNegotiationTimeout)
+            })?;
             let endpoint_addr = connection.endpoint_addr();
             let IngressConnection {
                 mut config,
@@ -493,7 +503,17 @@ impl WireguardMonitor {
                 obfuscation,
                 selected_obfuscation,
                 daita,
-            } = connect_to_ingress(config, args.retry_attempt, &bypass).await?;
+            } = tokio::time::timeout(
+                INGRESS_CONNECT_TIMEOUT,
+                connect_to_ingress(config, args.retry_attempt, &bypass),
+            )
+            .await
+            .unwrap_or_else(|_| {
+                log::warn!(
+                    "Failed to connect to the ingress relay within {INGRESS_CONNECT_TIMEOUT:?}"
+                );
+                Err(CloseMsg::EphemeralPeerNegotiationTimeout)
+            })?;
 
             let gotatun = gotatun::start_gotatun(
                 tun,

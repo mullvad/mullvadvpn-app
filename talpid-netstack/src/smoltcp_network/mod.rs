@@ -80,6 +80,7 @@ pub fn smoltcp_network(
         cmd_tx,
         notify: notify.clone(),
         timeout: None,
+        keep_alive: None,
         log_stats_on_drop: false,
     };
 
@@ -111,6 +112,7 @@ pub struct SmoltcpHandle {
     cmd_tx: mpsc::Sender<SocketCmd>,
     notify: Arc<Notify>,
     timeout: Option<Duration>,
+    keep_alive: Option<Duration>,
     log_stats_on_drop: bool,
 }
 
@@ -122,12 +124,12 @@ impl SmoltcpHandle {
     /// flushed once the connection is established.
     pub async fn tcp_connect(self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
         let (tx, rx) = oneshot::channel();
-        let timeout = self.timeout;
         self.cmd_tx
             .send(SocketCmd::TcpConnect {
                 addr,
                 response: tx,
-                timeout,
+                timeout: self.timeout,
+                keep_alive: self.keep_alive,
             })
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop closed"))?;
@@ -144,6 +146,12 @@ impl SmoltcpHandle {
     /// See [`smoltcp::socket::tcp::Socket::set_timeout`].
     pub fn set_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.timeout = timeout;
+        self
+    }
+
+    /// See [`smoltcp::socket::tcp::Socket::set_keep_alive`].
+    pub fn set_keep_alive(mut self, interval: Option<Duration>) -> Self {
+        self.keep_alive = interval;
         self
     }
 
