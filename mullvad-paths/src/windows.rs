@@ -54,7 +54,7 @@ pub const PRODUCT_NAME: &str = "Mullvad VPN";
 /// Get the path to the daemon data directory, creating it if it doesn't exist.
 ///
 /// The following permissions are enforced:
-/// - The directory is NOT writeable by anyone other than SYSTEM.
+/// - The directory is NOT writable by anyone other than SYSTEM.
 /// - The directory is readable & executable by any authenticated user.
 ///
 /// # Errors
