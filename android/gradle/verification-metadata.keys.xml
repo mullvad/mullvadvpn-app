@@ -22,9 +22,13 @@
       </trusted-artifacts>
       <ignored-keys>
          <ignored-key id="36AB7ACFFF2027B1" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="5E1F79A7C298661E" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="5E975CB00C643DBF" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="6CCC36CC6C69FC17" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="8DC6F3D0ABDBD017" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="AADF2C18DCF95764" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="BFFC9B54721244AD" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="EE92349AD86DE446" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="04543577D6A9CC626239C50C7ECBD740FF06AEB5">
