@@ -126,7 +126,7 @@ fn create_dir_with_acl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Resu
             (&raw mut security_descriptor).cast::<c_void>(),
             true.into(), // DACL is present
             acl.as_ptr(),
-            false.into(), // DACL is not defaulted; it's user-specfied
+            false.into(), // DACL is not defaulted; it's user-specified
         )
     };
     if success == 0 {
