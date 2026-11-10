@@ -181,10 +181,8 @@ impl NetworkManagerConnection {
             let new_state = state.new_state;
             if device_is_ready(new_state) {
                 return Ok(());
-            } else {
-                if Instant::now() >= deadline {
-                    return Err(Error::DeviceNotReady(new_state));
-                }
+            } else if Instant::now() >= deadline {
+                return Err(Error::DeviceNotReady(new_state));
             }
         }
 
