@@ -14,11 +14,6 @@
 //! * filters are sorted, as are the conditions within a filter: neither WFP
 //!   nor the firewall semantics assign meaning to their order,
 //! * the `filterId` (a runtime LUID) is omitted entirely.
-//!
-//! The WFP API hands out objects whose strings and condition values live in
-//! engine-owned memory, valid only until `FwpmFreeMemory0`. Everything is
-//! therefore deep-copied into owned types while that memory is alive, and
-//! rendered afterwards from the copies.
 
 use std::{
     fmt::Write as _,
@@ -32,13 +27,14 @@ use windows_sys::Win32::Foundation::{ERROR_SUCCESS, HANDLE};
 use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToAlias;
 use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::{
-    FWP_ACTION_PERMIT, FWP_BYTE_BLOB_TYPE, FWP_EMPTY, FWP_RANGE_TYPE, FWP_SECURITY_DESCRIPTOR_TYPE,
-    FWP_SID, FWP_TOKEN_ACCESS_INFORMATION_TYPE, FWP_TOKEN_INFORMATION_TYPE,
-    FWP_UNICODE_STRING_TYPE, FWP_V4_ADDR_MASK, FWP_V6_ADDR_MASK, FWPM_FILTER0, FWPM_PROVIDER0,
-    FWPM_SUBLAYER0, FwpmFilterCreateEnumHandle0, FwpmFilterDestroyEnumHandle0, FwpmFilterEnum0,
-    FwpmFreeMemory0, FwpmProviderCreateEnumHandle0, FwpmProviderDestroyEnumHandle0,
-    FwpmProviderEnum0, FwpmSubLayerCreateEnumHandle0, FwpmSubLayerDestroyEnumHandle0,
-    FwpmSubLayerEnum0,
+    FWP_ACTION_PERMIT, FWP_BYTE_BLOB_TYPE, FWP_CONDITION_VALUE0, FWP_EMPTY, FWP_RANGE_TYPE,
+    FWP_SECURITY_DESCRIPTOR_TYPE, FWP_SID, FWP_TOKEN_ACCESS_INFORMATION_TYPE,
+    FWP_TOKEN_INFORMATION_TYPE, FWP_UNICODE_STRING_TYPE, FWP_V4_ADDR_MASK, FWP_V6_ADDR_MASK,
+    FWP_VALUE0, FWPM_DISPLAY_DATA0, FWPM_FILTER_ENUM_TEMPLATE0, FWPM_FILTER0,
+    FWPM_PROVIDER_ENUM_TEMPLATE0, FWPM_PROVIDER0, FWPM_SUBLAYER_ENUM_TEMPLATE0, FWPM_SUBLAYER0,
+    FwpmFilterCreateEnumHandle0, FwpmFilterDestroyEnumHandle0, FwpmFilterEnum0, FwpmFreeMemory0,
+    FwpmProviderCreateEnumHandle0, FwpmProviderDestroyEnumHandle0, FwpmProviderEnum0,
+    FwpmSubLayerCreateEnumHandle0, FwpmSubLayerDestroyEnumHandle0, FwpmSubLayerEnum0,
 };
 
 use talpid_winfw::guids::{
@@ -46,6 +42,7 @@ use talpid_winfw::guids::{
     known_object_name,
 };
 use wfp::FilterEngineBuilder;
+use widestring::U16CStr;
 
 // ---------------------------------------------------------------------------
 // Owned copies of the WFP objects
@@ -78,7 +75,7 @@ struct OwnedFilter {
     provider: Option<wfp::Guid>,
     action: u32,
     flags: u32,
-    weight: OwnedWeight,
+    weight: OwnedScalar,
     conditions: Vec<OwnedCondition>,
 }
 
@@ -87,15 +84,6 @@ struct OwnedCondition {
     field: wfp::Guid,
     match_type: i32,
     value: OwnedValue,
-}
-
-#[derive(Clone)]
-enum OwnedWeight {
-    Auto,
-    Class(u8),
-    RawU64(u64),
-    RawU32(u32),
-    Other(i32),
 }
 
 #[derive(Clone)]
@@ -121,6 +109,7 @@ enum OwnedValue {
 
 #[derive(Clone)]
 enum OwnedScalar {
+    Empty,
     U8(u8),
     U16(u16),
     U32(u32),
@@ -144,9 +133,9 @@ fn check(status: u32) -> io::Result<()> {
 pub fn dump() -> io::Result<String> {
     let mut output = String::new();
 
-    let providers = enumerate_providers()?;
-    let sublayers = enumerate_sublayers()?;
-    let filters = enumerate_filters()?;
+    let providers = enumerate_objects::<FWPM_PROVIDER0>()?;
+    let sublayers = enumerate_objects::<FWPM_SUBLAYER0>()?;
+    let filters = enumerate_objects::<FWPM_FILTER0>()?;
 
     let mut ours: Vec<String> = providers
         .iter()
@@ -315,13 +304,15 @@ fn condition_field_name(guid: wfp::Guid) -> String {
 }
 
 /// Render the weight of a filter: a weight class (u8), or a raw value.
-fn render_weight(weight: &OwnedWeight) -> String {
+fn render_weight(weight: &OwnedScalar) -> String {
+    use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::FWP_UINT16;
     match weight {
-        OwnedWeight::Auto => "auto".to_owned(),
-        OwnedWeight::Class(class) => format!("class:{class}"),
-        OwnedWeight::RawU64(value) => format!("raw:{value}"),
-        OwnedWeight::RawU32(value) => format!("raw:{value}"),
-        OwnedWeight::Other(other) => format!("unhandled-type:{other}"),
+        OwnedScalar::Empty => "auto".to_owned(),
+        OwnedScalar::U8(class) => format!("class:{class}"),
+        OwnedScalar::U32(value) => format!("raw:{value}"),
+        OwnedScalar::U64(value) => format!("raw:{value}"),
+        OwnedScalar::U16(_) => format!("unhandled-type:{FWP_UINT16}"),
+        OwnedScalar::Unknown(other) => format!("unhandled-type:{other}"),
     }
 }
 
@@ -386,25 +377,14 @@ fn render_value(value: &OwnedValue) -> String {
             format!("ba16:{addr}")
         }
         OwnedValue::ByteBlob(data) => {
-            // The blob holds a device path. It is UTF-16 when every second
-            // byte is zero or part of a valid code point, else raw bytes.
-            let mut text = if data.len() % 2 == 0 && data.iter().skip(1).step_by(2).all(|b| *b == 0)
-            {
-                String::from_utf16_lossy(
-                    &data
-                        .chunks_exact(2)
-                        .take_while(|c| !(c[0] == 0 && c[1] == 0))
-                        .map(|c| u16::from_le_bytes([c[0], c[1]]))
-                        .collect::<Vec<_>>(),
-                )
-            } else {
-                data.iter()
-                    .take_while(|b| **b != 0)
-                    .map(|b| *b as char)
-                    .collect::<String>()
-            };
-            // The volume number in a device path differs between machines and
-            // boots: normalize it away.
+            // The only blobs are app IDs, null-terminated UTF-16 device paths.
+            let wide: Vec<u16> = data
+                .chunks_exact(2)
+                .map(|c| u16::from_le_bytes([c[0], c[1]]))
+                .collect();
+            let mut text = U16CStr::from_slice_truncate(&wide)
+                .expect("app ID must be null-terminated")
+                .to_string_lossy();
             normalize_volume(&mut text);
             format!("app:{text}")
         }
@@ -424,6 +404,7 @@ fn render_value(value: &OwnedValue) -> String {
 
 fn render_scalar(value: &OwnedScalar) -> String {
     match value {
+        OwnedScalar::Empty => format!("value-type?:{FWP_EMPTY}"),
         OwnedScalar::U8(value) => format!("u8:{value}"),
         OwnedScalar::U16(value) => format!("u16:{value}"),
         OwnedScalar::U32(value) => format!("u32:{value}"),
@@ -480,194 +461,163 @@ fn render_luid(luid: u64) -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Copying WFP objects into owned types
+// Copying enumerated objects
 // ---------------------------------------------------------------------------
 
-/// Read a null-terminated wide string. The pointer is only read, never stored.
+/// Read a null-terminated wide string, or an empty one if `string` is null.
+///
+/// # Safety
+///
+/// If `string` is non-null, it must point to a valid null-terminated string.
 unsafe fn pwstr_to_string(string: windows_sys::core::PWSTR) -> String {
     if string.is_null() {
         return String::new();
     }
-    let mut len = 0usize;
-    // SAFETY: the caller guarantees the string is null-terminated and valid.
-    while unsafe { *string.add(len) } != 0 {
-        len += 1;
-    }
-    // SAFETY: `len` characters, all valid.
-    String::from_utf16_lossy(unsafe { std::slice::from_raw_parts(string, len) })
+    // SAFETY: `string` is non-null and null-terminated.
+    unsafe { U16CStr::from_ptr_str(string) }.to_string_lossy()
 }
 
-unsafe fn copy_weight(
-    weight: &windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::FWP_VALUE0,
-) -> OwnedWeight {
+/// Borrow `len` elements at `data` as a slice, or an empty one if `data` is
+/// null.
+///
+/// # Safety
+///
+/// If `data` is non-null, it must point to `len` initialized elements that
+/// stay valid and unmodified for `'a`.
+unsafe fn slice_or_empty<'a, T>(data: *const T, len: usize) -> &'a [T] {
+    if data.is_null() || len == 0 {
+        &[]
+    } else {
+        // SAFETY: see the safety comment on this function.
+        unsafe { std::slice::from_raw_parts(data, len) }
+    }
+}
+
+/// Copy the name and description of an object.
+///
+/// # Safety
+///
+/// The strings in `display_data` must be null-terminated and valid, or null.
+unsafe fn copy_display_data(display_data: &FWPM_DISPLAY_DATA0) -> (String, String) {
+    (
+        // SAFETY: `display_data` contains valid strings.
+        unsafe { pwstr_to_string(display_data.name) },
+        // SAFETY: `display_data` contains valid strings.
+        unsafe { pwstr_to_string(display_data.description) },
+    )
+}
+
+/// Copy an unsigned integer value.
+///
+/// # Safety
+///
+/// The field of `value.Anonymous` selected by `value.r#type` must be
+/// initialized, and if it is a pointer, it must be valid.
+unsafe fn copy_scalar(value: &FWP_VALUE0) -> OwnedScalar {
     use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform as wfp_sys;
-    // SAFETY: the union is only read from the variant given by `r#type`.
-    unsafe {
-        match weight.r#type {
-            FWP_EMPTY => OwnedWeight::Auto,
-            wfp_sys::FWP_UINT8 => OwnedWeight::Class(weight.Anonymous.uint8),
-            wfp_sys::FWP_UINT32 => OwnedWeight::RawU32(weight.Anonymous.uint32),
-            wfp_sys::FWP_UINT64 => OwnedWeight::RawU64(*weight.Anonymous.uint64),
-            other => OwnedWeight::Other(other),
-        }
+    let tag = value.r#type;
+    let value = &value.Anonymous;
+    match tag {
+        FWP_EMPTY => OwnedScalar::Empty,
+        // SAFETY: `uint8` is the field selected by the tag.
+        wfp_sys::FWP_UINT8 => OwnedScalar::U8(unsafe { value.uint8 }),
+        // SAFETY: `uint16` is the field selected by the tag.
+        wfp_sys::FWP_UINT16 => OwnedScalar::U16(unsafe { value.uint16 }),
+        // SAFETY: `uint32` is the field selected by the tag.
+        wfp_sys::FWP_UINT32 => OwnedScalar::U32(unsafe { value.uint32 }),
+        // SAFETY: `uint64` is the field selected by the tag, a valid pointer.
+        wfp_sys::FWP_UINT64 => OwnedScalar::U64(unsafe { *value.uint64 }),
+        other => OwnedScalar::Unknown(other),
     }
 }
 
-unsafe fn copy_scalar(
-    value: &windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::FWP_VALUE0,
-) -> OwnedScalar {
-    use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform as wfp_sys;
-    // SAFETY: the union is only read from the variant given by `r#type`.
-    unsafe {
-        match value.r#type {
-            wfp_sys::FWP_UINT8 => OwnedScalar::U8(value.Anonymous.uint8),
-            wfp_sys::FWP_UINT16 => OwnedScalar::U16(value.Anonymous.uint16),
-            wfp_sys::FWP_UINT32 => OwnedScalar::U32(value.Anonymous.uint32),
-            wfp_sys::FWP_UINT64 => OwnedScalar::U64(*value.Anonymous.uint64),
-            other => OwnedScalar::Unknown(other),
-        }
-    }
-}
-
-unsafe fn copy_condition_value(
-    value: &windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform::FWP_CONDITION_VALUE0,
-) -> OwnedValue {
+/// Copy the value of a condition.
+///
+/// # Safety
+///
+/// The field of `value.Anonymous` selected by `value.r#type` must be
+/// initialized, and if it is a pointer, it must be valid or null. Strings
+/// must be null-terminated.
+unsafe fn copy_condition_value(value: &FWP_CONDITION_VALUE0) -> OwnedValue {
     use windows_sys::Win32::NetworkManagement::WindowsFilteringPlatform as wfp_sys;
 
-    // SAFETY: the union is only read from the variant given by `r#type`, and
-    // everything read from it is copied while the engine memory is valid.
-    unsafe {
-        match value.r#type {
-            FWP_EMPTY => OwnedValue::Empty,
-            wfp_sys::FWP_UINT8 => OwnedValue::U8(value.Anonymous.uint8),
-            wfp_sys::FWP_UINT16 => OwnedValue::U16(value.Anonymous.uint16),
-            wfp_sys::FWP_UINT32 => OwnedValue::U32(value.Anonymous.uint32),
-            wfp_sys::FWP_UINT64 => OwnedValue::U64(*value.Anonymous.uint64),
-            wfp_sys::FWP_INT8 => OwnedValue::I8(value.Anonymous.int8),
-            wfp_sys::FWP_INT16 => OwnedValue::I16(value.Anonymous.int16),
-            wfp_sys::FWP_INT32 => OwnedValue::I32(value.Anonymous.int32),
-            wfp_sys::FWP_INT64 => OwnedValue::I64(*value.Anonymous.int64),
-            wfp_sys::FWP_FLOAT | wfp_sys::FWP_DOUBLE => OwnedValue::Opaque("float"),
-            wfp_sys::FWP_BYTE_ARRAY16_TYPE => {
-                let array = value.Anonymous.byteArray16;
-                if array.is_null() {
-                    OwnedValue::Opaque("<ba16:null>")
-                } else {
-                    OwnedValue::ByteArray16((*array).byteArray16)
-                }
-            }
-            FWP_BYTE_BLOB_TYPE => {
-                let blob = value.Anonymous.byteBlob;
-                if blob.is_null() {
-                    OwnedValue::Opaque("<blob:null>")
-                } else {
-                    OwnedValue::ByteBlob(
-                        std::slice::from_raw_parts((*blob).data, (*blob).size as usize).to_vec(),
-                    )
-                }
-            }
-            FWP_V4_ADDR_MASK => {
-                let addr_mask = value.Anonymous.v4AddrMask;
-                if addr_mask.is_null() {
-                    OwnedValue::Opaque("<v4:null>")
-                } else {
-                    OwnedValue::V4Mask {
-                        addr: (*addr_mask).addr,
-                        mask: (*addr_mask).mask,
-                    }
-                }
-            }
-            FWP_V6_ADDR_MASK => {
-                let addr_mask = value.Anonymous.v6AddrMask;
-                if addr_mask.is_null() {
-                    OwnedValue::Opaque("<v6:null>")
-                } else {
-                    OwnedValue::V6Mask {
-                        addr: (*addr_mask).addr,
-                        prefix: (*addr_mask).prefixLength,
-                    }
-                }
-            }
-            FWP_RANGE_TYPE => {
-                let range = value.Anonymous.rangeValue;
-                if range.is_null() {
-                    OwnedValue::Opaque("<range:null>")
-                } else {
-                    OwnedValue::Range {
-                        low: copy_scalar(&(*range).valueLow),
-                        high: copy_scalar(&(*range).valueHigh),
-                    }
-                }
-            }
-            FWP_UNICODE_STRING_TYPE => {
-                OwnedValue::UnicodeString(pwstr_to_string(value.Anonymous.unicodeString))
-            }
-            FWP_TOKEN_INFORMATION_TYPE | FWP_TOKEN_ACCESS_INFORMATION_TYPE => {
-                OwnedValue::Opaque("token")
-            }
-            FWP_SID => OwnedValue::Opaque("sid"),
-            FWP_SECURITY_DESCRIPTOR_TYPE => OwnedValue::Opaque("sd"),
-            other => OwnedValue::Unknown(other),
-        }
-    }
-}
-
-unsafe fn copy_provider(provider: &FWPM_PROVIDER0) -> OwnedProvider {
-    // SAFETY: the strings and provider key are valid for the enumeration.
-    unsafe {
-        OwnedProvider {
-            key: wfp::Guid::from(provider.providerKey),
-            name: pwstr_to_string(provider.displayData.name),
-            description: pwstr_to_string(provider.displayData.description),
-            flags: provider.flags,
-        }
-    }
-}
-
-unsafe fn copy_sublayer(sublayer: &FWPM_SUBLAYER0) -> OwnedSublayer {
-    // SAFETY: the strings and sublayer key are valid for the enumeration.
-    unsafe {
-        OwnedSublayer {
-            key: wfp::Guid::from(sublayer.subLayerKey),
-            name: pwstr_to_string(sublayer.displayData.name),
-            description: pwstr_to_string(sublayer.displayData.description),
-            weight: sublayer.weight,
-            flags: sublayer.flags,
-        }
-    }
-}
-
-unsafe fn copy_filter(filter: &FWPM_FILTER0) -> OwnedFilter {
-    // SAFETY: all of the filter's memory, including its conditions, is valid
-    // for the enumeration.
-    unsafe {
-        let conditions = (0..filter.numFilterConditions)
-            .map(|i| {
-                let condition = &*filter.filterCondition.add(i as usize);
-                OwnedCondition {
-                    field: wfp::Guid::from(condition.fieldKey),
-                    match_type: condition.matchType,
-                    value: copy_condition_value(&condition.conditionValue),
-                }
-            })
-            .collect();
-
-        OwnedFilter {
-            key: wfp::Guid::from(filter.filterKey),
-            name: pwstr_to_string(filter.displayData.name),
-            description: pwstr_to_string(filter.displayData.description),
-            layer: wfp::Guid::from(filter.layerKey),
-            sublayer: wfp::Guid::from(filter.subLayerKey),
-            provider: if filter.providerKey.is_null() {
-                None
-            } else {
-                Some(wfp::Guid::from(*filter.providerKey))
+    let tag = value.r#type;
+    let value = &value.Anonymous;
+    match tag {
+        FWP_EMPTY => OwnedValue::Empty,
+        // SAFETY: `uint8` is the field selected by the tag.
+        wfp_sys::FWP_UINT8 => OwnedValue::U8(unsafe { value.uint8 }),
+        // SAFETY: `uint16` is the field selected by the tag.
+        wfp_sys::FWP_UINT16 => OwnedValue::U16(unsafe { value.uint16 }),
+        // SAFETY: `uint32` is the field selected by the tag.
+        wfp_sys::FWP_UINT32 => OwnedValue::U32(unsafe { value.uint32 }),
+        // SAFETY: `uint64` is the field selected by the tag, a valid pointer.
+        wfp_sys::FWP_UINT64 => OwnedValue::U64(unsafe { *value.uint64 }),
+        // SAFETY: `int8` is the field selected by the tag.
+        wfp_sys::FWP_INT8 => OwnedValue::I8(unsafe { value.int8 }),
+        // SAFETY: `int16` is the field selected by the tag.
+        wfp_sys::FWP_INT16 => OwnedValue::I16(unsafe { value.int16 }),
+        // SAFETY: `int32` is the field selected by the tag.
+        wfp_sys::FWP_INT32 => OwnedValue::I32(unsafe { value.int32 }),
+        // SAFETY: `int64` is the field selected by the tag, a valid pointer.
+        wfp_sys::FWP_INT64 => OwnedValue::I64(unsafe { *value.int64 }),
+        wfp_sys::FWP_FLOAT | wfp_sys::FWP_DOUBLE => OwnedValue::Opaque("float"),
+        // SAFETY: `byteArray16` is the field selected by the tag, a valid
+        // pointer or null.
+        wfp_sys::FWP_BYTE_ARRAY16_TYPE => match unsafe { value.byteArray16.as_ref() } {
+            Some(array) => OwnedValue::ByteArray16(array.byteArray16),
+            None => OwnedValue::Opaque("<ba16:null>"),
+        },
+        // SAFETY: `byteBlob` is the field selected by the tag, a valid
+        // pointer or null.
+        FWP_BYTE_BLOB_TYPE => match unsafe { value.byteBlob.as_ref() } {
+            Some(blob) => OwnedValue::ByteBlob(
+                // SAFETY: `data` points to `size` bytes, or is null.
+                unsafe { slice_or_empty(blob.data.cast_const(), blob.size as usize) }.to_vec(),
+            ),
+            None => OwnedValue::Opaque("<blob:null>"),
+        },
+        // SAFETY: `v4AddrMask` is the field selected by the tag, a valid
+        // pointer or null.
+        FWP_V4_ADDR_MASK => match unsafe { value.v4AddrMask.as_ref() } {
+            Some(addr_mask) => OwnedValue::V4Mask {
+                addr: addr_mask.addr,
+                mask: addr_mask.mask,
             },
-            action: filter.action.r#type,
-            flags: filter.flags,
-            weight: copy_weight(&filter.weight),
-            conditions,
+            None => OwnedValue::Opaque("<v4:null>"),
+        },
+        // SAFETY: `v6AddrMask` is the field selected by the tag, a valid
+        // pointer or null.
+        FWP_V6_ADDR_MASK => match unsafe { value.v6AddrMask.as_ref() } {
+            Some(addr_mask) => OwnedValue::V6Mask {
+                addr: addr_mask.addr,
+                prefix: addr_mask.prefixLength,
+            },
+            None => OwnedValue::Opaque("<v6:null>"),
+        },
+        // SAFETY: `rangeValue` is the field selected by the tag, a valid
+        // pointer or null.
+        FWP_RANGE_TYPE => match unsafe { value.rangeValue.as_ref() } {
+            Some(range) => OwnedValue::Range {
+                // SAFETY: the endpoints are part of `value`, so they meet its
+                // contract.
+                low: unsafe { copy_scalar(&range.valueLow) },
+                // SAFETY: as above.
+                high: unsafe { copy_scalar(&range.valueHigh) },
+            },
+            None => OwnedValue::Opaque("<range:null>"),
+        },
+        FWP_UNICODE_STRING_TYPE => {
+            // SAFETY: `unicodeString` is the field selected by the tag, a
+            // null-terminated string or null.
+            OwnedValue::UnicodeString(unsafe { pwstr_to_string(value.unicodeString) })
         }
+        FWP_TOKEN_INFORMATION_TYPE | FWP_TOKEN_ACCESS_INFORMATION_TYPE => {
+            OwnedValue::Opaque("token")
+        }
+        FWP_SID => OwnedValue::Opaque("sid"),
+        FWP_SECURITY_DESCRIPTOR_TYPE => OwnedValue::Opaque("sd"),
+        other => OwnedValue::Unknown(other),
     }
 }
 
@@ -678,46 +628,158 @@ unsafe fn copy_filter(filter: &FWPM_FILTER0) -> OwnedFilter {
 /// Number of objects fetched per enumeration call.
 const ENUM_BATCH: u32 = 100;
 
-/// Enumerate objects with the `Fwpm*Enum0` family: fetch batches of pointers,
-/// copy every object into owned types, free the batch, repeat.
-///
-/// `copy` must deep-copy everything it needs from the object; the batch (and
-/// with it the object memory) is freed immediately afterwards.
-unsafe fn enumerate_objects<T, Owned>(
-    create_handle: impl Fn(HANDLE, &mut HANDLE) -> u32,
-    destroy_handle: impl Fn(HANDLE, HANDLE) -> u32,
-    fetch: impl Fn(HANDLE, HANDLE, u32, &mut *mut *mut T, &mut u32) -> u32,
-    copy: unsafe fn(&T) -> Owned,
-) -> io::Result<Vec<Owned>> {
+/// The `Fwpm*CreateEnumHandle0` functions, parameterized by their template.
+type CreateEnumHandleFn<T> = unsafe extern "system" fn(HANDLE, *const T, *mut HANDLE) -> u32;
+
+/// The `Fwpm*Enum0` functions, parameterized by the object they enumerate.
+type EnumerateFn<T> =
+    unsafe extern "system" fn(HANDLE, HANDLE, u32, *mut *mut *mut T, *mut u32) -> u32;
+
+/// The `Fwpm*DestroyEnumHandle0` functions.
+type DestroyEnumHandleFn = unsafe extern "system" fn(HANDLE, HANDLE) -> u32;
+
+/// A WFP object type that can be enumerated with the `Fwpm*Enum0` family.
+trait Enumerable {
+    /// The owned type every object is copied into.
+    type Owned;
+
+    /// The template type the enum-handle function takes.
+    type Template;
+
+    /// The `Fwpm*CreateEnumHandle0` function for this object type.
+    const CREATE_ENUM_HANDLE: CreateEnumHandleFn<Self::Template>;
+
+    /// The `Fwpm*Enum0` function for this object type.
+    const ENUMERATE: EnumerateFn<Self>;
+
+    /// The `Fwpm*DestroyEnumHandle0` function for this object type.
+    const DESTROY_ENUM_HANDLE: DestroyEnumHandleFn;
+
+    /// Copy an enumerated object into [`Self::Owned`].
+    ///
+    /// # Safety
+    ///
+    /// `self` must belong to an enumeration batch that has not been freed.
+    unsafe fn copy(&self) -> Self::Owned;
+}
+
+impl Enumerable for FWPM_PROVIDER0 {
+    type Owned = OwnedProvider;
+    type Template = FWPM_PROVIDER_ENUM_TEMPLATE0;
+    const CREATE_ENUM_HANDLE: CreateEnumHandleFn<Self::Template> = FwpmProviderCreateEnumHandle0;
+    const ENUMERATE: EnumerateFn<Self> = FwpmProviderEnum0;
+    const DESTROY_ENUM_HANDLE: DestroyEnumHandleFn = FwpmProviderDestroyEnumHandle0;
+
+    unsafe fn copy(&self) -> OwnedProvider {
+        // SAFETY: the strings are valid while the batch is alive.
+        let (name, description) = unsafe { copy_display_data(&self.displayData) };
+        OwnedProvider {
+            key: wfp::Guid::from(self.providerKey),
+            name,
+            description,
+            flags: self.flags,
+        }
+    }
+}
+
+impl Enumerable for FWPM_SUBLAYER0 {
+    type Owned = OwnedSublayer;
+    type Template = FWPM_SUBLAYER_ENUM_TEMPLATE0;
+    const CREATE_ENUM_HANDLE: CreateEnumHandleFn<Self::Template> = FwpmSubLayerCreateEnumHandle0;
+    const ENUMERATE: EnumerateFn<Self> = FwpmSubLayerEnum0;
+    const DESTROY_ENUM_HANDLE: DestroyEnumHandleFn = FwpmSubLayerDestroyEnumHandle0;
+
+    unsafe fn copy(&self) -> OwnedSublayer {
+        // SAFETY: the strings are valid while the batch is alive.
+        let (name, description) = unsafe { copy_display_data(&self.displayData) };
+        OwnedSublayer {
+            key: wfp::Guid::from(self.subLayerKey),
+            name,
+            description,
+            weight: self.weight,
+            flags: self.flags,
+        }
+    }
+}
+
+impl Enumerable for FWPM_FILTER0 {
+    type Owned = OwnedFilter;
+    type Template = FWPM_FILTER_ENUM_TEMPLATE0;
+    const CREATE_ENUM_HANDLE: CreateEnumHandleFn<Self::Template> = FwpmFilterCreateEnumHandle0;
+    const ENUMERATE: EnumerateFn<Self> = FwpmFilterEnum0;
+    const DESTROY_ENUM_HANDLE: DestroyEnumHandleFn = FwpmFilterDestroyEnumHandle0;
+
+    unsafe fn copy(&self) -> OwnedFilter {
+        // SAFETY: the strings are valid while the batch is alive.
+        let (name, description) = unsafe { copy_display_data(&self.displayData) };
+        // SAFETY: the engine returns `numFilterConditions` conditions, or null
+        // if there are none, valid while the batch is alive.
+        let conditions = unsafe {
+            slice_or_empty(
+                self.filterCondition.cast_const(),
+                self.numFilterConditions as usize,
+            )
+        };
+        OwnedFilter {
+            key: wfp::Guid::from(self.filterKey),
+            name,
+            description,
+            layer: wfp::Guid::from(self.layerKey),
+            sublayer: wfp::Guid::from(self.subLayerKey),
+            // SAFETY: the key is valid while the batch is alive, or null.
+            provider: unsafe { self.providerKey.as_ref() }.map(|key| wfp::Guid::from(*key)),
+            action: self.action.r#type,
+            flags: self.flags,
+            // SAFETY: the engine initializes the field selected by the tag,
+            // and pointers in it are valid while the batch is alive.
+            weight: unsafe { copy_scalar(&self.weight) },
+            conditions: conditions
+                .iter()
+                .map(|condition| OwnedCondition {
+                    field: wfp::Guid::from(condition.fieldKey),
+                    match_type: condition.matchType,
+                    // SAFETY: as for the weight.
+                    value: unsafe { copy_condition_value(&condition.conditionValue) },
+                })
+                .collect(),
+        }
+    }
+}
+
+/// Enumerate objects with the `Fwpm*Enum0` family, and copy every object into owned types.
+fn enumerate_objects<T: Enumerable>() -> io::Result<Vec<T::Owned>> {
     let engine = FilterEngineBuilder::default().open()?;
     let session = engine.as_raw_handle();
 
     let mut enum_handle: HANDLE = ptr::null_mut();
-    // SAFETY: a null template enumerates every object of the type.
-    check(create_handle(session, &mut enum_handle))?;
+    // SAFETY: `session` is a valid session, and `enum_handle` is a valid pointer.
+    check(unsafe { (T::CREATE_ENUM_HANDLE)(session, ptr::null(), &raw mut enum_handle) })?;
 
     let mut objects = Vec::new();
     let result = (|| -> io::Result<()> {
         loop {
             let mut entries: *mut *mut T = ptr::null_mut();
             let mut num_entries = 0u32;
-            // SAFETY: the engine and enumeration handles are valid.
-            let status = fetch(
-                session,
-                enum_handle,
-                ENUM_BATCH,
-                &mut entries,
-                &mut num_entries,
-            );
-            check(status)?;
+            // SAFETY: the pointers to `entries` and `num_entries` are valid.
+            check(unsafe {
+                (T::ENUMERATE)(
+                    session,
+                    enum_handle,
+                    ENUM_BATCH,
+                    &raw mut entries,
+                    &raw mut num_entries,
+                )
+            })?;
             if num_entries == 0 {
                 return Ok(());
             }
-            for index in 0..num_entries as usize {
-                // SAFETY: `num_entries` pointers are valid until
-                // `FwpmFreeMemory0`, and each pointer targets a valid object.
-                objects.push(unsafe { copy(&*entries.add(index).read()) });
-            }
+            // SAFETY: the engine returns `num_entries` pointers to objects,
+            // valid until freed below.
+            let batch = unsafe { slice_or_empty(entries.cast_const(), num_entries as usize) };
+            objects.extend(batch.iter().map(|object| {
+                // SAFETY: the object belongs to the batch, which is freed below.
+                unsafe { (**object).copy() }
+            }));
             // SAFETY: the entries pointer came from the enumeration call above.
             unsafe { FwpmFreeMemory0(ptr::from_mut(&mut entries).cast()) };
             if num_entries < ENUM_BATCH {
@@ -727,65 +789,7 @@ unsafe fn enumerate_objects<T, Owned>(
     })();
 
     // SAFETY: the enumeration handle is valid and only destroyed here.
-    destroy_handle(session, enum_handle);
+    unsafe { (T::DESTROY_ENUM_HANDLE)(session, enum_handle) };
     result?;
     Ok(objects)
-}
-
-fn enumerate_providers() -> io::Result<Vec<OwnedProvider>> {
-    // SAFETY: the wrapped raw WFP calls only run while the session handle is
-    // open, and `copy_provider` only reads the enumerated provider.
-    unsafe {
-        enumerate_objects(
-            |engine, handle| FwpmProviderCreateEnumHandle0(engine, ptr::null(), handle),
-            |engine, handle| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmProviderDestroyEnumHandle0(engine, handle)
-            },
-            |engine, handle, batch, entries, count| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmProviderEnum0(engine, handle, batch, entries, count)
-            },
-            copy_provider,
-        )
-    }
-}
-
-fn enumerate_sublayers() -> io::Result<Vec<OwnedSublayer>> {
-    // SAFETY: the wrapped raw WFP calls only run while the session handle is
-    // open, and `copy_sublayer` only reads the enumerated sublayer.
-    unsafe {
-        enumerate_objects(
-            |engine, handle| FwpmSubLayerCreateEnumHandle0(engine, ptr::null(), handle),
-            |engine, handle| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmSubLayerDestroyEnumHandle0(engine, handle)
-            },
-            |engine, handle, batch, entries, count| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmSubLayerEnum0(engine, handle, batch, entries, count)
-            },
-            copy_sublayer,
-        )
-    }
-}
-
-fn enumerate_filters() -> io::Result<Vec<OwnedFilter>> {
-    // SAFETY: the wrapped raw WFP calls only run while the session handle is
-    // open, and `copy_filter` only reads the enumerated filter and its
-    // conditions.
-    unsafe {
-        enumerate_objects(
-            |engine, handle| FwpmFilterCreateEnumHandle0(engine, ptr::null(), handle),
-            |engine, handle| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmFilterDestroyEnumHandle0(engine, handle)
-            },
-            |engine, handle, batch, entries, count| {
-                // SAFETY: called with the open session and enumeration handles.
-                FwpmFilterEnum0(engine, handle, batch, entries, count)
-            },
-            copy_filter,
-        )
-    }
 }

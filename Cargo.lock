@@ -6162,6 +6162,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.19",
  "wfp",
+ "widestring",
  "windows-sys 0.61.2",
 ]
 

@@ -8,6 +8,7 @@ license.workspace = true
 
 [dev-dependencies]
 insta.workspace = true
+widestring.workspace = true
 
 [target."cfg(windows)".dependencies]
 ipnetwork = { workspace = true }
