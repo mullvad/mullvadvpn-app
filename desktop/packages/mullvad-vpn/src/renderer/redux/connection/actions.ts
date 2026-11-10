@@ -43,6 +43,11 @@ interface IUpdateBlockStateAction {
   isBlocked: boolean;
 }
 
+interface IUpdateDeviceInstallDisabledAction {
+  type: 'UPDATE_DEVICE_INSTALL_DISABLED';
+  deviceInstallDisabled?: boolean;
+}
+
 export type ConnectionAction =
   | INewLocationAction
   | IConnectingAction
@@ -50,7 +55,8 @@ export type ConnectionAction =
   | IDisconnectedAction
   | IDisconnectingAction
   | IBlockedAction
-  | IUpdateBlockStateAction;
+  | IUpdateBlockStateAction
+  | IUpdateDeviceInstallDisabledAction;
 
 function connecting(
   details?: ITunnelStateRelayInfo,
@@ -109,9 +115,19 @@ function updateBlockState(isBlocked: boolean): IUpdateBlockStateAction {
   };
 }
 
+function updateDeviceInstallDisabled(
+  deviceInstallDisabled?: boolean,
+): IUpdateDeviceInstallDisabledAction {
+  return {
+    type: 'UPDATE_DEVICE_INSTALL_DISABLED',
+    deviceInstallDisabled,
+  };
+}
+
 export default {
   newLocation,
   updateBlockState,
+  updateDeviceInstallDisabled,
   connecting,
   connected,
   disconnected,
