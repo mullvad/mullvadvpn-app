@@ -120,7 +120,7 @@ fn create_dir_with_acl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Resu
     }
 
     // SAFETY: security_descriptor has been initialized. ACL is valid.
-    // SAFETY: TODO: ACL members must be in "abolute format" (pointers, not offsets). How do we know whether this is the case?
+    // SAFETY: TODO: ACL members must be in "absolute format" (pointers, not offsets). How do we know whether this is the case?
     let success = unsafe {
         SetSecurityDescriptorDacl(
             (&raw mut security_descriptor).cast::<c_void>(),
