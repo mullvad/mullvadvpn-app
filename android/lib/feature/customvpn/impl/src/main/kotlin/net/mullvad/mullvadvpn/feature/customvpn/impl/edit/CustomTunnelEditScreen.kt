@@ -238,7 +238,7 @@ fun CustomTunnelEditScreen(
         snackbarHostState = snackbarHostState,
     ) { contentModifier ->
         LazyColumn(
-            modifier = contentModifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew)
+            modifier = contentModifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew),
         ) {
             interfaceSection(
                 nameFieldState = nameFieldState,
@@ -433,7 +433,7 @@ fun LazyListScope.peersSection(
                         endpointAddress = TextFieldState(""),
                         endpointPort = TextFieldState(""),
                         isNewlyAdded = true,
-                    )
+                    ),
                 )
             },
             colors =
@@ -480,7 +480,7 @@ fun PeerItem(
             Column(
                 modifier =
                     Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
-                        .padding(horizontal = Dimens.sideMarginNew)
+                        .padding(horizontal = Dimens.sideMarginNew),
             ) {
                 Spacer(Modifier.height(Dimens.verticalSpace))
 
@@ -533,7 +533,7 @@ fun PeerItem(
                                 R.string.x_or_y,
                                 ENDPOINT_PLACEHOLDER_IPV4,
                                 ENDPOINT_PLACEHOLDER_IPV6,
-                            )
+                            ),
                         )
                     },
                     isError = addressError,

@@ -59,7 +59,7 @@ private fun PreviewExpandedEnabledExpandableListItem() {
                         modifier =
                             Modifier.fillMaxWidth()
                                 .height(50.dp)
-                                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                     )
                 },
             )
@@ -118,7 +118,7 @@ fun ExpandableListItem(
                         topEnd = 0.dp,
                         bottomStart = ListTokens.listItemRoundedCornerSize,
                         bottomEnd = ListTokens.listItemRoundedCornerSize,
-                    )
+                    ),
             ) {
                 expandedContent()
             }

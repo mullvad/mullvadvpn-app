@@ -27,7 +27,7 @@ fun createSampleCustomVpnConfig(enabled: Boolean = true): CustomVpnConfig =
                     publicKey = WireguardKey.from(VALID_PUBLIC_KEY).getOrNull()!!,
                     endpoint = InetSocketAddress(VALID_ENDPOINT_HOST, VALID_ENDPOINT_PORT),
                     allowedIps = setOf(VALID_ALLOWED_IP),
-                )
+                ),
             ),
         enabled = enabled,
         name = VALID_NAME,

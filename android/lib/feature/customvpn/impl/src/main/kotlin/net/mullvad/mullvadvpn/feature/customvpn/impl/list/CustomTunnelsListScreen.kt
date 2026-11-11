@@ -70,7 +70,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewCustomTunnelsListScreen(
     @PreviewParameter(CustomTunnelsListUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, CustomTunnelsListUiState>
+    state: Lc<Unit, CustomTunnelsListUiState>,
 ) {
     AppTheme {
         CustomTunnelsListScreen(
@@ -118,7 +118,7 @@ fun SharedTransitionScope.CustomTunnelsList(
             CustomTunnelsListSideEffect.ConfigurationSaved ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.custom_tunnels_configuration_saved)
+                        message = resources.getString(R.string.custom_tunnels_configuration_saved),
                     )
                 }
             is CustomTunnelsListSideEffect.FailedToSave ->
@@ -126,8 +126,8 @@ fun SharedTransitionScope.CustomTunnelsList(
                     snackbarHostState.showSnackbarImmediately(
                         message =
                             resources.getString(
-                                R.string.custom_tunnels_configuration_failed_to_save
-                            )
+                                R.string.custom_tunnels_configuration_failed_to_save,
+                            ),
                     )
                 }
         }

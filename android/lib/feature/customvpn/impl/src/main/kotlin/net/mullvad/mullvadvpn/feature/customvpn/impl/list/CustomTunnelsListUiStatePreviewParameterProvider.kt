@@ -20,7 +20,7 @@ class CustomTunnelsListUiStatePreviewParameterProvider :
                 CustomTunnelsListUiState(
                     customVpnConfig = null,
                     tunnelStats = null,
-                )
+                ),
             ),
             Lc.Content(
                 CustomTunnelsListUiState(
@@ -31,7 +31,7 @@ class CustomTunnelsListUiStatePreviewParameterProvider :
                                     privateKey =
                                         @Suppress("UnsafeCallOnNullableType")
                                         WireguardKey.from(
-                                                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+                                                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
                                             )
                                             .getOrNull()!!,
                                     tunnelIps = emptySet(),
@@ -42,18 +42,18 @@ class CustomTunnelsListUiStatePreviewParameterProvider :
                                         publicKey =
                                             @Suppress("UnsafeCallOnNullableType")
                                             WireguardKey.from(
-                                                    "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE="
+                                                    "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
                                                 )
                                                 .getOrNull()!!,
                                         endpoint = InetSocketAddress(51230),
                                         allowedIps = emptySet(),
-                                    )
+                                    ),
                                 ),
                             enabled = true,
                             name = "Test Tunnel",
                         ),
                     tunnelStats = TunnelStats(rx = 12000, tx = 5000),
-                )
+                ),
             ),
         )
 }

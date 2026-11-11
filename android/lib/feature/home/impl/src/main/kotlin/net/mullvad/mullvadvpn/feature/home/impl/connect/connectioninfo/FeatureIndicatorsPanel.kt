@@ -123,7 +123,7 @@ fun FeatureIndicators(
                             Box(
                                 modifier =
                                     Modifier.size(Dimens.activeFeatureIndicator)
-                                        .background(color = tint, shape = CircleShape)
+                                        .background(color = tint, shape = CircleShape),
                             )
                         }
                     } else null,
