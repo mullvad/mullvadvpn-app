@@ -45,8 +45,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mullvad_daemon.management_interface.CustomVpnConfig
 import mullvad_daemon.management_interface.CustomVpnConfigError
+import mullvad_daemon.management_interface.CustomVpnRawImport
 import mullvad_daemon.management_interface.DaemonEvent
 import mullvad_daemon.management_interface.Device
 import mullvad_daemon.management_interface.DeviceRemoval
@@ -1019,40 +1019,40 @@ class ManagementService(
             .onLeft { Logger.e("Get personal vpn event error") }
             .mapLeft { GetCustomVpnConfigError.Unknown }
 
-    suspend fun togglePersonalVpn(enable: Boolean): Either<SetCustomVpnConfigError, Unit> =
-        /*Either.catch { grpc..execute(enable.toBoolValue()) }
-        .onLeft { Logger.e("Toggle personal VPN error", it) }
-        .mapLeft { SetPersonalVpnConfigError.Unknown }*/
-        Unit.right() // TODO
-
     suspend fun setPersonalVpnConfig(
         config: ModelPersonalVpnConfig
-    ): Either<SetCustomVpnConfigError, Unit> = setPersonalVpnConfigProto(config.fromDomain())
+    ): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.SetCustomVpnConfig().execute(config.fromDomain()) }
+            .onLeft { Logger.e("Set personal VPN config error", it) }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
+            .flatMap { it.toResult() }
 
     /** Remove the personal VPN config. The daemon interprets an empty config as removal. */
     suspend fun clearPersonalVpn(): Either<SetCustomVpnConfigError, Unit> =
-        setPersonalVpnConfigProto(CustomVpnConfig())
-
-    private suspend fun setPersonalVpnConfigProto(
-        config: CustomVpnConfig
-    ): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.SetCustomVpnConfig().execute(config) }
-            .onLeft { Logger.e("Set personal VPN config error", it) }
+        Either.catch { grpc.ClearCustomVpnConfig().execute(Unit) }
+            .onLeft { Logger.e("Clear personal VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
     /**
      * Parse and store a wg-quick formatted personal VPN config on the daemon side.
      *
-     * The daemon parses the `wg-quick` body, resolves any DNS hostname in `Endpoint`, and persists
-     * the resulting config.
+     * The daemon parses the `wg-quick` body, and persists the resulting config and name.
      */
-    suspend fun importPersonalVpnConfig(body: String): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.ImportCustomVpnConfig().execute(body.toStringValue()) }
+    suspend fun importPersonalVpnConfig(
+        name: String,
+        config: String,
+    ): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch {
+                grpc
+                    .ImportCustomVpnConfig()
+                    .execute(CustomVpnRawImport(name = name, wireguard_config = config))
+            }
             .onLeft { Logger.e("Import personal VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
+    @Suppress("UnreachableCode")
     private fun CustomVpnConfigError.toResult(): Either<SetCustomVpnConfigError, Unit> =
         if (error.isEmpty()) {
             Unit.right()

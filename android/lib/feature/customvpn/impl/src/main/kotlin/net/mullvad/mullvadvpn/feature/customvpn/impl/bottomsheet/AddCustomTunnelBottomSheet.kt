@@ -1,5 +1,6 @@
-package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.bottomsheet
+package net.mullvad.mullvadvpn.feature.customvpn.impl.bottomsheet
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.core.EmptyNavigator
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelImportConfigurationNavResult
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
@@ -33,7 +33,16 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 @Preview
 @Composable
 private fun PreviewAddCustomTunnelBottomSheet() {
-    AppTheme { AddCustomTunnelBottomSheet(navigator = EmptyNavigator) }
+    AppTheme {
+        Column {
+            BottomSheetContent(
+                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                onBackgroundColor = MaterialTheme.colorScheme.onSurface,
+                onCreateConfig = {},
+                onImportByFile = {},
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

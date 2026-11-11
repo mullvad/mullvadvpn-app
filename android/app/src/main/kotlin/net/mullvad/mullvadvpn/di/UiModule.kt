@@ -31,6 +31,8 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlist.EditCustom
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.CustomListsViewModel
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.CustomTunnelEditViewModel
+import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomTunnelsListViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmation.DeleteAccountConfirmationViewModel
 import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
@@ -70,8 +72,6 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunn
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
-import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.edit.CustomTunnelEditViewModel
-import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.list.CustomTunnelsListViewModel
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -191,7 +191,7 @@ val uiModule = module {
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
     single { HasShowNotificationPromptRepository() }
-    single { CustomTunnelsRepository(get()) }
+    single { CustomTunnelsRepository(managementService = get(), ioDispatcher = Dispatchers.IO) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -559,6 +559,7 @@ val uiModule = module {
         CustomTunnelsListViewModel(
             customTunnelsRepository = get(),
             settingsRepository = get(),
+            ioDispatcher = Dispatchers.IO,
         )
     }
 

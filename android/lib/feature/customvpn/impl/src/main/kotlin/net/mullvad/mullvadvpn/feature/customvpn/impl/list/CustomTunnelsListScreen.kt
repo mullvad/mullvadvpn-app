@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.list
+package net.mullvad.mullvadvpn.feature.customvpn.impl.list
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -94,14 +94,15 @@ fun SharedTransitionScope.CustomTunnelsList(
     val viewModel = koinViewModel<CustomTunnelsListViewModel>()
 
     val context = LocalContext.current
+    val customTunnelDefaultName = stringResource(R.string.custom_tunnels_default_name)
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
-                val body =
-                    context.contentResolver.openInputStream(uri)?.use { stream ->
-                        stream.reader(Charsets.UTF_8).readText()
-                    }
-                if (body != null) viewModel.importConfig(body)
+                viewModel.importConfig(
+                    name = customTunnelDefaultName,
+                    contentResolver = context.contentResolver,
+                    uri = uri,
+                )
             }
         }
 
@@ -145,7 +146,7 @@ fun SharedTransitionScope.CustomTunnelsList(
         onCreateConfiguration = dropUnlessResumed { navigator.navigate(CreateCustomTunnelNavKey) },
         onEditConfiguration =
             dropUnlessResumed { navigator.navigate(EditCustomTunnelNavKey(new = false)) },
-        onToggleCustomTunnel = viewModel::onEnableCustomVpn,
+        onToggleCustomTunnel = viewModel::onToggleCustomTunnel,
         onBack = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -158,7 +159,7 @@ fun CustomTunnelsListScreen(
     modifier: Modifier = Modifier,
     onCreateConfiguration: () -> Unit,
     onEditConfiguration: () -> Unit,
-    onToggleCustomTunnel: (Boolean) -> Unit,
+    onToggleCustomTunnel: (CustomVpnConfig) -> Unit,
     onBack: () -> Unit,
 ) {
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -175,7 +176,7 @@ fun CustomTunnelsListScreen(
             }
         },
         floatingActionButton = {
-            if (state is Lc.Content && state.value.customVpnConfigState == null) {
+            if (state is Lc.Content && state.value.customVpnConfig == null) {
                 FloatingActionButton(
                     modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
                     onClick = onCreateConfiguration,
@@ -190,12 +191,12 @@ fun CustomTunnelsListScreen(
                 }
             }
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -214,9 +215,8 @@ fun CustomTunnelsListScreen(
                 }
                 is Lc.Content -> {
                     CustomTunnelsListContent(
-                        customVpnEnabled =
-                            state.value.customVpnConfigState is CustomTunnelConfigState.Enabled,
-                        customVpnConfig = state.value.customVpnConfigState?.config,
+                        customVpnEnabled = state.value.customVpnConfig?.enabled ?: false,
+                        customVpnConfig = state.value.customVpnConfig,
                         tunnelStats = state.value.tunnelStats,
                         onEditConfiguration = onEditConfiguration,
                         onToggleCustomTunnel = onToggleCustomTunnel,
@@ -269,22 +269,22 @@ private fun CustomTunnelsListContent(
     customVpnEnabled: Boolean,
     tunnelStats: TunnelStats?,
     onEditConfiguration: () -> Unit,
-    onToggleCustomTunnel: (Boolean) -> Unit,
+    onToggleCustomTunnel: (CustomVpnConfig) -> Unit,
 ) {
     if (customVpnConfig != null) {
         NavigationAndSwitchListItem(
             modifier = Modifier.fillMaxWidth(),
-            title = "Custom tunnel", // TODO
+            title = customVpnConfig.name ?: stringResource(R.string.custom_tunnels_default_name),
             subtitle =
                 tunnelStats?.let {
                     stringResource(
-                        R.string.tx_rx,
-                        tunnelStats.tx.asFormattedSize(),
+                        R.string.rx_tx,
                         tunnelStats.rx.asFormattedSize(),
+                        tunnelStats.tx.asFormattedSize(),
                     )
                 },
             isToggled = customVpnEnabled,
-            onCheckedChanged = onToggleCustomTunnel,
+            onCheckedChanged = { onToggleCustomTunnel(customVpnConfig) },
             onNavigationClicked = onEditConfiguration,
         )
         Text(
@@ -307,17 +307,16 @@ private fun Loading() {
 }
 
 @Composable
-private fun Long.asFormattedSize(): String {
-    val kb = 1024
-    val mb = kb * 1024
-    val gb = mb * 1024
-
-    return when {
-        this >= gb -> stringResource(R.string.formatted_size_gb, toFloat() / gb)
-        this >= mb -> stringResource(R.string.formatted_size_mb, toFloat() / mb)
-        this >= kb -> stringResource(R.string.formatted_size_kb, toFloat() / kb)
-        else -> "${this}B" // TODO
+private fun Long.asFormattedSize(): String =
+    when {
+        this >= GB -> stringResource(R.string.formatted_size_gb, toFloat() / GB)
+        this >= MB -> stringResource(R.string.formatted_size_mb, toFloat() / MB)
+        this >= KB -> stringResource(R.string.formatted_size_kb, toFloat() / KB)
+        else -> stringResource(R.string.formatted_size_b, toFloat())
     }
-}
+
+private const val KB = 1024
+private const val MB = KB * 1024
+private const val GB = MB * 1024
 
 private val SUPPORTED_WIREGUARD_CONFIG_FILE_TYPES = arrayOf("*/*")
