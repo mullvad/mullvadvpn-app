@@ -94,10 +94,7 @@ fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) 
             ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
         }
     }
-    debug_assert!(
-        changed,
-        "We must remove at least one obfuscation method from the query"
-    );
+    query
 }
 
 /// The return type of [`RelaySelector::get_relay_by_query`].
