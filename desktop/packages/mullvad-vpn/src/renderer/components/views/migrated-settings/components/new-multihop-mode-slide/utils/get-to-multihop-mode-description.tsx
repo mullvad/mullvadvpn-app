@@ -46,7 +46,7 @@ export function getToMultihopModeDescription(to: ToMultihopMode) {
           formatHtml(
             messages.pgettext(
               'migrated-settings-view',
-              'This will be indicated by the symbol: <img></img>',
+              'This will be indicated by the <img></img> symbol.',
             ),
             {
               img: () => (
