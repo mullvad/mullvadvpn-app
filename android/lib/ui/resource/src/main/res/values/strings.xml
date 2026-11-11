@@ -244,7 +244,7 @@
     <string name="list_name">List name</string>
     <string name="locations">Locations</string>
     <string name="edit_locations">Edit locations</string>
-    <string name="delete_custom_list_confirmation_description">Delete \"%s\"?</string>
+    <string name="delete_x">Delete \"%s\"?</string>
     <string name="custom_list_error_list_exists">Name is already taken.</string>
     <string name="update_list_name">Update list name</string>
     <string name="no_custom_lists_available">No custom lists available</string>
@@ -635,7 +635,6 @@
     <string name="invalid_port">Port must be a number in the range %1$d-%2$d</string>
     <string name="custom_tunnels_default_name">Custom tunnel</string>
     <string name="custom_tunnels_name_cannot_be_empty">Name cannot be empty</string>
-    <string name="custom_tunnels_delete_confirmation">Delete "%1$s"?</string>
     <string name="custom_tunnels_form_contains_errors_message">Unable to save the configuration. Please correct the errors in the form and try again.</string>
     <string name="custom_tunnels_form_saved_success">Configuration saved.</string>
 </resources>

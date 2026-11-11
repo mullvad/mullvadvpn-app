@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
 @Composable
 fun RemoveCustomTunnelConfigConfirmDialog(navigator: Navigator, title: String) {
     NegativeConfirmationDialog(
-        message = stringResource(id = R.string.custom_tunnels_delete_confirmation, title),
+        message = stringResource(id = R.string.delete_x, title),
         onConfirm = { navigator.goBack(result = RemoveCustomTunnelConfigConfirmationNavResult) },
         onBack = { navigator.goBack() },
     )

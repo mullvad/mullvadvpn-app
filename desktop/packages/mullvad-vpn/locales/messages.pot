@@ -3469,6 +3469,9 @@ msgstr ""
 msgid "%1$s more..."
 msgstr ""
 
+msgid "%1$s or %2$s"
+msgstr ""
+
 msgid "%1$s was added to \"%2$s\""
 msgstr ""
 
@@ -3541,6 +3544,9 @@ msgstr ""
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
 msgstr ""
 
+msgid "<b>Custom tunnels</b> is currently restricted to a single configuration"
+msgstr ""
+
 msgid "<b>DNS content blockers</b>"
 msgstr ""
 
@@ -3595,10 +3601,22 @@ msgstr ""
 msgid "Add 90 days time (%s)"
 msgstr ""
 
+msgid "Add Address"
+msgstr ""
+
 msgid "Add DNS server"
 msgstr ""
 
+msgid "Add IP"
+msgstr ""
+
 msgid "Add locations"
+msgstr ""
+
+msgid "Add new configuration"
+msgstr ""
+
+msgid "Add peer"
 msgstr ""
 
 msgid "Add time"
@@ -3608,6 +3626,9 @@ msgid "Add to list"
 msgstr ""
 
 msgid "Adding method..."
+msgstr ""
+
+msgid "Address"
 msgstr ""
 
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
@@ -3620,6 +3641,12 @@ msgid "All applications"
 msgstr ""
 
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr ""
+
+msgid "Allowed IPs"
+msgstr ""
+
+msgid "Allows you to connect to another WireGuard peer while using Mullvad VPN. The entire connection will be tunneled through your Mullvad connection."
 msgstr ""
 
 msgid "Always-on VPN assigned to %s"
@@ -3700,6 +3727,12 @@ msgstr ""
 msgid "Collapse"
 msgstr ""
 
+msgid "Configuration saved."
+msgstr ""
+
+msgid "Configurations"
+msgstr ""
+
 msgid "Connect on device start-up"
 msgstr ""
 
@@ -3727,6 +3760,9 @@ msgstr ""
 msgid "Could not display remaining days."
 msgstr ""
 
+msgid "Create configuration"
+msgstr ""
+
 msgid "Create new list"
 msgstr ""
 
@@ -3737,6 +3773,21 @@ msgid "Current: %s"
 msgstr ""
 
 msgid "Custom DNS server addresses %1$s are invalid"
+msgstr ""
+
+msgid "Custom VPN"
+msgstr ""
+
+msgid "Custom VPN allows you to connect to another WireGuard peer, while using Mullvad VPN. The entire connection will be tunneled through your connection to Mullvad.\\n\\nWith Custom VPN you will hide your personal server IP VPN and can connect to it without having to switch VPN."
+msgstr ""
+
+msgid "Custom tunnel"
+msgstr ""
+
+msgid "Custom tunnel configuration saved"
+msgstr ""
+
+msgid "Custom tunnels"
 msgstr ""
 
 msgid "DNS settings"
@@ -3787,6 +3838,9 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Edit %s"
+msgstr ""
+
 msgid "Edit custom lists"
 msgstr ""
 
@@ -3814,6 +3868,9 @@ msgstr ""
 msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
 msgstr ""
 
+msgid "Endpoint"
+msgstr ""
+
 msgid "Enter MTU"
 msgstr ""
 
@@ -3832,6 +3889,9 @@ msgstr ""
 msgid "Expand"
 msgstr ""
 
+msgid "Experimental feature: May not work as expected."
+msgstr ""
+
 msgid "External link"
 msgstr ""
 
@@ -3845,6 +3905,9 @@ msgid "Failed to delete account, please contact support"
 msgstr ""
 
 msgid "Failed to load products, please try again"
+msgstr ""
+
+msgid "Failed to save custom tunnel configuration"
 msgstr ""
 
 msgid "Failed to set to current - API not reachable"
@@ -3910,6 +3973,9 @@ msgstr ""
 msgid "If you have any issues"
 msgstr ""
 
+msgid "Import WireGuard configuration"
+msgstr ""
+
 msgid "Import new overrides by"
 msgstr ""
 
@@ -3928,6 +3994,9 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+msgid "Interface"
+msgstr ""
+
 msgid "Invalid IP address"
 msgstr ""
 
@@ -3937,7 +4006,16 @@ msgstr ""
 msgid "Invalid MTU value"
 msgstr ""
 
+msgid "Invalid address IP"
+msgstr ""
+
 msgid "Invalid or missing value \"%1$s\""
+msgstr ""
+
+msgid "Invalid private key"
+msgstr ""
+
+msgid "Invalid public key"
 msgstr ""
 
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
@@ -3989,6 +4067,9 @@ msgid "Multihop routes your traffic into one WireGuard server and out another, m
 msgstr ""
 
 msgid "Multihop when needed"
+msgstr ""
+
+msgid "Name cannot be empty"
 msgstr ""
 
 msgid "Name is already taken."
@@ -4063,6 +4144,12 @@ msgstr ""
 msgid "Patch not matching specification"
 msgstr ""
 
+msgid "Peer"
+msgstr ""
+
+msgid "Peers"
+msgstr ""
+
 msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
 msgstr ""
 
@@ -4102,10 +4189,19 @@ msgstr ""
 msgid "Port is out of range"
 msgstr ""
 
+msgid "Port must be a number in the range %1$d-%2$d"
+msgstr ""
+
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr ""
 
 msgid "Privacy policy"
+msgstr ""
+
+msgid "Private key"
+msgstr ""
+
+msgid "Public key"
 msgstr ""
 
 msgid "Read more"
@@ -4207,6 +4303,9 @@ msgstr ""
 msgid "TCP"
 msgstr ""
 
+msgid "Tap “+” to add a custom tunnel profile"
+msgstr ""
+
 msgid "Test method"
 msgstr ""
 
@@ -4265,6 +4364,9 @@ msgid "This address has already been entered."
 msgstr ""
 
 msgid "This field is required"
+msgstr ""
+
+msgid "This hides your custom tunnel IP and you can connect to it without having to disconnect."
 msgstr ""
 
 msgid "This impacts your anonymity"
@@ -4327,6 +4429,9 @@ msgstr ""
 msgid "Unable to reach API, %s"
 msgstr ""
 
+msgid "Unable to save the configuration. Please correct the errors in the form and try again."
+msgstr ""
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
 msgstr ""
 
@@ -4361,6 +4466,9 @@ msgid "Updating server list in the background..."
 msgstr ""
 
 msgid "Use method"
+msgstr ""
+
+msgid "Using Multihop with a custom WireGuard tunnel might result in connection instability"
 msgstr ""
 
 msgid "VPN Settings not available on device"
@@ -4530,6 +4638,11 @@ msgstr[1] ""
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Peer"
+msgid_plural "Peer %d"
 msgstr[0] ""
 msgstr[1] ""
 

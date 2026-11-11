@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">환불할 수 없습니다.</string>
     <string name="delete_account_unable_to_verify">계정 번호를 식별하지 못했습니다. 지원팀에 문의하세요</string>
     <string name="delete_account_warning"><b>경고:</b></string>
-    <string name="delete_custom_list_confirmation_description">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="delete_custom_list_message">\"%1$s\"이(가) 삭제되었습니다</string>
     <string name="delete_list">목록 삭제</string>
     <string name="delete_method">방법 삭제</string>
     <string name="delete_method_question">이 방법을 삭제하시겠습니까?</string>
+    <string name="delete_x">\"%1$s\"을(를) 삭제하시겠습니까?</string>
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
     <string name="device_inactive_unblock_warning">로그인하면 이 장치에서 인터넷 차단이 해제됩니다.</string>
