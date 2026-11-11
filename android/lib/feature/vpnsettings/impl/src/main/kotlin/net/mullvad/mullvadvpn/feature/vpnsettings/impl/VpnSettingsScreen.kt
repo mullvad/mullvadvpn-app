@@ -182,7 +182,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToLocalNetworkSharing =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingNavKey()) },
         navigateToCustomTunnels =
-            dropUnlessResumed { navigator.navigate(CustomTunnelsListNavKey()) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(CustomTunnelsListNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },

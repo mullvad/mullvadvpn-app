@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.feature.customvpn.impl.R
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
@@ -172,7 +173,7 @@ fun CustomTunnelsListScreen(
             if (isModal) {
                 NavigateCloseIconButton(onNavigateClose = onBack)
             } else {
-                NavigateBackIconButton(onNavigateBack = onBack)
+                unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBack) }
             }
         },
         floatingActionButton = {
