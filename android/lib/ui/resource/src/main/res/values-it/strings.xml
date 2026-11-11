@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Non sarà possibile ottenere rimborsi.</string>
     <string name="delete_account_unable_to_verify">Impossibile verificare il numero di account, contatta l\'assistenza</string>
     <string name="delete_account_warning"><b>Attenzione:</b></string>
-    <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
     <string name="delete_list">Elimina elenco</string>
     <string name="delete_method">Elimina metodo</string>
     <string name="delete_method_question">Eliminare il metodo?</string>
+    <string name="delete_x">Eliminare \"%1$s\"?</string>
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
     <string name="device_inactive_unblock_warning">Andare al login sbloccherà Internet su questo dispositivo.</string>

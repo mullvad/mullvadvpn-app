@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Les remboursements ne seront pas possibles.</string>
     <string name="delete_account_unable_to_verify">Vérification du numéro de compte impossible. Veuillez contacter l\'assistance</string>
     <string name="delete_account_warning"><b>Attention :</b></string>
-    <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
     <string name="delete_list">Supprimer la liste</string>
     <string name="delete_method">Supprimer la méthode</string>
     <string name="delete_method_question">Supprimer la méthode ?</string>
+    <string name="delete_x">Supprimer « %1$s » ?</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>

@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">No podrán hacerse reembolsos.</string>
     <string name="delete_account_unable_to_verify">No se puede verificar el número de cuenta, póngase en contacto con el servicio de asistencia</string>
     <string name="delete_account_warning"><b>Advertencia:</b></string>
-    <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>
     <string name="delete_list">Eliminar lista</string>
     <string name="delete_method">Eliminar método</string>
     <string name="delete_method_question">¿Eliminar el método?</string>
+    <string name="delete_x">¿Eliminar «%1$s»?</string>
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>

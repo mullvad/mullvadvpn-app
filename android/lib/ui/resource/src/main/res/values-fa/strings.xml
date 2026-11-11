@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">بازپرداخت ممکن نخواهد بود.</string>
     <string name="delete_account_unable_to_verify">تأیید شماره حساب ممکن نیست، لطفاً با پشتیبانی تماس بگیرید</string>
     <string name="delete_account_warning"><b>هشدار:</b></string>
-    <string name="delete_custom_list_confirmation_description">حذف «%1$s»؟</string>
     <string name="delete_custom_list_message">%1$s حذف شد</string>
     <string name="delete_list">حذف فهرست</string>
     <string name="delete_method">حذف روش</string>
     <string name="delete_method_question">حذف این روش؟</string>
+    <string name="delete_x">حذف «%1$s»؟</string>
     <string name="device_inactive_description">شما این دستگاه را حذف کرده‌اید. برای اتصال دوباره، باید مجدداً وارد شوید.</string>
     <string name="device_inactive_title">دستگاه غیرفعال است</string>
     <string name="device_inactive_unblock_warning">با رفتن به صفحهٔ ورود، اینترنت روی این دستگاه باز خواهد شد.</string>
