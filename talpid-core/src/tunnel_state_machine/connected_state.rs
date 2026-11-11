@@ -344,7 +344,6 @@ impl ConnectedState {
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
                 } else {
-                    log::error!("sharedValues {:?}", shared_values.allowed_endpoint);
                     SameState(self)
                 }
             }
