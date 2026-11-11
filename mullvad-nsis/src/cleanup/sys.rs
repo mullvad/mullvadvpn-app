@@ -2,6 +2,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 use std::ptr;
+use std::ptr::NonNull;
 
 use anyhow::Context;
 use widestring::U16CString;
@@ -23,6 +24,7 @@ use windows_sys::Win32::UI::Shell::{
 };
 
 use mullvad_paths::{PRODUCT_NAME, windows::get_known_folder_path};
+use talpid_types::windows::LocalFreeGuard;
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -54,42 +56,6 @@ impl Drop for ScopedNativeFileSystem {
         }
     }
 }
-
-mod guard {
-    use windows_sys::Win32::Foundation::LocalFree;
-
-    /// Frees a local-heap allocation (via LocalFree) on drop.
-    pub struct LocalFreeGuard<T>(*mut T);
-
-    impl<T> LocalFreeGuard<T> {
-        /// Create a guard for an object that's destroyed with `LocalFree`
-        /// when this is dropped.
-        ///
-        /// # Safety
-        ///
-        /// It must be correct to free `p` with `LocalFree`. This function transfers ownership of
-        /// `p` to this object.
-        pub unsafe fn from_ptr(p: *mut T) -> Self {
-            LocalFreeGuard(p)
-        }
-
-        /// Return the underlying pointer.
-        pub fn as_ptr(&self) -> *const T {
-            self.0
-        }
-    }
-
-    impl<T> Drop for LocalFreeGuard<T> {
-        fn drop(&mut self) {
-            // SAFETY: `self.0` was allocated by a Win32 function that returns
-            // a LocalAlloc-style handle (e.g. `SetEntriesInAclW`); we own it
-            // uniquely and have not freed it.
-            unsafe { LocalFree(self.0.cast()) };
-        }
-    }
-}
-
-use guard::LocalFreeGuard;
 
 /// Self-relative security descriptor returned by `GetNamedSecurityInfoW`.
 /// The borrowed DACL pointer lives as long as `self`.
@@ -123,6 +89,7 @@ impl SecurityDescriptor {
         if result != ERROR_SUCCESS {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
+        let sd = NonNull::new(sd).expect("GetNamedSecurityInfoW returns non-null on success");
         // SAFETY: The security descriptor must be freed with `LocalFree`.
         let _sd = unsafe { LocalFreeGuard::from_ptr(sd) };
         Ok(Self { _sd, dacl })
@@ -182,6 +149,8 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     if result != ERROR_SUCCESS {
         return Err(io::Error::from_raw_os_error(result as i32));
     }
+
+    let new_dacl = NonNull::new(new_dacl).expect("SetEntriesInAclW returns non-null on success");
 
     // SAFETY: This object must be destroyed with `LocalFree`.
     let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl.cast()) };

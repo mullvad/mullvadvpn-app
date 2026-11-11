@@ -3574,6 +3574,7 @@ dependencies = [
  "mullvad-paths",
  "nsis-plugin-api",
  "talpid-platform-metadata",
+ "talpid-types",
  "widestring",
  "windows-registry",
  "windows-sys 0.61.2",
@@ -3586,6 +3587,7 @@ dependencies = [
  "dirs",
  "log",
  "once_cell",
+ "talpid-types",
  "thiserror 2.0.19",
  "widestring",
  "windows-sys 0.61.2",
@@ -6136,6 +6138,7 @@ dependencies = [
  "shadowsocks-crypto",
  "thiserror 2.0.19",
  "vec1",
+ "windows-sys 0.61.2",
  "x25519-dalek",
  "zeroize",
 ]

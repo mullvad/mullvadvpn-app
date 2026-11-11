@@ -14,6 +14,7 @@ thiserror = { workspace = true }
 [target."cfg(windows)".dependencies]
 once_cell = { workspace = true }
 widestring = { workspace = true }
+talpid-types.path = "../talpid-types"
 
 [target."cfg(windows)".dependencies.windows-sys]
 workspace = true

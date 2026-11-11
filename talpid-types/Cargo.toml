@@ -18,6 +18,9 @@ vec1 = { workspace = true, features = ["serde"], optional = true }
 x25519-dalek = { version = "2.0.1", features = ["getrandom", "static_secrets", "zeroize"] }
 zeroize = { workspace = true }
 
+[target.'cfg(windows)'.dependencies]
+windows-sys.workspace = true
+
 [dev-dependencies]
 insta = { workspace = true }
 

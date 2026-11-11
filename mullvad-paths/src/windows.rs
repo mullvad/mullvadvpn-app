@@ -3,35 +3,40 @@ use once_cell::sync::OnceCell;
 use std::{
     ffi::c_void,
     io, mem,
-    os::windows::io::{AsHandle, AsRawHandle, BorrowedHandle, FromRawHandle, OwnedHandle},
+    os::windows::io::{
+        AsHandle as _, AsRawHandle, BorrowedHandle, FromRawHandle as _, OwnedHandle,
+    },
     path::{Path, PathBuf},
-    ptr,
+    ptr::{self, NonNull},
 };
+use talpid_types::windows::LocalFreeGuard;
 use widestring::{U16CString, WideCStr, u16cstr};
 use windows_sys::{
     Win32::{
         Foundation::{
             ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_EXECUTE, GENERIC_READ,
-            GENERIC_WRITE, HANDLE, LUID, LocalFree, S_OK,
+            GENERIC_WRITE, HANDLE, LUID, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
             Authorization::{
-                EXPLICIT_ACCESS_W, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, SET_ACCESS,
-                SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID,
-                TRUSTEE_W,
+                EXPLICIT_ACCESS_W, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
+                SET_ACCESS, SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP,
+                TRUSTEE_IS_SID, TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
-            LUID_AND_ATTRIBUTES, LookupPrivilegeValueW, NO_INHERITANCE, RevertToSelf,
-            SE_PRIVILEGE_ENABLED, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
-            TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES,
-            TOKEN_QUERY, TOKEN_USER, TokenUser, WinAuthenticatedUserSid,
-            WinBuiltinAdministratorsSid, WinLocalSystemSid,
+            InitializeSecurityDescriptor, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
+            NO_INHERITANCE, RevertToSelf, SE_PRIVILEGE_ENABLED, SECURITY_ATTRIBUTES,
+            SECURITY_DESCRIPTOR, SID, SUB_CONTAINERS_AND_OBJECTS_INHERIT, SecurityImpersonation,
+            SetSecurityDescriptorDacl, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
+            TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER, TokenUser, WELL_KNOWN_SID_TYPE,
+            WinAuthenticatedUserSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
         },
-        Storage::FileSystem::MAX_SID_SIZE,
+        Storage::FileSystem::{CreateDirectoryW, MAX_SID_SIZE},
         System::{
             Com::CoTaskMemFree,
             ProcessStatus::EnumProcesses,
+            SystemServices::SECURITY_DESCRIPTOR_REVISION,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
                 PROCESS_QUERY_INFORMATION,
@@ -46,6 +51,53 @@ use windows_sys::{
 
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
 
+/// Get the path to the daemon data directory, creating it if it doesn't exist.
+///
+/// The following permissions are enforced:
+/// - The directory is NOT writable by anyone other than SYSTEM.
+/// - The directory is readable & executable by any authenticated user.
+///
+/// # Errors
+/// This functions returns `Err`:
+/// - A syscall unexpectedly errors.
+/// - If the directory exists, but has unexpected permissions.
+pub fn data_dir() -> Result<PathBuf> {
+    let path = get_data_dir()?;
+
+    let dacl = build_acl(UserPermissions {
+        read: true,
+        write: false, // no write-access for normal users
+        execute: true,
+    })?;
+
+    // We assume that allusersprofile_dir exists
+    match create_dir_with_dacl(&path, &dacl) {
+        Ok(()) => (),
+        Err(Error::CreateDirFailed(_, src)) if src.kind() == io::ErrorKind::AlreadyExists => {
+            let actual_dacl = get_dacl(&path)?;
+            if let Some(actual_dacl) = actual_dacl
+                // SAFETY: TODO:
+                && unsafe { acl_eq(&dacl, &actual_dacl) }
+            {
+                // all good!
+                // TODO: describe reasoning of why all good
+            } else {
+                todo!("bad permissions! bail out and burn everything to the ground.")
+            }
+        }
+        Err(e) => return Err(e),
+    }
+
+    Ok(path)
+}
+
+/// Get the path to the daemon data directory in `C:\ProgramData`.
+///
+/// Use [`data_dir`] if you intend to access this directory for any reason.
+pub fn get_data_dir() -> Result<PathBuf> {
+    Ok(get_allusersprofile_dir()?.join(PRODUCT_NAME))
+}
+
 pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     match std::env::var_os("ALLUSERSPROFILE") {
         Some(dir) => Ok(PathBuf::from(&dir)),
@@ -53,11 +105,79 @@ pub fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
-/// This recursively creates directories, if set_security_permissions is true it will set
-/// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
-/// Access. Only directories that do not already exist and the leaf directory will have their
-/// permissions set.
-#[cfg(windows)]
+/// Create a directory with a specified access control list.
+///
+/// Will return [`io::ErrorKind::AlreadyExists`] if the directory already exists,
+/// in this case the existing directory's ACL will be **unchanged**.
+fn create_dir_with_dacl(path: &Path, acl: &LocalFreeGuard<Security::ACL>) -> Result<()> {
+    let wpath = U16CString::from_os_str(path)?;
+
+    let mut security_descriptor = SECURITY_DESCRIPTOR::default();
+
+    // SAFETY: This function is trivially safe.
+    let success = unsafe {
+        InitializeSecurityDescriptor(
+            (&raw mut security_descriptor).cast::<c_void>(),
+            SECURITY_DESCRIPTOR_REVISION,
+        )
+    };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("InitializeSecurityDescriptor(...)"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    // SAFETY: security_descriptor has been initialized. ACL is valid.
+    // SAFETY: TODO: ACL members must be in "absolute format" (pointers, not offsets). How do we know whether this is the case?
+    let success = unsafe {
+        SetSecurityDescriptorDacl(
+            (&raw mut security_descriptor).cast::<c_void>(),
+            true.into(), // DACL is present
+            acl.as_ptr(),
+            false.into(), // DACL is not defaulted; it's user-specified
+        )
+    };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("SetSecurityDescriptorDacl(...)"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    // TODO: is SetSecurityDescriptorOwner interesting?
+    // TODO: is SetSecurityDescriptorGroup interesting?
+    // TODO: is SetSecurityDescriptorRMControl interesting?
+    // TODO: is SetSecurityDescriptorSacl interesting?
+
+    let attrs = SECURITY_ATTRIBUTES {
+        nLength: size_of::<SECURITY_ATTRIBUTES>() as u32,
+        lpSecurityDescriptor: (&raw mut security_descriptor).cast::<c_void>(),
+        bInheritHandle: false.into(),
+    };
+
+    // SAFETY: TODO:
+    let success = unsafe { CreateDirectoryW(wpath.as_ptr(), &raw const attrs) };
+    if success == 0 {
+        return Err(Error::CreateDirFailed(
+            format!("CreateDirectoryW({path:?})"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    Ok(())
+}
+
+/// Create a directory at `path`.
+///
+/// Parent directories are created as-needed.
+/// If `user_permissions` is None, directory permissions are inherited from their parent.
+/// If `user_permissions` is Some, the directory is configured as:
+/// - Full access by SYSTEM
+/// - Limited access according to `user_permissions` by any authenticated user.
+///
+/// Only directories that do not already exist and the leaf directory
+/// will have their permissions set.
 pub fn create_dir(path: PathBuf, user_permissions: Option<UserPermissions>) -> Result<PathBuf> {
     if let Some(user_permissions) = user_permissions {
         create_dir_recursive_with_permissions(&path, user_permissions)?;
@@ -144,87 +264,158 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
     create_dir_recursive_with_permissions(path, UserPermissions::read_only())
 }
 
-/// Sets security permissions for path such that admin has full ownership and access while
-/// authenticated users only have read access.
-fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
+/// Wrapper for a windows security identifier ([`SID`]).
+#[repr(C, align(4))] // must be aligned to align_of::<SID>()
+pub struct Sid {
+    buf: [u8; MAX_SID_SIZE as usize],
+}
+
+impl Sid {
+    pub fn as_ptr(&self) -> *const c_void {
+        self.buf.as_ptr().cast::<c_void>()
+    }
+}
+
+/// Get a [`SID`] from a [`WELL_KNOWN_SID_TYPE`].
+fn get_well_known_sid(well_known: WELL_KNOWN_SID_TYPE) -> Result<Sid> {
+    // allocate a buf for the dyn-sized SID type.
+    const { assert!(align_of::<Sid>() == align_of::<SID>()) }
+    let mut sid = Sid {
+        buf: [0u8; MAX_SID_SIZE as usize],
+    };
+    let mut len = sid.buf.len() as u32;
+
+    // SAFETY: The pointer to the PSID is owned and valid for writes of `len` bytes
+    let result = unsafe {
+        CreateWellKnownSid(
+            well_known,
+            ptr::null_mut(),
+            sid.buf.as_mut_ptr().cast::<c_void>(),
+            &raw mut len,
+        )
+    };
+    if result == 0 {
+        return Err(Error::SetDirPermissionFailed(
+            format!("Could not get well-known SID: {well_known:?}"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    Ok(sid)
+}
+
+/// Get the DACL of a file. [Read more](get_file_security_descriptor)
+fn get_dacl(path: &Path) -> Result<Option<LocalFreeGuard<Security::ACL>>> {
+    let security_descriptor =
+        get_file_security_descriptor(path, Security::DACL_SECURITY_INFORMATION)?;
+
+    // If file does not have a DACL, return None
+    // SAFETY: security_descriptor was allocated by GetNamedSecurityInfoW and is owned by us.
+    if unsafe { security_descriptor.as_ref() }.Dacl.is_null() {
+        return Ok(None);
+    };
+
+    // SAFETY: security_descriptor was allocated by GetNamedSecurityInfoW and is owned by us.
+    let dacl = security_descriptor.map(|mut sd| unsafe {
+        NonNull::new(sd.as_mut().Dacl).expect("we've checkked that Dacl is Some")
+    });
+
+    Ok(Some(dacl))
+}
+
+/// Check if two ACLs are equal.
+unsafe fn acl_eq(
+    dacl: &LocalFreeGuard<Security::ACL>,
+    actual_dacl: &LocalFreeGuard<Security::ACL>,
+) -> bool {
+    todo!()
+}
+
+/// Get the security descriptor of a file. `mask` defines which fields of the descriptor to get.
+///
+/// ## Example
+/// ```ignore
+/// let sd = get_file_security_descriptor(/* path */, Security::DACL_SECURITY_INFORMATION);
+/// let dacl = unsafe { sd.as_ptr().as_ref_unchecked() }.Dacl;
+/// ```
+///
+/// ## Further reading
+/// - https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-security_descriptor
+/// - https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow
+fn get_file_security_descriptor(
+    path: &Path,
+    mask: Security::OBJECT_SECURITY_INFORMATION,
+) -> Result<LocalFreeGuard<SECURITY_DESCRIPTOR>> {
     let wide_path = U16CString::from_os_str(path)?;
-    let security_information = Security::DACL_SECURITY_INFORMATION
-        | Security::PROTECTED_DACL_SECURITY_INFORMATION
-        | Security::GROUP_SECURITY_INFORMATION
-        | Security::OWNER_SECURITY_INFORMATION;
 
-    let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut admin_psid_len =
-        u32::try_from(admin_psid.len()).expect("admin_psid length fits in u32");
+    let mut security_descriptor: *mut SECURITY_DESCRIPTOR = ptr::null_mut();
 
-    // SAFETY: The pointer to the PSID is valid for writes of `admin_psid_len` bytes
-    if unsafe {
-        CreateWellKnownSid(
-            WinBuiltinAdministratorsSid,
+    let result = unsafe {
+        GetNamedSecurityInfoW(
+            wide_path.as_ptr(),
+            SE_FILE_OBJECT,
+            mask,
+            // These null_mut()s are helper args for getting pointers to fields inside the
+            // security descriptor. Ignore them to stay sane.
             ptr::null_mut(),
-            admin_psid.as_mut_ptr().cast::<c_void>(),
-            &raw mut admin_psid_len,
+            ptr::null_mut(),
+            ptr::null_mut(),
+            ptr::null_mut(),
+            (&raw mut security_descriptor).cast::<*mut c_void>(),
         )
-    } == 0
-    {
-        return Err(Error::SetDirPermissionFailed(
-            String::from("Could not create admin SID"),
+    };
+
+    if result != ERROR_SUCCESS {
+        if result == ERROR_INSUFFICIENT_BUFFER {
+            // https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-getnamedsecurityinfow
+            todo!("This is a race condition in the syscall. Retry in this case.");
+        }
+        return Err(Error::GetDirPermissionFailed(
+            format!("Could not security desciptor for file: {path:?}"),
             io::Error::last_os_error(),
         ));
     }
 
-    let trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: admin_psid.as_mut_ptr() as *mut _,
-    };
+    let security_descriptor = NonNull::new(security_descriptor)
+        .expect("GetNamedSecurityInfoW returns non-null on success");
+    // SAFETY: GetNamedSecurityInfoW created this object and requires us to LocalFree it.
+    let security_descriptor = unsafe { LocalFreeGuard::from_ptr(security_descriptor) };
+    Ok(security_descriptor)
+}
 
-    let admin_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: GENERIC_ALL,
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: trustee,
-    };
-
-    let mut au_psid = [0u8; MAX_SID_SIZE as usize];
-    let mut au_psid_len = u32::try_from(au_psid.len()).expect("au_psid length fits in u32");
-
-    // SAFETY: The pointer to the PSID is valid for writes of `au_psid_len` bytes
-    if unsafe {
-        CreateWellKnownSid(
-            WinAuthenticatedUserSid,
-            ptr::null_mut(),
-            au_psid.as_mut_ptr().cast::<c_void>(),
-            &raw mut au_psid_len,
-        )
-    } == 0
-    {
-        return Err(Error::SetDirPermissionFailed(
-            String::from("Could not create authenticated users SID"),
-            io::Error::last_os_error(),
-        ));
+/// Build a windows ACL (access-control-list)
+///
+// TODO: explain what this function does
+fn build_acl(user_permissions: UserPermissions) -> Result<LocalFreeGuard<Security::ACL>> {
+    fn new_explicit_access_entry(sid: &Sid, access_permissions: u32) -> EXPLICIT_ACCESS_W {
+        EXPLICIT_ACCESS_W {
+            grfAccessPermissions: access_permissions,
+            grfAccessMode: SET_ACCESS,
+            grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+            Trustee: TRUSTEE_W {
+                pMultipleTrustee: ptr::null_mut(),
+                MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
+                TrusteeForm: TRUSTEE_IS_SID,
+                TrusteeType: TRUSTEE_IS_GROUP,
+                // TODO is casting from a SID to a string really legit???
+                // Note that despite the type, this value is not actually mutated. FFI is just bad.
+                ptstrName: sid.as_ptr().cast::<u16>().cast_mut(),
+            },
+        }
     }
 
-    let trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: au_psid.as_mut_ptr().cast(),
-    };
+    // Grant admin user full access
+    let admin_sid = get_well_known_sid(WinBuiltinAdministratorsSid)?;
+    let admin_ea = new_explicit_access_entry(&admin_sid, GENERIC_ALL);
 
-    let authenticated_users_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: user_permissions.flags(),
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: trustee,
-    };
+    // Grant authenticated user the specified access
+    let au_sid = get_well_known_sid(WinAuthenticatedUserSid)?;
+    let authenticated_users_ea = new_explicit_access_entry(&au_sid, user_permissions.flags());
 
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
 
+    // Build ACL from access entries.
     // SAFETY: `ea_entries` is valid for reads of `ea_entries.len()` elements
     // `new_dacl` is a valid pointer to an ACL pointer
     let result = unsafe {
@@ -235,6 +426,7 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             &raw mut new_dacl,
         )
     };
+
     if result != ERROR_SUCCESS {
         return Err(Error::SetDirPermissionFailed(
             String::from("SetEntriesInAclW failed"),
@@ -243,34 +435,49 @@ fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> R
             ),
         ));
     }
-    // new_dacl is now allocated and must be freed with FreeLocal
 
-    // SAFETY: All pointers are valid
+    let new_dacl = NonNull::new(new_dacl).expect("SetEntriesInAclW creates an ACL on success");
+    // SAFETY: new_dacl is a valid ACL pointer initialized by SetEntriesInAclW. We own it.
+    let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl) };
+    Ok(new_dacl)
+}
+
+/// Sets security permissions for path such that admin has full ownership and access while
+/// authenticated users have the access specified by `user_permissions`.
+fn set_security_permissions(path: &Path, user_permissions: UserPermissions) -> Result<()> {
+    let wide_path = U16CString::from_os_str(path)?;
+    let security_information = Security::DACL_SECURITY_INFORMATION
+        | Security::PROTECTED_DACL_SECURITY_INFORMATION
+        | Security::GROUP_SECURITY_INFORMATION
+        | Security::OWNER_SECURITY_INFORMATION;
+    let admin_sid = get_well_known_sid(WinBuiltinAdministratorsSid)?;
+    let new_dacl = build_acl(user_permissions)?;
+
+    // SAFETY: All pointers are valid.
+    // Note that admin_sid is not actually mutated, the PSID
+    // type is simply *mut because the windows FFI is bad.
     let result = unsafe {
         SetNamedSecurityInfoW(
             wide_path.as_ptr(),
             SE_FILE_OBJECT,
             security_information,
-            admin_psid.as_mut_ptr().cast(),
-            admin_psid.as_mut_ptr().cast(),
-            new_dacl,
+            admin_sid.as_ptr().cast_mut(),
+            admin_sid.as_ptr().cast_mut(),
+            new_dacl.as_ptr(),
             ptr::null(),
         )
     };
 
-    // SAFETY: `new_dacl` is a valid pointer since `SetEntriesInAclW` succeeded
-    unsafe { LocalFree(new_dacl.cast()) };
-
     if result != ERROR_SUCCESS {
-        Err(Error::SetDirPermissionFailed(
+        return Err(Error::SetDirPermissionFailed(
             String::from("SetNamedSecurityInfoW failed"),
             io::Error::from_raw_os_error(
                 i32::try_from(result).expect("result does not fit in i32"),
             ),
-        ))
-    } else {
-        Ok(())
+        ));
     }
+
+    Ok(())
 }
 
 /// Get local AppData path for the system service user.

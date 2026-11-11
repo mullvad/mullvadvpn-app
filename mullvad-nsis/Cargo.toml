@@ -15,6 +15,7 @@ anyhow.workspace = true
 mullvad-paths = { path = "../mullvad-paths" }
 nsis-plugin-api.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-types = { path = "../talpid-types" }
 widestring.workspace = true
 windows-registry.workspace = true
 windows-sys = { workspace = true, features = [
