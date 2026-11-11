@@ -121,6 +121,7 @@ tracing-subscriber = { workspace = true, features = ["chrono"] }
 insta = { workspace = true, features = ["json"] }
 talpid-time = { workspace = true, features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
+vec1 = { workspace = true }
 
 [build-dependencies]
 mullvad-version.workspace = true
@@ -182,9 +183,6 @@ default = ["default-allocator"]
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
 # Custom (user-provided) WireGuard VPN, tunneled through the Mullvad tunnel.
-# FIXME: WARNING: The settings exposed over the management interface include the private key for the
-# custom VPN. This is fine on Android, where only the app can access the gRPC socket, but not on
-# desktop platforms. Do not enable this on desktop without addressing that.
 custom-vpn = [
   "mullvad-management-interface/custom-vpn",
   "mullvad-types/custom-vpn",
