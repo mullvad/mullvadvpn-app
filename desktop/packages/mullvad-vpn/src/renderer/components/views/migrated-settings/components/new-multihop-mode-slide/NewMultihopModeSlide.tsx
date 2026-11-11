@@ -28,7 +28,7 @@ export function NewMultihopModeSlide({ from, to }: NewMultihopModeSlideProps) {
             // TRANSLATORS: Instructions shown in one step of a migration wizard.
             messages.pgettext(
               'migrated-settings-view',
-              'Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences.',
+              'Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences.',
             )
           }
         </Wizard.Slides.Slide.Text>
