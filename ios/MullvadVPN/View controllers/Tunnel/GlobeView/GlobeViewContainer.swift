@@ -49,13 +49,39 @@ class GlobeViewModel {
 }
 
 struct GlobeViewContainer: View {
-    var viewModel: GlobeViewModel
+    @State var viewModel: GlobeViewModel
+    var offset: CGFloat = 0  // 0 none, -1 top, 1 bottom
     var body: some View {
         if #available(iOS 18.0, *) {
-            GlobeView(target: viewModel.globeTarget, locationPins: viewModel.locationPins)
-                .ignoresSafeArea()
+            GeometryReader { geo in
+                let h = geo.size.height
+                let vh = h * (1 + abs(offset))
+                GlobeView(target: viewModel.globeTarget, locationPins: viewModel.locationPins)
+                    .ignoresSafeArea()
+                    .frame(width: geo.size.width, height: vh)
+                    .offset(y: min(offset, 0) * h)
+                    .clipped()
+                    .background(Color.mullvadDarkBackground.ignoresSafeArea())
+            }
         } else {
             // Fallback on earlier versions
+        }
+    }
+}
+
+#Preview {
+    @Previewable @State var viewModel = GlobeViewModel()
+    ZStack {
+        GlobeViewContainer(viewModel: viewModel, offset: -1 / 2)
+        VStack {
+            Spacer()
+            MullvadButton(text: "Random position", style: .primary) {
+                viewModel.removeLocationMarker()
+                let center = CLLocationCoordinate2D(latitude: .random(in: -90...90), longitude: .random(in: -90...90))
+                viewModel.setCenter(center, animated: true)
+                viewModel.addLocationMarker(coordinate: center)
+            }
+            .padding()
         }
     }
 }

@@ -42,7 +42,7 @@ let landEntity = ModelEntity(
 
 let oceanMesh = try! MeshResource.generate(from: [oceanDescriptor])
 
-let oceanMaterial = UnlitMaterial(
+var oceanMaterial = UnlitMaterial(
     color: .init(red: 0.10, green: 0.18, blue: 0.27, alpha: 1),
     applyPostProcessToneMap: true
 )
@@ -52,21 +52,10 @@ let oceanEntity = ModelEntity(
     materials: [oceanMaterial]
 )
 
-let lineMeshGenerator = try! LineMeshGenerator()
-let lowLevelMesh = try! lineMeshGenerator.makeMesh(
-    positions: globeData.landVertices,
-    polylineIndices: globeData.contourIndices,
-    width: 0.001
-)
-
-let meshResource = try! MeshResource(
-    from: lowLevelMesh
-)
-
-let contourEntity = ModelEntity(
-    mesh: meshResource,
-    materials: [oceanMaterial]
-)
+// Usage
+let mesh = try makeSphereStripMesh(positions: globeData.landVertices, indices: globeData.contourIndices, halfWidth: 0.001)
+oceanMaterial.faceCulling = .none                               // winding varies with segment direction
+let contourEntity = ModelEntity(mesh: mesh, materials: [oceanMaterial])
 
 let globeEntity = Entity()
 globeEntity.addChild(landEntity)
@@ -139,215 +128,64 @@ struct GlobeData {
     }
 }
 
-struct LineVertex {
-    var position: SIMD3<Float>
-}
+func makeSphereStripMesh(positions: [SIMD3<Float>],  // on the sphere, centered at origin
+                         indices: [UInt32],          // line strip: i0, i1, i2, ...
+                         halfWidth: Float,
+                         lift: Float = 1.0001) throws -> MeshResource {
+    let count = indices.count
+    precondition(count >= 2)
 
-struct LineParameters {
-    var width: Float
-    var elevation: Float
-    var segmentCount: UInt32
-}
+    let pts = indices.map { positions[Int($0)] }
 
-@MainActor
-final class LineMeshGenerator {
-
-    let device: MTLDevice
-    let commandQueue: MTLCommandQueue
-    let pipeline: MTLComputePipelineState
-
-    init() throws {
-        let device = MTLCreateSystemDefaultDevice()!
-        let source = try String(
-            contentsOfFile: "LineMeshShader.metal",
-            encoding: .utf8
-        )
-        let library = try device.makeLibrary(
-            source: source,
-            options: nil
-        )
-        let function = library.makeFunction(name: "expandGlobePolyline")!
-        let commandQueue = device.makeCommandQueue()!
-
-        self.device = device
-        self.commandQueue = commandQueue
-        self.pipeline = try device.makeComputePipelineState(
-            function: function
-        )
+    // Tangent-plane direction from p towards q, at point p
+    func dir(from p: SIMD3<Float>, to q: SIMD3<Float>) -> SIMD3<Float> {
+        let n = simd_normalize(p)
+        var d = q - p
+        d -= n * simd_dot(n, d)                       // project into tangent plane
+        let l = simd_length(d)
+        return l > 1e-9 ? d / l : .zero
     }
 
-    func makeMesh(
-        positions: [SIMD3<Float>],
-        polylineIndices: [UInt32],
-        width: Float,
-        elevation: Float = 1.000
-    ) throws -> LowLevelMesh {
+    var verts: [SIMD3<Float>] = []
+    var normals: [SIMD3<Float>] = []
+    verts.reserveCapacity(count * 2)
+    normals.reserveCapacity(count * 2)
 
-        guard polylineIndices.count >= 2 else {
-            fatalError("Not enough indices")
-        }
+    for k in 0..<count {
+        let p = pts[k]
+        let n = simd_normalize(p)
 
-        let segmentCount = polylineIndices.count - 1
+        let dPrev = k > 0         ? dir(from: pts[k - 1], to: p) : .zero
+        let dNext = k < count - 1 ? dir(from: p, to: pts[k + 1]) : .zero
 
-        let vertexCount = segmentCount * 4
-        let triangleIndexCount = segmentCount * 6
+        var t = dPrev + dNext
+        if simd_length(t) < 1e-6 { t = (dNext != .zero) ? dNext : dPrev }  // endpoints / U-turns
+        t = simd_normalize(t)
 
-        let attributes: [LowLevelMesh.Attribute] = [
-            .init(
-                semantic: .position,
-                format: .float3,
-                offset: MemoryLayout<LineVertex>.offset(
-                    of: \.position
-                )!
-            )
-        ]
+        let side = simd_normalize(simd_cross(n, t))
 
-        let layouts: [LowLevelMesh.Layout] = [
-            .init(
-                bufferIndex: 0,
-                bufferOffset: 0,
-                bufferStride: MemoryLayout<LineVertex>.stride
-            )
-        ]
+        // Miter: widen so the ribbon keeps its width across the corner
+        var w = halfWidth
+        let segDir = (dNext != .zero) ? dNext : dPrev
+        let segSide = simd_cross(n, segDir)
+        let c = simd_dot(side, segSide)
+        w = halfWidth / max(c, 0.5)                   // clamp to avoid spikes at sharp angles
 
-        let descriptor = LowLevelMesh.Descriptor(
-            vertexCapacity: vertexCount,
-            vertexAttributes: attributes,
-            vertexLayouts: layouts,
-            indexCapacity: triangleIndexCount,
-            indexType: .uint32
-        )
-
-        let mesh = try LowLevelMesh(
-            descriptor: descriptor
-        )
-
-        try populateMesh(
-            mesh,
-            positions: positions,
-            polylineIndices: polylineIndices,
-            width: width,
-            elevation: elevation
-        )
-
-        return mesh
+        let center = p * lift
+        verts.append(center - side * w); normals.append(n)
+        verts.append(center + side * w); normals.append(n)
     }
 
-    private func populateMesh(
-        _ mesh: LowLevelMesh,
-        positions: [SIMD3<Float>],
-        polylineIndices: [UInt32],
-        width: Float,
-        elevation: Float
-    ) throws {
-
-        let segmentCount = polylineIndices.count - 1
-
-        let sourcePositions = device.makeBuffer(
-            bytes: positions,
-            length:
-                positions.count * MemoryLayout<SIMD3<Float>>.stride,
-            options: .storageModeShared
-        )!
-
-        let sourceIndices = device.makeBuffer(
-            bytes: polylineIndices,
-            length:
-                polylineIndices.count * MemoryLayout<UInt32>.stride,
-            options: .storageModeShared
-        )!
-
-        let commandBuffer =
-            commandQueue.makeCommandBuffer()!
-
-        // These are the RealityKit-owned buffers that
-        // our Metal shader will write into.
-        let destinationVertices = mesh.replace(
-            bufferIndex: 0,
-            using: commandBuffer
-        )
-
-        let destinationIndices = mesh.replaceIndices(
-            using: commandBuffer
-        )
-
-        let encoder =
-            commandBuffer.makeComputeCommandEncoder()!
-
-        encoder.setComputePipelineState(pipeline)
-
-        // [[buffer(0)]]
-        encoder.setBuffer(
-            sourcePositions,
-            offset: 0,
-            index: 0
-        )
-
-        // [[buffer(1)]]
-        encoder.setBuffer(
-            sourceIndices,
-            offset: 0,
-            index: 1
-        )
-
-        // [[buffer(2)]]
-        encoder.setBuffer(
-            destinationVertices,
-            offset: 0,
-            index: 2
-        )
-
-        // [[buffer(3)]]
-        encoder.setBuffer(
-            destinationIndices,
-            offset: 0,
-            index: 3
-        )
-
-        var parameters = LineParameters(
-            width: width,
-            elevation: elevation,
-            segmentCount: UInt32(segmentCount)
-        )
-
-        // [[buffer(4)]]
-        encoder.setBytes(
-            &parameters,
-            length: MemoryLayout<LineParameters>.stride,
-            index: 4
-        )
-
-        let threadsPerGroup = min(
-            pipeline.maxTotalThreadsPerThreadgroup,
-            pipeline.threadExecutionWidth
-        )
-
-        let threadgroups = (segmentCount + threadsPerGroup - 1) / threadsPerGroup
-
-        encoder.dispatchThreadgroups(
-            MTLSize(width: threadgroups, height: 1, depth: 1),
-            threadsPerThreadgroup: MTLSize(
-                width: threadsPerGroup,
-                height: 1,
-                depth: 1
-            )
-        )
-
-        encoder.endEncoding()
-
-        commandBuffer.commit()
-
-        let radius: Float = 1
-
-        mesh.parts.replaceAll([
-            LowLevelMesh.Part(
-                indexCount: segmentCount * 6,
-                topology: .triangle,
-                bounds: BoundingBox(
-                    min: [-radius, -radius, -radius],
-                    max: [radius, radius, radius]
-                )
-            )
-        ])
+    var tris: [UInt32] = []
+    tris.reserveCapacity((count - 1) * 6)
+    for k in 0..<(count - 1) {
+        let a = UInt32(k * 2), b = UInt32((k + 1) * 2)
+        tris += [a, b, a + 1,   a + 1, b, b + 1]      // CCW seen from outside the sphere
     }
+
+    var desc = MeshDescriptor(name: "sphereStrip")
+    desc.positions = MeshBuffer(verts)
+     desc.normals = MeshBuffer(normals)
+    desc.primitives = .triangles(tris)
+    return try MeshResource.generate(from: [desc])
 }

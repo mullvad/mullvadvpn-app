@@ -42,7 +42,7 @@ class TunnelViewController: UIViewController, RootContainment {
     }
 
     private let globeViewHostingController = UIHostingController(
-        rootView: GlobeViewContainer(viewModel: .init())
+        rootView: GlobeViewContainer(viewModel: .init(), offset: -1 / 2)
     )
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
