@@ -391,7 +391,7 @@ class CustomTunnelEditViewModelTest {
                                 endpoint =
                                     InetSocketAddress(VALID_ENDPOINT_HOST, VALID_ENDPOINT_PORT),
                                 allowedIps = setOf(VALID_ALLOWED_IP),
-                            )
+                            ),
                         ),
                     enabled = true,
                     name = VALID_NAME,

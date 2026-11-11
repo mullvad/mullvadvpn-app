@@ -80,7 +80,7 @@ class CustomTunnelEditViewModel(
                         .fold(
                             {
                                 _uiSideEffect.send(
-                                    PersonalVpnSideEffect.FailedToSave(it.toString())
+                                    PersonalVpnSideEffect.FailedToSave(it.toString()),
                                 )
                             },
                             {
@@ -93,7 +93,7 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parseFormData(
-        formData: PersonalVpnFormData
+        formData: PersonalVpnFormData,
     ): Either<PersonalVpnFormErrors, CustomVpnConfig> {
         val nameError = validateName(formData.name)
         val (privateKeyError, privateKey) = parsePrivateKey(formData.privateKey)
@@ -109,7 +109,7 @@ class CustomTunnelEditViewModel(
                     peerConfig = peerConfigs,
                     enabled = formData.enabled,
                     name = formData.name,
-                )
+                ),
             )
         } else {
             Either.Left(
@@ -118,7 +118,7 @@ class CustomTunnelEditViewModel(
                     privateKeyError = privateKeyError,
                     tunnelIpErrors = tunnelIpErrors.orEmpty(),
                     peerErrors = peerErrors.orEmpty(),
-                )
+                ),
             )
         }
     }
@@ -131,7 +131,7 @@ class CustomTunnelEditViewModel(
         }
 
     private fun parsePeers(
-        peers: List<PeerFormData>
+        peers: List<PeerFormData>,
     ): Either<Map<String, PeerErrors>, List<PeerConfig>> {
         val errors = mutableMapOf<String, PeerErrors>()
 
@@ -170,7 +170,7 @@ class CustomTunnelEditViewModel(
                     publicKey = publicKey,
                     endpoint = InetSocketAddress(endpointAddress, endpointPort),
                     allowedIps = allowedIps,
-                )
+                ),
             )
         } else {
             Either.Left(
@@ -179,13 +179,13 @@ class CustomTunnelEditViewModel(
                     allowedIpErrors = allowedIpsError.orEmpty(),
                     endpointAddressError = endpointAddressError,
                     endpointPortError = endpointPortError,
-                )
+                ),
             )
         }
     }
 
     private fun parsePrivateKey(
-        privateKey: String
+        privateKey: String,
     ): Either<FormDataError.PrivateKey, WireguardKey> {
         return WireguardKey.from(privateKey).mapLeft {
             FormDataError.PrivateKey(errorValue = privateKey, keyParseError = it)
@@ -193,7 +193,7 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parsePeerPublicKey(
-        publicKey: String
+        publicKey: String,
     ): Either<FormDataError.PublicKey, WireguardKey> {
         return WireguardKey.from(publicKey).mapLeft {
             FormDataError.PublicKey(errorValue = publicKey, keyParseError = it)
@@ -201,7 +201,7 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parseTunnelIps(
-        tunnelIps: Set<String>
+        tunnelIps: Set<String>,
     ): Either<Map<String, FormDataError.TunnelIp>, Set<String>> {
         val (valid, invalid) = tunnelIps.partition(::isValidIp)
 
@@ -213,7 +213,7 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parseAllowedIpsCidr(
-        allowedIps: Set<String>
+        allowedIps: Set<String>,
     ): Either<Map<String, FormDataError.AllowedIp>, Set<String>> {
         val (valid, invalid) = allowedIps.partition(::isValidIpOrCidr)
 
@@ -225,7 +225,7 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parseEndpointAddress(
-        endpointAddress: String
+        endpointAddress: String,
     ): Either<FormDataError.EndpointAddress, String> =
         if (isValidIp(endpointAddress)) {
             Either.Right(endpointAddress)
@@ -240,14 +240,14 @@ class CustomTunnelEditViewModel(
                     FormDataError.EndpointPort(
                         errorValue = endpointPort,
                         ParsePortError.NotANumber(endpointPort),
-                    )
+                    ),
                 )
             !in 1..Port.MAX_VALUE ->
                 Either.Left(
                     FormDataError.EndpointPort(
                         errorValue = endpointPort,
                         ParsePortError.OutOfRange(port),
-                    )
+                    ),
                 )
             else -> Either.Right(port)
         }

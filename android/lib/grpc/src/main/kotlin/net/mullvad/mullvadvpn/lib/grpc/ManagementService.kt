@@ -1016,21 +1016,21 @@ class ManagementService(
             .mapLeft(ClearMigrationMessageError::Unknown)
 
     suspend fun getPersonalVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
-        Either.catch { grpc.GetCustomVpnStats().execute(Unit).toDomain() }
+        Either.catch { grpc.GetCustomVpnStats().executeWithRetry(Unit).toDomain() }
             .onLeft { Logger.e("Get personal vpn event error") }
             .mapLeft { GetCustomVpnConfigError.Unknown }
 
     suspend fun setPersonalVpnConfig(
-        config: ModelPersonalVpnConfig
+        config: ModelPersonalVpnConfig,
     ): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.SetCustomVpnConfig().execute(config.fromDomain()) }
+        Either.catch { grpc.SetCustomVpnConfig().executeWithRetry(config.fromDomain()) }
             .onLeft { Logger.e("Set personal VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
     /** Remove the personal VPN config. The daemon interprets an empty config as removal. */
     suspend fun clearPersonalVpn(): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.ClearCustomVpnConfig().execute(Unit) }
+        Either.catch { grpc.ClearCustomVpnConfig().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear personal VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
@@ -1047,7 +1047,7 @@ class ManagementService(
         Either.catch {
                 grpc
                     .ImportCustomVpnConfig()
-                    .execute(CustomVpnRawImport(name = name, wireguard_config = config))
+                    .executeWithRetry(CustomVpnRawImport(name = name, wireguard_config = config))
             }
             .onLeft { Logger.e("Import personal VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }

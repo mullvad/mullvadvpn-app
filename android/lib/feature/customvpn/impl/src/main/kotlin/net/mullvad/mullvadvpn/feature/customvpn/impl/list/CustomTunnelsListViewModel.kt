@@ -46,7 +46,7 @@ class CustomTunnelsListViewModel(
                     CustomTunnelsListUiState(
                         customVpnConfig = settings.customVpnConfig,
                         tunnelStats = stats,
-                    )
+                    ),
                 )
             }
             .stateIn(
@@ -72,7 +72,7 @@ class CustomTunnelsListViewModel(
                         .fold(
                             {
                                 _uiSideEffect.send(
-                                    CustomTunnelsListSideEffect.FailedToSave(it.toString())
+                                    CustomTunnelsListSideEffect.FailedToSave(it.toString()),
                                 )
                             },
                             { _uiSideEffect.send(CustomTunnelsListSideEffect.ConfigurationSaved) },
