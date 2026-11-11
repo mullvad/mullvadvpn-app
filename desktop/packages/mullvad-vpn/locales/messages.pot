@@ -2160,7 +2160,7 @@ msgid "This mode allows the app to automatically multihop through an additional 
 msgstr ""
 
 msgctxt "migrated-settings-view"
-msgid "This will be indicated by the symbol: <img></img>"
+msgid "This will be indicated by the <img></img> symbol."
 msgstr ""
 
 #. Instructions shown in one step of a migration wizard.
