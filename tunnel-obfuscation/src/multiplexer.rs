@@ -145,7 +145,7 @@ impl Multiplexer {
             client_public_key,
             timeout,
         } = self.settings;
-        log::info!(
+        log::debug!(
             "Multiplexing {} anti-censorship transport(s): {}",
             transports.len(),
             transports.iter().join(", ")
