@@ -8980,7 +8980,8 @@ proto.mullvad_daemon.management_interface.ObfuscationEndpoint.ObfuscationType = 
   UDP2TCP: 0,
   SHADOWSOCKS: 1,
   QUIC: 2,
-  LWO: 3
+  LWO: 3,
+  DIRECT: 4
 };
 
 /**

@@ -13,8 +13,6 @@ use mullvad_types::{
     settings::Settings,
 };
 use talpid_types::net::IpAvailability;
-use talpid_types::net::obfuscation::TransportConfig;
-use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
 
 use crate::relay_list;
 

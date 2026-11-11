@@ -214,17 +214,14 @@ fn format_relay_connection(
     location: Option<&GeoIpLocation>,
     verbose: bool,
 ) -> String {
-    let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
+    let first_hop = endpoint.entry_endpoint.as_ref().map(|_| {
+        // The first hop is reached through the obfuscation endpoints, if any.
         format_endpoints(
             location
                 .and_then(|l| l.entry_location.as_ref())
                 .and_then(|g| g.get_hostname())
                 .map(|h| h.as_str()),
-            // Check if we *actually* want to print an obfuscator endpoint ..
-            match endpoint.obfuscation {
-                Some(ref info) => info.get_endpoints(),
-                _ => vec![*entry],
-            },
+            entry_endpoint_addrs(endpoint),
             verbose,
         )
     });
@@ -234,11 +231,11 @@ fn format_relay_connection(
             .and_then(|l| l.location.as_ref())
             .and_then(|g| g.get_hostname())
             .map(|h| h.as_str()),
-        // Check if we *actually* want to print an obfuscator endpoint ..
         // The obfuscator information should be printed for the exit relay if multihop is disabled
-        match (&endpoint.obfuscation, &first_hop) {
-            (Some(obfuscation), None) => obfuscation.get_endpoints(),
-            _ => vec![endpoint.endpoint],
+        if first_hop.is_none() {
+            endpoint.obfuscation.get_endpoints()
+        } else {
+            vec![endpoint.endpoint]
         },
         verbose,
     );
@@ -246,6 +243,19 @@ fn format_relay_connection(
     match first_hop {
         None => exit_endpoint,
         Some(first_hop) => format!("{exit_endpoint} via {first_hop}"),
+    }
+}
+
+/// The endpoints of the first hop: the obfuscation endpoints if any, otherwise the entry endpoint.
+fn entry_endpoint_addrs(endpoint: &TunnelEndpoint) -> Vec<Endpoint> {
+    let obfuscated = endpoint.obfuscation.get_endpoints();
+    if obfuscated.is_empty() {
+        match endpoint.entry_endpoint {
+            Some(entry) => vec![entry],
+            None => vec![],
+        }
+    } else {
+        obfuscated
     }
 }
 

@@ -23,6 +23,7 @@ talpid-types = { path = "../talpid-types" }
 talpid-wireguard = { path = "../talpid-wireguard" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
+vec1 = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

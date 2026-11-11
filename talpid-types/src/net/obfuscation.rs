@@ -81,15 +81,6 @@ impl Obfuscators {
             .collect()
     }
 
-    // /// Return the socket address of the direct/plain wireguard connection inside
-    // /// the multiplexer, if present.
-    // pub fn direct(&self) -> Option<SocketAddr> {
-    //     match self {
-    //         Obfuscators::Single(_) => None,
-    //         Obfuscators::Multiplexer { direct, .. } => *direct,
-    //     }
-    // }
-
     pub fn obfuscator_configs(&self) -> Vec<ObfuscatorConfig> {
         self.iter()
             .filter_map(|t| match t {

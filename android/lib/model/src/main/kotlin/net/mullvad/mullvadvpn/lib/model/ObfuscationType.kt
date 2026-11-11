@@ -5,4 +5,5 @@ enum class ObfuscationType {
     Shadowsocks,
     Quic,
     Lwo,
+    Direct,
 }

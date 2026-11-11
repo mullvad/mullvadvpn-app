@@ -44,6 +44,15 @@ impl ObfuscationSettings {
         }
     }
 
+    pub fn transports(&self) -> &[tunnel_obfuscation::multiplexer::Transport] {
+        &self.transports
+    }
+
+    /// The public key of the local WireGuard instance.
+    pub fn client_public_key(&self) -> &PublicKey {
+        &self.client_public_key
+    }
+
     /// The overhead (in bytes) that this obfuscation adds to every packet.
     pub fn packet_overhead(&self) -> u16 {
         multiplexer::packet_overhead(&self.transports)

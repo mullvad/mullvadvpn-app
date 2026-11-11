@@ -9,7 +9,7 @@ use std::{
 use talpid_types::net::{
     IpVersion,
     TransportProtocol::{Tcp, Udp},
-    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators},
+    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators, TransportConfig},
     proxy::ShadowsocksCipher,
     wireguard::PublicKey,
 };
@@ -281,19 +281,21 @@ mod automatic_anti_censorship {
             .expect("Exactly one obfuscation relay");
 
         assert!(
-            wg_relay.obfuscator.is_none(),
+            wg_relay
+                .obfuscator
+                .iter()
+                .all(|t| matches!(t, TransportConfig::Direct(_))),
             "First relay has no obfuscation, only wireguard"
         );
-        let obfuscator = obf_relay
-            .obfuscator
-            .expect("Second relay has obfuscation enabled");
-        assert_matches!(
-            obfuscator,
-            Obfuscators::Multiplexer { .. },
+        let obfuscator = obf_relay.obfuscator;
+        assert!(
+            obfuscator.len() > 1,
             "Second relay should have a multiplexer obfuscator"
         );
         assert!(
-            obfuscator.direct().is_some(),
+            obfuscator
+                .iter()
+                .any(|t| matches!(t, TransportConfig::Direct(_))),
             "Second relay should include direct connection"
         );
         let configs = obfuscator.obfuscator_configs();
@@ -331,7 +333,7 @@ mod automatic_anti_censorship {
         let (wg_relay, obf_relays) = relay_selector
             .get_relays_with_automatic_anti_censorship(RelayQueryBuilder::new().build())
             .expect("Not empty");
-        assert!(wg_relay.obfuscator.is_none());
+        assert!(wg_relay.obfuscator.is_direct());
         let relays: HashSet<_> = obf_relays
             .into_iter()
             .map(|r| match r.inner {
@@ -375,7 +377,7 @@ mod automatic_anti_censorship {
             .expect("Two obfuscation relays");
 
         assert!(
-            wg_relay.obfuscator.is_none(),
+            wg_relay.obfuscator.is_direct(),
             "No obfuscation is selected on the first connection attempt"
         );
         assert_matches!(
@@ -389,40 +391,44 @@ mod automatic_anti_censorship {
             WireguardConfig::Singlehop { .. },
             "First obfuscated relay must select singlehop since it's when available"
         );
-        match obf_relay_1.obfuscator {
-            Some(obf @ Obfuscators::Multiplexer { .. }) => {
-                assert!(
-                    obf.direct().is_some(),
-                    "First obfuscated relay should multiplex a direct/wg connection"
-                );
-                assert!(
-                    obf.obfuscator_configs()
-                        .iter()
-                        .any(|c| matches!(c, ObfuscatorConfig::Lwo { .. })),
-                    "First obfuscated relay should multiplex LWO, as it's available"
-                );
-            }
-            _ => panic!("First obfuscated relay should use obfuscation multiplexer"),
+        {
+            let obf = &obf_relay_1.obfuscator;
+            assert!(
+                obf.len() > 1,
+                "First obfuscated relay should use obfuscation multiplexer"
+            );
+            assert!(
+                obf.iter().any(|t| matches!(t, TransportConfig::Direct(_))),
+                "First obfuscated relay should multiplex a direct/wg connection"
+            );
+            assert!(
+                obf.obfuscator_configs()
+                    .iter()
+                    .any(|c| matches!(c, ObfuscatorConfig::Lwo { .. })),
+                "First obfuscated relay should multiplex LWO, as it's available"
+            );
         }
         assert_matches!(
             obf_relay_2.inner,
             WireguardConfig::Multihop { .. },
             "Second obfuscated relay must select multihop to use the remaining obfuscators"
         );
-        match obf_relay_2.obfuscator {
-            Some(obf @ Obfuscators::Multiplexer { .. }) => {
-                assert!(
-                    obf.direct().is_none(),
-                    "Second obfuscated relay should _not_ multiplex a direct/wg connection, since it was used preciously"
-                );
-                assert!(
-                    obf.obfuscator_configs()
-                        .iter()
-                        .any(|c| matches!(c, ObfuscatorConfig::Quic { .. })),
-                    "Second obfuscated relay should multiplex QUIC, as it's available"
-                );
-            }
-            _ => panic!("Second obfuscated relay should use obfuscation multiplexer"),
+        {
+            let obf = &obf_relay_2.obfuscator;
+            assert!(
+                obf.len() > 1,
+                "Second obfuscated relay should use obfuscation multiplexer"
+            );
+            assert!(
+                obf.iter().all(|t| !matches!(t, TransportConfig::Direct(_))),
+                "Second obfuscated relay should _not_ multiplex a direct/wg connection, since it was used previously"
+            );
+            assert!(
+                obf.obfuscator_configs()
+                    .iter()
+                    .any(|c| matches!(c, ObfuscatorConfig::Quic { .. })),
+                "Second obfuscated relay should multiplex QUIC, as it's available"
+            );
         }
     }
 }
@@ -624,7 +630,7 @@ mod relay_query {
             )
         };
         // One Shadowsocks config per IP family, each with a dedicated extra address.
-        let configs = obfuscator.unwrap().obfuscator_configs();
+        let configs = obfuscator.obfuscator_configs();
         let endpoints: HashSet<IpAddr> = configs
             .iter()
             .map(|config| match config {
@@ -929,11 +935,8 @@ mod relay_query {
             // An auto-obfuscation query never results in a single obfuscation method:
             // either the direct transport alone, or a multiplexed list.
             assert!(
-                relay.obfuscator.0.len() > 1
-                    || matches!(
-                        relay.obfuscator.0.first(),
-                        talpid_types::net::obfuscation::TransportConfig::Direct(_)
-                    )
+                relay.obfuscator.len() > 1
+                    || matches!(relay.obfuscator.first(), TransportConfig::Direct(_))
             );
         }
     }
@@ -956,7 +959,7 @@ mod relay_query {
                 )
             };
             // One config per IP family, each with a valid port.
-            let configs = relay.obfuscator.unwrap().obfuscator_configs();
+            let configs = relay.obfuscator.obfuscator_configs();
             assert_eq!(configs.len(), 2);
             let mut families = HashSet::new();
             for config in configs {

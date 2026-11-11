@@ -1017,14 +1017,6 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
 /// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
 /// transports, since it is not yet known which one will be selected.
 fn mtu_with_obfuscation_overhead(params: &TunnelParameters, config: &Config) -> u16 {
-    // match config.obfuscation_settings() {
-    //     Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
-    //         params,
-    //         config.mtu.saturating_sub(settings.packet_overhead()),
-    //     ),
-    //     _ => config.mtu,
-    // }
-    // TODO: This feels wrong...
     if params.options.mtu.is_none() {
         clamp_tunnel_mtu(
             params,
@@ -1077,33 +1069,31 @@ async fn connect_to_ingress(
     retry_attempt: u32,
     bypass: &Arc<dyn SocketBypass>,
 ) -> std::result::Result<IngressConnection, CloseMsg> {
-    let (config, obfuscation, selected_obfuscation, session) = match config.obfuscation_settings() {
-        None => (config, None, None, None),
-        // A specific obfuscation method was selected
-        Some(obfuscation::ObfuscationSettings::Single(settings)) => {
-            let obfuscation = obfuscation::create_single(&settings, Arc::clone(bypass))
-                .await
-                .map_err(CloseMsg::SetupError)?;
-            (config, Some(obfuscation), None, None)
-        }
-        // Multiplex over multiple obfuscation methods
-        Some(obfuscation::ObfuscationSettings::Multiplexer {
-            transports,
-            client_public_key,
-        }) => {
-            let (selected, session) = obfuscation::run_multiplexer(
-                &config,
-                retry_attempt,
-                transports,
-                client_public_key,
-                bypass,
-            )
-            .await?;
-            let config = config.with_transport(&selected.config);
-            let (obfuscation, selected) = obfuscation::commit_to(selected);
-            (config, obfuscation, Some(selected), Some(session))
-        }
-    };
+    let (config, obfuscation, selected_obfuscation, session) =
+        match config.obfuscation_settings().single() {
+            // A specific obfuscation method (or none) was selected
+            Some(settings) => {
+                let obfuscation = obfuscation::create_single(settings, Arc::clone(bypass))
+                    .await
+                    .map_err(CloseMsg::SetupError)?;
+                (config, Some(obfuscation), None, None)
+            }
+            // Multiplex over multiple transports
+            None => {
+                let settings = config.obfuscation_settings();
+                let (selected, session) = obfuscation::run_multiplexer(
+                    &config,
+                    retry_attempt,
+                    settings.transports().to_vec(),
+                    settings.client_public_key().clone(),
+                    bypass,
+                )
+                .await?;
+                let config = config.with_transport(&selected.config);
+                let (obfuscation, selected) = obfuscation::commit_to(selected);
+                (config, obfuscation, Some(selected), Some(session))
+            }
+        };
 
     let (config, daita) = if config.negotiates_ephemeral_peers() {
         let session = match session {

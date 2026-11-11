@@ -430,6 +430,9 @@ function convertFromObfuscationEndpoint(
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.LWO:
       translatedType = 'lwo';
       break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.DIRECT:
+      translatedType = 'direct';
+      break;
     default:
       throw new Error('unsupported obfuscation protocol');
   }
