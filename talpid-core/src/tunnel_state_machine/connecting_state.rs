@@ -12,7 +12,7 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{
     EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, TunnelMonitorCommand,
 };
-use talpid_types::net::obfuscation::Obfuscators;
+use talpid_types::net::obfuscation::{Obfuscators, TransportConfig};
 use talpid_types::net::{
     AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
 };
@@ -619,9 +619,11 @@ impl ConnectingState {
                 // endpoint we broadcast -- refers to the transport that is actually in use.
                 if let Some(selected_obfuscation) = selected_obfuscation {
                     tunnel_parameters.obfuscation = match selected_obfuscation {
-                        SelectedObfuscation::Direct => None,
+                        SelectedObfuscation::Direct => {
+                            Obfuscators::direct(tunnel_parameters.connection.get_endpoint().address)
+                        }
                         SelectedObfuscation::Obfuscated(config) => {
-                            Some(Obfuscators::Single(config))
+                            Obfuscators(vec1::vec1![TransportConfig::Obfuscation(config)])
                         }
                     };
                 }

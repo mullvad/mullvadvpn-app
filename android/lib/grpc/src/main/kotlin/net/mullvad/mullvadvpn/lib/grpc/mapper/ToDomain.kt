@@ -282,6 +282,9 @@ internal fun ObfuscationEndpoint.ObfuscationType.toDomain(): ModelObfuscationTyp
         ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS -> ModelObfuscationType.Shadowsocks
         ObfuscationEndpoint.ObfuscationType.QUIC -> ModelObfuscationType.Quic
         ObfuscationEndpoint.ObfuscationType.LWO -> ModelObfuscationType.Lwo
+        ObfuscationEndpoint.ObfuscationType.DIRECT -> ModelObfuscationType.Direct
+        ObfuscationEndpoint.ObfuscationType.UNRECOGNIZED ->
+            error("Unrecognized obfuscation type")
     }
 
 internal fun TransportProtocol.toDomain(): ModelTransportProtocol =

@@ -414,6 +414,8 @@ message ObfuscationEndpoint {
     SHADOWSOCKS = 1;
     QUIC = 2;
     LWO = 3;
+    // Plain WireGuard, without any obfuscation.
+    DIRECT = 4;
   }
 
   Endpoint endpoint = 1;
