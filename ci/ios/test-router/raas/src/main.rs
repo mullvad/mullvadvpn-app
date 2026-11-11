@@ -15,10 +15,7 @@ async fn main() {
     create_temp_dir();
 
     let args = parse_args();
-    let (block_list, interface, cleanup_function) = init(
-        #[cfg(target_os = "linux")]
-        &args,
-    );
+    let (block_list, interface, cleanup_function) = init(&args);
 
     let listener = tokio::net::TcpListener::bind(&args.bind_address)
         .await
@@ -51,13 +48,15 @@ async fn main() {
 }
 
 #[cfg(target_os = "macos")]
-fn init() -> (
+fn init(
+    args: &Args,
+) -> (
     BlockList,
     String,
     impl FnOnce() -> Result<(), io::Error> + 'static,
 ) {
     let (block_list, interface, firewall_config) =
-        firewall::configure().expect("Failed to create a tunnel device");
+        firewall::configure(args.interface.clone()).expect("Failed to create a tunnel device");
 
     (block_list, interface, move || -> Result<(), io::Error> {
         firewall_config.reset()

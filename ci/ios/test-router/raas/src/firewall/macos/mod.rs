@@ -18,7 +18,9 @@ pub struct TunnelDevices {
     pub sink: AsyncDevice,
 }
 
-pub fn configure() -> Result<(BlockList, String, FirewallConfiguration), io::Error> {
+pub fn configure(
+    wan_if: Option<String>,
+) -> Result<(BlockList, String, FirewallConfiguration), io::Error> {
     // The MTU is left at the device default. It does not have to track the default route's: we
     // terminate the client's TCP connections ourselves, so the client's leg and the upstream leg
     // negotiate their MSS independently and the upstream path MTU never constrains this one.
@@ -28,7 +30,7 @@ pub fn configure() -> Result<(BlockList, String, FirewallConfiguration), io::Err
     let sink_name = sink.tun_name().map_err(io::Error::other)?;
 
     log::debug!("using source utun with name {source_name}, sink utun with name {sink_name}");
-    let configuration = configure_firewall_rules(source_name.clone(), sink_name)?;
+    let configuration = configure_firewall_rules(source_name.clone(), sink_name, wan_if)?;
 
     let tunnel_device = TunnelDevices { source, sink };
     Ok((BlockList::new(tunnel_device), source_name, configuration))
@@ -37,10 +39,22 @@ pub fn configure() -> Result<(BlockList, String, FirewallConfiguration), io::Err
 fn configure_firewall_rules(
     source_name: String,
     sink_name: String,
+    wan_if: Option<String>,
 ) -> Result<FirewallConfiguration, io::Error> {
-    let wan_if = netdev::interface::get_default_interface()
-        .map_err(|e| io::Error::other(format!("failed to get default interface: {e}")))?
-        .name;
+    let wan_if = match wan_if {
+        Some(wan_if) => {
+            println!("Using user specified interface {wan_if} to capture phone traffic");
+            wan_if
+        }
+        None => {
+            let default_interface = netdev::interface::get_default_interface()
+                .map_err(|e| io::Error::other(format!("failed to get default interface: {e}")))?
+                .name;
+
+            println!("No interface specified, capturing phone traffic on {default_interface}");
+            default_interface
+        }
+    };
 
     // This is MacOS specific
     let ip_forwarding =

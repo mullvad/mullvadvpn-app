@@ -46,6 +46,7 @@ impl FirewallConfiguration {
             source_name,
             sink_name
         );
+        println!("{script}");
         stdin.write_all(script.as_bytes())?;
         drop(stdin); // close the pipe so the shell sees EOF
 
