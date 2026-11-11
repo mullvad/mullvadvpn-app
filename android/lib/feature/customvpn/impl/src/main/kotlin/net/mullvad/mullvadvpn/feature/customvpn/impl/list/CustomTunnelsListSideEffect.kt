@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.list
+package net.mullvad.mullvadvpn.feature.customvpn.impl.list
 
 sealed interface CustomTunnelsListSideEffect {
     data object ConfigurationSaved : CustomTunnelsListSideEffect

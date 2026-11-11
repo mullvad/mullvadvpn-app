@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.edit
+package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 
 sealed interface PersonalVpnSideEffect {
 

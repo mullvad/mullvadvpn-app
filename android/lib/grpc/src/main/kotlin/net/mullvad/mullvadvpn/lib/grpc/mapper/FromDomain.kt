@@ -353,16 +353,18 @@ internal fun ModelPersonalVpnConfig.fromDomain(): CustomVpnConfig =
         tunnel =
             CustomVpnConfig.TunnelConfig(
                 private_key = tunnelConfig.privateKey.value.decodeBase64()!!,
-                ips = tunnelConfig.tunnelIps.map { it.hostAddress!! },
+                ips = tunnelConfig.tunnelIps.toList(),
             ),
         peers =
-            listOf(
+            peerConfig.map {
                 CustomVpnConfig.PeerConfig(
-                    public_key = peerConfig.publicKey.value.decodeBase64()!!,
-                    allowed_ip = peerConfig.allowedIps,
-                    endpoint = peerConfig.endpoint.toEndpointString(),
+                    public_key = it.publicKey.value.decodeBase64()!!,
+                    allowed_ip = it.allowedIps.toList(),
+                    endpoint = it.endpoint.toEndpointString(),
                 )
-            ),
+            },
+        enabled = enabled,
+        name = name,
     )
 
 /** Format as `<ip>:<port>`, with brackets around IPv6 addresses. */

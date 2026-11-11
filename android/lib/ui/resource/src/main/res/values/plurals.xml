@@ -32,4 +32,8 @@
         <item quantity="one">You will lose your remaining day.</item>
         <item quantity="other">You will lose your remaining %d days.</item>
     </plurals>
+    <plurals name="custom_tunnel_peer_names">
+        <item quantity="one">Peer</item>
+        <item quantity="other">Peer %d</item>
+    </plurals>
 </resources>

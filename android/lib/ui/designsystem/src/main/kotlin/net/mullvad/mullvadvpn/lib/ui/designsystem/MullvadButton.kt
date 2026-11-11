@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -209,6 +210,7 @@ fun PrimaryTextButton(
             contentColor = MaterialTheme.colorScheme.onPrimary,
             disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
         ),
+    textStyle: TextStyle = TextStyle.Default,
     textDecoration: TextDecoration = TextDecoration.None,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
@@ -230,6 +232,7 @@ fun PrimaryTextButton(
     ) {
         BaseButtonContent(
             text = AnnotatedString(text),
+            textStyle = textStyle,
             textDecoration = textDecoration,
             isLoading = isLoading,
             leadingIcon = leadingIcon,
@@ -385,6 +388,7 @@ private fun RowScope.BaseButtonContent(
     isLoading: Boolean,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     textDecoration: TextDecoration = TextDecoration.None,
+    textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     leadingIcon: @Composable (() -> Unit)?,
     trailingIcon: @Composable (() -> Unit)?,
 ) {
@@ -407,7 +411,7 @@ private fun RowScope.BaseButtonContent(
         Text(
             text = text,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
+            style = textStyle,
             textDecoration = textDecoration,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

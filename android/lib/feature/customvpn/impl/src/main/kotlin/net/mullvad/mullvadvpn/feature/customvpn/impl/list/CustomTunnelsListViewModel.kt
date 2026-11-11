@@ -1,9 +1,12 @@
-package net.mullvad.mullvadvpn.lib.feature.customvpn.impl.list
+package net.mullvad.mullvadvpn.feature.customvpn.impl.list
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -21,6 +24,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
@@ -28,6 +32,7 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 class CustomTunnelsListViewModel(
     settingsRepository: SettingsRepository,
     private val customTunnelsRepository: CustomTunnelsRepository,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<CustomTunnelsListSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
@@ -39,14 +44,7 @@ class CustomTunnelsListViewModel(
             ) { settings, stats ->
                 Lc.Content(
                     CustomTunnelsListUiState(
-                        customVpnConfigState =
-                            settings.customVpnConfig?.let {
-                                if (it.peerConfig.allowedIps.isEmpty()) { // TODO
-                                    CustomTunnelConfigState.Enabled(it)
-                                } else {
-                                    CustomTunnelConfigState.Disabled(it)
-                                }
-                            },
+                        customVpnConfig = settings.customVpnConfig,
                         tunnelStats = stats,
                     )
                 )
@@ -57,18 +55,30 @@ class CustomTunnelsListViewModel(
                 initialValue = Lc.Loading(Unit),
             )
 
-    fun onEnableCustomVpn(enable: Boolean) {
-        viewModelScope.launch { customTunnelsRepository.toggleCustomVpn(enable) }
+    fun onToggleCustomTunnel(config: CustomVpnConfig) {
+        viewModelScope.launch {
+            customTunnelsRepository.setConfig(config.copy(enabled = !config.enabled))
+        }
     }
 
-    fun importConfig(config: String) {
-        viewModelScope.launch {
-            customTunnelsRepository
-                .importConfig(config)
-                .fold(
-                    { _uiSideEffect.send(CustomTunnelsListSideEffect.FailedToSave(it.toString())) },
-                    { _uiSideEffect.send(CustomTunnelsListSideEffect.ConfigurationSaved) },
-                )
+    fun importConfig(name: String, contentResolver: ContentResolver, uri: Uri) {
+        viewModelScope.launch(ioDispatcher) {
+            contentResolver.openInputStream(uri).use { inputStream ->
+                if (inputStream != null) {
+                    val body = inputStream.reader(Charsets.UTF_8).readText()
+
+                    customTunnelsRepository
+                        .importConfig(name = name, config = body)
+                        .fold(
+                            {
+                                _uiSideEffect.send(
+                                    CustomTunnelsListSideEffect.FailedToSave(it.toString())
+                                )
+                            },
+                            { _uiSideEffect.send(CustomTunnelsListSideEffect.ConfigurationSaved) },
+                        )
+                }
+            }
         }
     }
 

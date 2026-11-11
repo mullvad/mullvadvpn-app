@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.feature.appicon.impl.navigation.appIconEntry
 import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.changelogEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
 import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
+import net.mullvad.mullvadvpn.feature.customvpn.impl.navigation.customTunnelsEntry
 import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
 import net.mullvad.mullvadvpn.feature.dns.impl.navigation.dnsSettingsEntry
@@ -71,7 +72,6 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
-import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.navigation.customTunnelsEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry

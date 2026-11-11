@@ -119,6 +119,7 @@ import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError as ModelParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig as ModelPeerConfig
+import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId as ModelPlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.Port as ModelPort
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -849,21 +850,23 @@ internal fun SplitFilterMigration.Scenario.toDomain(): ModelScenario =
 internal fun CustomVpnConfig.toDomain(): ModelPersonalVpnConfig =
     ModelPersonalVpnConfig(
         tunnelConfig = tunnel!!.toDomain(),
-        peerConfig = peers!!.first().toDomain(),
+        peerConfig = peers!!.map { it.toDomain() },
+        enabled = enabled,
+        name = name,
     )
 
 @Suppress("UnsafeCallOnNullableType")
 internal fun CustomVpnConfig.TunnelConfig.toDomain(): ModelTunnelConfig =
     ModelTunnelConfig(
         privateKey = ModelWireguardKey.from(private_key.base64()).getOrNull()!!,
-        tunnelIps = ips.map { it.toInetAddress() },
+        tunnelIps = ips.toSet(),
     )
 
 @Suppress("UnsafeCallOnNullableType")
 internal fun CustomVpnConfig.PeerConfig.toDomain(): ModelPeerConfig =
     ModelPeerConfig(
         publicKey = ModelWireguardKey.from(public_key.base64()).getOrNull()!!,
-        allowedIps = allowed_ip,
+        allowedIps = allowed_ip.toSet(),
         endpoint = endpoint.toInetSocketAddress(),
     )
 

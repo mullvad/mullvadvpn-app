@@ -133,6 +133,7 @@
     <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings.</string>
     <string name="exclude_applications">Excluded applications</string>
     <string name="x_out_of_y" tools:ignore="PluralsCandidate">%1$d out of %2$d</string>
+    <string name="x_or_y">%1$s or %2$s</string>
     <string name="all_applications">All applications</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="toggle_vpn">Toggle VPN</string>
@@ -618,6 +619,7 @@
     <string name="create_configuration">Create configuration</string>
     <string name="edit_configuration">Edit %s</string>
     <string name="custom_tunnels_edit_interface">Interface</string>
+    <string name="custom_tunnels_edit_peers">Peers</string>
     <string name="private_key">Private key</string>
     <string name="address">Address</string>
     <string name="add_address">Add Address</string>
@@ -626,4 +628,14 @@
     <string name="allowed_ips">Allowed IPs</string>
     <string name="add_ip">Add IP</string>
     <string name="endpoint">Endpoint</string>
+    <string name="add_peer">Add peer</string>
+    <string name="invalid_ip_address">Invalid address IP</string>
+    <string name="invalid_public_key">Invalid public key</string>
+    <string name="invalid_private_key">Invalid private key</string>
+    <string name="invalid_port">Port must be a number in the range %1$d-%2$d</string>
+    <string name="custom_tunnels_default_name">Custom tunnel</string>
+    <string name="custom_tunnels_name_cannot_be_empty">Name cannot be empty</string>
+    <string name="custom_tunnels_delete_confirmation">Delete "%1$s"?</string>
+    <string name="custom_tunnels_form_contains_errors_message">Unable to save the configuration. Please correct the errors in the form and try again.</string>
+    <string name="custom_tunnels_form_saved_success">Unable to save the configuration. Please correct the errors in the form and try again.</string>
 </resources>
