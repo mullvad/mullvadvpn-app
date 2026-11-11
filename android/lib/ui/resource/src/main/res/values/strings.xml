@@ -637,5 +637,5 @@
     <string name="custom_tunnels_name_cannot_be_empty">Name cannot be empty</string>
     <string name="custom_tunnels_delete_confirmation">Delete "%1$s"?</string>
     <string name="custom_tunnels_form_contains_errors_message">Unable to save the configuration. Please correct the errors in the form and try again.</string>
-    <string name="custom_tunnels_form_saved_success">Unable to save the configuration. Please correct the errors in the form and try again.</string>
+    <string name="custom_tunnels_form_saved_success">Configuration saved.</string>
 </resources>
