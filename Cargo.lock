@@ -3314,7 +3314,6 @@ dependencies = [
  "thiserror 2.0.19",
  "tokio",
  "vec1",
- "windows-sys 0.61.2",
  "winresource",
 ]
 
@@ -3609,7 +3608,6 @@ dependencies = [
  "tokio",
  "tracing-subscriber",
  "uuid",
- "windows-sys 0.61.2",
  "winresource",
 ]
 

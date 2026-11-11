@@ -14,7 +14,7 @@ path = "windows-utils-rs/lib.rs"
 [target.'cfg(target_os = "windows")'.dependencies]
 neon = "1"
 talpid-error.workspace = true
-talpid-windows = { path = "../../../talpid-windows" }
+talpid-windows.workspace = true
 thiserror = { workspace = true }
 windows = { workspace = true, features = [
   "Win32",

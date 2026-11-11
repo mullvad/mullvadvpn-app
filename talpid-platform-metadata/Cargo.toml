@@ -11,7 +11,7 @@ rs-release = "0.1.7"
 talpid-dbus = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 
 [target."cfg(windows)".dependencies.windows-sys]
 workspace = true

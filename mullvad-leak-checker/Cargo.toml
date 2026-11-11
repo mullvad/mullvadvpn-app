@@ -21,7 +21,7 @@ nix = { workspace = true, features = ["net", "socket", "uio"] }
 pnet_packet.workspace = true
 
 [target."cfg(windows)".dependencies]
-talpid-windows = { path = "../talpid-windows" }
+talpid-windows.workspace = true
 windows-sys = { workspace = true, features = [
   "Win32_NetworkManagement_IpHelper",
   "Win32_NetworkManagement_Ndis"

@@ -10,11 +10,11 @@ license.workspace = true
 crate-type = ["cdylib"]
 name = "mullvad_nsis"
 
-[target.i686-pc-windows-msvc.dependencies]
+[target.'cfg(all(target_arch = "x86", target_os = "windows"))'.dependencies]
 anyhow.workspace = true
-mullvad-paths = { path = "../mullvad-paths" }
+mullvad-paths.workspace = true
 nsis-plugin-api.workspace = true
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-platform-metadata.workspace = true
 widestring.workspace = true
 windows-registry.workspace = true
 windows-sys = { workspace = true, features = [

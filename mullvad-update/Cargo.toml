@@ -19,9 +19,9 @@ hex = { workspace = true }
 itertools = { workspace = true }
 json-canon = "0.1"
 log = { workspace = true }
-mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
-mullvad-tls-client = { path = "../mullvad-tls-client" }
-mullvad-version = { path = "../mullvad-version", features = ["serde"] }
+mullvad-api-constants.workspace = true
+mullvad-tls-client.workspace = true
+mullvad-version = { workspace = true, features = ["serde"] }
 # If a consumer enable the `proptest` feature, then we expose proptest generators in the public API
 proptest = { workspace = true, optional = true }
 rand = { workspace = true }

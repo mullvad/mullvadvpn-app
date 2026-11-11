@@ -8,7 +8,7 @@ license.workspace = true
 
 [dependencies]
 rand = { workspace = true }
-talpid-time = { path = "../talpid-time" }
+talpid-time.workspace = true
 
 [dev-dependencies]
 proptest = { workspace = true }
