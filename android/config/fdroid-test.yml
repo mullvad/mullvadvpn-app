@@ -35,7 +35,6 @@ Builds:
       - desktop
       - graphics
       - ios
-      - windows
       - building/sigstore
       - android/lib/billing
       - mullvad-nsis
