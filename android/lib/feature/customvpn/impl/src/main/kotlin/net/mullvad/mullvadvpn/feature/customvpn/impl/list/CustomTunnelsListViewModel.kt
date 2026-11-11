@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -15,8 +16,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CustomTunnelsListViewModel(
     settingsRepository: SettingsRepository,
     private val customTunnelsRepository: CustomTunnelsRepository,
@@ -37,9 +43,11 @@ class CustomTunnelsListViewModel(
     private val _uiSideEffect = Channel<CustomTunnelsListSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
 
+    private val settingsUpdates = settingsRepository.settingsUpdates.filterNotNull()
+
     val uiState: StateFlow<Lc<Unit, CustomTunnelsListUiState>> =
         combine(
-                settingsRepository.settingsUpdates.filterNotNull(),
+                settingsUpdates,
                 customTunnelStats(),
             ) { settings, stats ->
                 Lc.Content(
@@ -82,20 +90,31 @@ class CustomTunnelsListViewModel(
         }
     }
 
-    private fun customTunnelStats(): Flow<TunnelStats> = flow {
-        emit(TunnelStats(0, 0))
-        while (currentCoroutineContext().isActive) {
-            customTunnelsRepository
-                .getCustomTunnelStats()
-                .fold(
-                    { error ->
-                        // We will just keep the old value if we fail to get the stats.
-                        Logger.e { "Error getting custom VPN stats: $error" }
-                    },
-                    { stats -> emit(stats) },
-                )
+    private fun customTunnelStats(): Flow<TunnelStats> =
+        settingsUpdates
+            .map { it.customVpnConfig?.enabled == true }
+            .distinctUntilChanged()
+            .flatMapLatest { customVpnActive ->
+                if (customVpnActive) {
+                    flow {
+                        emit(TunnelStats(0, 0))
+                        while (currentCoroutineContext().isActive) {
+                            customTunnelsRepository
+                                .getCustomTunnelStats()
+                                .fold(
+                                    { error ->
+                                        // We will just keep the old value if we fail to get the
+                                        // stats.
+                                        Logger.e { "Error getting custom VPN stats: $error" }
+                                    },
+                                    { stats -> emit(stats) },
+                                )
 
-            delay(1.seconds)
-        }
-    }
+                            delay(1.seconds)
+                        }
+                    }
+                } else {
+                    flowOf(TunnelStats(0, 0))
+                }
+            }
 }
