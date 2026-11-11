@@ -85,7 +85,6 @@ fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) 
     let obfuscation = &mut query.entry_specific_mut().obfuscation;
     if direct {
         obfuscation.direct = None;
-        changed = true;
     }
     for config in obf_configs {
         match config {
