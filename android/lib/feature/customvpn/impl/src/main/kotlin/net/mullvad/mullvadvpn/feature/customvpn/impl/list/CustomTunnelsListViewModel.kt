@@ -40,7 +40,7 @@ class CustomTunnelsListViewModel(
     val uiState: StateFlow<Lc<Unit, CustomTunnelsListUiState>> =
         combine(
                 settingsRepository.settingsUpdates.filterNotNull(),
-                personalVpnTunnelStats(),
+                customTunnelStats(),
             ) { settings, stats ->
                 Lc.Content(
                     CustomTunnelsListUiState(
@@ -82,15 +82,15 @@ class CustomTunnelsListViewModel(
         }
     }
 
-    private fun personalVpnTunnelStats(): Flow<TunnelStats> = flow {
+    private fun customTunnelStats(): Flow<TunnelStats> = flow {
         emit(TunnelStats(0, 0))
         while (currentCoroutineContext().isActive) {
             customTunnelsRepository
-                .getPersonalVpnStats()
+                .getCustomTunnelStats()
                 .fold(
                     { error ->
                         // We will just keep the old value if we fail to get the stats.
-                        Logger.e { "Error getting personal VPN stats: $error" }
+                        Logger.e { "Error getting custom VPN stats: $error" }
                     },
                     { stats -> emit(stats) },
                 )

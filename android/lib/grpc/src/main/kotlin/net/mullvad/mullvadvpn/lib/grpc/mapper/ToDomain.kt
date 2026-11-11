@@ -86,7 +86,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions as ModelCustomDnsOption
 import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId as ModelCustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName as ModelCustomListName
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelPersonalVpnConfig
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings as ModelDaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device as ModelDevice
@@ -847,8 +847,8 @@ internal fun SplitFilterMigration.Scenario.toDomain(): ModelScenario =
     }
 
 @Suppress("UnsafeCallOnNullableType")
-internal fun CustomVpnConfig.toDomain(): ModelPersonalVpnConfig =
-    ModelPersonalVpnConfig(
+internal fun CustomVpnConfig.toDomain(): ModelCustomVpnConfig =
+    ModelCustomVpnConfig(
         tunnelConfig = tunnel!!.toDomain(),
         peerConfig = peers!!.map { it.toDomain() },
         enabled = enabled,
@@ -873,6 +873,6 @@ internal fun CustomVpnConfig.PeerConfig.toDomain(): ModelPeerConfig =
 internal fun CustomVpnStats.toDomain(): ModelTunnelStats =
     ModelTunnelStats(rx = rx_bytes, tx = tx_bytes, lastHandshake = last_handshake_time)
 
-internal fun CustomVpnSettings.toDomain(): List<ModelPersonalVpnConfig> = configs.map {
+internal fun CustomVpnSettings.toDomain(): List<ModelCustomVpnConfig> = configs.map {
     it.toDomain()
 }

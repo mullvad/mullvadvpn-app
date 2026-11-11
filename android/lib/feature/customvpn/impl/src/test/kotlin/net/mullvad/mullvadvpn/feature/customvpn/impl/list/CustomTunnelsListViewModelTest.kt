@@ -55,7 +55,7 @@ class CustomTunnelsListViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
-        coEvery { mockCustomTunnelsRepository.getPersonalVpnStats() } returns
+        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
             GetCustomVpnConfigError.Unknown.left()
         every { mockContentResolver.openInputStream(uri) } answers
             {
@@ -126,7 +126,7 @@ class CustomTunnelsListViewModelTest {
             // Arrange
             val initialStats = TunnelStats(rx = 100, tx = 200)
             val updatedStats = TunnelStats(rx = 300, tx = 400)
-            coEvery { mockCustomTunnelsRepository.getPersonalVpnStats() } returns
+            coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
                 initialStats.right() andThen
                 updatedStats.right()
 
@@ -147,10 +147,10 @@ class CustomTunnelsListViewModelTest {
         }
 
     @Test
-    fun `when getPersonalVpnStats fails uiState should retain previous stats`() = runTest {
+    fun `when getCustomVpnStats fails uiState should retain previous stats`() = runTest {
         // Arrange
         val initialStats = TunnelStats(rx = 100, tx = 200)
-        coEvery { mockCustomTunnelsRepository.getPersonalVpnStats() } returns
+        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
             initialStats.right() andThen
             GetCustomVpnConfigError.Unknown.left()
 

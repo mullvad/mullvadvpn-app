@@ -32,7 +32,7 @@ sealed interface VpnSettingItem {
 
     data object ServerIpOverrides : VpnSettingItem
 
-    data object PersonalVpn : VpnSettingItem
+    data object CustomVpn : VpnSettingItem
 
     data object Divider : VpnSettingItem
 

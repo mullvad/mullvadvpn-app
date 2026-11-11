@@ -15,13 +15,13 @@ class CustomTunnelsRepository(
 ) {
 
     suspend fun setConfig(config: CustomVpnConfig): Either<SetCustomVpnConfigError, Unit> =
-        withContext(ioDispatcher) { managementService.setPersonalVpnConfig(config) }
+        withContext(ioDispatcher) { managementService.setCustomVpnConfig(config) }
 
-    suspend fun getPersonalVpnStats(): Either<GetCustomVpnConfigError, TunnelStats> =
-        withContext(ioDispatcher) { managementService.getPersonalVpnStats() }
+    suspend fun getCustomTunnelStats(): Either<GetCustomVpnConfigError, TunnelStats> =
+        withContext(ioDispatcher) { managementService.getCustomVpnStats() }
 
     suspend fun importConfig(name: String, config: String): Either<SetCustomVpnConfigError, Unit> =
         withContext(ioDispatcher) {
-            managementService.importPersonalVpnConfig(name = name, config = config)
+            managementService.importCustomVpnConfig(name = name, config = config)
         }
 }

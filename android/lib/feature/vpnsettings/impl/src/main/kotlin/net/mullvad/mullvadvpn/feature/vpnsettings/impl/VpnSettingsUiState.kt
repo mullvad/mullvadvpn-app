@@ -80,8 +80,8 @@ data class VpnSettingsUiState(
                     add(VpnSettingItem.ServerIpOverrides)
                     add(VpnSettingItem.Spacer)
 
-                    // Personal VPN
-                    add(VpnSettingItem.PersonalVpn)
+                    // Custom VPN
+                    add(VpnSettingItem.CustomVpn)
                     add(VpnSettingItem.Spacer)
                 },
                 isModal = isModal,
