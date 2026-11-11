@@ -130,7 +130,7 @@ class CustomTunnelsListViewModelTest {
                 initialStats.right() andThen
                 updatedStats.right()
 
-            initSettings(customVpnConfig = null)
+            initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = true))
 
             // Act, Assert
             viewModel.uiState.test {
@@ -154,7 +154,7 @@ class CustomTunnelsListViewModelTest {
             initialStats.right() andThen
             GetCustomVpnConfigError.Unknown.left()
 
-        initSettings(customVpnConfig = null)
+        initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = true))
 
         // Act, Assert
         viewModel.uiState.test {
@@ -166,6 +166,85 @@ class CustomTunnelsListViewModelTest {
 
             expectNoEvents()
             assertEquals(initialStats, viewModel.uiState.value.contentOrNull()?.tunnelStats)
+        }
+    }
+
+    @Test
+    fun `when no custom vpn config exists should not poll daemon for stats`() = runTest {
+        initSettings(customVpnConfig = null)
+
+        viewModel.uiState.test {
+            val content = awaitItem()
+            assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+            assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
+
+            advanceTimeBy(3.seconds)
+
+            expectNoEvents()
+            coVerify(exactly = 0) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+        }
+    }
+
+    @Test
+    fun `when custom vpn config is disabled should not poll daemon for stats`() = runTest {
+        initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = false))
+
+        viewModel.uiState.test {
+            val content = awaitItem()
+            assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+            assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
+
+            advanceTimeBy(3.seconds)
+
+            expectNoEvents()
+            coVerify(exactly = 0) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+        }
+    }
+
+    @Test
+    fun `when custom vpn config is enabled should poll daemon for stats`() = runTest {
+        val initialStats = TunnelStats(rx = 100, tx = 200)
+        val updatedStats = TunnelStats(rx = 300, tx = 400)
+        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
+            initialStats.right() andThen
+            updatedStats.right()
+
+        initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = true))
+
+        viewModel.uiState.test {
+            assertEquals(initialStats, expectMostRecentItem().contentOrNull()?.tunnelStats)
+
+            advanceTimeBy(1.seconds)
+
+            assertEquals(updatedStats, awaitItem().contentOrNull()?.tunnelStats)
+            coVerify(atLeast = 2) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `when custom vpn config becomes disabled should stop polling and reset stats`() = runTest {
+        val stats = TunnelStats(rx = 100, tx = 200)
+        var pollCount = 0
+        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } answers
+            {
+                pollCount++
+                stats.right()
+            }
+
+        initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = true))
+
+        viewModel.uiState.test {
+            assertEquals(stats, expectMostRecentItem().contentOrNull()?.tunnelStats)
+
+            val pollsBeforeDisabling = pollCount
+            initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = false))
+            assertEquals(TunnelStats(0, 0), expectMostRecentItem().contentOrNull()?.tunnelStats)
+
+            advanceTimeBy(3.seconds)
+
+            expectNoEvents()
+            assertEquals(pollsBeforeDisabling, pollCount)
         }
     }
 
