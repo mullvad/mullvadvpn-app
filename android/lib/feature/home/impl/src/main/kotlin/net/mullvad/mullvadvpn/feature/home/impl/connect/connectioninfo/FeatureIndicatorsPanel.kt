@@ -4,30 +4,19 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInQuart
 import androidx.compose.animation.core.EaseOutQuad
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ContextualFlowRow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Composable
 fun FeatureIndicatorsPanel(
@@ -103,30 +91,6 @@ fun FeatureIndicators(
                 text = featureIndicator.text(),
                 icon = featureIndicator.icon(),
                 onClick = { onNavigateToFeature(featureIndicator) },
-                trailingIcon =
-                    if (featureIndicator == FeatureIndicator.CUSTOM_VPN) {
-                        {
-                            val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-                            val tint by
-                                infiniteTransition.animateColor(
-                                    initialValue = MaterialTheme.colorScheme.positive,
-                                    targetValue =
-                                        MaterialTheme.colorScheme.positive.copy(alpha = 0.4f),
-                                    animationSpec =
-                                        infiniteRepeatable(
-                                            animation =
-                                                tween(durationMillis = 1000, easing = EaseInOut),
-                                            repeatMode = RepeatMode.Reverse,
-                                        ),
-                                    label = "pulseColor",
-                                )
-                            Box(
-                                modifier =
-                                    Modifier.size(Dimens.activeFeatureIndicator)
-                                        .background(color = tint, shape = CircleShape),
-                            )
-                        }
-                    } else null,
                 modifier =
                     if (this@with != null && animatedVisibilityScope != null) {
                         Modifier.sharedBounds(
