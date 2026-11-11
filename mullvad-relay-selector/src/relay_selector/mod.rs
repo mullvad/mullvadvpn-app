@@ -83,8 +83,10 @@ fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) 
         ),
     };
     let obfuscation = &mut user_query.entry_specific_mut().obfuscation;
+    let mut changed = false;
     if direct {
         obfuscation.direct = None;
+        changed = true;
     }
     for config in obf_configs {
         match config {
@@ -93,7 +95,12 @@ fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) 
             ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
             ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
         }
+        changed = true;
     }
+    debug_assert!(
+        changed,
+        "We must remove at least one obfuscation method from the query"
+    );
 }
 
 /// The return type of [`RelaySelector::get_relay_by_query`].
