@@ -146,7 +146,7 @@ impl Multiplexer {
             timeout,
         } = self.settings;
         log::info!(
-            "Multiplexing {} anti-censorship transports: {}",
+            "Multiplexing {} anti-censorship transport(s): {}",
             transports.len(),
             transports.iter().join(", ")
         );
