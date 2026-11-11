@@ -130,6 +130,7 @@ pub fn compute_feature_indicators(
     settings: &Settings,
     endpoint: &TunnelEndpoint,
     server_ip_override: bool,
+    custom_vpn_active: bool,
 ) -> FeatureIndicators {
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     let split_tunneling = settings.split_tunnel.enable_exclusions;
@@ -165,8 +166,6 @@ pub fn compute_feature_indicators(
     let lwo = has_obfuscation(ObfuscationType::Lwo);
 
     let mtu = settings.tunnel_options.wireguard.mtu.is_some();
-    #[cfg(feature = "custom-vpn")]
-    let custom_vpn = settings.custom_vpn.active().is_some();
 
     let daita = endpoint.daita;
 
@@ -200,8 +199,7 @@ pub fn compute_feature_indicators(
         (lwo, FeatureIndicator::Lwo),
         (mtu, FeatureIndicator::CustomMtu),
         (daita, FeatureIndicator::Daita),
-        #[cfg(feature = "custom-vpn")]
-        (custom_vpn, FeatureIndicator::CustomVpn),
+        (custom_vpn_active, FeatureIndicator::CustomVpn),
     ];
 
     // use the booleans to filter into a list of only the active features
@@ -223,7 +221,7 @@ mod tests {
 
     /// Compute the feature indicators without a server IP override or custom VPN handshake.
     fn compute(settings: &Settings, endpoint: &TunnelEndpoint) -> FeatureIndicators {
-        compute_feature_indicators(settings, endpoint, false)
+        compute_feature_indicators(settings, endpoint, false, false)
     }
 
     #[test]
