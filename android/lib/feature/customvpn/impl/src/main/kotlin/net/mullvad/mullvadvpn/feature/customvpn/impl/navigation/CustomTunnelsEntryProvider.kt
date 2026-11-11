@@ -6,6 +6,7 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.slideInHorizontalTransition
+import net.mullvad.mullvadvpn.core.scene.ListDetailSceneStrategy
 import net.mullvad.mullvadvpn.core.scene.SingleOverlaySceneStrategy
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
@@ -18,14 +19,16 @@ import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomTunnelsList
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
 fun EntryProviderScope<NavKey2>.customTunnelsEntry(navigator: Navigator) {
-    entry<CustomTunnelsListNavKey>(metadata = slideInHorizontalTransition()) { navKey ->
+    entry<CustomTunnelsListNavKey>(
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
+    ) { navKey ->
         LocalSharedTransitionScope.current?.CustomTunnelsList(
             navigator = navigator,
             isModal = navKey.isModal,
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )
     }
-    entry<EditCustomTunnelNavKey> { navKey ->
+    entry<EditCustomTunnelNavKey>(metadata = ListDetailSceneStrategy.detailPane()) { navKey ->
         CustomTunnelEdit(
             isNewConfig = navKey.new,
             navigator = navigator,

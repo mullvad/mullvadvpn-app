@@ -59,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.common.util.then
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedVisibilityItem
@@ -226,7 +227,9 @@ fun CustomTunnelEditScreen(
                 stringResource(id = R.string.edit_configuration, formData.name)
             },
         modifier = modifier,
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
         actions = {
             Actions(
                 isNew = isNew,
