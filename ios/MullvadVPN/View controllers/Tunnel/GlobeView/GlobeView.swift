@@ -25,11 +25,13 @@ struct LocationPin {
 
 enum GlobeTarget: Equatable {
     case none
+    /// The view tries to fit all points into the view port.
     case points([GeoPoint])
+    /// The view tries to fit the lat and long span into the viewport
     case region(
         center: GeoPoint,
-        latitudeSpan: Double = 5,
-        longitudeSpan: Double = 5
+        latitudeSpan: Double = 10,
+        longitudeSpan: Double = 10
     )
 }
 
@@ -42,16 +44,21 @@ struct GlobeView: View {
     @State private var camera: Entity? = nil
     @State private var pinContainer: Entity? = nil
     @State private var viewSize: CGSize? = nil
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
     var body: some View {
         RealityView { content in
             do {
+                // Globe
                 let globe = try await Entity(named: "globe")
                 self.globe = globe
+
+                // Pins
                 let pinContainer = Entity()
                 pinContainer.name = "pinContainer"
                 globe.addChild(pinContainer)
                 self.pinContainer = pinContainer
-                content.add(globe)
+
+                // Camera
                 let camera = Entity()
 
                 camera.components.set(
@@ -70,18 +77,27 @@ struct GlobeView: View {
                     relativeTo: nil
                 )
                 self.camera = camera
-                content.add(camera)
-                update()
+
+                // Root
+                let root = Entity()
+                root.addChild(globe)
+                root.addChild(camera)
+                content.add(root)
+                goToTarget(animated: false)
+                updatePins()
             } catch {
                 logger.error("Failed to load globe resource file \(error)")
             }
         } update: { content in
-            update()
+            updatePins()
         }
         .sizeOfView { viewSize = $0 }
+        .onChange(of: target) {
+            goToTarget(animated: true)
+        }
     }
 
-    func update() {
+    func goToTarget(animated: Bool) {
         guard let globe,
             let viewSize,
             let camera
@@ -118,21 +134,23 @@ struct GlobeView: View {
         var transform = globe.transform
         transform.rotation = fitResult.rotation
 
-        globe.move(to: transform, relativeTo: nil, duration: 2)
-
-        camera.position = [
-            0,
-            0,
-            fitResult.cameraDistance,
-        ]
-
-        camera.look(
-            at: .zero,
-            from: camera.position,
-            relativeTo: nil
-        )
-
-        updatePins()
+        var cameraTransform = camera.transform
+        cameraTransform.translation = [0, 0, fitResult.cameraDistance]
+        let duration = 2.0
+        if reduceMotion || !animated {
+            globe.transform = transform
+            camera.transform = cameraTransform
+        } else {
+            if #available(iOS 26.0, *) {
+                Entity.animate(.easeInOut(duration: duration)) {
+                    globe.transform = transform
+                    camera.transform = cameraTransform
+                }
+            } else {
+                globe.move(to: transform, relativeTo: nil, duration: duration)
+                camera.move(to: cameraTransform, relativeTo: nil, duration: duration)
+            }
+        }
     }
 
     // MARK: Camera
@@ -360,61 +378,6 @@ struct GlobeView: View {
             max(minimumDistance, distance)
         )
     }
-    // MARK: Position and zoom
-
-    // MARK: OLD zoom
-
-    //    private func fitRegion(
-    //        center: GeoPoint,
-    //        latitudeSpan: Double,
-    //        longitudeSpan: Double,
-    //        viewSize: CGSize,
-    //        padding: CGFloat = 32
-    //    ) -> GlobeFit {
-    //
-    //        let halfLat = latitudeSpan / 2
-    //        let halfLon = longitudeSpan / 2
-    //
-    //        let north = min(90, center.latitude + halfLat)
-    //        let south = max(-90, center.latitude - halfLat)
-    //
-    //        let west = center.longitude - halfLon
-    //        let east = center.longitude + halfLon
-    //
-    //        let points = [
-    //            GeoPoint(latitude: north, longitude: center.longitude),
-    //            GeoPoint(latitude: south, longitude: center.longitude),
-    //            GeoPoint(latitude: center.latitude, longitude: west),
-    //            GeoPoint(latitude: center.latitude, longitude: east),
-    //
-    //            // Corners help for non-square regions.
-    //            GeoPoint(latitude: north, longitude: west),
-    //            GeoPoint(latitude: north, longitude: east),
-    //            GeoPoint(latitude: south, longitude: west),
-    //            GeoPoint(latitude: south, longitude: east),
-    //        ]
-    //
-    //        let centerVector = unitVector(
-    //            latitude: center.latitude,
-    //            longitude: center.longitude
-    //        )
-    //
-    //        let scale = scaleThatFits(
-    //            center: centerVector,
-    //            points: points,
-    //            viewSize: viewSize,
-    //            padding: padding
-    //        )
-    //
-    //        return GlobeFit(
-    //            rotation: northUpRotation(
-    //                latitude: center.latitude,
-    //                longitude: center.longitude
-    //            ),
-    //            scale: scale,
-    //            canShowAll: latitudeSpan <= 180 && longitudeSpan <= 180
-    //        )
-    //    }
 
     // MARK: Rotation
     private func northUpRotation(
@@ -710,9 +673,24 @@ struct GlobeView: View {
                     else {
                         return
                     }
-
+                    if #available(iOS 26.0, *) {
+                        pinEntity.components.set(
+                            OpacityComponent(opacity: 0)
+                        )
+                    }
                     pinEntity.name = name
                     pinContainer.addChild(pinEntity)
+
+                    // Animate to fully visible
+                    if #available(iOS 26.0, *) {
+                        Entity.animate(.easeIn(duration: 1.0)) {
+                            pinEntity.components[
+                                OpacityComponent.self
+                            ]?.opacity = 1.0
+                        }
+                    } else {
+                        // Fallback on earlier versions
+                    }
 
                     updatePinPosition(
                         pinEntity,
