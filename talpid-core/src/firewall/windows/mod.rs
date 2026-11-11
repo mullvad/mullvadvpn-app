@@ -1,23 +1,20 @@
-use std::{net::IpAddr, sync::LazyLock};
+use std::{net::IpAddr, path::PathBuf, sync::LazyLock, time::Duration};
 
 use talpid_error::ErrorExt;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    net::{AllowedEndpoint, AllowedTunnelTraffic},
+    net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint},
     tunnel::FirewallPolicyError,
 };
-use widestring::WideCString;
 
-use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
-
-#[macro_use] // must come before other mod declarations
-mod ffi;
+use talpid_winfw::CleanupPolicy;
 
 mod hyperv;
-mod objects;
-mod winfw;
+
+/// Timeout for acquiring the WFP transaction lock.
+const TRANSACTION_TIMEOUT: Duration = Duration::from_secs(5);
 
 const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
 
@@ -56,10 +53,6 @@ pub enum Error {
     #[error("Failed to initialize windows firewall module")]
     Initialization,
 
-    /// Failure to deinitialize windows firewall module
-    #[error("Failed to deinitialize windows firewall module")]
-    Deinitialization,
-
     /// Failure to apply a firewall _connecting_ policy
     #[error("Failed to apply connecting firewall policy")]
     ApplyingConnectingPolicy(#[source] FirewallPolicyError),
@@ -79,16 +72,13 @@ pub enum Error {
 
 /// The Windows implementation for the firewall.
 pub struct Firewall {
+    /// The firewall module.
+    // INVARIANT! Must be set until taken when dropped.
+    manager: Option<talpid_winfw::Manager>,
     /// If firewall rules should even if firewall module is shut down or dies.
     ///
     /// This should only very cautiously be turned off.
     persist: bool,
-}
-
-impl Default for Firewall {
-    fn default() -> Self {
-        Self { persist: true }
-    }
 }
 
 impl Firewall {
@@ -101,16 +91,22 @@ impl Firewall {
     }
 
     pub fn new() -> Result<Self, Error> {
-        winfw::initialize()?;
+        let manager = talpid_winfw::Manager::new(TRANSACTION_TIMEOUT)
+            .map_err(|error| map_init_error(error, "initialize"))?;
         log::trace!("Successfully initialized windows firewall module");
-        Ok(Firewall::default())
+        Ok(Firewall::with_manager(manager))
     }
 
     fn initialize_blocked(
         allowed_endpoint: AllowedEndpoint,
         allow_lan: bool,
     ) -> Result<Self, Error> {
-        winfw::initialize_blocked(allowed_endpoint, allow_lan)?;
+        let manager = talpid_winfw::Manager::new_blocked(
+            TRANSACTION_TIMEOUT,
+            &talpid_winfw::Settings::new(allow_lan),
+            Some(&allowed_endpoint),
+        )
+        .map_err(|error| map_init_error(error, "initialize to a blocking state"))?;
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
         with_wmi_if_enabled(|wmi| {
@@ -118,7 +114,20 @@ impl Firewall {
             consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
         });
 
-        Ok(Firewall::default())
+        Ok(Firewall::with_manager(manager))
+    }
+
+    fn with_manager(manager: talpid_winfw::Manager) -> Self {
+        Self {
+            manager: Some(manager),
+            persist: true,
+        }
+    }
+
+    fn manager(&mut self) -> &mut talpid_winfw::Manager {
+        self.manager
+            .as_mut()
+            .expect("the manager is only taken when dropping the firewall")
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
@@ -138,14 +147,14 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
                 self.set_connecting_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
                     cfg,
                     tunnel.as_ref(),
                     allowed_endpoint,
-                    &allowed_tunnel_traffic,
+                    allowed_tunnel_traffic,
                 )
             }
             FirewallPolicy::Connected {
@@ -155,7 +164,7 @@ impl Firewall {
                 allow_lan,
                 dns_config,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
                 self.set_connected_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -168,11 +177,8 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
-                self.set_blocked_state(
-                    cfg,
-                    allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
-                )
+                let cfg = &talpid_winfw::Settings::new(allow_lan);
+                self.set_blocked_state(cfg, allowed_endpoint)
             }
             // Windows doesn't need to change any existing firewall rules here. Disconnecting state is purely for the Hyper-V blocking which is done later.
             FirewallPolicy::Disconnecting { .. } => Ok(()),
@@ -192,7 +198,10 @@ impl Firewall {
     }
 
     pub fn reset_policy(&mut self) -> Result<(), Error> {
-        winfw::reset().map_err(Error::ResettingPolicy)?;
+        self.manager()
+            .reset()
+            .map_err(map_apply_error("reset the policy of"))
+            .map_err(Error::ResettingPolicy)?;
 
         with_wmi_if_enabled(|wmi| {
             let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
@@ -210,86 +219,90 @@ impl Firewall {
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &WinFwSettings,
+        winfw_settings: &talpid_winfw::Settings,
         tunnel_metadata: Option<&TunnelMetadata>,
         allowed_endpoint: AllowedEndpoint,
-        allowed_tunnel_traffic: &AllowedTunnelTraffic,
+        allowed_tunnel_traffic: AllowedTunnelTraffic,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connecting' firewall policy");
-        let tunnel_interface = tunnel_metadata.map(|metadata| metadata.interface.as_ref());
-        winfw::apply_policy_connecting(
-            peer_endpoints,
-            exit_endpoint_ip,
-            winfw_settings,
-            tunnel_interface,
-            allowed_endpoint,
+        let (relays, tunnel_clients) =
+            to_relays(peer_endpoints).map_err(Error::ApplyingConnectingPolicy)?;
+        let tunnel = talpid_winfw::TunnelParameters {
+            alias: tunnel_metadata.map(|metadata| metadata.interface.clone()),
+            exit_ip: exit_endpoint_ip,
+            clients: tunnel_clients,
             allowed_tunnel_traffic,
-        )
-        .map_err(Error::ApplyingConnectingPolicy)
+        };
+        self.manager()
+            .apply_policy_connecting(winfw_settings, &relays, &tunnel, &allowed_endpoint)
+            .map_err(map_apply_error("apply the connecting policy of"))
+            .map_err(Error::ApplyingConnectingPolicy)
     }
 
     fn set_connected_state(
         &mut self,
         peer_endpoints: &[AllowedEndpoint],
         exit_endpoint_ip: Option<IpAddr>,
-        winfw_settings: &WinFwSettings,
+        winfw_settings: &talpid_winfw::Settings,
         tunnel_metadata: &TunnelMetadata,
         dns_config: &ResolvedDnsConfig,
     ) -> Result<(), Error> {
         log::trace!("Applying 'connected' firewall policy");
-        let tunnel_interface = &tunnel_metadata.interface;
-        winfw::apply_policy_connected(
-            peer_endpoints,
-            exit_endpoint_ip,
-            winfw_settings,
-            tunnel_interface,
-            dns_config,
-        )
-        .map_err(Error::ApplyingConnectedPolicy)
+        let (relays, tunnel_clients) =
+            to_relays(peer_endpoints).map_err(Error::ApplyingConnectedPolicy)?;
+        let tunnel = talpid_winfw::TunnelParameters {
+            alias: tunnel_metadata.interface.clone(),
+            exit_ip: exit_endpoint_ip,
+            clients: tunnel_clients,
+            allowed_tunnel_traffic: AllowedTunnelTraffic::All,
+        };
+        self.manager()
+            .apply_policy_connected(
+                winfw_settings,
+                &relays,
+                &tunnel,
+                dns_config.tunnel_config(),
+                dns_config.non_tunnel_config(),
+            )
+            .map_err(map_apply_error("apply the connected policy of"))
+            .map_err(Error::ApplyingConnectedPolicy)
     }
 
     fn set_blocked_state(
         &mut self,
-        winfw_settings: &WinFwSettings,
-        allowed_endpoint: Option<WinFwAllowedEndpointContainer>,
+        winfw_settings: &talpid_winfw::Settings,
+        allowed_endpoint: Option<AllowedEndpoint>,
     ) -> Result<(), Error> {
         log::trace!("Applying 'blocked' firewall policy");
-        winfw::apply_policy_blocked(winfw_settings, allowed_endpoint)
+        self.manager()
+            .apply_policy_blocked(winfw_settings, allowed_endpoint.as_ref())
+            .map_err(map_apply_error("apply the blocked policy of"))
             .map_err(Error::ApplyingBlockedPolicy)
     }
 }
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // Ask WinFW for the active policy before tearing it down, since it is forgotten
-        // along with the rest of the module state.
-        let was_blocked = winfw::active_policy() == WinFwActivePolicy::Blocked;
+        let Some(manager) = self.manager.take() else {
+            return;
+        };
 
-        // Shut WinFW down without cleaning up. The blocking filters, if any, are left in
-        // place and stay in effect until the machine is rebooted. All other filters should
-        // still remain intact.
-        match winfw::deinit(WinFwCleanupPolicy::BlockingUntilReboot) {
+        // If the blocked policy is in effect, keep blocking after shutting down. Otherwise,
+        // everything is removed.
+        let cleanup = if self.persist {
+            CleanupPolicy::BlockingPersistent
+        } else {
+            CleanupPolicy::BlockingUntilReboot
+        };
+
+        match manager.deinitialize(cleanup) {
             Ok(()) => log::trace!("Successfully deinitialized windows firewall module"),
-            Err(_) => log::error!("Failed to deinitialize windows firewall module"),
-        }
-
-        // Swap those ephemeral filters for ones that also survive a reboot. Until this
-        // runs, the ephemeral filters are what keeps traffic blocked, so there is no
-        // window during which traffic is permitted.
-        if self.persist && was_blocked {
-            match objects::apply_persistent_blocking() {
-                Ok(()) => log::debug!("Added persistent block rules"),
-                Err(error) => log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to add persistent block rules")
-                ),
-            }
+            Err(error) => log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to deinitialize windows firewall module")
+            ),
         }
     }
-}
-
-fn widestring_ip(ip: IpAddr) -> WideCString {
-    WideCString::from_str_truncate(ip.to_string())
 }
 
 // Convert `result` into an option and log the error, if any.
@@ -317,4 +330,56 @@ fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
             f(con)
         }
     })
+}
+
+/// Split peer endpoints into the relays and the clients allowed to reach them, which must be the
+/// same for all peers.
+fn to_relays(
+    peer_endpoints: &[AllowedEndpoint],
+) -> Result<(Vec<Endpoint>, Vec<PathBuf>), talpid_types::tunnel::FirewallPolicyError> {
+    let Some(first) = peer_endpoints.first() else {
+        log::error!("Must have non-zero endpoints");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+    };
+
+    if !peer_endpoints.iter().all(|p| p.clients == first.clients) {
+        log::error!("Relay endpoints must have same allowed clients");
+        return Err(talpid_types::tunnel::FirewallPolicyError::Generic);
+    }
+
+    let relays = peer_endpoints.iter().map(|p| p.endpoint).collect();
+    let clients = first.clients.to_vec();
+
+    Ok((relays, clients))
+}
+
+fn map_init_error(error: talpid_winfw::Error, action: &str) -> Error {
+    log::error!(
+        "{}",
+        error.display_chain_with_msg(&format!("Failed to {action} the firewall module"))
+    );
+    Error::Initialization
+}
+
+fn map_apply_error(
+    action: &str,
+) -> impl Fn(talpid_winfw::ApplyError) -> talpid_types::tunnel::FirewallPolicyError {
+    move |error| {
+        let action = format!("Failed to {action} the firewall");
+        match error {
+            talpid_winfw::ApplyError::Generic(error) => {
+                log::error!("{}", error.display_chain_with_msg(&action));
+                talpid_types::tunnel::FirewallPolicyError::Generic
+            }
+            talpid_winfw::ApplyError::LockTimeout(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg(&format!(
+                        "{action}: the WFP transaction lock timed out"
+                    ))
+                );
+                talpid_types::tunnel::FirewallPolicyError::Locked(None)
+            }
+        }
+    }
 }

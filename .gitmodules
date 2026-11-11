@@ -1,12 +1,6 @@
 [submodule "dist-assets/binaries"]
 	path = dist-assets/binaries
 	url = https://github.com/mullvad/mullvadvpn-app-binaries
-[submodule "windows/libwfp"]
-	path = windows/libwfp
-	url = https://github.com/mullvad/libwfp
-[submodule "windows/windows-libraries"]
-	path = windows/windows-libraries
-	url = https://github.com/mullvad/windows-libraries
 [submodule "ios/wireguard-apple"]
 	path = ios/wireguard-apple
 	url = https://github.com/mullvad/wireguard-apple.git

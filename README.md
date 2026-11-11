@@ -323,7 +323,6 @@ Try installing one of these packages using the system's package manager:
 
 
 ### Building, testing and misc
-- **build-windows-modules.sh** - Compiles the C++ libraries needed on Windows
 - **build.sh** - Sanity checks the working directory state and then builds installers for the app
 
 ### Mullvad Daemon
