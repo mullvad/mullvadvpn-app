@@ -676,9 +676,17 @@ impl MullvadProxyClient {
     }
 
     #[cfg(feature = "custom-vpn")]
+    pub async fn get_custom_vpn_settings(
+        &mut self,
+    ) -> Result<Vec<talpid_types::net::wireguard::CustomVpnConfigUpdate>> {
+        let settings = self.0.get_custom_vpn_settings(()).await?.into_inner();
+        Vec::try_from(settings).map_err(Error::InvalidResponse)
+    }
+
+    #[cfg(feature = "custom-vpn")]
     pub async fn set_custom_vpn_config(
         &mut self,
-        config: talpid_types::net::wireguard::CustomVpnConfig,
+        config: talpid_types::net::wireguard::CustomVpnConfigUpdate,
     ) -> Result<String> {
         let response = self
             .0
@@ -688,8 +696,8 @@ impl MullvadProxyClient {
     }
 
     #[cfg(feature = "custom-vpn")]
-    pub async fn clear_custom_vpn_config(&mut self) -> Result<String> {
-        let response = self.0.clear_custom_vpn_config(()).await?;
+    pub async fn clear_custom_vpn_settings(&mut self) -> Result<String> {
+        let response = self.0.clear_custom_vpn_settings(()).await?;
         Ok(response.into_inner().error)
     }
 
