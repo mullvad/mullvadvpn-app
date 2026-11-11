@@ -17,6 +17,8 @@ use talpid_types::net::IpAvailability;
 
 use crate::relay_list;
 
+type RelayQueue = Arc<Mutex<IntoIter<GetRelay>>>;
+
 /// A [RelaySelector] instance backed by a relay list on-disk.
 ///
 /// The queries run against this relay selector is automatically derived from the mullvad-daemon
@@ -25,7 +27,7 @@ use crate::relay_list;
 pub struct RelaySelectorIO {
     inner: RelaySelector,
     config: Config,
-    relay_queue: Arc<Mutex<IntoIter<GetRelay>>>,
+    relay_queue: RelayQueue,
 }
 
 impl Deref for RelaySelectorIO {
