@@ -58,7 +58,7 @@ For running tests on Linux and Windows guests, you will need these tools and lib
 ```bash
 dnf install git gcc protobuf-devel libpcap-devel qemu \
     podman golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
-    dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
+    pkgconf-pkg-config swtpm edk2-ovmf \
     wireguard-tools
 ```
 
