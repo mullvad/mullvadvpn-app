@@ -61,6 +61,23 @@ sudo raas <your_interface_ipv4_address>:80
 On the device under test, use the IP you used in the above command as the device's gateway (also called `router` on iOS).
 After that, you are ready to execute the end-to-end tests locally 🎉.
 
+##### Selecting the correct interface
+If your MacBook is using a single network interface, e.g. only WiFi, then
+`raas` will correctly select the default interface and no further configuration
+is required.
+
+If your MacBook is connected to multiple network interfaces, you may want to
+specify an interface for `raas` to use to capture traffic from. To do so, use
+the `--interface` argument with a valid network interface name.
+
+If the phone will reach your MacBook over the default interface, you need not
+specify a specific interface. You can determine your default interface by
+running `route -n get default | grep interface`.
+
+You will most likely want to capture traffic coming from WiFi - the case when
+your phone is on the same WiFi network as the MacBook, in which case you will
+want to specify `--interface en0`.
+
 #### On iPhone:
 - Go to `Settings > Wi-Fi`
 - Tap the network information icon
