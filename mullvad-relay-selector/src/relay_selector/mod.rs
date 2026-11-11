@@ -73,8 +73,8 @@ pub struct RelaySelector {
     bridges: Arc<RwLock<BridgeList>>,
 }
 
-/// Remove the obfuscation methods that the selected relay offers from the query.
-fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) {
+/// Remove the obfuscation methods that the selected relay offers from the query, the return it.
+fn remove_supported_obfuscations(mut query: RelayQuery, relay: &GetRelay) -> RelayQuery {
     let (direct, obf_configs) = match &relay.obfuscator {
         None => (true, vec![]),
         Some(obfuscation) => (
@@ -229,7 +229,12 @@ impl RelaySelector {
                     // All methods in the ObfuscationConstraints that are supported by the relay
                     // will be used by the multiplexer. The next relay is selected with only the
                     // remaining methods, until all methods have been used.
-                    remove_supported_obfuscations(&mut user_query, &relay);
+                    let new = remove_supported_obfuscations(user_query.clone(), &relay);
+                    debug_assert_ne!(
+                        user_query, new,
+                        "Relay must have some obfuscation that we can remove"
+                    );
+                    user_query = new;
                     relays.push(relay);
                 }
                 Err(err) => return Vec1::try_from_vec(relays).map_err(|_| err),
