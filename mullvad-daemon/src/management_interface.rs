@@ -1458,7 +1458,7 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(not(feature = "custom-vpn"))]
     async fn import_custom_vpn_config(
         &self,
-        _request: Request<String>,
+        _request: Request<types::CustomVpnRawImport>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("import_custom_vpn_config");
         Ok(Response::new(types::CustomVpnConfigError {
