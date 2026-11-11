@@ -659,10 +659,10 @@
 		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
 		7AF9BE972A41C71F00DBFEDB /* ChipViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* ChipViewCell.swift */; };
-		7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */; };
-		7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */; };
 		7AFBE3872D084C9D002335FC /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE3862D084C96002335FC /* ActivityIndicator.swift */; };
 		7AFBE3892D089163002335FC /* FI_TunnelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE3882D08915D002335FC /* FI_TunnelViewController.swift */; };
+		7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */; };
+		7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */; };
 		850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DA2B503D7700EF8C96 /* RelayTests.swift */; };
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
@@ -2020,10 +2020,10 @@
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* ChipViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewCell.swift; sourceTree = "<group>"; };
-		7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglehopPicker.swift; sourceTree = "<group>"; };
-		7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopPicker.swift; sourceTree = "<group>"; };
 		7AFBE3862D084C96002335FC /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		7AFBE3882D08915D002335FC /* FI_TunnelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FI_TunnelViewController.swift; sourceTree = "<group>"; };
+		7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglehopPicker.swift; sourceTree = "<group>"; };
+		7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopPicker.swift; sourceTree = "<group>"; };
 		85006A8E2B73EF67004AD8FB /* MullvadVPNUITestsSmoke.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITestsSmoke.xctestplan; sourceTree = "<group>"; };
 		850201DA2B503D7700EF8C96 /* RelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTests.swift; sourceTree = "<group>"; };
 		850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationPage.swift; sourceTree = "<group>"; };
@@ -3928,7 +3928,6 @@
 		7A0EAE982D01B29E00D3EB8B /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				7AA1309C2D0072F900640DF9 /* View+Size.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -7190,10 +7189,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -7203,7 +7200,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Mullvad VPN Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
@@ -7242,6 +7238,9 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -7251,6 +7250,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
@@ -7833,10 +7833,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -7846,7 +7844,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Mullvad VPN Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
@@ -7874,8 +7871,9 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -7885,7 +7883,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
@@ -8668,10 +8666,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -8681,7 +8677,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Mullvad VPN Development";
 				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
 			name = MockRelease;
