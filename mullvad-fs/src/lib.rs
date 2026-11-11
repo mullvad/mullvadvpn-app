@@ -42,6 +42,28 @@ impl AtomicFile {
     }
 }
 
+/// Unix-only constructor for files with secrets.
+#[cfg(unix)]
+impl AtomicFile {
+    /// Create the temp file with the given permission bits.
+    pub async fn new_with_mode<P: Into<PathBuf>>(target_path: P, mask: u32) -> io::Result<Self> {
+        let target_path = target_path.into();
+        let temp_path = target_path.with_file_name(uuid::Uuid::new_v4().to_string());
+        let file = fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .mode(mask)
+            .open(&temp_path)
+            .await?;
+        Ok(Self {
+            file: Some(file),
+            temp_path,
+            target_path,
+        })
+    }
+}
+
 impl Drop for AtomicFile {
     fn drop(&mut self) {
         if self.file.is_some() {
