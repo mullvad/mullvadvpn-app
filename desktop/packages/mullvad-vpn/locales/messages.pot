@@ -2111,7 +2111,7 @@ msgstr ""
 
 #. Instructions shown in one step of a migration wizard.
 msgctxt "migrated-settings-view"
-msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgid "Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
 msgstr ""
 
 #. Title shown in one step of a migration wizard.
