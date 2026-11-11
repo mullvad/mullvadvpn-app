@@ -17,6 +17,8 @@ use talpid_types::net::IpAvailability;
 
 use crate::relay_list;
 
+/// Iterator of relays to use for connection attempts. When empty, is it refilled from
+/// [RelaySelector::get_relays_with_automatic_anti_censorship] .
 type RelayQueue = Arc<Mutex<IntoIter<GetRelay>>>;
 
 /// A [RelaySelector] instance backed by a relay list on-disk.
