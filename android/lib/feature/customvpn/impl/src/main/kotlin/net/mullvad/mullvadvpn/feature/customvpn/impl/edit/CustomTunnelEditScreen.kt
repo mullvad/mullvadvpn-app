@@ -126,13 +126,13 @@ fun CustomTunnelEdit(
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
-            is PersonalVpnSideEffect.FailedToSave ->
+            is CustomVpnSideEffect.FailedToSave ->
                 snackbarHostState.showSnackbarImmediately(sideEffect.reason)
 
-            PersonalVpnSideEffect.FormErrors ->
+            CustomVpnSideEffect.FormErrors ->
                 snackbarHostState.showSnackbarImmediately(formHasErrorMessage)
 
-            PersonalVpnSideEffect.ConfigurationSaved ->
+            CustomVpnSideEffect.ConfigurationSaved ->
                 snackbarHostState.showSnackbarImmediately(saveSuccessMessage)
         }
     }
@@ -143,7 +143,7 @@ fun CustomTunnelEdit(
         onBackClick = dropUnlessResumed { navigator.goBack() },
         saveConfig = vm::save,
         clearConfig =
-            dropUnlessResumed<PersonalVpnFormData> {
+            dropUnlessResumed<FormData> {
                 navigator.navigate(RemoveCustomTunnelConfigConfirmationNavKey(name = it.name))
             },
         snackbarHostState = snackbarHostState,
@@ -157,8 +157,8 @@ fun CustomTunnelEditScreen(
     isNew: Boolean,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    saveConfig: (PersonalVpnFormData) -> Unit,
-    clearConfig: (PersonalVpnFormData) -> Unit,
+    saveConfig: (FormData) -> Unit,
+    clearConfig: (FormData) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     if (state !is Lc.Content) {
@@ -199,7 +199,7 @@ fun CustomTunnelEditScreen(
         }
 
     val currentFormData =
-        PersonalVpnFormData(
+        FormData(
             name = nameFieldState.text.toString(),
             enabled = formData.enabled,
             privateKey = privateKeyTextFieldState.text.toString(),

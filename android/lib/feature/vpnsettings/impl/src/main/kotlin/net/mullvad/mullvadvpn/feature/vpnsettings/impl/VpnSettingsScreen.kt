@@ -116,7 +116,7 @@ private fun PreviewVpnSettings(
             navigateToAutoConnectScreen = {},
             navigateToQuantumResistanceInfo = {},
             navigateToLocalNetworkSharing = {},
-            navigateToPersonalVpn = {},
+            navigateToCustomTunnels = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -181,7 +181,8 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
         navigateToLocalNetworkSharing =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingNavKey()) },
-        navigateToPersonalVpn = dropUnlessResumed { navigator.navigate(CustomTunnelsListNavKey()) },
+        navigateToCustomTunnels =
+            dropUnlessResumed { navigator.navigate(CustomTunnelsListNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },
@@ -212,7 +213,7 @@ fun VpnSettingsScreen(
     navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharing: () -> Unit,
-    navigateToPersonalVpn: () -> Unit,
+    navigateToCustomTunnels: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
     navigateToDns: () -> Unit,
@@ -257,7 +258,7 @@ fun VpnSettingsScreen(
                             navigateToAutoConnectScreen = navigateToAutoConnectScreen,
                             navigateToQuantumResistanceInfo = navigateToQuantumResistanceInfo,
                             navigateToLocalNetworkSharing = navigateToLocalNetworkSharing,
-                            navigateToPersonalVpn = navigateToPersonalVpn,
+                            navigateToCustomVpn = navigateToCustomTunnels,
                             navigateToServerIpOverrides = navigateToServerIpOverrides,
                             navigateToAntiCensorship = navigateToAntiCensorship,
                             navigateToMtuDialog = navigateToMtuDialog,
@@ -285,7 +286,7 @@ fun VpnSettingsContent(
     navigateToAutoConnectScreen: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharing: () -> Unit,
-    navigateToPersonalVpn: () -> Unit,
+    navigateToCustomVpn: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
@@ -466,9 +467,9 @@ fun VpnSettingsContent(
                         )
                     }
 
-                VpnSettingItem.PersonalVpn ->
+                VpnSettingItem.CustomVpn ->
                     item(key = it::class.simpleName) {
-                        PersonalVpn(navigateToPersonalVpn, Modifier.animateItem())
+                        CustomVpn(navigateToCustomVpn, Modifier.animateItem())
                     }
 
                 is VpnSettingItem.QuantumResistantSetting ->
@@ -534,11 +535,11 @@ fun VpnSettingsContent(
 }
 
 @Composable
-private fun PersonalVpn(onPersonalVpnClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CustomVpn(onCustomVpnClick: () -> Unit, modifier: Modifier = Modifier) {
     NavigationListItem(
-        title = stringResource(id = R.string.personal_vpn),
+        title = stringResource(id = R.string.custom_vpn),
         modifier = modifier,
-        onClick = onPersonalVpnClick,
+        onClick = onCustomVpnClick,
     )
 }
 

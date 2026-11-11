@@ -90,7 +90,7 @@ class CustomTunnelEditViewModelTest {
 
                 val content = awaitItem()
                 assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
-                assertFormDataMatches(PersonalVpnFormData(), content.value.formData)
+                assertFormDataMatches(FormData(), content.value.formData)
                 assertNull(content.value.formErrors)
             }
         }
@@ -110,7 +110,7 @@ class CustomTunnelEditViewModelTest {
                 val content = awaitItem()
                 assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
                 assertFormDataMatches(
-                    PersonalVpnFormData.from(customVpnConfig),
+                    FormData.from(customVpnConfig),
                     content.value.formData,
                 )
                 assertNull(content.value.formErrors)
@@ -118,29 +118,28 @@ class CustomTunnelEditViewModelTest {
         }
 
     @Test
-    fun `clearConfig should call management service clearPersonalVpn and reset formData`() =
-        runTest {
-            // Arrange
-            val customVpnConfig = createSampleCustomVpnConfig()
-            coEvery { mockManagementService.clearPersonalVpn() } returns Unit.right()
+    fun `clearConfig should call management service clearCustomVpn and reset formData`() = runTest {
+        // Arrange
+        val customVpnConfig = createSampleCustomVpnConfig()
+        coEvery { mockManagementService.clearCustomVpn() } returns Unit.right()
 
-            // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(Lc.Loading(false), awaitItem())
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(Lc.Loading(false), awaitItem())
 
-                initSettings(customVpnConfig = customVpnConfig)
+            initSettings(customVpnConfig = customVpnConfig)
 
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(awaitItem())
+            assertIs<Lc.Content<CustomTunnelEditUiState>>(awaitItem())
 
-                viewModel.clearConfig()
+            viewModel.clearConfig()
 
-                val updatedContent = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(updatedContent)
-                assertFormDataMatches(PersonalVpnFormData.from(null), updatedContent.value.formData)
-            }
-
-            coVerify(exactly = 1) { mockManagementService.clearPersonalVpn() }
+            val updatedContent = awaitItem()
+            assertIs<Lc.Content<CustomTunnelEditUiState>>(updatedContent)
+            assertFormDataMatches(FormData.from(null), updatedContent.value.formData)
         }
+
+        coVerify(exactly = 1) { mockManagementService.clearCustomVpn() }
+    }
 
     @Test
     fun `when save with empty name should emit FormErrors side effect and set nameError`() =
@@ -152,7 +151,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -161,7 +160,7 @@ class CustomTunnelEditViewModelTest {
                 assertEquals(FormDataError.EmptyName, content.value.formErrors?.nameError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -175,7 +174,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -187,7 +186,7 @@ class CustomTunnelEditViewModelTest {
                 assertIs<KeyParseError.InvalidLength>(keyError.keyParseError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -201,7 +200,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -211,7 +210,7 @@ class CustomTunnelEditViewModelTest {
                 assertEquals(FormDataError.TunnelIp(invalidIp), ipError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -228,7 +227,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -242,7 +241,7 @@ class CustomTunnelEditViewModelTest {
                 assertIs<KeyParseError.InvalidLength>(keyError.keyParseError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -259,7 +258,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -273,7 +272,7 @@ class CustomTunnelEditViewModelTest {
                 )
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -290,7 +289,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -304,7 +303,7 @@ class CustomTunnelEditViewModelTest {
                 )
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -321,7 +320,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -335,7 +334,7 @@ class CustomTunnelEditViewModelTest {
                 assertIs<ParsePortError.NotANumber>(portError.parsePortError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -352,7 +351,7 @@ class CustomTunnelEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(PersonalVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -366,7 +365,7 @@ class CustomTunnelEditViewModelTest {
                 assertIs<ParsePortError.OutOfRange>(portError.parsePortError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     @Test
@@ -396,46 +395,46 @@ class CustomTunnelEditViewModelTest {
                     enabled = true,
                     name = VALID_NAME,
                 )
-            coEvery { mockManagementService.setPersonalVpnConfig(expectedConfig) } returns
+            coEvery { mockManagementService.setCustomVpnConfig(expectedConfig) } returns
                 Unit.right()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(validFormData)
-                assertEquals(PersonalVpnSideEffect.ConfigurationSaved, awaitItem())
+                assertEquals(CustomVpnSideEffect.ConfigurationSaved, awaitItem())
             }
 
             viewModel.uiState.test {
                 val content = awaitItem()
                 assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
                 assertFormDataMatches(
-                    PersonalVpnFormData.from(expectedConfig),
+                    FormData.from(expectedConfig),
                     content.value.formData,
                 )
                 assertNull(content.value.formErrors)
             }
 
-            coVerify(exactly = 1) { mockManagementService.setPersonalVpnConfig(expectedConfig) }
+            coVerify(exactly = 1) { mockManagementService.setCustomVpnConfig(expectedConfig) }
         }
 
     @Test
-    fun `when management service fails to set personal vpn config should emit FailedToSave side effect`() =
+    fun `when management service fails to set custom vpn config should emit FailedToSave side effect`() =
         runTest {
             // Arrange
             initSettings()
             val validFormData = createValidFormData()
             val saveError = SetCustomVpnConfigError.Unknown(RuntimeException("Save failed"))
-            coEvery { mockManagementService.setPersonalVpnConfig(any()) } returns saveError.left()
+            coEvery { mockManagementService.setCustomVpnConfig(any()) } returns saveError.left()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(validFormData)
                 val sideEffect = awaitItem()
-                assertIs<PersonalVpnSideEffect.FailedToSave>(sideEffect)
+                assertIs<CustomVpnSideEffect.FailedToSave>(sideEffect)
                 assertEquals(saveError.toString(), sideEffect.reason)
             }
 
-            coVerify(exactly = 1) { mockManagementService.setPersonalVpnConfig(any()) }
+            coVerify(exactly = 1) { mockManagementService.setCustomVpnConfig(any()) }
         }
 
     private fun initSettings(customVpnConfig: CustomVpnConfig? = null) {
@@ -445,8 +444,8 @@ class CustomTunnelEditViewModelTest {
     }
 
     private fun assertFormDataMatches(
-        expected: PersonalVpnFormData,
-        actual: PersonalVpnFormData,
+        expected: FormData,
+        actual: FormData,
     ) {
         assertEquals(expected.enabled, actual.enabled)
         assertEquals(expected.name, actual.name)
@@ -461,8 +460,8 @@ class CustomTunnelEditViewModelTest {
         }
     }
 
-    private fun createValidFormData(): PersonalVpnFormData =
-        PersonalVpnFormData(
+    private fun createValidFormData(): FormData =
+        FormData(
             enabled = true,
             name = VALID_NAME,
             privateKey = VALID_PRIVATE_KEY,

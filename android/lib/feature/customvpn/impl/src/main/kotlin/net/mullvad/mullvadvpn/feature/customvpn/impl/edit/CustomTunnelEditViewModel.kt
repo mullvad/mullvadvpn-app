@@ -33,20 +33,20 @@ class CustomTunnelEditViewModel(
     settingsRepository: SettingsRepository,
     private val managementService: ManagementService,
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<PersonalVpnSideEffect>()
+    private val _uiSideEffect = Channel<CustomVpnSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
 
-    private val formData = MutableStateFlow<PersonalVpnFormData?>(null)
-    private val formErrors = MutableStateFlow<PersonalVpnFormErrors?>(null)
+    private val formData = MutableStateFlow<FormData?>(null)
+    private val formErrors = MutableStateFlow<FormErrors?>(null)
 
     val uiState: StateFlow<Lc<Boolean, CustomTunnelEditUiState>> =
         combine(
                 formData.filterNotNull().onStart {
                     val settings = settingsRepository.settingsUpdates.filterNotNull().first()
-                    emit(PersonalVpnFormData.from(settings.customVpnConfig))
+                    emit(FormData.from(settings.customVpnConfig))
                 },
                 formErrors,
-            ) { formData: PersonalVpnFormData, formErrors ->
+            ) { formData: FormData, formErrors ->
                 CustomTunnelEditUiState(
                         formData = formData,
                         formErrors = formErrors,
@@ -61,31 +61,31 @@ class CustomTunnelEditViewModel(
 
     fun clearConfig() {
         viewModelScope.launch {
-            managementService.clearPersonalVpn()
-            formData.value = PersonalVpnFormData.from(null)
+            managementService.clearCustomVpn()
+            formData.value = FormData.from(null)
         }
     }
 
-    fun save(form: PersonalVpnFormData) = viewModelScope.launch {
+    fun save(form: FormData) = viewModelScope.launch {
         parseFormData(form)
             .fold(
                 {
                     formErrors.value = it
-                    _uiSideEffect.send(PersonalVpnSideEffect.FormErrors)
+                    _uiSideEffect.send(CustomVpnSideEffect.FormErrors)
                 },
                 { vpnConfig ->
                     formErrors.value = null
                     managementService
-                        .setPersonalVpnConfig(vpnConfig)
+                        .setCustomVpnConfig(vpnConfig)
                         .fold(
                             {
                                 _uiSideEffect.send(
-                                    PersonalVpnSideEffect.FailedToSave(it.toString()),
+                                    CustomVpnSideEffect.FailedToSave(it.toString()),
                                 )
                             },
                             {
-                                formData.value = PersonalVpnFormData.from(vpnConfig)
-                                _uiSideEffect.send(PersonalVpnSideEffect.ConfigurationSaved)
+                                formData.value = FormData.from(vpnConfig)
+                                _uiSideEffect.send(CustomVpnSideEffect.ConfigurationSaved)
                             },
                         )
                 },
@@ -93,8 +93,8 @@ class CustomTunnelEditViewModel(
     }
 
     private fun parseFormData(
-        formData: PersonalVpnFormData,
-    ): Either<PersonalVpnFormErrors, CustomVpnConfig> {
+        formData: FormData,
+    ): Either<FormErrors, CustomVpnConfig> {
         val nameError = validateName(formData.name)
         val (privateKeyError, privateKey) = parsePrivateKey(formData.privateKey)
         val (tunnelIpErrors, tunnelIps) = parseTunnelIps(formData.tunnelIps)
@@ -113,7 +113,7 @@ class CustomTunnelEditViewModel(
             )
         } else {
             Either.Left(
-                PersonalVpnFormErrors(
+                FormErrors(
                     nameError = nameError,
                     privateKeyError = privateKeyError,
                     tunnelIpErrors = tunnelIpErrors.orEmpty(),

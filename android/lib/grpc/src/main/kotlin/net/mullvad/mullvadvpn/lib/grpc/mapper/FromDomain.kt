@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelPersonalVpnConfig
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings as ModelDaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
@@ -348,7 +348,7 @@ internal fun RelayItemId.fromDomain(): LocationConstraint =
 internal fun ModelCipher.fromDomain(): Shadowsocks.Cipher = Shadowsocks.Cipher(name = value)
 
 @Suppress("UnsafeCallOnNullableType")
-internal fun ModelPersonalVpnConfig.fromDomain(): CustomVpnConfig =
+internal fun ModelCustomVpnConfig.fromDomain(): CustomVpnConfig =
     CustomVpnConfig(
         tunnel =
             CustomVpnConfig.TunnelConfig(

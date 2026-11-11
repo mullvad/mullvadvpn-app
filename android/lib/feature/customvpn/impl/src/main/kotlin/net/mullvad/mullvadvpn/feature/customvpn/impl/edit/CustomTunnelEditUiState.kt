@@ -7,11 +7,11 @@ import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 
 data class CustomTunnelEditUiState(
-    val formData: PersonalVpnFormData = PersonalVpnFormData(),
-    val formErrors: PersonalVpnFormErrors? = null,
+    val formData: FormData = FormData(),
+    val formErrors: FormErrors? = null,
 )
 
-data class PersonalVpnFormErrors(
+data class FormErrors(
     val nameError: FormDataError.EmptyName? = null,
     val privateKeyError: FormDataError.PrivateKey? = null,
     val tunnelIpErrors: Map<String, FormDataError.TunnelIp> = emptyMap(),
@@ -25,7 +25,7 @@ data class PeerErrors(
     val endpointPortError: FormDataError.EndpointPort? = null,
 )
 
-data class PersonalVpnFormData(
+data class FormData(
     val enabled: Boolean = false,
     val name: String = "",
     val privateKey: String = "",
@@ -33,17 +33,17 @@ data class PersonalVpnFormData(
     val peers: List<PeerFormData> = listOf(PeerFormData()),
 ) {
     companion object {
-        fun from(personalVpnConfig: CustomVpnConfig?) =
-            if (personalVpnConfig == null) {
-                PersonalVpnFormData()
+        fun from(customVpnConfig: CustomVpnConfig?) =
+            if (customVpnConfig == null) {
+                FormData()
             } else {
-                PersonalVpnFormData(
-                    name = personalVpnConfig.name.orEmpty(),
-                    enabled = personalVpnConfig.enabled,
-                    privateKey = personalVpnConfig.tunnelConfig.privateKey.value,
-                    tunnelIps = personalVpnConfig.tunnelConfig.tunnelIps.ifEmpty { setOf("") },
+                FormData(
+                    name = customVpnConfig.name.orEmpty(),
+                    enabled = customVpnConfig.enabled,
+                    privateKey = customVpnConfig.tunnelConfig.privateKey.value,
+                    tunnelIps = customVpnConfig.tunnelConfig.tunnelIps.ifEmpty { setOf("") },
                     peers =
-                        personalVpnConfig.peerConfig.map { peerConfig ->
+                        customVpnConfig.peerConfig.map { peerConfig ->
                             PeerFormData(
                                 publicKey = peerConfig.publicKey.value,
                                 allowedIps = peerConfig.allowedIps.ifEmpty { setOf("") },

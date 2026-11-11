@@ -78,7 +78,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelPersonalVpnConfig
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
@@ -252,7 +252,7 @@ class ManagementService(
     val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map { it.countries }
 
     private val _mutableTunnelStats = MutableStateFlow<ModelTunnelStats?>(null)
-    /** Traffic stats of the personal VPN, while it is in use. */
+    /** Traffic stats of the custom VPN, while it is in use. */
     val tunnelStats: Flow<ModelTunnelStats> = _mutableTunnelStats.filterNotNull()
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.map {
@@ -1014,32 +1014,32 @@ class ManagementService(
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
 
-    suspend fun getPersonalVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
+    suspend fun getCustomVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
         Either.catch { grpc.GetCustomVpnStats().executeWithRetry(Unit).toDomain() }
-            .onLeft { Logger.e("Get personal vpn event error") }
+            .onLeft { Logger.e("Get custom vpn event error") }
             .mapLeft { GetCustomVpnConfigError.Unknown }
 
-    suspend fun setPersonalVpnConfig(
-        config: ModelPersonalVpnConfig,
+    suspend fun setCustomVpnConfig(
+        config: ModelCustomVpnConfig,
     ): Either<SetCustomVpnConfigError, Unit> =
         Either.catch { grpc.SetCustomVpnConfig().executeWithRetry(config.fromDomain()) }
-            .onLeft { Logger.e("Set personal VPN config error", it) }
+            .onLeft { Logger.e("Set custom VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
-    /** Remove the personal VPN config. The daemon interprets an empty config as removal. */
-    suspend fun clearPersonalVpn(): Either<SetCustomVpnConfigError, Unit> =
+    /** Remove the custom VPN config. The daemon interprets an empty config as removal. */
+    suspend fun clearCustomVpn(): Either<SetCustomVpnConfigError, Unit> =
         Either.catch { grpc.ClearCustomVpnConfig().executeWithRetry(Unit) }
-            .onLeft { Logger.e("Clear personal VPN config error", it) }
+            .onLeft { Logger.e("Clear custom VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
     /**
-     * Parse and store a wg-quick formatted personal VPN config on the daemon side.
+     * Parse and store a wg-quick formatted custom VPN config on the daemon side.
      *
      * The daemon parses the `wg-quick` body, and persists the resulting config and name.
      */
-    suspend fun importPersonalVpnConfig(
+    suspend fun importCustomVpnConfig(
         name: String,
         config: String,
     ): Either<SetCustomVpnConfigError, Unit> =
@@ -1048,7 +1048,7 @@ class ManagementService(
                     .ImportCustomVpnConfig()
                     .executeWithRetry(CustomVpnRawImport(name = name, wireguard_config = config))
             }
-            .onLeft { Logger.e("Import personal VPN config error", it) }
+            .onLeft { Logger.e("Import custom VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }
 
@@ -1057,7 +1057,7 @@ class ManagementService(
         if (error.isEmpty()) {
             Unit.right()
         } else {
-            Logger.e("Personal VPN config error: $error")
+            Logger.e("Custom VPN config error: $error")
             SetCustomVpnConfigError.Unknown(Throwable(error)).left()
         }
 
