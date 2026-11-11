@@ -696,7 +696,13 @@ impl MullvadProxyClient {
     /// Import a custom VPN configuration from the contents of a wg-quick file.
     #[cfg(feature = "custom-vpn")]
     pub async fn import_custom_vpn_config(&mut self, body: String) -> Result<String> {
-        let response = self.0.import_custom_vpn_config(body).await?;
+        let response = self
+            .0
+            .import_custom_vpn_config(types::CustomVpnRawImport {
+                name: "custom-vpn".to_string(),
+                wireguard_config: body,
+            })
+            .await?;
         Ok(response.into_inner().error)
     }
 }

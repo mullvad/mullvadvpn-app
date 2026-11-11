@@ -195,6 +195,17 @@ function deserialize_mullvad_daemon_management_interface_CustomVpnConfigError(bu
   return management_interface_pb.CustomVpnConfigError.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_CustomVpnRawImport(arg) {
+  if (!(arg instanceof management_interface_pb.CustomVpnRawImport)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.CustomVpnRawImport');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_CustomVpnRawImport(buffer_arg) {
+  return management_interface_pb.CustomVpnRawImport.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_CustomVpnStats(arg) {
   if (!(arg instanceof management_interface_pb.CustomVpnStats)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.CustomVpnStats');
@@ -1642,10 +1653,10 @@ importCustomVpnConfig: {
     path: '/mullvad_daemon.management_interface.ManagementService/ImportCustomVpnConfig',
     requestStream: false,
     responseStream: false,
-    requestType: google_protobuf_wrappers_pb.StringValue,
+    requestType: management_interface_pb.CustomVpnRawImport,
     responseType: management_interface_pb.CustomVpnConfigError,
-    requestSerialize: serialize_google_protobuf_StringValue,
-    requestDeserialize: deserialize_google_protobuf_StringValue,
+    requestSerialize: serialize_mullvad_daemon_management_interface_CustomVpnRawImport,
+    requestDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnRawImport,
     responseSerialize: serialize_mullvad_daemon_management_interface_CustomVpnConfigError,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnConfigError,
   },
