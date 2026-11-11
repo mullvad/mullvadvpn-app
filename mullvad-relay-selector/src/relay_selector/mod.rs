@@ -93,7 +93,6 @@ fn remove_supported_obfuscations(user_query: &mut RelayQuery, relay: &GetRelay) 
             ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
             ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
         }
-        changed = true;
     }
     debug_assert!(
         changed,
