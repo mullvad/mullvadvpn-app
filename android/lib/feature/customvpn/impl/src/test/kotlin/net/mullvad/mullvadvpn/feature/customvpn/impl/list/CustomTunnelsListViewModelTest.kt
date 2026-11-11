@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.feature.customvpn.impl.list
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
@@ -9,6 +11,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -16,6 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_PRIVATE_KEY
@@ -40,8 +44,11 @@ class CustomTunnelsListViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockCustomTunnelsRepository: CustomTunnelsRepository = mockk()
+    private val mockContentResolver: ContentResolver = mockk()
+    private val uri: Uri = mockk()
 
     private val settingsUpdates = MutableStateFlow<Settings?>(null)
+    private var importedConfigContent: String = ""
 
     private lateinit var viewModel: CustomTunnelsListViewModel
 
@@ -50,11 +57,16 @@ class CustomTunnelsListViewModelTest {
         every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
         coEvery { mockCustomTunnelsRepository.getPersonalVpnStats() } returns
             GetCustomVpnConfigError.Unknown.left()
+        every { mockContentResolver.openInputStream(uri) } answers
+            {
+                ByteArrayInputStream(importedConfigContent.toByteArray(Charsets.UTF_8))
+            }
 
         viewModel =
             CustomTunnelsListViewModel(
                 settingsRepository = mockSettingsRepository,
                 customTunnelsRepository = mockCustomTunnelsRepository,
+                ioDispatcher = UnconfinedTestDispatcher(),
             )
     }
 
@@ -190,12 +202,13 @@ class CustomTunnelsListViewModelTest {
         // Arrange
         val name = "test-tunnel"
         val configString = "[Interface]\nPrivateKey = $VALID_PRIVATE_KEY\n"
+        importedConfigContent = configString
         coEvery { mockCustomTunnelsRepository.importConfig(name, configString) } returns
             Unit.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
-            viewModel.importConfig(name, configString)
+            viewModel.importConfig(name, mockContentResolver, uri)
             assertEquals(CustomTunnelsListSideEffect.ConfigurationSaved, awaitItem())
         }
 
@@ -207,13 +220,14 @@ class CustomTunnelsListViewModelTest {
         // Arrange
         val name = "test-tunnel"
         val configString = "invalid config content"
+        importedConfigContent = configString
         val error = SetCustomVpnConfigError.Unknown(RuntimeException("Invalid configuration"))
         coEvery { mockCustomTunnelsRepository.importConfig(name, configString) } returns
             error.left()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
-            viewModel.importConfig(name, configString)
+            viewModel.importConfig(name, mockContentResolver, uri)
             val sideEffect = awaitItem()
             assertIs<CustomTunnelsListSideEffect.FailedToSave>(sideEffect)
             assertEquals(error.toString(), sideEffect.reason)
