@@ -12,7 +12,10 @@ export function useIcon(): IconProps['icon'] {
   const { isAnyFilterActive } = useActiveFilters(locationType);
   const location = useSelectedEntryOrExitLocation(locationType);
 
-  if (location === 'any') {
+  const isAutomaticLocation = location === 'any';
+  const isAutomaticMultihopEntry = type === 'automaticEntry';
+
+  if (isAutomaticLocation || isAutomaticMultihopEntry) {
     if (isAnyFilterActive) {
       return 'filter-overridden-active';
     }
