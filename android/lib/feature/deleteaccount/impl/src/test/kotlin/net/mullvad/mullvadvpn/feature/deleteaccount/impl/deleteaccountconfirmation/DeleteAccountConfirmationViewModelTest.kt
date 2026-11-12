@@ -11,18 +11,29 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class DeleteAccountConfirmationViewModelTest {
 
-    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
-    private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
+    private lateinit var mockAccountRepository: AccountRepository
+    private lateinit var mockDeviceRepository: DeviceRepository
 
-    // Needs to be created after fetch account data mocking is set up otherwise the test will be
-    // flaky.
     private lateinit var viewModel: DeleteAccountConfirmationViewModel
+
+    @BeforeEach
+    fun setup() {
+        mockAccountRepository = mockk()
+        mockDeviceRepository = mockk(relaxed = true)
+
+        viewModel =
+            DeleteAccountConfirmationViewModel(
+                accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
+            )
+    }
 
     @Test
     fun `when account expiry is in the future ui state should include the correct amount of days`() =
@@ -31,7 +42,6 @@ class DeleteAccountConfirmationViewModelTest {
             val accountData: AccountData = mockk(relaxed = true)
             every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(3).plusHours(2)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
-            createViewModel()
 
             // Act, Assert
             viewModel.uiState.test { assertEquals(DaysLeftState.DaysLeft(3), awaitItem().daysLeft) }
@@ -43,7 +53,6 @@ class DeleteAccountConfirmationViewModelTest {
         val accountData: AccountData = mockk(relaxed = true)
         every { accountData.expiryDate } returns ZonedDateTime.now().minusDays(4)
         coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
-        createViewModel()
 
         // Act, Assert
         viewModel.uiState.test { assertEquals(DaysLeftState.NoDaysLeft, awaitItem().daysLeft) }
@@ -56,17 +65,8 @@ class DeleteAccountConfirmationViewModelTest {
             val accountData: AccountData = mockk(relaxed = true)
             every { accountData.expiryDate } returns ZonedDateTime.now().minusDays(4)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns null
-            createViewModel()
 
             // Act, Assert
             viewModel.uiState.test { assertEquals(DaysLeftState.Error, awaitItem().daysLeft) }
         }
-
-    private fun createViewModel() {
-        viewModel =
-            DeleteAccountConfirmationViewModel(
-                accountRepository = mockAccountRepository,
-                deviceRepository = mockDeviceRepository,
-            )
-    }
 }
