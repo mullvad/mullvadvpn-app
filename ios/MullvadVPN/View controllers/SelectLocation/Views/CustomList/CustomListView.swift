@@ -36,6 +36,7 @@ struct CustomListView<ViewModel: CustomListViewModel>: View {
             VStack(spacing: 2) {
                 SegmentedListItem(
                     appearance: viewModel.error != nil ? .error : .normal,
+                    accessibilityLabel: "Name",
                     leading: {
                         itemFactory
                             .leading(
@@ -68,9 +69,11 @@ struct CustomListView<ViewModel: CustomListViewModel>: View {
                         isTextFieldFocused = true
                     }
                 )
+                .accessibilityRemoveTraits(.isButton)
             }
             SegmentedListItem(
                 accessibilityIdentifier: .customListEditAddOrEditLocationCell,
+                accessibilityLabel: "Locations",
                 leadingAndTrailingDestination: {
                     CustomListLocationSelectionView(
                         viewModel: viewModel

@@ -101,9 +101,17 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 onSelect(location)
             }
         )
-        .if(hasChildren) { view in
-            view
-                .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
+        .apply { view in
+            var accessibilityValue: LocalizedStringKey = ""
+            if let customListSelectableNode = location.asCustomListSelectableLocationNode {
+                accessibilityValue =
+                    customListSelectableNode.isCustomListSelected ? "Checked" : "Unchecked"
+            } else if hasChildren {
+                accessibilityValue = isExpanded ? "Expanded" : "Collapsed"
+            }
+            return
+                view
+                .accessibilityValue(Text(accessibilityValue))
                 .accessibilityAction(
                     named: isExpanded ? Text("Collapse \(location.name)") : Text("Expand \(location.name)")
                 ) {

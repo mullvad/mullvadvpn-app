@@ -18,12 +18,10 @@ struct ListItem<StatusIndicator: View>: View {
     @ViewBuilder var statusIndicator: () -> StatusIndicator?
     @Environment(\.segmentedListItemAppearance) var appearance
     private var titleColor: Color {
-        if appearance == .error {
-            .mullvadDangerColor
-        } else if selected {
-            .mullvadSuccessColor
-        } else {
-            .mullvadTextPrimary
+        switch (appearance, selected) {
+            case (.error, _): .mullvadDangerColor
+            case (_, true): .mullvadSuccessColor
+            default: .mullvadTextPrimary
         }
     }
 

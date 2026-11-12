@@ -39,7 +39,7 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
         children.compactMap { $0.asCustomListSelectableLocationNode }
     }
 
-    private var iWasFirst = false
+    private var isOriginOfSelectionChange = false
 
     var isCustomListSelected: Bool = false {
         didSet {
@@ -50,12 +50,12 @@ class CustomListSelectableLocationNode: LocationNode, @unchecked Sendable {
     }
 
     private func validateTree() {
-        defer { iWasFirst = false }
-        iWasFirst = !root.flattened
+        defer { isOriginOfSelectionChange = false }
+        isOriginOfSelectionChange = !root.flattened
             .compactMap {
-                ($0.asCustomListSelectableLocationNode)?.iWasFirst
+                ($0.asCustomListSelectableLocationNode)?.isOriginOfSelectionChange
             }.contains(true)
-        guard iWasFirst else { return }
+        guard isOriginOfSelectionChange else { return }
 
         forEachDescendant {
             ($0.asCustomListSelectableLocationNode)?.isCustomListSelected = isCustomListSelected
