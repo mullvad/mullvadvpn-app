@@ -113,18 +113,20 @@ pub struct RelayPartitions {
 }
 
 impl RelayPartitions {
-    /// A blocking reason is defined as a reason that if a configuration is changed or removed
-    /// the amount of matching relays will be more than 0. This function assumes that a check
-    /// has already been made that the amount of matching relays are 0, and it is not possible
-    /// to connect due to this.
-    ///
-    /// If lowest amount of reasons for any discarded relay is more than 1 than this will be empty.
+    /// A Reason is defined for a given discarded relays as the list of constraints that need to be
+    /// loosened in order to turn it into a match.
+    /// This will return all reasons that if loosened will cause the number of matches to be more
+    /// than 0. If multiple reasons are required to be loosened to get any match, this will return
+    /// empty.
     pub fn get_all_blocking_reasons(&self) -> Vec<Reason> {
         self.discards
             .iter()
             .filter_map(|(_relay, reasons)| {
-                let (first, rest) = reasons.split_first()?;
-                rest.iter().all(|r| r == first).then_some(first)
+                if reasons.len() == 1 {
+                    Some(&reasons[0])
+                } else {
+                    None
+                }
             })
             .collect::<HashSet<&Reason>>()
             .into_iter()

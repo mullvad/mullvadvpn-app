@@ -8,22 +8,16 @@ use talpid_types::net::IpVersion;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("No relays matching current entry constraints: {0:?}")]
-    /// Reasons provided are only blocking reasons that are part of the enum Reasons
-    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
-    /// this is empty
-    NoRelayEntry(Box<Vec<Reason>>),
+    /// Contains the list of reasons that no relays match. Resolving any of them would yield at least one relay.
+    NoRelayEntry(Vec<Reason>),
 
     #[error("No relays matching current exit constraints: {0:?}")]
-    /// Reasons provided are only blocking reasons that are part of the enum Reasons
-    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
-    /// this is empty
-    NoRelayExit(Box<Vec<Reason>>),
+    /// Contains the list of reasons that no relays match. Resolving any of them would yield at least one relay.
+    NoRelayExit(Vec<Reason>),
 
     #[error("No relays matching current constraints: {0:?}")]
-    /// Reasons provided are only blocking reasons that are part of the enum Reasons
-    /// If multiple Reasons are required to be fixed or the cause is not in the Reasons enum
-    /// this is empty
-    NoRelay(Box<Vec<Reason>>),
+    /// Contains the list of reasons that no relays match. Resolving any of them would yield at least one relay.
+    NoRelay(Vec<Reason>),
 
     #[error("No bridges matching current constraints")]
     NoBridge,

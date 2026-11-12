@@ -345,7 +345,6 @@ impl From<Error> for ParameterGenerationError {
                 ParameterGenerationError::NoMatchingRelayExit
             }
             Error::SelectRelay(mullvad_relay_selector::Error::NoRelay(reasons)) => {
-                log::error!("No matching relay entry found: {:?}", reasons.as_ref());
                 ParameterGenerationError::NoMatchingRelay {
                     unavailable_ip_version: reasons
                         .iter()
