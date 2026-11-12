@@ -1,5 +1,5 @@
 use std::fmt;
-use std::fs::{self, read_link};
+use std::fs::{self, canonicalize, read_link};
 use std::io;
 use std::net::IpAddr;
 use std::os::unix::fs::symlink;
@@ -168,7 +168,7 @@ fn systemd_manages_resolv_conf() -> io::Result<bool> {
         return Ok(false);
     }
 
-    let link = read_link(systemd_resolver_stub)?;
+    let link = canonicalize(systemd_resolver_stub)?;
     match link.to_string_lossy().as_ref() {
         "/run/systemd/resolve/stub-resolv.conf"
         | "/run/systemd/resolve/resolv.conf"
