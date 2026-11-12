@@ -3778,9 +3778,6 @@ msgstr ""
 msgid "Custom VPN"
 msgstr ""
 
-msgid "Custom VPN allows you to connect to another WireGuard peer, while using Mullvad VPN. The entire connection will be tunneled through your connection to Mullvad.\\n\\nWith Custom VPN you will hide your personal server IP VPN and can connect to it without having to switch VPN."
-msgstr ""
-
 msgid "Custom tunnel"
 msgstr ""
 
@@ -4142,9 +4139,6 @@ msgid "Paste or write overrides to be imported"
 msgstr ""
 
 msgid "Patch not matching specification"
-msgstr ""
-
-msgid "Peer"
 msgstr ""
 
 msgid "Peers"
