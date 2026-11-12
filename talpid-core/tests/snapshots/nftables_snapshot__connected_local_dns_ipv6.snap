@@ -5,7 +5,7 @@ expression: dump_nftables()
 table inet mullvad {
 	chain prerouting {
 		type filter hook prerouting priority -199; policy accept;
-		ip saddr 185.65.134.1 udp sport 51820 meta mark set 0x6d6f6c65
+		ip6 saddr 2001:db8::1 udp sport 51820 meta mark set 0x6d6f6c65
 	}
 
 	chain output {
@@ -18,29 +18,16 @@ table inet mullvad {
 		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip daddr 185.65.134.1 udp dport 51820 meta mark 0x6d6f6c65 accept
-		oif "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
-		oif "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
-		oif != "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
-		oif != "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
+		ip6 daddr 2001:db8::1 udp dport 51820 meta mark 0x6d6f6c65 accept
+		oif "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
+		oif "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
+		oif != "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
+		oif != "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
+		oif != "mullvad-test0" udp dport 53 ip daddr 198.51.100.53 accept
+		oif != "mullvad-test0" tcp dport 53 ip daddr 198.51.100.53 accept
 		udp dport 53 reject
 		tcp dport 53 reject with tcp reset
 		oif "mullvad-test0" accept
-		ip daddr 10.0.0.0/8 accept
-		ip daddr 172.16.0.0/12 accept
-		ip daddr 192.168.0.0/16 accept
-		ip daddr 169.254.0.0/16 accept
-		ip6 daddr fe80::/10 accept
-		ip6 daddr fc00::/7 accept
-		ip daddr 255.255.255.255 accept
-		ip daddr 224.0.0.0/24 accept
-		ip daddr 239.0.0.0/8 accept
-		ip6 daddr ff01::/16 accept
-		ip6 daddr ff02::/16 accept
-		ip6 daddr ff03::/16 accept
-		ip6 daddr ff04::/16 accept
-		ip6 daddr ff05::/16 accept
-		udp sport 67 udp dport 68 accept
 		reject
 	}
 
@@ -53,19 +40,12 @@ table inet mullvad {
 		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
 		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip saddr 185.65.134.1 udp sport 51820 ct state established accept
-		iif != "mullvad-test0" udp sport 53 ip6 saddr fc00:bb::1 ct state established accept
-		iif != "mullvad-test0" tcp sport 53 ip6 saddr fc00:bb::1 ct state established accept
+		ip6 saddr 2001:db8::1 udp sport 51820 ct state established accept
+		iif != "mullvad-test0" udp sport 53 ip saddr 10.64.0.1 ct state established accept
+		iif != "mullvad-test0" tcp sport 53 ip saddr 10.64.0.1 ct state established accept
+		iif != "mullvad-test0" udp sport 53 ip saddr 198.51.100.53 ct state established accept
+		iif != "mullvad-test0" tcp sport 53 ip saddr 198.51.100.53 ct state established accept
 		iif "mullvad-test0" accept
-		ip daddr 10.64.11.2 drop
-		ip6 daddr fc00:bb::2 drop
-		ip saddr 10.0.0.0/8 accept
-		ip saddr 172.16.0.0/12 accept
-		ip saddr 192.168.0.0/16 accept
-		ip saddr 169.254.0.0/16 accept
-		ip6 saddr fe80::/10 accept
-		ip6 saddr fc00::/7 accept
-		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
 	}
 
 	chain forward {
@@ -83,30 +63,20 @@ table inet mullvad {
 		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
 		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		oif "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
-		oif "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
-		oif != "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
-		iif != "mullvad-test0" udp sport 53 ip6 saddr fc00:bb::1 ct state established accept
-		oif != "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
-		iif != "mullvad-test0" tcp sport 53 ip6 saddr fc00:bb::1 ct state established accept
+		oif "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
+		oif "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
+		oif != "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
+		iif != "mullvad-test0" udp sport 53 ip saddr 10.64.0.1 ct state established accept
+		oif != "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
+		iif != "mullvad-test0" tcp sport 53 ip saddr 10.64.0.1 ct state established accept
+		oif != "mullvad-test0" udp dport 53 ip daddr 198.51.100.53 accept
+		iif != "mullvad-test0" udp sport 53 ip saddr 198.51.100.53 ct state established accept
+		oif != "mullvad-test0" tcp dport 53 ip daddr 198.51.100.53 accept
+		iif != "mullvad-test0" tcp sport 53 ip saddr 198.51.100.53 ct state established accept
 		udp dport 53 reject
 		tcp dport 53 reject with tcp reset
 		oif "mullvad-test0" accept
 		iif "mullvad-test0" ct state established accept
-		ip daddr 10.0.0.0/8 accept
-		ip daddr 172.16.0.0/12 accept
-		ip daddr 192.168.0.0/16 accept
-		ip daddr 169.254.0.0/16 accept
-		ip6 daddr fe80::/10 accept
-		ip6 daddr fc00::/7 accept
-		ip daddr 255.255.255.255 accept
-		ip daddr 224.0.0.0/24 accept
-		ip daddr 239.0.0.0/8 accept
-		ip6 daddr ff01::/16 accept
-		ip6 daddr ff02::/16 accept
-		ip6 daddr ff03::/16 accept
-		ip6 daddr ff04::/16 accept
-		ip6 daddr ff05::/16 accept
 		reject
 	}
 

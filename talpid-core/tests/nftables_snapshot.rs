@@ -20,6 +20,7 @@ use std::{
     sync::LazyLock,
 };
 
+use duplicate::duplicate_item;
 use insta::assert_snapshot;
 use regex_lite::Regex;
 use talpid_core::firewall::{FirewallPolicy, linux::Firewall};
@@ -37,16 +38,37 @@ const FWMARK: u32 = 0x6d6f_6c65;
 /// The dummy interface standing in for the VPN tunnel device.
 const TUNNEL_IFACE: &str = "mullvad-test0";
 
-const RELAY_ENDPOINT: Endpoint = Endpoint::from_socket_address(
-    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(185, 65, 134, 1)), 51820),
+const RELAY_ENDPOINT_IPV4: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1)), 51820),
     TransportProtocol::Udp,
 );
-const SECOND_RELAY_ENDPOINT: Endpoint = Endpoint::from_socket_address(
-    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(178, 162, 200, 100)), 51820),
+const RELAY_ENDPOINT_IPV6: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(
+        IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1)),
+        51820,
+    ),
     TransportProtocol::Udp,
 );
-const API_ENDPOINT: Endpoint = Endpoint::from_socket_address(
-    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(45, 83, 223, 198)), 443),
+const SECOND_RELAY_ENDPOINT_IPV4: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(198, 51, 100, 1)), 51820),
+    TransportProtocol::Udp,
+);
+const SECOND_RELAY_ENDPOINT_IPV6: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(
+        IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 2)),
+        51820,
+    ),
+    TransportProtocol::Udp,
+);
+const API_ENDPOINT_IPV4: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1)), 443),
+    TransportProtocol::Tcp,
+);
+const API_ENDPOINT_IPV6: Endpoint = Endpoint::from_socket_address(
+    SocketAddr::new(
+        IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 3)),
+        443,
+    ),
     TransportProtocol::Tcp,
 );
 
@@ -66,9 +88,12 @@ const TUNNEL_IPV6_GATEWAY: Ipv6Addr = Ipv6Addr::new(0xfc00, 0xbb, 0, 0, 0, 0, 0,
 /// Both variants create cgroup and mount namespaces, so that a cgroup2
 /// filesystem can be mounted without affecting the host. See [`mount_cgroup2`].
 static ISOLATION_FLAGS: LazyLock<Option<&'static str>> = LazyLock::new(|| {
+    let executable = env::current_exe().expect("Failed to locate the current test executable");
     for flags in ["-UrnCm", "-nCm"] {
         let probe = Command::new("unshare")
-            .args([flags, "--", "/bin/true"])
+            .args([flags, "--"])
+            .arg(&executable)
+            .arg("--list")
             .output();
         if probe.is_ok_and(|output| output.status.success()) {
             return Some(flags);
@@ -232,22 +257,28 @@ fn policy_blocked(allow_lan: bool, allowed_endpoint: Option<Endpoint>) -> Firewa
 }
 
 fn policy_connecting(
+    relay_endpoint: Endpoint,
+    api_endpoint: Endpoint,
     tunnel: Option<TunnelMetadata>,
     allowed_tunnel_traffic: AllowedTunnelTraffic,
     allow_lan: bool,
 ) -> FirewallPolicy {
     FirewallPolicy::Connecting {
-        peer_endpoints: vec![allowed_endpoint(RELAY_ENDPOINT)],
+        peer_endpoints: vec![allowed_endpoint(relay_endpoint)],
         tunnel,
         allow_lan,
-        allowed_endpoint: allowed_endpoint(API_ENDPOINT),
+        allowed_endpoint: allowed_endpoint(api_endpoint),
         allowed_tunnel_traffic,
     }
 }
 
-fn policy_connected(allow_lan: bool, dns_config: DnsConfig) -> FirewallPolicy {
+fn policy_connected(
+    relay_endpoint: Endpoint,
+    allow_lan: bool,
+    dns_config: DnsConfig,
+) -> FirewallPolicy {
     FirewallPolicy::Connected {
-        peer_endpoints: vec![allowed_endpoint(RELAY_ENDPOINT)],
+        peer_endpoints: vec![allowed_endpoint(relay_endpoint)],
         tunnel: tunnel_metadata(),
         allow_lan,
         dns_config: dns_config.resolve(&[]),
@@ -266,7 +297,7 @@ fn local_dns_config() -> DnsConfig {
         &[IpAddr::V6(Ipv6Addr::new(0xfc00, 0xbb, 0, 0, 0, 0, 0, 0x1))],
         &[
             IpAddr::V4(Ipv4Addr::new(10, 64, 0, 1)),
-            IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)),
+            IpAddr::V4(Ipv4Addr::new(198, 51, 100, 53)),
         ],
     )
 }
@@ -281,10 +312,15 @@ fn blocked() {
     });
 }
 
+#[duplicate_item(
+      API_ENDPOINT          blocked_with_allowed_endpoint_ipvx;
+    [ API_ENDPOINT_IPV4 ] [ blocked_with_allowed_endpoint_ipv4 ];
+    [ API_ENDPOINT_IPV6 ] [ blocked_with_allowed_endpoint_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn blocked_with_allowed_endpoint() {
-    run_in_netns("blocked_with_allowed_endpoint", || {
+fn blocked_with_allowed_endpoint_ipvx() {
+    run_in_netns(stringify!(blocked_with_allowed_endpoint_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_blocked(false, Some(API_ENDPOINT)));
         assert_snapshot!(dump_nftables());
@@ -301,22 +337,40 @@ fn blocked_allow_lan() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          API_ENDPOINT          connecting_without_tunnel_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_without_tunnel_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_without_tunnel_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_without_tunnel() {
-    run_in_netns("connecting_without_tunnel", || {
+fn connecting_without_tunnel_ipvx() {
+    run_in_netns(stringify!(connecting_without_tunnel_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
-        firewall.apply(policy_connecting(None, AllowedTunnelTraffic::All, false));
+        firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
+            None,
+            AllowedTunnelTraffic::All,
+            false,
+        ));
         assert_snapshot!(dump_nftables());
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          API_ENDPOINT          connecting_with_tunnel_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_with_tunnel_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_with_tunnel_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_with_tunnel() {
-    run_in_netns("connecting_with_tunnel", || {
+fn connecting_with_tunnel_ipvx() {
+    run_in_netns(stringify!(connecting_with_tunnel_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::All,
             false,
@@ -325,12 +379,19 @@ fn connecting_with_tunnel() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          API_ENDPOINT          connecting_with_tunnel_allow_lan_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_with_tunnel_allow_lan_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_with_tunnel_allow_lan_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_with_tunnel_allow_lan() {
-    run_in_netns("connecting_with_tunnel_allow_lan", || {
+fn connecting_with_tunnel_allow_lan_ipvx() {
+    run_in_netns(stringify!(connecting_with_tunnel_allow_lan_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::All,
             true,
@@ -339,12 +400,19 @@ fn connecting_with_tunnel_allow_lan() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          API_ENDPOINT          connecting_no_in_tunnel_traffic_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_no_in_tunnel_traffic_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_no_in_tunnel_traffic_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_no_in_tunnel_traffic() {
-    run_in_netns("connecting_no_in_tunnel_traffic", || {
+fn connecting_no_in_tunnel_traffic_ipvx() {
+    run_in_netns(stringify!(connecting_no_in_tunnel_traffic_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::None,
             false,
@@ -353,12 +421,19 @@ fn connecting_no_in_tunnel_traffic() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          SECOND_RELAY_ENDPOINT          API_ENDPOINT          connecting_one_in_tunnel_endpoint_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ SECOND_RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_one_in_tunnel_endpoint_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ SECOND_RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_one_in_tunnel_endpoint_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_one_in_tunnel_endpoint() {
-    run_in_netns("connecting_one_in_tunnel_endpoint", || {
+fn connecting_one_in_tunnel_endpoint_ipvx() {
+    run_in_netns(stringify!(connecting_one_in_tunnel_endpoint_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::One(SECOND_RELAY_ENDPOINT),
             false,
@@ -367,12 +442,19 @@ fn connecting_one_in_tunnel_endpoint() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          SECOND_RELAY_ENDPOINT          API_ENDPOINT          connecting_two_in_tunnel_endpoints_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ SECOND_RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ connecting_two_in_tunnel_endpoints_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ SECOND_RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ connecting_two_in_tunnel_endpoints_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connecting_two_in_tunnel_endpoints() {
-    run_in_netns("connecting_two_in_tunnel_endpoints", || {
+fn connecting_two_in_tunnel_endpoints_ipvx() {
+    run_in_netns(stringify!(connecting_two_in_tunnel_endpoints_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::Two(RELAY_ENDPOINT, SECOND_RELAY_ENDPOINT),
             false,
@@ -381,52 +463,77 @@ fn connecting_two_in_tunnel_endpoints() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          connected_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ connected_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ connected_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connected() {
-    run_in_netns("connected", || {
+fn connected_ipvx() {
+    run_in_netns(stringify!(connected_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
-        firewall.apply(policy_connected(false, tunnel_dns_config()));
+        firewall.apply(policy_connected(RELAY_ENDPOINT, false, tunnel_dns_config()));
         assert_snapshot!(dump_nftables());
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          connected_allow_lan_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ connected_allow_lan_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ connected_allow_lan_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connected_allow_lan() {
-    run_in_netns("connected_allow_lan", || {
+fn connected_allow_lan_ipvx() {
+    run_in_netns(stringify!(connected_allow_lan_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
-        firewall.apply(policy_connected(true, tunnel_dns_config()));
+        firewall.apply(policy_connected(RELAY_ENDPOINT, true, tunnel_dns_config()));
         assert_snapshot!(dump_nftables());
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          connected_local_dns_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ connected_local_dns_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ connected_local_dns_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connected_local_dns() {
-    run_in_netns("connected_local_dns", || {
+fn connected_local_dns_ipvx() {
+    run_in_netns(stringify!(connected_local_dns_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
-        firewall.apply(policy_connected(false, local_dns_config()));
+        firewall.apply(policy_connected(RELAY_ENDPOINT, false, local_dns_config()));
         assert_snapshot!(dump_nftables());
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          connected_with_split_tunnel_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ connected_with_split_tunnel_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ connected_with_split_tunnel_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connected_with_split_tunnel() {
-    run_in_netns("connected_with_split_tunnel", || {
+fn connected_with_split_tunnel_ipvx() {
+    run_in_netns(stringify!(connected_with_split_tunnel_ipvx), || {
         let mut firewall = FirewallGuard::new(Some(4610));
-        firewall.apply(policy_connected(false, tunnel_dns_config()));
+        firewall.apply(policy_connected(RELAY_ENDPOINT, false, tunnel_dns_config()));
         assert_snapshot!(dump_nftables());
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          connected_with_cgroup2_split_tunnel_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ connected_with_cgroup2_split_tunnel_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ connected_with_cgroup2_split_tunnel_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn connected_with_cgroup2_split_tunnel() {
+fn connected_with_cgroup2_split_tunnel_ipvx() {
     // Only meaningful when built with `--features cgroup2`, and it is skipped
     // otherwise. It fails unless it runs in a cgroup owned by the current user.
-    run_in_netns("connected_with_cgroup2_split_tunnel", || {
+    run_in_netns(stringify!(connected_with_cgroup2_split_tunnel_ipvx), || {
         if !cfg!(feature = "cgroup2") {
             let _ = writeln!(
                 io::stderr(),
@@ -443,7 +550,7 @@ fn connected_with_cgroup2_split_tunnel() {
         let mut firewall =
             Firewall::new(FWMARK, Some(cgroup2), None).expect("Failed to create firewall");
         firewall
-            .apply_policy(policy_connected(false, tunnel_dns_config()))
+            .apply_policy(policy_connected(RELAY_ENDPOINT, false, tunnel_dns_config()))
             .expect("Failed to apply firewall policy");
         assert_snapshot!(dump_nftables());
     });
@@ -459,18 +566,25 @@ fn disconnecting() {
     });
 }
 
+#[duplicate_item(
+      RELAY_ENDPOINT          API_ENDPOINT          transition_blocked_to_connected_ipvx;
+    [ RELAY_ENDPOINT_IPV4 ] [ API_ENDPOINT_IPV4 ] [ transition_blocked_to_connected_ipv4 ];
+    [ RELAY_ENDPOINT_IPV6 ] [ API_ENDPOINT_IPV6 ] [ transition_blocked_to_connected_ipv6 ];
+)]
 #[test]
 #[ignore = "requires network namespaces, ip and nft"]
-fn transition_blocked_to_connected() {
-    run_in_netns("transition_blocked_to_connected", || {
+fn transition_blocked_to_connected_ipvx() {
+    run_in_netns(stringify!(transition_blocked_to_connected_ipvx), || {
         let mut firewall = FirewallGuard::new(None);
         firewall.apply(policy_blocked(false, Some(API_ENDPOINT)));
         firewall.apply(policy_connecting(
+            RELAY_ENDPOINT,
+            API_ENDPOINT,
             Some(tunnel_metadata()),
             AllowedTunnelTraffic::All,
             false,
         ));
-        firewall.apply(policy_connected(false, tunnel_dns_config()));
+        firewall.apply(policy_connected(RELAY_ENDPOINT, false, tunnel_dns_config()));
         assert_snapshot!(dump_nftables());
     });
 }
@@ -480,7 +594,11 @@ fn transition_blocked_to_connected() {
 fn transition_connected_to_blocked() {
     run_in_netns("transition_connected_to_blocked", || {
         let mut firewall = FirewallGuard::new(None);
-        firewall.apply(policy_connected(true, tunnel_dns_config()));
+        firewall.apply(policy_connected(
+            RELAY_ENDPOINT_IPV4,
+            true,
+            tunnel_dns_config(),
+        ));
         firewall.apply(policy_blocked(true, None));
         assert_snapshot!(dump_nftables());
     });

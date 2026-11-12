@@ -5,7 +5,7 @@ expression: dump_nftables()
 table inet mullvad {
 	chain prerouting {
 		type filter hook prerouting priority -199; policy accept;
-		ip saddr 185.65.134.1 udp sport 51820 meta mark set 0x6d6f6c65
+		ip6 saddr 2001:db8::1 udp sport 51820 meta mark set 0x6d6f6c65
 	}
 
 	chain output {
@@ -18,14 +18,10 @@ table inet mullvad {
 		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip daddr 185.65.134.1 udp dport 51820 meta mark 0x6d6f6c65 accept
-		oif "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
-		oif "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
-		oif != "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
-		oif != "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
+		ip6 daddr 2001:db8::1 udp dport 51820 meta mark 0x6d6f6c65 accept
+		ip6 daddr 2001:db8::3 tcp dport 443 meta skuid 0 accept
 		udp dport 53 reject
 		tcp dport 53 reject with tcp reset
-		oif "mullvad-test0" accept
 		reject
 	}
 
@@ -38,10 +34,8 @@ table inet mullvad {
 		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
 		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip saddr 185.65.134.1 udp sport 51820 ct state established accept
-		iif != "mullvad-test0" udp sport 53 ip6 saddr fc00:bb::1 ct state established accept
-		iif != "mullvad-test0" tcp sport 53 ip6 saddr fc00:bb::1 ct state established accept
-		iif "mullvad-test0" accept
+		ip6 saddr 2001:db8::1 udp sport 51820 ct state established accept
+		ip6 saddr 2001:db8::3 tcp sport 443 ct state established meta skuid 0 accept
 	}
 
 	chain forward {
@@ -59,16 +53,8 @@ table inet mullvad {
 		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
 		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		oif "mullvad-test0" udp dport 53 ip daddr 10.64.0.1 accept
-		oif "mullvad-test0" tcp dport 53 ip daddr 10.64.0.1 accept
-		oif != "mullvad-test0" udp dport 53 ip6 daddr fc00:bb::1 accept
-		iif != "mullvad-test0" udp sport 53 ip6 saddr fc00:bb::1 ct state established accept
-		oif != "mullvad-test0" tcp dport 53 ip6 daddr fc00:bb::1 accept
-		iif != "mullvad-test0" tcp sport 53 ip6 saddr fc00:bb::1 ct state established accept
 		udp dport 53 reject
 		tcp dport 53 reject with tcp reset
-		oif "mullvad-test0" accept
-		iif "mullvad-test0" ct state established accept
 		reject
 	}
 
