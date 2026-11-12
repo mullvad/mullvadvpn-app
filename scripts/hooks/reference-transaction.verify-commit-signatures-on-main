@@ -88,6 +88,7 @@ check_range() {
 	local total=0 bad=0
 	local -a failures=()
 	local last_good=''
+	local last_good_subject=''
 
 	debug "checking $old..$new"
 
@@ -118,7 +119,10 @@ check_range() {
 		total=$((total + 1))
 		# `G` means good (valid) signature from a trusted key.
 		if [ "$status" = G ]; then
-			[ "$bad" -ne 0 ] || last_good="$(colorize "$GREEN" "${hash:0:10}") $subject"
+			if [ "$bad" -eq 0 ]; then
+				last_good="$(colorize "$GREEN" "${hash:0:10}")"
+				last_good_subject="$subject"
+			fi
 		else
 			# format message for bad commit
 			bad=$((bad + 1))
@@ -149,16 +153,28 @@ check_range() {
 	done
 
 	if [ -n "$last_good" ]; then
-		printf '\n  note: most recent verified commit:\n    %s\n' "$last_good"
+		printf '\n  note: most recent verified commit:\n    %s # %s\n' "$last_good" "$last_good_subject"
 	else
 		printf '\n  note: no verified commits among the incoming commits\n'
 	fi
 
 	printf "\n"
-	printf "  hint: inspect commit log:\n"
+	printf "  tip: inspect commit log:\n"
 	printf "    git log --show-signature %s..%s\n" "$old" "$new"
 	printf "\n"
-	printf "  hint: danger: manually update remote ref:\n"
+
+	if [ -n "$last_good" ]; then
+		printf "  tip: move main to the most recent trusted commit:\n"
+		printf "    git update-ref %s %s\n" "$UPSTREAM_REF" "$last_good"
+		printf "    git switch main\n" "$UPSTREAM_REF"
+		printf "    git merge --ff-only %s\n" "$UPSTREAM_REF"
+		printf "\n"
+	fi
+
+	printf "  tip: consider importing signing keys:\n"
+	printf "    gpg --import ci/keys/*.pub\n"
+	printf "\n"
+	printf "  tip: danger: manually update remote ref:\n"
 	printf "    git update-ref %s %s\n" "$UPSTREAM_REF" "$new"
 	printf "\n"
 	printf '  note: %s was not updated. main was not updated.\n' "$UPSTREAM_REF"
