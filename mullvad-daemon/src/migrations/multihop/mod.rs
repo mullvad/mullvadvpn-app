@@ -32,11 +32,11 @@ pub fn migrate(
     if !version_matches(settings) {
         return Ok(None);
     }
-    log::info!("Running Multihop/filter settings migration");
+    log::info!("Migrating settings format to V18");
     // Perform the migration
     let scenario = migration::run(settings, cache_dir, resource_dir)?;
     // Done. propagate the scenario.
-    log::info!("Successfully ran Multihop/filter migration scenario {scenario:?}. Enjoy!");
+    log::debug!("Successfully ran multihop/filter migration scenario {scenario:?}. Enjoy!");
     settings["settings_version"] = json!(SETTING);
     Ok(Some(scenario))
 }
