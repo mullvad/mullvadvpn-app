@@ -28,7 +28,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var newAppVersionSystemNotificationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
     private var migrationManager: MigrationManager
-    private let inAppLogBuffer = InAppLogBuffer()
+    private let inAppLogBuffer: InAppLogBuffer? = PacketTunnelProvider.makeInAppLogBuffer()
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
@@ -151,7 +151,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: implementation.actor,
             apiRequestProxy: apiRequestProxy,
-            // inAppLogBuffer: inAppLogBuffer
+            inAppLogBuffer: inAppLogBuffer
         )
 
         newAppVersionSystemNotificationHandler = NewAppVersionSystemNotificationHandler(
@@ -340,7 +340,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 }
 
 extension PacketTunnelProvider {
-    private static func configureLogging(inAppLogBuffer: InAppLogBuffer) {
+    private static func makeInAppLogBuffer() -> InAppLogBuffer? {
+        #if NEVER_IN_PRODUCTION && os(iOS)
+            return InAppLogBuffer()
+        #else
+            return nil
+        #endif
+    }
+
+    private static func configureLogging(inAppLogBuffer: InAppLogBuffer?) {
         let loggerBuilder = LoggerBuilder.shared
         let header = "PacketTunnel version \(Bundle.main.productVersion)"
         let redactor = RustLogRedactor(containerPaths: [ApplicationConfiguration.containerURL.path])
@@ -351,17 +359,17 @@ extension PacketTunnelProvider {
             ),
             header: header
         )
-        #if NEVER_IN_PRODUCTION
-            loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
-            loggerBuilder.addInAppLogOutput(
-                process: .packetTunnel,
-                observer: InAppLogBlockObserver { log in
-                    Task {
-                        await inAppLogBuffer.append(log)
-                    }
+
+        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
+        loggerBuilder.addInAppLogOutput(
+            process: .packetTunnel,
+            observer: InAppLogBlockObserver { log in
+                Task {
+                    await inAppLogBuffer?.append(log)
                 }
-            )
-        #endif
+            }
+        )
+
         loggerBuilder.install(redactor)
 
         // Initialize Rust logging to forward to Swift Logger
