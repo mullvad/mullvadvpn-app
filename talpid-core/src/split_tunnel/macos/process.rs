@@ -188,7 +188,7 @@ async fn handle_eslogger_output(
             let val: ESMessage = match serde_json::from_str(&line) {
                 Ok(val) => val,
                 Err(error) => {
-                    log_parse_error_throttled(error);
+                    log_parse_error_throttled(&line, error);
                     continue;
                 }
             };
@@ -251,7 +251,7 @@ async fn handle_eslogger_output(
 /// `eslogger` can emit unparsable output at a very high rate, so occurrences within the
 /// throttling window are counted and folded into the next logged message instead of each being
 /// logged individually.
-fn log_parse_error_throttled(error: serde_json::Error) {
+fn log_parse_error_throttled(line: &str, error: serde_json::Error) {
     /// Minimum time between logged messages.
     const LOG_INTERVAL: Duration = Duration::from_secs(60);
 
@@ -277,6 +277,10 @@ fn log_parse_error_throttled(error: serde_json::Error) {
         suppressed => log::error!(
             "Failed to parse eslogger message: {error} ({suppressed} similar errors suppressed)"
         ),
+    }
+
+    if cfg!(debug_assertions) {
+        log::debug!("{line}");
     }
 }
 
