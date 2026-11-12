@@ -1,5 +1,5 @@
 use std::fmt;
-use std::fs::{self, read_link};
+use std::fs::{self, canonicalize};
 use std::io;
 use std::net::IpAddr;
 use std::os::unix::fs::symlink;
@@ -128,7 +128,7 @@ impl Backup {
         let resolv_conf = Path::new("/etc/resolv.conf");
         if resolv_conf.is_symlink() {
             // `/etc/resolv.conf` is a file.
-            let original = read_link(resolv_conf)?.into();
+            let original = canonicalize(resolv_conf)?.into();
             return Ok(Backup::Symlink { original });
         }
         // `/etc/resolv.conf` is a file. Read its content.
@@ -168,7 +168,7 @@ fn systemd_manages_resolv_conf() -> io::Result<bool> {
         return Ok(false);
     }
 
-    let link = read_link(systemd_resolver_stub)?;
+    let link = canonicalize(systemd_resolver_stub)?;
     match link.to_string_lossy().as_ref() {
         "/run/systemd/resolve/stub-resolv.conf"
         | "/run/systemd/resolve/resolv.conf"
