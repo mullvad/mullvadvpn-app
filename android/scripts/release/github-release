@@ -93,7 +93,7 @@ function publish_release {
     # shellcheck disable=SC2046
     gh release create "${release_flags[@]}" "android/$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*) < "$tmp_changelog_file"
 
-    rm tmp_changelog_file
+    rm -- "$tmp_changelog_file"
 }
 
 trap cleanup EXIT
