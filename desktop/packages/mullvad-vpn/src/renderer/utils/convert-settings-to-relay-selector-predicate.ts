@@ -53,21 +53,22 @@ function convertLocationToRelaySelectorLocation(
   return wrapConstraint(convertLocationToRelayLocationGeographical(location));
 }
 
-function convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
-  normalRelaySettings: NormalRelaySettingsRedux,
-  ignoreConstraint?: IgnoreConstraints,
-): RelaySelectorPredicateGeneralConstraints {
-  const location = convertLocationToRelaySelectorLocation(
-    normalRelaySettings.wireguard.entryLocation,
-  );
-  const providers = convertProvidersToRelaySelectorProviders(
-    normalRelaySettings.wireguard.entryProviders,
-  );
-  const ownership = normalRelaySettings.wireguard.entryOwnership;
-
+function convertSettingsToRelaySelectorGeneralConstraints({
+  location,
+  providers,
+  ownership,
+  ignoreConstraint,
+}: {
+  location: LiftedConstraint<RelayLocation>;
+  providers: string[];
+  ownership: Ownership;
+  ignoreConstraint?: IgnoreConstraints;
+}): RelaySelectorPredicateGeneralConstraints {
   return {
-    location: ignoreConstraint?.location ? 'any' : location,
-    providers: ignoreConstraint?.providers ? [] : providers,
+    location: ignoreConstraint?.location ? 'any' : convertLocationToRelaySelectorLocation(location),
+    providers: ignoreConstraint?.providers
+      ? []
+      : convertProvidersToRelaySelectorProviders(providers),
     ownership: ignoreConstraint?.ownership ? Ownership.any : ownership,
   };
 }
@@ -89,10 +90,13 @@ function convertSettingsToRelaySelectorMultihopEntryConstraints({
   normalRelaySettings,
   ignoreConstraint,
 }: ConvertSettingsToRelaySelectorMultihopEntryConstraints): RelaySelectorPredicateEntryConstraints {
-  const generalConstraints = convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
-    normalRelaySettings,
+  const { entryLocation, entryProviders, entryOwnership } = normalRelaySettings.wireguard;
+  const generalConstraints = convertSettingsToRelaySelectorGeneralConstraints({
+    location: entryLocation,
+    providers: entryProviders,
+    ownership: entryOwnership,
     ignoreConstraint,
-  );
+  });
 
   const ipVersion = wrapConstraint(normalRelaySettings.wireguard.ipVersion);
   const daita = settings.wireguard.daita;
@@ -114,8 +118,11 @@ function convertSettingsToRelaySelectorMultihopExitConstraints({
   normalRelaySettings,
   ignoreConstraint,
 }: ConvertSettingsToRelaySelectorMultihopExitConstraints): RelaySelectorPredicateGeneralConstraints {
-  return convertSettingsToRelaySelectorExitConstraints({
-    normalRelaySettings,
+  const { location, providers, ownership } = normalRelaySettings;
+  return convertSettingsToRelaySelectorGeneralConstraints({
+    location,
+    providers,
+    ownership,
     ignoreConstraint,
   });
 }
@@ -131,8 +138,11 @@ function convertSettingsToRelaySelectorOneHopConstraints({
   normalRelaySettings,
   ignoreConstraint,
 }: ConvertSettingsToRelaySelectorOneHopConstraints): RelaySelectorPredicateEntryConstraints {
-  const generalConstraints = convertSettingsToRelaySelectorExitConstraints({
-    normalRelaySettings,
+  const { location, providers, ownership } = normalRelaySettings;
+  const generalConstraints = convertSettingsToRelaySelectorGeneralConstraints({
+    location,
+    providers,
+    ownership,
     ignoreConstraint,
   });
 
@@ -144,26 +154,6 @@ function convertSettingsToRelaySelectorOneHopConstraints({
     daita,
     generalConstraints,
     ipVersion,
-  };
-}
-
-type ConvertSettingsToRelaySelectorGeneralConstraints = {
-  normalRelaySettings: NormalRelaySettingsRedux;
-  ignoreConstraint?: IgnoreConstraints;
-};
-
-function convertSettingsToRelaySelectorExitConstraints({
-  normalRelaySettings,
-  ignoreConstraint,
-}: ConvertSettingsToRelaySelectorGeneralConstraints): RelaySelectorPredicateGeneralConstraints {
-  const providers = convertProvidersToRelaySelectorProviders(normalRelaySettings.providers);
-  const location = convertLocationToRelaySelectorLocation(normalRelaySettings.location);
-  const ownership = normalRelaySettings.ownership;
-
-  return {
-    location: ignoreConstraint?.location ? 'any' : location,
-    providers: ignoreConstraint?.providers ? [] : providers,
-    ownership: ignoreConstraint?.ownership ? Ownership.any : ownership,
   };
 }
 
