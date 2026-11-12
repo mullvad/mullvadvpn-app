@@ -205,7 +205,7 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version } => {
                                     Some(GenerationError {
                                         r#type: i32::from(ErrorType::NoMatchingRelayEntry),
-                                        unavailable_ip_version: Some(unavailable_ip_version.clone()),
+                                        unavailable_ip_version: Some(*unavailable_ip_version),
                                     })
                                 }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit => {
@@ -217,7 +217,7 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version } => {
                                     Some(GenerationError {
                                         r#type: i32::from(ErrorType::NoMatchingRelay),
-                                        unavailable_ip_version: Some(unavailable_ip_version.clone()),
+                                        unavailable_ip_version: Some(*unavailable_ip_version),
                                     })
                                 }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
@@ -437,7 +437,9 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     }
                     Ok(proto::error_state::Cause::TunnelParameterError) => {
                         let parameter_error = parameter_error.ok_or_else(|| {
-                            FromProtobufTypeError::invalid_argument("missing tunnel parameter error")
+                            FromProtobufTypeError::invalid_argument(
+                                "missing tunnel parameter error",
+                            )
                         })?;
 
                         let parameter_error = match ErrorType::try_from(parameter_error.r#type) {

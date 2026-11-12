@@ -179,7 +179,7 @@ impl RelaySelector {
 
         let endpoint_set = annotated
             .endpoint_set_for(entry)
-            .ok_or_else(|| Error::NoRelay(Box::new(Vec::new())))?;
+            .ok_or_else(|| Error::NoRelay(Box::default()))?;
 
         let entry_specific = query.entry_specific();
         let (wg_addr, obfuscator) = endpoint_set
@@ -259,7 +259,7 @@ fn select_wireguard_relay(
             }
             match helpers::pick_random_relay(&partitions.matches) {
                 Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
-                None => Err(Error::NoRelay(Box::new(Vec::new()))),
+                None => Err(Error::NoRelay(Box::default())),
             }
         }
         Hops::Auto(constraints) => {
@@ -305,7 +305,7 @@ fn select_from_multihop_partitions(
     }
 
     let exit = helpers::pick_random_relay(&partitions.exits.matches)
-        .ok_or_else(|| Error::NoRelayExit(Box::new(Vec::new())))?;
+        .ok_or_else(|| Error::NoRelayExit(Box::default()))?;
 
     let entry = if matches!(entry_constraints.general.location, Constraint::Any) {
         // `Constraint::Any` implies an automatic entry selection with no geographical constraints.
@@ -324,11 +324,11 @@ fn select_from_multihop_partitions(
             .map(|r| r.relay)
             .collect();
         helpers::pick_random_relay_excluding(&closest, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Box::new(Vec::new())))?
+            .ok_or_else(|| Error::NoRelayEntry(Box::default()))?
             .clone()
     } else {
         helpers::pick_random_relay_excluding(&partitions.entries.matches, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Box::new(Vec::new())))?
+            .ok_or_else(|| Error::NoRelayEntry(Box::default()))?
             .clone()
     };
 
