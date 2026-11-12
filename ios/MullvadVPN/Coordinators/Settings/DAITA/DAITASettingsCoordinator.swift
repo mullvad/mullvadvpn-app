@@ -38,7 +38,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
     }
 
     func start(animated: Bool) {
-        let view = SettingsDAITAView(tunnelViewModel: self.viewModel)
+        let view = SettingsDAITAView(tunnelViewModel: self.viewModel).navigationBarBackButtonHidden(true)
 
         viewModel.didFailDAITAValidation = { [weak self] in
             guard let self else { return }
@@ -56,7 +56,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
         host.view.setAccessibilityIdentifier(.daitaView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(host, animated: animated)
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

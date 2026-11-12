@@ -33,3 +33,10 @@ class CustomNavigationController: UINavigationController {
         navigationBar.overridePromptColor()
     }
 }
+
+extension UINavigationController {
+    func pushViewControllerAddingCustomButtons(_ viewController: UIViewController, animated: Bool = true) {
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(navigationController: self)
+        self.pushViewController(viewController, animated: animated)
+    }
+}

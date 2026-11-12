@@ -38,10 +38,10 @@ final class NotificationSettingsCoordinator: Coordinator, Presentable, SettingsC
             didUpdateNotificationSettings?(self, notificationSettings)
         }
 
-        let viewController = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         viewController.view.setAccessibilityIdentifier(.notificationSettingsView)
         viewController.navigationItem.title = NSLocalizedString("Notifications", comment: "")
 
-        navigationController?.pushViewController(viewController, animated: animated)
+        navigationController?.pushViewControllerAddingCustomButtons(viewController, animated: animated)
     }
 }

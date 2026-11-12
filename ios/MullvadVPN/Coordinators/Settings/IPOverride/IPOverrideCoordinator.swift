@@ -45,6 +45,7 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
         )
 
         controller.delegate = self
+        controller.navigationItem.hidesBackButton = true
 
         if route == .ipOverrides {
             let doneButton = UIBarButtonItem.mullvadDoneButton(
@@ -56,7 +57,7 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
             controller.navigationItem.rightBarButtonItem = doneButton
         }
 
-        navigationController.pushViewController(controller, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: animated)
     }
 }
 
