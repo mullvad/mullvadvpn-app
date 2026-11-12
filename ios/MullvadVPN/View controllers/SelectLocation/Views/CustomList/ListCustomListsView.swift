@@ -23,6 +23,7 @@ struct ListCustomListsView: View {
                 SegmentedListItem(
                     accessibilityIdentifier:
                         .editCustomListListItem(list.name),
+                    accessibilityLabel: list.name,
                     leadingAndTrailingDestination: {
                         LazyView(
                             CustomListView(
