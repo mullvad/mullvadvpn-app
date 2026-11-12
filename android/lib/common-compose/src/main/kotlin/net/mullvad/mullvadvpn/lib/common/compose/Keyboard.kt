@@ -17,6 +17,11 @@ fun KeyboardType.Companion.accountNumberKeyboardType(context: Context): Keyboard
 private fun isFireStick(context: Context): Boolean =
     context.packageManager.hasSystemFeature("amazon.hardware.fire_tv")
 
+val KeyEvent.isDirectionLeft: Boolean
+    get() =
+        key == Key.DirectionLeft ||
+            nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT
+
 val KeyEvent.isDirectionRight: Boolean
     get() =
         key == Key.DirectionRight ||
