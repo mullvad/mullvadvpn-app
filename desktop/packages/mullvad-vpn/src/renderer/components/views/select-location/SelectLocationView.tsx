@@ -68,7 +68,7 @@ export function SelectLocationViewImpl() {
     [setIsLocationSelectorExpanded],
   );
 
-  const { measureElement, height } = useMeasureLocationSelector();
+  const { measureElement, height, collapsedHeight } = useMeasureLocationSelector();
 
   const locationSlide = useLocationSlides();
 
@@ -86,7 +86,7 @@ export function SelectLocationViewImpl() {
                 ? false
                 : undefined
             }
-            $headerHeight={height}>
+            $headerHeight={collapsedHeight}>
             {/* Height will be 0 on first render, and will then be measured.
               Skip rendering when height is 0 to prevent transition. */}
             {height !== 0 && (
