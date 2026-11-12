@@ -94,7 +94,8 @@ fn run_in_netns(test: &str, body: impl FnOnce()) {
         return;
     }
 
-    let flags = ISOLATION_FLAGS.expect("Failed to create isolated network namespaces");
+    let flags = ISOLATION_FLAGS
+        .expect("Failed to create isolated network namespaces (is util-linux installed?)");
 
     let executable = env::current_exe().expect("Failed to locate the current test executable");
     // Arguments meant for the test harness, minus the flags we need to set
