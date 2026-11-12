@@ -33,7 +33,7 @@ print_usage() {
   log ""
   log "Both download commands commit their changes to the current branch."
   log ""
-  log "Make sure enviroment variable CROWDIN_API_KEY is set before invoking this"
+  log "Make sure environment variable CROWDIN_API_KEY is set before invoking this"
   log "script. E.g:"
   log "$ CROWDIN_API_KEY=1234 $(basename "$0") <command>"
 }
