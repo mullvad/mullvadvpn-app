@@ -50,12 +50,15 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
             )
         )
 
-        let host = UIHostingController(rootView: view)
+        let host = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         host.title = NSLocalizedString("API access", comment: "")
         host.view.setAccessibilityIdentifier(.apiAccessView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(
+            host,
+            animated: animated
+        )
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

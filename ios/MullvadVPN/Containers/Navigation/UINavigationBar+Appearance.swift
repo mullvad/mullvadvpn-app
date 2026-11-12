@@ -95,6 +95,31 @@ extension UIBarButtonItem {
             title: NSLocalizedString("Cancel", comment: ""), textStyle: .body, primaryAction: primaryAction)
     }
 
+    /// Text "Back" button without the iOS 26+ glass capsule or prominent checkmark rendering.
+    static func mullvadBackButton(navigationController: UINavigationController) -> UIBarButtonItem {
+        let backAction = UIAction(handler: { _ in
+            navigationController.popViewController(animated: true)
+        })
+        // option 1: an image button without the glass
+        let image = UIImage.Buttons.back.withTintColor(
+            UIColor.NavigationBar.buttonColor,
+            renderingMode: .alwaysOriginal
+        )
+        let item = UIImageView(image: image)
+        item.contentMode = .scaleAspectFill
+        let barButtonItem = UIBarButtonItem(image: image, primaryAction: backAction)
+        barButtonItem.hidesSharedBackgroundIfAvailable()
+        return barButtonItem
+        
+        // option 2: a text button reading "Back"
+//        return mullvadTextButton(
+//            title: NSLocalizedString("Back", comment: ""),
+//            textStyle: .headline,
+//            primaryAction: UIAction(handler: { _ in
+//                navigationController.popViewController(animated: true)
+//            }))
+    }
+
     static func mullvadTextButton(
         title: String,
         textStyle: UIFont.TextStyle,

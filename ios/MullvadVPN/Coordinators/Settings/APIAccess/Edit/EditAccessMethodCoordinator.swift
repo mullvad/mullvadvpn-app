@@ -55,8 +55,12 @@ class EditAccessMethodCoordinator: Coordinator, Presenting {
             alertPresenter: AlertPresenter(context: self)
         )
         controller.delegate = self
+        controller.navigationItem.hidesBackButton = true
 
-        navigationController.pushViewController(controller, animated: true)
+        navigationController.pushViewControllerAddingCustomButtons(
+            controller,
+            animated: true
+        )
     }
 }
 

@@ -64,10 +64,10 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
             presentOnlySection: section
         )
 
-        let host = UIHostingController(rootView: view)
+        let host = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(host, animated: animated)
     }
 
     private func customiseNavigation(on viewController: UIViewController) {
