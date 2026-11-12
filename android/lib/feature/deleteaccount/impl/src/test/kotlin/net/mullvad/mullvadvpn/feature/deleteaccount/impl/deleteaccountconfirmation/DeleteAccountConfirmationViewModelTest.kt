@@ -20,11 +20,9 @@ class DeleteAccountConfirmationViewModelTest {
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
 
-    private val viewModel =
-        DeleteAccountConfirmationViewModel(
-            accountRepository = mockAccountRepository,
-            deviceRepository = mockDeviceRepository,
-        )
+    // Needs to be created after fetch account data mocking is set up otherwise the test will be
+    // flaky.
+    private lateinit var viewModel: DeleteAccountConfirmationViewModel
 
     @Test
     fun `when account expiry is in the future ui state should include the correct amount of days`() =
@@ -33,12 +31,10 @@ class DeleteAccountConfirmationViewModelTest {
             val accountData: AccountData = mockk(relaxed = true)
             every { accountData.expiryDate } returns ZonedDateTime.now().plusDays(3).plusHours(2)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
+            createViewModel()
 
             // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-                assertEquals(DaysLeftState.DaysLeft(3), awaitItem().daysLeft)
-            }
+            viewModel.uiState.test { assertEquals(DaysLeftState.DaysLeft(3), awaitItem().daysLeft) }
         }
 
     @Test
@@ -47,12 +43,10 @@ class DeleteAccountConfirmationViewModelTest {
         val accountData: AccountData = mockk(relaxed = true)
         every { accountData.expiryDate } returns ZonedDateTime.now().minusDays(4)
         coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
+        createViewModel()
 
         // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-            assertEquals(DaysLeftState.NoDaysLeft, awaitItem().daysLeft)
-        }
+        viewModel.uiState.test { assertEquals(DaysLeftState.NoDaysLeft, awaitItem().daysLeft) }
     }
 
     @Test
@@ -62,11 +56,17 @@ class DeleteAccountConfirmationViewModelTest {
             val accountData: AccountData = mockk(relaxed = true)
             every { accountData.expiryDate } returns ZonedDateTime.now().minusDays(4)
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns null
+            createViewModel()
 
             // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-                assertEquals(DaysLeftState.Error, awaitItem().daysLeft)
-            }
+            viewModel.uiState.test { assertEquals(DaysLeftState.Error, awaitItem().daysLeft) }
         }
+
+    private fun createViewModel() {
+        viewModel =
+            DeleteAccountConfirmationViewModel(
+                accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
+            )
+    }
 }
