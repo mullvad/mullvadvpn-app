@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useCarouselContext } from '../../CarouselContext';
 import { CarouselSlide } from './components';
+import { useEffectHandleSnapChange } from './hooks';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
@@ -19,6 +20,8 @@ export const StyledCarouselSlides = styled.div`
 
 function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const { slidesRef } = useCarouselContext();
+
+  useEffectHandleSnapChange();
 
   return (
     <StyledCarouselSlides
