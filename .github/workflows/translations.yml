@@ -8,6 +8,7 @@ on:
       - android/**/res/values*/strings*.xml
       - android/**/res/xml*/relay_locations.xml
       - android/scripts/check-empty-strings.sh
+      - android/scripts/translations/localization
       - desktop/packages/mullvad-vpn/**
       - ios/Assets/Localizable.xcstrings
       - scripts/check-apostrophe-style
