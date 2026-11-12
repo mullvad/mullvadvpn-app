@@ -18,6 +18,9 @@ struct CustomListInteractorTests {
         let customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
             repository: CustomListsRepositoryStub(),
+            recentsRepository: RecentConnectionsRepository(
+                settingsStore: InMemorySettingsStore<SettingNotFound>()
+            ),
             relaySelector: RelaySelectorStub(
                 selectedRelaysResult: { _ in
                     throw NoRelaysSatisfyingConstraintsError(
