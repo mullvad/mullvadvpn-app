@@ -25,6 +25,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 
 [dev-dependencies]
+duplicate.workspace = true
 insta = { workspace = true }
 regex-lite = "0.1"
 test-log = "0.2.17"

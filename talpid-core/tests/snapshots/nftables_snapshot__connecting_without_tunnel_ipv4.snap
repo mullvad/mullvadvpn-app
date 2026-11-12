@@ -5,7 +5,7 @@ expression: dump_nftables()
 table inet mullvad {
 	chain prerouting {
 		type filter hook prerouting priority -199; policy accept;
-		ip saddr 185.65.134.1 udp sport 51820 meta mark set 0x6d6f6c65
+		ip saddr 192.0.2.1 udp sport 51820 meta mark set 0x6d6f6c65
 	}
 
 	chain output {
@@ -18,8 +18,8 @@ table inet mullvad {
 		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip daddr 185.65.134.1 udp dport 51820 meta mark 0x6d6f6c65 accept
-		ip daddr 45.83.223.198 tcp dport 443 meta skuid 0 accept
+		ip daddr 192.0.2.1 udp dport 51820 meta mark 0x6d6f6c65 accept
+		ip daddr 203.0.113.1 tcp dport 443 meta skuid 0 accept
 		udp dport 53 reject
 		tcp dport 53 reject with tcp reset
 		reject
@@ -34,8 +34,8 @@ table inet mullvad {
 		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
 		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
 		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
-		ip saddr 185.65.134.1 udp sport 51820 ct state established accept
-		ip saddr 45.83.223.198 tcp sport 443 ct state established meta skuid 0 accept
+		ip saddr 192.0.2.1 udp sport 51820 ct state established accept
+		ip saddr 203.0.113.1 tcp sport 443 ct state established meta skuid 0 accept
 	}
 
 	chain forward {

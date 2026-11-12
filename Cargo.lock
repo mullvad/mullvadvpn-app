@@ -5875,6 +5875,7 @@ dependencies = [
  "async-trait",
  "bitflags 2.13.2",
  "cfg-if",
+ "duplicate",
  "either",
  "futures",
  "hickory-proto",
