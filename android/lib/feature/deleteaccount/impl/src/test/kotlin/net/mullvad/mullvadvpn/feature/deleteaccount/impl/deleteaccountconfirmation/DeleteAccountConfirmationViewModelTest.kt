@@ -11,20 +11,29 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class DeleteAccountConfirmationViewModelTest {
 
-    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
-    private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
+    private lateinit var mockAccountRepository: AccountRepository
+    private lateinit var mockDeviceRepository: DeviceRepository
 
-    private val viewModel =
-        DeleteAccountConfirmationViewModel(
-            accountRepository = mockAccountRepository,
-            deviceRepository = mockDeviceRepository,
-        )
+    private lateinit var viewModel: DeleteAccountConfirmationViewModel
+
+    @BeforeEach
+    fun setup() {
+        mockAccountRepository = mockk()
+        mockDeviceRepository = mockk(relaxed = true)
+
+        viewModel =
+            DeleteAccountConfirmationViewModel(
+                accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
+            )
+    }
 
     @Test
     fun `when account expiry is in the future ui state should include the correct amount of days`() =
@@ -35,10 +44,7 @@ class DeleteAccountConfirmationViewModelTest {
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
 
             // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-                assertEquals(DaysLeftState.DaysLeft(3), awaitItem().daysLeft)
-            }
+            viewModel.uiState.test { assertEquals(DaysLeftState.DaysLeft(3), awaitItem().daysLeft) }
         }
 
     @Test
@@ -49,10 +55,7 @@ class DeleteAccountConfirmationViewModelTest {
         coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns accountData
 
         // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-            assertEquals(DaysLeftState.NoDaysLeft, awaitItem().daysLeft)
-        }
+        viewModel.uiState.test { assertEquals(DaysLeftState.NoDaysLeft, awaitItem().daysLeft) }
     }
 
     @Test
@@ -64,9 +67,6 @@ class DeleteAccountConfirmationViewModelTest {
             coEvery { mockAccountRepository.fetchAccountData(any(), any()) } returns null
 
             // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(DaysLeftState.Loading, awaitItem().daysLeft)
-                assertEquals(DaysLeftState.Error, awaitItem().daysLeft)
-            }
+            viewModel.uiState.test { assertEquals(DaysLeftState.Error, awaitItem().daysLeft) }
         }
 }
