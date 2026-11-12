@@ -200,8 +200,14 @@ function MapInner(props: MapInnerProps) {
 
   // Resize canvas if window size changes
   useEffect(() => {
-    addEventListener('resize', onSizeChange);
-    return () => removeEventListener('resize', onSizeChange);
+    const onResizeCallback = () => {
+      if (canvasRef.current?.clientHeight) {
+        setHeight(applyPixelRatio(canvasRef.current.clientHeight));
+      }
+      onSizeChange();
+    };
+    addEventListener('resize', onResizeCallback);
+    return () => removeEventListener('resize', onResizeCallback);
   }, []);
 
   useEffect(() => {
