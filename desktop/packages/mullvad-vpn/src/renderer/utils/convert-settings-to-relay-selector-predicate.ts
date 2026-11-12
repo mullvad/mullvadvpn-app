@@ -8,7 +8,6 @@ import {
 } from '../../shared/daemon-rpc-types';
 import {
   RelaySelectorPredicate,
-  RelaySelectorPredicateAutohopConstraints,
   RelaySelectorPredicateEntryConstraints,
   RelaySelectorPredicateGeneralConstraints,
   RelaySelectorProvider,
@@ -106,17 +105,17 @@ function convertSettingsToRelaySelectorEntryConstraints({
   };
 }
 
-type ConvertSettingsToRelaySelectorAutohopConstraints = {
+type ConvertSettingsToRelaySelectorOneHopConstraints = {
   settings: ISettingsReduxState;
   normalRelaySettings: NormalRelaySettingsRedux;
   ignoreConstraint?: IgnoreConstraints;
 };
 
-function convertSettingsToRelaySelectorAutohopConstraints({
+function convertSettingsToRelaySelectorOneHopConstraints({
   settings,
   normalRelaySettings,
   ignoreConstraint,
-}: ConvertSettingsToRelaySelectorAutohopConstraints): RelaySelectorPredicateAutohopConstraints {
+}: ConvertSettingsToRelaySelectorOneHopConstraints): RelaySelectorPredicateEntryConstraints {
   const generalConstraints = convertSettingsToRelaySelectorExitConstraints({
     normalRelaySettings,
     ignoreConstraint,
@@ -233,7 +232,7 @@ export function convertSettingsToRelaySelectorQueries(
         context: 'exit',
         predicate: {
           type: 'autohop',
-          constraints: convertSettingsToRelaySelectorAutohopConstraints({
+          constraints: convertSettingsToRelaySelectorOneHopConstraints({
             normalRelaySettings,
             settings,
             ignoreConstraint: {
@@ -251,7 +250,7 @@ export function convertSettingsToRelaySelectorQueries(
       context: 'exit',
       predicate: {
         type: 'singlehop',
-        constraints: convertSettingsToRelaySelectorEntryConstraints({
+        constraints: convertSettingsToRelaySelectorOneHopConstraints({
           normalRelaySettings,
           settings,
           ignoreConstraint: {
