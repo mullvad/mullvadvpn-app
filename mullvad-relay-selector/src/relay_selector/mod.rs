@@ -199,7 +199,8 @@ impl RelaySelector {
         })
     }
 
-    /// Get the list of relay that should be connected to, in order, for a given query.
+    /// Get the list of relays that should be connected to for a given query, which should be
+    /// consumed in "front to back" order.
     ///
     /// If anti-censorship is disabled or set to a specific method, this will return a single relay.
     ///
