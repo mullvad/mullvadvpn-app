@@ -21,6 +21,10 @@ brew install sequoia-sq sequoia-sqv gh
 sudo apt install sq sqv gh
 ```
 
+#### Authenticate using the GitHub CLI
+Run `gh auth login` and login using a classic token with `read:org` and `repo` permissions and a 365 days
+maximum validity. For more information see internal documentation.
+
 #### Usage
 Checkout the release branch and make sure you are on the latest commit.
 Then run the following command:
