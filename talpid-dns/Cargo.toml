@@ -21,7 +21,7 @@ safelog.workspace = true
 talpid-dbus = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
 triggered = "0.1.1"
-which = { version = "4.0", default-features = false }
+which = { version = "8.0", default-features = false, features = ["real-sys"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 parking_lot = "0.12.0"
