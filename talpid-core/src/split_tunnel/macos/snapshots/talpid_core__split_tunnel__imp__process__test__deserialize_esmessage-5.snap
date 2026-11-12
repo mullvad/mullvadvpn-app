@@ -3,8 +3,29 @@ source: talpid-core/src/split_tunnel/macos/process.rs
 expression: "(s, result)"
 ---
 (
-    "{\"version\":12}",
-    Err(
-        Error("Unsupported ESMessage version: 12", line: 1, column: 14),
+    "{\"seq_num\":0,\"version\":12,\"time\":\"2026-11-12T12:27:48.485976007Z\",\"action_type\":1,\"schema_version\":1,\"action\":{\"result\":{\"result\":{\"auth\":0},\"result_type\":0}},\"event_type\":11,\"event\":{\"fork\":{\"child\":{\"is_es_client\":false,\"session_id\":1,\"original_ppid\":6190,\"parent_audit_token\":{\"egid\":20,\"euid\":501,\"auid\":501,\"pid\":6190,\"ruid\":501,\"pidversion\":17037,\"rgid\":20,\"asid\":100014},\"executable\":{\"path_truncated\":false,\"stat\":{\"st_dev\":16777231,\"st_gid\":80,\"st_mtimespec\":\"2024-10-22T23:13:49.000000000Z\",\"st_gen\":0,\"st_atimespec\":\"2026-11-12T12:27:48.038345578Z\",\"st_mode\":33261,\"st_rdev\":0,\"st_uid\":501,\"st_birthtimespec\":\"2024-10-22T23:13:49.000000000Z\",\"st_size\":14114336,\"st_flags\":0,\"st_nlink\":1,\"st_blocks\":27568,\"st_blksize\":4096,\"st_ino\":3680807,\"st_ctimespec\":\"2024-11-04T16:19:58.267172410Z\"},\"path\":\"\\/Applications\\/Alacritty.app\\/Contents\\/MacOS\\/alacritty\"},\"tty\":null,\"team_id\":null,\"cdhash\":\"BC56A37B65AF42928D56FB74EC66153CCAB95F4B\",\"start_time\":\"2026-11-12T12:27:48.483645Z\",\"signing_id\":\"org.alacritty\",\"audit_token\":{\"egid\":20,\"euid\":501,\"auid\":501,\"pid\":33850,\"ruid\":501,\"pidversion\":70959,\"rgid\":20,\"asid\":100014},\"group_id\":6190,\"coalition\":{\"resource_id\":5473,\"jetsam\":{\"id\":5474,\"role\":0}},\"is_platform_binary\":false,\"ppid\":6190,\"codesigning_flags\":570425859,\"responsible_audit_token\":{\"egid\":20,\"euid\":501,\"auid\":501,\"pid\":6190,\"ruid\":501,\"pidversion\":17037,\"rgid\":20,\"asid\":100014},\"cs_validation_category\":10}}},\"global_seq_num\":0,\"thread\":{\"thread_id\":575234},\"mach_time\":787508417554,\"process\":{\"ppid\":1,\"cdhash\":\"BC56A37B65AF42928D56FB74EC66153CCAB95F4B\",\"audit_token\":{\"euid\":501,\"rgid\":20,\"asid\":100014,\"pidversion\":17037,\"auid\":501,\"pid\":6190,\"egid\":20,\"ruid\":501},\"codesigning_flags\":570425859,\"tty\":null,\"is_es_client\":false,\"cs_validation_category\":10,\"is_platform_binary\":false,\"signing_id\":\"org.alacritty\",\"team_id\":null,\"start_time\":\"2026-11-12T10:41:22.823321Z\",\"original_ppid\":1,\"group_id\":6190,\"executable\":{\"path_truncated\":false,\"stat\":{\"st_dev\":16777231,\"st_gen\":0,\"st_mtimespec\":\"2024-10-22T23:13:49.000000000Z\",\"st_flags\":0,\"st_birthtimespec\":\"2024-10-22T23:13:49.000000000Z\",\"st_nlink\":1,\"st_blksize\":4096,\"st_size\":14114336,\"st_ctimespec\":\"2024-11-04T16:19:58.267172410Z\",\"st_ino\":3680807,\"st_mode\":33261,\"st_gid\":80,\"st_uid\":501,\"st_atimespec\":\"2026-11-12T12:27:48.038345578Z\",\"st_rdev\":0,\"st_blocks\":27568},\"path\":\"\\/Applications\\/Alacritty.app\\/Contents\\/MacOS\\/alacritty\"},\"parent_audit_token\":{\"euid\":0,\"rgid\":0,\"asid\":100013,\"pidversion\":1045,\"auid\":4294967295,\"pid\":1,\"egid\":0,\"ruid\":0},\"session_id\":1,\"coalition\":{\"resource_id\":5473,\"jetsam\":{\"id\":5474,\"role\":1}},\"responsible_audit_token\":{\"euid\":501,\"rgid\":20,\"asid\":100014,\"pidversion\":17037,\"auid\":501,\"pid\":6190,\"egid\":20,\"ruid\":501}}}",
+    Ok(
+        ESMessage {
+            version: SupportedVersion(
+                12,
+            ),
+            event: Fork(
+                ESForkEvent {
+                    child: ESForkChild {
+                        audit_token: ESAuditToken {
+                            pid: 33850,
+                        },
+                    },
+                },
+            ),
+            process: ESProcess {
+                audit_token: ESAuditToken {
+                    pid: 6190,
+                },
+                executable: ESExecutable {
+                    path: "/Applications/Alacritty.app/Contents/MacOS/alacritty",
+                },
+            },
+        },
     ),
 )
