@@ -93,17 +93,6 @@ correct amount of format specifiers:
 ./scripts/localization verify
 ```
 
-## Keeping messages.pot in sync
-
-This is only relevant when running the different tools for updating `messages.pot` manually, and
-is not relevant when using the localization script mentioned above.
-
-It's important that `messages.pot` reflect both the desktop app and the Android app. To prevent it
-from getting out of sync with the strings in the source code, always run both
-`npm run update-translations` and the `translations-converter` tool in that order. If the first one
-is run on it's own it will remove the strings specific to Android. The easiest way to accomplish
-this is to just run `./scripts/localization prepare` as described above.
-
 ## Do Not Translate
 
 All user facing phrases and terms should be translated except for the following trademarks and

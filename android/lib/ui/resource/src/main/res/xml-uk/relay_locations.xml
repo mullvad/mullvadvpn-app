@@ -1,174 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="Adelaide">Аделаїда</string>
-    <string name="Albania">Албанія</string>
-    <string name="Amsterdam">Амстердам</string>
-    <string name="Argentina">Аргентина</string>
-    <string name="Ashburn, VA">Ешберн, Вірджинія</string>
-    <string name="Athens">Афіни</string>
-    <string name="Atlanta, GA">Атланта, Джорджія</string>
-    <string name="Auckland">Окленд</string>
-    <string name="Australia">Австралія</string>
-    <string name="Austria">Австрія</string>
-    <string name="Bangkok">Бангкок</string>
-    <string name="Barcelona">Барселона</string>
-    <string name="Belgium">Бельгія</string>
-    <string name="Belgrade">Белград</string>
-    <string name="Berlin">Берлін</string>
-    <string name="Bogota">Богота</string>
-    <string name="Bordeaux">Бордо</string>
-    <string name="Boston, MA">Бостон, Массачусетс</string>
-    <string name="Bratislava">Братислава</string>
-    <string name="Brazil">Бразилія</string>
-    <string name="Brisbane">Брисбен</string>
-    <string name="Brussels">Брюссель</string>
-    <string name="Bucharest">Бухарест</string>
-    <string name="Budapest">Будапешт</string>
-    <string name="Buenos Aires">Буенос-Айрес</string>
-    <string name="Bulgaria">Болгарія</string>
-    <string name="Calgary">Калгарі</string>
-    <string name="Canada">Канада</string>
-    <string name="Canberra">Канберра</string>
-    <string name="Charlotte, NC">Шарлотт, Північна Кароліна</string>
-    <string name="Chicago, IL">Чикаго, Іллінойс</string>
-    <string name="Chile">Чилі</string>
-    <string name="Chisinau">Кишинів</string>
-    <string name="Cleveland, OH">Клівленд, Огайо</string>
-    <string name="Colombia">Колумбія</string>
-    <string name="Copenhagen">Копенгаген</string>
-    <string name="Croatia">Хорватія</string>
-    <string name="Cyprus">Кіпр</string>
-    <string name="Czech Republic">Чеська Республіка</string>
-    <string name="Dallas, TX">Даллас, Техас</string>
-    <string name="Denmark">Данія</string>
-    <string name="Denver, CO">Денвер, Колорадо</string>
-    <string name="Detroit, MI">Детройт, Мічиган</string>
-    <string name="Dubai">Дубай</string>
-    <string name="Dublin">Дублін</string>
-    <string name="Dusseldorf">Дюссельдорф</string>
-    <string name="Estonia">Естонія</string>
-    <string name="Finland">Фінляндія</string>
-    <string name="Fortaleza">Форталеза</string>
-    <string name="France">Франція</string>
-    <string name="Frankfurt">Франкфурт</string>
-    <string name="Germany">Німеччина</string>
-    <string name="Glasgow">Глазго</string>
-    <string name="Gothenburg">Гетеборг</string>
-    <string name="Greece">Греція</string>
-    <string name="Helsingborg">Гельсінгборг</string>
-    <string name="Helsinki">Гельсінкі</string>
-    <string name="Hong Kong">Гонконг</string>
-    <string name="Honolulu, HI">Гонолулу, Гаваї</string>
-    <string name="Houston, TX">Х’юстон, Техас</string>
-    <string name="Hungary">Угорщина</string>
-    <string name="India">Індія</string>
-    <string name="Indonesia">Індонезія</string>
-    <string name="Ireland">Ірландія</string>
-    <string name="Israel">Ізраїль</string>
-    <string name="Istanbul">Стамбул</string>
-    <string name="Italy">Італія</string>
-    <string name="Jackson, MS">Джексон, Міссісіпі</string>
-    <string name="Jakarta">Джакарта</string>
-    <string name="Japan">Японія</string>
-    <string name="Johannesburg">Йоганнесбург</string>
-    <string name="Kansas City, MO">Канзас-Сіті, Міссурі</string>
-    <string name="Kiev">Київ</string>
-    <string name="Kuala Lumpur">Куала-Лумпур</string>
-    <string name="Kyiv">Київ</string>
-    <string name="Lagos">Лагос</string>
-    <string name="Latvia">Латвія</string>
-    <string name="Lima">Ліма</string>
-    <string name="Lisbon">Лісабон</string>
-    <string name="Ljubljana">Любляна</string>
-    <string name="London">Лондон</string>
-    <string name="Los Angeles, CA">Лос-Анджелес, Каліфорнія</string>
-    <string name="Louisville, KY">Луїсвілл, Кентуккі</string>
-    <string name="Luxembourg">Люксембург</string>
-    <string name="Madrid">Мадрид</string>
-    <string name="Malaysia">Малайзія</string>
-    <string name="Malmö">Мальме</string>
-    <string name="Manchester">Манчестер</string>
-    <string name="Manila">Маніла</string>
-    <string name="Marseille">Марсель</string>
-    <string name="McAllen, TX">Мак-Аллен, Техас</string>
-    <string name="Melbourne">Мельбурн</string>
-    <string name="Mexico">Мексика</string>
-    <string name="Miami, FL">Маямі, Флорида</string>
-    <string name="Milan">Мілан</string>
-    <string name="Milwaukee, WI">Мілвокі, Вісконсин</string>
-    <string name="Minneapolis/St. Paul Apt, MN">Аеропорт «Міннеаполіс/Сент-Пол», Міннесота</string>
-    <string name="Moldova">Молдова</string>
-    <string name="Montreal">Монреаль</string>
-    <string name="Netherlands">Нідерланди</string>
-    <string name="New York, NY">Нью-Йорк, штат Нью-Йорк</string>
-    <string name="New Zealand">Нова Зеландія</string>
-    <string name="Nicosia">Нікосія</string>
-    <string name="Nigeria">Нігерія</string>
-    <string name="Nis">Ніс</string>
-    <string name="North Macedonia">Північна Македонія</string>
-    <string name="Norway">Норвегія</string>
-    <string name="Oklahoma City, OK">Оклахома-Сіті, Оклахома</string>
-    <string name="Osaka">Осака</string>
-    <string name="Oslo">Осло</string>
-    <string name="Palermo">Палермо</string>
-    <string name="Paris">Париж</string>
-    <string name="Perth">Перт</string>
-    <string name="Peru">Перу</string>
-    <string name="Philadelphia, PA">Філадельфія, Пенсильванія</string>
-    <string name="Philippines">Філіппіни</string>
-    <string name="Phoenix, AZ">Фінікс, Аризона</string>
-    <string name="Piscataway, NJ">Піскатавей, Нью-Джерсі</string>
-    <string name="Poland">Польща</string>
-    <string name="Portland, OR">Портленд, Орегон</string>
-    <string name="Portugal">Португалія</string>
-    <string name="Prague">Прага</string>
-    <string name="Pune">Пуне</string>
-    <string name="Queretaro">Керетаро</string>
-    <string name="Raleigh, NC">Ролі, Північна Кароліна</string>
-    <string name="Richmond, VA">Річмонд, Вірджинія</string>
-    <string name="Riga">Рига</string>
-    <string name="Romania">Румунія</string>
-    <string name="Rome">Рим</string>
-    <string name="Salt Lake City, UT">Солт-Лейк-Сіті, Юта</string>
-    <string name="San Francisco, CA">Сан-Франциско, Каліфорнія</string>
-    <string name="San Jose, CA">Сан-Хосе, Каліфорнія</string>
-    <string name="Santiago">Сантьяго</string>
-    <string name="Sao Paulo">Сан-Паулу</string>
-    <string name="Seattle, WA">Сіетл, Вашингтон</string>
-    <string name="Secaucus, NJ">Сікокес, Нью-Джерсі</string>
-    <string name="Serbia">Сербія</string>
-    <string name="Singapore">Сінгапур</string>
-    <string name="Sioux Falls, SD">Су-Фолс, Південна Дакота</string>
-    <string name="Skopje">Скоп’є</string>
-    <string name="Slovakia">Словаччина</string>
-    <string name="Slovenia">Словенія</string>
-    <string name="Sofia">Софія</string>
-    <string name="South Africa">Південно-Африканська Республіка</string>
-    <string name="Spain">Іспанія</string>
-    <string name="St. Louis, MO">Сент-Луїс, Міссурі</string>
-    <string name="Stamford, CT">Стемфорд, Коннектикут</string>
-    <string name="Stavanger">Ставангер</string>
-    <string name="Stockholm">Стокгольм</string>
-    <string name="Sweden">Швеція</string>
-    <string name="Switzerland">Швейцарія</string>
-    <string name="Sydney">Сідней</string>
-    <string name="Tallinn">Таллінн</string>
-    <string name="Tel Aviv">Тель-Авів</string>
-    <string name="Thailand">Таїланд</string>
-    <string name="Tirana">Тірана</string>
-    <string name="Tokyo">Токіо</string>
-    <string name="Toronto">Торонто</string>
-    <string name="Turkey">Туреччина</string>
-    <string name="UK">Велика Британія</string>
-    <string name="USA">США</string>
-    <string name="Ukraine">Україна</string>
-    <string name="United Arab Emirates">Об’єднані Арабські Емірати</string>
-    <string name="Valencia">Валенсія</string>
-    <string name="Vancouver">Ванкувер</string>
-    <string name="Vienna">Відень</string>
-    <string name="Warsaw">Варшава</string>
-    <string name="Washington DC">Вашингтон, округ Колумбія</string>
-    <string name="Wien">Відень</string>
-    <string name="Zagreb">Загреб</string>
-    <string name="Zurich">Цюрих</string>
+  <string name="Adelaide" comment="#. AU ADL">Аделаїда</string>
+  <string name="Albania" comment="#. AL">Албанія</string>
+  <string name="Amsterdam" comment="#. NL AMS">Амстердам</string>
+  <string name="Argentina" comment="#. AR">Аргентина</string>
+  <string name="Ashburn, VA" comment="#. US QAS">Ешберн, Вірджинія</string>
+  <string name="Athens" comment="#. GR ATH">Афіни</string>
+  <string name="Atlanta, GA" comment="#. US ATL">Атланта, Джорджія</string>
+  <string name="Auckland" comment="#. NZ AKL">Окленд</string>
+  <string name="Australia" comment="#. AU">Австралія</string>
+  <string name="Austria" comment="#. AT">Австрія</string>
+  <string name="Bangkok" comment="#. TH BKK">Бангкок</string>
+  <string name="Barcelona" comment="#. ES BCN">Барселона</string>
+  <string name="Belgium" comment="#. BE">Бельгія</string>
+  <string name="Belgrade" comment="#. RS BEG">Белград</string>
+  <string name="Berlin" comment="#. DE BER">Берлін</string>
+  <string name="Bogota" comment="#. CO BOG">Богота</string>
+  <string name="Bordeaux" comment="#. FR BOD">Бордо</string>
+  <string name="Boston, MA" comment="#. US BOS">Бостон, Массачусетс</string>
+  <string name="Bratislava" comment="#. SK BTS">Братислава</string>
+  <string name="Brazil" comment="#. BR">Бразилія</string>
+  <string name="Brisbane" comment="#. AU BNE">Брисбен</string>
+  <string name="Brussels" comment="#. BE BRU">Брюссель</string>
+  <string name="Bucharest" comment="#. RO BUH">Бухарест</string>
+  <string name="Budapest" comment="#. HU BUD">Будапешт</string>
+  <string name="Buenos Aires" comment="#. AR BUE">Буенос-Айрес</string>
+  <string name="Bulgaria" comment="#. BG">Болгарія</string>
+  <string name="Calgary" comment="#. CA YYC">Калгарі</string>
+  <string name="Canada" comment="#. CA">Канада</string>
+  <string name="Canberra" comment="#. AU CBR">Канберра</string>
+  <string name="Charlotte, NC" comment="#. US CLT">Шарлотт, Північна Кароліна</string>
+  <string name="Chicago, IL" comment="#. US CHI">Чикаго, Іллінойс</string>
+  <string name="Chile" comment="#. CL">Чилі</string>
+  <string name="Chisinau" comment="#. MD KIV">Кишинів</string>
+  <string name="Cleveland, OH" comment="#. US CLE">Клівленд, Огайо</string>
+  <string name="Colombia" comment="#. CO">Колумбія</string>
+  <string name="Copenhagen" comment="#. DK CPH">Копенгаген</string>
+  <string name="Croatia" comment="#. HR">Хорватія</string>
+  <string name="Cyprus" comment="#. CY">Кіпр</string>
+  <string name="Czech Republic" comment="#. CZ">Чеська Республіка</string>
+  <string name="Dallas, TX" comment="#. US DAL">Даллас, Техас</string>
+  <string name="Denmark" comment="#. DK">Данія</string>
+  <string name="Denver, CO" comment="#. US DEN">Денвер, Колорадо</string>
+  <string name="Detroit, MI" comment="#. US DET">Детройт, Мічиган</string>
+  <string name="Dubai" comment="#. AE DXB">Дубай</string>
+  <string name="Dublin" comment="#. IE DUB">Дублін</string>
+  <string name="Dusseldorf" comment="#. DE DUS">Дюссельдорф</string>
+  <string name="Estonia" comment="#. EE">Естонія</string>
+  <string name="Finland" comment="#. FI">Фінляндія</string>
+  <string name="Fortaleza" comment="#. BR FOR">Форталеза</string>
+  <string name="France" comment="#. FR">Франція</string>
+  <string name="Frankfurt" comment="#. DE FRA">Франкфурт</string>
+  <string name="Germany" comment="#. DE">Німеччина</string>
+  <string name="Glasgow" comment="#. GB GLW">Глазго</string>
+  <string name="Gothenburg" comment="#. SE GOT">Гетеборг</string>
+  <string name="Greece" comment="#. GR">Греція</string>
+  <string name="Helsingborg" comment="#. SE HEL">Гельсінгборг</string>
+  <string name="Helsinki" comment="#. FI HEL">Гельсінкі</string>
+  <string name="Hong Kong" comment="#. HK HKG">Гонконг</string>
+  <string name="Honolulu, HI" comment="#. US HNL">Гонолулу, Гаваї</string>
+  <string name="Houston, TX" comment="#. US HOU">Х’юстон, Техас</string>
+  <string name="Hungary" comment="#. HU">Угорщина</string>
+  <string name="India" comment="#. IN">Індія</string>
+  <string name="Indonesia" comment="#. ID">Індонезія</string>
+  <string name="Ireland" comment="#. IE">Ірландія</string>
+  <string name="Israel" comment="#. IL">Ізраїль</string>
+  <string name="Istanbul" comment="#. TR IST">Стамбул</string>
+  <string name="Italy" comment="#. IT">Італія</string>
+  <string name="Jackson, MS" comment="#. US JAN">Джексон, Міссісіпі</string>
+  <string name="Jakarta" comment="#. ID JPU">Джакарта</string>
+  <string name="Japan" comment="#. JP">Японія</string>
+  <string name="Johannesburg" comment="#. ZA JNB">Йоганнесбург</string>
+  <string name="Kansas City, MO" comment="#. US MKC">Канзас-Сіті, Міссурі</string>
+  <string name="Kiev" comment="#. UA IEV">Київ</string>
+  <string name="Kuala Lumpur" comment="#. MY KUL">Куала-Лумпур</string>
+  <string name="Kyiv" comment="#. UA IEV">Київ</string>
+  <string name="Lagos" comment="#. NG LOS">Лагос</string>
+  <string name="Latvia" comment="#. LV">Латвія</string>
+  <string name="Lima" comment="#. PE LIM">Ліма</string>
+  <string name="Lisbon" comment="#. PT LIS">Лісабон</string>
+  <string name="Ljubljana" comment="#. SI LJU">Любляна</string>
+  <string name="London" comment="#. GB LON">Лондон</string>
+  <string name="Los Angeles, CA" comment="#. US LAX">Лос-Анджелес, Каліфорнія</string>
+  <string name="Louisville, KY" comment="#. US LUI">Луїсвілл, Кентуккі</string>
+  <string name="Luxembourg" comment="#. LU LUX">Люксембург</string>
+  <string name="Madrid" comment="#. ES MAD">Мадрид</string>
+  <string name="Malaysia" comment="#. MY">Малайзія</string>
+  <string name="Malmö" comment="#. SE MMA">Мальме</string>
+  <string name="Manchester" comment="#. GB MNC">Манчестер</string>
+  <string name="Manila" comment="#. PH MNL">Маніла</string>
+  <string name="Marseille" comment="#. FR MRS">Марсель</string>
+  <string name="McAllen, TX" comment="#. US TXC">Мак-Аллен, Техас</string>
+  <string name="Melbourne" comment="#. AU MEL">Мельбурн</string>
+  <string name="Mexico" comment="#. MX">Мексика</string>
+  <string name="Miami, FL" comment="#. US MIA">Маямі, Флорида</string>
+  <string name="Milan" comment="#. IT MIL">Мілан</string>
+  <string name="Milwaukee, WI" comment="#. US MKE">Мілвокі, Вісконсин</string>
+  <string name="Minneapolis/St. Paul Apt, MN" comment="#. US MSP">Аеропорт «Міннеаполіс/Сент-Пол», Міннесота</string>
+  <string name="Moldova" comment="#. MD">Молдова</string>
+  <string name="Montreal" comment="#. CA MTR">Монреаль</string>
+  <string name="Netherlands" comment="#. NL">Нідерланди</string>
+  <string name="New York, NY" comment="#. US NYC">Нью-Йорк, штат Нью-Йорк</string>
+  <string name="New Zealand" comment="#. NZ">Нова Зеландія</string>
+  <string name="Nicosia" comment="#. CY NIC">Нікосія</string>
+  <string name="Nigeria" comment="#. NG">Нігерія</string>
+  <string name="Nis" comment="#. RS INI">Ніс</string>
+  <string name="North Macedonia" comment="#. MK">Північна Македонія</string>
+  <string name="Norway" comment="#. NO">Норвегія</string>
+  <string name="Oklahoma City, OK" comment="#. US OKC">Оклахома-Сіті, Оклахома</string>
+  <string name="Osaka" comment="#. JP OSA">Осака</string>
+  <string name="Oslo" comment="#. NO OSL">Осло</string>
+  <string name="Palermo" comment="#. IT PMO">Палермо</string>
+  <string name="Paris" comment="#. FR PAR">Париж</string>
+  <string name="Perth" comment="#. AU PER">Перт</string>
+  <string name="Peru" comment="#. PE">Перу</string>
+  <string name="Philadelphia, PA" comment="#. US PHL">Філадельфія, Пенсильванія</string>
+  <string name="Philippines" comment="#. PH">Філіппіни</string>
+  <string name="Phoenix, AZ" comment="#. US PHX">Фінікс, Аризона</string>
+  <string name="Piscataway, NJ" comment="#. US PIL">Піскатавей, Нью-Джерсі</string>
+  <string name="Poland" comment="#. PL">Польща</string>
+  <string name="Portland, OR" comment="#. US PDX">Портленд, Орегон</string>
+  <string name="Portugal" comment="#. PT">Португалія</string>
+  <string name="Prague" comment="#. CZ PRG">Прага</string>
+  <string name="Pune" comment="#. IN PNQ">Пуне</string>
+  <string name="Queretaro" comment="#. MX QRO">Керетаро</string>
+  <string name="Raleigh, NC" comment="#. US RAG">Ролі, Північна Кароліна</string>
+  <string name="Richmond, VA" comment="#. US RIC">Річмонд, Вірджинія</string>
+  <string name="Riga" comment="#. LV RIX">Рига</string>
+  <string name="Romania" comment="#. RO">Румунія</string>
+  <string name="Rome" comment="#. IT ROM">Рим</string>
+  <string name="Salt Lake City, UT" comment="#. US SLC">Солт-Лейк-Сіті, Юта</string>
+  <string name="San Francisco, CA" comment="#. US SFO">Сан-Франциско, Каліфорнія</string>
+  <string name="San Jose, CA" comment="#. US SJC">Сан-Хосе, Каліфорнія</string>
+  <string name="Santiago" comment="#. CL SCL">Сантьяго</string>
+  <string name="Sao Paulo" comment="#. BR SAO">Сан-Паулу</string>
+  <string name="Seattle, WA" comment="#. US SEA">Сіетл, Вашингтон</string>
+  <string name="Secaucus, NJ" comment="#. US UYK">Сікокес, Нью-Джерсі</string>
+  <string name="Serbia" comment="#. RS">Сербія</string>
+  <string name="Singapore" comment="#. SG SIN">Сінгапур</string>
+  <string name="Sioux Falls, SD" comment="#. US FSD">Су-Фолс, Південна Дакота</string>
+  <string name="Skopje" comment="#. MK SKP">Скоп’є</string>
+  <string name="Slovakia" comment="#. SK">Словаччина</string>
+  <string name="Slovenia" comment="#. SI">Словенія</string>
+  <string name="Sofia" comment="#. BG SOF">Софія</string>
+  <string name="South Africa" comment="#. ZA">Південно-Африканська Республіка</string>
+  <string name="Spain" comment="#. ES">Іспанія</string>
+  <string name="St. Louis, MO" comment="#. US STL">Сент-Луїс, Міссурі</string>
+  <string name="Stamford, CT" comment="#. US XLX">Стемфорд, Коннектикут</string>
+  <string name="Stavanger" comment="#. NO SVG">Ставангер</string>
+  <string name="Stockholm" comment="#. SE STO">Стокгольм</string>
+  <string name="Sweden" comment="#. SE">Швеція</string>
+  <string name="Switzerland" comment="#. CH">Швейцарія</string>
+  <string name="Sydney" comment="#. AU SYD">Сідней</string>
+  <string name="Tallinn" comment="#. EE TLL">Таллінн</string>
+  <string name="Tel Aviv" comment="#. IL TLV">Тель-Авів</string>
+  <string name="Thailand" comment="#. TH">Таїланд</string>
+  <string name="Tirana" comment="#. AL TIA">Тірана</string>
+  <string name="Tokyo" comment="#. JP TYO">Токіо</string>
+  <string name="Toronto" comment="#. CA TOR">Торонто</string>
+  <string name="Turkey" comment="#. TR">Туреччина</string>
+  <string name="UK" comment="#. GB">Велика Британія</string>
+  <string name="USA" comment="#. US">США</string>
+  <string name="Ukraine" comment="#. UA">Україна</string>
+  <string name="United Arab Emirates" comment="#. AE">Об’єднані Арабські Емірати</string>
+  <string name="Valencia" comment="#. ES VLC">Валенсія</string>
+  <string name="Vancouver" comment="#. CA VAN">Ванкувер</string>
+  <string name="Vienna" comment="#. AT VIE">Відень</string>
+  <string name="Warsaw" comment="#. PL WAW">Варшава</string>
+  <string name="Washington DC" comment="#. US WAS">Вашингтон, округ Колумбія</string>
+  <string name="Wien" comment="#. AT VIE">Відень</string>
+  <string name="Zagreb" comment="#. HR ZAG">Загреб</string>
+  <string name="Zurich" comment="#. CH ZRH">Цюрих</string>
 </resources>
