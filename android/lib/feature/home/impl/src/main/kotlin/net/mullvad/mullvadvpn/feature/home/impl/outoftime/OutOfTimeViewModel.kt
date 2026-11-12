@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.common.util.DEVICE_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.common.util.launchOnStart
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -64,6 +64,7 @@ class OutOfTimeViewModel(
                     ),
                 )
             }
+            .launchOnStart { deviceRepository.updateDevice() }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -78,9 +79,6 @@ class OutOfTimeViewModel(
             activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 pollPurchaseVerification()
             }
-        }
-        viewModelScope.launch {
-            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { pollDeviceState() }
         }
     }
 
@@ -131,13 +129,6 @@ class OutOfTimeViewModel(
                 updateAccountExpiry()
             }
             delay(VERIFICATION_POLL_INTERVAL)
-        }
-    }
-
-    private suspend fun pollDeviceState() {
-        while (true) {
-            deviceRepository.updateDevice()
-            delay(DEVICE_POLL_INTERVAL)
         }
     }
 
