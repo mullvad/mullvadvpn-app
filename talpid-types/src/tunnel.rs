@@ -132,13 +132,13 @@ impl ErrorStateCause {
 pub enum ParameterGenerationError {
     /// Failure to select a matching entry tunnel relay
     #[error("Failure to select a matching entry tunnel relay")]
-    NoMatchingRelayEntry,
+    NoMatchingRelayEntry { unavailable_ip_version: bool },
     /// Failure to select a matching exit tunnel relay
     #[error("Failure to select a matching exit tunnel relay")]
     NoMatchingRelayExit,
     /// Failure to select a matching tunnel relay, but we do not know if it is an entry or an exit
     #[error("Failure to select a matching tunnel relay")]
-    NoMatchingRelay,
+    NoMatchingRelay { unavailable_ip_version: bool },
     /// Failure to select a matching bridge relay
     #[error("Failure to select a matching bridge relay")]
     NoMatchingBridgeRelay,

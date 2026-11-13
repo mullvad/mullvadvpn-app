@@ -105,7 +105,9 @@ class TunnelStateNotificationUseCaseTest {
                 val errorState: ErrorState = mockk()
                 every { errorState.isBlocking } returns true
                 every { errorState.cause } returns
-                    TunnelParameterError(ParameterGenerationError.NoMatchingRelay)
+                    TunnelParameterError(
+                        ParameterGenerationError.NoMatchingRelay(unavailableIpVersion = false),
+                    )
                 val settings: Settings = mockk()
                 every { settings.obfuscationSettings.wireguardPort } returns
                     Constraint.Only(Port(1))
@@ -132,7 +134,9 @@ class TunnelStateNotificationUseCaseTest {
                 val errorState: ErrorState = mockk()
                 every { errorState.isBlocking } returns true
                 every { errorState.cause } returns
-                    TunnelParameterError(ParameterGenerationError.NoMatchingRelay)
+                    TunnelParameterError(
+                        ParameterGenerationError.NoMatchingRelay(unavailableIpVersion = true),
+                    )
                 val settings: Settings = mockk()
                 every { settings.obfuscationSettings.wireguardPort } returns
                     Constraint.Only(Port(2))

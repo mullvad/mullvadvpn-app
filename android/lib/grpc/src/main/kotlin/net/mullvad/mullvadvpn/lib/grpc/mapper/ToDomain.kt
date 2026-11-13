@@ -314,7 +314,7 @@ internal fun ErrorState.toDomain(
                 ErrorState.Cause.SET_DNS_ERROR -> ErrorStateCause.DnsError
                 ErrorState.Cause.START_TUNNEL_ERROR -> ErrorStateCause.StartTunnelError
                 ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    ErrorStateCause.TunnelParameterError(parameter_error.toDomain())
+                    ErrorStateCause.TunnelParameterError(parameter_error!!.toDomain())
                 ErrorState.Cause.IS_OFFLINE -> ErrorStateCause.IsOffline
                 ErrorState.Cause.SPLIT_TUNNEL_ERROR -> ErrorStateCause.StartTunnelError
                 ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
@@ -347,20 +347,20 @@ internal fun ErrorState.FirewallPolicyError.toDomain(): ErrorStateCause.Firewall
     }
 
 internal fun ErrorState.GenerationError.toDomain(): ModelParameterGenerationError =
-    when (this) {
-        ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY ->
-            ModelParameterGenerationError.NoMatchingRelayEntry
-        ErrorState.GenerationError.NO_MATCHING_RELAY_EXIT ->
+    when (type) {
+        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_ENTRY ->
+            ModelParameterGenerationError.NoMatchingRelayEntry(unavailable_ip_version!!)
+        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_EXIT ->
             ModelParameterGenerationError.NoMatchingRelayExit
-        ErrorState.GenerationError.NO_MATCHING_RELAY ->
-            ModelParameterGenerationError.NoMatchingRelay
-        ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY ->
+        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY ->
+            ModelParameterGenerationError.NoMatchingRelay(unavailable_ip_version!!)
+        ErrorState.GenerationError.ErrorType.NO_MATCHING_BRIDGE_RELAY ->
             ModelParameterGenerationError.NoMatchingBridgeRelay
-        ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
+        ErrorState.GenerationError.ErrorType.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
             ModelParameterGenerationError.CustomTunnelHostResolutionError
-        ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE ->
+        ErrorState.GenerationError.ErrorType.NETWORK_IPV4_UNAVAILABLE ->
             ModelParameterGenerationError.Ipv4_Unavailable
-        ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE ->
+        ErrorState.GenerationError.ErrorType.NETWORK_IPV6_UNAVAILABLE ->
             ModelParameterGenerationError.Ipv6_Unavailable
     }
 

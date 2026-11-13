@@ -9,6 +9,7 @@ use tokio::sync::Mutex;
 
 use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
+use mullvad_types::relay_selector::Reason;
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
@@ -333,14 +334,27 @@ impl From<Error> for ParameterGenerationError {
             Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
                 ParameterGenerationError::IpVersionUnavailable { family }
             }
-            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayEntry(_)) => {
-                ParameterGenerationError::NoMatchingRelayEntry
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayEntry(reasons)) => {
+                ParameterGenerationError::NoMatchingRelayEntry {
+                    unavailable_ip_version: reasons
+                        .iter()
+                        .any(|reason| matches!(reason, Reason::IpVersion)),
+                }
             }
             Error::SelectRelay(mullvad_relay_selector::Error::NoRelayExit(_)) => {
                 ParameterGenerationError::NoMatchingRelayExit
             }
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelay(reasons)) => {
+                ParameterGenerationError::NoMatchingRelay {
+                    unavailable_ip_version: reasons
+                        .iter()
+                        .any(|reason| matches!(reason, Reason::IpVersion)),
+                }
+            }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
-                ParameterGenerationError::NoMatchingRelay
+                ParameterGenerationError::NoMatchingRelay {
+                    unavailable_ip_version: false,
+                }
             }
         }
     }

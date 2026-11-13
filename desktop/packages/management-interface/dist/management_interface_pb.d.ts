@@ -394,8 +394,11 @@ export class ErrorState extends jspb.Message {
     setBlockingError(value?: ErrorState.FirewallPolicyError): ErrorState;
     getAuthFailedError(): ErrorState.AuthFailedError;
     setAuthFailedError(value: ErrorState.AuthFailedError): ErrorState;
-    getParameterError(): ErrorState.GenerationError;
-    setParameterError(value: ErrorState.GenerationError): ErrorState;
+
+    hasParameterError(): boolean;
+    clearParameterError(): void;
+    getParameterError(): ErrorState.GenerationError | undefined;
+    setParameterError(value?: ErrorState.GenerationError): ErrorState;
 
     hasPolicyError(): boolean;
     clearPolicyError(): void;
@@ -437,7 +440,7 @@ export namespace ErrorState {
         cause: ErrorState.Cause,
         blockingError?: ErrorState.FirewallPolicyError.AsObject,
         authFailedError: ErrorState.AuthFailedError,
-        parameterError: ErrorState.GenerationError,
+        parameterError?: ErrorState.GenerationError.AsObject,
         policyError?: ErrorState.FirewallPolicyError.AsObject,
         createTunnelError?: number,
         otherAlwaysOnAppError?: ErrorState.OtherAlwaysOnAppError.AsObject,
@@ -445,6 +448,43 @@ export namespace ErrorState {
         invalidIpv6ConfigError?: ErrorState.InvalidIpv6Config.AsObject,
     }
 
+
+    export class GenerationError extends jspb.Message { 
+        getType(): ErrorState.GenerationError.ErrorType;
+        setType(value: ErrorState.GenerationError.ErrorType): GenerationError;
+
+        hasUnavailableIpVersion(): boolean;
+        clearUnavailableIpVersion(): void;
+        getUnavailableIpVersion(): boolean | undefined;
+        setUnavailableIpVersion(value: boolean): GenerationError;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): GenerationError.AsObject;
+        static toObject(includeInstance: boolean, msg: GenerationError): GenerationError.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: GenerationError, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): GenerationError;
+        static deserializeBinaryFromReader(message: GenerationError, reader: jspb.BinaryReader): GenerationError;
+    }
+
+    export namespace GenerationError {
+        export type AsObject = {
+            type: ErrorState.GenerationError.ErrorType,
+            unavailableIpVersion?: boolean,
+        }
+
+        export enum ErrorType {
+    NO_MATCHING_RELAY_ENTRY = 0,
+    NO_MATCHING_RELAY_EXIT = 1,
+    NO_MATCHING_RELAY = 2,
+    NO_MATCHING_BRIDGE_RELAY = 3,
+    CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 4,
+    NETWORK_IPV4_UNAVAILABLE = 5,
+    NETWORK_IPV6_UNAVAILABLE = 6,
+        }
+
+    }
 
     export class FirewallPolicyError extends jspb.Message { 
         getType(): ErrorState.FirewallPolicyError.ErrorType;
@@ -579,16 +619,6 @@ export namespace ErrorState {
     INVALID_ACCOUNT = 1,
     EXPIRED_ACCOUNT = 2,
     TOO_MANY_CONNECTIONS = 3,
-    }
-
-    export enum GenerationError {
-    NO_MATCHING_RELAY_ENTRY = 0,
-    NO_MATCHING_RELAY_EXIT = 1,
-    NO_MATCHING_RELAY = 2,
-    NO_MATCHING_BRIDGE_RELAY = 3,
-    CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 4,
-    NETWORK_IPV4_UNAVAILABLE = 5,
-    NETWORK_IPV6_UNAVAILABLE = 6,
     }
 
 }

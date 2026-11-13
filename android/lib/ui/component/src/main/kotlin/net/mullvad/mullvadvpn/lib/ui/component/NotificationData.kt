@@ -367,14 +367,20 @@ private fun AuthFailedError.errorMessageId(): Int =
 
 private fun ParameterGenerationError.errorMessageId(): Int =
     when (this) {
-        ParameterGenerationError.NoMatchingRelay,
+        is ParameterGenerationError.NoMatchingRelay if this.unavailableIpVersion -> {
+            R.string.no_matching_relay_ip_availability
+        }
+        is ParameterGenerationError.NoMatchingRelay,
         ParameterGenerationError.NoMatchingBridgeRelay -> {
             R.string.no_matching_relay
         }
         ParameterGenerationError.NoMatchingRelayExit -> {
             R.string.no_matching_relay_exit
         }
-        ParameterGenerationError.NoMatchingRelayEntry -> {
+        is ParameterGenerationError.NoMatchingRelayEntry if this.unavailableIpVersion -> {
+            R.string.no_matching_relay_entry_ip_availability
+        }
+        is ParameterGenerationError.NoMatchingRelayEntry -> {
             R.string.no_matching_relay_entry
         }
         ParameterGenerationError.CustomTunnelHostResolutionError ->

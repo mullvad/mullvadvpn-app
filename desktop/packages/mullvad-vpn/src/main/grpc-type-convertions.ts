@@ -314,18 +314,18 @@ function convertFromAuthFailedError(error: grpcTypes.ErrorState.AuthFailedError)
 function convertFromParameterError(
   error: grpcTypes.ErrorState.GenerationError,
 ): TunnelParameterError {
-  switch (error) {
-    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY:
-    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY:
-    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY_EXIT:
+  switch (error.getType()) {
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_ENTRY:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_EXIT:
       return TunnelParameterError.noMatchingRelay;
-    case grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NO_MATCHING_BRIDGE_RELAY:
       return TunnelParameterError.noMatchingBridgeRelay;
-    case grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR:
       return TunnelParameterError.customTunnelHostResolutionError;
-    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NETWORK_IPV4_UNAVAILABLE:
       return TunnelParameterError.ipv4Unavailable;
-    case grpcTypes.ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE:
+    case grpcTypes.ErrorState.GenerationError.ErrorType.NETWORK_IPV6_UNAVAILABLE:
       return TunnelParameterError.ipv6Unavailable;
   }
 }
