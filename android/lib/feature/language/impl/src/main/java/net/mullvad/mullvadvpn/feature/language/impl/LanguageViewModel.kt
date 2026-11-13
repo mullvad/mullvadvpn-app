@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.repository.LanguageRepository
 
 @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU)
 class LanguageViewModel(private val languageRepository: LanguageRepository) : ViewModel() {
