@@ -11,6 +11,7 @@ const val AlphaVisible = 1f
 const val Alpha5 = 0.05f
 const val Alpha10 = 0.1f
 const val AlphaDisabled = 0.2f
+const val AlphaFocused = 0.24f
 const val Alpha20 = 0.2f
 const val AlphaInactive = 0.4f
 const val Alpha40 = 0.4f

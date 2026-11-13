@@ -171,7 +171,7 @@ private fun MultihopContent(
     val pagerState = rememberPagerState(pageCount = { MultihopPages.size })
     Carousel(pagerState = pagerState, pages = MultihopPages)
     MultihopOptionsList(
-        modifier = Modifier.padding(horizontal = Dimens.smallSpacer),
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
         state = state,
         onMultihopModeSelected = onMultihopModeSelected,
         onWhenNeededInfoClick = onWhenNeededInfoClick,
