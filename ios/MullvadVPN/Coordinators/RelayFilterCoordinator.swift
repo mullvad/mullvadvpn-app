@@ -52,8 +52,8 @@ class RelayFilterCoordinator: Coordinator, Presentable {
 
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
 
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
             didFinish?()
         }
 

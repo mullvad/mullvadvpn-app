@@ -54,6 +54,7 @@ final class InvalidShadowsocksCipherInAppNotificationProvider: NotificationProvi
         )
     }
 
+    @MainActor
     init(breadcrumbsProvider: BreadcrumbsProvider) {
         super.init()
 
