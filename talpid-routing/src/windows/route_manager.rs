@@ -802,8 +802,7 @@ impl Adapters {
     }
 
     /// Produces a iterator for the linked list in `Adapters` see
-    /// [AdaptersIterator](struct.AdaptersIterator.html) SAFETY: See the documentation on
-    /// `AdaptersIterator`
+    /// [`AdaptersIterator`]
     fn iter(&self) -> AdaptersIterator<'_> {
         let cur = if self.buffer.is_empty() {
             std::ptr::null()
