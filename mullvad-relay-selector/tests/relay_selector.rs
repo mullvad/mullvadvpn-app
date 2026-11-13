@@ -264,12 +264,12 @@ mod automatic_anti_censorship {
 
         let relay_selector = RelaySelector::from(relay_list);
 
-        let (wg_relay, obf_relay) = relay_selector
+        let (wg_relay, queue) = relay_selector
             .get_relays_with_automatic_anti_censorship(RelayQueryBuilder::new().build())
-            .expect("Not empty")
-            .into_iter()
+            .expect("Not empty");
+        let (obf_relay,) = queue
             .collect_tuple()
-            .expect("Two relays should be returned");
+            .expect("Exactly one obfuscation relay");
 
         assert!(
             wg_relay.obfuscator.is_none(),
@@ -321,8 +321,7 @@ mod automatic_anti_censorship {
 
         let (wg_relay, obf_relays) = relay_selector
             .get_relays_with_automatic_anti_censorship(RelayQueryBuilder::new().build())
-            .expect("Not empty")
-            .split_off_first();
+            .expect("Not empty");
         assert!(wg_relay.obfuscator.is_none());
         let relays: HashSet<_> = obf_relays
             .into_iter()
@@ -358,12 +357,13 @@ mod automatic_anti_censorship {
             .autohop()
             .build();
 
-        let (wg_relay, obf_relay_1, obf_relay_2) = relay_selector
+        let (wg_relay, queue) = relay_selector
             .get_relays_with_automatic_anti_censorship(query)
-            .expect("Not empty")
+            .expect("Not empty");
+        let (obf_relay_1, obf_relay_2) = queue
             .into_iter()
             .collect_tuple()
-            .expect("Three relays should be returned");
+            .expect("Two obfuscation relays");
 
         assert!(
             wg_relay.obfuscator.is_none(),
