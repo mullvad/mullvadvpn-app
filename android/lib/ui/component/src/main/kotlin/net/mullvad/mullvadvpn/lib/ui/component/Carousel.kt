@@ -70,15 +70,15 @@ private fun PreviewCarousel() {
                                     @Composable {
                                         CarouselParagraph(
                                             annotatedStringResource(
-                                                R.string.api_access_method_info_first_line
-                                            )
+                                                R.string.api_access_method_info_first_line,
+                                            ),
                                         )
                                     },
                                     @Composable {
                                         CarouselParagraph(
                                             annotatedStringResource(
-                                                R.string.api_access_method_info_second_line
-                                            )
+                                                R.string.api_access_method_info_second_line,
+                                            ),
                                         )
                                     },
                                 ),
@@ -88,7 +88,7 @@ private fun PreviewCarousel() {
                             headerImageContentDescription = null,
                             paragraphs =
                                 listOf(
-                                    @Composable { CarouselParagraph("page 2".toAnnotatedString()) }
+                                    @Composable { CarouselParagraph("page 2".toAnnotatedString()) },
                                 ),
                         ),
                     ),
@@ -136,7 +136,7 @@ fun Carousel(
 
                 scope.launch { pagerState.animateScrollToPage(targetPage) }
                 true
-            }
+            },
     ) {
         HorizontalPager(
             state = pagerState,
@@ -209,7 +209,7 @@ private fun PageIndicator(pagerState: PagerState, isFocused: Boolean) {
                         Modifier.padding(Dimens.indicatorPadding)
                             .clip(CircleShape)
                             .background(color)
-                            .size(Dimens.indicatorSize)
+                            .size(Dimens.indicatorSize),
                 )
             }
         }
