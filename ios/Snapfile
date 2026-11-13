@@ -1,7 +1,7 @@
 # A list of devices you want to take the screenshots from.
 devices([
-  "iPhone 17 Pro Max",
-  "iPhone 17",
+  "iPhone 18 Pro Max",
+  "iPhone 18 Pro", # There is no iPhone 18 as of November'26
   "iPad Pro 13-inch (M5)",
   "iPad Pro 11-inch (M5)"
 ])
