@@ -8,9 +8,12 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Combine
 import Foundation
 @preconcurrency import Network
 import XCTest
+
+@testable import MullvadREST
 
 enum TransportProtocol: Codable {
     case transport(NetworkTransportProtocol)
@@ -180,61 +183,53 @@ class Networking {
 
     /// Verify that the expected DNS server is used by verifying provider name and whether it is a Mullvad DNS server or not
     public static func verifyDNSServerProvider(_ providerName: String, isMullvad: Bool) throws {
-        guard let mullvadDNSLeakURL = URL(string: "https://am.i.mullvad.net/dnsleak") else {
+        guard let mullvadDNSLeakURL = URL(string: "https://\(REST.amIMullvadHostname)/dnsleak") else {
             throw NetworkingError.internalError(reason: "Failed to create URL object")
         }
-
         var request = URLRequest(url: mullvadDNSLeakURL)
         request.setValue("application/json", forHTTPHeaderField: "accept")
 
-        nonisolated(unsafe) var requestData: Data?
-        nonisolated(unsafe) var requestResponse: URLResponse?
-        nonisolated(unsafe) var requestError: Error?
-        let completionHandlerInvokedExpectation = XCTestExpectation(
-            description: "Completion handler for the request is invoked"
-        )
+        var cancellables = Set<AnyCancellable>()
+        let dnsRequestCompleteExpectation = XCTestExpectation(description: "DNS request completed")
+        let sessionConfiguration = URLSession.shared.configuration
+        // Wait 10 seconds before timing out if no data comes on the wire
+        sessionConfiguration.timeoutIntervalForRequest = 10
+        let session = URLSession(configuration: sessionConfiguration)
 
-        do {
-            let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
-                requestData = data
-                requestResponse = response
-                requestError = error
-                completionHandlerInvokedExpectation.fulfill()
+        session.dataTaskPublisher(for: request)
+            .map(\.data)
+            .decode(type: [DNSServerEntry].self, decoder: JSONDecoder())
+            .catch {
+                // Throttle failures for 5 seconds
+                Fail(error: $0)
+                    .delay(for: 5, scheduler: DispatchQueue.main)
             }
-
-            dataTask.resume()
-
-            let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 5)
-
-            if waitResult != .completed {
-                XCTFail("Failed to verify DNS server provider - timeout")
-            } else {
-                if let response = requestResponse as? HTTPURLResponse {
-                    if response.statusCode != 200 {
-                        XCTFail("Failed to verify DNS server provider - unexpected server response")
+            // And try 3 times to make sure it's not a network flakiness causing failures
+            .retry(3)
+            .sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case let .failure(error):
+                        XCTFail("Failed DNS request after 3 attempts: \(error)")
+                    case .finished:
+                        dnsRequestCompleteExpectation.fulfill()
                     }
-                }
-
-                if let error = requestError {
-                    XCTFail("Failed to verify DNS server provider - encountered error \(error.localizedDescription)")
-                }
-
-                if let requestData = requestData {
-                    let dnsServerEntries = try JSONDecoder().decode([DNSServerEntry].self, from: requestData)
-                    XCTAssertGreaterThanOrEqual(dnsServerEntries.count, 1)
-
-                    for dnsServerEntry in dnsServerEntries {
-                        XCTAssertEqual(dnsServerEntry.organization, providerName, "Expected organization name")
+                },
+                receiveValue: { records in
+                    XCTAssertGreaterThanOrEqual(records.count, 1)
+                    for record in records {
+                        XCTAssertEqual(record.organization, providerName, "Expected organization name")
                         XCTAssertEqual(
-                            dnsServerEntry.mullvad_dns,
-                            isMullvad,
-                            "Verifying that it is or isn't a Mullvad DNS server"
-                        )
+                            record.mullvad_dns, isMullvad, "Verifying that it is or isn't a Mullvad DNS server")
                     }
                 }
-            }
-        } catch {
-            XCTFail("Failed to verify DNS server provider - couldn't serialize JSON")
+            )
+            .store(in: &cancellables)
+
+        // Timeout is long enough to account for genuine network failures with retries in between on a bad network plus one second
+        let waitResult = XCTWaiter.wait(for: [dnsRequestCompleteExpectation], timeout: 46)
+        if waitResult != .completed {
+            XCTFail("Failed to verify DNS server provider - timeout")
         }
     }
 
