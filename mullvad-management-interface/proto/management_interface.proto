@@ -858,6 +858,7 @@ message DaemonEvent {
     RemoveDeviceEvent remove_device = 6;
     AccessMethodSetting new_access_method = 7;
     LeakInfo leak_info = 8;
+    CustomVpnSettings custom_vpn_settings = 9;
   }
 }
 

@@ -506,6 +506,9 @@ pub(crate) enum InternalDaemonEvent {
     LocationEvent(LocationEventData),
     /// A generic event for when any settings change.
     SettingsChanged,
+    /// The custom VPN settings changed.
+    #[cfg(feature = "custom-vpn")]
+    CustomVpnSettingsChanged,
     /// The split tunnel paths or state were updated.
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -1260,6 +1263,13 @@ impl Daemon {
             LocationEvent(location_data) => self.handle_location_event(location_data),
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
+            }
+            #[cfg(feature = "custom-vpn")]
+            CustomVpnSettingsChanged => {
+                self.update_feature_indicators_on_settings_changed();
+                self.management_interface
+                    .notifier()
+                    .notify_custom_vpn_settings(self.custom_vpn.to_settings());
             }
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,

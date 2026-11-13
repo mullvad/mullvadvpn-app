@@ -49,6 +49,8 @@ pub enum DaemonEvent {
     RemoveDevice(RemoveDeviceEvent),
     NewAccessMethod(AccessMethodSetting),
     LeakDetected(LeakInfo),
+    #[cfg(feature = "custom-vpn")]
+    CustomVpnSettings(Vec<talpid_types::net::wireguard::CustomVpnConfigUpdate>),
 }
 
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
@@ -82,6 +84,18 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
             types::daemon_event::Event::LeakInfo(leak) => {
                 LeakInfo::try_from(leak).map(DaemonEvent::LeakDetected)
             }
+            #[cfg(feature = "custom-vpn")]
+            types::daemon_event::Event::CustomVpnSettings(settings) => {
+                Vec::<talpid_types::net::wireguard::CustomVpnConfigUpdate>::try_from(settings)
+                    .map(DaemonEvent::CustomVpnSettings)
+                    .map_err(Error::InvalidResponse)
+            }
+            #[cfg(not(feature = "custom-vpn"))]
+            types::daemon_event::Event::CustomVpnSettings(_) => Err(Error::InvalidResponse(
+                types::FromProtobufTypeError::invalid_argument(
+                    "received custom VPN settings event but custom VPN support is not enabled",
+                ),
+            )),
         }
     }
 }
@@ -785,5 +799,62 @@ impl RelaySelectorClient {
     ) -> Result<crate::types::relay_selector::RelayPartitions> {
         let result = self.0.partition_relays(predicate).await?.into_inner();
         Ok(result)
+    }
+}
+
+#[cfg(all(test, feature = "custom-vpn"))]
+mod test {
+    use super::*;
+    use talpid_types::net::wireguard::{
+        CustomVpnConfig, CustomVpnPeerConfig, CustomVpnSettings, CustomVpnTunnelConfig, PrivateKey,
+    };
+    use vec1::vec1;
+
+    /// The event a client receives must go through the same conversion as
+    /// `GetCustomVpnSettings` responses, withholding the private key on
+    /// platforms where clients may not read it.
+    #[test]
+    fn test_custom_vpn_settings_event_conversion() {
+        let settings = CustomVpnSettings {
+            configs: vec![CustomVpnConfig {
+                enabled: true,
+                name: Some("test".to_string()),
+                tunnel: CustomVpnTunnelConfig {
+                    private_key: PrivateKey::from([7; 32]),
+                    ips: vec!["10.0.0.2".parse().unwrap()],
+                },
+                peers: vec1![CustomVpnPeerConfig {
+                    public_key: talpid_types::net::wireguard::PublicKey::from([1; 32]),
+                    allowed_ip: vec!["0.0.0.0/0".parse().unwrap()],
+                    endpoint: "1.2.3.4:51820".parse().unwrap(),
+                }],
+            }],
+        };
+
+        let event = DaemonEvent::try_from(types::daemon_event::Event::CustomVpnSettings(
+            types::CustomVpnSettings::from(&settings),
+        ))
+        .expect("valid event");
+
+        let DaemonEvent::CustomVpnSettings(configs) = event else {
+            panic!("expected a custom VPN settings event");
+        };
+        assert_eq!(configs.len(), 1);
+
+        let config = &configs[0];
+        assert!(config.enabled);
+        assert_eq!(config.name.as_deref(), Some("test"));
+        assert_eq!(
+            config.tunnel.ips,
+            vec!["10.0.0.2".parse::<std::net::IpAddr>().unwrap()]
+        );
+        assert_eq!(config.peers.len(), 1);
+        // On Android the key is included in the event; elsewhere it is
+        // withheld.
+        if cfg!(target_os = "android") {
+            assert_eq!(config.tunnel.private_key, Some(PrivateKey::from([7; 32])));
+        } else {
+            assert!(config.tunnel.private_key.is_none());
+        }
     }
 }
