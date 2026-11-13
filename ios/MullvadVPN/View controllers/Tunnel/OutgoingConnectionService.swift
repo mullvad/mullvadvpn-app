@@ -25,7 +25,7 @@ final class OutgoingConnectionService: OutgoingConnectionServiceHandling {
 
     func getOutgoingConnectionInfo() async throws -> OutgoingConnectionInfo {
         let ipv4ConnectionInfo = try await outgoingConnectionProxy.getIPV4(retryStrategy: .default)
-        let ipv6ConnectionInfo = try? await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)
+        let ipv6ConnectionInfo = try? await outgoingConnectionProxy.getIPV6(retryStrategy: .default)
         return OutgoingConnectionInfo(ipv4: ipv4ConnectionInfo, ipv6: ipv6ConnectionInfo)
     }
 }
