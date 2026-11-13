@@ -24,7 +24,7 @@
     <string name="all_locations">Toutes les localisations</string>
     <string name="all_providers">Tous les fournisseurs</string>
     <string name="always">Toujours</string>
-    <string name="always_on_vpn_error_notification_content"><![CDATA[Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour <b>%s</b> avant d'utiliser Mullvad VPN.]]></string>
+    <string name="always_on_vpn_error_notification_content"><![CDATA[Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour <b>%s</b> avant d\'utiliser Mullvad VPN.]]></string>
     <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à %s</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Après la mise à jour d\'une application de VPN sur Android 16, les appareils peuvent se retrouver dans un état où ces applications de VPN ne sont plus en mesure d\'accéder à Internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Veuillez redémarrer votre appareil et réessayer de vous connecter. Si cela ne fonctionne pas, veuillez envoyer un e-mail à %s en suédois ou en anglais.</string>
