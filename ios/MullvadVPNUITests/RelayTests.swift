@@ -150,10 +150,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         )
 
         TunnelControlPage(app)
-            .tapSelectLocationButton()
-
-        SelectLocationPage(app)
-            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCountryName)
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
@@ -451,12 +448,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         var destinationAddress: String?
         let capturedData = try performPacketCapture { session in
             TunnelControlPage(app)
-                .tapSelectLocationButton()
-
-            SelectLocationPage(app)
-                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
-                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicRelayName)
+                .tapConnectButton()
 
             allowAddVPNConfigurationsIfAsked()
 
@@ -779,10 +771,10 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapLocationCellExpandButton(
-                withName: BaseUITestCase.testsDefaultQuicCountryName
+                withName: BaseUITestCase.testsDefaultMultihopExit
             )
             .tapLocationCell(
-                withName: BaseUITestCase.testsDefaultQuicCityName
+                withName: BaseUITestCase.testsDefaultMultihopExitCity
             )
 
         TunnelControlPage(app)
@@ -790,7 +782,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyConnectingOverMultihop()
             .verifyConnectedRelays(
                 entry: BaseUITestCase.testsDefaultRelayName,
-                exit: BaseUITestCase.testsDefaultQuicRelayName
+                exit: BaseUITestCase.testsDefaultMultihopExitRelayName
             )
             .tapDisconnectButton()
     }
@@ -963,24 +955,6 @@ extension RelayTests {
             SelectLocationPage(app)
                 .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
                 .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
-        }
-
-        return getRelay()
-    }
-
-    /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
-    private func getQuicRelayInfo() -> RelayInfo {
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
-
-        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultQuicCountryName) {
-            // Already expanded - just make sure the correct city cell is selected
-            SelectLocationPage(app)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCityName)
-        } else {
-            SelectLocationPage(app)
-                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicCityName)
         }
 
         return getRelay()
