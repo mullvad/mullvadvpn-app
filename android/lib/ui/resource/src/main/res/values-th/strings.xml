@@ -555,7 +555,7 @@
     <string name="verifying_purchase_unrecoverable_error">เกิดข้อผิดพลาดขณะตรวจสอบยืนยันการซื้อของคุณ โปรดติดต่อฝ่ายสนับสนุน</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="version">เวอร์ชัน</string>
-    <string name="via_country_city">ผ่าน %1s, %2s</string>
+    <string name="via_country_city">ผ่าน %1$s, %2$s</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
