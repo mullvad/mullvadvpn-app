@@ -93,7 +93,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Prevent local DNS resolver from hitting file descriptor limit when hundreds of DNS queries are
   in-flight. This could cause several other issues like firewall state failing.
-- Add support for eslogger format version 12. This fixes Split Tunneling on macOS 27.3.
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
@@ -110,6 +109,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Apply gRPC pipe ownership check correctly on Windows. This fixes the advisory
   `GHSA-wchj-r66m-4m48`.
+
+
+## [2026.6-beta1] - 2026-11-13
+### Fixed
+#### macOS
+- Add support for eslogger format version 12. This fixes Split Tunneling on macOS 27.3.
 
 
 ## [2026.5] - 2026-09-11
