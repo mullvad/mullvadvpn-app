@@ -9,5 +9,5 @@ export const StyledWizardSlideIcon = styled(Icon)`
 `;
 
 export function WizardSlideIcon(props: WizardSlideIconProps) {
-  return <StyledWizardSlideIcon size="big" {...props}></StyledWizardSlideIcon>;
+  return <StyledWizardSlideIcon size="big" aria-hidden="true" {...props}></StyledWizardSlideIcon>;
 }
