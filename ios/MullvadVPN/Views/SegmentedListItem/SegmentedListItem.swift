@@ -27,6 +27,7 @@ struct SegmentedListItem<Leading: View>: View {
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
     var footer: MullvadInfoView?
+    let customDismissAction: (() -> Void)?
     let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
@@ -44,6 +45,7 @@ struct SegmentedListItem<Leading: View>: View {
         @ViewBuilder segment: () -> Segment = { EmptyView() },
         @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
         footer: MullvadInfoView? = nil,
+        customDismissAction: (() -> Void)? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -57,6 +59,7 @@ struct SegmentedListItem<Leading: View>: View {
         self.segment = segment().typeErase()
         self.groupedContent = groupedContent().typeErase()
         self.footer = footer
+        self.customDismissAction = customDismissAction
         self.onSelect = onSelect
     }
 
@@ -72,7 +75,19 @@ struct SegmentedListItem<Leading: View>: View {
     @ViewBuilder func leadingAndTrailing() -> some View {
         if let leadingAndTrailingDestination {
             NavigationLink {
-                leadingAndTrailingDestination
+                if let customDismissAction {
+                    leadingAndTrailingDestination.navigationBarBackButtonHidden(true)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button(
+                                    action: customDismissAction) {
+                                    Image.mullvadIconBack
+                                }
+                            }.hideLiquidGlassEffect()
+                        }
+                } else {
+                    leadingAndTrailingDestination
+                }
             } label: {
                 leading()
                 Spacer()
