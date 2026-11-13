@@ -1,17 +1,17 @@
 use ml_kem::array::typenum::marker_traits::Unsigned;
-use ml_kem::kem::Decapsulate;
-use ml_kem::{Ciphertext, EncodedSizeUser, KemCore, MlKem1024, MlKem1024Params};
+use ml_kem::kem::{Decapsulate, Kem};
+use ml_kem::{Ciphertext, KeyExport, MlKem1024};
 
 /// Use the strongest variant of ML-KEM. It is fast and the keys are small, so there is no practical
 /// benefit of going with anything lower. The servers also only supports the strongest variant.
 const ALGORITHM_NAME: &str = "ML-KEM-1024";
 
 /// The number of bytes in an ML-KEM 1024 ciphertext.
-const CIPHERTEXT_LEN: usize = <MlKem1024 as KemCore>::CiphertextSize::USIZE;
+const CIPHERTEXT_LEN: usize = <MlKem1024 as Kem>::CiphertextSize::USIZE;
 
 pub struct Keypair {
-    encapsulation_key: ml_kem::kem::EncapsulationKey<MlKem1024Params>,
-    decapsulation_key: ml_kem::kem::DecapsulationKey<MlKem1024Params>,
+    encapsulation_key: ml_kem::kem::EncapsulationKey<MlKem1024>,
+    decapsulation_key: ml_kem::kem::DecapsulationKey<MlKem1024>,
 }
 
 impl Keypair {
@@ -19,7 +19,7 @@ impl Keypair {
     ///
     /// This is the key to send to the peer you want to negotiate a shared secret with.
     pub fn encapsulation_key(&self) -> Vec<u8> {
-        self.encapsulation_key.as_bytes().as_slice().to_vec()
+        self.encapsulation_key.to_bytes().to_vec()
     }
 
     pub fn algorithm_name(&self) -> &'static str {
@@ -46,21 +46,14 @@ impl Keypair {
                 }
             })?;
 
-        // Decapsulate the shared secret. This is an infallible operation but
-        // must due to the signature of the trait it is implemented via return a
-        // Result that we must unwrap... For now. Please see:
-        // https://github.com/RustCrypto/KEMs/pull/59
-        let shared_secret = self
-            .decapsulation_key
-            .decapsulate(&ciphertext_array)
-            .unwrap();
+        let shared_secret = self.decapsulation_key.decapsulate(&ciphertext_array);
         Ok(shared_secret.0)
     }
 }
 
 /// Generates and returns an ML-KEM keypair.
 pub fn keypair() -> Keypair {
-    let (decapsulation_key, encapsulation_key) = ml_kem::MlKem1024::generate(&mut rand_core::OsRng);
+    let (decapsulation_key, encapsulation_key) = ml_kem::MlKem1024::generate_keypair();
     Keypair {
         encapsulation_key,
         decapsulation_key,
