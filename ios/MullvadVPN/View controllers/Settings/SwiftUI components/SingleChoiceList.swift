@@ -52,12 +52,13 @@ import SwiftUI
   */
 
 struct SingleChoiceList<Value>: View where Value: Equatable {
-    let title: String
+    let title: String?
     private let options: [OptionSpec]
     var value: Binding<Value>
     @State var initialValue: Value?
     let tableAccessibilityIdentifier: String
     let itemDescription: (Value) -> String
+    let isEnabled: (Value) -> Bool
     let customFieldMode: CustomFieldMode
     // a latch to keep the custom field selected through changes of focus until the user taps elsewhere
     @State var customFieldSelected = false
@@ -101,11 +102,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
     // an internal constructor, building the element from basics
     fileprivate init(
-        title: String,
+        title: String? = nil,
         optionSpecs: [OptionSpec.OptValue],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String?,
         itemDescription: ((Value) -> String)? = nil,
+        isEnabled: ((Value) -> Bool)? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.title = title
@@ -115,6 +117,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         self.tableAccessibilityIdentifier = tableAccessibilityIdentifier ?? "SingleChoiceList"
         self.customFieldMode = customFieldMode
         self.initialValue = value.wrappedValue
+        self.isEnabled = isEnabled ?? { _ in true }
     }
 
     ///  Create a `SingleChoiceList` presenting a choice of several fixed values.
@@ -124,11 +127,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - options:  A list of `Value`s to be presented.
     ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation.
     init(
-        title: String,
+        title: String? = nil,
         options: [Value],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String? = nil,
         itemDescription: ((Value) -> String)? = nil,
+        isEnabled: ((Value) -> Bool)? = nil,
         itemAccessibilityIdentifier: ((Value) -> String)? = nil
     ) {
         self.init(
@@ -136,7 +140,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             optionSpecs: options.map { .literal($0) },
             value: value,
             tableAccessibilityIdentifier: tableAccessibilityIdentifier,
-            itemDescription: itemDescription
+            itemDescription: itemDescription,
+            isEnabled: isEnabled
         )
     }
 
@@ -156,11 +161,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - customInputMaxLength: An optional maximum length to which input is truncated
     ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
-        title: String,
+        title: String? = nil,
         options: [Value],
         value: Binding<Value>,
         tableAccessibilityIdentifier: String? = nil,
         itemDescription: ((Value) -> String)? = nil,
+        isEnabled: ((Value) -> Bool)? = nil,
         parseCustomValue: @escaping ((String) -> Value?),
         formatCustomValue: @escaping ((Value) -> String?),
         customLabel: String,
@@ -186,6 +192,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             value: value,
             tableAccessibilityIdentifier: tableAccessibilityIdentifier,
             itemDescription: itemDescription,
+            isEnabled: isEnabled,
             customFieldMode: customFieldMode
         )
     }
@@ -334,58 +341,83 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
     var body: some View {
         VStack(spacing: UIMetrics.TableView.separatorHeight) {
-            HStack {
-                Text(title).fontWeight(.semibold)
-                Spacer()
+            if let title {
+                HStack {
+                    Text(title).fontWeight(.semibold)
+                    Spacer()
+                }
+                .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
+                .background(Color(UIColor.Cell.Background.normal))
             }
-            .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-            .background(Color(UIColor.Cell.Background.normal))
-            List {
-                Section {
-                    ForEach(options) { opt in
-                        switch opt.value {
-                        case let .literal(v):
-                            literalRow(v)
-                                .listRowSeparator(.hidden)
-                        case let .custom(
-                            label,
-                            prompt,
-                            legend,
-                            inputWidth,
-                            maxInputLength,
-                            toValue,
-                            fromValue
-                        ):
-                            customRow(
-                                label: label,
-                                prompt: prompt,
-                                inputWidth: inputWidth,
-                                maxInputLength: maxInputLength,
-                                toValue: toValue,
-                                fromValue: fromValue
-                            )
-                            .listRowSeparator(.hidden)
-                            if let legend {
-                                subtitleRow(legend)
-                                    .listRowSeparator(.hidden)
+
+            ScrollViewReader { scrollViewProxy in
+                List {
+                    Section {
+                        ForEach(options) { opt in
+                            Group {
+                                switch opt.value {
+                                case let .literal(v):
+                                    literalRow(v)
+
+                                case let .custom(
+                                    label,
+                                    prompt,
+                                    legend,
+                                    inputWidth,
+                                    maxInputLength,
+                                    toValue,
+                                    fromValue
+                                ):
+                                    VStack(spacing: 0) {
+                                        customRow(
+                                            label: label,
+                                            prompt: prompt,
+                                            inputWidth: inputWidth,
+                                            maxInputLength: maxInputLength,
+                                            toValue: toValue,
+                                            fromValue: fromValue
+                                        )
+
+                                        if let legend {
+                                            subtitleRow(legend)
+                                        }
+                                    }
+                                }
                             }
+                            .id(opt.id)
+                            .listRowSeparator(.hidden)
                         }
                     }
+                    .listRowInsets(.init())  // remove insets
                 }
-                .listRowInsets(.init())  // remove insets
+                .accessibilityIdentifier(tableAccessibilityIdentifier)
+                .listStyle(.plain)
+                .listRowSpacing(UIMetrics.TableView.separatorHeight)
+                .environment(\.defaultMinListRowHeight, 0)
+                .onAppear {
+                    initialValue = value.wrappedValue
+
+                    guard
+                        let target = options.first(where: {
+                            if case .literal(let value) = $0.value {
+                                return value == initialValue
+                            } else if case .custom(let label, _, _, _, _, let toValue, _) = $0.value {
+                                return toValue(label) == initialValue
+                            }
+                            return false
+                        })
+                    else {
+                        return
+                    }
+
+                    scrollViewProxy.scrollTo(target.id, anchor: .center)
+                }
+                Spacer()
             }
-            .accessibilityIdentifier(tableAccessibilityIdentifier)
-            .listStyle(.plain)
-            .listRowSpacing(UIMetrics.TableView.separatorHeight)
-            .environment(\.defaultMinListRowHeight, 0)
-            Spacer()
         }
         .padding(.top, 8)
         .background(Color(.secondaryColor))
         .foregroundColor(Color(.primaryTextColor))
-        .onAppear {
-            initialValue = value.wrappedValue
-        }
     }
 }
 

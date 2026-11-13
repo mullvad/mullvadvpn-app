@@ -17,7 +17,7 @@ public enum AccessibilityIdentifier: Equatable {
     case accessMethodTestButton
     case accessMethodConfirmDeleteButton
     case accountButton
-    case accessMethodUnreachableBackButton
+    case accessMethodUnreachableCancelButton
     case accessMethodUnreachableSaveButton
     case agreeButton
     case alertOkButton
@@ -141,8 +141,11 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Labels
     case accountPageDeviceNameLabel
-    case socks5ServerCell
-    case socks5PortCell
+    case addAccessMethodServerCell
+    case addAccessMethodPortCell
+    case addAccessMethodUsernameCell
+    case addAccessMethodPasswordCell
+    case addAccessMethodCipherCell
     case accountPagePaidUntilLabel
     case addAccessMethodTestStatusReachableLabel
     case addAccessMethodTestStatusTestingLabel
@@ -157,10 +160,11 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Views
     case accessMethodProtocolPickerView
+    case accessMethodProtocolCipherPickerView
     case accessMethodUnreachableAlert
     case accountView
     case addLocationsView
-    case addAccessMethodTableView
+    case addAccessMethodScrollView
     case apiAccessView
     case apiAccessListView
     case alertContainerView

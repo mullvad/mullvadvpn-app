@@ -186,14 +186,14 @@ struct ConfigurableTextField: View {
     }
 
     @ViewBuilder private var clearButton: some View {
-        if !text.isEmpty {
+        if !text.isEmpty, appearance.showsClearButton {
             Button {
                 text = ""
             } label: {
                 ResizableImageView(image: appearance.clearButtonImage, dimension: .width(24.0))
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, 8.0)
+            .padding(.horizontal, 16.0)
             .accessibilityLabel(Text("Clear text"))
         }
     }

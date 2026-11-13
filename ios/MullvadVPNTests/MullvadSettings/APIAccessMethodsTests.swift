@@ -9,6 +9,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Combine
+import MullvadMockData
 import XCTest
 
 @testable import MullvadSettings

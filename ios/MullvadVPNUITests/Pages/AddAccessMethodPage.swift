@@ -14,47 +14,43 @@ import XCTest
 class AddAccessMethodPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.tables[.addAccessMethodTableView]
+        self.pageElement = app.scrollViews[.addAccessMethodScrollView]
         waitForPageToBeShown()
     }
 
     @discardableResult func tapNameCell() -> Self {
-        app.cells[AccessibilityIdentifier.accessMethodNameTextField]
-            .tap()
+        tapInputField(accessibilityIdentifier: .accessMethodNameTextField)
         return self
     }
 
     @discardableResult func tapTypeCell() -> Self {
-        app.cells[AccessibilityIdentifier.accessMethodProtocolSelectionCell]
+        app.buttons[AccessibilityIdentifier.accessMethodProtocolSelectionCell]
             .tap()
         return self
     }
 
     @discardableResult func tapShadowsocksTypeValueCell() -> Self {
-        app.tables[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["Shadowsocks"].tap()
+        app.collectionViews[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["Shadowsocks"].tap()
         return self
     }
 
     @discardableResult func tapSOCKS5TypeValueCell() -> Self {
-        app.tables[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["SOCKS5"].tap()
+        app.collectionViews[AccessibilityIdentifier.accessMethodProtocolPickerView].staticTexts["SOCKS5"].tap()
         return self
     }
 
     @discardableResult func tapServerCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5ServerCell]
-            .tap()
+        tapInputField(accessibilityIdentifier: .addAccessMethodServerCell)
         return self
     }
 
     @discardableResult func tapPortCell() -> Self {
-        app.cells[AccessibilityIdentifier.socks5PortCell]
-            .tap()
+        tapInputField(accessibilityIdentifier: .addAccessMethodPortCell)
         return self
     }
 
     @discardableResult func tapAuthenticationSwitch() -> Self {
-        app.switches[AccessibilityIdentifier.socks5AuthenticationSwitch]
-            .tap()
+        app.switches[.socks5AuthenticationSwitch].switches.firstMatch.tap()
         return self
     }
 
@@ -64,19 +60,18 @@ class AddAccessMethodPage: Page {
         return self
     }
 
-    @discardableResult func waitForAPIUnreachableLabel() -> Self {
-        XCTAssertTrue(
-            app.staticTexts[AccessibilityIdentifier.addAccessMethodTestStatusUnreachableLabel]
-                .existsAfterWait(timeout: .long)
-        )
-        return self
+    private func tapInputField(accessibilityIdentifier: AccessibilityIdentifier) {
+        let view = app.otherElements[accessibilityIdentifier]
+        let firstTextField = view.textFields.firstMatch
+        XCTAssertTrue(firstTextField.existsAfterWait())
+        firstTextField.tap()
     }
 }
 
 class AddAccessMethodAPIUnreachableAlert: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        self.pageElement = app.otherElements[.accessMethodUnreachableAlert]
+        self.pageElement = app.otherElements[.alertContainerView]
         waitForPageToBeShown()
     }
 
@@ -86,7 +81,7 @@ class AddAccessMethodAPIUnreachableAlert: Page {
     }
 
     @discardableResult func tapBackButton() -> Self {
-        app.buttons[AccessibilityIdentifier.accessMethodUnreachableBackButton].tap()
+        app.buttons[AccessibilityIdentifier.accessMethodUnreachableCancelButton].tap()
         return self
     }
 }
