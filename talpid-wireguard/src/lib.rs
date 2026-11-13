@@ -25,6 +25,7 @@ use talpid_tunnel::{
     EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, TunnelArgs, TunnelEvent, TunnelMetadata,
     TunnelMonitorCommand, WIREGUARD_HEADER_SIZE, tun_provider,
 };
+use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_error::{BoxedError, ErrorExt};
 use talpid_net::bypass::SocketBypass;
@@ -1069,31 +1070,32 @@ async fn connect_to_ingress(
     retry_attempt: u32,
     bypass: &Arc<dyn SocketBypass>,
 ) -> std::result::Result<IngressConnection, CloseMsg> {
-    let (config, obfuscation, selected_obfuscation, session) =
-        match config.obfuscation_settings().single() {
-            // A specific obfuscation method (or none) was selected
-            Some(settings) => {
-                let obfuscation = obfuscation::create_single(settings, Arc::clone(bypass))
-                    .await
-                    .map_err(CloseMsg::SetupError)?;
-                (config, Some(obfuscation), None, None)
-            }
-            // Multiplex over multiple transports
-            None => {
-                let settings = config.obfuscation_settings();
-                let (selected, session) = obfuscation::run_multiplexer(
-                    &config,
-                    retry_attempt,
-                    settings.transports().to_vec(),
-                    settings.client_public_key().clone(),
-                    bypass,
-                )
-                .await?;
-                let config = config.with_transport(&selected.config);
-                let (obfuscation, selected) = obfuscation::commit_to(selected);
-                (config, obfuscation, Some(selected), Some(session))
-            }
-        };
+    let settings = config.obfuscation_settings();
+    let (config, obfuscation, selected_obfuscation, session) = match settings.transports() {
+        [Transport::Direct(_)] => (config, None, None, None),
+        // A specific obfuscation method (or none) was selected
+        [Transport::Obfuscated(settings)] => {
+            let obfuscation = obfuscation::create_single(settings, Arc::clone(bypass))
+                .await
+                .map_err(CloseMsg::SetupError)?;
+            (config, Some(obfuscation), None, None)
+        }
+        // Multiplex over multiple transports. Note: is guaranteed to be two or more.
+        transports => {
+            // let settings = config.obfuscation_settings();
+            let (selected, session) = obfuscation::run_multiplexer(
+                &config,
+                retry_attempt,
+                transports.to_vec(),
+                settings.client_public_key().clone(),
+                bypass,
+            )
+            .await?;
+            let config = config.with_transport(&selected.config);
+            let (obfuscation, selected) = obfuscation::commit_to(selected);
+            (config, obfuscation, Some(selected), Some(session))
+        }
+    };
 
     let (config, daita) = if config.negotiates_ephemeral_peers() {
         let session = match session {
