@@ -9,6 +9,8 @@ mod api_address_updater;
 #[cfg(not(target_os = "android"))]
 mod cleanup;
 mod custom_list;
+#[cfg(feature = "custom-vpn")]
+mod custom_vpn;
 pub mod device;
 mod dns;
 pub mod exception_logging;
@@ -107,8 +109,6 @@ use talpid_core::{
 };
 use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
-#[cfg(feature = "custom-vpn")]
-use talpid_types::Stats;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
@@ -475,15 +475,9 @@ pub enum DaemonCommand {
     /// TODO
     /// After this event, GetMultihopMigration will indefinitely return a None-value.
     DeleteMultihopMigration,
-    /// Set custom VPN configuration
+    /// Custom VPN commands, see [`custom_vpn::CustomVpnCommand`]
     #[cfg(feature = "custom-vpn")]
-    SetCustomVpnConfig(
-        oneshot::Sender<String>,
-        Option<talpid_types::net::wireguard::CustomVpnConfig>,
-    ),
-    /// Get custom VPN stats
-    #[cfg(feature = "custom-vpn")]
-    GetCustomVpnStats(oneshot::Sender<Stats>),
+    CustomVpn(custom_vpn::CustomVpnCommand),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -512,6 +506,9 @@ pub(crate) enum InternalDaemonEvent {
     LocationEvent(LocationEventData),
     /// A generic event for when any settings change.
     SettingsChanged,
+    /// The custom VPN settings changed.
+    #[cfg(feature = "custom-vpn")]
+    CustomVpnSettingsChanged,
     /// The split tunnel paths or state were updated.
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -700,6 +697,8 @@ pub struct Daemon {
     management_interface: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
     settings: SettingsPersister,
+    #[cfg(feature = "custom-vpn")]
+    custom_vpn: custom_vpn::CustomVpnSettingsPersister,
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
@@ -762,6 +761,9 @@ impl Daemon {
         persist_split_filter_migration_scenario(&migration_data, &config.cache_dir).await;
 
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
+
+        #[cfg(feature = "custom-vpn")]
+        let custom_vpn = custom_vpn::CustomVpnSettingsPersister::load(&config.settings_dir).await;
 
         let relay_selector = {
             let (initial_relay_list, initial_bridge_list) = initial_relay_list
@@ -917,7 +919,7 @@ impl Daemon {
             settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
             #[cfg(feature = "custom-vpn")]
-            settings.custom_vpn.active().cloned(),
+            custom_vpn.active_config(),
         );
 
         let param_gen = parameters_generator.clone();
@@ -1097,6 +1099,8 @@ impl Daemon {
             management_interface,
             migration_complete,
             settings,
+            #[cfg(feature = "custom-vpn")]
+            custom_vpn,
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
@@ -1260,6 +1264,13 @@ impl Daemon {
             SettingsChanged => {
                 self.update_feature_indicators_on_settings_changed();
             }
+            #[cfg(feature = "custom-vpn")]
+            CustomVpnSettingsChanged => {
+                self.update_feature_indicators_on_settings_changed();
+                self.management_interface
+                    .notifier()
+                    .notify_custom_vpn_settings(self.custom_vpn.to_settings());
+            }
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
             LeakDetected(leak_info) => {
@@ -1295,6 +1306,10 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    cfg_select! {
+                        feature = "custom-vpn" => self.custom_vpn.active(),
+                        _ => false,
+                    },
                 );
                 TunnelState::Connecting {
                     endpoint,
@@ -1307,6 +1322,10 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    cfg_select! {
+                        feature = "custom-vpn" => self.custom_vpn.active(),
+                        _ => false,
+                    },
                 );
                 TunnelState::Connected {
                     endpoint,
@@ -1477,8 +1496,15 @@ impl Daemon {
                 let ip_override = feature_indicators
                     .active_features()
                     .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
-                let new_feature_indicators =
-                    compute_feature_indicators(self.settings.settings(), endpoint, ip_override);
+                let new_feature_indicators = compute_feature_indicators(
+                    self.settings.settings(),
+                    endpoint,
+                    ip_override,
+                    cfg_select! {
+                        feature = "custom-vpn" => self.custom_vpn.active(),
+                        _ => false,
+                    },
+                );
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
@@ -1677,9 +1703,7 @@ impl Daemon {
             GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
             DeleteMultihopMigration => self.on_delete_multihop_migration().await,
             #[cfg(feature = "custom-vpn")]
-            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
-            #[cfg(feature = "custom-vpn")]
-            GetCustomVpnStats(tx) => self.on_get_custom_vpn_stats(tx),
+            CustomVpn(command) => custom_vpn::handle_command(self, command).await,
         }
     }
 
@@ -2707,39 +2731,6 @@ impl Daemon {
         }
     }
 
-    #[cfg(feature = "custom-vpn")]
-    async fn on_set_custom_vpn_config(
-        &mut self,
-        tx: oneshot::Sender<String>,
-        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
-    ) {
-        match self
-            .settings
-            // Only a single config is currently managed
-            .update(move |s| s.custom_vpn.configs = config.into_iter().collect())
-            .await
-        {
-            Ok(_) => {
-                let effective = self.settings.settings().custom_vpn.active().cloned();
-                self.parameters_generator.set_custom_vpn(effective).await;
-                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
-                self.reconnect_tunnel();
-            }
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to set custom VPN config")
-                );
-                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
-            }
-        }
-    }
-
-    #[cfg(feature = "custom-vpn")]
-    fn on_get_custom_vpn_stats(&self, tx: oneshot::Sender<Stats>) {
-        self.send_tunnel_command(TunnelCommand::CustomVpnStats(tx));
-    }
-
     async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
         match self
             .settings
@@ -3254,6 +3245,12 @@ impl Daemon {
         preserved: SettingsKeyList,
     ) {
         let result = self.settings.reset(preserved).await;
+
+        #[cfg(feature = "custom-vpn")]
+        if result.is_ok() {
+            custom_vpn::reset(self).await;
+        }
+
         Self::oneshot_send(tx, result, "reset_settings response");
 
         // TODO: All of the functions below should probably be handled by settings observers

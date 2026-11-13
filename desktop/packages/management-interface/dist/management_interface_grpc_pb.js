@@ -195,6 +195,17 @@ function deserialize_mullvad_daemon_management_interface_CustomVpnConfigError(bu
   return management_interface_pb.CustomVpnConfigError.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_CustomVpnSettings(arg) {
+  if (!(arg instanceof management_interface_pb.CustomVpnSettings)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.CustomVpnSettings');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_CustomVpnSettings(buffer_arg) {
+  return management_interface_pb.CustomVpnSettings.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_CustomVpnStats(arg) {
   if (!(arg instanceof management_interface_pb.CustomVpnStats)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.CustomVpnStats');
@@ -1615,7 +1626,18 @@ clearMigrationMessage: {
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
   // Custom VPN
-setCustomVpnConfig: {
+getCustomVpnSettings: {
+    path: '/mullvad_daemon.management_interface.ManagementService/GetCustomVpnSettings',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.CustomVpnSettings,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_CustomVpnSettings,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnSettings,
+  },
+  setCustomVpnConfig: {
     path: '/mullvad_daemon.management_interface.ManagementService/SetCustomVpnConfig',
     requestStream: false,
     responseStream: false,
@@ -1626,8 +1648,8 @@ setCustomVpnConfig: {
     responseSerialize: serialize_mullvad_daemon_management_interface_CustomVpnConfigError,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_CustomVpnConfigError,
   },
-  clearCustomVpnConfig: {
-    path: '/mullvad_daemon.management_interface.ManagementService/ClearCustomVpnConfig',
+  clearCustomVpnSettings: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ClearCustomVpnSettings',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,

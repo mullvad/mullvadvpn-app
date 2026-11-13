@@ -3359,6 +3359,7 @@ dependencies = [
  "tokio-stream",
  "tracing-appender",
  "tracing-subscriber",
+ "vec1",
  "winapi",
  "windows-service",
  "windows-sys 0.61.2",

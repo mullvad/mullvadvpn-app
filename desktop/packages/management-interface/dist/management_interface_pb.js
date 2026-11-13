@@ -14929,8 +14929,7 @@ proto.mullvad_daemon.management_interface.Settings.toObject = function(includeIn
     relayOverridesList: jspb.Message.toObjectList(msg.getRelayOverridesList(),
     proto.mullvad_daemon.management_interface.RelayOverride.toObject, includeInstance),
     recents: (f = msg.getRecents()) && proto.mullvad_daemon.management_interface.Recents.toObject(includeInstance, f),
-    updateDefaultLocation: jspb.Message.getBooleanFieldWithDefault(msg, 14, false),
-    customVpn: (f = msg.getCustomVpn()) && proto.mullvad_daemon.management_interface.CustomVpnSettings.toObject(includeInstance, f)
+    updateDefaultLocation: jspb.Message.getBooleanFieldWithDefault(msg, 14, false)
   };
 
   if (includeInstance) {
@@ -15026,11 +15025,6 @@ proto.mullvad_daemon.management_interface.Settings.deserializeBinaryFromReader =
     case 14:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setUpdateDefaultLocation(value);
-      break;
-    case 15:
-      var value = new proto.mullvad_daemon.management_interface.CustomVpnSettings;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.CustomVpnSettings.deserializeBinaryFromReader);
-      msg.setCustomVpn(value);
       break;
     default:
       reader.skipField();
@@ -15158,14 +15152,6 @@ proto.mullvad_daemon.management_interface.Settings.serializeBinaryToWriter = fun
     writer.writeBool(
       14,
       f
-    );
-  }
-  f = message.getCustomVpn();
-  if (f != null) {
-    writer.writeMessage(
-      15,
-      f,
-      proto.mullvad_daemon.management_interface.CustomVpnSettings.serializeBinaryToWriter
     );
   }
 };
@@ -15555,43 +15541,6 @@ proto.mullvad_daemon.management_interface.Settings.prototype.getUpdateDefaultLoc
  */
 proto.mullvad_daemon.management_interface.Settings.prototype.setUpdateDefaultLocation = function(value) {
   return jspb.Message.setProto3BooleanField(this, 14, value);
-};
-
-
-/**
- * optional CustomVpnSettings custom_vpn = 15;
- * @return {?proto.mullvad_daemon.management_interface.CustomVpnSettings}
- */
-proto.mullvad_daemon.management_interface.Settings.prototype.getCustomVpn = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.CustomVpnSettings} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.CustomVpnSettings, 15));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.CustomVpnSettings|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.Settings} returns this
-*/
-proto.mullvad_daemon.management_interface.Settings.prototype.setCustomVpn = function(value) {
-  return jspb.Message.setWrapperField(this, 15, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.Settings} returns this
- */
-proto.mullvad_daemon.management_interface.Settings.prototype.clearCustomVpn = function() {
-  return this.setCustomVpn(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.Settings.prototype.hasCustomVpn = function() {
-  return jspb.Message.getField(this, 15) != null;
 };
 
 
@@ -19009,8 +18958,8 @@ proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.prototype
  */
 proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getPrivateKey_asU8();
-  if (f.length > 0) {
+  f = /** @type {!(string|Uint8Array)} */ (jspb.Message.getField(message, 1));
+  if (f != null) {
     writer.writeBytes(
       1,
       f
@@ -19064,7 +19013,25 @@ proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.prototype
  * @return {!proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig} returns this
  */
 proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.prototype.setPrivateKey = function(value) {
-  return jspb.Message.setProto3BytesField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig} returns this
+ */
+proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.prototype.clearPrivateKey = function() {
+  return jspb.Message.setField(this, 1, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.CustomVpnConfig.TunnelConfig.prototype.hasPrivateKey = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 
@@ -23850,7 +23817,7 @@ proto.mullvad_daemon.management_interface.Location.prototype.setLongitude = func
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_ = [[1,2,3,4,5,6,7,8]];
+proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_ = [[1,2,3,4,5,6,7,8,9]];
 
 /**
  * @enum {number}
@@ -23864,7 +23831,8 @@ proto.mullvad_daemon.management_interface.DaemonEvent.EventCase = {
   DEVICE: 5,
   REMOVE_DEVICE: 6,
   NEW_ACCESS_METHOD: 7,
-  LEAK_INFO: 8
+  LEAK_INFO: 8,
+  CUSTOM_VPN_SETTINGS: 9
 };
 
 /**
@@ -23912,7 +23880,8 @@ proto.mullvad_daemon.management_interface.DaemonEvent.toObject = function(includ
     device: (f = msg.getDevice()) && proto.mullvad_daemon.management_interface.DeviceEvent.toObject(includeInstance, f),
     removeDevice: (f = msg.getRemoveDevice()) && proto.mullvad_daemon.management_interface.RemoveDeviceEvent.toObject(includeInstance, f),
     newAccessMethod: (f = msg.getNewAccessMethod()) && proto.mullvad_daemon.management_interface.AccessMethodSetting.toObject(includeInstance, f),
-    leakInfo: (f = msg.getLeakInfo()) && proto.mullvad_daemon.management_interface.LeakInfo.toObject(includeInstance, f)
+    leakInfo: (f = msg.getLeakInfo()) && proto.mullvad_daemon.management_interface.LeakInfo.toObject(includeInstance, f),
+    customVpnSettings: (f = msg.getCustomVpnSettings()) && proto.mullvad_daemon.management_interface.CustomVpnSettings.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -23988,6 +23957,11 @@ proto.mullvad_daemon.management_interface.DaemonEvent.deserializeBinaryFromReade
       var value = new proto.mullvad_daemon.management_interface.LeakInfo;
       reader.readMessage(value,proto.mullvad_daemon.management_interface.LeakInfo.deserializeBinaryFromReader);
       msg.setLeakInfo(value);
+      break;
+    case 9:
+      var value = new proto.mullvad_daemon.management_interface.CustomVpnSettings;
+      reader.readMessage(value,proto.mullvad_daemon.management_interface.CustomVpnSettings.deserializeBinaryFromReader);
+      msg.setCustomVpnSettings(value);
       break;
     default:
       reader.skipField();
@@ -24080,6 +24054,14 @@ proto.mullvad_daemon.management_interface.DaemonEvent.serializeBinaryToWriter = 
       8,
       f,
       proto.mullvad_daemon.management_interface.LeakInfo.serializeBinaryToWriter
+    );
+  }
+  f = message.getCustomVpnSettings();
+  if (f != null) {
+    writer.writeMessage(
+      9,
+      f,
+      proto.mullvad_daemon.management_interface.CustomVpnSettings.serializeBinaryToWriter
     );
   }
 };
@@ -24378,6 +24360,43 @@ proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearLeakInfo = 
  */
 proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasLeakInfo = function() {
   return jspb.Message.getField(this, 8) != null;
+};
+
+
+/**
+ * optional CustomVpnSettings custom_vpn_settings = 9;
+ * @return {?proto.mullvad_daemon.management_interface.CustomVpnSettings}
+ */
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.getCustomVpnSettings = function() {
+  return /** @type{?proto.mullvad_daemon.management_interface.CustomVpnSettings} */ (
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.CustomVpnSettings, 9));
+};
+
+
+/**
+ * @param {?proto.mullvad_daemon.management_interface.CustomVpnSettings|undefined} value
+ * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
+*/
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.setCustomVpnSettings = function(value) {
+  return jspb.Message.setOneofWrapperField(this, 9, proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_[0], value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
+ */
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearCustomVpnSettings = function() {
+  return this.setCustomVpnSettings(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasCustomVpnSettings = function() {
+  return jspb.Message.getField(this, 9) != null;
 };
 
 

@@ -74,6 +74,44 @@ impl Status {
                     };
                     print_debug_or_json(&args, "Leak detected", &leak)?;
                 }
+                #[cfg(feature = "custom-vpn")]
+                DaemonEvent::CustomVpnSettings(configs) => {
+                    #[derive(Debug, Serialize)]
+                    struct CustomVpnConfigSummary {
+                        enabled: bool,
+                        name: Option<String>,
+                        tunnel_ips: Vec<String>,
+                        peers: Vec<CustomVpnPeerSummary>,
+                    }
+                    #[derive(Debug, Serialize)]
+                    struct CustomVpnPeerSummary {
+                        public_key: String,
+                        allowed_ips: Vec<String>,
+                        endpoint: String,
+                    }
+                    let configs = configs
+                        .into_iter()
+                        .map(|config| CustomVpnConfigSummary {
+                            enabled: config.enabled,
+                            name: config.name,
+                            tunnel_ips: config.tunnel.ips.iter().map(ToString::to_string).collect(),
+                            peers: config
+                                .peers
+                                .iter()
+                                .map(|peer| CustomVpnPeerSummary {
+                                    public_key: peer.public_key.to_base64(),
+                                    allowed_ips: peer
+                                        .allowed_ip
+                                        .iter()
+                                        .map(ToString::to_string)
+                                        .collect(),
+                                    endpoint: peer.endpoint.to_string(),
+                                })
+                                .collect(),
+                        })
+                        .collect::<Vec<_>>();
+                    print_debug_or_json(&args, "New custom VPN settings", &configs)?;
+                }
             }
         }
         Ok(())
