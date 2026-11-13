@@ -1,5 +1,6 @@
 //! Tests for verifying that the relay selector works as expected.
 
+use itertools::Itertools;
 use std::{
     assert_matches,
     collections::HashSet,
@@ -237,10 +238,11 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
 /// The single obfuscator config of the returned [`Obfuscators`], panicking if there isn't
 /// exactly one.
 fn expect_single_obfuscator_config(obfuscator: Obfuscators) -> ObfuscatorConfig {
-    let [config] = &obfuscator.obfuscator_configs()[..] else {
-        panic!("Relay selector should have selected exactly one obfuscator");
-    };
-    config.clone()
+    obfuscator
+        .obfuscator_configs()
+        .into_iter()
+        .exactly_one()
+        .unwrap()
 }
 
 fn default_relay_selector() -> RelaySelector {
@@ -276,47 +278,37 @@ mod automatic_anti_censorship {
         let (wg_relay, queue) = relay_selector
             .get_relays_with_automatic_anti_censorship(RelayQueryBuilder::new().build())
             .expect("Not empty");
-        let (obf_relay,) = queue
+        let (multiplex_relay,) = queue
             .collect_tuple()
             .expect("Exactly one obfuscation relay");
 
-        assert!(
-            wg_relay
-                .obfuscator
-                .iter()
-                .all(|t| matches!(t, TransportConfig::Direct(_))),
+        assert_matches!(
+            wg_relay.obfuscator.iter().exactly_one(),
+            Ok(TransportConfig::Direct(_)),
             "First relay has no obfuscation, only wireguard"
         );
-        let obfuscator = obf_relay.obfuscator;
-        assert!(
-            obfuscator.len() > 1,
-            "Second relay should have a multiplexer obfuscator"
-        );
-        assert!(
-            obfuscator
-                .iter()
-                .any(|t| matches!(t, TransportConfig::Direct(_))),
-            "Second relay should include direct connection"
-        );
-        let configs = obfuscator.obfuscator_configs();
 
+        use ObfuscatorConfig::*;
+        use TransportConfig::*;
         let mut conds = vec![
-            |config| matches!(config, &ObfuscatorConfig::Lwo { endpoint, .. } if endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Lwo { endpoint, .. } if !endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Quic{ endpoint, .. } if endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Quic{ endpoint, .. } if !endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Shadowsocks{ endpoint, .. } if endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Shadowsocks{ endpoint, .. } if !endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Udp2Tcp{ endpoint, .. } if endpoint.is_ipv4()),
-            |config| matches!(config, &ObfuscatorConfig::Udp2Tcp{ endpoint, .. } if !endpoint.is_ipv4()),
+            |config| matches!(config, &Direct(endpoint) if endpoint.is_ipv4()),
+            |config| matches!(config, &Direct(endpoint) if endpoint.is_ipv6()),
+            |config| matches!(config, &Obfuscation(Lwo { endpoint, .. }) if endpoint.is_ipv4()),
+            |config| matches!(config, &Obfuscation(Lwo { endpoint, .. }) if endpoint.is_ipv6()),
+            |config| matches!(config, &Obfuscation(Quic{ endpoint, .. }) if endpoint.is_ipv4()),
+            |config| matches!(config, &Obfuscation(Quic{ endpoint, .. }) if endpoint.is_ipv6()),
+            |config| matches!(config, &Obfuscation(Shadowsocks{ endpoint, .. }) if endpoint.is_ipv4()),
+            |config| matches!(config, &Obfuscation(Shadowsocks{ endpoint, .. }) if endpoint.is_ipv6()),
+            |config| matches!(config, &Obfuscation(Udp2Tcp{ endpoint, .. }) if endpoint.is_ipv4()),
+            |config| matches!(config, &Obfuscation(Udp2Tcp{ endpoint, .. }) if endpoint.is_ipv6()),
         ];
-        for config in &configs {
+        for transport in &*multiplex_relay.obfuscator {
             let n = conds.len();
-            conds.retain(|cond| !cond(config));
+            conds.retain(|cond| !cond(transport));
             assert_eq!(
                 conds.len(),
                 n - 1,
-                "{config:?} is the only match for a given obfuscation type and ip version"
+                "{transport:?} is the only match for a given obfuscation type and ip version"
             );
         }
     }
