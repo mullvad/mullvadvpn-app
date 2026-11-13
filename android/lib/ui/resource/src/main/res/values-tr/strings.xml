@@ -24,7 +24,7 @@
     <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
     <string name="always">Her zaman</string>
-    <string name="always_on_vpn_error_notification_content"><![CDATA[Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce lütfen Her zaman açık VPN'i <b>%s</b> için devre dışı bırakın.]]></string>
+    <string name="always_on_vpn_error_notification_content"><![CDATA[Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i <b>%s</b> için devre dışı bırakın.]]></string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN %s uygulamasına atandı</string>
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16\'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN uygulamalarının artık internete erişemediği bir duruma geçebilir.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Lütfen cihazınızı yeniden başlatın ve tekrar bağlanmayı deneyin. Bu işe yaramazsa lütfen %s adresine İsveççe veya İngilizce bir e-posta yazın.</string>
