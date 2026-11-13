@@ -50,12 +50,18 @@ pub enum Hops {
 }
 
 impl RelayQuery {
-    /// Constrain query to only direct/wireguard/none for obfuscation, or return none if
-    /// incompatible.
+    /// Constrain query to only direct/wireguard/none for obfuscation and a single IP
+    /// family, or return none if incompatible. The query should not yield a relay
+    /// that invokes the multiplexer, which can thus make use of the kernel wireguard
+    /// implementation.
     pub fn wireguard_only(mut self) -> Option<Self> {
-        let obfuscation = &mut self.entry_specific_mut().obfuscation;
+        let entry = self.entry_specific_mut();
         // If `obfuscation.direct` is None, return None by `?`
-        *obfuscation = ObfuscationConstraint::direct(obfuscation.direct?);
+        entry.obfuscation = ObfuscationConstraint::direct(entry.obfuscation.direct?);
+        // Pick one IP family
+        if entry.ip_version.is_any() {
+            entry.ip_version = Constraint::Only(IpVersion::V4);
+        }
         Some(self)
     }
 
