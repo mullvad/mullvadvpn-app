@@ -1067,17 +1067,17 @@ async fn connect_to_ingress(
 ) -> std::result::Result<IngressConnection, CloseMsg> {
     let settings = config.obfuscation_settings();
     let (config, obfuscation, selected_obfuscation, session) = match settings.transports() {
+        // Plain WireGuard without obfuscation, don't invoke multiplexer
         [Transport::Direct(_)] => (config, None, None, None),
-        // A specific obfuscation method (or none) was selected
+        // A single obfuscation method, don't invoke multiplexer
         [Transport::Obfuscated(settings)] => {
             let obfuscation = obfuscation::create_single(settings, Arc::clone(bypass))
                 .await
                 .map_err(CloseMsg::SetupError)?;
             (config, Some(obfuscation), None, None)
         }
-        // Multiplex over multiple transports. Note: is guaranteed to be two or more.
+        // Multiplex over multiple transports. Note: is guaranteed to be two or more as transports is a `Vec1`
         transports => {
-            // let settings = config.obfuscation_settings();
             let (selected, session) = obfuscation::run_multiplexer(
                 &config,
                 retry_attempt,

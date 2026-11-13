@@ -36,14 +36,6 @@ pub struct ObfuscationSettings {
 }
 
 impl ObfuscationSettings {
-    /// Return the settings of the single obfuscator to run, if this is not a multiplexer.
-    pub fn single(&self) -> Option<&tunnel_obfuscation::Settings> {
-        match &self.transports[..] {
-            [Transport::Obfuscated(settings)] => Some(settings),
-            _ => None,
-        }
-    }
-
     pub fn transports(&self) -> &[tunnel_obfuscation::multiplexer::Transport] {
         &self.transports
     }
