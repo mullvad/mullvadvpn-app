@@ -17,7 +17,16 @@ struct CustomListInteractorTests {
         let tunnelManager = SettingsUpdatingMock()
         let customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
-            repository: CustomListsRepositoryStub()
+            repository: CustomListsRepositoryStub(),
+            recentsRepository: RecentConnectionsRepository(
+                settingsStore: InMemorySettingsStore<SettingNotFound>()
+            ),
+            relaySelector: RelaySelectorStub(
+                selectedRelaysResult: { _ in
+                    throw NoRelaysSatisfyingConstraintsError(
+                        .relayConstraintNotMatching
+                    )
+                })
         )
 
         return (customListInteractor, tunnelManager)
@@ -273,19 +282,4 @@ struct CustomListInteractorTests {
             tunnelManager.settings.relayConstraints.exitLocations == .only(.init(locations: [location1]))
         )
     }
-}
-
-private class SettingsUpdatingMock: SettingsUpdating {
-    var updateCalled = false
-    func updateSettings(
-        _ updates: [MullvadSettings.TunnelSettingsUpdate],
-        completionHandler: (@Sendable () -> Void)?
-    ) {
-        for update in updates {
-            update.apply(to: &settings)
-        }
-        updateCalled = true
-    }
-
-    var settings = LatestTunnelSettings()
 }

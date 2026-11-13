@@ -5,7 +5,7 @@ import MullvadTypes
 import SwiftUI
 
 @MainActor
-protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol {
+protocol SelectLocationViewModel: AnyObject, Observable {
     var exitContext: LocationContext { get set }
     var entryContext: LocationContext { get set }
     var multihopContext: MultihopContext { get set }
@@ -17,20 +17,21 @@ protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol
     var isRecentsEnabled: Bool { get }
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
-    func customListsChanged()
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
-    func showEditCustomList(name: String)
+    func save(list: CustomList) throws
+    func delete(customList: CustomList)
     func didFinish()
     func showDaitaSettings()
-    func showEditCustomListView(locations: [LocationNode])
-    func showAddCustomListView(locations: [LocationNode])
     func showFilterView(context: MultihopContext)
     func filtersWillBeOverridden(_ state: MultihopState) -> Bool
     func filtersWillBeOverridden(_ node: LocationNode) -> Bool
     func multihopStateIsIncompatible(_ state: MultihopState) -> Bool
     func toggleRecents()
     func manuallyFetchRelayList()
+    func customListsChanged()
+    // remove when proper dependency injection is in place
+    var customListInteractor: CustomListInteractorProtocol { get }
 }
 
 struct SelectLocationDelegate {
@@ -38,24 +39,32 @@ struct SelectLocationDelegate {
     let showObfuscationSettings: () -> Void
     let showIpVersionSettings: () -> Void
     let showFilterView: (MultihopContext) -> Void
-    let showEditCustomListView: ([LocationNode], CustomList?) -> Void
-    let showAddCustomListView: ([LocationNode]) -> Void
     let didSelectExitRelayLocations: (RelayConstraint<UserSelectedRelays>) -> Void
     let didSelectEntryRelayLocations: (RelayConstraint<UserSelectedRelays>) -> Void
     let didFinish: () -> Void
 }
 
 @MainActor
+@Observable
 class SelectLocationViewModelImpl: SelectLocationViewModel {
-    @Published var isMultihopActive: Bool = false
-    @Published var isRecentsEnabled: Bool = true
-    @Published var multihopContext: MultihopContext = .exit
-    @Published var exitContext = LocationContext()
-    @Published var entryContext = LocationContext()
-    @Published var searchText: String = ""
-    @Published var showMultihopInfo: Bool = false
+    var isMultihopActive: Bool = false
+    var isRecentsEnabled: Bool = true
+    var multihopContext: MultihopContext = .exit
+    var exitContext = LocationContext()
+    var entryContext = LocationContext()
+    var searchText: String = "" {
+        didSet {
+            if oldValue == searchText { return }
+            if oldValue == nil && searchText == "" { return }
+            search(searchText: searchText)
+            if searchText == "" {
+                updateSelections()
+            }
+        }
+    }
+    var showMultihopInfo: Bool = false
 
-    @Published var multihopState: MultihopState {
+    var multihopState: MultihopState {
         didSet {
             tunnelManager.updateSettings([.multihop(multihopState)])
         }
@@ -72,15 +81,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private let entryRecentsDataSource: RecentListDataSource
     private let exitRecentsDataSource: RecentListDataSource
 
-    private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relaySelector: RelaySelectorProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let tunnelManager: TunnelManager
-    private let customListInteractor: CustomListInteractorProtocol
+    let customListInteractor: CustomListInteractorProtocol
     private let recentsInteractor: RecentsInteractorProtocol
-    private var relaysCandidates: RelayCandidates?
-    private var tunnelObserver: TunnelBlockObserver?
+    @ObservationIgnored private var tunnelObserver: TunnelBlockObserver?
     private let delegate: SelectLocationDelegate
-    private var cancellables = Set<Combine.AnyCancellable>()
+    @ObservationIgnored private var cancellables = Set<Combine.AnyCancellable>()
 
     private var allLocations: [LocationNode] {
         exitContext.locations + exitContext.customLists + entryContext.locations + entryContext.customLists
@@ -88,18 +96,20 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     init(
         tunnelManager: TunnelManager,
-        relaySelectorWrapper: RelaySelectorWrapper,
+        relaySelector: RelaySelectorProtocol,
         relayCacheTracker: RelayCacheTrackerProtocol,
         customListRepository: CustomListRepositoryProtocol,
         recentConnectionsRepository: RecentConnectionsRepositoryProtocol,
         delegate: SelectLocationDelegate
     ) {
         self.tunnelManager = tunnelManager
-        self.relaySelectorWrapper = relaySelectorWrapper
+        self.relaySelector = relaySelector
         self.relayCacheTracker = relayCacheTracker
         self.customListInteractor = CustomListInteractor(
             tunnelManager: tunnelManager,
-            repository: customListRepository
+            repository: customListRepository,
+            recentsRepository: recentConnectionsRepository,
+            relaySelector: relaySelector
         )
         self.recentsInteractor = RecentsInteractor(
             selectedEntryConstraint: tunnelManager.settings.relayConstraints.entryLocations,
@@ -191,18 +201,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 }
             )
 
-        $searchText
-            .removeDuplicates()
-            .withPreviousValue()
-            .sink { [weak self] prevValue, newValue in
-                if prevValue == newValue { return }
-                if prevValue == nil && newValue == "" { return }
-                self?.search(searchText: newValue)
-                if newValue == "" {
-                    self?.updateSelections()
-                }
-            }.store(in: &cancellables)
-
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
 
@@ -273,24 +271,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
     }
 
-    func fetchAllCustomLists() -> [CustomList] {
-        customListInteractor.fetchAll()
-    }
-
-    func showEditCustomList(name: String) {
-        guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
-            return
-        }
-        switch multihopContext {
-        case .entry:
-            delegate
-                .showEditCustomListView(entryContext.customListAvailableLocations, customList)
-        case .exit:
-            delegate
-                .showEditCustomListView(exitContext.customListAvailableLocations, customList)
-        }
-    }
-
     func addLocationToCustomList(location: LocationNode, customListName: String) {
         try? customListInteractor
             .addLocationToCustomList(
@@ -317,10 +297,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         customListInteractor.fetch(by: id)
     }
 
-    func fetchAll() -> [CustomList] {
-        customListInteractor.fetchAll()
-    }
-
     func save(list: CustomList) throws {
         try customListInteractor.save(list: list)
         customListsChanged()
@@ -328,7 +304,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func delete(customList: CustomList) {
         customListInteractor.delete(customList: customList)
-        recentsInteractor.cleanup(customList.id)
         customListsChanged()
     }
 
@@ -357,14 +332,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func showDaitaSettings() {
         delegate.showDaitaSettings()
-    }
-
-    func showEditCustomListView(locations: [LocationNode]) {
-        delegate.showEditCustomListView(locations, nil)
-    }
-
-    func showAddCustomListView(locations: [LocationNode]) {
-        delegate.showAddCustomListView(locations)
     }
 
     func showFilterView(context: MultihopContext) {
@@ -407,11 +374,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func fetchLocations() {
-        relaysCandidates = try? relaySelectorWrapper.findCandidates(
+        let relaysCandidates = try? relaySelector.findCandidates(
             tunnelSettings: tunnelManager.settings.withAnyLocation,
             includeInactive: true
         )
-        if let allRelaysCandidates = try? relaySelectorWrapper.findCandidates(
+        if let allRelaysCandidates = try? relaySelector.findCandidates(
             tunnelSettings: .init(
                 tunnelMultihopState: tunnelManager.settings.tunnelMultihopState
             ),
@@ -482,7 +449,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateSelections() {
-        let exclusionCandidates = try? relaySelectorWrapper.findCandidates(
+        let exclusionCandidates = try? relaySelector.findCandidates(
             tunnelSettings: tunnelManager.settings,
             includeInactive: false
         )

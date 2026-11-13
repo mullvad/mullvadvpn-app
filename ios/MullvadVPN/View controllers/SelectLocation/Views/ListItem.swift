@@ -16,16 +16,35 @@ struct ListItem<StatusIndicator: View>: View {
     var level: Int = 0
     var selected: Bool = false
     @ViewBuilder var statusIndicator: () -> StatusIndicator?
+    @Environment(\.segmentedListItemAppearance) var appearance
+    private var titleColor: Color {
+        if appearance == .error {
+            .mullvadDangerColor
+        } else if selected {
+            .mullvadSuccessColor
+        } else {
+            .mullvadTextPrimary
+        }
+    }
 
     var body: some View {
         HStack {
-            statusIndicator()
-                .frame(width: 24, height: 24)
+            if #available(iOS 18.0, *) {
+                Group(subviews: statusIndicator()) { indicators in
+                    ForEach(indicators) { indicator in
+                        indicator
+                            .frame(width: 24, height: 24)
+                    }
+                }
+            } else {
+                statusIndicator()
+                    .frame(width: 24, height: 24)
+            }
 
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.mullvadSmallSemiBold)
-                    .foregroundStyle(selected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary)
+                    .foregroundStyle(titleColor)
                     .multilineTextAlignment(.leading)
                 if let subtitle {
                     Text(subtitle)

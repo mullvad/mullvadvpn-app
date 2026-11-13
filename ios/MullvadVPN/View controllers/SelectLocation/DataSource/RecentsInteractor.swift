@@ -18,7 +18,6 @@ protocol RecentsInteractorProtocol {
     func toggle()
     func fetch(context: MultihopContext) -> [RelayConstraint<UserSelectedRelays>]
     func updateSelectedLocations(_ constraint: RelayConstraint<UserSelectedRelays>, for context: MultihopContext)
-    func cleanup(_ customList: UUID)
 }
 
 class RecentsInteractor: RecentsInteractorProtocol {
@@ -111,9 +110,5 @@ class RecentsInteractor: RecentsInteractorProtocol {
             selectedEntryConstraint,
             selectedExitConstraint: selectedExitConstraint
         )
-    }
-
-    func cleanup(_ customList: UUID) {
-        repository.deleteCustomList(customList)
     }
 }

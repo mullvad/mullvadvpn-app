@@ -1,11 +1,11 @@
 import MullvadTypes
 import SwiftUI
 
-struct LocationsListView<ContextMenu>: View where ContextMenu: View {
+struct LocationsListView<ContextMenu: View>: View {
     @Binding var locations: [LocationNode]
     let multihopContext: MultihopContext
     let onSelectLocation: (LocationNode) -> Void
-    let contextMenu: (LocationNode) -> ContextMenu
+    @ViewBuilder let contextMenu: (LocationNode) -> ContextMenu
 
     var body: some View {
         ForEach($locations, id: \.self) { location in
@@ -20,7 +20,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
 }
 
 #Preview {
-    @Previewable @StateObject var viewModel = MockSelectLocationViewModel()
+    @Previewable @State var viewModel = MockSelectLocationViewModel()
     ScrollView {
         LazyVStack(spacing: 0) {
             LocationsListView(

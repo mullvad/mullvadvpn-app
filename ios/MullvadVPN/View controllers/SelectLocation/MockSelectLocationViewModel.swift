@@ -2,7 +2,10 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
+@Observable
 class MockSelectLocationViewModel: SelectLocationViewModel {
+    let customListInteractor: any CustomListInteractorProtocol = MockCustomListInteractor()
+
     var isRecentsEnabled: Bool = true
     var isMultihopActive: Bool = true
     var multihopState: MultihopState = .always
@@ -11,7 +14,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
     var entryContext: LocationContext
     var exitContext: LocationContext
 
-    @Published var multihopContext: MultihopContext = .exit
+    var multihopContext: MultihopContext = .exit
 
     init() {
         entryContext = LocationContext()
@@ -218,7 +221,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     func manuallyFetchRelayList() {}
 
-    private var got1 = "se-got-001"
+    private let got1 = "se-got-001"
     private let got2 = "se-got-002"
     private let got3 = "se-got-003"
     private let sth1 = "se-sto-001"

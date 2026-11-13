@@ -14,11 +14,15 @@ import SwiftUI
 @MainActor
 struct SegmentedListItemFactory {
     enum Leading {
-        case customListLocation(node: LocationNode, level: Int = 0, isSelected: Binding<Bool>)
+        case customListLocation(
+            node: CustomListSelectableLocationNode,
+            level: Int = 0
+        )
         case location(node: LocationNode, context: MultihopContext, level: Int = 0)
         case recentLocation(node: LocationNode, context: MultihopContext)
         case relayFilter(item: RelayFilterItem, isSelected: Binding<Bool>)
-        case generic(title: String, subtitle: String? = nil, level: Int = 0, isSelected: Bool = false)
+        case generic(
+            title: String, subtitle: String? = nil, level: Int = 0, isSelected: Bool = false)
     }
 
     enum Trailing {
@@ -78,10 +82,15 @@ struct SegmentedListItemFactory {
             accessibilityRepresentation: (() -> AnyView)? = nil)
     }
 
+    enum Footer {
+        case generic(text: String)
+        case infoWithLink(text: String, link: String, onTapLink: (() -> Void)?)
+    }
+
     @ViewBuilder func leading(for leading: Leading) -> some View {
         switch leading {
-        case .customListLocation(let node, let level, let isSelected):
-            CustomListLocationItemView(node: node, level: level, isSelected: isSelected)
+        case .customListLocation(let node, let level):
+            CustomListLocationItemView(node: node, level: level)
         case .location(let node, let context, let level):
             LocationItemView(node: node, multihopContext: context, level: level)
         case .recentLocation(let node, let context):
@@ -217,6 +226,33 @@ struct SegmentedListItemFactory {
         }
     }
 
+    func footer(for footer: Footer) -> some View {
+        struct FooterItemView: View {
+            let type: Footer
+            @Environment(\.segmentedListItemAppearance) var appearance
+
+            var textColor: Color {
+                switch appearance {
+                case .error: Color.mullvadDangerColor
+                case .normal: Color.mullvadTextPrimary
+                }
+            }
+            var body: some View {
+                switch type {
+                case .generic(let text):
+                    Text("\(text)")
+                        .foregroundStyle(textColor)
+                        .font(.mullvadTiny)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                case .infoWithLink(let text, let link, let onTapLink):
+                    MullvadInfoView(bodyText: text, link: link, onTapLink: onTapLink)
+                }
+            }
+        }
+        return FooterItemView(type: footer)
+    }
+
     func image(for icon: TrailingItem.Icon) -> Image {
         switch icon {
         case .chevron:
@@ -230,7 +266,7 @@ struct SegmentedListItemFactory {
         }
     }
 
-    func size(for size: TrailingItem.Sizing) -> CGSize {
+    private func size(for size: TrailingItem.Sizing) -> CGSize {
         switch size {
         case .button:
             CGSize(
@@ -276,9 +312,18 @@ struct SegmentedListItemFactory {
                         image
                     }
                 case .input(let placeholder, let text):
-                    ConfigurableTextField(
-                        placeholder: LocalizedStringKey(placeholder), text: text,
-                        borderStyle: .constant(.none))
+                    TextField(
+                        "",
+                        text: text,
+                        prompt: Text(placeholder)
+                            .foregroundStyle(
+                                Color.MullvadTextField.inputPlaceholder
+                            )
+                    )
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                    .multilineTextAlignment(.trailing)
+                    .foregroundStyle(Color.MullvadTextField.textInput)
                 case .padding(let width):
                     Spacer()
                         .frame(width: width)

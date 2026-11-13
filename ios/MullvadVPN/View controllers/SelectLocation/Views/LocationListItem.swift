@@ -37,19 +37,34 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         if level == 0 {
             Color.clear.frame(height: 4).accessibilityHidden(true)
         }
-
+        var userInteraction: UserInteraction {
+            if location.asCustomListSelectableLocationNode != nil {
+                return .enabled
+            }
+            return isCustomList && isDisabled
+                ? .inactive : (isDisabled ? .disabled : .enabled)
+        }
         SegmentedListItem(
             level: level,
             isLastInList: isLastInList,
-            userInteraction: isCustomList && isDisabled
-                ? .inactive : (isDisabled ? .disabled : .enabled),
-            accessibilityIdentifier: .locationListItem(location.name),
+            userInteraction: userInteraction,
+            accessibilityIdentifier: (location.asCustomListSelectableLocationNode) != nil
+                ? .customListLocationCheckmarkButton(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
             leading: {
-                itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
-                    .contextMenu {
-                        contextMenu(location)
-                    }
+                if let location = location.asCustomListSelectableLocationNode {
+                    @Bindable var location = location
+                    itemFactory
+                        .leading(
+                            for: .customListLocation(
+                                node: location, level: level)
+                        )
+                } else {
+                    itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
+                        .contextMenu {
+                            contextMenu(location)
+                        }
+                }
             },
             segment: {
                 if hasChildren {
@@ -86,9 +101,17 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 onSelect(location)
             }
         )
-        .if(hasChildren) { view in
-            view
-                .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
+        .apply { view in
+            var accessibilityValue: LocalizedStringKey = ""
+            if let customListSelectableNode = location.asCustomListSelectableLocationNode {
+                accessibilityValue =
+                    customListSelectableNode.isCustomListSelected ? "Checked" : "Unchecked"
+            } else if hasChildren {
+                accessibilityValue = isExpanded ? "Expanded" : "Collapsed"
+            }
+            return
+                view
+                .accessibilityValue(Text(accessibilityValue))
                 .accessibilityAction(
                     named: isExpanded ? Text("Collapse \(location.name)") : Text("Expand \(location.name)")
                 ) {

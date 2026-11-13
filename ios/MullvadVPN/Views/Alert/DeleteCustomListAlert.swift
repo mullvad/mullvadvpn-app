@@ -1,0 +1,41 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
+//
+// This file incorporates work covered by the following copyright and
+// permission notice:
+//
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
+extension MullvadAlert {
+
+    @MainActor
+    static func deleteCustomListAlert(
+        customListName: String, onDelete: @escaping () async -> Void, onCancel: @escaping () async -> Void
+    )
+        -> MullvadAlert
+    {
+        .init(
+            type: .warning,
+            messages: ["Do you want to delete the list **\(customListName)**?"],
+            actions: [
+                .init(
+                    type: .destructivePrimary,
+                    title: "Delete list",
+                    identifier: .confirmDeleteCustomListButton,
+                    handler: {
+                        await onDelete()
+                    }
+                ),
+                .init(
+                    type: .secondary,
+                    title: "Cancel",
+                    handler: {
+                        await onCancel()
+                    }
+                ),
+            ]
+        )
+    }
+}
