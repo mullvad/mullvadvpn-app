@@ -46,38 +46,40 @@ final class NewAppVersionSystemNotificationHandler {
     }
 
     private func sendSystemNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString("Update available", comment: "")
-        content.body = String(
-            format: NSLocalizedString(
-                "Disable “%@” or disconnect before updating in order not to lose network connectivity.",
-                comment: ""
-            ),
-            NSLocalizedString("Force all apps", comment: "")
-        )
+        #if os(iOS)
+            let content = UNMutableNotificationContent()
+            content.title = NSLocalizedString("Update available", comment: "")
+            content.body = String(
+                format: NSLocalizedString(
+                    "Disable “%@” or disconnect before updating in order not to lose network connectivity.",
+                    comment: ""
+                ),
+                NSLocalizedString("Force all apps", comment: "")
+            )
 
-        // When scheduling a user notification we need to make sure that the date has not passed
-        // when it's actually added to the system. Giving it a few seconds leeway lets us be sure
-        // that this is the case.
-        let dateComponents = Calendar.current.dateComponents(
-            [.second, .minute, .hour, .day, .month, .year],
-            from: Date(timeIntervalSinceNow: 5)
-        )
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+            // When scheduling a user notification we need to make sure that the date has not passed
+            // when it's actually added to the system. Giving it a few seconds leeway lets us be sure
+            // that this is the case.
+            let dateComponents = Calendar.current.dateComponents(
+                [.second, .minute, .hour, .day, .month, .year],
+                from: Date(timeIntervalSinceNow: 5)
+            )
+            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
 
-        let request = UNNotificationRequest(
-            identifier: NotificationProviderIdentifier.newAppVersionSystemNotification.domainIdentifier,
-            content: content,
-            trigger: trigger
-        )
+            let request = UNNotificationRequest(
+                identifier: NotificationProviderIdentifier.newAppVersionSystemNotification.domainIdentifier,
+                content: content,
+                trigger: trigger
+            )
 
-        let identifier = request.identifier
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error {
-                Logger(label: "NewAppVersionSystemNotificationHandler").error(
-                    "Failed to add notification request with identifier \(identifier). Error: \(error.description)"
-                )
+            let identifier = request.identifier
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error {
+                    Logger(label: "NewAppVersionSystemNotificationHandler").error(
+                        "Failed to add notification request with identifier \(identifier). Error: \(error.description)"
+                    )
+                }
             }
-        }
+        #endif
     }
 }
