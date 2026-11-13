@@ -749,6 +749,8 @@
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
 		7AEC2EC130232B0D00B988B6 /* MullvadApiNetworkTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */; };
 		7AEC2F6A302C952900B988B6 /* Task+AnyCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEC2F69302C952000B988B6 /* Task+AnyCancellable.swift */; };
+		7AECE9233098AD130055DCBE /* OutOfTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AECE9223098AD0B0055DCBE /* OutOfTimeView.swift */; };
+		7AECE9253098AD540055DCBE /* OutOfTimeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AECE9243098AD4A0055DCBE /* OutOfTimeViewModel.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
 		7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB12ADE859200C090B9 /* AlertViewController.swift */; };
@@ -1008,8 +1010,6 @@
 		E10A0002000000000000AB03 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
 		E10A0002000000000000AB04 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
 		E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
-		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
-		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
 		E1A0B7C52F7A1D0000A1B2C3 /* APIRequestProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A0B7C42F7A1D0000A1B2C3 /* APIRequestProxyTests.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
@@ -2556,6 +2556,8 @@
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
 		7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkTask.swift; sourceTree = "<group>"; };
 		7AEC2F69302C952000B988B6 /* Task+AnyCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+AnyCancellable.swift"; sourceTree = "<group>"; };
+		7AECE9223098AD0B0055DCBE /* OutOfTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimeView.swift; sourceTree = "<group>"; };
+		7AECE9243098AD4A0055DCBE /* OutOfTimeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewModel.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -2723,8 +2725,6 @@
 		D702C13944A82CAF175A4443 /* RustLoggingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLoggingTests.swift; sourceTree = "<group>"; };
 		DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardGoTunnelImplementation.swift; sourceTree = "<group>"; };
 		E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelDebugSettings.swift; sourceTree = "<group>"; };
-		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
-		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1A0B7C42F7A1D0000A1B2C3 /* APIRequestProxyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIRequestProxyTests.swift; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
@@ -3736,9 +3736,9 @@
 		583FE01B29C19786006E85F9 /* OutOfTime */ = {
 			isa = PBXGroup;
 			children = (
-				E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */,
-				E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */,
 				5867770D29096984006F721F /* OutOfTimeInteractor.swift */,
+				7AECE9223098AD0B0055DCBE /* OutOfTimeView.swift */,
+				7AECE9243098AD4A0055DCBE /* OutOfTimeViewModel.swift */,
 			);
 			path = OutOfTime;
 			sourceTree = "<group>";
@@ -7141,7 +7141,6 @@
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				F9C579C62E8FE0D000C90C50 /* SegmentedListItem.swift in Sources */,
-				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */,
 				F95CDDA22EE03052000E9D97 /* MultihopLabel.swift in Sources */,
 				7AFF5B9E2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */,
@@ -7194,7 +7193,6 @@
 				F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */,
 				7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
-				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */,
 				7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */,
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
@@ -7232,6 +7230,7 @@
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
 				7A6389E22B7E3BD6008E77E1 /* CustomListInteractor.swift in Sources */,
 				7A4080A42F59897700C02173 /* AccessMethodInvalidView.swift in Sources */,
+				7AECE9253098AD540055DCBE /* OutOfTimeViewModel.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* NewDeviceNotificationProvider.swift in Sources */,
 				7A6389E12B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift in Sources */,
 				7A6B968A2FEC01EC00DBF9BD /* View+TypeErase.swift in Sources */,
@@ -7399,6 +7398,7 @@
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				7AE16DC92F9B53F400A72A39 /* InAppLogOverlayViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
+				7AECE9233098AD130055DCBE /* OutOfTimeView.swift in Sources */,
 				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7AE16DC52F9A5C8200A72A39 /* InAppLogView.swift in Sources */,
