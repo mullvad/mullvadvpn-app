@@ -55,7 +55,10 @@ class LanguageRepository(private val context: Context) {
     }
 
     fun getSupportedLocaleOrEnglish(locale: Locale = Locale.getDefault()): Locale {
-        return getSupportedLocales().firstOrNull { locale.language == it.language }
-            ?: Locale.ENGLISH
+        return if (getSupportedLocales().any { it.language == locale.language }) {
+            locale
+        } else {
+            Locale.ENGLISH
+        }
     }
 }
