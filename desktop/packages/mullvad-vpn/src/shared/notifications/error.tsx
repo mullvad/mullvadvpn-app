@@ -26,6 +26,16 @@ interface ErrorNotificationContext {
   splitTunnelingSupported: boolean;
   showFullDiskAccessSettings?: () => void;
   disableSplitTunneling?: () => void;
+  deviceInstallDisabled?: boolean;
+}
+
+// Windows errors reported when device installation is disabled by the
+// 'DeviceInstallDisabled' registry value under
+// 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DeviceInstall\Parameters'.
+const DEVICE_INSTALL_DISABLED_ERRORS = [1169, 1170];
+
+export function isDeviceInstallDisabledError(osError: number | undefined): boolean {
+  return osError !== undefined && DEVICE_INSTALL_DISABLED_ERRORS.includes(osError);
 }
 
 export class ErrorNotificationProvider
@@ -182,6 +192,21 @@ export class ErrorNotificationProvider
             return messages.pgettext(
               'notifications',
               'Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot.',
+            );
+          }
+
+          if (isDeviceInstallDisabledError(errorState.osError)) {
+            // The registry value is known to not be set, so the error has some other cause.
+            if (this.context.deviceInstallDisabled === false) {
+              return messages.pgettext(
+                'notifications',
+                'Unable to start tunnel connection. Please send a problem report.',
+              );
+            }
+
+            return messages.pgettext(
+              'notifications',
+              'Unable to start tunnel connection. This might be because device installation is disabled on this system, please troubleshoot.',
             );
           }
 
@@ -359,6 +384,36 @@ export class ErrorNotificationProvider
           steps: [
             messages.pgettext('troubleshoot', 'Try to reinstall VMware.'),
             messages.pgettext('troubleshoot', 'Try to uninstall VMware.'),
+          ],
+        },
+      };
+    } else if (
+      errorState.cause === ErrorStateCause.createTunnelDeviceError &&
+      // Do not show instructions for a registry value that is known to not be set.
+      this.context.deviceInstallDisabled !== false &&
+      isDeviceInstallDisabledError(errorState.osError)
+    ) {
+      return {
+        type: 'troubleshoot-dialog',
+        troubleshoot: {
+          details: messages.pgettext(
+            'troubleshoot',
+            'Unable to start tunnel connection because of a failure when creating the tunnel device. This might be caused by device installation being disabled on this system.',
+          ),
+          steps: [
+            messages.pgettext(
+              'troubleshoot',
+              'Check if security software or a system policy on your device disables device installation.',
+            ),
+            messages.pgettext(
+              'troubleshoot',
+              'In the registry editor, go to HKEY_LOCAL_MACHINE > SYSTEM > CurrentControlSet > Services > DeviceInstall > Parameters.',
+            ),
+            messages.pgettext(
+              'troubleshoot',
+              'Set the registry value “DeviceInstallDisabled” to 0, or delete it.',
+            ),
+            messages.pgettext('troubleshoot', 'Try restarting your device.'),
           ],
         },
       };

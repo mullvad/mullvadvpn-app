@@ -94,6 +94,63 @@ test.describe('Error notifications', () => {
       },
     });
   });
+
+  test('App should show troubleshoot instructions when device installation is disabled', async () => {
+    await util.ipc.tunnel[''].notify({
+      state: 'error',
+      details: {
+        cause: ErrorStateCause.createTunnelDeviceError,
+        osError: 1169,
+      },
+    });
+
+    const subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/device installation is disabled/i);
+
+    const troubleshootButton = page.getByRole('button', { name: 'Troubleshoot' });
+    await troubleshootButton.click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toContainText(
+      /Unable to start tunnel connection because of a failure when creating the tunnel device/i,
+    );
+    await expect(dialog).toContainText(/Check if security software or a system policy/i);
+    await expect(dialog).toContainText('DeviceInstallDisabled');
+    await expect(dialog).toContainText('Try restarting your device.');
+  });
+
+  test('App should show the generic error when device installation is not disabled', async () => {
+    await util.ipc.deviceInstall[''].notify(false);
+
+    await util.ipc.tunnel[''].notify({
+      state: 'error',
+      details: {
+        cause: ErrorStateCause.createTunnelDeviceError,
+        osError: 1170,
+      },
+    });
+
+    const subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/unable to start tunnel connection/i);
+    await expect(subTitle).not.toContainText(/device installation/i);
+    await expect(page.getByRole('button', { name: 'Troubleshoot' })).toBeHidden();
+  });
+
+  test('App should show troubleshoot instructions when the registry value is set', async () => {
+    await util.ipc.deviceInstall[''].notify(true);
+
+    await util.ipc.tunnel[''].notify({
+      state: 'error',
+      details: {
+        cause: ErrorStateCause.createTunnelDeviceError,
+        osError: 1170,
+      },
+    });
+
+    const subTitle = page.getByTestId('notificationSubTitle');
+    await expect(subTitle).toContainText(/device installation is disabled/i);
+    await expect(page.getByRole('button', { name: 'Troubleshoot' })).toBeVisible();
+  });
 });
 
 test.describe('Unsupported wireguard port', () => {

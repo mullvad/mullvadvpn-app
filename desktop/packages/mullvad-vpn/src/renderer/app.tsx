@@ -181,6 +181,10 @@ export default class AppRenderer {
       this.updateBlockedState(newState);
     });
 
+    IpcRendererEventChannel.deviceInstall.listen((deviceInstallDisabled?: boolean) => {
+      this.reduxActions.connection.updateDeviceInstallDisabled(deviceInstallDisabled);
+    });
+
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
       this.setSettings(newSettings);
       this.updateBlockedState(this.tunnelState);

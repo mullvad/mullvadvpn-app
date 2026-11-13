@@ -84,6 +84,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix "Failed to open named pipe" error.
+- Show a troubleshooting notification when connecting fails because device installation is
+  disabled in the Windows registry.
 
 #### macOS
 - Prevent local DNS resolver from hitting file descriptor limit when hundreds of DNS queries are

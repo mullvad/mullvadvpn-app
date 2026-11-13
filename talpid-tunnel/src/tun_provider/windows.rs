@@ -45,7 +45,7 @@ pub enum Error {
 
     /// Failed to create the wintun adapter
     #[error("Failed to create the wintun adapter")]
-    CreateAdapter(#[source] wintun_bindings::Error),
+    CreateAdapter(#[source] wintun_bindings::Error, io::Error),
 
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
@@ -221,7 +221,11 @@ impl WindowsTunProvider {
         let wintun =
             unsafe { wintun_bindings::load_from_path(&wintun_path) }.map_err(Error::LoadWintun)?;
         let adapter = Adapter::create(&wintun, ADAPTER_NAME, ADAPTER_TYPE, Some(ADAPTER_GUID))
-            .map_err(Error::CreateAdapter)?;
+            .map_err(|error| {
+                // `WintunCreateAdapter` reports the reason for the failure in the last error.
+                // Read it before anything else can clobber it.
+                Error::CreateAdapter(error, io::Error::last_os_error())
+            })?;
 
         self.adapter = Some(adapter);
         self.configured_addresses.clear();

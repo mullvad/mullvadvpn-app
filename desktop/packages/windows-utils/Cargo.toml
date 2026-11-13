@@ -26,6 +26,8 @@ windows = { workspace = true, features = [
   "Win32_UI",
   "Win32_UI_Shell"
 ] }
+windows-registry = { workspace = true }
+windows-result = { workspace = true }
 
 [lints]
 workspace = true

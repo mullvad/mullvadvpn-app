@@ -4,6 +4,7 @@ import { ReduxAction } from '../store';
 export interface IConnectionReduxState {
   status: TunnelState;
   isBlocked: boolean;
+  deviceInstallDisabled?: boolean;
   ipv4?: Ip;
   ipv6?: Ip;
   hostname?: string;
@@ -47,6 +48,9 @@ export default function (
 
     case 'UPDATE_BLOCK_STATE':
       return { ...state, isBlocked: action.isBlocked };
+
+    case 'UPDATE_DEVICE_INSTALL_DISABLED':
+      return { ...state, deviceInstallDisabled: action.deviceInstallDisabled };
 
     case 'CONNECTING':
       return {
