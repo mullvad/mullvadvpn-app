@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+# Whether the GUI update notification should be disabled is decided at build time.
+#@DISABLE_UPDATE_NOTIFICATION@
+
 UNPRIVILEGED_USERNS_PATH="/proc/sys/kernel/unprivileged_userns_clone"
 if [ -e $UNPRIVILEGED_USERNS_PATH ] && grep -q 0 $UNPRIVILEGED_USERNS_PATH; then
     SANDBOX_FLAG="--no-sandbox"

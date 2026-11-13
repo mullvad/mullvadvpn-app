@@ -10,6 +10,7 @@ const { signWindows } = require('./sign-windows.cjs');
 const noCompression = process.argv.includes('--no-compression');
 const shouldNotarize = process.argv.includes('--notarize');
 const shouldSign = process.argv.includes('--sign');
+const disableUpdateNotification = process.argv.includes('--disable-update-notification');
 
 const universal = process.argv.includes('--universal');
 
@@ -506,6 +507,9 @@ function daemonSpawnConstraint(daemonPath) {
   return `<key>SpawnConstraint</key><dict><key>cdhash</key>${value}</dict>`;
 }
 
+const UPDATE_NOTIFICATION_DISABLED_PLACEHOLDER = '#@DISABLE_UPDATE_NOTIFICATION@';
+const UPDATE_NOTIFICATION_DISABLED_EXPORT = 'export MULLVAD_DISABLE_UPDATE_NOTIFICATION=1';
+
 function packLinux() {
   writeRpmChangelog();
 
@@ -545,6 +549,8 @@ function packLinux() {
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
 
+        await writeUpdateNotificationSetting(launcherScript);
+
         // rename "Mullvad VPN" to mullvad-gui
         await fs.promises.rename(sourceExecutable, targetExecutable);
         // rename launcher script to mullvad-vpn
@@ -552,6 +558,21 @@ function packLinux() {
       },
     },
   });
+}
+
+// Set the update notification setting in the GUI launcher script.
+async function writeUpdateNotificationSetting(launcherScriptPath) {
+  const placeholder = `${UPDATE_NOTIFICATION_DISABLED_PLACEHOLDER}\n`;
+  const contents = await fs.promises.readFile(launcherScriptPath, 'utf8');
+  if (!contents.includes(placeholder)) {
+    throw new Error('Update notification placeholder missing from GUI launcher script');
+  }
+
+  const replacement = disableUpdateNotification ? `${UPDATE_NOTIFICATION_DISABLED_EXPORT}\n` : '';
+  await fs.promises.writeFile(
+    launcherScriptPath,
+    contents.replace(placeholder, () => replacement),
+  );
 }
 
 function buildAssets(relativePath) {
