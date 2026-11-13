@@ -3672,6 +3672,7 @@ dependencies = [
  "serde",
  "shadowsocks-crypto",
  "thiserror 2.0.18",
+ "vec1",
  "x25519-dalek",
  "zeroize",
 ]

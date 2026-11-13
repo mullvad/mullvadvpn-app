@@ -162,7 +162,8 @@ fn obfuscation_settings(
                 server_addr: ingress_endpoint,
                 client_public_key: talpid_types::net::wireguard::PublicKey::from(
                     device_public_key.to_bytes(),
-                ),
+                )
+                .into(),
                 server_public_key: talpid_types::net::wireguard::PublicKey::from(
                     *server_public_key,
                 ),

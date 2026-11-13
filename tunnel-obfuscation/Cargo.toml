@@ -26,9 +26,11 @@ fearless_simd = "1.0.0"
 fearless_simd_macros = "0.1.0"
 futures = { workspace = true }
 gotatun = { workspace = true, optional = true }
+itertools.workspace = true
 log = { workspace = true }
 mullvad-masque-proxy.workspace = true
 rand = { workspace = true, features = ["small_rng"] }
+safelog.workspace = true
 shadowsocks = { workspace = true }
 talpid-net.workspace = true
 talpid-types.workspace = true
