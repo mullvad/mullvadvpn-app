@@ -111,6 +111,10 @@ Line wrap the file at 100 chars.                                              Th
   `GHSA-wchj-r66m-4m48`.
 
 
+## [2026.6] - 2026-11-25
+This release is identical to 2026.6-beta1.
+
+
 ## [2026.6-beta1] - 2026-11-13
 ### Fixed
 #### macOS
