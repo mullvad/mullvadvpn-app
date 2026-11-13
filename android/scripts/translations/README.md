@@ -14,7 +14,9 @@ relay-locations.pot and downloaded via a Crowdin bundle, see the
 ## Prerequisites
 
 - [Crowdin CLI][crowdin-cli] 3.11 or later
+    - Alternativly, you can make use of the [nix devshell][nix-devshell]
 - The `CROWDIN_API_KEY` environment variable set to a Crowdin API token
+
 
 ### API key
 
@@ -34,3 +36,4 @@ To the create the API key do the following:
 [crowdin]: https://crowdin.com
 [crowdin-api-key]: https://crowdin.com/settings#api-key
 [crowdin-cli]: https://github.com/crowdin/crowdin-cli
+[nix-devshell]: ../../docs/BuildInstructions.md#build-using-nix-devshell
