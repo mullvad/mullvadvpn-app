@@ -19,8 +19,8 @@ relay-locations.pot and downloaded via a Crowdin bundle, see the
 ### API key
 
 To the create the API key do the following:
-- Login to [Crowdin][corwdin].
-- Go to [API][corwdin-api-key] settings page
+- Login to [Crowdin][crowdin].
+- Go to [API][crowdin-api-key] settings page
 - Click Personal Access Token - New Token
 - Set a name E.g "Mullvad localization script"
 - Set a reasonable expiry
