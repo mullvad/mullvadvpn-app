@@ -171,7 +171,13 @@ val uiModule = module {
     }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get(), get()) }
-    single { RelayListRepository(get(), get()) }
+    single {
+        RelayListRepository(
+            managementService = get(),
+            languageRepository = get(),
+            translationRepository = get(),
+        )
+    }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
@@ -214,8 +220,20 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { ProviderToOwnershipsUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get()) }
-    single { CustomListsRelayItemUseCase(get(), get()) }
+    single {
+        FilterCustomListsRelayItemUseCase(
+            customListsRepository = get(),
+            filteredRelayListUseCase = get(),
+            languageRepository = get(),
+        )
+    }
+    single {
+        CustomListsRelayItemUseCase(
+            customListsRepository = get(),
+            relayListRepository = get(),
+            languageRepository = get(),
+        )
+    }
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }

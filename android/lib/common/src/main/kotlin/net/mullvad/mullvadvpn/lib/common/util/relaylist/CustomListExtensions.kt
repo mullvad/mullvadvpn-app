@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
+import java.util.Locale
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListSearchResult
@@ -8,10 +9,12 @@ import net.mullvad.mullvadvpn.lib.model.search
 
 fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Location.Country>,
+    locale: Locale,
 ): RelayItem.CustomList =
     RelayItem.CustomList(
         customList = this,
-        locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
+        locations =
+            locations.mapNotNull { relayCountries.findByGeoLocationId(it) }.sortedByName(locale),
     )
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String): CustomListSearchResult =

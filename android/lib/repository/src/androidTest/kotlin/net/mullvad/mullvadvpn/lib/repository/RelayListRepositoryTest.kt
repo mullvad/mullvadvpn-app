@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test
 class RelayListRepositoryTest {
     private val mockManagementService: ManagementService = mockk()
     private val mockTranslationRepository: RelayLocationTranslationRepository = mockk()
+    private val mockLanguageRepository: LanguageRepository = mockk()
 
     private lateinit var relayListRepository: RelayListRepository
     private lateinit var defaultLocale: Locale
@@ -40,6 +41,7 @@ class RelayListRepositoryTest {
             RelayListRepository(
                 managementService = mockManagementService,
                 translationRepository = mockTranslationRepository,
+                languageRepository = mockLanguageRepository,
                 dispatcher = UnconfinedTestDispatcher(),
             )
     }
@@ -52,10 +54,12 @@ class RelayListRepositoryTest {
     @Test
     fun countriesShouldBeSortedUsingTheCurrentLocale() = runTest {
         // Arrange
-        Locale.setDefault(Locale.forLanguageTag("pt"))
+        val portuguese = Locale.forLanguageTag("pt")
+        Locale.setDefault(portuguese)
         val countries = listOf(country("Zimbabwe"), country("Áustria"), country("Albânia"))
         countriesFlow.value = countries
         translationsFlow.value = countries.identityTranslations()
+        every { mockLanguageRepository.getSupportedLocaleOrEnglish(any()) } returns portuguese
 
         // Act, Assert
         relayListRepository.relayList.test {
@@ -68,10 +72,12 @@ class RelayListRepositoryTest {
     @Test
     fun citiesShouldBeSortedUsingTheCurrentLocale() = runTest {
         // Arrange
-        Locale.setDefault(Locale.forLanguageTag("pt"))
+        val portuguese = Locale.forLanguageTag("pt")
+        Locale.setDefault(portuguese)
         val countries = listOf(country("Espanha", listOf("Zaragoza", "Ávila", "Barcelona")))
         countriesFlow.value = countries
         translationsFlow.value = countries.identityTranslations()
+        every { mockLanguageRepository.getSupportedLocaleOrEnglish(any()) } returns portuguese
 
         // Act, Assert
         relayListRepository.relayList.test {
