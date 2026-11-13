@@ -196,8 +196,10 @@ fn incremental_checksum_update(checksum: u16, old: &[u8], new: &[u8]) -> u16 {
     // HC' = ~(~HC + ~m + m'), where HC is the old checksum, m is old data, m' is new data
     fn words(bytes: &[u8]) -> impl Iterator<Item = u32> + '_ {
         bytes
-            .chunks_exact(2)
-            .map(|word| u32::from(u16::from_be_bytes([word[0], word[1]])))
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|word| u32::from(u16::from_be_bytes(*word)))
     }
     let mut sum = u32::from(!checksum);
     sum += words(old).map(|word| word ^ 0xffff).sum::<u32>();
