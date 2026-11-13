@@ -48,9 +48,19 @@ jobs:
       - name: Set up job outputs directory
         id: set-up-job-outputs-directory
         run: |
-          job_outputs_directory="$HOME/workflow-outputs/job-outputs-${{ github.run_id }}"
-          echo "job_outputs_directory=$job_outputs_directory" >> "$GITHUB_OUTPUT"
+          base="$HOME/workflow-outputs/${{ inputs.device_uuid }}"
+          job_outputs_directory="$base/job-outputs-${{ github.run_id }}"
+
+          # Ensure parent exists so the check below works on a fresh runner
+          mkdir -p "$base"
+
+          if [ -d "$job_outputs_directory" ]; then
+            echo "::warn::Outputs dir already exists; a previous cleanup failed: $job_outputs_directory" >&2
+            rm -rf "$job_outputs_directory"
+          fi
+
           mkdir -p "$job_outputs_directory"
+          echo "job_outputs_directory=$job_outputs_directory" >> "$GITHUB_OUTPUT"
 
         shell: bash
 
@@ -175,6 +185,14 @@ jobs:
       matrix:
         test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
     steps:
+      - name: Ensure the required artifacts exist
+        run: |
+          dir="${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}"
+          if [ ! -d "$dir/derived-data" ]; then
+            echo "::error::Build outputs gone — use 'Re-run all jobs', not 'Re-run failed jobs'." >&2
+            exit 1
+          fi
+        shell: bash
       - name: Run iOS end to end tests action
         uses: ./.github/actions/ios/run-ios-e2e-tests
         with:
