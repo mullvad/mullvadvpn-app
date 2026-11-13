@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.model.relays
 
 class RelayListRepository(
     private val managementService: ManagementService,
+    private val languageRepository: LanguageRepository,
     translationRepository: RelayLocationTranslationRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
@@ -67,8 +68,11 @@ class RelayListRepository(
     }
 
     private fun List<RelayItem.Location.Country>.sortLocations(): List<RelayItem.Location.Country> {
-        return this.sortedByName().map { country ->
-            country.copy { RelayItem.Location.Country.cities set country.cities.sortedByName() }
+        return this.sortedByName(languageRepository.getSupportedLocaleOrEnglish()).map { country ->
+            country.copy {
+                RelayItem.Location.Country.cities set
+                    country.cities.sortedByName(languageRepository.getSupportedLocaleOrEnglish())
+            }
         }
     }
 
