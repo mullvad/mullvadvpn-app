@@ -379,8 +379,10 @@ fn render_value(value: &OwnedValue) -> String {
         OwnedValue::ByteBlob(data) => {
             // The only blobs are app IDs, null-terminated UTF-16 device paths.
             let wide: Vec<u16> = data
-                .chunks_exact(2)
-                .map(|c| u16::from_le_bytes([c[0], c[1]]))
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .map(|c| u16::from_le_bytes(*c))
                 .collect();
             let mut text = U16CStr::from_slice_truncate(&wide)
                 .expect("app ID must be null-terminated")
