@@ -19,4 +19,6 @@ interface PaymentRepository {
     suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>
 
     fun queryPaymentAvailability(): Flow<PaymentAvailability>
+
+    suspend fun close()
 }

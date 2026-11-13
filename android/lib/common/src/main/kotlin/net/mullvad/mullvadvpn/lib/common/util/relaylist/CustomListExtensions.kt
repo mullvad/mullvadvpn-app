@@ -11,7 +11,7 @@ fun CustomList.toRelayItemCustomList(
 ): RelayItem.CustomList =
     RelayItem.CustomList(
         customList = this,
-        locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
+        locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) }.sortedByName(),
     )
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String): CustomListSearchResult =

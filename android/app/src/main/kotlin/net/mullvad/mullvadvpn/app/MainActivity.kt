@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
@@ -31,6 +32,7 @@ import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
+import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
@@ -52,6 +54,8 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
+    private val paymentLogic by inject<PaymentLogic>()
+    private val applicationScope by inject<ApplicationScope>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -109,6 +113,14 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         super.onStop()
         if (serviceConnectionManager.connectionState.value == ServiceConnectionState.Bound) {
             serviceConnectionManager.unbind()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // We check for isFinishing to not trigger on configuration changes
+        if (isFinishing) {
+            applicationScope.launch { paymentLogic.close() }
         }
     }
 

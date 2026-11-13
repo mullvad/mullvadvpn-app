@@ -201,6 +201,10 @@ class BillingPaymentRepository(
             .bind()
     }
 
+    override suspend fun close() {
+        billingRepository.endConnection()
+    }
+
     private suspend fun initializePurchase() =
         playPurchaseRepository.initializePlayPurchase().flatMap {
             if (it.value.isNotEmpty()) {

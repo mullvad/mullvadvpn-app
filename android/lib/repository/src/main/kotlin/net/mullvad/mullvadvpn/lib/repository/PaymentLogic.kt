@@ -41,6 +41,8 @@ interface PaymentLogic {
     suspend fun allAvailableProducts(): List<PaymentProduct>?
 
     suspend fun retryVerifyPurchase(): Either<VerificationError, VerificationResult>
+
+    suspend fun close()
 }
 
 class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : PaymentLogic {
@@ -113,6 +115,10 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
             .filterIsInstance<PaymentAvailability.ProductsAvailable>()
             .firstOrNullWithTimeout(QUERY_PRODUCTS_TIMEOUT)
             ?.products
+
+    override suspend fun close() {
+        paymentRepository.close()
+    }
 
     private fun PurchaseResult?.shouldDelayLoading() =
         this is PurchaseResult.FetchingProducts || this is PurchaseResult.VerificationStarted
@@ -229,4 +235,8 @@ class EmptyPaymentUseCase : PaymentLogic {
         VerificationResult.NothingToVerify.right()
 
     override suspend fun allAvailableProducts(): List<PaymentProduct>? = null
+
+    override suspend fun close() {
+        // No op
+    }
 }
