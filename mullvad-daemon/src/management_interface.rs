@@ -38,6 +38,8 @@ use std::{
     time::Duration,
 };
 use talpid_error::ErrorExt;
+#[cfg(feature = "custom-vpn")]
+use talpid_types::net::wireguard::CustomVpnSettings;
 use tokio::time::timeout;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -1642,6 +1644,20 @@ impl ManagementInterfaceEventBroadcaster {
             event: Some(daemon_event::Event::Settings(types::Settings::from(
                 &settings,
             ))),
+        })
+    }
+
+    /// Notify that the custom VPN settings changed.
+    ///
+    /// Sends the new custom VPN settings to all `custom_vpn_settings`
+    /// subscribers of the management interface.
+    #[cfg(feature = "custom-vpn")]
+    pub(crate) fn notify_custom_vpn_settings(&self, settings: CustomVpnSettings) {
+        log::debug!("Broadcasting new custom VPN settings");
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::CustomVpnSettings(
+                types::CustomVpnSettings::from(&settings),
+            )),
         })
     }
 

@@ -37,13 +37,18 @@ pub(crate) async fn handle_command(daemon: &mut Daemon, command: CustomVpnComman
 
 /// Clear the custom VPN store and stop using it for new tunnels.
 pub(crate) async fn reset(daemon: &mut Daemon) {
-    if let Err(error) = daemon.custom_vpn.set(CustomVpnSettings::default()).await {
-        log::error!(
+    match daemon.custom_vpn.set(CustomVpnSettings::default()).await {
+        Ok(()) => {
+            let _ = daemon
+                .tx
+                .send(InternalDaemonEvent::CustomVpnSettingsChanged);
+            daemon.parameters_generator.set_custom_vpn(None).await;
+        }
+        Err(error) => log::error!(
             "{}",
             error.display_chain_with_msg("Failed to reset custom VPN settings")
-        );
+        ),
     }
-    daemon.parameters_generator.set_custom_vpn(None).await;
 }
 
 async fn set_custom_vpn_config(
@@ -85,10 +90,11 @@ async fn set_custom_vpn_config(
     daemon.reconnect_tunnel();
 
     // The custom VPN is not part of `Settings`, so changing it does not
-    // trigger the settings listeners. Update the feature indicators; clients
-    // are currently not notified of custom VPN changes.
-    // TODO: notify clients when the custom VPN settings change.
-    let _ = daemon.tx.send(InternalDaemonEvent::SettingsChanged);
+    // trigger the settings listeners. Update the feature indicators and
+    // notify listening clients of the new custom VPN settings.
+    let _ = daemon
+        .tx
+        .send(InternalDaemonEvent::CustomVpnSettingsChanged);
 }
 
 fn get_custom_vpn_settings(daemon: &Daemon, tx: oneshot::Sender<CustomVpnSettings>) {

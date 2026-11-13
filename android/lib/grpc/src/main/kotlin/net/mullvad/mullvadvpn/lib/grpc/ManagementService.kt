@@ -310,6 +310,7 @@ class ManagementService(
                 _mutableVersionInfo.update { event.value.toDomain() }
             is DaemonEvent.Event.RemoveDevice,
             is DaemonEvent.Event.LeakInfo,
+            is DaemonEvent.Event.CustomVpnSettings,
             null -> {}
         }
     }
