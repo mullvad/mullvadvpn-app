@@ -18,12 +18,54 @@ import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 
-private const val RELAY_LIST_ASSET = "assets/relays.json"
-private const val BUNDLE_RELAY_LIST_ASSET = "base/assets/relays.json"
+private const val MIB = 1024L * 1024
+
+private sealed class Artifact(private val file: File, private val relayListAsset: String) {
+    class Apk(file: File) : Artifact(file, "assets/relays.json")
+
+    class Bundle(file: File) : Artifact(file, "base/assets/relays.json")
+
+    val name: String = file.name
+    val size: Long = file.length()
+
+    fun sha256(): String = file.sha256()
+
+    fun relayListSize(): Long? = openArchive().use { zip -> zip.getEntry(relayListAsset)?.size }
+
+    private fun openArchive(): ZipFile =
+        try {
+            ZipFile(file)
+        } catch (exception: IOException) {
+            error("$name is not a readable archive: ${exception.message}")
+        }
+
+    companion object {
+        fun of(file: File): Artifact =
+            when (file.extension) {
+                "apk" -> Apk(file)
+                "aab" -> Bundle(file)
+                else -> error("${file.name} is not a supported artifact type")
+            }
+    }
+}
+
+private data class ArtifactRequirements(val maxSize: Long, val requiresRelayList: Boolean) {
+    companion object {
+        fun of(artifact: Artifact, version: AppVersionName?) =
+            ArtifactRequirements(
+                maxSize =
+                    when (artifact) {
+                        is Artifact.Apk -> 42 * MIB
+                        is Artifact.Bundle -> 70 * MIB
+                    },
+                requiresRelayList = version?.isDev != true,
+            )
+    }
+}
 
 @UntrackedTask(because = "Always verifies the produced artifacts")
 abstract class VerifyArtifactsTask : DefaultTask() {
-    @get:Internal abstract val artifacts: ConfigurableFileCollection
+    @get:Internal abstract val artifactFiles: ConfigurableFileCollection
 
     @get:Optional @get:Input abstract val versionName: Property<AppVersionName>
 
@@ -31,30 +73,35 @@ abstract class VerifyArtifactsTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val artifactFiles = artifacts.files.sortedBy { it.name }
         val releaseVersion = versionName.orNull
-        val missingArtifacts = artifactFiles.filterNot { it.isFile }
+        val missingFiles = artifactFiles.filterNot { it.isFile }
 
-        check(missingArtifacts.isEmpty()) {
-            "Missing artifacts:\n" + missingArtifacts.joinToString("\n") { "  ${it.path}" }
+        check(missingFiles.isEmpty()) {
+            "Missing artifacts:\n" + missingFiles.joinToString("\n") { "  ${it.path}" }
         }
+
+        val artifacts = artifactFiles.map(Artifact::of).sortedBy { it.name }
 
         if (releaseVersion != null) {
             println("\nVerifying artifacts for version $releaseVersion")
             println("  Directory: ${distDirectory.get()}")
             println("\nExpected artifacts:")
-            artifactFiles.forEach { println("  ${it.name}") }
+            artifacts.forEach { println("  ${it.name}") }
         }
 
-        artifactFiles.forEach {
-            verifyArtifact(it, requireRelayList = releaseVersion?.isDev != true)
+        artifacts.forEach { artifact ->
+            verifyArtifact(artifact, ArtifactRequirements.of(artifact, releaseVersion))
         }
     }
 
-    private fun verifyArtifact(artifact: File, requireRelayList: Boolean) {
-        val relayListSize = relayListSize(artifact)
+    private fun verifyArtifact(artifact: Artifact, requirements: ArtifactRequirements) {
+        check(artifact.size <= requirements.maxSize) {
+            "${artifact.name} is ${artifact.size} bytes, the limit is ${requirements.maxSize} bytes"
+        }
 
-        if (requireRelayList) {
+        val relayListSize = artifact.relayListSize()
+
+        if (requirements.requiresRelayList) {
             checkNotNull(relayListSize) { "${artifact.name} does not bundle a relay list" }
             check(relayListSize > 0) { "${artifact.name} bundles an empty relay list" }
         }
@@ -68,23 +115,9 @@ abstract class VerifyArtifactsTask : DefaultTask() {
 
         println("\nVerifying ${artifact.name}")
         println("  Checksum:   ${artifact.sha256()} (sha256)")
+        println("  Size:       ${artifact.size} bytes")
         println("  Relay list: $relayList")
     }
-
-    private fun relayListSize(artifact: File): Long? =
-        openArchive(artifact).use { zip ->
-            val relayListAsset =
-                if (artifact.extension == "aab") BUNDLE_RELAY_LIST_ASSET else RELAY_LIST_ASSET
-
-            zip.getEntry(relayListAsset)?.size
-        }
-
-    private fun openArchive(artifact: File): ZipFile =
-        try {
-            ZipFile(artifact)
-        } catch (exception: IOException) {
-            error("${artifact.name} is not a readable archive: ${exception.message}")
-        }
 }
 
 private fun File.sha256(): String {
@@ -116,7 +149,7 @@ internal fun Project.registerReleaseVerifyArtifactsTask(
     tasks.register<VerifyArtifactsTask>("${releaseTaskName}VerifyArtifacts") {
         this.versionName.set(versionName)
         this.distDirectory.set(distDirectory().path)
-        artifacts.from(distArtifacts(expectedArtifacts))
+        artifactFiles.from(distArtifacts(expectedArtifacts))
         dependsOn("${releaseTaskName}PostBuild")
     }
 
@@ -127,11 +160,11 @@ fun Project.registerVerifyArtifactsTask(versionName: AppVersionName) {
 
     tasks.register<VerifyArtifactsTask>("verifyArtifacts") {
         if (artifactPath != null) {
-            artifacts.from(File(artifactPath))
+            artifactFiles.from(File(artifactPath))
         } else {
             this.versionName.set(releaseVersion)
             this.distDirectory.set(distDirectory().path)
-            artifacts.from(distArtifacts(fullReleaseArtifacts(releaseVersion)))
+            artifactFiles.from(distArtifacts(fullReleaseArtifacts(releaseVersion)))
             mustRunAfter(tasks.withType<Copy>())
         }
     }
