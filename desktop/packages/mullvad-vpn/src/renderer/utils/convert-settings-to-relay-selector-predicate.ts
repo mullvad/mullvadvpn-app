@@ -8,7 +8,6 @@ import {
 } from '../../shared/daemon-rpc-types';
 import {
   RelaySelectorPredicate,
-  RelaySelectorPredicateAutohopConstraints,
   RelaySelectorPredicateEntryConstraints,
   RelaySelectorPredicateGeneralConstraints,
   RelaySelectorProvider,
@@ -54,21 +53,22 @@ function convertLocationToRelaySelectorLocation(
   return wrapConstraint(convertLocationToRelayLocationGeographical(location));
 }
 
-function convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
-  normalRelaySettings: NormalRelaySettingsRedux,
-  ignoreConstraint?: IgnoreConstraints,
-): RelaySelectorPredicateGeneralConstraints {
-  const location = convertLocationToRelaySelectorLocation(
-    normalRelaySettings.wireguard.entryLocation,
-  );
-  const providers = convertProvidersToRelaySelectorProviders(
-    normalRelaySettings.wireguard.entryProviders,
-  );
-  const ownership = normalRelaySettings.wireguard.entryOwnership;
-
+function convertSettingsToRelaySelectorGeneralConstraints({
+  location,
+  providers,
+  ownership,
+  ignoreConstraint,
+}: {
+  location: LiftedConstraint<RelayLocation>;
+  providers: string[];
+  ownership: Ownership;
+  ignoreConstraint?: IgnoreConstraints;
+}): RelaySelectorPredicateGeneralConstraints {
   return {
-    location: ignoreConstraint?.location ? 'any' : location,
-    providers: ignoreConstraint?.providers ? [] : providers,
+    location: ignoreConstraint?.location ? 'any' : convertLocationToRelaySelectorLocation(location),
+    providers: ignoreConstraint?.providers
+      ? []
+      : convertProvidersToRelaySelectorProviders(providers),
     ownership: ignoreConstraint?.ownership ? Ownership.any : ownership,
   };
 }
@@ -79,46 +79,22 @@ type IgnoreConstraints = {
   providers?: boolean;
 };
 
-type ConvertSettingsToRelaySelectorEntryConstraints = {
+type ConvertSettingsToRelaySelectorMultihopEntryConstraints = {
   settings: ISettingsReduxState;
   normalRelaySettings: NormalRelaySettingsRedux;
   ignoreConstraint?: IgnoreConstraints;
 };
 
-function convertSettingsToRelaySelectorEntryConstraints({
+function convertSettingsToRelaySelectorMultihopEntryConstraints({
   settings,
   normalRelaySettings,
   ignoreConstraint,
-}: ConvertSettingsToRelaySelectorEntryConstraints): RelaySelectorPredicateEntryConstraints {
-  const generalConstraints = convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
-    normalRelaySettings,
-    ignoreConstraint,
-  );
-
-  const ipVersion = wrapConstraint(normalRelaySettings.wireguard.ipVersion);
-  const daita = settings.wireguard.daita;
-
-  return {
-    antiCensorship: settings.obfuscationSettings,
-    daita,
-    generalConstraints,
-    ipVersion,
-  };
-}
-
-type ConvertSettingsToRelaySelectorAutohopConstraints = {
-  settings: ISettingsReduxState;
-  normalRelaySettings: NormalRelaySettingsRedux;
-  ignoreConstraint?: IgnoreConstraints;
-};
-
-function convertSettingsToRelaySelectorAutohopConstraints({
-  settings,
-  normalRelaySettings,
-  ignoreConstraint,
-}: ConvertSettingsToRelaySelectorAutohopConstraints): RelaySelectorPredicateAutohopConstraints {
-  const generalConstraints = convertSettingsToRelaySelectorExitConstraints({
-    normalRelaySettings,
+}: ConvertSettingsToRelaySelectorMultihopEntryConstraints): RelaySelectorPredicateEntryConstraints {
+  const { entryLocation, entryProviders, entryOwnership } = normalRelaySettings.wireguard;
+  const generalConstraints = convertSettingsToRelaySelectorGeneralConstraints({
+    location: entryLocation,
+    providers: entryProviders,
+    ownership: entryOwnership,
     ignoreConstraint,
   });
 
@@ -133,23 +109,51 @@ function convertSettingsToRelaySelectorAutohopConstraints({
   };
 }
 
-type ConvertSettingsToRelaySelectorExitConstraints = {
+type ConvertSettingsToRelaySelectorMultihopExitConstraints = {
   normalRelaySettings: NormalRelaySettingsRedux;
   ignoreConstraint?: IgnoreConstraints;
 };
 
-function convertSettingsToRelaySelectorExitConstraints({
+function convertSettingsToRelaySelectorMultihopExitConstraints({
   normalRelaySettings,
   ignoreConstraint,
-}: ConvertSettingsToRelaySelectorExitConstraints): RelaySelectorPredicateGeneralConstraints {
-  const providers = convertProvidersToRelaySelectorProviders(normalRelaySettings.providers);
-  const location = convertLocationToRelaySelectorLocation(normalRelaySettings.location);
-  const ownership = normalRelaySettings.ownership;
+}: ConvertSettingsToRelaySelectorMultihopExitConstraints): RelaySelectorPredicateGeneralConstraints {
+  const { location, providers, ownership } = normalRelaySettings;
+  return convertSettingsToRelaySelectorGeneralConstraints({
+    location,
+    providers,
+    ownership,
+    ignoreConstraint,
+  });
+}
+
+type ConvertSettingsToRelaySelectorOneHopConstraints = {
+  settings: ISettingsReduxState;
+  normalRelaySettings: NormalRelaySettingsRedux;
+  ignoreConstraint?: IgnoreConstraints;
+};
+
+function convertSettingsToRelaySelectorOneHopConstraints({
+  settings,
+  normalRelaySettings,
+  ignoreConstraint,
+}: ConvertSettingsToRelaySelectorOneHopConstraints): RelaySelectorPredicateEntryConstraints {
+  const { location, providers, ownership } = normalRelaySettings;
+  const generalConstraints = convertSettingsToRelaySelectorGeneralConstraints({
+    location,
+    providers,
+    ownership,
+    ignoreConstraint,
+  });
+
+  const ipVersion = wrapConstraint(normalRelaySettings.wireguard.ipVersion);
+  const daita = settings.wireguard.daita;
 
   return {
-    location: ignoreConstraint?.location ? 'any' : location,
-    providers: ignoreConstraint?.providers ? [] : providers,
-    ownership: ignoreConstraint?.ownership ? Ownership.any : ownership,
+    antiCensorship: settings.obfuscationSettings,
+    daita,
+    generalConstraints,
+    ipVersion,
   };
 }
 
@@ -191,14 +195,14 @@ export function convertSettingsToRelaySelectorQueries(
         predicate: {
           type: 'multihopEntry',
           constraints: {
-            entry: convertSettingsToRelaySelectorEntryConstraints({
+            entry: convertSettingsToRelaySelectorMultihopEntryConstraints({
               normalRelaySettings,
               settings,
               ignoreConstraint: {
                 location: true,
               },
             }),
-            exit: convertSettingsToRelaySelectorExitConstraints({
+            exit: convertSettingsToRelaySelectorMultihopExitConstraints({
               normalRelaySettings,
             }),
           },
@@ -210,11 +214,11 @@ export function convertSettingsToRelaySelectorQueries(
         predicate: {
           type: 'multihopExit',
           constraints: {
-            entry: convertSettingsToRelaySelectorEntryConstraints({
+            entry: convertSettingsToRelaySelectorMultihopEntryConstraints({
               normalRelaySettings,
               settings,
             }),
-            exit: convertSettingsToRelaySelectorExitConstraints({
+            exit: convertSettingsToRelaySelectorMultihopExitConstraints({
               normalRelaySettings,
               ignoreConstraint: {
                 location: true,
@@ -233,7 +237,7 @@ export function convertSettingsToRelaySelectorQueries(
         context: 'exit',
         predicate: {
           type: 'autohop',
-          constraints: convertSettingsToRelaySelectorAutohopConstraints({
+          constraints: convertSettingsToRelaySelectorOneHopConstraints({
             normalRelaySettings,
             settings,
             ignoreConstraint: {
@@ -251,7 +255,7 @@ export function convertSettingsToRelaySelectorQueries(
       context: 'exit',
       predicate: {
         type: 'singlehop',
-        constraints: convertSettingsToRelaySelectorEntryConstraints({
+        constraints: convertSettingsToRelaySelectorOneHopConstraints({
           normalRelaySettings,
           settings,
           ignoreConstraint: {
