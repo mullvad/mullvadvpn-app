@@ -106,6 +106,11 @@ pub struct GetRelay {
     pub server_override: bool,
 }
 
+/// Iterator of relays to use for connection attempts. Consumed in FIFO order.
+///
+/// When empty, it is refilled from [RelaySelector::get_relays_with_automatic_anti_censorship].
+pub type RelayQueue = std::vec::IntoIter<GetRelay>;
+
 impl RelaySelector {
     pub fn new(relays: RelayList, bridges: BridgeList) -> Self {
         RelaySelector {
@@ -199,8 +204,7 @@ impl RelaySelector {
         })
     }
 
-    /// Get the list of relays that should be connected to for a given query, which should be
-    /// consumed in "front to back" order.
+    /// Get the list of relays that should be connected to for a given query.
     ///
     /// If anti-censorship is disabled or set to a specific method, this will return a single relay.
     ///
@@ -213,7 +217,7 @@ impl RelaySelector {
     pub fn get_relays_with_automatic_anti_censorship(
         &self,
         mut user_query: RelayQuery,
-    ) -> Result<Vec1<GetRelay>, Error> {
+    ) -> Result<(GetRelay, RelayQueue), Error> {
         let mut relays = vec![];
 
         // First, we make a WireGuard-only attempt before using any obfuscations
@@ -238,7 +242,12 @@ impl RelaySelector {
                     user_query = new;
                     relays.push(relay);
                 }
-                Err(err) => return Vec1::try_from_vec(relays).map_err(|_| err),
+                Err(err) => {
+                    let (relay, queue) = Vec1::try_from_vec(relays)
+                        .map_err(|_| err)?
+                        .split_off_first();
+                    return Ok((relay, queue.into_iter()));
+                }
             }
         }
     }

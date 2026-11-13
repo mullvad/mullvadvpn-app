@@ -4,10 +4,9 @@ use std::{
     ops::Deref,
     path::Path,
     sync::{Arc, Mutex},
-    vec::IntoIter,
 };
 
-use mullvad_relay_selector::{GetRelay, RelaySelector, query::RelayQuery};
+use mullvad_relay_selector::{GetRelay, RelayQueue, RelaySelector, query::RelayQuery};
 use mullvad_types::{
     custom_list::CustomListsSettings,
     relay_list::{BridgeList, RelayList},
@@ -17,10 +16,6 @@ use talpid_types::net::IpAvailability;
 
 use crate::relay_list;
 
-/// Iterator of relays to use for connection attempts. When empty, it is refilled from
-/// [RelaySelector::get_relays_with_automatic_anti_censorship].
-type RelayQueue = Arc<Mutex<IntoIter<GetRelay>>>;
-
 /// A [RelaySelector] instance backed by a relay list on-disk.
 ///
 /// The queries run against this relay selector is automatically derived from the mullvad-daemon
@@ -29,7 +24,7 @@ type RelayQueue = Arc<Mutex<IntoIter<GetRelay>>>;
 pub struct RelaySelectorIO {
     inner: RelaySelector,
     config: Config,
-    relay_queue: RelayQueue,
+    relay_queue: Arc<Mutex<RelayQueue>>,
 }
 
 impl Deref for RelaySelectorIO {
@@ -144,10 +139,8 @@ impl RelaySelectorIO {
         // The relay queue is empty, so we need to refill it.
         let mut query = self.query().clone();
         query.apply_ip_availability(*self.config.ip_availability.lock().unwrap())?;
-        let (next_relay, relay_queue) = self
-            .get_relays_with_automatic_anti_censorship(query)?
-            .split_off_first();
-        *self.relay_queue.lock().unwrap() = relay_queue.into_iter();
+        let (next_relay, relay_queue) = self.get_relays_with_automatic_anti_censorship(query)?;
+        *self.relay_queue.lock().unwrap() = relay_queue;
         Ok(next_relay)
     }
 }
