@@ -1879,11 +1879,6 @@ export class Settings extends jspb.Message {
     getUpdateDefaultLocation(): boolean;
     setUpdateDefaultLocation(value: boolean): Settings;
 
-    hasCustomVpn(): boolean;
-    clearCustomVpn(): void;
-    getCustomVpn(): CustomVpnSettings | undefined;
-    setCustomVpn(value?: CustomVpnSettings): Settings;
-
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Settings.AsObject;
     static toObject(includeInstance: boolean, msg: Settings): Settings.AsObject;
@@ -1909,7 +1904,6 @@ export namespace Settings {
         relayOverridesList: Array<RelayOverride.AsObject>,
         recents?: Recents.AsObject,
         updateDefaultLocation: boolean,
-        customVpn?: CustomVpnSettings.AsObject,
     }
 }
 
@@ -2394,6 +2388,9 @@ export namespace CustomVpnConfig {
 
 
     export class TunnelConfig extends jspb.Message { 
+
+        hasPrivateKey(): boolean;
+        clearPrivateKey(): void;
         getPrivateKey(): Uint8Array | string;
         getPrivateKey_asU8(): Uint8Array;
         getPrivateKey_asB64(): string;
@@ -3085,6 +3082,11 @@ export class DaemonEvent extends jspb.Message {
     getLeakInfo(): LeakInfo | undefined;
     setLeakInfo(value?: LeakInfo): DaemonEvent;
 
+    hasCustomVpnSettings(): boolean;
+    clearCustomVpnSettings(): void;
+    getCustomVpnSettings(): CustomVpnSettings | undefined;
+    setCustomVpnSettings(value?: CustomVpnSettings): DaemonEvent;
+
     getEventCase(): DaemonEvent.EventCase;
 
     serializeBinary(): Uint8Array;
@@ -3107,6 +3109,7 @@ export namespace DaemonEvent {
         removeDevice?: RemoveDeviceEvent.AsObject,
         newAccessMethod?: AccessMethodSetting.AsObject,
         leakInfo?: LeakInfo.AsObject,
+        customVpnSettings?: CustomVpnSettings.AsObject,
     }
 
     export enum EventCase {
@@ -3119,6 +3122,7 @@ export namespace DaemonEvent {
         REMOVE_DEVICE = 6,
         NEW_ACCESS_METHOD = 7,
         LEAK_INFO = 8,
+        CUSTOM_VPN_SETTINGS = 9,
     }
 
 }
