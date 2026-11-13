@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.6-beta1] - 2026-11-13
 ### Fixed
 #### macOS
 - Add support for eslogger format version 12. This fixes Split Tunneling on macOS 27.3.
