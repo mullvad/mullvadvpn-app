@@ -74,6 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
+      # Required for creating the namespaces for nftables snapshot tests
+      options: --privileged
 
     strategy:
       matrix:
@@ -115,6 +117,15 @@ jobs:
 
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace
+
+      # TODO: Remove when linux-container-image.txt points to an image with these packages
+      - name: Install nftables snapshot test dependencies
+        if: ${{ matrix.rust == 'stable' }}
+        run: apt-get update && apt-get install -y iproute2 nftables
+
+      - name: Run nftables snapshot tests
+        if: ${{ matrix.rust == 'stable' }}
+        run: ci/cargo-ci.sh test -p talpid-core --test nftables_snapshot -- --ignored
 
   build-macos:
     runs-on: macos-latest

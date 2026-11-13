@@ -1,0 +1,72 @@
+---
+source: talpid-core/tests/nftables_snapshot.rs
+expression: dump_nftables()
+---
+table inet mullvad {
+	chain prerouting {
+		type filter hook prerouting priority -199; policy accept;
+		ip saddr 192.0.2.1 udp sport 51820 meta mark set 0x6d6f6c65
+	}
+
+	chain output {
+		type filter hook output priority filter; policy drop;
+		oif "lo" accept
+		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff02::1:2 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff05::1:3 udp dport 547 accept
+		ip6 daddr ff02::2 icmpv6 type nd-router-solicit icmpv6 code 0 accept
+		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		ip daddr 192.0.2.1 udp dport 51820 meta mark 0x6d6f6c65 accept
+		ip daddr 203.0.113.1 tcp dport 443 meta skuid 0 accept
+		udp dport 53 reject
+		tcp dport 53 reject with tcp reset
+		oif "mullvad-test0" accept
+		reject
+	}
+
+	chain input {
+		type filter hook input priority filter; policy drop;
+		iif "lo" accept
+		udp sport 67 udp dport 68 accept
+		ip6 saddr fe80::/10 udp sport 547 ip6 daddr fe80::/10 udp dport 546 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-router-advert icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		ip saddr 192.0.2.1 udp sport 51820 ct state established accept
+		ip saddr 203.0.113.1 tcp sport 443 ct state established meta skuid 0 accept
+		iif "mullvad-test0" accept
+	}
+
+	chain forward {
+		type filter hook forward priority filter; policy drop;
+		udp sport 68 ip daddr 255.255.255.255 udp dport 67 accept
+		udp sport 67 udp dport 68 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff02::1:2 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 546 ip6 daddr ff05::1:3 udp dport 547 accept
+		ip6 saddr fe80::/10 udp sport 547 ip6 daddr fe80::/10 udp dport 546 accept
+		ip6 daddr ff02::2 icmpv6 type nd-router-solicit icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-router-advert icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-redirect icmpv6 code 0 accept
+		ip6 daddr ff02::1:ff00:0/104 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 saddr fe80::/10 icmpv6 type nd-neighbor-solicit icmpv6 code 0 accept
+		ip6 daddr fe80::/10 icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		icmpv6 type nd-neighbor-advert icmpv6 code 0 accept
+		udp dport 53 reject
+		tcp dport 53 reject with tcp reset
+		oif "mullvad-test0" accept
+		iif "mullvad-test0" ct state established accept
+		reject
+	}
+
+	chain mangle {
+		type route hook output priority mangle; policy accept;
+	}
+
+	chain nat {
+		type nat hook postrouting priority srcnat; policy accept;
+	}
+}
