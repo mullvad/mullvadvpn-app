@@ -23,7 +23,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
-
 ## [2026.7-beta1] - 2026-10-01
 ### Added
 - Add support for the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment variable. Set it to false
@@ -97,6 +96,10 @@ Line wrap the file at 100 chars.                                              Th
   `GHSA-wchj-r66m-4m48`.
 
 ## [2026.6-beta1] - 2026-11-13
+### Fixed
+#### macOS
+- Add support for eslogger format version 12. This fixes Split Tunneling on macOS 27.3.
+
 
 ## [2026.5] - 2026-09-11
 This release is identical to 2026.5-beta2.
