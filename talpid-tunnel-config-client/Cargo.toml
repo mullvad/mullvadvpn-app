@@ -20,14 +20,12 @@ gotatun = { workspace = true, features = ["daita", "device"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
-ml-kem = { version = "0.2.1", features = ["zeroize"] }
+ml-kem = { version = "0.3.4", features = ["getrandom", "zeroize"] }
 # This is a wrapper to the C implementation of HQC in PQClean.
 # Keep eyes open for alternatives, preferably pure Rust implementations.
 pqcrypto-hqc = { version = "0.2.1", default-features = false }
 pqcrypto-traits = "0.3.5"
 prost = { workspace = true }
-# ml-kem still depends on rand_core 0.6 as of ml-kem 0.21
-rand_core = { version = "0.6", features = ["getrandom"] }
 sha2 = { workspace = true }
 talpid-netstack.workspace = true
 talpid-types.workspace = true
