@@ -49,7 +49,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 
 Supported versions:
 - **Ubuntu**: The two latest LTS releases and the latest non-LTS release
-- **Fedora**: Versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life)
+- **Fedora**: Versions that are not yet End of Life.
 - **Debian**: 12 and newer
 
 Both x86-64 and ARM64 are supported on all supported distributions.
@@ -68,6 +68,7 @@ DEs, but we don't regularly test those.
 | Ubuntu 26.04           | x86-64       | e2e, manual  |
 | Fedora 43              | x86-64       | e2e, manual  |
 | Fedora 44              | x86-64       | e2e, manual  |
+| Fedora 45              | x86-64       | e2e, manual  |
 
 ## Android
 
