@@ -38,9 +38,9 @@ class BaseUITestCase: XCTestCase {
     static let testsDefaultRelayName = "se-got-wg-001"
 
     /// Default QUIC supported relay to use in tests
-    static let testsDefaultQuicCountryName = "Germany"
-    static let testsDefaultQuicCityName = "Frankfurt"
-    static let testsDefaultQuicRelayName = "de-fra-wg-001"
+    static let testsDefaultMultihopExit = "Germany"
+    static let testsDefaultMultihopExitCity = "Frankfurt"
+    static let testsDefaultMultihopExitRelayName = "de-fra-wg-001"
 
     let displayName =
         Bundle(for: BaseUITestCase.self)
