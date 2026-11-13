@@ -6,7 +6,6 @@
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 mod ios;
 mod tokio_bridge;
-mod tunnel_adapter;
 pub mod tunnel_adapter;
 
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
