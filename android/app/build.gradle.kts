@@ -96,6 +96,7 @@ android {
     }
 
     buildTypes {
+        getByName("release") { signingConfig = signingConfigs.getByName("debug") }
         getByName(BuildTypes.RELEASE) {
             signingConfig = null
             isMinifyEnabled = true
@@ -482,6 +483,8 @@ dependencies {
     implementation(projects.lib.feature.multihopmigration.api)
     implementation(projects.lib.feature.multihopmigration.impl)
     implementation(projects.lib.feature.notification.impl)
+    implementation(projects.lib.feature.customvpn.api)
+    implementation(projects.lib.feature.customvpn.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.serveripoverride.impl)

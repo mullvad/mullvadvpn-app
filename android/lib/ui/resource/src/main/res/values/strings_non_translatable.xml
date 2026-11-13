@@ -22,4 +22,9 @@
     <string name="app_name_game" translatable="false">Whack-a-mole</string>
     <string name="app_name_ninja" translatable="false">Ninja Mole</string>
     <string name="domain_fronting" translatable="false">Domain Fronting</string>
+    <string name="rx_tx" translatable="false">RX: %s TX: %s</string>
+    <string name="formatted_size_gb" translatable="false">%.1fGB</string>
+    <string name="formatted_size_mb" translatable="false">%.1fMB</string>
+    <string name="formatted_size_kb" translatable="false">%.1fKB</string>
+    <string name="formatted_size_b" translatable="false">%.1fB</string>
 </resources>

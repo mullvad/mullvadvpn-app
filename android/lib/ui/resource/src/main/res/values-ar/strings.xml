@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">لن يكون من الممكن استرداد الأموال.</string>
     <string name="delete_account_unable_to_verify">تعذر التحقق من رقم الحساب، يرجى الاتصال بالدعم</string>
     <string name="delete_account_warning"><b>تحذير:</b></string>
-    <string name="delete_custom_list_confirmation_description">هل تريد حذف \"%1$s\"؟</string>
     <string name="delete_custom_list_message">تم حذف \"%1$s\"</string>
     <string name="delete_list">حذف القائمة</string>
     <string name="delete_method">حذف الطريقة</string>
     <string name="delete_method_question">هل تريد حذف الطريقة؟</string>
+    <string name="delete_x">هل تريد حذف \"%1$s\"؟</string>
     <string name="device_inactive_description">لقد أزلت هذا الجهاز. للاتصال مجددًا، ستحتاج إلى تسجيل الدخول مرة أخرى.</string>
     <string name="device_inactive_title">الجهاز غير نشط</string>
     <string name="device_inactive_unblock_warning">سيؤدي تسجيل الدخول إلى إلغاء حظر الإنترنت على هذا الجهاز.</string>

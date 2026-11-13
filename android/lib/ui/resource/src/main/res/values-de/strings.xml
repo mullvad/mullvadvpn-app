@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Rückerstattungen sind nicht möglich.</string>
     <string name="delete_account_unable_to_verify">Die Kontonummer kann nicht verifiziert werden. Wenden Sie sich bitte an den Support</string>
     <string name="delete_account_warning"><b>Achtung:</b></string>
-    <string name="delete_custom_list_confirmation_description">„%1$s“ löschen?</string>
     <string name="delete_custom_list_message">„%1$s“ wurde gelöscht</string>
     <string name="delete_list">Liste löschen</string>
     <string name="delete_method">Methode löschen</string>
     <string name="delete_method_question">Methode löschen?</string>
+    <string name="delete_x">„%1$s“ löschen?</string>
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>

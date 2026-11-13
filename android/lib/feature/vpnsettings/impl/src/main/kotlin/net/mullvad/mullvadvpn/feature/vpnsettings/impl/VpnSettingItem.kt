@@ -32,6 +32,8 @@ sealed interface VpnSettingItem {
 
     data object ServerIpOverrides : VpnSettingItem
 
+    data object CustomVpn : VpnSettingItem
+
     data object Divider : VpnSettingItem
 
     data object Spacer : VpnSettingItem

@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">无法退款。</string>
     <string name="delete_account_unable_to_verify">无法验证帐号，请联系支持团队</string>
     <string name="delete_account_warning"><b>警告</b>：</string>
-    <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
     <string name="delete_list">删除列表</string>
     <string name="delete_method">删除方法</string>
     <string name="delete_method_question">是否删除方法？</string>
+    <string name="delete_x">删除“%1$s”？</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
     <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>

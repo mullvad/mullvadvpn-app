@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Hyvitykset eivät ole mahdollisia.</string>
     <string name="delete_account_unable_to_verify">Tilin numeron vahvistaminen ei onnistu. Ota yhteyttä tukeen.</string>
     <string name="delete_account_warning"><b>Varoitus:</b></string>
-    <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
     <string name="delete_list">Poista luettelo</string>
     <string name="delete_method">Poista menetelmä</string>
     <string name="delete_method_question">Poista menetelmä?</string>
+    <string name="delete_x">Poistetaanko \"%1$s\"?</string>
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>

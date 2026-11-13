@@ -138,6 +138,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.MULTIHOP_AUTO,
             FeatureIndicator.MULTIHOP -> R.string.multihop
+            FeatureIndicator.CUSTOM_VPN -> R.string.custom_vpn
         }
     return stringResource(resource)
 }

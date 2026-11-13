@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Der ydes ikke refusion.</string>
     <string name="delete_account_unable_to_verify">Kan ikke bekræfte kontonummeret. Kontakt support</string>
     <string name="delete_account_warning"><b>Advarsel:</b></string>
-    <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>
     <string name="delete_list">Slet liste</string>
     <string name="delete_method">Slet metode</string>
     <string name="delete_method_question">Vil du slette metoden?</string>
+    <string name="delete_x">Vil du slette \"%1$s\"?</string>
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
     <string name="device_inactive_unblock_warning">Hvis du logger på, ophæves blokeringen af internettet på denne enhed.</string>

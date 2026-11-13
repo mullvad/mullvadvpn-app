@@ -176,7 +176,7 @@ service ManagementService {
   rpc SetCustomVpnConfig(CustomVpnConfig) returns (CustomVpnConfigError) {}
   rpc ClearCustomVpnConfig(google.protobuf.Empty) returns (CustomVpnConfigError) {}
   // Parse a wg-quick config file and store it as the custom VPN config.
-  rpc ImportCustomVpnConfig(google.protobuf.StringValue) returns (CustomVpnConfigError) {}
+  rpc ImportCustomVpnConfig(CustomVpnRawImport) returns (CustomVpnConfigError) {}
   rpc GetCustomVpnStats(google.protobuf.Empty) returns (CustomVpnStats) {}
 }
 
@@ -720,6 +720,11 @@ message CustomVpnConfig {
   repeated PeerConfig peers = 2;
   bool enabled = 3;
   optional string name = 4;
+}
+
+message CustomVpnRawImport {
+  string name = 1;
+  string wireguard_config = 2;
 }
 
 message CustomVpnSettings { repeated CustomVpnConfig configs = 1; }

@@ -2452,6 +2452,29 @@ export namespace CustomVpnConfig {
 
 }
 
+export class CustomVpnRawImport extends jspb.Message { 
+    getName(): string;
+    setName(value: string): CustomVpnRawImport;
+    getWireguardConfig(): string;
+    setWireguardConfig(value: string): CustomVpnRawImport;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): CustomVpnRawImport.AsObject;
+    static toObject(includeInstance: boolean, msg: CustomVpnRawImport): CustomVpnRawImport.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: CustomVpnRawImport, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CustomVpnRawImport;
+    static deserializeBinaryFromReader(message: CustomVpnRawImport, reader: jspb.BinaryReader): CustomVpnRawImport;
+}
+
+export namespace CustomVpnRawImport {
+    export type AsObject = {
+        name: string,
+        wireguardConfig: string,
+    }
+}
+
 export class CustomVpnSettings extends jspb.Message { 
     clearConfigsList(): void;
     getConfigsList(): Array<CustomVpnConfig>;
