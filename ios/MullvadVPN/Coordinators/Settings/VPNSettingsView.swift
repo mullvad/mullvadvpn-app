@@ -108,8 +108,14 @@ struct VPNSettingsView: View {
                         trailing: {
                             itemFactory.trailing(for: .drillDown(title: ""))
                         },
+                        customDismissAction: {
+                            navigationController.popViewController(animated: true)
+                        }
                     )
                 },
+                customDismissAction: {
+                    navigationController.popViewController(animated: true)
+                }
             )
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
@@ -167,8 +173,14 @@ struct VPNSettingsView: View {
                         trailing: {
                             itemFactory.trailing(
                                 for: .drillDown(title: settings.tunnelSettings.wireGuardObfuscation.state.description))
+                        },
+                        customDismissAction: {
+                            navigationController.popViewController(animated: true)
                         }
                     )
+                },
+                customDismissAction: {
+                    navigationController.popViewController(animated: true)
                 }
             )
             .padding(.leading, UIMetrics.contentInsets.left)

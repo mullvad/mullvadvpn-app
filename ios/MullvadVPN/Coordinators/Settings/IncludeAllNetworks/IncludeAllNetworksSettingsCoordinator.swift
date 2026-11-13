@@ -40,12 +40,12 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
         var view = IncludeAllNetworksSettingsView(viewModel: self.viewModel)
         view.showIssuesInfo = showIssuesInfo
 
-        let host = UIHostingController(rootView: view)
+        let host = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         host.title = NSLocalizedString("Force all apps", comment: "")
         host.view.setAccessibilityIdentifier(.includeAllNetworksView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(host, animated: animated)
     }
 
     private func customiseNavigation(on viewController: UIViewController) {
