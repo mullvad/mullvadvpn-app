@@ -17,16 +17,16 @@ class LanguageRepository(private val context: Context) {
     }
 
     fun getSupportedLocales(): List<Locale> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val localeList = LocaleConfig(context).supportedLocales ?: return emptyList()
-            return buildList {
+            buildList {
                 for (i in 0 until localeList.size()) {
                     add(localeList.get(i))
                 }
             }
                 .sortedBy { it.getDisplayName(it).lowercase() }
         } else {
-            return buildList {
+            buildList {
                 context.resources.getXml(R.xml.locales_config).use { p ->
                     while (p.next() != XmlPullParser.END_DOCUMENT) {
                         if (p.eventType == XmlPullParser.START_TAG && p.name == "locale") {
