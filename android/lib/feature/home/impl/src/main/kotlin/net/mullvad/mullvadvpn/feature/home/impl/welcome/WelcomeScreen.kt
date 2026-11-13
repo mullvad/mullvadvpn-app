@@ -50,7 +50,6 @@ import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
-import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
@@ -109,9 +108,6 @@ fun Welcome(navigator: Navigator) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
             WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
                 navigator.navigate(ConnectNavKey, clearBackStack = true)
-            }
-            WelcomeViewModel.UiSideEffect.DeviceRevoked -> {
-                navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
             }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(

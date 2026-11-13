@@ -134,8 +134,6 @@ class WelcomeViewModel(
 
         data object OpenConnectScreen : UiSideEffect
 
-        data object DeviceRevoked : UiSideEffect
-
         data class StoreCredentialsRequest(val accountNumber: AccountNumber) : UiSideEffect
 
         data object GenericError : UiSideEffect
