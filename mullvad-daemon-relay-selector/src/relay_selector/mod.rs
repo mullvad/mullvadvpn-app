@@ -93,12 +93,22 @@ impl RelaySelectorIO {
         }
     }
 
+    /// Update the available IP versions. If an IP version is lost, reset the relay queue.
+    ///
+    /// NOTE: Because IP availability is derived differently on Android during disconnected
+    /// and connected states, the IP availability sometimes changes while consuming the
+    /// relay queue. If we were to reset the queue when it changed from `Ipv4` to
+    /// `Ipv4AndIpv6` it would produce two "direct" connections in a row. The drawback is
+    /// that we would not use IPv6 endpoints for obfuscation until the next round.
     pub fn set_ip_availability(&self, ip_availability: IpAvailability) {
-        let mut ip_availability_lock = self.config.ip_availability.lock().unwrap();
-        if *ip_availability_lock != ip_availability {
+        let mut lock = self.config.ip_availability.lock().unwrap();
+        let lost_ipv4 = lock.has_ipv4() && !ip_availability.has_ipv4();
+        let lost_ipv6 = lock.has_ipv6() && !ip_availability.has_ipv6();
+        *lock = ip_availability;
+
+        if lost_ipv4 || lost_ipv6 {
             self.clear_relay_queue();
         }
-        *ip_availability_lock = ip_availability;
     }
 
     /// Update the relay selector config.
