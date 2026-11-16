@@ -31,7 +31,6 @@ struct ShadowsocksCipherPicker {
         let controller = ListItemPickerViewController(dataSource: dataSource)
 
         controller.navigationItem.title = NSLocalizedString("Cipher", comment: "")
-        controller.navigationItem.hidesBackButton = true
 
         controller.onSelect = { selectedItem in
             navigationController.popViewController(animated: true)
