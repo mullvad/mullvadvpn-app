@@ -11,7 +11,6 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import java.net.InetSocketAddress
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -28,7 +27,6 @@ import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_TUNNEL_IP
 import net.mullvad.mullvadvpn.feature.customvpn.impl.createSampleCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
@@ -37,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
+import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -47,7 +46,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CustomVpnEditViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockManagementService: ManagementService = mockk()
+    private val mockCustomVpnRepository: CustomVpnRepository = mockk()
 
     private val settingsUpdates = MutableStateFlow<Settings?>(null)
 
@@ -60,7 +59,8 @@ class CustomVpnEditViewModelTest {
         viewModel =
             CustomVpnEditViewModel(
                 settingsRepository = mockSettingsRepository,
-                managementService = mockManagementService,
+                customVpnRepository = mockCustomVpnRepository,
+                isNewConfig = false,
             )
     }
 
@@ -74,8 +74,7 @@ class CustomVpnEditViewModelTest {
     fun `initial state should be loading`() = runTest {
         viewModel.uiState.test {
             val initial = awaitItem()
-            assertIs<Lc.Loading<Boolean>>(initial)
-            assertFalse(initial.value)
+            assertIs<Lc.Loading<Unit>>(initial)
         }
     }
 
@@ -84,7 +83,7 @@ class CustomVpnEditViewModelTest {
         runTest {
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(Lc.Loading(false), awaitItem())
+                assertEquals(Lc.Loading(Unit), awaitItem())
 
                 initSettings(customVpnConfig = null)
 
@@ -103,7 +102,7 @@ class CustomVpnEditViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(Lc.Loading(false), awaitItem())
+                assertEquals(Lc.Loading(Unit), awaitItem())
 
                 initSettings(customVpnConfig = customVpnConfig)
 
@@ -121,11 +120,11 @@ class CustomVpnEditViewModelTest {
     fun `clearConfig should call management service clearCustomVpn and reset formData`() = runTest {
         // Arrange
         val customVpnConfig = createSampleCustomVpnConfig()
-        coEvery { mockManagementService.clearCustomVpn() } returns Unit.right()
+        coEvery { mockCustomVpnRepository.clearConfig() } returns Unit.right()
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(Lc.Loading(false), awaitItem())
+            assertEquals(Lc.Loading(Unit), awaitItem())
 
             initSettings(customVpnConfig = customVpnConfig)
 
@@ -135,10 +134,10 @@ class CustomVpnEditViewModelTest {
 
             val updatedContent = awaitItem()
             assertIs<Lc.Content<CustomVpnEditUiState>>(updatedContent)
-            assertFormDataMatches(FormData.from(null), updatedContent.value.formData)
+            assertFormDataMatches(FormData(), updatedContent.value.formData)
         }
 
-        coVerify(exactly = 1) { mockManagementService.clearCustomVpn() }
+        coVerify(exactly = 1) { mockCustomVpnRepository.clearConfig() }
     }
 
     @Test
@@ -160,7 +159,7 @@ class CustomVpnEditViewModelTest {
                 assertEquals(FormDataError.EmptyName, content.value.formErrors?.nameError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -186,7 +185,7 @@ class CustomVpnEditViewModelTest {
                 assertIs<KeyParseError.InvalidLength>(keyError.keyParseError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -210,7 +209,7 @@ class CustomVpnEditViewModelTest {
                 assertEquals(FormDataError.TunnelIp(invalidIp), ipError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -241,7 +240,7 @@ class CustomVpnEditViewModelTest {
                 assertIs<KeyParseError.InvalidLength>(keyError.keyParseError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -272,7 +271,7 @@ class CustomVpnEditViewModelTest {
                 )
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -303,7 +302,7 @@ class CustomVpnEditViewModelTest {
                 )
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -334,7 +333,7 @@ class CustomVpnEditViewModelTest {
                 assertIs<ParsePortError.NotANumber>(portError.parsePortError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -365,7 +364,7 @@ class CustomVpnEditViewModelTest {
                 assertIs<ParsePortError.OutOfRange>(portError.parsePortError)
             }
 
-            coVerify(exactly = 0) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 0) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     @Test
@@ -395,8 +394,7 @@ class CustomVpnEditViewModelTest {
                     enabled = true,
                     name = VALID_NAME,
                 )
-            coEvery { mockManagementService.setCustomVpnConfig(expectedConfig) } returns
-                Unit.right()
+            coEvery { mockCustomVpnRepository.setConfig(expectedConfig) } returns Unit.right()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -414,7 +412,7 @@ class CustomVpnEditViewModelTest {
                 assertNull(content.value.formErrors)
             }
 
-            coVerify(exactly = 1) { mockManagementService.setCustomVpnConfig(expectedConfig) }
+            coVerify(exactly = 1) { mockCustomVpnRepository.setConfig(expectedConfig) }
         }
 
     @Test
@@ -424,7 +422,7 @@ class CustomVpnEditViewModelTest {
             initSettings()
             val validFormData = createValidFormData()
             val saveError = SetCustomVpnConfigError.Unknown(RuntimeException("Save failed"))
-            coEvery { mockManagementService.setCustomVpnConfig(any()) } returns saveError.left()
+            coEvery { mockCustomVpnRepository.setConfig(any()) } returns saveError.left()
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -434,7 +432,7 @@ class CustomVpnEditViewModelTest {
                 assertEquals(saveError.toString(), sideEffect.reason)
             }
 
-            coVerify(exactly = 1) { mockManagementService.setCustomVpnConfig(any()) }
+            coVerify(exactly = 1) { mockCustomVpnRepository.setConfig(any()) }
         }
 
     private fun initSettings(customVpnConfig: CustomVpnConfig? = null) {

@@ -271,17 +271,18 @@ private fun CustomVpnListContent(
     onToggleCustomTunnel: (CustomVpnConfig) -> Unit,
 ) {
     if (customVpnConfig != null) {
+        val dataRx = tunnelStats?.rx ?: 0
+        val dataTx = tunnelStats?.tx ?: 0
+
         NavigationAndSwitchListItem(
             modifier = Modifier.fillMaxWidth(),
             title = customVpnConfig.name ?: stringResource(R.string.custom_tunnels_default_name),
             subtitle =
-                tunnelStats?.let {
-                    stringResource(
-                        R.string.rx_tx,
-                        tunnelStats.rx.asFormattedSize(),
-                        tunnelStats.tx.asFormattedSize(),
-                    )
-                },
+                stringResource(
+                    R.string.rx_tx,
+                    dataRx.asFormattedSize(),
+                    dataTx.asFormattedSize(),
+                ),
             isToggled = customVpnEnabled,
             onCheckedChanged = { onToggleCustomTunnel(customVpnConfig) },
             onNavigationClicked = onEditConfiguration,
