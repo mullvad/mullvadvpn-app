@@ -726,6 +726,14 @@ impl MullvadProxyClient {
 #[cfg(not(target_os = "android"))]
 fn map_device_error(status: Status) -> Error {
     match status.code() {
+        // FIXME: HACK: Management interface uses `StatusCode` to identify throttling
+        // sometimes.
+        Code::ResourceExhausted
+            if status.message()
+                == mullvad_api_constants::StatusCode::TOO_MANY_REQUESTS.to_string() =>
+        {
+            Error::Rpc(Box::new(status))
+        }
         Code::ResourceExhausted => Error::TooManyDevices,
         Code::Unauthenticated => Error::InvalidAccount,
         Code::AlreadyExists => Error::AlreadyLoggedIn,

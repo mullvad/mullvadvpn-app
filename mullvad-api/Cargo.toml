@@ -18,7 +18,7 @@ domain-fronting = "0.2.0"
 duplicate.workspace = true
 futures = { workspace = true }
 hex = { workspace = true }
-http = "1.1.0"
+http.workspace = true
 http-body-util = "0.1.2"
 hyper = { version = "1.8.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }

@@ -86,6 +86,7 @@ hex = { version = "0.4" }
 hickory-proto = "0.26.1"
 hickory-resolver = { version = "0.26.1", default-features = false, features = ["tokio"] }
 hickory-server = { version = "0.26.1", features = ["resolver"] }
+http = "1.1.0"
 hyper-util = { version = "0.1.8", features = [
   "client",
   "tokio",

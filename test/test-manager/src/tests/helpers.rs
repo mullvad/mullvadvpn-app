@@ -350,7 +350,10 @@ pub async fn login_with_retries(
             .await
         {
             Err(mullvad_management_interface::Error::Rpc(status))
-                if status.message().to_uppercase().contains("THROTTLED") =>
+                if status.message().to_uppercase().contains("THROTTLED")
+                    // FIXME: HACK: Management interface uses `StatusCode` to identify throttling
+                    // sometimes.
+                    || status.message() == mullvad_api::StatusCode::TOO_MANY_REQUESTS.to_string() =>
             {
                 // Work around throttling errors by sleeping
                 log::debug!(
