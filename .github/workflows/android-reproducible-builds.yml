@@ -125,7 +125,7 @@ jobs:
 
   build-using-fdroidserver:
     name: Build fdroid release using fdroidserver
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [set-up-env, resolve-app-version]
     steps:
       - name: Set up Java 21
