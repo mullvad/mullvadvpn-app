@@ -115,13 +115,15 @@ final class SettingsViewControllerFactory {
         let viewController = UIHostingController(
             rootView: ProblemReportView(
                 viewModel: problemReportViewModel
-            )
+            ).navigationBarBackButtonHidden(true)
         )
         // For reasons known only to the SwiftUI gods, the hosting view's `backgroundColor` is
         // `.white` by default. Which is not a problem, except during navigation transitions,
         // where the SwiftUI view is scaled down, jarringly exposing the white backing.
         // This is mitigated by explicitly setting the colour here.
         viewController.view.backgroundColor = UIColor.secondaryColor
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(
+            navigationController: navigationController)
         return .viewController(
             viewController
         )
