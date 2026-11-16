@@ -5888,6 +5888,7 @@ dependencies = [
  "tokio-util",
  "tun",
  "typed-builder 0.20.1",
+ "vec1",
  "windows",
  "windows-registry",
  "windows-service",
