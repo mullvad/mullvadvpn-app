@@ -83,12 +83,13 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
         controller.navigationItem.prompt = NSLocalizedString("The app will test the method before saving.", comment: "")
 
         controller.navigationItem.title = NSLocalizedString("Method settings", comment: "")
+        controller.navigationItem.hidesBackButton = true
 
         controller.saveBarButton.title = NSLocalizedString("Save", comment: "")
 
         controller.delegate = self
 
-        navigationController.pushViewController(controller, animated: true)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: true)
     }
 
     func controllerDidDeleteAccessMethod(_ controller: EditAccessMethodViewController) {

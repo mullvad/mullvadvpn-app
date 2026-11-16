@@ -31,13 +31,14 @@ struct ShadowsocksCipherPicker {
         let controller = ListItemPickerViewController(dataSource: dataSource)
 
         controller.navigationItem.title = NSLocalizedString("Cipher", comment: "")
+        controller.navigationItem.hidesBackButton = true
 
         controller.onSelect = { selectedItem in
             navigationController.popViewController(animated: true)
             completion(selectedItem.cipher)
         }
 
-        navigationController.pushViewController(controller, animated: true)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: true)
     }
 }
 
