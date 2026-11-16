@@ -64,6 +64,7 @@ class CustomVpnListViewModelTest {
 
         viewModel =
             CustomVpnListViewModel(
+                isModal = false,
                 settingsRepository = mockSettingsRepository,
                 customVpnRepository = mockCustomVpnRepository,
                 ioDispatcher = UnconfinedTestDispatcher(),
@@ -97,7 +98,7 @@ class CustomVpnListViewModelTest {
                 val content = awaitItem()
                 assertIs<Lc.Content<CustomVpnListUiState>>(content)
                 assertNull(content.value.customVpnConfig)
-                assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
+                assertNull(content.value.tunnelStats)
             }
         }
 
@@ -176,7 +177,7 @@ class CustomVpnListViewModelTest {
         viewModel.uiState.test {
             val content = awaitItem()
             assertIs<Lc.Content<CustomVpnListUiState>>(content)
-            assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
+            assertNull(content.value.tunnelStats)
 
             advanceTimeBy(3.seconds)
 
@@ -192,7 +193,7 @@ class CustomVpnListViewModelTest {
         viewModel.uiState.test {
             val content = awaitItem()
             assertIs<Lc.Content<CustomVpnListUiState>>(content)
-            assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
+            assertNull(content.value.tunnelStats)
 
             advanceTimeBy(3.seconds)
 
@@ -239,7 +240,7 @@ class CustomVpnListViewModelTest {
 
             val pollsBeforeDisabling = pollCount
             initSettings(customVpnConfig = createSampleCustomVpnConfig(enabled = false))
-            assertEquals(TunnelStats(0, 0), expectMostRecentItem().contentOrNull()?.tunnelStats)
+            assertNull(expectMostRecentItem().contentOrNull()?.tunnelStats)
 
             advanceTimeBy(3.seconds)
 
