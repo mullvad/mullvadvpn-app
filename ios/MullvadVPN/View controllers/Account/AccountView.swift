@@ -18,15 +18,20 @@ struct AccountView: View {
         var id: Self { self }
         case accountDeletion
         case deviceManagement
+        case payment
     }
 
-    var viewModel: AccountViewModelProtocol
+    var accountViewModel: AccountViewModelProtocol
+    var paymentViewModel: PaymentViewModelProtocol
     var deviceManaging: DeviceManaging
 
     @State private var presentedSheet: SheetType? = nil
     @State private var alert: MullvadAlert? = nil
     @State private var isAccountDeleted = false
     @State private var isLoading = false
+    @State var height: CGFloat = 300
+    @State var selectedDetent: PresentationDetent = .height(300)
+    @State var detents: Set<PresentationDetent> = [.height(300)]
 
     #if NEVER_IN_PRODUCTION
         let logger = Logger(label: "AccountView")
@@ -37,7 +42,7 @@ struct AccountView: View {
     var body: some View {
         VStack(spacing: 32) {
             deviceNameView()
-            AccountNumberView(accountNumber: viewModel.accountNumber)
+            AccountNumberView(accountNumber: accountViewModel.accountNumber)
             paidUntilView()
             Spacer()
             MullvadButton(
@@ -47,10 +52,10 @@ struct AccountView: View {
             ) {
                 Task {
                     isLoading = true
-                    await viewModel.logout()
+                    await accountViewModel.logout()
                     try? await Task.sleep(for: .seconds(1))
                     isLoading = false
-                    viewModel.onFinish?(.userLoggedOut)
+                    accountViewModel.onFinish?(.userLoggedOut)
                 }
             }
         }
@@ -59,11 +64,31 @@ struct AccountView: View {
         .scrollable(fill: [.horizontal, .vertical])
         .scrollBounceBehavior(.basedOnSize)
         .padding()
+        .preferredColorScheme(.dark)
         .navigationTitle("Account")
         .accessibilityIdentifier(.accountView)
+//        .onChange(
+//            of: paymentViewModel.notice,
+//            { (oldValue, notice) in
+//                if oldValue != notice, let notice {
+//                    isLoading = false
+//                    alert = .init(
+//                        type: notice.type,
+//                        title: LocalizedStringKey(notice.title),
+//                        messages: [LocalizedStringKey(notice.message)],
+//                        actions: [
+//                            .init(type: .primary, title: "Got it!") {
+//                                alert = nil
+//                                paymentViewModel.notice = nil
+//                            }
+//                        ]
+//                    )
+//                }
+//            }
+//        )
         .toolbar {
             MullvadDoneToolbarItem {
-                viewModel.onFinish?(.none)
+                accountViewModel.onFinish?(.none)
             }
             ToolbarItem(placement: .topBarLeading) {
                 Menu {
@@ -91,7 +116,7 @@ struct AccountView: View {
         }
         .sheet(item: $presentedSheet) {
             if isAccountDeleted {
-                viewModel.onFinish?(.userLoggedOut)
+                accountViewModel.onFinish?(.userLoggedOut)
             }
         } content: { sheetType in
             switch sheetType {
@@ -99,6 +124,8 @@ struct AccountView: View {
                 accountDeletionView()
             case .deviceManagement:
                 deviceManagementView()
+            case .payment:
+                paymentView()
             }
         }
         .mullvadAlert(item: $alert)
@@ -130,7 +157,7 @@ struct AccountView: View {
         VStack {
             MullvadListSectionHeader(title: "Device name")
             HStack {
-                Text(viewModel.deviceName)
+                Text(accountViewModel.deviceName)
                     .accessibilityIdentifier(.accountPageDeviceNameLabel)
                 Spacer()
                 Button {
@@ -153,15 +180,20 @@ struct AccountView: View {
             MullvadListSectionHeader(title: "Paid until")
             VStack(spacing: 24) {
                 HStack(spacing: 8) {
-                    viewModel.isOutOfTime
+                    accountViewModel.isOutOfTime
                         ? Text("OUT OF TIME")
                             .foregroundStyle(Color.mullvadDangerColor)
                             .accessibilityIdentifier(.accountPagePaidUntilLabel)
-                        : Text(viewModel.paidUntilString)
+                        : Text(accountViewModel.paidUntilString)
                             .accessibilityIdentifier(.accountPagePaidUntilLabel)
                     Spacer()
                     Button {
-                        viewModel.addTime()
+//                        isLoading = true
+//                        Task {
+                            paymentViewModel.initPurchase()
+                            presentedSheet = .payment
+//                            isLoading = false
+//                        }
                     } label: {
                         Text("Add time")
                             .underline()
@@ -172,7 +204,8 @@ struct AccountView: View {
                 }
                 HStack {
                     Button {
-                        viewModel.restorePurchase()
+                        isLoading = true
+                        paymentViewModel.restorePurchases()
                     } label: {
                         Text("Restore purchases")
                             .underline()
@@ -218,8 +251,8 @@ struct AccountView: View {
         NavigationStack {
             AccountDeletionView(
                 viewModel: AccountDeletionViewModel(
-                    accountNumber: viewModel.accountNumber,
-                    onDeleteAccount: { try await viewModel.deleteAccount() },
+                    accountNumber: accountViewModel.accountNumber,
+                    onDeleteAccount: { try await accountViewModel.deleteAccount() },
                     onConclusion: { success in
                         isAccountDeleted = success
                         presentedSheet = nil
@@ -235,7 +268,7 @@ struct AccountView: View {
                 deviceManaging: deviceManaging,
                 style: .deviceManagement
             ) { a, error in
-
+                // Do nothing.
             }
             .toolbar {
                 MullvadDoneToolbarItem {
@@ -243,6 +276,99 @@ struct AccountView: View {
                 }
             }
         }
+    }
+
+    private func paymentView() -> some View {
+        VStack(spacing: 16) {
+            ZStack {
+                Text("Add time")
+                    .font(.mullvadSmallSemiBold)
+                HStack {
+                    Button {
+                        presentedSheet = nil
+                    } label: {
+                        ResizableImageView(image: .mullvadIconCross, dimension: .width(32))
+                    }
+                    .accessibilityIdentifier(.cancelButton)
+                    Spacer()
+                }
+                .padding(.leading, 12)
+            }
+            .padding(.vertical, 8)
+
+            Group {
+                if let notice = paymentViewModel.notice {
+                    Text(LocalizedStringKey(notice.message))
+                    MullvadButton(
+                        text: "Got it!",
+                        style: .secondary,
+                        action: {
+                            paymentViewModel.notice = nil
+                        }
+                    )
+//                    alert = .init(
+//                        type: notice.type,
+//                        title: LocalizedStringKey(notice.title),
+//                        messages: [LocalizedStringKey(notice.message)],
+//                        actions: [
+//                            .init(type: .primary, title: "Got it!") {
+////                                alert = nil
+//                                paymentViewModel.notice = nil
+//                            }
+//                        ]
+//                    )
+                } else if paymentViewModel.isProcessing {
+                    ProgressView()
+                        .progressViewStyle(MullvadProgressViewStyle())
+                } else {
+                    Group {
+                        ForEach(paymentViewModel.products, id: \.self) { product in
+                            product.customLocalizedTitle.flatMap { productTitle in
+                                MullvadButton(
+                                    text: LocalizedStringKey(productTitle),
+                                    style: .primary,
+                                    action: {
+                                        //                                    presentedSheet = nil
+                                        paymentViewModel.doPurchase(of: product)
+                                    }
+                                )
+                            }
+                        }
+                        MullvadButton(
+                            text: "Restore purchases",
+                            style: .secondary,
+                            action: {
+                                presentedSheet = nil
+                                isLoading = true
+                                paymentViewModel.restorePurchases()
+                            }
+                        )
+                        .accessibilityIdentifier(.restorePurchasesButton)
+                    }
+                    .disabled(paymentViewModel.isProcessing)
+                }
+            }
+            .transition(.opacity)
+            .animation(.easeInOut(duration: 0.25), value: paymentViewModel.isProcessing)
+
+        }
+        .padding(16)
+        .background(Color.mullvadBackground)
+        .presentationBackground(Color.mullvadBackground)
+        .foregroundStyle(Color.mullvadTextPrimary)
+        .cornerRadius(8)
+        .sizeOfView {
+            height = $0.height
+        }
+        .onChange(of: height) {
+            detents.insert(.height(height))
+            selectedDetent = .height(height)
+            Task {
+                try? await Task.sleep(for: .seconds(0.1))
+                detents.removeFirst()
+            }
+        }
+        .presentationDetents(Set(detents), selection: $selectedDetent)
     }
 
     #if NEVER_IN_PRODUCTION
@@ -262,20 +388,18 @@ struct AccountView: View {
                 }
             }
             Button("Finish unfinished purchase".verbatim) {
-                Task {
-                    await viewModel.finishUnfinishedPurchase()
-                }
+                paymentViewModel.finishUnfinishedPurchases()
             }
             Button("Factory reset".verbatim, role: .destructive) {
                 Task {
-                    await viewModel.factoryReset()
+                    await accountViewModel.factoryReset()
                 }
             }
             Button("Invalidate Wireguard key".verbatim) {
-                viewModel.invalidateWireguardKey()
+                accountViewModel.invalidateWireguardKey()
             }
             Button(getTunnelString()) {
-                viewModel.toggleWireGuard()
+                accountViewModel.toggleWireGuard()
             }
         }
 
@@ -286,13 +410,15 @@ struct AccountView: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = AccountViewModelMock()
+    @Previewable @State var accountViewModel = AccountViewModelMock()
+    @Previewable @State var paymentViewModel = PaymentViewModelMock()
     @Previewable @Environment(\.dynamicTypeSize) var size
     Text("")
         .sheet(isPresented: .constant(true)) {
             NavigationStack {
                 AccountView(
-                    viewModel: viewModel,
+                    accountViewModel: accountViewModel,
+                    paymentViewModel: paymentViewModel,
                     deviceManaging: MockDeviceManaging()
                 )
                 .background(Color.mullvadBackground)

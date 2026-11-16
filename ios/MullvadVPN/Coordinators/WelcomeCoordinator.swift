@@ -49,8 +49,6 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         }
 
         let controller = WelcomeViewController(interactor: interactor)
-        controller.delegate = self
-
         viewController = controller
 
         navigationController.pushViewController(controller, animated: animated)
@@ -81,7 +79,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     }
 }
 
-extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
+extension WelcomeCoordinator {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
         let message = NSLocalizedString("Failed to load products, please try again", comment: "")
 
@@ -134,20 +132,5 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
 
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    func didRequestToViewPurchaseOptions(
-        accountNumber: String
-    ) {
-        let coordinator = InAppPurchaseCoordinator(
-            storePaymentManager: storePaymentManager,
-            accountNumber: accountNumber,
-            paymentAction: .purchase
-        )
-        coordinator.didFinish = { coordinator in
-            coordinator.dismiss(animated: true)
-        }
-        coordinator.start()
-        presentChild(coordinator, animated: true)
     }
 }

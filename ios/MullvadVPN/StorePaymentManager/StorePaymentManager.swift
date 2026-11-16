@@ -12,10 +12,14 @@ import MullvadLogging
 import MullvadTypes
 import StoreKit
 
+enum PaymentAction {
+    case purchase
+    case restorePurchase
+}
+
 /// Manager responsible for handling App Store payments and passing StoreKit receipts to the backend.
-///
-/// - Warning: only interact with this object on the main queue.
-final actor StorePaymentManager: @unchecked Sendable {
+@MainActor
+final class StorePaymentManager: @unchecked Sendable {
     private let logger = Logger(label: "StorePaymentManager")
     private var observerList = ObserverList<StorePaymentObserver>()
     private let interactor: StorePaymentManagerInteractor
@@ -49,7 +53,7 @@ final actor StorePaymentManager: @unchecked Sendable {
 
             // If the purchase was made out-of-band, we need not upload the receipt.
             for await verification in Transaction.updates {
-                guard await shouldProcessPayment(verification: verification) else {
+                guard shouldProcessPayment(verification: verification) else {
                     continue
                 }
 
@@ -70,15 +74,14 @@ final actor StorePaymentManager: @unchecked Sendable {
         try await Product.products(for: StoreSubscription.allCases.map { $0.rawValue })
     }
 
-    func purchase(product: Product) async {
+    func purchase(product: Product) async -> StorePaymentEvent {
         logger.debug("Purchasing product: \(product.id)")
 
         let token: UUID
         do {
             token = try await self.getPaymentToken()
         } catch {
-            didFailFetchingToken(error: error)
-            return
+            return didFailFetchingToken(error: error)
         }
 
         let result: Product.PurchaseResult
@@ -87,11 +90,10 @@ final actor StorePaymentManager: @unchecked Sendable {
                 options: [.appAccountToken(token)]
             )
         } catch {
-            didFailPurchase(error: error)
-            return
+            return didFailPurchase(error: error)
         }
 
-        switch result {
+        return switch result {
         case let .success(.verified(transaction)):
             await purchaseWasSuccessful(transaction: transaction)
         case let .success(.unverified(transaction, verificationFailure)):
@@ -165,9 +167,9 @@ final actor StorePaymentManager: @unchecked Sendable {
         logger.debug("Completed Transaction.unfinished iteration")
     }
 
-    // MARK: - Private methods
+    // MARK: - Private
 
-    private func getPaymentToken() async throws -> UUID {
+    func getPaymentToken() async throws -> UUID {
         let result = await interactor.initPayment()
 
         switch result {
@@ -195,7 +197,7 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    private func purchaseWasSuccessful(transaction: Transaction) async {
+    private func purchaseWasSuccessful(transaction: Transaction) async -> StorePaymentEvent {
         let verification = VerificationResult<Transaction>.verified(transaction)
 
         do {
@@ -205,9 +207,10 @@ final actor StorePaymentManager: @unchecked Sendable {
             try await verification.payloadValue.finish()
 
             addToProcessedTransactions(verification)
-            didPurchaseMoreTime(outcome: .timeAdded(timeFromProduct(id: transaction.productID)))
+
+            return .successfulPayment(.timeAdded(timeFromProduct(id: transaction.productID)))
         } catch {
-            didFailUploadingReceipt()
+            return .failed(.receiptUpload)
         }
     }
 
@@ -280,40 +283,40 @@ final actor StorePaymentManager: @unchecked Sendable {
         return !transactionHasBeenProcessed(verification)
     }
 
-    // MARK: Notifications
+    // MARK: Event resolutions
 
     /// Purchase was successful.
-    private func didPurchaseMoreTime(outcome: StorePaymentOutcome) {
+    private func didPurchaseMoreTime(outcome: StorePaymentOutcome) -> StorePaymentEvent {
         logger.debug("Purchase successful")
-        notifyObservers(of: .successfulPayment(outcome))
+        return .successfulPayment(outcome)
     }
 
     /// User cancelled purchase before it was completed.
-    private func userDidCancel() {
+    private func userDidCancel() -> StorePaymentEvent {
         logger.debug("User cancelled purchase")
-        notifyObservers(of: .userCancelled)
+        return .userCancelled
     }
 
     /// Purchase is still pending, transaction may be delivered asynchronously.
-    private func didSuspendPurchase() {
+    private func didSuspendPurchase() -> StorePaymentEvent {
         logger.debug("Did suspend purchase")
-        notifyObservers(of: .pending)
+        return .pending
     }
 
     /// Handle failure to fetch a payment token
     ///
     /// - Parameter error: error thrown by the API client
-    private func didFailFetchingToken(error: Error) {
+    private func didFailFetchingToken(error: Error) -> StorePaymentEvent {
         logger.debug("Did fail fetching token, with error: \(error)")
-        notifyObservers(of: .failed(.getPaymentToken(error)))
+        return .failed(.getPaymentToken(error))
     }
 
     /// Handle failure to upload a payment receipt to the API. This transaction should be uploaded again.
     ///
     /// - Parameter error: error thrown by the API client
-    private func didFailUploadingReceipt() {
+    private func didFailUploadingReceipt() -> StorePaymentEvent {
         logger.debug("Did fail uploading receipt")
-        notifyObservers(of: .failed(.receiptUpload))
+        return .failed(.receiptUpload)
     }
 
     /// Handle failure to verify the payment transaction.
@@ -322,17 +325,17 @@ final actor StorePaymentManager: @unchecked Sendable {
     private func didFailVerification(
         transaction: Transaction,
         error: VerificationResult<Transaction>.VerificationError
-    ) async {
+    ) async -> StorePaymentEvent {
         await transaction.finish()
 
         logger.debug("Did fail verification, with error: \(error)")
-        notifyObservers(of: .failed(.verification(error)))
+        return .failed(.verification(error))
     }
 
     /// Handle an error thrown from the Product.purchase call
     ///
     /// - Parameter error: the error that was thrown by the Product.purchase call
-    private func didFailPurchase(error: Error) {
+    private func didFailPurchase(error: Error) -> StorePaymentEvent {
         let failure: StorePaymentError
         switch error {
         case let storeKitError as StoreKitError:
@@ -346,14 +349,6 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
 
         logger.debug("Did fail purchase, with error: \(error)")
-        notifyObservers(of: .failed(failure))
-    }
-
-    private func notifyObservers(of storeKitEvent: StorePaymentEvent) {
-        observerList.notify { observer in
-            Task { @MainActor in
-                observer.storePaymentManager(didReceiveEvent: storeKitEvent)
-            }
-        }
+        return .failed(failure)
     }
 }

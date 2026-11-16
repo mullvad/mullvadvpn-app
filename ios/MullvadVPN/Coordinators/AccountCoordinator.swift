@@ -43,40 +43,26 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     }
 
     func start(animated: Bool) {
-        let viewModel = AccountViewModel(
+        let accountViewModel = AccountViewModel(
             tunnelManager: tunnelManager,
+            paymentManager: storePaymentManager,
             onFinish: { [weak self] in
                 guard let self else { return }
                 self.didFinish?(self, $0)
-            },
-            onPaymentAction: { [weak self] in
-                self?.didRequestShowInAppPurchase(paymentAction: $0)
             }
         )
+        let paymentViewModel = PaymentViewModel(paymentManager: storePaymentManager)
+
         let hostingController = UIHostingRootController(
             rootView: AccountView(
-                viewModel: viewModel,
+                accountViewModel: accountViewModel,
+                paymentViewModel: paymentViewModel,
                 deviceManaging: deviceManagementInteractor
             )
         )
+
         navigationController.navigationBar.prefersLargeTitles = true
         hostingController.navigationItem.largeTitleDisplayMode = .always
         navigationController.pushViewController(hostingController, animated: false)
-    }
-
-    private func didRequestShowInAppPurchase(
-        paymentAction: PaymentAction
-    ) {
-        guard let accountNumber = tunnelManager.deviceState.accountData?.number else { return }
-        let coordinator = InAppPurchaseCoordinator(
-            storePaymentManager: storePaymentManager,
-            accountNumber: accountNumber,
-            paymentAction: paymentAction
-        )
-        coordinator.didFinish = { coordinator in
-            coordinator.dismiss(animated: true)
-        }
-        coordinator.start()
-        presentChild(coordinator, animated: true)
     }
 }

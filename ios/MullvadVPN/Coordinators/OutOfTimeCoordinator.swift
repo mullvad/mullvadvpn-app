@@ -11,7 +11,7 @@
 import Routing
 import UIKit
 
-class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeViewControllerDelegate, Poppable {
+class OutOfTimeCoordinator: Coordinator, Presenting, Poppable {
     let navigationController: RootContainerViewController
     let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
@@ -50,8 +50,6 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             errorPresenter: PaymentAlertPresenter(alertContext: self)
         )
 
-        controller.delegate = self
-
         viewController = controller
 
         navigationController.pushViewController(controller, animated: animated)
@@ -70,23 +68,5 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             animated: animated,
             completion: completion
         )
-    }
-
-    // MARK: - OutOfTimeViewControllerDelegate
-
-    func didRequestShowInAppPurchase(
-        accountNumber: String,
-        paymentAction: PaymentAction
-    ) {
-        let coordinator = InAppPurchaseCoordinator(
-            storePaymentManager: storePaymentManager,
-            accountNumber: accountNumber,
-            paymentAction: paymentAction
-        )
-        coordinator.didFinish = { coordinator in
-            coordinator.dismiss(animated: true)
-        }
-        coordinator.start()
-        presentChild(coordinator, animated: true)
     }
 }
