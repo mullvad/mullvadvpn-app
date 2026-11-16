@@ -1,0 +1,5 @@
+---
+source: talpid-core/tests/nftables_snapshot.rs
+expression: "String::from_utf8(output.stdout).expect(\"nft output is not UTF-8\")"
+---
+
