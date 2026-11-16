@@ -78,12 +78,11 @@ final class AppResetManagerReal {
     }
 
     private func stopActiveTunnel() async throws {
-        NETunnelProviderManager.loadAllFromPreferences { managers, _ in
-            _ = managers?.compactMap { manager in
-                manager.isOnDemandEnabled = false
-                manager.connection.stopVPNTunnel()
-                manager.saveToPreferences()
-            }
+        let managers = try await NETunnelProviderManager.loadAllFromPreferences()
+        managers.forEach { manager in
+            manager.isOnDemandEnabled = false
+            manager.connection.stopVPNTunnel()
+            manager.saveToPreferences()
         }
     }
 }
