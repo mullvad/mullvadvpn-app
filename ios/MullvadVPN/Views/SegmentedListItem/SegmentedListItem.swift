@@ -76,16 +76,8 @@ struct SegmentedListItem<Leading: View>: View {
         if let leadingAndTrailingDestination {
             NavigationLink {
                 if let customDismissAction {
-                    leadingAndTrailingDestination.navigationBarBackButtonHidden(true)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button(
-                                    action: customDismissAction
-                                ) {
-                                    Image.mullvadIconBack
-                                }
-                            }.hideLiquidGlassEffect()
-                        }
+                    leadingAndTrailingDestination
+                        .withCustomBackButton(customDismissAction)
                 } else {
                     leadingAndTrailingDestination
                 }
