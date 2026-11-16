@@ -71,12 +71,6 @@ extension UINavigationBar {
 
         navigationBarAppearance.buttonAppearance = plainBarButtonAppearance
         navigationBarAppearance.doneButtonAppearance = doneBarButtonAppearance
-        navigationBarAppearance.backButtonAppearance = backButtonAppearance
-
-        navigationBarAppearance.setBackIndicatorImage(
-            backIndicatorImage,
-            transitionMaskImage: backIndicatorTransitionMask
-        )
 
         return navigationBarAppearance
     }
@@ -100,7 +94,6 @@ extension UIBarButtonItem {
         let backAction = UIAction(handler: { _ in
             navigationController.popViewController(animated: true)
         })
-        // option 1: an image button without the glass
         let image = UIImage.Buttons.back.withTintColor(
             UIColor.NavigationBar.buttonColor,
             renderingMode: .alwaysOriginal
@@ -110,14 +103,6 @@ extension UIBarButtonItem {
         let barButtonItem = UIBarButtonItem(image: image, primaryAction: backAction)
         barButtonItem.hidesSharedBackgroundIfAvailable()
         return barButtonItem
-        
-        // option 2: a text button reading "Back"
-//        return mullvadTextButton(
-//            title: NSLocalizedString("Back", comment: ""),
-//            textStyle: .headline,
-//            primaryAction: UIAction(handler: { _ in
-//                navigationController.popViewController(animated: true)
-//            }))
     }
 
     static func mullvadTextButton(
