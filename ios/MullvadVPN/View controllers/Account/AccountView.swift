@@ -29,9 +29,6 @@ struct AccountView: View {
     @State private var alert: MullvadAlert? = nil
     @State private var isAccountDeleted = false
     @State private var isLoading = false
-    @State var height: CGFloat = 300
-    @State var selectedDetent: PresentationDetent = .height(300)
-    @State var detents: Set<PresentationDetent> = [.height(300)]
 
     #if NEVER_IN_PRODUCTION
         let logger = Logger(label: "AccountView")
@@ -188,12 +185,8 @@ struct AccountView: View {
                             .accessibilityIdentifier(.accountPagePaidUntilLabel)
                     Spacer()
                     Button {
-//                        isLoading = true
-//                        Task {
-                            paymentViewModel.initPurchase()
-                            presentedSheet = .payment
-//                            isLoading = false
-//                        }
+                        paymentViewModel.initPurchase()
+                        presentedSheet = .payment
                     } label: {
                         Text("Add time")
                             .underline()
@@ -201,45 +194,6 @@ struct AccountView: View {
                     }
                     .font(.mullvadSmallSemiBold)
                     .accessibilityIdentifier(.purchaseButton)
-                }
-                HStack {
-                    Button {
-                        isLoading = true
-                        paymentViewModel.restorePurchases()
-                    } label: {
-                        Text("Restore purchases")
-                            .underline()
-                            .multilineTextAlignment(.leading)
-                    }
-                    .font(.mullvadSmallSemiBold)
-                    .accessibilityIdentifier(.restorePurchasesButton)
-                    Button {
-                        alert = .init(
-                            type: .none,
-                            title: "If you haven’t received additional VPN time after purchasing",
-                            messages: [
-                                """
-                                You can use the "restore purchases" function to check for any in-app payments \
-                                made via Apple services. If there is a payment that has not been credited, it will \
-                                add the time to the currently logged in Mullvad account.
-                                """
-                            ],
-                            actions: [
-                                .init(
-                                    type: .primary, title: "Got it!",
-                                    handler: {
-                                        alert = nil
-                                    })
-                            ]
-                        )
-                    } label: {
-                        ResizableImageView(
-                            image:
-                                Image.mullvadIconInfo,
-                            dimension: .height(18)
-                        )
-                    }
-                    Spacer()
                 }
             }
         }
@@ -296,79 +250,59 @@ struct AccountView: View {
             }
             .padding(.vertical, 8)
 
-            Group {
-                if let notice = paymentViewModel.notice {
-                    Text(LocalizedStringKey(notice.message))
+            ZStack {
+                VStack(spacing: 16) {
+                    ForEach(paymentViewModel.products, id: \.self) { product in
+                        product.customLocalizedTitle.flatMap { productTitle in
+                            MullvadButton(
+                                text: LocalizedStringKey(productTitle),
+                                style: .primary,
+                                action: {
+                                    paymentViewModel.doPurchase(of: product)
+                                }
+                            )
+                        }
+                    }
                     MullvadButton(
-                        text: "Got it!",
+                        text: "Restore purchases",
                         style: .secondary,
                         action: {
-                            paymentViewModel.notice = nil
+                            paymentViewModel.restorePurchases()
                         }
                     )
-//                    alert = .init(
-//                        type: notice.type,
-//                        title: LocalizedStringKey(notice.title),
-//                        messages: [LocalizedStringKey(notice.message)],
-//                        actions: [
-//                            .init(type: .primary, title: "Got it!") {
-////                                alert = nil
-//                                paymentViewModel.notice = nil
-//                            }
-//                        ]
-//                    )
+                    .accessibilityIdentifier(.restorePurchasesButton)
+                }
+
+                if let notice = paymentViewModel.notice {
+                    VStack(spacing: 16) {
+                        Spacer()
+                        Text(LocalizedStringKey(notice.message))
+                        MullvadButton(
+                            text: "Got it!",
+                            style: .secondary,
+                            action: {
+                                paymentViewModel.notice = nil
+                            }
+                        )
+                        Spacer()
+                    }
+                    .background(Color.mullvadBackground)
                 } else if paymentViewModel.isProcessing {
                     ProgressView()
                         .progressViewStyle(MullvadProgressViewStyle())
-                } else {
-                    Group {
-                        ForEach(paymentViewModel.products, id: \.self) { product in
-                            product.customLocalizedTitle.flatMap { productTitle in
-                                MullvadButton(
-                                    text: LocalizedStringKey(productTitle),
-                                    style: .primary,
-                                    action: {
-                                        //                                    presentedSheet = nil
-                                        paymentViewModel.doPurchase(of: product)
-                                    }
-                                )
-                            }
-                        }
-                        MullvadButton(
-                            text: "Restore purchases",
-                            style: .secondary,
-                            action: {
-                                presentedSheet = nil
-                                isLoading = true
-                                paymentViewModel.restorePurchases()
-                            }
-                        )
-                        .accessibilityIdentifier(.restorePurchasesButton)
-                    }
-                    .disabled(paymentViewModel.isProcessing)
                 }
             }
-            .transition(.opacity)
+            .disabled(paymentViewModel.isProcessing)
             .animation(.easeInOut(duration: 0.25), value: paymentViewModel.isProcessing)
-
+//            .animation(.easeInOut, value: paymentViewModel.notice)
+            .animation(.easeInOut(duration: 0.25), value: paymentViewModel.products)
         }
         .padding(16)
         .background(Color.mullvadBackground)
         .presentationBackground(Color.mullvadBackground)
         .foregroundStyle(Color.mullvadTextPrimary)
         .cornerRadius(8)
-        .sizeOfView {
-            height = $0.height
-        }
-        .onChange(of: height) {
-            detents.insert(.height(height))
-            selectedDetent = .height(height)
-            Task {
-                try? await Task.sleep(for: .seconds(0.1))
-                detents.removeFirst()
-            }
-        }
-        .presentationDetents(Set(detents), selection: $selectedDetent)
+        .presentationDetents(.sizeToFit)
     }
 
     #if NEVER_IN_PRODUCTION

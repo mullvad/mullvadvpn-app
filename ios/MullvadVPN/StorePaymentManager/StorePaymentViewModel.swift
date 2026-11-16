@@ -62,8 +62,8 @@ final class PaymentViewModel: PaymentViewModelProtocol, Sendable {
 
             do {
                 let outcome = try await paymentManager.processOutstandingTransactions()
-                notice = PaymentNotice(outcome: outcome, context: .restorationBeforePurchase)
                 if case .timeAdded = outcome {
+                    notice = PaymentNotice(outcome: outcome, context: .restorationBeforePurchase)
                 }
             } catch {
                 notice = PaymentNotice(error: .restorationError, context: .restorationBeforePurchase)
