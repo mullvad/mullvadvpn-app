@@ -16,12 +16,14 @@ final class TunnelViewControllerInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let outgoingConnectionService: OutgoingConnectionServiceHandling
     private var tunnelObserver: TunnelObserver?
-    private var outgoingConnectionTask: Task<Void, Error>?
+    private var outgoingIPv4ConnectionTask: Task<Void, Error>?
+    private var outgoingIPv6ConnectionTask: Task<Void, Error>?
 
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
     var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
     var didUpdateTunnelSettings: ((LatestTunnelSettings) -> Void)?
-    var didGetOutgoingAddress: (@MainActor (OutgoingConnectionInfo) -> Void)?
+    var didGetOutgoingIPv4Address: (@MainActor (IPV4ConnectionData) -> Void)?
+    var didGetOutgoingIPv6Address: (@MainActor (IPV6ConnectionData) -> Void)?
 
     var tunnelStatus: TunnelStatus {
         tunnelManager.tunnelStatus
@@ -36,7 +38,8 @@ final class TunnelViewControllerInteractor: @unchecked Sendable {
     }
 
     deinit {
-        outgoingConnectionTask?.cancel()
+        outgoingIPv4ConnectionTask?.cancel()
+        outgoingIPv6ConnectionTask?.cancel()
     }
 
     init(
@@ -49,17 +52,26 @@ final class TunnelViewControllerInteractor: @unchecked Sendable {
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                 guard let self else { return }
-                outgoingConnectionTask?.cancel()
+                outgoingIPv4ConnectionTask?.cancel()
                 didUpdateTunnelStatus?(tunnelStatus)
                 if case .connected = tunnelStatus.state {
-                    outgoingConnectionTask = Task(priority: .high) { [weak self] in
+                    outgoingIPv4ConnectionTask = Task(priority: .high) { [weak self] in
                         guard
                             let outgoingConnectionInfo = try await self?.outgoingConnectionService
-                                .getOutgoingConnectionInfo()
+                                .getOutgoingIPv4ConnectionInfo()
                         else {
                             return
                         }
-                        await self?.didGetOutgoingAddress?(outgoingConnectionInfo)
+                        await self?.didGetOutgoingIPv4Address?(outgoingConnectionInfo)
+                    }
+                    outgoingIPv6ConnectionTask = Task(priority: .high) { [weak self] in
+                        guard
+                            let outgoingConnectionInfo = try await self?.outgoingConnectionService
+                                .getOutgoingIPv6ConnectionInfo()
+                        else {
+                            return
+                        }
+                        await self?.didGetOutgoingIPv6Address?(outgoingConnectionInfo)
                     }
                 }
             },

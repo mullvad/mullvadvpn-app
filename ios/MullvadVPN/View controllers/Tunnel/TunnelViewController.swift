@@ -112,8 +112,12 @@ class TunnelViewController: UIViewController, RootContainment {
             self?.view.setNeedsLayout()
         }
 
-        interactor.didGetOutgoingAddress = { [weak self] outgoingConnectionInfo in
-            self?.connectionViewViewModel.outgoingConnectionInfo = outgoingConnectionInfo
+        interactor.didGetOutgoingIPv4Address = { [weak self] outgoingConnectionInfo in
+            self?.connectionViewViewModel.outgoingConnectionInfo.ipv4 = outgoingConnectionInfo
+        }
+
+        interactor.didGetOutgoingIPv6Address = { [weak self] outgoingConnectionInfo in
+            self?.connectionViewViewModel.outgoingConnectionInfo.ipv6 = outgoingConnectionInfo
         }
 
         interactor.didUpdateTunnelSettings = { [weak self] tunnelSettings in
