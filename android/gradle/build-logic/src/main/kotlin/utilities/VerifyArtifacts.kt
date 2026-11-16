@@ -75,9 +75,16 @@ abstract class VerifyArtifactsTask : DefaultTask() {
         val artifacts = artifactFiles.map(Artifact::of).sortedBy { it.name }
 
         if (releaseVersion != null) {
-            println("\nVerifying artifacts for version $releaseVersion")
-            println("  Directory: ${distDirectory.get()}")
-            println("\nExpected artifacts:")
+            println()
+            println(
+                """
+                Verifying artifacts for version $releaseVersion
+                  Directory: ${distDirectory.get()}
+
+                Expected artifacts:
+                """
+                    .trimIndent(),
+            )
             artifacts.forEach { println("  ${it.name}") }
         }
 
@@ -115,10 +122,16 @@ abstract class VerifyArtifactsTask : DefaultTask() {
                 else -> "present ($relayListSize bytes)"
             }
 
-        println("\nVerifying ${artifact.name}")
-        println("  Checksum:   ${artifact.sha256()} (sha256)")
-        println("  Size:       ${artifact.size} bytes")
-        println("  Relay list: $relayList")
+        println()
+        println(
+            """
+            Verifying ${artifact.name}
+              Checksum:   ${artifact.sha256()} (sha256)
+              Size:       ${artifact.size} bytes
+              Relay list: $relayList
+            """
+                .trimIndent(),
+        )
     }
 }
 
