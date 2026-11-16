@@ -36,6 +36,7 @@ class CustomNavigationController: UINavigationController {
 
 extension UINavigationController {
     func pushViewControllerAddingCustomButtons(_ viewController: UIViewController, animated: Bool = true) {
+        viewController.navigationItem.hidesBackButton = true
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(navigationController: self)
         self.pushViewController(viewController, animated: animated)
     }
