@@ -2,15 +2,13 @@
 name: RaaS - Build (Nix)
 on:
   pull_request:
-    paths:
+    paths: &raas-paths
       - .github/workflows/raas-build.yml
-      - ci/ios/test-router/flake.nix
-      - ci/ios/test-router/flake.lock
-      - ci/ios/test-router/raas.nix
-      - 'ci/ios/test-router/raas/**'
+      - ci/ios/test-router/raas/**
   push:
     branches:
       - main
+    paths: *raas-paths
 
 permissions: {}
 
