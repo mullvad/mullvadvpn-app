@@ -37,7 +37,6 @@ fun MullvadFeatureChip(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     onClick: () -> Unit,
-    trailingIcon: @Composable (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -61,7 +60,6 @@ fun MullvadFeatureChip(
             ),
         selected = false,
         onClick = onClick,
-        trailingIcon = trailingIcon,
         label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 icon?.let {

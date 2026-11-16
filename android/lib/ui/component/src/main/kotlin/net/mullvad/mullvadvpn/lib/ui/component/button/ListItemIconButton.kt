@@ -28,7 +28,7 @@ fun ListItemIconButton(
     ) {
         IconButton(
             modifier = modifier,
-            onClick = onClick, // { onCellClicked(!isExpanded) },
+            onClick = onClick,
         ) {
             icon()
         }

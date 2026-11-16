@@ -31,8 +31,8 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlist.EditCustom
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.CustomListsViewModel
-import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.CustomTunnelEditViewModel
-import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomTunnelsListViewModel
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.CustomVpnEditViewModel
+import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomVpnListViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmation.DeleteAccountConfirmationViewModel
 import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
@@ -81,7 +81,7 @@ import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogDataProvider
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 import net.mullvad.mullvadvpn.lib.repository.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
@@ -191,7 +191,7 @@ val uiModule = module {
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
     single { HasShowNotificationPromptRepository() }
-    single { CustomTunnelsRepository(managementService = get(), ioDispatcher = Dispatchers.IO) }
+    single { CustomVpnRepository(managementService = get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -448,7 +448,13 @@ val uiModule = module {
     viewModel { params -> EditCustomListNameDialogViewModel(navArgs = params.get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { params -> DeleteCustomListConfirmationViewModel(navArgs = params.get(), get()) }
-    viewModel { CustomTunnelEditViewModel(get(), get()) }
+    viewModel { params ->
+        CustomVpnEditViewModel(
+            settingsRepository = get(),
+            customVpnRepository = get(),
+            isNewConfig = params.get(),
+        )
+    }
     viewModel { params -> ServerIpOverridesViewModel(navArgs = params.get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }
@@ -555,9 +561,10 @@ val uiModule = module {
             userPreferencesRepository = get(),
         )
     }
-    viewModel {
-        CustomTunnelsListViewModel(
-            customTunnelsRepository = get(),
+    viewModel { params ->
+        CustomVpnListViewModel(
+            isModal = params.get(),
+            customVpnRepository = get(),
             settingsRepository = get(),
             ioDispatcher = Dispatchers.IO,
         )

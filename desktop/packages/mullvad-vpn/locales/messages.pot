@@ -3544,7 +3544,7 @@ msgstr ""
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
 msgstr ""
 
-msgid "<b>Custom tunnels</b> is currently restricted to a single configuration"
+msgid "<b>Custom tunnels</b> is currently restricted to a single configuration."
 msgstr ""
 
 msgid "<b>DNS content blockers</b>"
@@ -3775,9 +3775,6 @@ msgstr ""
 msgid "Custom DNS server addresses %1$s are invalid"
 msgstr ""
 
-msgid "Custom VPN"
-msgstr ""
-
 msgid "Custom tunnel"
 msgstr ""
 
@@ -3886,7 +3883,7 @@ msgstr ""
 msgid "Expand"
 msgstr ""
 
-msgid "Experimental feature: May not work as expected."
+msgid "Experimental feature"
 msgstr ""
 
 msgid "External link"

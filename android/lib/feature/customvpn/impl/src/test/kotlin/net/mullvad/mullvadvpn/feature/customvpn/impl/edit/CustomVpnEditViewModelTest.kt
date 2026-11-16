@@ -44,21 +44,21 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
-class CustomTunnelEditViewModelTest {
+class CustomVpnEditViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockManagementService: ManagementService = mockk()
 
     private val settingsUpdates = MutableStateFlow<Settings?>(null)
 
-    private lateinit var viewModel: CustomTunnelEditViewModel
+    private lateinit var viewModel: CustomVpnEditViewModel
 
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
 
         viewModel =
-            CustomTunnelEditViewModel(
+            CustomVpnEditViewModel(
                 settingsRepository = mockSettingsRepository,
                 managementService = mockManagementService,
             )
@@ -89,7 +89,7 @@ class CustomTunnelEditViewModelTest {
                 initSettings(customVpnConfig = null)
 
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 assertFormDataMatches(FormData(), content.value.formData)
                 assertNull(content.value.formErrors)
             }
@@ -108,7 +108,7 @@ class CustomTunnelEditViewModelTest {
                 initSettings(customVpnConfig = customVpnConfig)
 
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 assertFormDataMatches(
                     FormData.from(customVpnConfig),
                     content.value.formData,
@@ -129,12 +129,12 @@ class CustomTunnelEditViewModelTest {
 
             initSettings(customVpnConfig = customVpnConfig)
 
-            assertIs<Lc.Content<CustomTunnelEditUiState>>(awaitItem())
+            assertIs<Lc.Content<CustomVpnEditUiState>>(awaitItem())
 
             viewModel.clearConfig()
 
             val updatedContent = awaitItem()
-            assertIs<Lc.Content<CustomTunnelEditUiState>>(updatedContent)
+            assertIs<Lc.Content<CustomVpnEditUiState>>(updatedContent)
             assertFormDataMatches(FormData.from(null), updatedContent.value.formData)
         }
 
@@ -156,7 +156,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 assertEquals(FormDataError.EmptyName, content.value.formErrors?.nameError)
             }
 
@@ -179,7 +179,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val keyError = content.value.formErrors?.privateKeyError
                 assertNotNull(keyError)
                 assertEquals(invalidPrivateKey, keyError.errorValue)
@@ -205,7 +205,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val ipError = content.value.formErrors?.tunnelIpErrors?.get(invalidIp)
                 assertEquals(FormDataError.TunnelIp(invalidIp), ipError)
             }
@@ -232,7 +232,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val peerError = content.value.formErrors?.peerErrors?.get(peerId)
                 assertNotNull(peerError)
                 val keyError = peerError.publicKeyError
@@ -263,7 +263,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val peerError = content.value.formErrors?.peerErrors?.get(peerId)
                 assertNotNull(peerError)
                 assertEquals(
@@ -294,7 +294,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val peerError = content.value.formErrors?.peerErrors?.get(peerId)
                 assertNotNull(peerError)
                 assertEquals(
@@ -325,7 +325,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val peerError = content.value.formErrors?.peerErrors?.get(peerId)
                 assertNotNull(peerError)
                 val portError = peerError.endpointPortError
@@ -356,7 +356,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 val peerError = content.value.formErrors?.peerErrors?.get(peerId)
                 assertNotNull(peerError)
                 val portError = peerError.endpointPortError
@@ -406,7 +406,7 @@ class CustomTunnelEditViewModelTest {
 
             viewModel.uiState.test {
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelEditUiState>>(content)
+                assertIs<Lc.Content<CustomVpnEditUiState>>(content)
                 assertFormDataMatches(
                     FormData.from(expectedConfig),
                     content.value.formData,

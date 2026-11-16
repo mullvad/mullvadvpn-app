@@ -264,8 +264,6 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
-    <string name="custom_vpn">Custom VPN</string>
-
     <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
@@ -611,8 +609,8 @@
     <string name="custom_tunnels_tap_to_add">Tap “+” to add a custom tunnel profile</string>
     <string name="add_new_configuration">Add new configuration</string>
     <string name="import_wireguard_configuration">Import WireGuard configuration</string>
-    <string name="custom_tunnels_experimental_warning">Experimental feature: May not work as expected.</string>
-    <string name="custom_tunnels_single_configuration_warning"><b>Custom tunnels</b> is currently restricted to a single configuration</string>
+    <string name="custom_tunnels_experimental_warning">Experimental feature</string>
+    <string name="custom_tunnels_single_configuration_warning"><b>Custom tunnels</b> is currently restricted to a single configuration.</string>
     <string name="custom_tunnels_configuration_saved">Custom tunnel configuration saved</string>
     <string name="custom_tunnels_configuration_failed_to_save">Failed to save custom tunnel configuration</string>
     <string name="create_configuration">Create configuration</string>

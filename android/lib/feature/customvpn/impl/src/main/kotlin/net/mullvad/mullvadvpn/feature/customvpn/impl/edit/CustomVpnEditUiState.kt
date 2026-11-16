@@ -6,9 +6,10 @@ import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 
-data class CustomTunnelEditUiState(
+data class CustomVpnEditUiState(
     val formData: FormData = FormData(),
     val formErrors: FormErrors? = null,
+    val isNewConfig: Boolean = false,
 )
 
 data class FormErrors(
@@ -33,26 +34,22 @@ data class FormData(
     val peers: List<PeerFormData> = listOf(PeerFormData()),
 ) {
     companion object {
-        fun from(customVpnConfig: CustomVpnConfig?) =
-            if (customVpnConfig == null) {
-                FormData()
-            } else {
-                FormData(
-                    name = customVpnConfig.name.orEmpty(),
-                    enabled = customVpnConfig.enabled,
-                    privateKey = customVpnConfig.tunnelConfig.privateKey.value,
-                    tunnelIps = customVpnConfig.tunnelConfig.tunnelIps.ifEmpty { setOf("") },
-                    peers =
-                        customVpnConfig.peerConfig.map { peerConfig ->
-                            PeerFormData(
-                                publicKey = peerConfig.publicKey.value,
-                                allowedIps = peerConfig.allowedIps.ifEmpty { setOf("") },
-                                endpointAddress = peerConfig.endpoint.hostString,
-                                endpointPort = peerConfig.endpoint.port.toString(),
-                            )
-                        },
-                )
-            }
+        fun from(customVpnConfig: CustomVpnConfig) =
+            FormData(
+                name = customVpnConfig.name.orEmpty(),
+                enabled = customVpnConfig.enabled,
+                privateKey = customVpnConfig.tunnelConfig.privateKey.value,
+                tunnelIps = customVpnConfig.tunnelConfig.tunnelIps.ifEmpty { setOf("") },
+                peers =
+                    customVpnConfig.peerConfig.map { peerConfig ->
+                        PeerFormData(
+                            publicKey = peerConfig.publicKey.value,
+                            allowedIps = peerConfig.allowedIps.ifEmpty { setOf("") },
+                            endpointAddress = peerConfig.endpoint.hostString,
+                            endpointPort = peerConfig.endpoint.port.toString(),
+                        )
+                    },
+            )
     }
 }
 

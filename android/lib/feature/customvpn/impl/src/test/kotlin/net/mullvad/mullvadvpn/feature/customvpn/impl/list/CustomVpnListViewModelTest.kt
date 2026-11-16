@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.model.GetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
-import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -40,22 +40,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(TestCoroutineRule::class)
-class CustomTunnelsListViewModelTest {
+class CustomVpnListViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockCustomTunnelsRepository: CustomTunnelsRepository = mockk()
+    private val mockCustomVpnRepository: CustomVpnRepository = mockk()
     private val mockContentResolver: ContentResolver = mockk()
     private val uri: Uri = mockk()
 
     private val settingsUpdates = MutableStateFlow<Settings?>(null)
     private var importedConfigContent: String = ""
 
-    private lateinit var viewModel: CustomTunnelsListViewModel
+    private lateinit var viewModel: CustomVpnListViewModel
 
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
-        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
+        coEvery { mockCustomVpnRepository.getCustomVpnStats() } returns
             GetCustomVpnConfigError.Unknown.left()
         every { mockContentResolver.openInputStream(uri) } answers
             {
@@ -63,9 +63,9 @@ class CustomTunnelsListViewModelTest {
             }
 
         viewModel =
-            CustomTunnelsListViewModel(
+            CustomVpnListViewModel(
                 settingsRepository = mockSettingsRepository,
-                customTunnelsRepository = mockCustomTunnelsRepository,
+                customVpnRepository = mockCustomVpnRepository,
                 ioDispatcher = UnconfinedTestDispatcher(),
             )
     }
@@ -95,7 +95,7 @@ class CustomTunnelsListViewModelTest {
                 initSettings(customVpnConfig = null)
 
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+                assertIs<Lc.Content<CustomVpnListUiState>>(content)
                 assertNull(content.value.customVpnConfig)
                 assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
             }
@@ -114,7 +114,7 @@ class CustomTunnelsListViewModelTest {
                 initSettings(customVpnConfig = sampleConfig)
 
                 val content = awaitItem()
-                assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+                assertIs<Lc.Content<CustomVpnListUiState>>(content)
                 assertEquals(sampleConfig, content.value.customVpnConfig)
                 assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
             }
@@ -126,7 +126,7 @@ class CustomTunnelsListViewModelTest {
             // Arrange
             val initialStats = TunnelStats(rx = 100, tx = 200)
             val updatedStats = TunnelStats(rx = 300, tx = 400)
-            coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
+            coEvery { mockCustomVpnRepository.getCustomVpnStats() } returns
                 initialStats.right() andThen
                 updatedStats.right()
 
@@ -135,13 +135,13 @@ class CustomTunnelsListViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val initialContent = awaitItem()
-                assertIs<Lc.Content<CustomTunnelsListUiState>>(initialContent)
+                assertIs<Lc.Content<CustomVpnListUiState>>(initialContent)
                 assertEquals(initialStats, initialContent.value.tunnelStats)
 
                 advanceTimeBy(1.seconds)
 
                 val updatedContent = awaitItem()
-                assertIs<Lc.Content<CustomTunnelsListUiState>>(updatedContent)
+                assertIs<Lc.Content<CustomVpnListUiState>>(updatedContent)
                 assertEquals(updatedStats, updatedContent.value.tunnelStats)
             }
         }
@@ -150,7 +150,7 @@ class CustomTunnelsListViewModelTest {
     fun `when getCustomVpnStats fails uiState should retain previous stats`() = runTest {
         // Arrange
         val initialStats = TunnelStats(rx = 100, tx = 200)
-        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
+        coEvery { mockCustomVpnRepository.getCustomVpnStats() } returns
             initialStats.right() andThen
             GetCustomVpnConfigError.Unknown.left()
 
@@ -159,7 +159,7 @@ class CustomTunnelsListViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val initialContent = awaitItem()
-            assertIs<Lc.Content<CustomTunnelsListUiState>>(initialContent)
+            assertIs<Lc.Content<CustomVpnListUiState>>(initialContent)
             assertEquals(initialStats, initialContent.value.tunnelStats)
 
             advanceTimeBy(1.seconds)
@@ -175,13 +175,13 @@ class CustomTunnelsListViewModelTest {
 
         viewModel.uiState.test {
             val content = awaitItem()
-            assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+            assertIs<Lc.Content<CustomVpnListUiState>>(content)
             assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
 
             advanceTimeBy(3.seconds)
 
             expectNoEvents()
-            coVerify(exactly = 0) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+            coVerify(exactly = 0) { mockCustomVpnRepository.getCustomVpnStats() }
         }
     }
 
@@ -191,13 +191,13 @@ class CustomTunnelsListViewModelTest {
 
         viewModel.uiState.test {
             val content = awaitItem()
-            assertIs<Lc.Content<CustomTunnelsListUiState>>(content)
+            assertIs<Lc.Content<CustomVpnListUiState>>(content)
             assertEquals(TunnelStats(0, 0), content.value.tunnelStats)
 
             advanceTimeBy(3.seconds)
 
             expectNoEvents()
-            coVerify(exactly = 0) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+            coVerify(exactly = 0) { mockCustomVpnRepository.getCustomVpnStats() }
         }
     }
 
@@ -205,7 +205,7 @@ class CustomTunnelsListViewModelTest {
     fun `when custom vpn config is enabled should poll daemon for stats`() = runTest {
         val initialStats = TunnelStats(rx = 100, tx = 200)
         val updatedStats = TunnelStats(rx = 300, tx = 400)
-        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } returns
+        coEvery { mockCustomVpnRepository.getCustomVpnStats() } returns
             initialStats.right() andThen
             updatedStats.right()
 
@@ -217,7 +217,7 @@ class CustomTunnelsListViewModelTest {
             advanceTimeBy(1.seconds)
 
             assertEquals(updatedStats, awaitItem().contentOrNull()?.tunnelStats)
-            coVerify(atLeast = 2) { mockCustomTunnelsRepository.getCustomTunnelStats() }
+            coVerify(atLeast = 2) { mockCustomVpnRepository.getCustomVpnStats() }
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -226,7 +226,7 @@ class CustomTunnelsListViewModelTest {
     fun `when custom vpn config becomes disabled should stop polling and reset stats`() = runTest {
         val stats = TunnelStats(rx = 100, tx = 200)
         var pollCount = 0
-        coEvery { mockCustomTunnelsRepository.getCustomTunnelStats() } answers
+        coEvery { mockCustomVpnRepository.getCustomVpnStats() } answers
             {
                 pollCount++
                 stats.right()
@@ -253,13 +253,13 @@ class CustomTunnelsListViewModelTest {
         // Arrange
         val enabledConfig = createSampleCustomVpnConfig(enabled = true)
         val expectedConfig = enabledConfig.copy(enabled = false)
-        coEvery { mockCustomTunnelsRepository.setConfig(expectedConfig) } returns Unit.right()
+        coEvery { mockCustomVpnRepository.setConfig(expectedConfig) } returns Unit.right()
 
         // Act
         viewModel.onToggleCustomTunnel(enabledConfig)
 
         // Assert
-        coVerify(exactly = 1) { mockCustomTunnelsRepository.setConfig(expectedConfig) }
+        coVerify(exactly = 1) { mockCustomVpnRepository.setConfig(expectedConfig) }
     }
 
     @Test
@@ -267,13 +267,13 @@ class CustomTunnelsListViewModelTest {
         // Arrange
         val disabledConfig = createSampleCustomVpnConfig(enabled = false)
         val expectedConfig = disabledConfig.copy(enabled = true)
-        coEvery { mockCustomTunnelsRepository.setConfig(expectedConfig) } returns Unit.right()
+        coEvery { mockCustomVpnRepository.setConfig(expectedConfig) } returns Unit.right()
 
         // Act
         viewModel.onToggleCustomTunnel(disabledConfig)
 
         // Assert
-        coVerify(exactly = 1) { mockCustomTunnelsRepository.setConfig(expectedConfig) }
+        coVerify(exactly = 1) { mockCustomVpnRepository.setConfig(expectedConfig) }
     }
 
     @Test
@@ -282,16 +282,15 @@ class CustomTunnelsListViewModelTest {
         val name = "test-tunnel"
         val configString = "[Interface]\nPrivateKey = $VALID_PRIVATE_KEY\n"
         importedConfigContent = configString
-        coEvery { mockCustomTunnelsRepository.importConfig(name, configString) } returns
-            Unit.right()
+        coEvery { mockCustomVpnRepository.importConfig(name, configString) } returns Unit.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
             viewModel.importConfig(name, mockContentResolver, uri)
-            assertEquals(CustomTunnelsListSideEffect.ConfigurationSaved, awaitItem())
+            assertEquals(CustomVpnListSideEffect.ConfigurationSaved, awaitItem())
         }
 
-        coVerify(exactly = 1) { mockCustomTunnelsRepository.importConfig(name, configString) }
+        coVerify(exactly = 1) { mockCustomVpnRepository.importConfig(name, configString) }
     }
 
     @Test
@@ -301,18 +300,17 @@ class CustomTunnelsListViewModelTest {
         val configString = "invalid config content"
         importedConfigContent = configString
         val error = SetCustomVpnConfigError.Unknown(RuntimeException("Invalid configuration"))
-        coEvery { mockCustomTunnelsRepository.importConfig(name, configString) } returns
-            error.left()
+        coEvery { mockCustomVpnRepository.importConfig(name, configString) } returns error.left()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
             viewModel.importConfig(name, mockContentResolver, uri)
             val sideEffect = awaitItem()
-            assertIs<CustomTunnelsListSideEffect.FailedToSave>(sideEffect)
+            assertIs<CustomVpnListSideEffect.FailedToSave>(sideEffect)
             assertEquals(error.toString(), sideEffect.reason)
         }
 
-        coVerify(exactly = 1) { mockCustomTunnelsRepository.importConfig(name, configString) }
+        coVerify(exactly = 1) { mockCustomVpnRepository.importConfig(name, configString) }
     }
 
     private fun initSettings(customVpnConfig: CustomVpnConfig? = null) {
