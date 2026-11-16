@@ -160,7 +160,8 @@ struct VPNSettingsView: View {
                         leadingAndTrailingDestination: {
                             AntiCensorshipView(
                                 settingsInteractor: settingsInteractor,
-                                settings: settings
+                                settings: settings,
+                                navigationController: navigationController
                             )
                         },
                         leading: {

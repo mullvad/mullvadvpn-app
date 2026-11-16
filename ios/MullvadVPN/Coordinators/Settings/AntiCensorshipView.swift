@@ -15,6 +15,7 @@ struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
     @Bindable var settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
+    let navigationController: UINavigationController
 
     struct Option: Identifiable {
         typealias ID = String
@@ -24,11 +25,6 @@ struct AntiCensorshipView: View {
         var id: ID {
             state.description
         }
-    }
-
-    init(settingsInteractor: VPNSettingsInteractor, settings: ObservableVPNSettings) {
-        self.settingsInteractor = settingsInteractor
-        self.settings = settings
     }
 
     let availableObfuscations: [Option] =
@@ -152,44 +148,50 @@ struct AntiCensorshipView: View {
         itemFactory.leading(for: .generic(title: title, subtitle: subtitle, level: 1, isSelected: isSelected))
     }
 
+    private func navigationDest(forState state: WireGuardObfuscationState) -> AnyView? {
+        switch state {
+        case .shadowsocks:
+            return ShadowsocksObfuscationSettingsView(
+                port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort
+            )
+            .navigationTitle("Shadowsocks")
+            .typeErase()
+        case .udpOverTcp:
+            return UDPOverTCPObfuscationSettingsView(
+                port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort
+            )
+            .navigationTitle("UDP-over-TCP")
+            .typeErase()
+        case .lwo:
+            let viewModel = TunnelLwoObfuscationSettingsViewModel(
+                port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort,
+                portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+            return LwoObfuscationSettingsView(
+                viewModel: viewModel
+            )
+            .navigationTitle("LWO")
+            .typeErase()
+        default: return nil
+        }
+    }
+
     @ViewBuilder
     private func segmentView(for state: WireGuardObfuscationState) -> some View {
-        if [WireGuardObfuscationState.automatic, WireGuardObfuscationState.quic, WireGuardObfuscationState.off]
-            .contains(state)
-        {
-            EmptyView()
-        } else {
+        if let stateSettingsView = navigationDest(forState: state) {
             NavigationLink {
-                switch state {
-                case .shadowsocks:
-                    ShadowsocksObfuscationSettingsView(
-                        port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort
-                    )
-                    .navigationTitle("Shadowsocks")
+                stateSettingsView
                     .onDisappear {
                         updateSettings()
                     }
-                case .udpOverTcp:
-                    UDPOverTCPObfuscationSettingsView(
-                        port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort
-                    )
-                    .navigationTitle("UDP-over-TCP")
-                    .onDisappear {
-                        updateSettings()
+                    .navigationBarBackButtonHidden(true)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button(action: {
+                                navigationController.popViewController(animated: true)
+                            }) { Image.mullvadIconBack }
+                        }
+                        .hideLiquidGlassEffect()
                     }
-                case .lwo:
-                    let viewModel = TunnelLwoObfuscationSettingsViewModel(
-                        port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort,
-                        portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-                    LwoObfuscationSettingsView(
-                        viewModel: viewModel
-                    )
-                    .navigationTitle("LWO")
-                    .onDisappear {
-                        updateSettings()
-                    }
-                default: EmptyView()
-                }
             } label: {
                 switch state {
                 case .shadowsocks:
@@ -204,6 +206,8 @@ struct AntiCensorshipView: View {
                 default: EmptyView()
                 }
             }
+        } else {
+            EmptyView()
         }
     }
 }
