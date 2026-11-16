@@ -185,14 +185,8 @@ struct AntiCensorshipView: View {
                     .onDisappear {
                         updateSettings()
                     }
-                    .navigationBarBackButtonHidden(true)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button(action: {
-                                navigationController.popViewController(animated: true)
-                            }) { Image.mullvadIconBack }
-                        }
-                        .hideLiquidGlassEffect()
+                    .withCustomBackButton {
+                        navigationController.popViewController(animated: true)
                     }
             } label: {
                 switch state {
