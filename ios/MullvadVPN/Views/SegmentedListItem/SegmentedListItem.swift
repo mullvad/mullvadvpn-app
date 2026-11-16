@@ -84,7 +84,8 @@ struct SegmentedListItem<Leading: View>: View {
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button(
-                                    action: customDismissAction) {
+                                    action: customDismissAction
+                                ) {
                                     Image.mullvadIconBack
                                 }
                             }.hideLiquidGlassEffect()
