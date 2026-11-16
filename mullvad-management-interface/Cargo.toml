@@ -14,6 +14,7 @@ chrono = { workspace = true }
 futures = { workspace = true }
 hyper-util = { workspace = true }
 log = { workspace = true }
+mullvad-api-constants.workspace = true
 mullvad-paths.workspace = true
 mullvad-types.workspace = true
 prost = { workspace = true }

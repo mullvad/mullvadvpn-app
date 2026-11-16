@@ -18,3 +18,6 @@ pub const API_HOST_STAGING: &str = "api.stagemole.eu";
 pub const PARTNER_API_HOST_STAGING: &str = "partner.stagemole.eu";
 pub const API_IP_STAGING: IpAddr = IpAddr::V4(Ipv4Addr::new(185, 217, 116, 129));
 pub const API_PORT_STAGING: u16 = 443;
+
+// FIXME: HACK: management interface uses `StatusCode` to identify throttling sometimes.
+pub use http::StatusCode;

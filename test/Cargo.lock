@@ -2272,6 +2272,9 @@ dependencies = [
 [[package]]
 name = "mullvad-api-constants"
 version = "0.0.0"
+dependencies = [
+ "http",
+]
 
 [[package]]
 name = "mullvad-daemon-relay-selector"
@@ -2321,6 +2324,7 @@ dependencies = [
  "futures",
  "hyper-util",
  "log",
+ "mullvad-api-constants",
  "mullvad-paths",
  "mullvad-types",
  "nix 0.31.3",
