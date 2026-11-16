@@ -30,13 +30,14 @@ struct AccessMethodProtocolPicker {
         controller.view.setAccessibilityIdentifier(.accessMethodProtocolPickerView)
 
         controller.navigationItem.title = NSLocalizedString("Type", comment: "")
+        controller.navigationItem.hidesBackButton = true
 
         controller.onSelect = { selectedItem in
             navigationController.popViewController(animated: true)
             completion(selectedItem.method)
         }
 
-        navigationController.pushViewController(controller, animated: true)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: true)
     }
 }
 
