@@ -4,13 +4,11 @@ use serde::{Deserialize, Deserializer, Serialize};
 use std::{fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
 
-use crate::Intersection;
-
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_hours(24);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_hours(30 * 24);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
-#[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq, Intersection)]
+#[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {

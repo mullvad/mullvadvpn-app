@@ -8,6 +8,7 @@ pub mod query;
 pub mod relays;
 
 use relays::{Multihop, Singlehop, WireguardConfig};
+use vec1::Vec1;
 
 use crate::{
     detailer::wireguard_endpoint,
@@ -23,12 +24,15 @@ use mullvad_types::{
     location::Coordinates,
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
 };
-use std::ops::Deref;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
 };
-use talpid_types::net::{obfuscation::Obfuscators, proxy::Shadowsocks};
+use std::{net::SocketAddr, ops::Deref};
+use talpid_types::net::{
+    obfuscation::{ObfuscatorConfig, Obfuscators},
+    proxy::Shadowsocks,
+};
 
 /// A [`RelayList`] together with pre-computed [`endpoint_set::RelayEndpointSet`]s for every
 /// relay. Both are stored under the same [`RwLock`] in [`RelaySelector`] so that the cache
@@ -69,13 +73,43 @@ pub struct RelaySelector {
     bridges: Arc<RwLock<BridgeList>>,
 }
 
+/// Remove the obfuscation methods that the selected relay offers from the query, the return it.
+fn remove_supported_obfuscations(mut query: RelayQuery, relay: &GetRelay) -> RelayQuery {
+    let (direct, obf_configs) = match &relay.obfuscator {
+        None => (true, vec![]),
+        Some(obfuscation) => (
+            obfuscation.direct().is_some(),
+            obfuscation.obfuscator_configs(),
+        ),
+    };
+    let obfuscation = &mut query.entry_specific_mut().obfuscation;
+    if direct {
+        obfuscation.direct = None;
+    }
+    for config in obf_configs {
+        match config {
+            ObfuscatorConfig::Udp2Tcp { .. } => obfuscation.udp2tcp = None,
+            ObfuscatorConfig::Shadowsocks { .. } => obfuscation.shadowsocks = None,
+            ObfuscatorConfig::Quic { .. } => obfuscation.quic = false,
+            ObfuscatorConfig::Lwo { .. } => obfuscation.lwo = None,
+        }
+    }
+    query
+}
+
 /// The return type of [`RelaySelector::get_relay_by_query`].
 #[derive(Clone, Debug)]
 pub struct GetRelay {
     pub endpoint: MullvadEndpoint,
     pub obfuscator: Option<Obfuscators>,
     pub inner: WireguardConfig,
+    pub server_override: bool,
 }
+
+/// Iterator of relays to use for connection attempts. Consumed in FIFO order.
+///
+/// When empty, it is refilled from [RelaySelector::get_relays_with_automatic_anti_censorship].
+pub type RelayQueue = std::vec::IntoIter<GetRelay>;
 
 impl RelaySelector {
     pub fn new(relays: RelayList, bridges: BridgeList) -> Self {
@@ -109,9 +143,9 @@ impl RelaySelector {
         *key = bridges;
     }
 
-    /// Returns all countries and cities. The cities in the object returned does not have any
+    /// Returns inner [`RelayList`]. The cities in the object returned does not have any
     /// relays in them.
-    pub fn get_relays(&self) -> RelayList {
+    pub fn get_relay_list(&self) -> RelayList {
         self.relay_list(RelayList::clone)
     }
 
@@ -130,12 +164,12 @@ impl RelaySelector {
 
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
-    pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
+    pub fn get_relay_by_query(&self, query: &RelayQuery) -> Result<GetRelay, Error> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
         let annotated = self.relays.read().unwrap();
 
-        let inner = select_wireguard_relay(&annotated, &query)?;
+        let inner = select_wireguard_relay(&annotated, query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -148,7 +182,12 @@ impl RelaySelector {
 
         let entry_specific = query.entry_specific();
         let (wg_addr, obfuscator) = endpoint_set
-            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version)?;
+            .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version);
+
+        let server_override = match wg_addr {
+            SocketAddr::V4(_) => entry.overridden_ipv4,
+            SocketAddr::V6(_) => entry.overridden_ipv6,
+        };
 
         let endpoint = wireguard_endpoint(
             query.allowed_ips.as_ref(),
@@ -161,7 +200,56 @@ impl RelaySelector {
             endpoint,
             obfuscator,
             inner,
+            server_override,
         })
+    }
+
+    /// Get the list of relays that should be connected to for a given query.
+    ///
+    /// If anti-censorship is disabled or set to a specific method, this will return a single relay.
+    ///
+    /// If automatic anti-censorship is enabled, the returned set of relays will
+    /// together cover all available anti-censorship methods. As many methods as possible
+    /// will be multiplexed on a given relay, without repeating methods on consecutive ones.
+    /// Hence, all methods will be used once across the queue, if allowed by other constraints.
+    ///
+    /// See `docs/relay-selector.md#automatic-anti-censorship-selection`.
+    pub fn get_relays_with_automatic_anti_censorship(
+        &self,
+        mut user_query: RelayQuery,
+    ) -> Result<(GetRelay, RelayQueue), Error> {
+        let mut relays = vec![];
+
+        // First, we make a WireGuard-only attempt before using any obfuscations
+        if let Some(wg_query) = user_query.clone().wireguard_only()
+            && let Ok(wg_relay) = self.get_relay_by_query(&wg_query)
+        {
+            relays.push(wg_relay);
+        }
+
+        // Then, select a relay with multiplexed anti-censorship methods.
+        loop {
+            match self.get_relay_by_query(&user_query) {
+                Ok(relay) => {
+                    // All methods in the ObfuscationConstraints that are supported by the relay
+                    // will be used by the multiplexer. The next relay is selected with only the
+                    // remaining methods, until all methods have been used.
+                    let new = remove_supported_obfuscations(user_query.clone(), &relay);
+                    debug_assert_ne!(
+                        user_query, new,
+                        "Relay must have some obfuscation that we can remove"
+                    );
+                    user_query = new;
+                    relays.push(relay);
+                }
+                Err(err) => {
+                    let (relay, queue) = Vec1::try_from_vec(relays)
+                        .map_err(|_| err)?
+                        .split_off_first();
+                    return Ok((relay, queue.into_iter()));
+                }
+            }
+        }
     }
 }
 

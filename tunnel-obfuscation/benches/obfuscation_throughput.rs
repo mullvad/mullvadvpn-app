@@ -94,7 +94,7 @@ fn bench_proxy_lwo(c: &mut Criterion) {
         let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let settings = Settings {
             server_addr: relay.local_addr().unwrap(),
-            client_public_key: client_key.clone(),
+            client_public_key: client_key.clone().into(),
             server_public_key: server_key.clone(),
             version: LwoVersion::V1,
         };

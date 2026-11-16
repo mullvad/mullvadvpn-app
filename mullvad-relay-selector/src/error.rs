@@ -25,9 +25,6 @@ pub enum Error {
     #[error("No bridges matching current constraints")]
     NoBridge,
 
-    #[error("No obfuscators matching current constraints")]
-    NoObfuscator(#[from] crate::endpoint_set::Error),
-
     #[error("No endpoint could be constructed due to {} for relay {:?}", .internal, .relay)]
     NoEndpoint {
         internal: detailer::Error,

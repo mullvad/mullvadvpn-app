@@ -7,7 +7,6 @@ use crate::{
     ephemeral::{self, IngressSession},
 };
 use std::{
-    iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
 };
@@ -73,15 +72,12 @@ pub fn settings_from_config(
                 mtu,
             ))
         }
-        Obfuscators::Multiplexer {
-            direct,
-            configs: (first_obfs, remaining_obfs),
-        } => {
+        Obfuscators::Multiplexer { direct, configs } => {
             let mut transports = vec![];
             if let Some(direct) = direct {
                 transports.push(multiplexer::Transport::Direct(*direct));
             }
-            for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
+            for obfs_config in configs {
                 let settings = settings_from_single_config(
                     client_public_key.clone(),
                     server_public_key.clone(),
@@ -136,7 +132,7 @@ fn settings_from_single_config(
         ObfuscatorConfig::Lwo { endpoint, version } => {
             tunnel_obfuscation::Settings::Lwo(lwo::Settings {
                 server_addr: *endpoint,
-                client_public_key,
+                client_public_key: client_public_key.into(),
                 server_public_key,
                 version: *version,
             })
@@ -220,7 +216,7 @@ pub async fn run_multiplexer(
         CloseMsg::PingErr
     })?;
 
-    log::debug!("Selected obfuscation: {:?}", selected.config);
+    log::info!("Multiplexer selected transport: {}", selected.config);
 
     // `ephemeral::handshake` will not return if the handshake is invalid. The multiplexer verifies
     // the handshake, but only using the `mac1` field. If it is valid but the entire handshake is
