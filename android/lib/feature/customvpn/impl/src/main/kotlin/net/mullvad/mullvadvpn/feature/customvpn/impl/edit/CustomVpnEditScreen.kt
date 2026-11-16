@@ -63,27 +63,27 @@ import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.common.util.then
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedVisibilityItem
+import net.mullvad.mullvadvpn.lib.ui.component.LoadingScaffold
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.ListItemIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
-import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-private fun PreviewCustomTunnelEditScreen() {
+private fun PreviewCustomVpnEditScreen() {
     AppTheme {
-        CustomTunnelEditScreen(
-            state = Lc.Content(CustomTunnelEditUiState()),
-            isNew = false,
+        CustomVpnEditScreen(
+            state = Lc.Content(CustomVpnEditUiState()),
             onBackClick = {},
             saveConfig = {},
             clearConfig = {},
@@ -112,13 +112,11 @@ fun CustomTunnelEdit(
     navigator: Navigator,
     isNewConfig: Boolean,
 ) {
-    val vm = koinViewModel<CustomTunnelEditViewModel>()
+    val vm = koinViewModel<CustomVpnEditViewModel> { parametersOf(isNewConfig) }
     val state by vm.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var isNew by rememberSaveable { mutableStateOf(isNewConfig) }
 
     LocalResultStore.current.consumeResult<RemoveCustomTunnelConfigConfirmationNavResult> {
-        isNew = true
         vm.clearConfig()
     }
 
@@ -138,9 +136,8 @@ fun CustomTunnelEdit(
         }
     }
 
-    CustomTunnelEditScreen(
+    CustomVpnEditScreen(
         state = state,
-        isNew = isNew,
         onBackClick = dropUnlessResumed { navigator.goBack() },
         saveConfig = vm::save,
         clearConfig =
@@ -153,9 +150,8 @@ fun CustomTunnelEdit(
 
 @Suppress("LongMethod")
 @Composable
-fun CustomTunnelEditScreen(
-    state: Lc<Boolean, CustomTunnelEditUiState>,
-    isNew: Boolean,
+fun CustomVpnEditScreen(
+    state: Lc<Unit, CustomVpnEditUiState>,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     saveConfig: (FormData) -> Unit,
@@ -163,11 +159,12 @@ fun CustomTunnelEditScreen(
     snackbarHostState: SnackbarHostState,
 ) {
     if (state !is Lc.Content) {
-        MullvadCircularProgressIndicatorLarge()
+        LoadingScaffold(onBackClick = onBackClick)
         return
     }
 
     val formData = state.value.formData
+    val isNew = state.value.isNewConfig
 
     val nameFieldState = key(formData) { rememberTextFieldState(formData.name) }
 
@@ -386,7 +383,7 @@ fun LazyListScope.tunnelIpFieldList(
 
 fun LazyListScope.peersSection(
     peerStates: SnapshotStateList<PeerState>,
-    state: CustomTunnelEditUiState,
+    state: CustomVpnEditUiState,
 ) {
     item { ListHeader(text = stringResource(R.string.custom_tunnels_edit_peers)) }
 

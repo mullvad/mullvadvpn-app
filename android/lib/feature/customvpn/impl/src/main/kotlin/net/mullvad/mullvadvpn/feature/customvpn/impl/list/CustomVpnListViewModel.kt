@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -31,29 +30,31 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
-import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CustomTunnelsListViewModel(
+class CustomVpnListViewModel(
+    isModal: Boolean,
     settingsRepository: SettingsRepository,
-    private val customTunnelsRepository: CustomTunnelsRepository,
+    private val customVpnRepository: CustomVpnRepository,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<CustomTunnelsListSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
+    private val _uiSideEffect = Channel<CustomVpnListSideEffect>()
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val settingsUpdates = settingsRepository.settingsUpdates.filterNotNull()
 
-    val uiState: StateFlow<Lc<Unit, CustomTunnelsListUiState>> =
+    val uiState: StateFlow<Lc<Unit, CustomVpnListUiState>> =
         combine(
                 settingsUpdates,
-                customTunnelStats(),
+                customVpnStats(),
             ) { settings, stats ->
                 Lc.Content(
-                    CustomTunnelsListUiState(
+                    CustomVpnListUiState(
                         customVpnConfig = settings.customVpnConfig,
                         tunnelStats = stats,
+                        isModal = isModal,
                     ),
                 )
             }
@@ -65,32 +66,28 @@ class CustomTunnelsListViewModel(
 
     fun onToggleCustomTunnel(config: CustomVpnConfig) {
         viewModelScope.launch {
-            customTunnelsRepository.setConfig(config.copy(enabled = !config.enabled))
+            customVpnRepository.setConfig(config.copy(enabled = !config.enabled))
         }
     }
 
     fun importConfig(name: String, contentResolver: ContentResolver, uri: Uri) {
         viewModelScope.launch(ioDispatcher) {
-            contentResolver.openInputStream(uri).use { inputStream ->
-                if (inputStream != null) {
-                    val body = inputStream.reader(Charsets.UTF_8).readText()
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                val body = inputStream.reader(Charsets.UTF_8).readText()
 
-                    customTunnelsRepository
+                val importResult =
+                    customVpnRepository
                         .importConfig(name = name, config = body)
                         .fold(
-                            {
-                                _uiSideEffect.send(
-                                    CustomTunnelsListSideEffect.FailedToSave(it.toString()),
-                                )
-                            },
-                            { _uiSideEffect.send(CustomTunnelsListSideEffect.ConfigurationSaved) },
+                            { CustomVpnListSideEffect.FailedToSave(it.toString()) },
+                            { CustomVpnListSideEffect.ConfigurationSaved },
                         )
-                }
+                _uiSideEffect.send(importResult)
             }
         }
     }
 
-    private fun customTunnelStats(): Flow<TunnelStats> =
+    private fun customVpnStats(): Flow<TunnelStats?> =
         settingsUpdates
             .map { it.customVpnConfig?.enabled == true }
             .distinctUntilChanged()
@@ -99,8 +96,8 @@ class CustomTunnelsListViewModel(
                     flow {
                         emit(TunnelStats(0, 0))
                         while (currentCoroutineContext().isActive) {
-                            customTunnelsRepository
-                                .getCustomTunnelStats()
+                            customVpnRepository
+                                .getCustomVpnStats()
                                 .fold(
                                     { error ->
                                         // We will just keep the old value if we fail to get the
@@ -114,7 +111,7 @@ class CustomTunnelsListViewModel(
                         }
                     }
                 } else {
-                    flowOf(TunnelStats(0, 0))
+                    flowOf(null)
                 }
             }
 }

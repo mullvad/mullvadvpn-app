@@ -66,17 +66,17 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-private fun PreviewCustomTunnelsListScreen(
-    @PreviewParameter(CustomTunnelsListUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, CustomTunnelsListUiState>,
+private fun PreviewCustomVpnListScreen(
+    @PreviewParameter(CustomVpnListUiStatePreviewParameterProvider::class)
+    state: Lc<Unit, CustomVpnListUiState>,
 ) {
     AppTheme {
-        CustomTunnelsListScreen(
+        CustomVpnListScreen(
             state = state,
-            isModal = false,
             snackbarHostState = SnackbarHostState(),
             onEditConfiguration = {},
             onCreateConfiguration = {},
@@ -87,12 +87,12 @@ private fun PreviewCustomTunnelsListScreen(
 }
 
 @Composable
-fun SharedTransitionScope.CustomTunnelsList(
+fun SharedTransitionScope.CustomVpnList(
     navigator: Navigator,
     isModal: Boolean,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val viewModel = koinViewModel<CustomTunnelsListViewModel>()
+    val viewModel = koinViewModel<CustomVpnListViewModel> { parametersOf(isModal) }
 
     val context = LocalContext.current
     val customTunnelDefaultName = stringResource(R.string.custom_tunnels_default_name)
@@ -116,13 +116,13 @@ fun SharedTransitionScope.CustomTunnelsList(
     val snackbarHostState = remember { SnackbarHostState() }
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
-            CustomTunnelsListSideEffect.ConfigurationSaved ->
+            CustomVpnListSideEffect.ConfigurationSaved ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = resources.getString(R.string.custom_tunnels_configuration_saved),
                     )
                 }
-            is CustomTunnelsListSideEffect.FailedToSave ->
+            is CustomVpnListSideEffect.FailedToSave ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
@@ -135,10 +135,9 @@ fun SharedTransitionScope.CustomTunnelsList(
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    CustomTunnelsListScreen(
+    CustomVpnListScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        isModal = isModal,
         modifier =
             Modifier.sharedBounds(
                 rememberSharedContentState(key = FeatureIndicator.CUSTOM_VPN),
@@ -153,10 +152,9 @@ fun SharedTransitionScope.CustomTunnelsList(
 }
 
 @Composable
-fun CustomTunnelsListScreen(
-    state: Lc<Unit, CustomTunnelsListUiState>,
+fun CustomVpnListScreen(
+    state: Lc<Unit, CustomVpnListUiState>,
     snackbarHostState: SnackbarHostState,
-    isModal: Boolean,
     modifier: Modifier = Modifier,
     onCreateConfiguration: () -> Unit,
     onEditConfiguration: () -> Unit,
@@ -170,7 +168,7 @@ fun CustomTunnelsListScreen(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(R.string.custom_tunnels),
         navigationIcon = {
-            if (isModal) {
+            if (state.contentOrNull()?.isModal ?: false) {
                 NavigateCloseIconButton(onNavigateClose = onBack)
             } else {
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBack) }
@@ -215,7 +213,7 @@ fun CustomTunnelsListScreen(
                     Loading()
                 }
                 is Lc.Content -> {
-                    CustomTunnelsListContent(
+                    CustomVpnListContent(
                         customVpnEnabled = state.value.customVpnConfig?.enabled ?: false,
                         customVpnConfig = state.value.customVpnConfig,
                         tunnelStats = state.value.tunnelStats,
@@ -265,7 +263,7 @@ private fun ConfigurationsHeader() {
 }
 
 @Composable
-private fun CustomTunnelsListContent(
+private fun CustomVpnListContent(
     customVpnConfig: CustomVpnConfig?,
     customVpnEnabled: Boolean,
     tunnelStats: TunnelStats?,

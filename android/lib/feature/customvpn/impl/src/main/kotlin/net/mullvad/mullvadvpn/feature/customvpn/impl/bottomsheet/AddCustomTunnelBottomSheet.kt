@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -34,13 +35,15 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 @Composable
 private fun PreviewAddCustomTunnelBottomSheet() {
     AppTheme {
-        Column {
-            BottomSheetContent(
-                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                onBackgroundColor = MaterialTheme.colorScheme.onSurface,
-                onCreateConfig = {},
-                onImportByFile = {},
-            )
+        Surface {
+            Column {
+                BottomSheetContent(
+                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                    onBackgroundColor = MaterialTheme.colorScheme.onSurface,
+                    onCreateConfig = {},
+                    onImportByFile = {},
+                )
+            }
         }
     }
 }
@@ -58,7 +61,7 @@ fun AddCustomTunnelBottomSheet(navigator: Navigator) {
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
-        onDismissRequest = { navigator.goBack() },
+        onDismissRequest = navigator::goBack,
     ) {
         BottomSheetContent(
             backgroundColor = backgroundColor,
@@ -102,7 +105,7 @@ private fun BottomSheetContent(
         leadingIcon = Icons.Default.Add,
         title = stringResource(id = R.string.create),
         position = Position.Middle,
-        onClick = { onCreateConfig() },
+        onClick = onCreateConfig,
         colors =
             ListItemDefaults.colors(
                 containerColorParent = backgroundColor,
@@ -113,7 +116,7 @@ private fun BottomSheetContent(
         leadingIcon = Icons.Outlined.Folder,
         title = stringResource(id = R.string.import_wireguard_configuration),
         position = Position.Middle,
-        onClick = { onImportByFile() },
+        onClick = onImportByFile,
         colors =
             ListItemDefaults.colors(
                 containerColorParent = backgroundColor,

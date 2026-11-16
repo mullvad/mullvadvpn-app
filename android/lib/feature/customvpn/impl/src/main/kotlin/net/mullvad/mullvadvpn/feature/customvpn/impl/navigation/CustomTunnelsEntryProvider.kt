@@ -9,20 +9,20 @@ import net.mullvad.mullvadvpn.core.animation.slideInHorizontalTransition
 import net.mullvad.mullvadvpn.core.scene.ListDetailSceneStrategy
 import net.mullvad.mullvadvpn.core.scene.SingleOverlaySceneStrategy
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelNavKey
-import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomVpnListNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.RemoveCustomTunnelConfigConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.impl.bottomsheet.AddCustomTunnelBottomSheet
 import net.mullvad.mullvadvpn.feature.customvpn.impl.confirmation.RemoveCustomTunnelConfigConfirmDialog
 import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.CustomTunnelEdit
-import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomTunnelsList
+import net.mullvad.mullvadvpn.feature.customvpn.impl.list.CustomVpnList
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 
-fun EntryProviderScope<NavKey2>.customTunnelsEntry(navigator: Navigator) {
-    entry<CustomTunnelsListNavKey>(
+fun EntryProviderScope<NavKey2>.customVpnEntry(navigator: Navigator) {
+    entry<CustomVpnListNavKey>(
         metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition(),
     ) { navKey ->
-        LocalSharedTransitionScope.current?.CustomTunnelsList(
+        LocalSharedTransitionScope.current?.CustomVpnList(
             navigator = navigator,
             isModal = navKey.isModal,
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,

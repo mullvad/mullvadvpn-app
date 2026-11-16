@@ -114,8 +114,6 @@ fun ExpandableListItem(
             Surface(
                 shape =
                     RoundedCornerShape(
-                        topStart = 0.dp,
-                        topEnd = 0.dp,
                         bottomStart = ListTokens.listItemRoundedCornerSize,
                         bottomEnd = ListTokens.listItemRoundedCornerSize,
                     ),

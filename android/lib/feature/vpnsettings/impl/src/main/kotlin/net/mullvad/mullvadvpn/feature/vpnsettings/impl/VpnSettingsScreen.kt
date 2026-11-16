@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
-import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomVpnListNavKey
 import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
@@ -182,7 +182,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToLocalNetworkSharing =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingNavKey()) },
         navigateToCustomTunnels =
-            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(CustomTunnelsListNavKey()) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(CustomVpnListNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },
@@ -537,7 +537,7 @@ fun VpnSettingsContent(
 @Composable
 private fun CustomVpn(onCustomVpnClick: () -> Unit, modifier: Modifier = Modifier) {
     NavigationListItem(
-        title = stringResource(id = R.string.custom_vpn),
+        title = stringResource(id = R.string.custom_tunnels),
         modifier = modifier,
         onClick = onCustomVpnClick,
     )

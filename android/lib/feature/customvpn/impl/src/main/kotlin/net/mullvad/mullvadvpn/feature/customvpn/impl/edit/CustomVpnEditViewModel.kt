@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,49 +19,55 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
+import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
-class CustomTunnelEditViewModel(
+class CustomVpnEditViewModel(
     settingsRepository: SettingsRepository,
-    private val managementService: ManagementService,
+    private val customVpnRepository: CustomVpnRepository,
+    isNewConfig: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<CustomVpnSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val formData = MutableStateFlow<FormData?>(null)
     private val formErrors = MutableStateFlow<FormErrors?>(null)
+    private val isNew = MutableStateFlow(isNewConfig)
 
-    val uiState: StateFlow<Lc<Boolean, CustomTunnelEditUiState>> =
+    val uiState: StateFlow<Lc<Unit, CustomVpnEditUiState>> =
         combine(
                 formData.filterNotNull().onStart {
                     val settings = settingsRepository.settingsUpdates.filterNotNull().first()
-                    emit(FormData.from(settings.customVpnConfig))
+                    val form = settings.customVpnConfig?.let { FormData.from(it) } ?: FormData()
+                    emit(form)
                 },
                 formErrors,
-            ) { formData: FormData, formErrors ->
-                CustomTunnelEditUiState(
+                isNew,
+            ) { formData: FormData, formErrors, isNew: Boolean ->
+                CustomVpnEditUiState(
                         formData = formData,
                         formErrors = formErrors,
+                        isNewConfig = isNew,
                     )
-                    .toLc<Boolean, CustomTunnelEditUiState>()
+                    .toLc<Unit, CustomVpnEditUiState>()
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                Lc.Loading(false),
+                Lc.Loading(Unit),
             )
 
     fun clearConfig() {
         viewModelScope.launch {
-            managementService.clearCustomVpn()
-            formData.value = FormData.from(null)
+            customVpnRepository.clearConfig()
+            formData.value = FormData()
+            isNew.value = false
         }
     }
 
@@ -75,14 +80,10 @@ class CustomTunnelEditViewModel(
                 },
                 { vpnConfig ->
                     formErrors.value = null
-                    managementService
-                        .setCustomVpnConfig(vpnConfig)
+                    customVpnRepository
+                        .setConfig(vpnConfig)
                         .fold(
-                            {
-                                _uiSideEffect.send(
-                                    CustomVpnSideEffect.FailedToSave(it.toString()),
-                                )
-                            },
+                            { _uiSideEffect.send(CustomVpnSideEffect.FailedToSave(it.toString())) },
                             {
                                 formData.value = FormData.from(vpnConfig)
                                 _uiSideEffect.send(CustomVpnSideEffect.ConfigurationSaved)
@@ -92,9 +93,7 @@ class CustomTunnelEditViewModel(
             )
     }
 
-    private fun parseFormData(
-        formData: FormData,
-    ): Either<FormErrors, CustomVpnConfig> {
+    private fun parseFormData(formData: FormData): Either<FormErrors, CustomVpnConfig> {
         val nameError = validateName(formData.name)
         val (privateKeyError, privateKey) = parsePrivateKey(formData.privateKey)
         val (tunnelIpErrors, tunnelIps) = parseTunnelIps(formData.tunnelIps)

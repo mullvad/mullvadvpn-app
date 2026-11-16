@@ -9,21 +9,22 @@ import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
 
-class CustomTunnelsListUiStatePreviewParameterProvider :
-    PreviewParameterProvider<Lc<Unit, CustomTunnelsListUiState>> {
-    override val values: Sequence<Lc<Unit, CustomTunnelsListUiState>> =
+class CustomVpnListUiStatePreviewParameterProvider :
+    PreviewParameterProvider<Lc<Unit, CustomVpnListUiState>> {
+    override val values: Sequence<Lc<Unit, CustomVpnListUiState>> =
         sequenceOf(
             // Loading state
             Lc.Loading(Unit),
             // Default state
             Lc.Content(
-                CustomTunnelsListUiState(
+                CustomVpnListUiState(
                     customVpnConfig = null,
                     tunnelStats = null,
+                    isModal = false,
                 ),
             ),
             Lc.Content(
-                CustomTunnelsListUiState(
+                CustomVpnListUiState(
                     customVpnConfig =
                         CustomVpnConfig(
                             tunnelConfig =
@@ -53,6 +54,7 @@ class CustomTunnelsListUiStatePreviewParameterProvider :
                             name = "Test Tunnel",
                         ),
                     tunnelStats = TunnelStats(rx = 12000, tx = 5000),
+                    isModal = false,
                 ),
             ),
         )
