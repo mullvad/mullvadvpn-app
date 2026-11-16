@@ -49,19 +49,7 @@ private sealed class Artifact(private val file: File, private val relayListAsset
     }
 }
 
-private data class ArtifactRequirements(val maxSize: Long, val requiresRelayList: Boolean) {
-    companion object {
-        fun of(artifact: Artifact, version: AppVersionName?) =
-            ArtifactRequirements(
-                maxSize =
-                    when (artifact) {
-                        is Artifact.Apk -> 42 * MIB
-                        is Artifact.Bundle -> 70 * MIB
-                    },
-                requiresRelayList = version?.isDev != true,
-            )
-    }
-}
+private data class ArtifactRequirements(val maxSize: Long, val requiresRelayList: Boolean)
 
 @UntrackedTask(because = "Always verifies the produced artifacts")
 abstract class VerifyArtifactsTask : DefaultTask() {
@@ -70,6 +58,10 @@ abstract class VerifyArtifactsTask : DefaultTask() {
     @get:Optional @get:Input abstract val versionName: Property<AppVersionName>
 
     @get:Optional @get:Input abstract val distDirectory: Property<String>
+
+    @get:Input abstract val maxApkSizeMib: Property<Int>
+
+    @get:Input abstract val maxBundleSizeMib: Property<Int>
 
     @TaskAction
     fun run() {
@@ -90,9 +82,19 @@ abstract class VerifyArtifactsTask : DefaultTask() {
         }
 
         artifacts.forEach { artifact ->
-            verifyArtifact(artifact, ArtifactRequirements.of(artifact, releaseVersion))
+            verifyArtifact(artifact, requirementsFor(artifact, releaseVersion))
         }
     }
+
+    private fun requirementsFor(artifact: Artifact, version: AppVersionName?) =
+        ArtifactRequirements(
+            maxSize =
+                when (artifact) {
+                    is Artifact.Apk -> maxApkSizeMib.get() * MIB
+                    is Artifact.Bundle -> maxBundleSizeMib.get() * MIB
+                },
+            requiresRelayList = version?.isDev != true,
+        )
 
     private fun verifyArtifact(artifact: Artifact, requirements: ArtifactRequirements) {
         check(artifact.size <= requirements.maxSize) {
@@ -133,6 +135,11 @@ private fun File.sha256(): String {
     return digest.digest().joinToString("") { "%02x".format(it) }
 }
 
+private fun VerifyArtifactsTask.setSizeLimitsFromProperties() {
+    maxApkSizeMib.set(project.getIntProperty("mullvad.app.verify.maxApkSizeMib"))
+    maxBundleSizeMib.set(project.getIntProperty("mullvad.app.verify.maxBundleSizeMib"))
+}
+
 private fun Project.distDirectory(): File = rootDir.parentFile.resolve("dist")
 
 private fun Project.distArtifacts(artifactNames: List<String>): List<File> {
@@ -147,6 +154,7 @@ internal fun Project.registerReleaseVerifyArtifactsTask(
     expectedArtifacts: List<String>,
 ): TaskProvider<VerifyArtifactsTask> =
     tasks.register<VerifyArtifactsTask>("${releaseTaskName}VerifyArtifacts") {
+        setSizeLimitsFromProperties()
         this.versionName.set(versionName)
         this.distDirectory.set(distDirectory().path)
         artifactFiles.from(distArtifacts(expectedArtifacts))
@@ -159,6 +167,7 @@ fun Project.registerVerifyArtifactsTask(versionName: AppVersionName) {
         providers.gradleProperty("release").orNull?.let { AppVersionName(it) } ?: versionName
 
     tasks.register<VerifyArtifactsTask>("verifyArtifacts") {
+        setSizeLimitsFromProperties()
         if (artifactPath != null) {
             artifactFiles.from(File(artifactPath))
         } else {
