@@ -45,10 +45,12 @@ import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelImportConf
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.impl.R
+import net.mullvad.mullvadvpn.lib.common.IsModal
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
+import net.mullvad.mullvadvpn.lib.common.loadingIsModal
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
@@ -72,7 +74,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 private fun PreviewCustomVpnListScreen(
     @PreviewParameter(CustomVpnListUiStatePreviewParameterProvider::class)
-    state: Lc<Unit, CustomVpnListUiState>,
+    state: Lc<IsModal, CustomVpnListUiState>,
 ) {
     AppTheme {
         CustomVpnListScreen(
@@ -153,7 +155,7 @@ fun SharedTransitionScope.CustomVpnList(
 
 @Composable
 fun CustomVpnListScreen(
-    state: Lc<Unit, CustomVpnListUiState>,
+    state: Lc<IsModal, CustomVpnListUiState>,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     onCreateConfiguration: () -> Unit,
@@ -168,7 +170,7 @@ fun CustomVpnListScreen(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(R.string.custom_tunnels),
         navigationIcon = {
-            if (state.contentOrNull()?.isModal ?: false) {
+            if (state.contentOrNull()?.isModal ?: state.loadingIsModal) {
                 NavigateCloseIconButton(onNavigateClose = onBack)
             } else {
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBack) }

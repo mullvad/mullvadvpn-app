@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.common.IsModal
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
@@ -45,7 +46,7 @@ class CustomVpnListViewModel(
 
     private val settingsUpdates = settingsRepository.settingsUpdates.filterNotNull()
 
-    val uiState: StateFlow<Lc<Unit, CustomVpnListUiState>> =
+    val uiState: StateFlow<Lc<IsModal, CustomVpnListUiState>> =
         combine(
                 settingsUpdates,
                 customVpnStats(),
@@ -61,7 +62,7 @@ class CustomVpnListViewModel(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                initialValue = Lc.Loading(Unit),
+                initialValue = Lc.Loading(IsModal(isModal)),
             )
 
     fun onToggleCustomTunnel(config: CustomVpnConfig) {

@@ -20,7 +20,7 @@ value class WireguardKey private constructor(val value: String) {
 
             Either.catch({ Base64.decode(value) })
                 .mapLeft { KeyParseError.InvalidBase64(it) }
-                .onLeft { raise(it) }
+                .bind()
 
             WireguardKey(value)
         }

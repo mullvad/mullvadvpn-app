@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_PRIVATE_KEY
 import net.mullvad.mullvadvpn.feature.customvpn.impl.createSampleCustomVpnConfig
+import net.mullvad.mullvadvpn.lib.common.IsModal
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
@@ -79,11 +80,7 @@ class CustomVpnListViewModelTest {
 
     @Test
     fun `initial state should be loading`() = runTest {
-        viewModel.uiState.test {
-            val initial = awaitItem()
-            assertIs<Lc.Loading<Unit>>(initial)
-            assertEquals(Unit, initial.value)
-        }
+        viewModel.uiState.test { assertEquals(Lc.Loading(IsModal(false)), awaitItem()) }
     }
 
     @Test
@@ -91,7 +88,7 @@ class CustomVpnListViewModelTest {
         runTest {
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(Lc.Loading(Unit), awaitItem())
+                assertEquals(Lc.Loading(IsModal(false)), awaitItem())
 
                 initSettings(customVpnConfig = null)
 
@@ -110,7 +107,7 @@ class CustomVpnListViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(Lc.Loading(Unit), awaitItem())
+                assertEquals(Lc.Loading(IsModal(false)), awaitItem())
 
                 initSettings(customVpnConfig = sampleConfig)
 

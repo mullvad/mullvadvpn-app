@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.merge
 import java.net.InetSocketAddress
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,25 +74,23 @@ class CustomVpnEditViewModel(
     }
 
     fun save(form: FormData) = viewModelScope.launch {
-        parseFormData(form)
-            .fold(
-                {
+        val sideEffect: CustomVpnSideEffect =
+            parseFormData(form)
+                .onRight { formErrors.value = null }
+                .mapLeft {
                     formErrors.value = it
-                    _uiSideEffect.send(CustomVpnSideEffect.FormErrors)
-                },
-                { vpnConfig ->
-                    formErrors.value = null
+                    CustomVpnSideEffect.FormErrors
+                }
+                .flatMap { vpnConfig ->
                     customVpnRepository
                         .setConfig(vpnConfig)
-                        .fold(
-                            { _uiSideEffect.send(CustomVpnSideEffect.FailedToSave(it.toString())) },
-                            {
-                                formData.value = FormData.from(vpnConfig)
-                                _uiSideEffect.send(CustomVpnSideEffect.ConfigurationSaved)
-                            },
-                        )
-                },
-            )
+                        .onRight { formData.value = FormData.from(vpnConfig) }
+                        .mapLeft { CustomVpnSideEffect.FailedToSave(it.toString()) }
+                        .map { CustomVpnSideEffect.ConfigurationSaved }
+                }
+                .merge()
+
+        _uiSideEffect.send(sideEffect)
     }
 
     private fun parseFormData(formData: FormData): Either<FormErrors, CustomVpnConfig> {
