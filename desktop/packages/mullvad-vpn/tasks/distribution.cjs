@@ -267,8 +267,12 @@ const WINDOWS_SIGNING_OPTIONS = {
   },
 };
 
+function archFromTriple(targetTriple) {
+  return targetTriple === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
+}
+
 async function packWin() {
-  const DEFAULT_ARCH = targets === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
+  const DEFAULT_ARCH = archFromTriple(targets ?? hostTargetTriple);
 
   function prepareWinConfig(arch) {
     const config = newConfig();
@@ -293,23 +297,21 @@ async function packWin() {
         switch (options.arch) {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
-            process.env.SETUP_SUBDIR = '.';
-            process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
-            process.env.DIST_SUBDIR = '';
 
             execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-x86'], { shell: true });
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
-            process.env.SETUP_SUBDIR = 'aarch64-pc-windows-msvc';
-            process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
-            process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
 
             execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-arm'], { shell: true });
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');
         }
+        const isHostTarget = process.env.TARGET_TRIPLE === hostTargetTriple;
+        process.env.TARGET_SUBDIR = process.env.TARGET_TRIPLE;
+        process.env.DIST_SUBDIR = isHostTarget ? '' : process.env.TARGET_TRIPLE;
+        process.env.SETUP_SUBDIR = isHostTarget ? '.' : process.env.TARGET_TRIPLE;
         return true;
       },
     };
