@@ -18,7 +18,7 @@ interface Application {
 const application: Application =
   process.platform === 'win32'
     ? { name: 'microsoft edge', filename: 'msedge.exe' }
-    : { name: 'launchpad' };
+    : { name: 'calculator' };
 
 let page: Page;
 let util: TestUtils;
