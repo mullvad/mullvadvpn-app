@@ -249,6 +249,31 @@ mod test {
     }
 
     #[test]
+    fn test_multi_peer_config_round_trip() {
+        let mut config = sample_config();
+        config.peers.push(CustomVpnPeerConfig {
+            public_key: bytes_to_pubkey(&[2; 32]).unwrap(),
+            allowed_ip: vec!["10.200.0.0/16".parse().unwrap(), "::/0".parse().unwrap()],
+            endpoint: "[2001:db8::1]:51820".parse().unwrap(),
+        });
+        let settings = CustomVpnSettings {
+            configs: vec![config],
+        };
+
+        let update =
+            Vec::<CustomVpnConfigUpdate>::try_from(proto::CustomVpnSettings::from(&settings))
+                .expect("valid settings")
+                .pop()
+                .expect("one config");
+
+        assert_eq!(update.peers.len(), 2);
+        let resolved = update
+            .resolve(settings.configs.first())
+            .expect("resolvable");
+        assert_eq!(resolved, settings.configs[0]);
+    }
+
+    #[test]
     fn test_update_from_proto_with_and_without_key() {
         let absent =
             CustomVpnConfigUpdate::try_from(sample_proto_config(None)).expect("valid config");

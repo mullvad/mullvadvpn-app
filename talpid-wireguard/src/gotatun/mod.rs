@@ -440,8 +440,14 @@ impl Tunnel for GotaTun {
             Some(custom_vpn) => get_stats(&custom_vpn.inner_device)
                 .await
                 .into_values()
-                .next()
-                .unwrap_or_default(),
+                .fold(Stats::default(), |mut total, peer| {
+                    total.tx_bytes += peer.tx_bytes;
+                    total.rx_bytes += peer.rx_bytes;
+                    // TODO: per peer stats
+                    total.last_handshake_time =
+                        total.last_handshake_time.max(peer.last_handshake_time);
+                    total
+                }),
             None => Stats::default(),
         };
         Ok(stats)
@@ -666,7 +672,13 @@ pub fn get_tunnel_for_userspace(
         tun_config.custom_vpn_allowed_ips = config
             .custom_vpn
             .as_ref()
-            .map(|custom_vpn| custom_vpn.peer().allowed_ip.clone())
+            .map(|custom_vpn| {
+                custom_vpn
+                    .peers
+                    .iter()
+                    .flat_map(|peer| peer.allowed_ip.iter().copied())
+                    .collect()
+            })
             .unwrap_or_default();
     }
 

@@ -33,13 +33,6 @@ pub struct CustomVpnConfig {
     pub peers: Vec1<CustomVpnPeerConfig>,
 }
 
-impl CustomVpnConfig {
-    /// The peer used by the tunnel. Only a single peer is currently supported.
-    pub fn peer(&self) -> &CustomVpnPeerConfig {
-        self.peers.first()
-    }
-}
-
 /// Custom VPN configs (WireGuard-based).
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnSettings {
