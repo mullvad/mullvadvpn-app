@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { urls } from '../../../../shared/constants';
@@ -16,6 +16,7 @@ import { BackAction } from '../../keyboard-navigation';
 import { RedeemVoucherButton } from '../../RedeemVoucher';
 import { HeaderTitle } from '../../SettingsHeader';
 import { AccountExpiryRow, AccountNumberRow, DeviceNameRow, LabelledRow } from './components';
+import { LogoutButton } from '../../LogoutButton';
 
 const StyledViewContainer = styled(View.Container)`
   height: 100%;
@@ -25,7 +26,7 @@ const StyledViewContainer = styled(View.Container)`
 export function AccountView() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
-  const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
+  const { updateAccountData, openUrlWithAuth } = useAppContext();
 
   const [buyMore] = useExclusiveTask(async () => {
     await openUrlWithAuth(urls.purchase);
@@ -33,12 +34,6 @@ export function AccountView() {
 
   const onMount = useEffectEvent(() => updateAccountData());
   useEffect(() => onMount(), []);
-
-  // Hack needed because if we just call `logout` directly in `onClick`
-  // then it is run with the wrong `this`.
-  const doLogout = useCallback(async () => {
-    await logout('gui-logout-button');
-  }, [logout]);
 
   return (
     <View backgroundColor="darkBlue">
@@ -83,15 +78,7 @@ export function AccountView() {
               </Button>
 
               <RedeemVoucherButton />
-
-              <Button color="destructive" onClick={doLogout}>
-                <Button.Text>
-                  {
-                    // TRANSLATORS: Button label for logging out.
-                    messages.pgettext('account-view', 'Log out')
-                  }
-                </Button.Text>
-              </Button>
+              <LogoutButton />
             </FlexColumn>
           </StyledViewContainer>
         </View.Content>
