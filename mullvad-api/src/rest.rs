@@ -103,12 +103,6 @@ pub enum Error {
     InvalidUtf8Error,
 }
 
-impl From<!> for Error {
-    fn from(never: !) -> Self {
-        never
-    }
-}
-
 impl Error {
     pub fn is_network_error(&self) -> bool {
         matches!(
