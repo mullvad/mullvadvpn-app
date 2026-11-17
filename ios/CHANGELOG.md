@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
+### Change
+- Block traffic to the internal GRPC server over TCP (`10.64.0.1:1337 | [fc00:bbbb:bbbb:bb01::1]:1337`)
 
 ## [2026.7]
 ### Changed
