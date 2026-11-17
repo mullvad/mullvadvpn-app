@@ -10,7 +10,7 @@
 
 import MullvadREST
 
-enum StorePaymentOutcome {
+enum StorePaymentOutcome: Equatable {
     case noTimeAdded
     case timeAdded(_ timeAdded: TimeInterval)
 

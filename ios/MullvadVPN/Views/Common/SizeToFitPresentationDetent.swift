@@ -14,7 +14,7 @@ enum SizeToFitPresentationDetent {
     case sizeToFit
 }
 
-struct SizeToFitModifier: ViewModifier {
+private struct SizeToFitModifier: ViewModifier {
     let additionalDetents: Set<PresentationDetent>
     @State private var contentHeight = 0.0
 

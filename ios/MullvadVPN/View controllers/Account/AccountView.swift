@@ -64,25 +64,6 @@ struct AccountView: View {
         .preferredColorScheme(.dark)
         .navigationTitle("Account")
         .accessibilityIdentifier(.accountView)
-//        .onChange(
-//            of: paymentViewModel.notice,
-//            { (oldValue, notice) in
-//                if oldValue != notice, let notice {
-//                    isLoading = false
-//                    alert = .init(
-//                        type: notice.type,
-//                        title: LocalizedStringKey(notice.title),
-//                        messages: [LocalizedStringKey(notice.message)],
-//                        actions: [
-//                            .init(type: .primary, title: "Got it!") {
-//                                alert = nil
-//                                paymentViewModel.notice = nil
-//                            }
-//                        ]
-//                    )
-//                }
-//            }
-//        )
         .toolbar {
             MullvadDoneToolbarItem {
                 accountViewModel.onFinish?(.none)
@@ -122,7 +103,13 @@ struct AccountView: View {
             case .deviceManagement:
                 deviceManagementView()
             case .payment:
-                paymentView()
+                PaymentView(
+                    paymentViewModel: paymentViewModel,
+                    onClose: {
+                        presentedSheet = nil
+                    }
+                )
+                .presentationDetents(.sizeToFit)
             }
         }
         .mullvadAlert(item: $alert)
@@ -230,79 +217,6 @@ struct AccountView: View {
                 }
             }
         }
-    }
-
-    private func paymentView() -> some View {
-        VStack(spacing: 16) {
-            ZStack {
-                Text("Add time")
-                    .font(.mullvadSmallSemiBold)
-                HStack {
-                    Button {
-                        presentedSheet = nil
-                    } label: {
-                        ResizableImageView(image: .mullvadIconCross, dimension: .width(32))
-                    }
-                    .accessibilityIdentifier(.cancelButton)
-                    Spacer()
-                }
-                .padding(.leading, 12)
-            }
-            .padding(.vertical, 8)
-
-            ZStack {
-                VStack(spacing: 16) {
-                    ForEach(paymentViewModel.products, id: \.self) { product in
-                        product.customLocalizedTitle.flatMap { productTitle in
-                            MullvadButton(
-                                text: LocalizedStringKey(productTitle),
-                                style: .primary,
-                                action: {
-                                    paymentViewModel.doPurchase(of: product)
-                                }
-                            )
-                        }
-                    }
-                    MullvadButton(
-                        text: "Restore purchases",
-                        style: .secondary,
-                        action: {
-                            paymentViewModel.restorePurchases()
-                        }
-                    )
-                    .accessibilityIdentifier(.restorePurchasesButton)
-                }
-
-                if let notice = paymentViewModel.notice {
-                    VStack(spacing: 16) {
-                        Spacer()
-                        Text(LocalizedStringKey(notice.message))
-                        MullvadButton(
-                            text: "Got it!",
-                            style: .secondary,
-                            action: {
-                                paymentViewModel.notice = nil
-                            }
-                        )
-                        Spacer()
-                    }
-                    .background(Color.mullvadBackground)
-                } else if paymentViewModel.isProcessing {
-                    ProgressView()
-                        .progressViewStyle(MullvadProgressViewStyle())
-                }
-            }
-            .disabled(paymentViewModel.isProcessing)
-            .animation(.easeInOut(duration: 0.25), value: paymentViewModel.isProcessing)
-//            .animation(.easeInOut, value: paymentViewModel.notice)
-            .animation(.easeInOut(duration: 0.25), value: paymentViewModel.products)
-        }
-        .padding(16)
-        .background(Color.mullvadBackground)
-        .presentationBackground(Color.mullvadBackground)
-        .foregroundStyle(Color.mullvadTextPrimary)
-        .cornerRadius(8)
-        .presentationDetents(.sizeToFit)
     }
 
     #if NEVER_IN_PRODUCTION

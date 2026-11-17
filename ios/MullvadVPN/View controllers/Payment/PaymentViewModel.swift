@@ -21,23 +21,27 @@ protocol PaymentViewModelProtocol: AnyObject {
     func doPurchase(of: Product)
     func restorePurchases()
     func finishUnfinishedPurchases()
+    func resetState()
 }
 
 struct PaymentNotice: Equatable {
-    var title: String
-    var message: String
-    var type: MullvadAlert.AlertType
+    let title: String
+    let message: String
+    let type: MullvadAlert.AlertType
+    let outcome: StorePaymentOutcome
 
     init(error: StorePaymentError, context: StorePaymentOutcome.Context) {
-        self.title = context.errorTitle
-        self.message = error.description
+        title = context.errorTitle
+        message = error.description
         type = .error
+        outcome = .noTimeAdded
     }
 
     init(outcome: StorePaymentOutcome, context: StorePaymentOutcome.Context) {
-        self.title = context.alertTitle
-        self.message = outcome.alertMessage(for: context)
+        title = context.alertTitle
+        message = outcome.alertMessage(for: context)
         type = .info
+        self.outcome = outcome
     }
 }
 
@@ -71,7 +75,9 @@ final class PaymentViewModel: PaymentViewModelProtocol, Sendable {
             }
 
             do {
-                products = try await paymentManager.products()
+                products = try await paymentManager.products().sorted(by: { product1, product2 in
+                    product1.id < product2.id
+                })
             } catch {
                 notice = PaymentNotice(error: .purchaseError(.productUnavailable), context: .purchase)
             }
@@ -117,6 +123,11 @@ final class PaymentViewModel: PaymentViewModelProtocol, Sendable {
             await StorePaymentManager.cleanupUnfinishedTransactions()
         }
     }
+
+    func resetState() {
+        notice = nil
+        isProcessing = false
+    }
 }
 
 @Observable
@@ -132,4 +143,6 @@ class PaymentViewModelMock: PaymentViewModelProtocol {
     func restorePurchases() {}
 
     func finishUnfinishedPurchases() {}
+
+    func resetState() {}
 }
