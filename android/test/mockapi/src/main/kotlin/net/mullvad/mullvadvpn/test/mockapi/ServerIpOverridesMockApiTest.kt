@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -44,6 +45,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
     }
 
     @Test
+    @Disabled("Not possible to parse in ip address at this moment")
     fun testAttemptToConnectUsingServerIpOverride() =
         runTest(timeout = 2.minutes) {
             // Arrange

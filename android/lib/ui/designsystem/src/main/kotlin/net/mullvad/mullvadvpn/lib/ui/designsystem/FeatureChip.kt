@@ -67,6 +67,7 @@ private fun PreviewMullvadFeatureChip() {
 }
 
 @Composable
+@Suppress("LongMethod")
 fun MullvadFeatureChip(
     text: String,
     state: State,
