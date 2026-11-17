@@ -713,7 +713,7 @@ class ApplicationMain
 
     // fetch Shadowsocks ciphers
     try {
-      this.shadowsocksCiphers = await this.daemonRpc.getShadowsocksCiphers();
+      this.setShadowSocksCiphers(await this.daemonRpc.getShadowsocksCiphers());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch Shadowsocks ciphers: ${error.message}`);
@@ -874,6 +874,11 @@ class ApplicationMain
   private setRelayList(relayList: IRelayListWithEndpointData) {
     this.relayList = relayList;
     IpcMainEventChannel.relays.notify?.(relayList);
+  }
+
+  private setShadowSocksCiphers(shadowsocksCiphers: ShadowsocksCipher[]) {
+    this.shadowsocksCiphers = shadowsocksCiphers;
+    IpcMainEventChannel.settings.notifyShadowsocksCiphersChange?.(shadowsocksCiphers);
   }
 
   private setSettingsMigrations(migrations: SettingsMigration[]) {

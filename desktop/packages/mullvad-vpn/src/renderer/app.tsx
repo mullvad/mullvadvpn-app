@@ -144,6 +144,10 @@ export default class AppRenderer {
       this.setMigrations(migrations);
     });
 
+    IpcRendererEventChannel.settings.listenShadowsocksCiphersChange((shadowsocksCiphers) => {
+      this.setShadowsocksCiphers(shadowsocksCiphers);
+    });
+
     IpcRendererEventChannel.daemon.listenConnected(() => {
       void this.onDaemonConnected();
     });
