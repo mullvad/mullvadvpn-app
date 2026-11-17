@@ -33,18 +33,38 @@ class GlobeViewModel {
             )
     }
 
-    func setCenter(_ center: CLLocationCoordinate2D?, animated: Bool) {
-        guard let center else {
+    func showLocations(_ locations: [CLLocationCoordinate2D]) {
+        if locations.isEmpty {
             globeTarget = .none
-            return
-        }
-        globeTarget =
-            .region(
-                center: .init(
-                    latitude: center.latitude,
-                    longitude: center.longitude
+        } else if locations.count == 1,
+            let center = locations.first
+        {
+            globeTarget =
+                .region(
+                    center: GeoPoint(
+                        latitude: center.latitude,
+                        longitude: center
+                            .longitude)
                 )
-            )
+        } else {
+            globeTarget =
+                .points(
+                    locations
+                        .map {
+                            GeoPoint(
+                                latitude: $0.latitude,
+                                longitude: $0.longitude
+                            )
+                        })
+        }
+    }
+
+    func setCenter(_ center: CLLocationCoordinate2D?) {
+        var locations = [CLLocationCoordinate2D]()
+        if let center {
+            locations.append(center)
+        }
+        showLocations(locations)
     }
 }
 
@@ -78,7 +98,7 @@ struct GlobeViewContainer: View {
             MullvadButton(text: "Random position", style: .primary) {
                 viewModel.removeLocationMarker()
                 let center = CLLocationCoordinate2D(latitude: .random(in: -90...90), longitude: .random(in: -90...90))
-                viewModel.setCenter(center, animated: true)
+                viewModel.setCenter(center)
                 viewModel.addLocationMarker(coordinate: center)
             }
             .padding()

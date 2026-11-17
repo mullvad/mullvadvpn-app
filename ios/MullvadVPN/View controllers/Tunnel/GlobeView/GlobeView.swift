@@ -30,8 +30,8 @@ enum GlobeTarget: Equatable {
     /// The view tries to fit the lat and long span into the viewport
     case region(
         center: GeoPoint,
-        latitudeSpan: Double = 10,
-        longitudeSpan: Double = 10
+        minLatitudeSpan: Double = 30,
+        minLongitudeSpan: Double = 0
     )
 }
 
@@ -108,8 +108,8 @@ struct GlobeView: View {
         case .none:
             fitResult = fit(
                 center: .init(latitude: 57.70716, longitude: 11.96679),
-                latitudeSpan: 30,
-                longitudeSpan: 30,
+                minLatitudeSpan: 50,
+                minLongitudeSpan: 0,
                 viewSize: viewSize
             )
         case .points(let points):
@@ -120,13 +120,13 @@ struct GlobeView: View {
 
         case .region(
             let center,
-            let latitudeSpan,
-            let longitudeSpan
+            let minLatitudeSpan,
+            let minLongitudeSpan
         ):
             fitResult = fit(
                 center: center,
-                latitudeSpan: latitudeSpan,
-                longitudeSpan: longitudeSpan,
+                minLatitudeSpan: minLatitudeSpan,
+                minLongitudeSpan: minLongitudeSpan,
                 viewSize: viewSize
             )
         }
@@ -136,7 +136,7 @@ struct GlobeView: View {
 
         var cameraTransform = camera.transform
         cameraTransform.translation = [0, 0, fitResult.cameraDistance]
-        let duration = 2.0
+        let duration = 1.5
         if reduceMotion || !animated {
             globe.transform = transform
             camera.transform = cameraTransform
@@ -165,12 +165,12 @@ struct GlobeView: View {
 
     private func fit(
         center: GeoPoint,
-        latitudeSpan: Double,
-        longitudeSpan: Double,
+        minLatitudeSpan: Double,
+        minLongitudeSpan: Double,
         viewSize: CGSize,
     ) -> GlobeFit {
-        let halfLat = latitudeSpan / 2
-        let halfLon = longitudeSpan / 2
+        let halfLat = minLatitudeSpan / 2
+        let halfLon = minLongitudeSpan / 2
 
         let north = min(
             90,
@@ -424,145 +424,6 @@ struct GlobeView: View {
         return simd_quatf(basis.transpose)
     }
 
-    // MARK: Multiple locations
-
-    //    private func fitGeoPoints(
-    //        _ points: [GeoPoint],
-    //        viewSize: CGSize,
-    //        padding: CGFloat = 32
-    //    ) -> GlobeFit {
-    //
-    //        guard
-    //            let center = sphericalCenter(of: points)
-    //        else {
-    //            return GlobeFit(
-    //                rotation: .init(angle: 0, axis: [0, 1, 0]),
-    //                scale: 1,
-    //                canShowAll: true
-    //            )
-    //        }
-    //
-    //        let coordinate = coordinate(from: center)
-    //
-    //        let radius = angularRadius(
-    //            center: center,
-    //            points: points
-    //        )
-    //
-    //        let rotation = northUpRotation(
-    //            latitude: coordinate.latitude,
-    //            longitude: coordinate.longitude
-    //        )
-    //
-    //        let scale = scaleThatFits(
-    //            center: center,
-    //            points: points,
-    //            viewSize: viewSize,
-    //            padding: padding
-    //        )
-    //
-    //        return GlobeFit(
-    //            rotation: rotation,
-    //            scale: scale,
-    //            canShowAll: radius <= .pi / 2
-    //        )
-    //    }
-    //
-    //    private func scaleThatFits(
-    //        center: SIMD3<Double>,
-    //        points: [GeoPoint],
-    //        viewSize: CGSize,
-    //        padding: CGFloat = 32
-    //    ) -> Double {
-    //
-    //        let centerCoord = coordinate(from: center)
-    //
-    //        let lat = centerCoord.latitude * .pi / 180
-    //        let lon = centerCoord.longitude * .pi / 180
-    //
-    //        let north = simd_normalize(
-    //            SIMD3<Double>(
-    //                -sin(lat) * sin(lon),
-    //                cos(lat),
-    //                -sin(lat) * cos(lon)
-    //            )
-    //        )
-    //
-    //        let east = simd_normalize(
-    //            simd_cross(
-    //                north,
-    //                center
-    //            )
-    //        )
-    //
-    //        var maxX = 0.0
-    //        var maxY = 0.0
-    //
-    //        for point in points {
-    //            let p = unitVector(
-    //                latitude: point.latitude,
-    //                longitude: point.longitude
-    //            )
-    //
-    //            maxX = max(
-    //                maxX,
-    //                abs(simd_dot(p, east))
-    //            )
-    //
-    //            maxY = max(
-    //                maxY,
-    //                abs(simd_dot(p, north))
-    //            )
-    //        }
-    //
-    //        let usableWidth = max(
-    //            1,
-    //            viewSize.width - padding * 2
-    //        )
-    //
-    //        let usableHeight = max(
-    //            1,
-    //            viewSize.height - padding * 2
-    //        )
-    //
-    //        let aspect =
-    //            Double(usableWidth / usableHeight)
-    //
-    //        /*
-    //         Normalize relative to a globe whose vertical
-    //         diameter at scale 1 fills the view.
-    //
-    //         maxY lives in -1...1.
-    //         Horizontal capacity is adjusted by aspect ratio.
-    //        */
-    //
-    //        let requiredVertical =
-    //            max(
-    //                maxY,
-    //                maxX / aspect
-    //            )
-    //
-    //        guard requiredVertical > 0.0001 else {
-    //            return 1
-    //        }
-    //
-    //        /*
-    //         Tune maxScale for how close one point should appear.
-    //
-    //         Smaller values visually zoom out.
-    //        */
-    //        let maxScale = 1.9
-    //        let minScale = 0.2
-    //
-    //        let scale =
-    //            maxScale / max(1, requiredVertical * 2)
-    //
-    //        return min(
-    //            maxScale,
-    //            max(minScale, scale)
-    //        )
-    //    }
-
     private func unitVector(
         latitude: Double,
         longitude: Double
@@ -641,6 +502,7 @@ struct GlobeView: View {
 
     // MARK: Pins
     private func updatePins() {
+        let animationDuration = 0.25
         guard let pinContainer else { return }
         let wantedIDs = Set(
             locationPins.map { $0.id }
@@ -653,7 +515,19 @@ struct GlobeView: View {
                 pinsToRemove.append(pin)
             }
         }
-        pinsToRemove.forEach { $0.removeFromParent() }
+        pinsToRemove.forEach { pin in
+            if #available(iOS 26.0, *) {
+                Entity.animate(.easeOut(duration: animationDuration)) {
+                    pin.components.set(
+                        OpacityComponent(opacity: 0)
+                    )
+                } completion: {
+                    pin.removeFromParent()
+                }
+            } else {
+                pin.removeFromParent()
+            }
+        }
 
         // Add or update pins.
         for pin in locationPins {
@@ -683,7 +557,7 @@ struct GlobeView: View {
 
                     // Animate to fully visible
                     if #available(iOS 26.0, *) {
-                        Entity.animate(.easeIn(duration: 1.0)) {
+                        Entity.animate(.easeIn(duration: animationDuration)) {
                             pinEntity.components[
                                 OpacityComponent.self
                             ]?.opacity = 1.0
@@ -786,8 +660,8 @@ struct GlobeView: View {
     @Previewable @State var span: Double = 1
     @Previewable @State var globeTarget: GlobeTarget = .region(
         center: .init(latitude: 51, longitude: 11),
-        latitudeSpan: 30,
-        longitudeSpan: 30
+        minLatitudeSpan: 30,
+        minLongitudeSpan: 30
     )
     var locationPins: [LocationPin] {
         switch globeTarget {
@@ -809,8 +683,8 @@ struct GlobeView: View {
             globeTarget =
                 .region(
                     center: .init(latitude: .random(in: -90...90), longitude: .random(in: -90...90)),
-                    latitudeSpan: 5,
-                    longitudeSpan: 5
+                    minLatitudeSpan: 5,
+                    minLongitudeSpan: 5
                 )
         }
         Button("Add random location") {
@@ -844,7 +718,7 @@ struct GlobeView: View {
                 }
                 globeTarget =
                     GlobeTarget
-                    .region(center: center, latitudeSpan: span, longitudeSpan: span)
+                    .region(center: center, minLatitudeSpan: span, minLongitudeSpan: span)
             }
     } else {
         // Fallback on earlier versions

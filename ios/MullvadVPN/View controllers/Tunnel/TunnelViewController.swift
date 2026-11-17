@@ -187,17 +187,17 @@ class TunnelViewController: UIViewController, RootContainment {
         switch tunnelState {
         case let .connecting(tunnelRelays, _, _):
             globeViewModel.removeLocationMarker()
-            globeViewModel.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
+            globeViewModel.setCenter(tunnelRelays?.exit.location.geoCoordinate)
             activityIndicator.startAnimating()
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             activityIndicator.startAnimating()
             globeViewModel.removeLocationMarker()
-            globeViewModel.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
+            globeViewModel.setCenter(tunnelRelays.exit.location.geoCoordinate)
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
-            globeViewModel.setCenter(center, animated: animated)
+            globeViewModel.setCenter(center)
             activityIndicator.stopAnimating()
             globeViewModel.addLocationMarker(coordinate: center)
 
@@ -212,7 +212,7 @@ class TunnelViewController: UIViewController, RootContainment {
         case .disconnected, .disconnecting:
             activityIndicator.stopAnimating()
             globeViewModel.removeLocationMarker()
-            globeViewModel.setCenter(nil, animated: animated)
+            globeViewModel.setCenter(nil)
         }
     }
 
