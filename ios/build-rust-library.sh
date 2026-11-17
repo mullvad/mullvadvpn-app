@@ -23,7 +23,7 @@ fi
 
 
 LOCKEDFLAG=
-PROFILE=dev-ios
+PROFILE=${OVERRIDE_PROFILE:-"dev-ios"}
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     PROFILE=release
     LOCKEDFLAG=--locked

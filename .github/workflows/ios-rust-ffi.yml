@@ -97,9 +97,34 @@ jobs:
           git submodule update --init --depth=1 --recursive ios/wireguard-apple
 
       - name: Install Protoc
+        id: protoc
         uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Our scripts hard-code `$HOME/cargo/bin` as the expected path for `cargo`,
+      # which is also documented as the default expected path.
+      # Due to https://github.com/actions/runner-images/pull/14990, the path changed
+      # and our Xcode build-scripts fail. This corrects that while waiting for upstream
+      # to resolve it.
+      - name: Install Rustup
+        run: |
+          RUSTUP_VERSION=1.29.2
+          TARGET=aarch64-apple-darwin
+          BASE="https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${TARGET}"
+          curl --proto '=https' --tlsv1.2 -sSfO "$BASE/rustup-init"
+          curl --proto '=https' --tlsv1.2 -sSfO "$BASE/rustup-init.sha256"
+
+          echo "Checking checksum"
+          sha256sum -c rustup-init.sha256
+
+          echo "Installing"
+          chmod +x rustup-init
+          ./rustup-init -y --profile minimal
+          rm -f ./rustup-init*
+
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+        shell: bash
 
       - name: Install Rust
         run: |
@@ -114,6 +139,25 @@ jobs:
 
       - name: Clippy check (all features)
         run: time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
+
+      - name: Regenerate bindings
+        env:
+          PROTOC: ${{ steps.protoc.outputs.path }}/bin/protoc
+          CONFIGURATION: Debug
+          PLATFORM_NAME: ""
+          ARCHS: arm64
+          CARGO_TARGET_DIR: ../target
+          OVERRIDE_PROFILE: ci
+        run: CONFIGURATION_BUILD_DIR="$(mktemp -d)" bash build-rust-library.sh mullvad-ios
+        working-directory: ios
+
+      - name: Check worktree for post-build-changes
+        run: |
+          CHANGES=$(git status --porcelain)
+          if [ -n "$CHANGES" ]; then
+            printf "Changes in working directory: \n%s" "$CHANGES"
+            exit 1
+          fi
 
   # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
   #       handy, so this takes no --target.
