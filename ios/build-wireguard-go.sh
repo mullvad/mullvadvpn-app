@@ -9,8 +9,18 @@
 # Directory: $(SOURCE_ROOT)
 # Pass build settings in environment: YES
 
+# WireGuardKitGo is not built for tvOS targets
+case "$PLATFORM_NAME" in
+appletvos | appletvsimulator)
+    echo "Skipping WireGuardKitGo build for tvOS"
+    exit 0
+    ;;
+esac
+
 # Passed by Xcode
 ACTION=$1
+
+
 
 if [ "$SOURCE_PACKAGES_PATH" == "" ]; then
     # When archiving, Xcode sets the action to "install"

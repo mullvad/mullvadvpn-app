@@ -8,10 +8,13 @@ DEVELOPMENT_TEAM = CKG9MXH72F
 DISPLAY_NAME = Mullvad VPN
 
 // Bundle ID
-APPLICATION_IDENTIFIER = net.mullvad.MullvadVPN
+APPLICATION_IDENTIFIER[sdk=iphone*] = net.mullvad.MullvadVPN
+APPLICATION_IDENTIFIER[sdk=appletv*] = net.mullvad.MullvadVPNTvOS
 
 // Shared container security group ID
-SECURITY_GROUP_IDENTIFIER = group.net.mullvad.MullvadVPN
+SECURITY_GROUP_IDENTIFIER[sdk=iphone*] = group.net.mullvad.MullvadVPN
+
+SECURITY_GROUP_IDENTIFIER[sdk=appletv*] = group.net.mullvad.MullvadVPNTvOS
 
 // Code signing style
 // Possible values: Manual or Automatic

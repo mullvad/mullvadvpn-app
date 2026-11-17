@@ -10,7 +10,10 @@
 
 import Foundation
 import MullvadLogging
-import WireGuardKit
+
+#if canImport(WireGuardKit)
+    import WireGuardKit
+#endif
 
 extension WireGuardLogLevel {
     var loggerLevel: Logger.Level {
