@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.compose)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -15,6 +16,7 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.lib.ui.icon)
+    implementation(projects.lib.commonCompose)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)

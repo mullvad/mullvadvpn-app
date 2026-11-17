@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.ui.component
+package net.mullvad.mullvadvpn.lib.common.compose
 
 /*
  * Code snippet taken from:

@@ -1,9 +1,15 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import java.time.ZonedDateTime
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.disableIPv6Story
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
@@ -31,27 +37,46 @@ class ObfuscationMockApiTest : MockApiTest() {
     }
 
     @Test
-    fun checkThatAllObfuscationsAreUsed() {
+    fun checkThatAllObfuscationsAreUsed() = runTest {
         app.launchAndLogIn(validAccountNumber)
 
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Disable IPv6 so we do not test IPv6 with the same obfuscation method
-        on<ConnectPage> { disableIPv6Story() }
+        app.applySettings(deviceIpVersion = Constraint.Only(IpVersion.IPV4))
 
         on<ConnectPage> {
             clickConnect()
             device.acceptVpnPermissionDialog()
-
-            // Wait for obfuscation methods in order
-            waitForConnectingLabel()
-            obfuscationNames.forEach { waitForFeatureIndicator(it) }
         }
+
+        // Collect tunnel states until all obfuscation methods have been seen
+        val remaining = obfuscationIndicators.toMutableSet()
+        app.tunnelStateFlow()
+            // ConnectionState.featureIndicators() will filter out multiple obfuscation methods used
+            // at the same time.
+            .mapNotNull { it.allFeatureIndicators() }
+            .first {
+                remaining.removeAll(it.toSet())
+                remaining.isEmpty()
+            }
     }
 
+    private fun TunnelState.allFeatureIndicators() =
+        when (this) {
+            is TunnelState.Connecting -> featureIndicators
+            is TunnelState.Connected -> featureIndicators
+            else -> null
+        }
+
     companion object {
-        // List of obfuscation methods in the order the relay selector uses them
-        // If the order in the relay selector changes this should be updated
-        private val obfuscationNames = listOf("LWO", "Shadowsocks", "QUIC", "UDP-over-TCP")
+        // All currently reported obfuscation methods
+        private val obfuscationIndicators =
+            listOf(
+                FeatureIndicator.LWO,
+                FeatureIndicator.QUIC,
+                FeatureIndicator.SHADOWSOCKS,
+                FeatureIndicator.UDP_2_TCP,
+            )
     }
 }
