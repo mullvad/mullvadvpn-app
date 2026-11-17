@@ -184,7 +184,7 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
         }
     } catch (_: RuntimeException) {
         Logger.e(
-            "Unable to get active network or properties and capabilities of the active network",
+            "Unable to get active network or properties and capabilities of the active network"
         )
         null
     }
@@ -208,7 +208,7 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
  */
 @OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(
-    resolver: UnderlyingConnectivityStatusResolver,
+    resolver: UnderlyingConnectivityStatusResolver
 ): Flow<Connectivity> =
     combine(nonVpnInternetNetworksEvents(), defaultRawNetworkStateFlow()) { _, defaultEvent ->
             defaultEvent
@@ -231,17 +231,16 @@ fun ConnectivityManager.hasInternetConnectivity(
 internal fun resolveConnectivityStatus(
     currentRawNetworkState: RawNetworkState?,
     resolver: UnderlyingConnectivityStatusResolver,
-): Connectivity = Connectivity.fromIpAvailability(true, true)
-
-/*if (currentRawNetworkState.isVpn()) {
-    // If the default network is a VPN we need to use a socket to check
-    // the underlying network
-    resolver.currentStatus()
-} else {
-    // If the default network is not a VPN we can check the addresses
-    // directly
-    currentRawNetworkState.toConnectivityStatus()
-}*/
+): Connectivity =
+    if (currentRawNetworkState.isVpn()) {
+        // If the default network is a VPN we need to use a socket to check
+        // the underlying network
+        resolver.currentStatus()
+    } else {
+        // If the default network is not a VPN we can check the addresses
+        // directly
+        currentRawNetworkState.toConnectivityStatus()
+    }
 
 private fun RawNetworkState?.toConnectivityStatus() =
     Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses.orEmpty())

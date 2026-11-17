@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -31,6 +32,7 @@ class ObfuscationMockApiTest : MockApiTest() {
     }
 
     @Test
+    @Disabled("Disabled due to it not being possible to check the ui for this method is being used")
     fun checkThatAllObfuscationsAreUsed() {
         app.launchAndLogIn(validAccountNumber)
 
