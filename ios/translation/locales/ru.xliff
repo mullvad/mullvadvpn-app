@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -270,8 +270,8 @@
         <target state="final">Все</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve" approved="yes">
-        <source>App logs</source>
+      <trans-unit id="App Logs" xml:space="preserve" approved="yes">
+        <source>App Logs</source>
         <target state="final">Журналы приложения</target>
         <note/>
       </trans-unit>
@@ -485,9 +485,9 @@
         <target state="final">При %@ подключение будет заблокировано, так как выбранное местоположение несовместимо с текущими настройками.</target>
         <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
       </trans-unit>
-      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
-        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
-        <target state="final">Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени. Подробнее смотрите здесь: </target>
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@" xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@</source>
+        <target state="final">Если вы прикрепите токен своей учетной записи, отчет о проблеме будет связан с ней, что поможет нам быстрее решить вашу проблему. Все отчеты автоматически удаляются через определенное время. Подробности см. здесь: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -647,7 +647,7 @@
       </trans-unit>
       <trans-unit id="Connect" xml:space="preserve" approved="yes">
         <source>Connect</source>
-        <target state="final">Подключиться</target>
+        <target state="final">Подключить</target>
         <note/>
       </trans-unit>
       <trans-unit id="Connected server" xml:space="preserve" approved="yes">
@@ -767,7 +767,7 @@
       </trans-unit>
       <trans-unit id="Czech Republic" xml:space="preserve" approved="yes">
         <source>Czech Republic</source>
-        <target state="final">Чешская Республика</target>
+        <target state="final">Чехия</target>
         <note/>
       </trans-unit>
       <trans-unit id="DAITA" xml:space="preserve" approved="yes">
@@ -830,6 +830,11 @@
         <target state="final">Удалить метод</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
+        <source>Deleting account...</source>
+        <target state="final">Удаление учетной записи...</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">Дания</target>
@@ -865,9 +870,9 @@
         <target state="final">Отключить</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
+      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state="final">Чтобы активировать этот параметр, отключите все %@ выше.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -975,6 +980,11 @@
         <target state="final">Пополните баланс на нашем сайте или совершите покупку в приложении, нажав кнопку **«Добавить время»** ниже.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Email (optional)" xml:space="preserve" approved="yes">
+        <source>Email (optional)</source>
+        <target state="final">Адрес эл. почты (необязательно)</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">Включить</target>
@@ -1018,6 +1028,11 @@
       <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
         <source>Enter your account number</source>
         <target state="final">Введите номер учетной записи</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter your email" xml:space="preserve" approved="yes">
+        <source>Enter your email</source>
+        <target state="final">Введите адрес эл. почты</target>
         <note/>
       </trans-unit>
       <trans-unit id="Entry" xml:space="preserve" approved="yes">
@@ -1222,7 +1237,7 @@
       </trans-unit>
       <trans-unit id="Got it!" xml:space="preserve" approved="yes">
         <source>Got it!</source>
-        <target state="final">ОК</target>
+        <target state="final">Понятно!</target>
         <note/>
       </trans-unit>
       <trans-unit id="Gothenburg" xml:space="preserve" approved="yes">
@@ -1293,11 +1308,6 @@
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve" approved="yes">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
         <target state="final">В случае, если наблюдатель отслеживает пакеты данных, %@ значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="If needed we will contact you at %@" xml:space="preserve" approved="yes">
-        <source>If needed we will contact you at %@</source>
-        <target state="final">При необходимости мы свяжемся с вами по адресу %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
@@ -1777,7 +1787,7 @@
       </trans-unit>
       <trans-unit id="Name" xml:space="preserve" approved="yes">
         <source>Name</source>
-        <target state="final">Название</target>
+        <target state="final">Имя</target>
         <note/>
       </trans-unit>
       <trans-unit id="Name is already taken." xml:space="preserve" approved="yes">
@@ -1865,9 +1875,9 @@
         <target state="final">Нет истории недавнего выбора</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="final">По запросу «%@» ничего не найдено. Попробуйте другой поисковый запрос.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -2133,6 +2143,11 @@
       <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
         <target state="final">Найдены предыдущие покупки</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Problem description" xml:space="preserve" approved="yes">
+        <source>Problem description</source>
+        <target state="final">Описание проблемы</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -2660,9 +2675,9 @@
         <target state="final">Благодарим за покупку</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
-        <source>Thanks!</source>
-        <target state="final">Спасибо!</target>
+      <trans-unit id="Thanks! We will look into this." xml:space="preserve" approved="yes">
+        <source>Thanks! We will look into this.</source>
+        <target state="final">Спасибо! Мы рассмотрим эту проблему.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents." xml:space="preserve" approved="yes">
@@ -2755,9 +2770,9 @@
         <target state="final">Версия настроек, сохраненная на устройстве, не распознается. Настройки будут сброшены до значений по умолчанию, и устройство будет выведено из системы.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve">
         <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
-        <target state="final">Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
@@ -2780,9 +2795,9 @@
         <target state="final">Это может быть полезно, если цензура отсутствует.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="final">Имя этого устройства изменено на **%@**. Подробности указаны в разделе «Управление устройствами» учетной записи.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
@@ -2815,9 +2830,9 @@
         <target state="final">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="final">Это приведет к выходу из этой учетной записи на всех устройствах. Доступ к VPN будет заблокирован, даже если на учетной записи еще осталось время. Введите последние 4 цифры номера учетной записи и нажмите «Удалить учетную запись», если вы действительно хотите ее удалить:</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2947,7 +2962,7 @@
       </trans-unit>
       <trans-unit id="Try again" xml:space="preserve" approved="yes">
         <source>Try again</source>
-        <target state="final">Повторить</target>
+        <target state="final">Повторить попытку</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
@@ -2987,7 +3002,7 @@
       </trans-unit>
       <trans-unit id="USA" xml:space="preserve" approved="yes">
         <source>USA</source>
-        <target state="final">США</target>
+        <target state="final">Соединённые Штаты Америки</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ukraine" xml:space="preserve" approved="yes">
@@ -3115,11 +3130,6 @@
         <target state="final">Мы можем уведомить вас о выходе обновления, чтобы вы могли отключить эту функцию или отключиться от VPN перед обновлением. Параметры уведомлений можно изменить в системных настройках.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
-      <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
-        <source>We will look into this.</source>
-        <target state="final">Мы рассмотрим эту проблему.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
         <source>We will never send you any ads or tips.</source>
         <target state="final">Мы никогда не будем отправлять вам рекламу или советы.</target>
@@ -3205,6 +3215,11 @@
         <target state="final">Выйти из профиля на устройстве</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
+        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
+        <target state="final">У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
         <target state="final">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</target>
@@ -3235,9 +3250,9 @@
         <target state="final">Теперь можно войти в учетную запись на этом устройстве.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="final">Вы можете использовать функцию «Восстановить покупки», чтобы проверить все платежи в приложении, совершенные через сервисы Apple. Если будет найден платеж, который еще не был зачислен, соответствующее время добавится к активной учетной записи Mullvad.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
@@ -3412,49 +3427,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3464,42 +3479,23 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
     </body>
   </file>
-  <file original="MullvadVPNtvOS/Localizable.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-      <trans-unit id="Hello, world!" xml:space="preserve" approved="yes">
-        <source>Hello, world!</source>
-        <target state="final">Привет, мир!</target>
-        <note/>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="MullvadVPNtvOS/MullvadVPNtvOS-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-    </body>
-  </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3521,14 +3517,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>

@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -270,8 +270,8 @@
         <target state="final">모두</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve" approved="yes">
-        <source>App logs</source>
+      <trans-unit id="App Logs" xml:space="preserve" approved="yes">
+        <source>App Logs</source>
         <target state="final">앱 로그</target>
         <note/>
       </trans-unit>
@@ -485,9 +485,9 @@
         <target state="final">%@하면 선택된 위치가 설정과 호환되지 않아 연결이 차단됩니다.</target>
         <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
       </trans-unit>
-      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
-        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
-        <target state="final">계정 토큰을 첨부하여 이 보고서를 계정에 연결하며, 이는 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다. 자세한 내용은 다음을 확인하세요. </target>
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@" xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@</source>
+        <target state="final">계정 토큰을 첨부하여 이 보고서를 계정에 연결하므로, 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다. 자세한 내용은 %@에서 확인하세요</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -830,6 +830,11 @@
         <target state="final">방법 삭제</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
+        <source>Deleting account...</source>
+        <target state="final">계정 삭제 중...</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">덴마크</target>
@@ -865,9 +870,9 @@
         <target state="final">사용 안 함</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
+      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state="final">이 설정을 활성화하려면 위의 모든 "%@"를 비활성화하세요.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -975,6 +980,11 @@
         <target state="final">웹사이트에서 크레딧을 구입하거나 아래의 **시간 추가** 버튼을 통해 인앱으로 구매하세요.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Email (optional)" xml:space="preserve" approved="yes">
+        <source>Email (optional)</source>
+        <target state="final">이메일(선택 사항)</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">사용</target>
@@ -1018,6 +1028,11 @@
       <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
         <source>Enter your account number</source>
         <target state="final">계정 번호 입력</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter your email" xml:space="preserve" approved="yes">
+        <source>Enter your email</source>
+        <target state="final">이메일 입력</target>
         <note/>
       </trans-unit>
       <trans-unit id="Entry" xml:space="preserve" approved="yes">
@@ -1293,11 +1308,6 @@
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve" approved="yes">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
         <target state="final">이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %@는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="If needed we will contact you at %@" xml:space="preserve" approved="yes">
-        <source>If needed we will contact you at %@</source>
-        <target state="final">필요한 경우 %@(으)로 연락드리겠습니다.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
@@ -1865,9 +1875,9 @@
         <target state="final">최근 선택 내역이 없습니다</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="final">"%@" 검색 결과가 없습니다. 다른 검색어를 시도하세요.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -2135,6 +2145,11 @@
         <target state="final">이전 구매 내역을 찾을 수 없습니다</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Problem description" xml:space="preserve" approved="yes">
+        <source>Problem description</source>
+        <target state="final">문제 설명</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
         <source>Providers</source>
         <target state="final">제공업체</target>
@@ -2227,7 +2242,7 @@
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve" approved="yes">
         <source>Report a problem</source>
-        <target state="final">문제 보고</target>
+        <target state="final">문제 신고</target>
         <note/>
       </trans-unit>
       <trans-unit id="Required" xml:space="preserve" approved="yes">
@@ -2660,9 +2675,9 @@
         <target state="final">구매해 주셔서 감사합니다</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
-        <source>Thanks!</source>
-        <target state="final">감사합니다!</target>
+      <trans-unit id="Thanks! We will look into this." xml:space="preserve" approved="yes">
+        <source>Thanks! We will look into this.</source>
+        <target state="final">감사합니다! 조사해보겠습니다.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents." xml:space="preserve" approved="yes">
@@ -2755,9 +2770,9 @@
         <target state="final">장치에 저장된 설정의 버전을 확인할 수 없습니다. 설정이 기본값으로 초기화되고 장치가 로그아웃됩니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve">
         <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
-        <target state="final">이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. "자동"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
@@ -2780,9 +2795,9 @@
         <target state="final">검열의 영향을 받지 않는 경우 유용할 수 있습니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="final">이 장치의 현재 이름은 **%@**입니다. 자세한 내용은 계정의 "장치 관리"에서 확인할 수 있습니다.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
@@ -2815,9 +2830,9 @@
         <target state="final">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="final">이 계정을 사용 중인 모든 장치가 로그아웃되고 계정에 충전한 시간이 남아 있더라도 모든 VPN 액세스가 거부됩니다. 계정을 정말로 삭제하려면 계정 번호의 마지막 4자리를 입력한 후 "계정 삭제"를 누르세요.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -3115,11 +3130,6 @@
         <target state="final">업데이트 전에 본 기능을 비활성화하거나 연결을 해제할 수 있도록 업데이트가 준비되었을 때 알림을 전송할 수 있습니다. 이 설정은 시스템 설정에서 언제든지 변경할 수 있습니다.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
-      <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
-        <source>We will look into this.</source>
-        <target state="final">조사해보겠습니다.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
         <source>We will never send you any ads or tips.</source>
         <target state="final">사용자에게 광고나 팁을 전송하지 않습니다.</target>
@@ -3127,7 +3137,7 @@
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
-        <target state="final">새로운 기능</target>
+        <target state="final">업데이트 내역</target>
         <note/>
       </trans-unit>
       <trans-unit id="When multihop is set to “Always” or “Never” you must manually select a DAITA server." xml:space="preserve" approved="yes">
@@ -3205,6 +3215,11 @@
         <target state="final">예, 장치에서 로그아웃</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
+        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
+        <target state="final">저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
         <target state="final">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</target>
@@ -3235,9 +3250,9 @@
         <target state="final">이제 이 장치에 계속 로그인할 수 있습니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="final">"구매 복원" 기능을 사용하여 Apple 서비스를 통해 이루어진 인앱 결제를 확인할 수 있습니다. 아직 지급되지 않은 결제 내역이 있다면 현재 로그인된 Mullvad 계정에 시간이 추가됩니다.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
@@ -3412,49 +3427,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3464,42 +3479,23 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
     </body>
   </file>
-  <file original="MullvadVPNtvOS/Localizable.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-      <trans-unit id="Hello, world!" xml:space="preserve" approved="yes">
-        <source>Hello, world!</source>
-        <target state="final">Hello, world!</target>
-        <note/>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="MullvadVPNtvOS/MullvadVPNtvOS-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-    </body>
-  </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3521,14 +3517,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>

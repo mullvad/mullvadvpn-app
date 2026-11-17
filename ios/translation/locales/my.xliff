@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -270,8 +270,8 @@
         <target state="final">တစ်ခုခု</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve" approved="yes">
-        <source>App logs</source>
+      <trans-unit id="App Logs" xml:space="preserve" approved="yes">
+        <source>App Logs</source>
         <target state="final">အက်ပ် မှတ်တမ်းများ</target>
         <note/>
       </trans-unit>
@@ -485,9 +485,9 @@
         <target state="final">%@ ဖြစ်ပါက ရွေးချယ်ထားသော တည်နေရာသည် သင့်ဆက်တင်များနှင့် ကိုက်ညီမှုမရှိလျှင် သင့်ချိတ်ဆက်မှုကို ပိတ်ပင်ပါမည်။</target>
         <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
       </trans-unit>
-      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
-        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
-        <target state="final">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။ အသေးစိတ်ကို ဖော်ပြပါတွင် ကြည့်ပါ </target>
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@" xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@</source>
+        <target state="final">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အလိုအလျောက် ဖျက်ပါသည်။ အသေးစိတ်အတွက် %@ ကို ကြည့်ရှုပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -830,6 +830,11 @@
         <target state="final">နည်းလမ်းကို ဖျက်ရန်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
+        <source>Deleting account...</source>
+        <target state="final">အကောင့် ဖျက်နေဆဲ...</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">ဒိန်းမတ်</target>
@@ -865,9 +870,9 @@
         <target state="final">ပိတ်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
+      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state="final">ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ "%@" အားလုံးကို ပိတ်ပါ။</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -975,6 +980,11 @@
         <target state="final">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်မှ ခရက်ဒစ် ဝယ်ယူခြင်း သို့မဟုတ် အောက်ရှိ **အချိန်တိုးရန်** ခလုတ်ကို အသုံးပြု၍ အက်ပ်အတွင်း ငွေပေးချေမှု ပြုလုပ်နိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Email (optional)" xml:space="preserve" approved="yes">
+        <source>Email (optional)</source>
+        <target state="final">အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">ဖွင့်ရန်</target>
@@ -1012,12 +1022,17 @@
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
-        <target state="final">IP ရိုက်ထည့်ရန်</target>
+        <target state="final">IP ဖြည့်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
         <source>Enter your account number</source>
         <target state="final">သင့်အကောင့်နံပါတ်ကို ဖြည့်သွင်းပါ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter your email" xml:space="preserve" approved="yes">
+        <source>Enter your email</source>
+        <target state="final">သင့်အီးမေးလ်ကို ရိုက်ထည့်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Entry" xml:space="preserve" approved="yes">
@@ -1295,11 +1310,6 @@
         <target state="final">အကဲခတ်သူတစ်ဦးက ဤဒေတာပက်ကတ်များကို စောင့်ကြည့်လျှင် %@ သည် သင်သွားရောက်ကြည့်ရှုနေသော ဝဘ်ဆိုက်များ သို့မဟုတ် သင်ဆက်သွယ်နေသည့်သူများကို ခွဲခြားဖော်ထုတ်ရန် ၎င်းတို့အတွက် သိသိသာသာ ခက်ခဲစေသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If needed we will contact you at %@" xml:space="preserve" approved="yes">
-        <source>If needed we will contact you at %@</source>
-        <target state="final">လိုအပ်ပါက %@ မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
         <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
         <target state="final">မဖွင့်ထားပါက ဤစက်ပေါ်ရှိ အန္တရာယ်ဖြစ်နိုင်သော အက်ပ်များသည် Tunnel ပြင်ပတွင် ဒေတာကူးလူးမှု လမ်းကြောင်းမှ ဒေတာပေါက်ကြားနိုင်သည်။</target>
@@ -1397,7 +1407,7 @@
       </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
-        <target state="final">ငွေပေးချေမှု သို့မဟုတ် အကောင့်နှင့်ဆိုင်သောပြဿနာများအတွက် ပိုမိုမြန်ဆန်စွာအကူအညီရရှိနိုင်ရန်၊ သင့်အကောင့်တိုကင်ကို ထည့်ပါ</target>
+        <target state="final">ငွေပေးချေမှု သို့မဟုတ် အကောင့်ဆိုင်ရာ ပြဿနာများအတွက် ပိုမိုမြန်ဆန်စွာ အကူအညီရရှိနိုင်ရန် ကျွန်ုပ်၏ အကောင့်တိုကင်ကို ထည့်ပါမည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1865,9 +1875,9 @@
         <target state="final">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="final">"%@" အတွက် ရလဒ် မရှိပါ၊ အခြားရှာဖွေရေးစကားရပ်တစ်ခုကို သုံး၍ ရှာကြည့်ပါ။</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -2135,6 +2145,11 @@
         <target state="final">ယခင်ဝယ်ယူထားသည်များကို ရှာတွေ့ထားသည်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Problem description" xml:space="preserve" approved="yes">
+        <source>Problem description</source>
+        <target state="final">ပြဿနာ အကြောင်းအရာဖော်ပြချက်</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
         <source>Providers</source>
         <target state="final">ပံ့ပိုးသူများ</target>
@@ -2227,7 +2242,7 @@
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve" approved="yes">
         <source>Report a problem</source>
-        <target state="final">ပြဿနာကို ရီပို့(တ်)လုပ်ရန်</target>
+        <target state="final">ပြဿနာ ရီပို့တ်လုပ်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Required" xml:space="preserve" approved="yes">
@@ -2362,7 +2377,7 @@
       </trans-unit>
       <trans-unit id="Server IP override" xml:space="preserve" approved="yes">
         <source>Server IP override</source>
-        <target state="final">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်ရန်</target>
+        <target state="final">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</target>
         <note/>
       </trans-unit>
       <trans-unit id="Server details" xml:space="preserve" approved="yes">
@@ -2407,7 +2422,7 @@
       </trans-unit>
       <trans-unit id="Settings" xml:space="preserve" approved="yes">
         <source>Settings</source>
-        <target state="final">ဆက်တင်များ</target>
+        <target state="final">ဆက်တင်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Settings migration error" xml:space="preserve" approved="yes">
@@ -2660,9 +2675,9 @@
         <target state="final">ဝယ်ယူမှုအတွက် ကျေးဇူးတင်ပါသည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
-        <source>Thanks!</source>
-        <target state="final">ကျေးဇူးတင်ပါသည်။</target>
+      <trans-unit id="Thanks! We will look into this." xml:space="preserve" approved="yes">
+        <source>Thanks! We will look into this.</source>
+        <target state="final">ကျေးဇူးတင်ပါသည်။ ကျွန်ုပ်တို့ ဤအကြောင်းအရာကို စိစစ်လေ့လာသွားပါမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents." xml:space="preserve" approved="yes">
@@ -2755,9 +2770,9 @@
         <target state="final">စက်ပေါ်တွင် သိမ်းဆည်းထားသော ဆက်တင်များ၏ ဗားရှင်းကို မသိရှိပါ။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve">
         <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
-        <target state="final">Mullvad သို့ ဆက်သွယ်၍ မရစေရန် ပိတ်ဆို့ထားသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ "အော်တိုမက်တစ်" ကို ရွေးချယ်လိုက်သောအခါ အက်ပ်သည် နည်းလမ်းတစ်ခု အလုပ်လုပ်သည်အထိ နည်းလမ်းအားလုံးကို ကြိုးစားလုပ်ဆောင်ပါလိမ့်မည်။</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
@@ -2780,9 +2795,9 @@
         <target state="final">သင့်အပေါ် စိစစ်ဖြတ်တောက်မှု၏ အကျိုးသက်ရောက်ခြင်း မရှိသည့်အခါ ၎င်းသည် အသုံးဝင်နိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="final">ယခုအခါ ဤစက်ကို **%@**.ဟု အမည်ပေးထားသည်။ အကောင့်ရှိ "စက်များ စီမံရန်" အောက်တွင် ပိုမိုကြည့်ရှုပါ။</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
@@ -2807,7 +2822,7 @@
       </trans-unit>
       <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
         <source>This impacts your anonymity</source>
-        <target state="final">ယင်းက သင်၏ အမည်မဖော်လိုမှုကို သက်ရောက်မှုရှိသည်</target>
+        <target state="final">ဤအရာကို ရွေးချယ်ပါက သင်၏ အမည်ဝှက်မှုကို သက်ရောက်မှု ရှိပါမည်</target>
         <note/>
       </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
@@ -2815,9 +2830,9 @@
         <target state="final">ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="final">ဤသို့ လုပ်ဆောင်ခြင်းဖြင့် ဤအကောင့်ကို သုံးနေသော စက်အားလုံးတွင် အကောင့် ထွက်သွားမည်ဖြစ်ပြီး အကောင့်တွင် အချိန်ကျန်သေးလျှင်ပင် VPN ရယူသုံးစွဲခွင့်အားလုံးကို ငြင်းပယ်သွားပါမည်။ ဤအကောင့်ကို အမှန်တကယ် ဖျက်လိုပါက အကောင့်နံပါတ်၏ နောက်ဆုံးဂဏန်း 4 လုံးကို ရိုက်ထည့်ပြီး "အကောင့် ဖျက်ရန်" ကို နှိပ်ပါ-</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -3032,7 +3047,7 @@
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</target>
+        <target state="final">အပ်ဒိတ်ရရှိနိုင်ပါပြီ</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Update server list" xml:space="preserve" approved="yes">
@@ -3115,11 +3130,6 @@
         <target state="final">အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို ပိတ်နိုင်ရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်ရန် အပ်ဒိတ်ရရှိချိန်တွင် အသိပေးချက်တစ်စောင် သင့်ထံ ပေးပို့နိုင်ပါသည်။ စနစ်ဆက်တင်များတွင် ဤလုပ်ဆောင်ချက်ကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
-      <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
-        <source>We will look into this.</source>
-        <target state="final">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
         <source>We will never send you any ads or tips.</source>
         <target state="final">ကြော်ငြာမှန်သမျှ သို့မဟုတ် အကြံပြုချက်မှန်သမျှ သင့်ထံ မည်သည့်အခါမျှ မပေးပို့ပါ။</target>
@@ -3127,7 +3137,7 @@
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
-        <target state="final">အသစ်ပါလာသော အကြောင်းအရာများ</target>
+        <target state="final">အသစ်ထူးသော အကြောင်းအရာ</target>
         <note/>
       </trans-unit>
       <trans-unit id="When multihop is set to “Always” or “Never” you must manually select a DAITA server." xml:space="preserve" approved="yes">
@@ -3205,6 +3215,11 @@
         <target state="final">စက်မှ ထွက်မည်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
+        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
+        <target state="final">သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
         <target state="final">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</target>
@@ -3235,9 +3250,9 @@
         <target state="final">သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="final">Apple ဝန်ဆောင်မှုများမှတစ်ဆင့် လုပ်ဆောင်သော အက်ပ်တွင်း ပေးချေမှုမှန်သမျှကို ရှာကြည့်ရန်အတွက် "ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်" လုပ်ဆောင်ချက်ကို သုံးနိုင်ပါသည်။ ငွေပေးချေမှုတစ်ခုခုအတွက် ရသင့်သည့် အချိန်ကို အကောင့်တွင် မထည့်သေးပါက ထိုသို့လုပ်ဆောင်ခြင်းဖြင့် လက်ရှိဝင်ရောက်ထားသော Mullvat အကောင့်တွင် အချိန်ထပ်တိုးပေးပါမည်။</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
@@ -3412,49 +3427,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3464,42 +3479,23 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
     </body>
   </file>
-  <file original="MullvadVPNtvOS/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-      <trans-unit id="Hello, world!" xml:space="preserve" approved="yes">
-        <source>Hello, world!</source>
-        <target state="final">Hello, world!</target>
-        <note/>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="MullvadVPNtvOS/MullvadVPNtvOS-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-    </body>
-  </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3514,21 +3510,21 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</target>
+        <target state="final">အပ်ဒိတ်ရရှိနိုင်ပါပြီ</target>
         <note/>
       </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>

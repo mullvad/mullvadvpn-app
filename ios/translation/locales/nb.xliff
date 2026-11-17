@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -270,8 +270,8 @@
         <target state="final">Hvilken som helst</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App logs" xml:space="preserve" approved="yes">
-        <source>App logs</source>
+      <trans-unit id="App Logs" xml:space="preserve" approved="yes">
+        <source>App Logs</source>
         <target state="final">Applogger</target>
         <note/>
       </trans-unit>
@@ -485,9 +485,9 @@
         <target state="final">Innen %@ vil tilkoblingen din bli blokkert, fordi den valgte plasseringen ikke er kompatibel med innstillingene dine.</target>
         <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
       </trans-unit>
-      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
-        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
-        <target state="final">Ved å legge ved kontotokenet ditt, kobles denne rapporten til kontoen din. Det hjelper oss til å løse problemet raskere. Alle rapporter slettes automatisk etter en bestemt tid. For mer informasjon, gå til </target>
+      <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@" xml:space="preserve" approved="yes">
+        <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our %@</source>
+        <target state="final">Ved å legge ved konto-tokenet, kobles denne rapporten til kontoen din. Det hjelper oss til å løse problemet raskere. Alle rapporter slettes automatisk etter en bestemt tid. Du finner mer informasjon i vår %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -830,6 +830,11 @@
         <target state="final">Slett metoden</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
+        <source>Deleting account...</source>
+        <target state="final">Sletter konto …</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">Danmark</target>
@@ -865,9 +870,9 @@
         <target state="final">Deaktiver</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
+      <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve">
         <source>Disable all "%@" above to activate this setting.</source>
-        <target state="final">Deaktiver alle «%@» ovenfor for å aktivere denne innstillingen.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -975,6 +980,11 @@
         <target state="final">Kjøp kreditt på vår nettside eller foreta et kjøp i appen via **Legg til tid**-knappen nedenfor.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Email (optional)" xml:space="preserve" approved="yes">
+        <source>Email (optional)</source>
+        <target state="final">E-post (valgfritt)</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">Aktiver</target>
@@ -1012,12 +1022,17 @@
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
-        <target state="final">Skriv inn IP</target>
+        <target state="final">Angi IP</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter your account number" xml:space="preserve" approved="yes">
         <source>Enter your account number</source>
         <target state="final">Skriv inn kontonummeret ditt</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Enter your email" xml:space="preserve" approved="yes">
+        <source>Enter your email</source>
+        <target state="final">Skriv inn e-postadressen din</target>
         <note/>
       </trans-unit>
       <trans-unit id="Entry" xml:space="preserve" approved="yes">
@@ -1295,11 +1310,6 @@
         <target state="final">Hvis en observatør overvåker disse datapakkene, gjør %@ det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If needed we will contact you at %@" xml:space="preserve" approved="yes">
-        <source>If needed we will contact you at %@</source>
-        <target state="final">Vi vil kontakte deg på %@ ved behov</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
         <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
         <target state="final">Hvis dette ikke er aktivert, kan ondsinnede apper på enheten din lekke trafikk utenfor tunnelen.</target>
@@ -1397,7 +1407,7 @@
       </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
-        <target state="final">Inkluder min kontotoken for raskere hjelp med betaling eller problemer knyttet til kontoen</target>
+        <target state="final">Inkluder kontotokenet mitt for raskere hjelp med betaling eller problemer knyttet til kontoen</target>
         <note/>
       </trans-unit>
       <trans-unit id="Indonesia" xml:space="preserve" approved="yes">
@@ -1865,9 +1875,9 @@
         <target state="final">Ingen nylig valghistorikk</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve" approved="yes">
+      <trans-unit id="No result for &quot;%@&quot;, please try a different search term." xml:space="preserve">
         <source>No result for "%@", please try a different search term.</source>
-        <target state="final">Ingen resultater for «%@». Prøv et annet søkeord.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="No servers match your location filter. Try changing filter settings." xml:space="preserve" approved="yes">
@@ -2133,6 +2143,11 @@
       <trans-unit id="Previous purchases were found" xml:space="preserve" approved="yes">
         <source>Previous purchases were found</source>
         <target state="final">Tidligere kjøp funnet</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Problem description" xml:space="preserve" approved="yes">
+        <source>Problem description</source>
+        <target state="final">Beskrivelse av problem</target>
         <note/>
       </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
@@ -2660,9 +2675,9 @@
         <target state="final">Takk for kjøpet</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
-        <source>Thanks!</source>
-        <target state="final">Takk!</target>
+      <trans-unit id="Thanks! We will look into this." xml:space="preserve" approved="yes">
+        <source>Thanks! We will look into this.</source>
+        <target state="final">Takk! Dette skal vi følge opp.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents." xml:space="preserve" approved="yes">
@@ -2755,9 +2770,9 @@
         <target state="final">Innstillingene som er lagret på enheten, gjenkjennes ikke. Innstillingene vil bli tilbakestilt til standardinnstillingene, og enheten vil bli logget ut.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve">
         <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
-        <target state="final">Disse metodene kan være nyttige i situasjoner der du er blokkert fra å nå Mullvad. Når «Automatisk» er valgt, vil appen prøve alle metodene helt til en av dem fungerer.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
@@ -2780,9 +2795,9 @@
         <target state="final">Dette kan være nyttig når du ikke er berørt av sensur.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
+      <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve">
         <source>This device is now named **%@**. See more under "Manage devices" in Account.</source>
-        <target state="final">Denne enheten heter nå **%@**. Se mer under «Administrer enheter» i kontoen.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
@@ -2815,9 +2830,9 @@
         <target state="final">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve" approved="yes">
+      <trans-unit id="This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit &quot;Delete account&quot; if you really want to delete the account:" xml:space="preserve">
         <source>This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account:</source>
-        <target state="final">Dette logger ut alle enheter som bruker denne kontoen, og all VPN-tilgang vil bli avvist selv om det er tid igjen på kontoen. Skriv inn de fire siste sifrene i kontonummeret og trykk på «Slett konto» hvis du virkelig ønsker å slette kontoen:</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="This might cause issues on certain websites, services, and apps." xml:space="preserve" approved="yes">
@@ -2947,7 +2962,7 @@
       </trans-unit>
       <trans-unit id="Try again" xml:space="preserve" approved="yes">
         <source>Try again</source>
-        <target state="final">Prøv igjen</target>
+        <target state="final">Prøv på nytt</target>
         <note/>
       </trans-unit>
       <trans-unit id="Tunnel is unset." xml:space="preserve" approved="yes">
@@ -3032,7 +3047,7 @@
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">En oppdatering er tilgjengelig</target>
+        <target state="final">Oppdatering er tilgjengelig</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Update server list" xml:space="preserve" approved="yes">
@@ -3115,11 +3130,6 @@
         <target state="final">Vi kan sende deg et varsel når en oppdatering er tilgjengelig, slik at du kan deaktivere denne funksjonen eller koble fra før oppdateringen gjennomføres. Dette kan endres når som helst i systeminnstillingene.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
-      <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
-        <source>We will look into this.</source>
-        <target state="final">Dette skal vi følge opp.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
         <source>We will never send you any ads or tips.</source>
         <target state="final">Vi vil aldri sende deg annonser eller tips.</target>
@@ -3127,7 +3137,7 @@
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
-        <target state="final">Dette er nytt</target>
+        <target state="final">Nytt</target>
         <note/>
       </trans-unit>
       <trans-unit id="When multihop is set to “Always” or “Never” you must manually select a DAITA server." xml:space="preserve" approved="yes">
@@ -3205,6 +3215,11 @@
         <target state="final">Ja, logg ut av enheten</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
+        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
+        <target state="final">Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
         <source>You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</source>
         <target state="final">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</target>
@@ -3235,9 +3250,9 @@
         <target state="final">Du kan nå fortsette med å logge på denne enheten.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve" approved="yes">
+      <trans-unit id="You can use the &quot;restore purchases&quot; function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account." xml:space="preserve">
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
-        <target state="final">Du kan bruke funksjonen «Gjenopprett kjøp» for å sjekke om det er gjort noen betalinger i appen via Apple-tjenester. Hvis det er en betaling som ikke er kreditert, vil den legge til tiden til den Mullvad-kontoen som for øyeblikket er logget inn.</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
@@ -3412,49 +3427,49 @@ Vi er overbevist om at det er viktig å lagre så lite data som mulig, fordi vi 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3464,42 +3479,23 @@ Vi er overbevist om at det er viktig å lagre så lite data som mulig, fordi vi 
       </trans-unit>
     </body>
   </file>
-  <file original="MullvadVPNtvOS/Localizable.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-      <trans-unit id="Hello, world!" xml:space="preserve" approved="yes">
-        <source>Hello, world!</source>
-        <target state="final">Hei, verden!</target>
-        <note/>
-      </trans-unit>
-    </body>
-  </file>
-  <file original="MullvadVPNtvOS/MullvadVPNtvOS-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
-    <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
-    </header>
-    <body>
-    </body>
-  </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3514,21 +3510,21 @@ Vi er overbevist om at det er viktig å lagre så lite data som mulig, fordi vi 
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">En oppdatering er tilgjengelig</target>
+        <target state="final">Oppdatering er tilgjengelig</target>
         <note/>
       </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="nb" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="27.0" build-num="27A266a"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
