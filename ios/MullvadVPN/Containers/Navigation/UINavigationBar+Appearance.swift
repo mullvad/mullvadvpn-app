@@ -101,6 +101,7 @@ extension UIBarButtonItem {
         let item = UIImageView(image: image)
         item.contentMode = .scaleAspectFill
         let barButtonItem = UIBarButtonItem(image: image, primaryAction: backAction)
+        barButtonItem.setAccessibilityIdentifier(.navigationBackButton)
         barButtonItem.hidesSharedBackgroundIfAvailable()
         return barButtonItem
     }
