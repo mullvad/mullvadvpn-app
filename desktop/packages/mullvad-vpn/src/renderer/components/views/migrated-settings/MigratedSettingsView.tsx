@@ -4,12 +4,12 @@ import styled from 'styled-components';
 import { messages } from '../../../../shared/gettext';
 import { useSettingsMigrations } from '../../../features/migration/hooks';
 import { EmptyState } from '../../../lib/components/empty-state';
-import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { Wizard } from '../../../lib/components/wizard';
-import { colors } from '../../../lib/foundations';
+import { colors, spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../app-navigation-header';
+import { StyledScrollable } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
@@ -17,6 +17,23 @@ import { useMigrationSlides } from './hooks';
 
 const StyledHeader = styled(AppNavigationHeader)`
   background-color: ${colors.darkerBlue50};
+`;
+
+const StyledNavigationScrollbars = styled(NavigationScrollbars)`
+  ${StyledScrollable} {
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const StyledViewContainer = styled(View.Container)`
+  flex: 1;
+`;
+
+const StyledWizardControls = styled(Wizard.Controls)`
+  // Apply view margin to controls instead of using View.Content
+  // since this does not work well with the double scroll viewers.
+  margin-bottom: ${spacings.large};
 `;
 
 export function MigratedSettingsView() {
@@ -36,7 +53,7 @@ export function MigratedSettingsView() {
   const showIndicators = slides && slides.length > 1;
 
   return (
-    <View backgroundColor="darkerBlue50" aria-label={'migration-view'}>
+    <View backgroundColor="darkerBlue50">
       <BackAction action={handleGoBack}>
         <NavigationContainer>
           <StyledHeader
@@ -45,43 +62,39 @@ export function MigratedSettingsView() {
               messages.pgettext('migrated-settings-view', 'Migrated settings')
             }
           />
-          <NavigationScrollbars>
-            <View.Content aria-label={'content'}>
-              <View.Container horizontalMargin="medium" flexGrow={1}>
-                {slides ? (
-                  <Wizard>
-                    <FlexColumn flexGrow={1} gap="medium">
-                      <Wizard.Slides>{slides}</Wizard.Slides>
-                      <Wizard.Controls>
-                        {showIndicators && <Wizard.Controls.Indicators />}
-                        <Wizard.Controls.ButtonGroup>
-                          <Wizard.Controls.PrevButton />
-                          <Wizard.Controls.NextButton />
-                          <Wizard.Controls.ExitButton onClick={handleGotIt} />
-                        </Wizard.Controls.ButtonGroup>
-                      </Wizard.Controls>
-                    </FlexColumn>
-                  </Wizard>
-                ) : (
-                  <EmptyState>
-                    <EmptyState.StatusIcon />
-                    <EmptyState.Title>
-                      {
-                        // TRANSLATORS: Description shown in migration wizard when there are no migrations available.
-                        messages.pgettext(
-                          'migrated-settings-view',
-                          'No settings migrations are available.',
-                        )
-                      }
-                    </EmptyState.Title>
-                    <EmptyState.Button onClick={handleGoBack}>
-                      <EmptyState.Button.Text>{messages.gettext('Go back')}</EmptyState.Button.Text>
-                    </EmptyState.Button>
-                  </EmptyState>
-                )}
-              </View.Container>
-            </View.Content>
-          </NavigationScrollbars>
+          <StyledNavigationScrollbars>
+            <StyledViewContainer horizontalMargin="medium">
+              {slides ? (
+                <Wizard>
+                  <Wizard.Slides>{slides}</Wizard.Slides>
+                  <StyledWizardControls>
+                    {showIndicators && <Wizard.Controls.Indicators />}
+                    <Wizard.Controls.ButtonGroup>
+                      <Wizard.Controls.PrevButton />
+                      <Wizard.Controls.NextButton />
+                      <Wizard.Controls.ExitButton onClick={handleGotIt} />
+                    </Wizard.Controls.ButtonGroup>
+                  </StyledWizardControls>
+                </Wizard>
+              ) : (
+                <EmptyState>
+                  <EmptyState.StatusIcon />
+                  <EmptyState.Title>
+                    {
+                      // TRANSLATORS: Description shown in migration wizard when there are no migrations available.
+                      messages.pgettext(
+                        'migrated-settings-view',
+                        'No settings migrations are available.',
+                      )
+                    }
+                  </EmptyState.Title>
+                  <EmptyState.Button onClick={handleGoBack}>
+                    <EmptyState.Button.Text>{messages.gettext('Go back')}</EmptyState.Button.Text>
+                  </EmptyState.Button>
+                </EmptyState>
+              )}
+            </StyledViewContainer>
+          </StyledNavigationScrollbars>
         </NavigationContainer>
       </BackAction>
     </View>
