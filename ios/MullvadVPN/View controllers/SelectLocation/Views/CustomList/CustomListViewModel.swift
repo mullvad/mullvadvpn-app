@@ -8,6 +8,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Logging
 import MullvadSettings
 import MullvadTypes
 import SwiftUI
@@ -167,6 +168,7 @@ class CustomListViewModelImpl: CustomListViewModel {
             self.error = error
         } catch {
             // This should never happen
+            Logger(label: "Custom List ViewModel").error("Failed to save custom list \(error)")
         }
         return false
     }
