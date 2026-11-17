@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.lib.model
 
 // The order of the variants match the priority order and can be sorted on.
 enum class FeatureIndicator {
+    // This is derived from the other feature indicators, it is never sent by the daemon
+    ANTI_CENSORSHIP,
     DAITA,
     MULTIHOP,
     MULTIHOP_AUTO,
