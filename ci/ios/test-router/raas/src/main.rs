@@ -1,5 +1,3 @@
-#[cfg(target_os = "linux")]
-use std::convert::Infallible;
 use std::{fmt::Display, fs, io, net::SocketAddr, path::Path, time::Duration};
 
 mod capture;
@@ -64,13 +62,7 @@ fn init(
 }
 
 #[cfg(target_os = "linux")]
-fn init(
-    args: &Args,
-) -> (
-    BlockList,
-    String,
-    impl FnOnce() -> Result<(), Infallible> + 'static,
-) {
+fn init(args: &Args) -> (BlockList, String, impl FnOnce() -> Result<(), !> + 'static) {
     let interface = args
         .interface
         .clone()
@@ -78,9 +70,7 @@ fn init(
 
     let block_list = BlockList::default();
 
-    (block_list, interface, move || -> Result<(), Infallible> {
-        Ok(())
-    })
+    (block_list, interface, move || -> Result<(), !> { Ok(()) })
 }
 
 async fn graceful_shutdown<E: Display>(cleanup: impl FnOnce() -> Result<(), E>) {
