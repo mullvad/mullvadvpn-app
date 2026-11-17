@@ -246,12 +246,17 @@ impl HttpsConnector {
                 let use_http2 = crate::domain_fronting::USE_HTTP2;
                 let domain_fronting = &config.config();
                 let connect_tls = async || {
-                    let tcp_stream = open_socket(
-                        config.addr,
-                        #[cfg(target_os = "android")]
-                        self.socket_bypass_tx.clone(),
-                    )
-                    .await?;
+                    #[cfg(target_os = "android")]
+                    let socket_bypass_tx = self.socket_bypass_tx.clone();
+                    let tcp_stream =
+                        domain_fronting::happy_eyeballs::connect(&config.addrs, move |addr| {
+                            open_socket(
+                                addr,
+                                #[cfg(target_os = "android")]
+                                socket_bypass_tx.clone(),
+                            )
+                        })
+                        .await?;
                     crate::domain_fronting::cdn_tls_connect(
                         tcp_stream,
                         domain_fronting.front_host(),
