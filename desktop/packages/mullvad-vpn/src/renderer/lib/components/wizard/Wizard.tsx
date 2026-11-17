@@ -1,13 +1,21 @@
 import styled from 'styled-components';
 
+import { spacings } from '../../foundations';
 import { Carousel, type CarouselProps } from '../carousel';
-import { WizardControls, WizardSlides } from './components';
+import {
+  StyledWizardControls,
+  StyledWizardSlides,
+  WizardControls,
+  WizardSlides,
+} from './components';
 
 export type WizardProps = CarouselProps;
 
 export const StyledWizard = styled(Carousel)`
-  display: flex;
-  flex: 1;
+  // Spacing between slides and controls.
+  > ${StyledWizardSlides} + ${StyledWizardControls} {
+    margin-top: ${spacings.medium};
+  }
 `;
 
 function Wizard(props: WizardProps) {
