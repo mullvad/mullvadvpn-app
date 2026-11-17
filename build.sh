@@ -33,6 +33,9 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
+# If the update notification of the GUI should be disabled. Intended for packages that are
+# published and managed by package repositories.
+DISABLE_UPDATE_NOTIFICATION="false"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -47,6 +50,7 @@ while [[ "$#" -gt 0 ]]; do
             UNIVERSAL="true"
             ;;
         --daemon-only) DAEMON_ONLY="true";;
+        --disable-update-notification) DISABLE_UPDATE_NOTIFICATION="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -181,6 +185,10 @@ fi
 
 if [[ "$NOTARIZE" == "true" ]]; then
     NPM_PACK_ARGS+=(--notarize)
+fi
+
+if [[ "$DISABLE_UPDATE_NOTIFICATION" == "true" ]]; then
+    NPM_PACK_ARGS+=(--disable-update-notification)
 fi
 
 if [[ "$IS_RELEASE" == "true" ]]; then
