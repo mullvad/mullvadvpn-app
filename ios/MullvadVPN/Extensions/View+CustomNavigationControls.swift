@@ -25,6 +25,7 @@ extension View {
                     ) {
                         Image.mullvadIconBack
                     }
+                    .accessibilityIdentifier(.navigationBackButton)
                 }.hideLiquidGlassEffect()
             }
     }

@@ -130,6 +130,7 @@ public enum AccessibilityIdentifier: Equatable {
     case includeAllNetworksFeatureAlertEnableButton
     case includeAllNetworksCell
     case migratedSettingsCell
+    case navigationBackButton
     case multihopCell
     case daitaCell
     case daitaFilterPill
