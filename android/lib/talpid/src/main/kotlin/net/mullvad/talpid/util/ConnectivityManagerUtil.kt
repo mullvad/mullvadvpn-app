@@ -231,16 +231,17 @@ fun ConnectivityManager.hasInternetConnectivity(
 internal fun resolveConnectivityStatus(
     currentRawNetworkState: RawNetworkState?,
     resolver: UnderlyingConnectivityStatusResolver,
-): Connectivity =
-    if (currentRawNetworkState.isVpn()) {
-        // If the default network is a VPN we need to use a socket to check
-        // the underlying network
-        resolver.currentStatus()
-    } else {
-        // If the default network is not a VPN we can check the addresses
-        // directly
-        currentRawNetworkState.toConnectivityStatus()
-    }
+): Connectivity = Connectivity.fromIpAvailability(true, true)
+
+/*if (currentRawNetworkState.isVpn()) {
+    // If the default network is a VPN we need to use a socket to check
+    // the underlying network
+    resolver.currentStatus()
+} else {
+    // If the default network is not a VPN we can check the addresses
+    // directly
+    currentRawNetworkState.toConnectivityStatus()
+}*/
 
 private fun RawNetworkState?.toConnectivityStatus() =
     Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses.orEmpty())
