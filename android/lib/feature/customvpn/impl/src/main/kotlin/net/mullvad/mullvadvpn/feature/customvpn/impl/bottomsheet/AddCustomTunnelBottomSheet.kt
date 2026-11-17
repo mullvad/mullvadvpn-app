@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelImportConfigurationNavResult
+import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomVpnImportConfigurationNavResult
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.impl.R
 import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceTop
@@ -76,7 +76,7 @@ fun AddCustomTunnelBottomSheet(navigator: Navigator) {
                 },
             onImportByFile =
                 dropUnlessResumed {
-                    navigator.goBack(result = CreateCustomTunnelImportConfigurationNavResult)
+                    navigator.goBack(result = CreateCustomVpnImportConfigurationNavResult)
                 },
         )
     }
