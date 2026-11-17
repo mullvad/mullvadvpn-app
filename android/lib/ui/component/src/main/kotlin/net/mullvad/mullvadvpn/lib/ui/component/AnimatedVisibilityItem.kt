@@ -16,6 +16,10 @@ import androidx.compose.runtime.remember
  * `onRemoveConfirmed` - called when the exit animation is done and it is safe to remove the item.
  * `content` - the column item content lambda. The content lambda should invoke the
  * `onRequestRemove` parameter when it wants to remove the content.
+ *
+ * Note: `expandVertically`/`shrinkVertically` measure the content with an animated height, so
+ * Compose's D-pad focus search cannot reliably enter the row's focusable children from above.
+ * Callers with focusable content must wire an explicit D-pad focus order.
  */
 @Composable
 fun AnimatedVisibilityItem(

@@ -55,6 +55,10 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customvpn.api.RemoveCustomTunnelConfigConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.RemoveCustomTunnelConfigConfirmationNavResult
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.FormFocus.addIpFocusKey
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.FormFocus.endpointFocusKey
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.FormFocus.portFocusKey
+import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.FormFocus.publicKeyFocusKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
@@ -64,9 +68,12 @@ import net.mullvad.mullvadvpn.lib.common.util.then
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedVisibilityItem
 import net.mullvad.mullvadvpn.lib.ui.component.LoadingScaffold
+import net.mullvad.mullvadvpn.lib.ui.component.ProvideFocusChain
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.ListItemIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.focusChainItem
+import net.mullvad.mullvadvpn.lib.ui.component.keepFocusedInView
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -108,7 +115,7 @@ class FormTextField(
 )
 
 @Composable
-fun CustomTunnelEdit(
+fun CustomVpnEdit(
     navigator: Navigator,
     isNewConfig: Boolean,
 ) {
@@ -237,26 +244,30 @@ fun CustomVpnEditScreen(
         },
         snackbarHostState = snackbarHostState,
     ) { contentModifier ->
-        LazyColumn(
-            modifier = contentModifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew),
-        ) {
-            interfaceSection(
-                nameFieldState = nameFieldState,
-                nameError = state.value.formErrors?.nameError,
-                privateKeyTextFieldState = privateKeyTextFieldState,
-                privateKeyError = state.value.formErrors?.privateKeyError,
-                tunnelIpTextFieldStates = tunnelIpTextFieldStates,
-                tunnelIpErrors = state.value.formErrors?.tunnelIpErrors.orEmpty(),
-            )
+        ProvideFocusChain(FormFocus.focusOrder(tunnelIpTextFieldStates, peerStates)) {
+            LazyColumn(
+                modifier = contentModifier.fillMaxSize().padding(horizontal = Dimens.sideMarginNew),
+            ) {
+                interfaceSection(
+                    nameFieldState = nameFieldState,
+                    nameError = state.value.formErrors?.nameError,
+                    privateKeyTextFieldState = privateKeyTextFieldState,
+                    privateKeyError = state.value.formErrors?.privateKeyError,
+                    tunnelIpTextFieldStates = tunnelIpTextFieldStates,
+                    tunnelIpErrors = state.value.formErrors?.tunnelIpErrors.orEmpty(),
+                )
 
-            item { Spacer(Modifier.height(Dimens.verticalSpace)) }
+                item(key = ContentKey.SPACER) { Spacer(Modifier.height(Dimens.verticalSpace)) }
 
-            peersSection(
-                peerStates = peerStates,
-                state = state.value,
-            )
+                peersSection(
+                    peerStates = peerStates,
+                    state = state.value,
+                )
 
-            item { Spacer(Modifier.height(Dimens.screenBottomMarginNew)) }
+                item(key = ContentKey.BOTTOM_SPACER) {
+                    Spacer(Modifier.height(Dimens.screenBottomMarginNew))
+                }
+            }
         }
     }
 }
@@ -271,10 +282,10 @@ fun LazyListScope.interfaceSection(
     tunnelIpTextFieldStates: SnapshotStateList<FormTextField>,
     tunnelIpErrors: Map<String, FormDataError>,
 ) {
-    item {
+    item(key = ContentKey.INTERFACE) {
         Column(modifier = modifier) {
             TextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusChainItem(FormFocus.NAME_KEY),
                 state = nameFieldState,
                 label = { Text(stringResource(R.string.name)) },
                 isError = nameError != null,
@@ -291,7 +302,7 @@ fun LazyListScope.interfaceSection(
             var showPassword by rememberSaveable { mutableStateOf(false) }
 
             SecureTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusChainItem(FormFocus.PRIVATE_KEY_KEY),
                 state = privateKeyTextFieldState,
                 label = { Text(stringResource(R.string.private_key)) },
                 isError = privateKeyError?.errorValue == privateKeyTextFieldState.text,
@@ -323,9 +334,12 @@ fun LazyListScope.interfaceSection(
         tunnelIpErrors = tunnelIpErrors,
     )
 
-    item {
+    item(key = ContentKey.ADD_ADDRESS) {
         PrimaryTextButton(
-            modifier = Modifier.padding(ButtonVerticalPadding),
+            modifier =
+                Modifier.padding(ButtonVerticalPadding)
+                    .focusChainItem(FormFocus.ADD_ADDRESS_KEY)
+                    .keepFocusedInView(tunnelIpTextFieldStates.size),
             onClick = { tunnelIpTextFieldStates.add(FormTextField(isNewlyAdded = true)) },
             colors =
                 ButtonDefaults.textButtonColors()
@@ -357,7 +371,7 @@ fun LazyListScope.tunnelIpFieldList(
                 val err = tunnelIpErrors[formFieldState.state.text]
 
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusChainItem(formFieldState.id),
                     state = formFieldState.state,
                     placeholder = { Text(IP_ADDRESS_PLACEHOLDER) },
                     label = { Text(stringResource(R.string.address)) },
@@ -385,7 +399,9 @@ fun LazyListScope.peersSection(
     peerStates: SnapshotStateList<PeerState>,
     state: CustomVpnEditUiState,
 ) {
-    item { ListHeader(text = stringResource(R.string.custom_tunnels_edit_peers)) }
+    item(key = ContentKey.PEERS_HEADER) {
+        ListHeader(text = stringResource(R.string.custom_tunnels_edit_peers))
+    }
 
     itemsIndexed(
         items = peerStates,
@@ -423,8 +439,9 @@ fun LazyListScope.peersSection(
         }
     }
 
-    item {
+    item(key = ContentKey.ADD_PEER) {
         PrimaryTextButton(
+            modifier = Modifier.keepFocusedInView(peerStates.size),
             onClick = {
                 peerStates.add(
                     PeerState(
@@ -486,7 +503,7 @@ fun PeerItem(
 
                 val keyError = publicKeyError?.errorValue == peerState.publicKey.text
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusChainItem(peerState.publicKeyFocusKey),
                     state = peerState.publicKey,
                     label = { Text(stringResource(R.string.public_key)) },
                     placeholder = { Text(KEY_PLACEHOLDER) },
@@ -504,7 +521,10 @@ fun PeerItem(
                 )
 
                 PrimaryTextButton(
-                    modifier = Modifier.padding(ButtonVerticalPadding),
+                    modifier =
+                        Modifier.padding(ButtonVerticalPadding)
+                            .focusChainItem(peerState.addIpFocusKey)
+                            .keepFocusedInView(peerState.allowedIps.size),
                     onClick = { peerState.allowedIps.add(FormTextField(isNewlyAdded = true)) },
                     colors =
                         ButtonDefaults.buttonColors(
@@ -524,7 +544,7 @@ fun PeerItem(
                 val addressError =
                     endpointAddressError?.errorValue == peerState.endpointAddress.text
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusChainItem(peerState.endpointFocusKey),
                     state = peerState.endpointAddress,
                     label = { Text(stringResource(R.string.endpoint)) },
                     placeholder = {
@@ -550,7 +570,7 @@ fun PeerItem(
 
                 val portError = endpointPortError?.errorValue == peerState.endpointPort.text
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusChainItem(peerState.portFocusKey),
                     state = peerState.endpointPort,
                     label = { Text(stringResource(R.string.port)) },
                     placeholder = { Text(PORT_PLACEHOLDER) },
@@ -591,7 +611,7 @@ fun AllowedIpFieldList(
 
                         val error = allowedIpErrors[textFieldState.state.text]
                         TextField(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().focusChainItem(textFieldState.id),
                             state = textFieldState.state,
                             label = { Text(stringResource(R.string.allowed_ips)) },
                             placeholder = { Text(IP_ADDRESS_PLACEHOLDER) },
@@ -664,3 +684,51 @@ private const val ENDPOINT_PLACEHOLDER_IPV6 = "2001:DB8::1"
 private const val PORT_PLACEHOLDER = "12345"
 
 private val ButtonVerticalPadding = 8.dp
+
+// We need keys even for the non-dynamic elements so that focus is not lost
+// when adding more dynamic elements.
+private object ContentKey {
+    const val INTERFACE = "interface"
+    const val ADD_ADDRESS = "add_address"
+    const val SPACER = "spacer"
+    const val PEERS_HEADER = "peers_header"
+    const val ADD_PEER = "add_peer"
+    const val BOTTOM_SPACER = "bottom_spacer"
+}
+
+private object FormFocus {
+    const val NAME_KEY = "name"
+    const val PRIVATE_KEY_KEY = "private_key"
+    const val ADD_ADDRESS_KEY = "add_address"
+
+    val PeerState.publicKeyFocusKey: String
+        get() = "$id/public_key"
+
+    val PeerState.addIpFocusKey: String
+        get() = "$id/add_ip"
+
+    val PeerState.endpointFocusKey: String
+        get() = "$id/endpoint"
+
+    val PeerState.portFocusKey: String
+        get() = "$id/port"
+
+    /** The visual order of the form, with gaps before each peer header. */
+    fun focusOrder(
+        tunnelIps: SnapshotStateList<FormTextField>,
+        peers: SnapshotStateList<PeerState>,
+    ): List<Any?> = buildList {
+        add(NAME_KEY)
+        add(PRIVATE_KEY_KEY)
+        tunnelIps.forEach { add(it.id) }
+        add(ADD_ADDRESS_KEY)
+        peers.forEach { peer ->
+            add(null) // let Compose resolve focus when navigating to the Peer header.
+            add(peer.publicKeyFocusKey)
+            peer.allowedIps.forEach { add(it.id) }
+            add(peer.addIpFocusKey)
+            add(peer.endpointFocusKey)
+            add(peer.portFocusKey)
+        }
+    }
+}

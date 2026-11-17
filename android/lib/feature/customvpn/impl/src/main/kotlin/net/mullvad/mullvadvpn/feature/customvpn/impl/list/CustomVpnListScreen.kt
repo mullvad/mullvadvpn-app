@@ -41,8 +41,8 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelImportConfigurationNavResult
-import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomTunnelNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomVpnImportConfigurationNavResult
+import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomVpnNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.impl.R
 import net.mullvad.mullvadvpn.lib.common.IsModal
@@ -110,7 +110,7 @@ fun SharedTransitionScope.CustomVpnList(
         }
 
     val resultStore = LocalResultStore.current
-    resultStore.consumeResult<CreateCustomTunnelImportConfigurationNavResult> {
+    resultStore.consumeResult<CreateCustomVpnImportConfigurationNavResult> {
         openFileLauncher.launch(SUPPORTED_WIREGUARD_CONFIG_FILE_TYPES)
     }
 
@@ -145,7 +145,7 @@ fun SharedTransitionScope.CustomVpnList(
                 rememberSharedContentState(key = FeatureIndicator.CUSTOM_VPN),
                 animatedVisibilityScope = animatedVisibilityScope,
             ),
-        onCreateConfiguration = dropUnlessResumed { navigator.navigate(CreateCustomTunnelNavKey) },
+        onCreateConfiguration = dropUnlessResumed { navigator.navigate(CreateCustomVpnNavKey) },
         onEditConfiguration =
             dropUnlessResumed { navigator.navigate(EditCustomTunnelNavKey(new = false)) },
         onToggleCustomTunnel = viewModel::onToggleCustomTunnel,
