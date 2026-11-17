@@ -9,6 +9,10 @@
 AWS_LC_SYS_SMALL = "1"
 
 [registry]
+# Supply-chain hardening: refuse dependency versions published within the cooldown
+# window set in [registry], giving malicious releases time to be caught before we
+# depend on them. CI also enforces this cooldown via ci/check-rust-min-publish-age.py,
+# which reads global-min-publish-age from here as the single source of truth.
 global-min-publish-age = "7 days"
 
 # The /Brepro and /PDBALTPATH link args in the *-pc-windows-msvc targets make the linked
@@ -61,16 +65,6 @@ rustc-link-lib = ["nftnl", "mnl"]
 rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
 
 [unstable]
-# Supply-chain hardening: refuse dependency versions published within the cooldown
-# window set in [registry], giving malicious releases time to be caught before we
-# depend on them.
-# This is a nightly-only feature for now. Stable cargo ignores these keys, so locally
-# it only takes effect under `cargo +nightly update ...`. CI enforces the cooldown
-# via ci/check-rust-min-publish-age.py, which reads global-min-publish-age from here
-# as the single source of truth.
-# Tracking issue: https://github.com/rust-lang/cargo/issues/17009
-min-publish-age = true
-
 # Enables the trim-paths feature, which makes rustc record fixed file paths instead of machine
 # specific ones into built binaries. Required for reproducible builds. Nightly-only, and
 # ignored by stable cargo, so it does nothing in the builds we ship.
