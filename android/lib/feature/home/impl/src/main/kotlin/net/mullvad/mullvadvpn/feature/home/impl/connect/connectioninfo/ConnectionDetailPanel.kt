@@ -75,40 +75,42 @@ fun ConnectionDetails(
                 outAddrV6,
             )
 
-        Text(
-            text = stringResource(R.string.connection_details_in),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier =
-                Modifier.padding(end = Dimens.smallPadding).constrainAs(inAddrHeader) {
-                    start.linkTo(parent.start)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(inAddrBarrier)
-                    height = Dimension.wrapContent
-                    width = Dimension.wrapContent
-                },
-        )
-        SelectionContainer(
-            modifier =
-                Modifier.constrainAs(inAddr) {
-                    start.linkTo(headerBarrier)
-                    end.linkTo(parent.end)
-                    top.linkTo(parent.top)
-                    bottom.linkTo(inAddrBarrier)
-                    height = Dimension.wrapContent
-                    width = Dimension.fillToConstraints
-                },
-        ) {
+        if (inIPV4.isNotEmpty()) {
             Text(
-                text = inIPV4,
-                color = MaterialTheme.colorScheme.onPrimary,
+                text = stringResource(R.string.connection_details_in),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
+                modifier =
+                    Modifier.padding(end = Dimens.smallPadding).constrainAs(inAddrHeader) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(inAddrBarrier)
+                        height = Dimension.wrapContent
+                        width = Dimension.wrapContent
+                    },
             )
+            SelectionContainer(
+                modifier =
+                    Modifier.constrainAs(inAddr) {
+                        start.linkTo(headerBarrier)
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(inAddrBarrier)
+                        height = Dimension.wrapContent
+                        width = Dimension.fillToConstraints
+                    },
+            ) {
+                Text(
+                    text = inIPV4,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG),
+                )
+            }
         }
 
         if (outIPV4 != null) {
