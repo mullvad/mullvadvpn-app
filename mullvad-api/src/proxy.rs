@@ -101,7 +101,20 @@ impl ProxyConfig {
                 Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
             }
             ProxyConfig::DomainFronting(config) => {
-                Endpoint::from_socket_address(config.addr, TransportProtocol::Tcp)
+                // TODO: The result of this function is presently passed to the tunnel state
+                // machine, where connections to this address is allowed to leak in the BLOCKED
+                // and CONNECTING states. This needs to be refactored, due to two reasons:
+                // - Domain Fronting requries a DNS lookup to work. This lookup will not work
+                //   in the BLOCKED/CONNECTING states.
+                // - The DNS lookup will return *multiple* potential IP addresses, and we will
+                //   attempt request to all of them if necessary.
+                // - We shouldn't allow all (root) processes to leak traffic to those addresses,
+                //   since they are used for many things, not just our API proxy.
+                //
+                // For now, we're passing `addrs.first()` to make this compile, but Domain Fronting
+                // will be broken in those states anyway due to the aformentioned DNS issue.
+                let &addr = config.addrs.first();
+                Endpoint::from_socket_address(addr, TransportProtocol::Tcp)
             }
         }
     }

@@ -1370,8 +1370,7 @@ dependencies = [
 [[package]]
 name = "domain-fronting"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cb07cd68281b230488012d61bb6a47360d40d9d6743e2e86244a45d16a16a85"
+source = "git+https://github.com/mullvad/domain-fronting.git?rev=2ec427faebcb7a86fa092b7e71817e5523736b88#2ec427faebcb7a86fa092b7e71817e5523736b88"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1381,12 +1380,14 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-util",
+ "itertools 0.15.0",
  "kameo",
  "log",
  "thiserror 2.0.19",
  "tokio",
  "tokio-util",
  "uuid",
+ "vec1",
 ]
 
 [[package]]
@@ -2709,6 +2710,15 @@ name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
