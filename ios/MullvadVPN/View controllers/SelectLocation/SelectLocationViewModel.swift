@@ -55,7 +55,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     var searchText: String = "" {
         didSet {
             if oldValue == searchText { return }
-            if oldValue == nil && searchText == "" { return }
             search(searchText: searchText)
             if searchText == "" {
                 updateSelections()

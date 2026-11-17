@@ -19,9 +19,9 @@ struct ListItem<StatusIndicator: View>: View {
     @Environment(\.segmentedListItemAppearance) var appearance
     private var titleColor: Color {
         switch (appearance, selected) {
-            case (.error, _): .mullvadDangerColor
-            case (_, true): .mullvadSuccessColor
-            default: .mullvadTextPrimary
+        case (.error, _): .mullvadDangerColor
+        case (_, true): .mullvadSuccessColor
+        default: .mullvadTextPrimary
         }
     }
 
