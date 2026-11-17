@@ -1,9 +1,7 @@
-@file:OptIn(ExperimentalSharedTransitionApi::class)
 @file:Suppress("DEPRECATION")
 
 package net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.EaseInQuart
 import androidx.compose.animation.core.EaseOutQuad
 import androidx.compose.animation.core.tween
@@ -17,15 +15,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
+import net.mullvad.mullvadvpn.lib.ui.designsystem.State
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -34,6 +40,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 fun FeatureIndicatorsPanel(
     featureIndicators: List<FeatureIndicator>,
     expanded: Boolean,
+    connected: Boolean,
     onToggleExpand: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
@@ -44,18 +51,42 @@ fun FeatureIndicatorsPanel(
                 Modifier.fillMaxWidth(),
             )
         }
-        FeatureIndicators(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
+        val antiCensorshipAdjustedFeatureIndicators =
+            if (!expanded) {
+                featureIndicators.adjustForAntiCensorship()
+            } else {
+                featureIndicators
+            }
+        FeatureIndicators(
+            features = antiCensorshipAdjustedFeatureIndicators,
+            expanded = expanded,
+            connected = connected,
+            onToggleExpand = onToggleExpand,
+            onNavigateToFeature = onNavigateToFeature,
+        )
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FeatureIndicators(
     features: List<FeatureIndicator>,
     expanded: Boolean,
+    connected: Boolean,
     onToggleExpand: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
+    var state by rememberSaveable {
+        mutableStateOf(if (connected) State.Connected else State.Connecting)
+    }
+
+    LaunchedEffect(connected) {
+        if (connected) {
+            delay(CONNECTED_DURATION)
+            state = State.Idle
+        }
+    }
+
     ContextualFlowRow(
         modifier = Modifier.fillMaxWidth(),
         itemCount = features.size,
@@ -89,6 +120,12 @@ fun FeatureIndicators(
         with(sharedTransitionScope) {
             MullvadFeatureChip(
                 text = featureIndicator.text(),
+                state =
+                    if (featureIndicator in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
+                        state
+                    } else {
+                        State.Idle
+                    },
                 icon = featureIndicator.icon(),
                 onClick = { onNavigateToFeature(featureIndicator) },
                 modifier =
@@ -123,6 +160,7 @@ fun FeatureIndicators(
 private fun FeatureIndicator.text(): String {
     val resource =
         when (this) {
+            FeatureIndicator.ANTI_CENSORSHIP -> R.string.anti_censorship
             FeatureIndicator.QUANTUM_RESISTANCE -> R.string.feature_quantum_resistant
             FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
             FeatureIndicator.SHADOWSOCKS -> R.string.shadowsocks
@@ -148,3 +186,25 @@ private fun FeatureIndicator.icon(): ImageVector? =
         FeatureIndicator.MULTIHOP_AUTO -> MultihopWhenNeeded
         else -> null
     }
+
+private fun List<FeatureIndicator>.adjustForAntiCensorship(): List<FeatureIndicator> {
+    val hasMultipleAntiCensorshipActive = count { it in ANTI_CENSORSHIP_FEATURE_INDICATORS }
+    return if (hasMultipleAntiCensorshipActive >= 2) {
+        listOf(FeatureIndicator.ANTI_CENSORSHIP) +
+            this.filter { it !in ANTI_CENSORSHIP_FEATURE_INDICATORS }
+    } else {
+        this
+    }
+}
+
+private val ANTI_CENSORSHIP_FEATURE_INDICATORS =
+    listOf(
+        FeatureIndicator.ANTI_CENSORSHIP,
+        FeatureIndicator.WIREGUARD_PORT,
+        FeatureIndicator.LWO,
+        FeatureIndicator.QUIC,
+        FeatureIndicator.SHADOWSOCKS,
+        FeatureIndicator.UDP_2_TCP,
+    )
+
+private val CONNECTED_DURATION = 5.seconds
