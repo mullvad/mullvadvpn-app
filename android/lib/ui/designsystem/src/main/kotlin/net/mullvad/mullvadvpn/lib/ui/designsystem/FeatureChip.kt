@@ -1,11 +1,14 @@
 package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import android.os.Parcelable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -16,6 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -27,10 +33,15 @@ import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -68,30 +79,39 @@ fun MullvadFeatureChip(
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
-    val selected = state == State.Connected
+    val activeState = remember { mutableStateOf(state) }
     val chipShape = MaterialTheme.shapes.chipShape
-    val rotation =
-        if (state == State.Connecting) {
-            rememberInfiniteTransition(label = "connectingBorder")
-                .animateFloat(
-                    initialValue = 0f,
-                    targetValue = 1f,
-                    animationSpec =
-                        infiniteRepeatable(
-                            animation = tween(CONNECTING_BORDER_DURATION_MS, easing = LinearEasing),
-                        ),
-                    label = "connectingBorderAngle",
-                )
-        } else {
-            null
+    val highlight = remember { Animatable(0f) }
+    LaunchedEffect(state) {
+        if (state == State.Connected) {
+            highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = EaseInOut))
+            delay(CONNECTED_HOLD)
+            highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = EaseInOut))
+            activeState.value = State.Idle
         }
+    }
     FilterChip(
         modifier =
-            modifier.applyIf(rotation != null) {
+            modifier.applyIf(activeState.value == State.Connecting) {
+                val connectingProgress =
+                    rememberInfiniteTransition(label = "connectingBorder")
+                        .animateFloat(
+                            initialValue = 0f,
+                            targetValue = 1f,
+                            animationSpec =
+                                infiniteRepeatable(
+                                    animation =
+                                        tween(
+                                            CONNECTING_BORDER_DURATION_MS,
+                                            easing = LinearEasing,
+                                        ),
+                                ),
+                            label = "connectingBorderFloat",
+                        )
                 connectingBorder(
                     shape = chipShape,
-                    color = selectedBorderColor,
-                    progress = { rotation!!.value },
+                    color = borderColor,
+                    progress = { connectingProgress.value },
                 )
             },
         shape = chipShape,
@@ -103,13 +123,23 @@ fun MullvadFeatureChip(
                 iconColor = iconColor,
             ),
         border =
-            FilterChipDefaults.filterChipBorder(
-                borderColor = borderColor,
-                selectedBorderColor = selectedBorderColor,
-                selectedBorderWidth = SELECTED_BORDER_WIDTH,
-                enabled = true,
-                selected = selected,
-            ),
+            when (activeState.value) {
+                State.Idle -> {
+                    FilterChipDefaults.filterChipBorder(
+                        borderColor = borderColor,
+                        selectedBorderColor = selectedBorderColor,
+                        enabled = true,
+                        selected = false,
+                    )
+                }
+                State.Connected -> {
+                    BorderStroke(
+                        width = lerp(NORMAL_BORDER_WIDTH, SELECTED_BORDER_WIDTH, highlight.value),
+                        color = lerp(borderColor, selectedBorderColor, highlight.value),
+                    )
+                }
+                State.Connecting -> null
+            },
         selected = false,
         onClick = onClick,
         label = {
@@ -158,7 +188,7 @@ private fun Modifier.connectingBorder(
         }
     val measure = PathMeasure().apply { setPath(path, true) }
     val length = measure.length
-    val head = progress() * length
+    val head = (1f - progress()) * length
     val sliceLength = length / CONNECTING_ARC_SLICES
     val segment = Path()
 
@@ -170,16 +200,18 @@ private fun Modifier.connectingBorder(
 
     translate(inset, verticalOffset + inset) {
         for (i in 0 until CONNECTING_ARC_SLICES) {
-            val end = head - sliceLength * i
-            val start = end - sliceLength
-            val alpha = 1f - i.toFloat() / CONNECTING_ARC_SLICES
-            if (start >= 0f) {
+            val start = head + sliceLength * i
+            val end = start + sliceLength
+            val position = (i + 0.5f) / CONNECTING_ARC_SLICES
+            val fade = if (position <= 0.5f) 1f else (1f - position) * 2f
+            val alpha = fade * fade * fade
+            if (end <= length) {
                 drawSlice(start, end, alpha)
-            } else if (end <= 0f) {
-                drawSlice(start + length, end + length, alpha)
+            } else if (start >= length) {
+                drawSlice(start - length, end - length, alpha)
             } else {
-                drawSlice(0f, end, alpha)
-                drawSlice(start + length, length, alpha)
+                drawSlice(start, length, alpha)
+                drawSlice(0f, end - length, alpha)
             }
         }
     }
@@ -230,6 +262,10 @@ sealed interface State : Parcelable {
     data object Connected : State
 }
 
-private val SELECTED_BORDER_WIDTH = 2.dp
-private const val CONNECTING_BORDER_DURATION_MS = 1500
-private const val CONNECTING_ARC_SLICES = 32
+private val SELECTED_BORDER_WIDTH = 3.dp
+private val NORMAL_BORDER_WIDTH = Hairline
+private const val CONNECTING_BORDER_DURATION_MS = 2000 // 2 seconds
+private const val CONNECTING_ARC_SLICES = 64
+private const val CONNECTED_WIND_UP_MS = 600
+private val CONNECTED_HOLD = 600.milliseconds
+private const val CONNECTED_FADE_OUT_MS = 600
