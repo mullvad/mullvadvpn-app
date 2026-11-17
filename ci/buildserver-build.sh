@@ -167,6 +167,14 @@ function checkout_ref {
 
     git submodule update
     git clean -dff
+
+    case "$(uname -s)" in
+        # macOS and Windows rely on the post-checkout hook to ensure targets are installed.
+        # This does not run if we're already on a branch (e.g. main) and fast forward/reset.
+        Darwin*|MINGW*|MSYS_NT*)
+            "$SCRIPT_DIR/setup-rust"
+            ;;
+    esac
 }
 
 function build_ref {
