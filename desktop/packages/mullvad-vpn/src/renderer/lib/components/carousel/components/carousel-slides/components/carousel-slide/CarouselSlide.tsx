@@ -9,8 +9,8 @@ export type CarouselSlideProps = React.ComponentPropsWithRef<'div'>;
 
 const StyledSlide = styled.div<{ $active: boolean }>`
   ${({ $active }) => css`
-    width: 100%;
-    display: inline-block;
+    flex: 0 0 100%;
+
     white-space: normal;
     vertical-align: top;
     scroll-snap-align: start;

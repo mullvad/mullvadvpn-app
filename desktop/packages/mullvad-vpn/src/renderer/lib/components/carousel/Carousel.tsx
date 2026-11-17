@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { spacings } from '../../foundations';
-import { Flex } from '../flex';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import {
   CarouselControls,
@@ -19,10 +18,10 @@ export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
 
 export const StyledCarousel = styled.section`
   width: 100%;
-`;
+  height: 100%;
 
-export const StyledFlex = styled(Flex)`
-  width: 100%;
+  display: flex;
+  flex-direction: column;
 
   > ${StyledCarouselSlides} + ${StyledCarouselControls} {
     margin-top: ${spacings.medium};
@@ -43,7 +42,7 @@ function CarouselImpl({ children, ...props }: CarouselProps) {
       aria-roledescription="carousel"
       tabIndex={-1}
       {...props}>
-      <StyledFlex flexDirection="column">{children}</StyledFlex>
+      {children}
     </StyledCarousel>
   );
 }
