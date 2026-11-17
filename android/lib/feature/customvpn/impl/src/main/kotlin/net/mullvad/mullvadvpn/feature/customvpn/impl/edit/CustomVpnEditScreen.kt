@@ -298,14 +298,14 @@ fun LazyListScope.interfaceSection(
             Spacer(Modifier.height(Dimens.verticalSpace))
             ListHeader(text = stringResource(R.string.custom_tunnels_edit_interface))
 
-            val isErr = privateKeyError?.errorValue == privateKeyTextFieldState.text
+            val error = privateKeyError.takeIf { it?.errorValue == privateKeyTextFieldState.text }
             var showPassword by rememberSaveable { mutableStateOf(false) }
 
             SecureTextField(
                 modifier = Modifier.fillMaxWidth().focusChainItem(FormFocus.PRIVATE_KEY_KEY),
                 state = privateKeyTextFieldState,
                 label = { Text(stringResource(R.string.private_key)) },
-                isError = privateKeyError?.errorValue == privateKeyTextFieldState.text,
+                isError = error != null,
                 placeholder = { Text(KEY_PLACEHOLDER) },
                 colors = mullvadDarkTextFieldColors(),
                 textObfuscationMode =
@@ -324,7 +324,7 @@ fun LazyListScope.interfaceSection(
                         )
                     }
                 },
-                supportingText = privateKeyError?.let { isErr.then { Text(it.toErrorMessage()) } },
+                supportingText = error?.let { { Text(it.toErrorMessage()) } },
             )
         }
     }
