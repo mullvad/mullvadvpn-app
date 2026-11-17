@@ -1,6 +1,6 @@
 //! Custom VPN: a WireGuard tunnel of the user's own, carried inside the Mullvad tunnel.
 //!
-//! Traffic to the custom VPN's allowed IPs is NATed to the custom VPN tunnel address and
+//! Traffic to the custom VPN peers' allowed IPs is NATed to the custom VPN tunnel address and
 //! encrypted by an inner device, and then carried by the outer (Mullvad) device. All other traffic
 //! goes to the outer device directly. See [`build`].
 
@@ -24,7 +24,7 @@ use nat::{NatIpRecv, NatIpSend};
 use router::{SplitIpRecv, TunRxRouter, TunTxRouter};
 use std::{
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 use talpid_types::net::wireguard::CustomVpnConfig;
 
@@ -132,20 +132,25 @@ pub struct Frontend {
 
 /// Build the custom VPN [`InnerDevice`], and the IO for the outer device.
 ///
-/// Reads from the TUN device are split by destination: traffic to the custom VPN's allowed IPs
-/// is NATed to the custom VPN tunnel address and encrypted by the inner device, whose output is
-/// merged with all other traffic into the outer device. Decrypted packets from the outer device are
-/// sent to the inner device if they come from the custom VPN endpoint, and to the TUN device
-/// otherwise.
+/// Reads from the TUN device are split by destination: traffic to the custom VPN peers' allowed
+/// IPs is NATed to the custom VPN tunnel address and encrypted by the inner device, whose output
+/// is merged with all other traffic into the outer device. Decrypted packets from the outer device
+/// are sent to the inner device if they come from a custom VPN peer endpoint, and to the TUN
+/// device otherwise.
 pub async fn build(
     custom_vpn: &CustomVpnConfig,
     config: &Config,
     tun_dev: &GotaTunDevice,
 ) -> Result<Frontend, TunnelError> {
-    let peer = custom_vpn.peer();
+    let endpoints: Vec<SocketAddr> = custom_vpn.peers.iter().map(|peer| peer.endpoint).collect();
+    let allowed_ips: Vec<IpNetwork> = custom_vpn
+        .peers
+        .iter()
+        .flat_map(|peer| peer.allowed_ip.iter().copied())
+        .collect();
     let outer_v4 = config.tunnel_ipv4();
     let outer_v6 = config.tunnel_ipv6();
-    let (bridge_mtu, overhead) = calculate_mtu_and_overhead(peer.endpoint.ip(), tun_dev)?;
+    let (bridge_mtu, overhead) = calculate_mtu_and_overhead(endpoints.iter().copied(), tun_dev)?;
     let nat_mappings = resolve_nat_mappings(custom_vpn, outer_v4, outer_v6)?;
 
     // Reads from the system TUN are routed either to the custom VPN or the default outer VPN.
@@ -168,7 +173,7 @@ pub async fn build(
 
     let default_output = router.add_routes(&default_routes, CHANNEL_CAPACITY);
 
-    let pvpn_output = router.add_routes(&peer.allowed_ip, CHANNEL_CAPACITY);
+    let pvpn_output = router.add_routes(&allowed_ips, CHANNEL_CAPACITY);
     let router_task = AbortOnDrop(tokio::spawn(router.run(PacketBufPool::new(100))));
 
     // Channel bridge (inner device UDP <-> outer device TUN). The source addresses must be the
@@ -185,12 +190,13 @@ pub async fn build(
     let outer_ip_recv = MergingIpRecv::new(default_output, bridge_tun_rx, PacketBufPool::new(100));
 
     // Outer device IpSend: Demux decrypted packets coming back from the outer device.
-    // Send to custom VPN if it's from the inner endpoint, otherwise to the standard TUN.
+    // Send to the custom VPN if it's from one of the inner endpoints, otherwise to the standard
+    // TUN.
     let outer_ip_send = TunTxRouter::new(
         bridge_tun_tx,
         tun_dev.clone(),
-        peer.endpoint,
-        &peer.allowed_ip,
+        &endpoints,
+        &allowed_ips,
         config.ipv4_gateway,
         config.ipv6_gateway,
     );
@@ -212,11 +218,11 @@ pub async fn build(
         .with_udp(inner_udp)
         .with_ip_pair(tun_send, pvpn_recv)
         .with_private_key(StaticSecret::from(custom_vpn.tunnel.private_key.to_bytes()))
-        .with_peer(
+        .with_peers(custom_vpn.peers.iter().map(|peer| {
             Peer::new((*peer.public_key.as_bytes()).into())
                 .with_endpoint(peer.endpoint)
-                .with_allowed_ips(peer.allowed_ip.iter().cloned()),
-        )
+                .with_allowed_ips(peer.allowed_ip.iter().cloned())
+        }))
         .build()
         .await
         .map_err(TunnelError::GotaTunDevice)?;
@@ -283,14 +289,16 @@ fn resolve_nat_mappings(
     Ok(NatMappings { v4, v6 })
 }
 
-/// Calculates MTU and Overhead based on the IP address type
+/// Calculates MTU and Overhead based on the IP address types of the peer endpoints: the larger
+/// IPv6 overhead is used if any peer endpoint is an IPv6 address.
 fn calculate_mtu_and_overhead(
-    endpoint_ip: IpAddr,
+    mut endpoints: impl Iterator<Item = SocketAddr>,
     tun_dev: &GotaTunDevice,
 ) -> Result<(MtuWatcher, u16), TunnelError> {
-    let overhead = match endpoint_ip {
-        IpAddr::V4(..) => (Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
-        IpAddr::V6(..) => (Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
+    let overhead = if endpoints.any(|endpoint| endpoint.is_ipv6()) {
+        (Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16
+    } else {
+        (Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16
     };
 
     let bridge_mtu = tun_dev

@@ -4,6 +4,7 @@
 //! See [`TunRxRouter`] and [`TunTxRouter`].
 
 use super::{fragment::Ipv6Fragments, packet::UdpPacket};
+use either::Either;
 use gotatun::{
     packet::{Ip, Ipv4, Ipv6, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher, channel::Ipv4Fragments},
@@ -97,20 +98,21 @@ impl<R: IpRecv> TunRxRouter<R> {
     }
 }
 
-/// Combines two [`IpSend`]s: packets from the UDP socket `inner_tun_endpoint` are sent to
-/// `inner_tx` (e.g. the UDP channel of an inner WireGuard device), and all other packets are sent
-/// to `outer_tx` (e.g. the TUN device).
+/// Combines two [`IpSend`]s: packets from the UDP sockets of the `inner_tun_endpoints` are sent
+/// to `inner_tx` (e.g. the UDP channel of an inner WireGuard device), and all other packets are
+/// sent to `outer_tx` (e.g. the TUN device).
 ///
 /// Packets whose source address is in `inner_allowed_ips` are dropped. This prevents the outer
 /// tunnel's peer from forging packets that appear to come from inside the inner tunnel: such
 /// packets must only ever reach the TUN device through the inner WireGuard device.
 ///
-/// IP fragments from the address of `inner_tun_endpoint` are reassembled before they are routed,
-/// since only the first fragment has the UDP port.
+/// IP fragments from the address of an `inner_tun_endpoint` are reassembled before they are
+/// routed, since only the first fragment has the UDP port. The reassembly buffers are shared
+/// between the endpoints, which is safe since fragments are keyed by their source address.
 pub struct TunTxRouter<Inner, Outer> {
     inner_tx: Inner,
     outer_tx: Outer,
-    inner_tun_endpoint: SocketAddr,
+    inner_tun_endpoints: Vec<SocketAddr>,
     inner_allowed_ips: IpNetworkTable<()>,
     endpoint_fragments_v4: Ipv4Fragments,
     endpoint_fragments_v6: Ipv6Fragments,
@@ -120,12 +122,13 @@ pub struct TunTxRouter<Inner, Outer> {
 impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
     /// Create a `TunTxRouter`.
     ///
-    /// `inner_allowed_ips` are the source addresses that the inner tunnel is authoritative for.
-    /// Pass an empty slice only if there is no inner tunnel, and thus nothing to spoof.
+    /// `inner_tun_endpoints` are the UDP endpoints of the inner tunnel's peers. `inner_allowed_ips`
+    /// are the source addresses that the inner tunnel is authoritative for. Pass an empty slice
+    /// only if there is no inner tunnel, and thus nothing to spoof.
     pub fn new(
         inner_tx: Inner,
         outer_tx: Outer,
-        inner_tun_endpoint: SocketAddr,
+        inner_tun_endpoints: &[SocketAddr],
         inner_allowed_ips: &[IpNetwork],
         ipv4_gateway: Ipv4Addr,
         ipv6_gateway: Option<Ipv6Addr>,
@@ -141,7 +144,7 @@ impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
         Self {
             inner_tx,
             outer_tx,
-            inner_tun_endpoint,
+            inner_tun_endpoints: inner_tun_endpoints.to_vec(),
             inner_allowed_ips: table,
             endpoint_fragments_v4: Ipv4Fragments::default(),
             endpoint_fragments_v6: Ipv6Fragments::default(),
@@ -149,35 +152,51 @@ impl<Inner: IpSend, Outer: IpSend> TunTxRouter<Inner, Outer> {
         }
     }
 
-    /// Reassemble `packet` if it is an IP fragment from the inner tunnel endpoint's address.
+    /// Whether the inner tunnel has a peer whose endpoint is `endpoint`.
+    fn is_inner_endpoint(&self, endpoint: SocketAddr) -> bool {
+        self.inner_tun_endpoints.contains(&endpoint)
+    }
+
+    /// Whether `ip` is the address of one of the inner tunnel endpoints.
+    fn is_endpoint_ip(&self, ip: IpAddr) -> bool {
+        self.inner_tun_endpoints
+            .iter()
+            .any(|endpoint| endpoint.ip() == ip)
+    }
+
+    /// Reassemble `packet` if it is an IP fragment from the address of an inner tunnel endpoint.
     /// Returns `None` while fragments are missing, and any other packet unchanged.
     ///
     /// A reassembled datagram that turns out not to be for the inner device goes to `outer_tx`
     /// whole, and may exceed its MTU.
     fn reassemble_endpoint_fragment(&mut self, packet: Packet<Ip>) -> Option<Packet<Ip>> {
-        match self.inner_tun_endpoint.ip() {
-            IpAddr::V4(endpoint_ip) => {
-                let is_endpoint_fragment = Ipv4::<[u8]>::ref_from_bytes(packet.as_bytes())
+        let is_endpoint_fragment =
+            match packet.source() {
+                Some(IpAddr::V4(source)) => Ipv4::<[u8]>::ref_from_bytes(packet.as_bytes())
                     .is_ok_and(|ipv4| {
-                        ipv4.header.source() == endpoint_ip
+                        self.is_endpoint_ip(IpAddr::V4(source))
                             && (ipv4.header.more_fragments() || ipv4.header.fragment_offset() != 0)
-                    });
-                if !is_endpoint_fragment {
-                    return Some(packet);
-                }
-                let fragment = Packet::<Ipv4>::try_from(packet).ok()?;
-                self.endpoint_fragments_v4
-                    .assemble_ipv4_fragment(fragment)
-                    .map(Packet::from)
+                    }),
+                Some(IpAddr::V6(source)) => Ipv6::<[u8]>::ref_from_bytes(packet.as_bytes())
+                    .is_ok_and(|ipv6| {
+                        self.is_endpoint_ip(IpAddr::V6(source)) && Ipv6Fragments::is_fragment(ipv6)
+                    }),
+                None => false,
+            };
+        if !is_endpoint_fragment {
+            return Some(packet);
+        }
+
+        match Packet::<Ip>::try_into_ipvx(packet) {
+            Ok(Either::Left(fragment)) => self
+                .endpoint_fragments_v4
+                .assemble_ipv4_fragment(fragment)
+                .map(Packet::from),
+            Ok(Either::Right(fragment)) => {
+                let ipv6 = Ipv6::<[u8]>::ref_from_bytes(fragment.as_bytes()).ok()?;
+                self.endpoint_fragments_v6.assemble(ipv6)
             }
-            IpAddr::V6(endpoint_ip) => match Ipv6::<[u8]>::ref_from_bytes(packet.as_bytes()) {
-                Ok(ipv6)
-                    if ipv6.header.source() == endpoint_ip && Ipv6Fragments::is_fragment(ipv6) =>
-                {
-                    self.endpoint_fragments_v6.assemble(ipv6)
-                }
-                _ => Some(packet),
-            },
+            Err(_) => None,
         }
     }
 }
@@ -186,7 +205,10 @@ impl<Inner: IpSend, Outer: IpSend> IpSend for TunTxRouter<Inner, Outer> {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
         if let Some(source) = packet.source()
             && self.inner_allowed_ips.longest_match(source).is_some()
-            && self.inner_tun_endpoint.ip() != source
+            && !self
+                .inner_tun_endpoints
+                .iter()
+                .any(|endpoint| endpoint.ip() == source)
             && !self.gateways.contains(&source)
         {
             log::error!(
@@ -199,7 +221,7 @@ impl<Inner: IpSend, Outer: IpSend> IpSend for TunTxRouter<Inner, Outer> {
             return Ok(());
         };
         if let Some(udp) = UdpPacket::parse(&packet)
-            && SocketAddr::new(udp.source, udp.source_port()) == self.inner_tun_endpoint
+            && self.is_inner_endpoint(SocketAddr::new(udp.source, udp.source_port()))
         {
             self.inner_tx.send(packet).await
         } else {
@@ -264,7 +286,7 @@ mod tests {
         let mut router = TunTxRouter::new(
             inner_tx,
             outer_tx,
-            inner_endpoint,
+            &[inner_endpoint],
             &[],
             Ipv4Addr::UNSPECIFIED,
             Some(Ipv6Addr::UNSPECIFIED),
@@ -279,6 +301,67 @@ mod tests {
 
         router
             .send(packet("203.0.113.1:443", "10.64.0.2:1234"))
+            .await
+            .unwrap();
+        assert!(inner_rx.try_recv().is_err());
+        assert!(outer_rx.try_recv().is_ok());
+    }
+
+    /// Each inner tunnel peer has its own endpoint, and traffic from all of them must reach the
+    /// inner device.
+    #[tokio::test]
+    async fn tx_router_routes_multiple_endpoints_by_source() {
+        let inner_endpoints: [SocketAddr; 2] = [
+            "203.0.113.1:51820".parse().unwrap(),
+            "[2001:db8::1]:51820".parse().unwrap(),
+        ];
+        let (inner_tx, mut inner_rx) = ChannelIpSend::new();
+        let (outer_tx, mut outer_rx) = ChannelIpSend::new();
+        let mut router = TunTxRouter::new(
+            inner_tx,
+            outer_tx,
+            &inner_endpoints,
+            &[],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
+        );
+
+        for (endpoint, tun_address) in [
+            (inner_endpoints[0], "10.64.0.2:1234"),
+            (inner_endpoints[1], "[fc00::2]:1234"),
+        ] {
+            router
+                .send(packet(&endpoint.to_string(), tun_address))
+                .await
+                .unwrap();
+            assert!(inner_rx.try_recv().is_ok());
+            assert!(outer_rx.try_recv().is_err());
+        }
+
+        router
+            .send(packet("198.51.100.7:51820", "10.64.0.2:1234"))
+            .await
+            .unwrap();
+        assert!(inner_rx.try_recv().is_err());
+        assert!(outer_rx.try_recv().is_ok());
+    }
+
+    /// A router without inner endpoints must pass everything through to the outer tunnel.
+    #[tokio::test]
+    async fn tx_router_without_endpoints_routes_everything_to_outer() {
+        let (inner_tx, mut inner_rx) = ChannelIpSend::new();
+        let (outer_tx, mut outer_rx) = ChannelIpSend::new();
+        let mut router = TunTxRouter::new(
+            inner_tx,
+            outer_tx,
+            &[],
+            &[],
+            Ipv4Addr::UNSPECIFIED,
+            Some(Ipv6Addr::UNSPECIFIED),
+        );
+
+        router
+            .send(packet("203.0.113.1:51820", "10.64.0.2:1234"))
             .await
             .unwrap();
         assert!(inner_rx.try_recv().is_err());
@@ -317,7 +400,7 @@ mod tests {
         let mut router = TunTxRouter::new(
             inner_tx,
             outer_tx,
-            inner_endpoint,
+            &[inner_endpoint],
             &[],
             Ipv4Addr::UNSPECIFIED,
             Some(Ipv6Addr::UNSPECIFIED),
@@ -366,7 +449,7 @@ mod tests {
         let mut router = TunTxRouter::new(
             inner_tx,
             outer_tx,
-            inner_endpoint,
+            &[inner_endpoint],
             &[],
             Ipv4Addr::UNSPECIFIED,
             Some(Ipv6Addr::UNSPECIFIED),
@@ -413,7 +496,7 @@ mod tests {
         let mut router = TunTxRouter::new(
             inner_tx,
             outer_tx,
-            inner_endpoint,
+            &[inner_endpoint],
             &["10.100.0.0/24".parse().unwrap()],
             Ipv4Addr::UNSPECIFIED,
             Some(Ipv6Addr::UNSPECIFIED),

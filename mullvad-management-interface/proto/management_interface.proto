@@ -182,6 +182,7 @@ service ManagementService {
 }
 
 message CustomVpnStats {
+  // TODO: add per-peer stats
   uint64 tx_bytes = 1;
   uint64 rx_bytes = 2;
   google.protobuf.Timestamp last_handshake_time = 3;
