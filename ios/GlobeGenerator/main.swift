@@ -53,7 +53,7 @@ let oceanEntity = ModelEntity(
 )
 
 // Usage
-let mesh = try makeSphereStripMesh(positions: globeData.landVertices, indices: globeData.contourIndices, halfWidth: 0.001)
+let mesh = try makeSphereStripMesh(positions: globeData.landVertices, indices: globeData.contourIndices, halfWidth: 0.0005)
 oceanMaterial.faceCulling = .none                               // winding varies with segment direction
 let contourEntity = ModelEntity(mesh: mesh, materials: [oceanMaterial])
 
