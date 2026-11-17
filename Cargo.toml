@@ -1,3 +1,7 @@
+[patch.crates-io.domain-fronting]
+git = "https://github.com/mullvad/domain-fronting.git"
+rev = "56eae1d5e472be8e54c53221084b03e00fa4594b"
+
 [workspace]
 resolver = "2"
 members = [
