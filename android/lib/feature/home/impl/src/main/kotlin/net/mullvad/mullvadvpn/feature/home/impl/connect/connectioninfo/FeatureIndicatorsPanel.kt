@@ -15,17 +15,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -51,14 +44,8 @@ fun FeatureIndicatorsPanel(
                 Modifier.fillMaxWidth(),
             )
         }
-        val antiCensorshipAdjustedFeatureIndicators =
-            if (!expanded) {
-                featureIndicators.adjustForAntiCensorship()
-            } else {
-                featureIndicators
-            }
         FeatureIndicators(
-            features = antiCensorshipAdjustedFeatureIndicators,
+            features = featureIndicators.adjustForAntiCensorship(),
             expanded = expanded,
             connected = connected,
             onToggleExpand = onToggleExpand,
@@ -76,17 +63,6 @@ fun FeatureIndicators(
     onToggleExpand: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
-    var state by rememberSaveable {
-        mutableStateOf(if (connected) State.Connected else State.Connecting)
-    }
-
-    LaunchedEffect(connected) {
-        if (connected) {
-            delay(CONNECTED_DURATION)
-            state = State.Idle
-        }
-    }
-
     ContextualFlowRow(
         modifier = Modifier.fillMaxWidth(),
         itemCount = features.size,
@@ -120,12 +96,7 @@ fun FeatureIndicators(
         with(sharedTransitionScope) {
             MullvadFeatureChip(
                 text = featureIndicator.text(),
-                state =
-                    if (featureIndicator in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
-                        state
-                    } else {
-                        State.Idle
-                    },
+                state = toState(featureIndicator, connected),
                 icon = featureIndicator.icon(),
                 onClick = { onNavigateToFeature(featureIndicator) },
                 modifier =
@@ -206,4 +177,9 @@ private val ANTI_CENSORSHIP_FEATURE_INDICATORS =
         FeatureIndicator.UDP_2_TCP,
     )
 
-private val CONNECTED_DURATION = 5.seconds
+private fun toState(featureIndicator: FeatureIndicator, connected: Boolean) =
+    when {
+        featureIndicator !in ANTI_CENSORSHIP_FEATURE_INDICATORS -> State.Idle
+        connected -> State.Connected
+        else -> State.Connecting
+    }
