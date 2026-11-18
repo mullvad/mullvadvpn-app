@@ -14,6 +14,7 @@ members = [
   "mullvad-exclude",
   "mullvad-fs",
   "mullvad-ios",
+  "mullvad-ios/uniffi-bindgen",
   "mullvad-jni",
   "mullvad-leak-checker",
   "mullvad-logging",

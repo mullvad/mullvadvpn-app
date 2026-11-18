@@ -10,13 +10,6 @@ license.workspace = true
 bench = false
 crate-type = ["staticlib"]
 
-# Host-side binary that generates the uniffi Swift bindings for the uniffi FFI.
-# Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
-# the normal iOS `--lib` build never compiles it.
-[[bin]]
-name = "uniffi-bindgen"
-path = "src/bin/uniffi-bindgen.rs"
-
 [target.'cfg(any(target_os = "ios", target_os = "macos", target_os = "tvos"))'.dependencies]
 bytes = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
@@ -63,19 +56,12 @@ tracing = "0.1"
 tracing-subscriber = { workspace = true }
 uniffi = { workspace = true }
 
-# On macOS only the `uniffi-bindgen` binary uses uniffi, and only with the
-# `uniffi-cli` feature. The library's own uniffi use is iOS/tvOS only.
-[target.'cfg(target_os = "macos")'.dependencies]
-uniffi = { workspace = true, optional = true }
-
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
 
 [features]
 # Allow the API server to be used
 api-override = ["mullvad-api/api-override"]
-# Enable the uniffi-bindgen CLI (only needed by the `uniffi-bindgen` binary).
-uniffi-cli = ["uniffi/cli"]
 
 [lints]
 workspace = true
