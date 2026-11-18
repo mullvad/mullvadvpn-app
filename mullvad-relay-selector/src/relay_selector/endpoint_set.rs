@@ -203,7 +203,6 @@ impl RelayEndpointSet {
         Verdict::any(verdicts)
     }
 
-    // TODO: Add test for this fn
     pub fn get_wireguard_obfuscator(
         &self,
         obfuscation_constraint: &ObfuscationConstraint,
@@ -223,9 +222,10 @@ impl RelayEndpointSet {
         configs.try_into().ok().map(Obfuscators)
     }
 
-    /// The WireGuard address used for the peer config: the first direct transport in
-    /// `obfuscator`, or a random IPv4 WireGuard endpoint when all transports are obfuscated.
-    // TODO: support having zero, one or two direct wg endpoints in the obfuscator list.
+    /// The WireGuard address used for the WireGuard peer config.
+    ///
+    /// NOTE: This value is only used when connecting with a single direct transport, in other cases
+    /// it can be picked arbitrarily.
     pub fn wireguard_endpoint_address(&self, obfuscator: &Obfuscators) -> SocketAddr {
         obfuscator
             .0

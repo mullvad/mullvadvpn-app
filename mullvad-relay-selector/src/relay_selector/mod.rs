@@ -74,7 +74,7 @@ pub struct RelaySelector {
     bridges: Arc<RwLock<BridgeList>>,
 }
 
-/// Remove the obfuscation methods that the selected relay offers from the query.
+/// Remove the obfuscation methods that the selected relay offers from the query, the return it.
 fn remove_supported_obfuscations(mut query: RelayQuery, relay: &GetRelay) -> RelayQuery {
     let obfuscation = &mut query.entry_specific_mut().obfuscation;
     for config in &*relay.obfuscator {
@@ -182,9 +182,6 @@ impl RelaySelector {
 
         let server_override = has_overridden_address(entry, &obfuscator);
 
-        // For now the peer config must have exactly one WG endpoint.
-        // TODO: support having zero, one or two wg endpoints in the obfuscator list,
-        // i.e. when multiplexing the direct IPv4 and IPv6 WireGuard connections.
         let wg_addr = endpoint_set.wireguard_endpoint_address(&obfuscator);
 
         let endpoint = wireguard_endpoint(

@@ -5,6 +5,7 @@ use vec1::Vec1;
 
 use super::{Endpoint, TransportProtocol};
 
+// TODO: Rename to something like `Transports`?
 /// Available obfuscation configuration types.
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Obfuscators(pub Vec1<TransportConfig>);

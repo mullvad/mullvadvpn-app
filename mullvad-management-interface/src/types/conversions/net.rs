@@ -42,14 +42,14 @@ impl From<talpid_types::net::ObfuscationInfo> for proto::ObfuscationInfo {
         if info.0.len() == 1 {
             proto::ObfuscationInfo {
                 r#type: Some(proto::obfuscation_info::Type::Single(
-                    proto::ObfuscationEndpoint::from(info.0.first().clone()),
+                    proto::ObfuscationEndpoint::from(info.0.split_off_first().0),
                 )),
             }
         } else {
             proto::ObfuscationInfo {
                 r#type: Some(proto::obfuscation_info::Type::Multiple(
                     proto::MultiplexObfuscation {
-                        direct: None,
+                        direct: None, // NOTE: This field is always left empty, since the proto type doesn't quite match
                         obfuscators: info
                             .0
                             .iter()
