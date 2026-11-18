@@ -23,3 +23,15 @@ reason = "This dependency is only used in development for linting and a Denial o
 id = "CVE-2026-93748"  # GHSA-ch52-4w7c-c8xp
 ignoreUntil = 2026-11-23  # This is a non-issue as this dependency is only used to download electron binaries in `electron-builder` (by use of `@electron/get`)
 reason = "This original vulnerability is being disputed by the http-cache-semantics maintainer who argues this behavior is according to spec. Either way, this vulnerability does not apply to us as we are not hosting a server that caches responses with this dependency."
+
+# minimatch: minimatch has potential denial of service via globparts amplification
+[[IgnoredVulns]]
+id = "CVE-2026-118764"  # GHSA-g3hv-75wg-m249
+ignoreUntil = 2027-02-01  # The ReDoS vulnerability is ignored for 3 months as it only affects development.
+reason = "This is a non-issue as this dependency is only used in development. A fix is present but has not trickled through to the affected packages."
+
+# picomatch: picomatch vulnerable to ReDoS through single-branch repeated extglobs
+[[IgnoredVulns]]
+id = "CVE-2026-112366"  # GHSA-fc5q-39xc-vjpf
+ignoreUntil = 2027-02-01  # The ReDoS vulnerability is ignored for 3 months as it only affects development.
+reason = "This is a non-issue as this dependency is only used in development. There is no fix yet."
