@@ -75,7 +75,7 @@ export function VoucherInput() {
             margin={{ top: 'large' }}
             flexGrow={1}>
             <RedeemVoucherContainer onSuccess={onSuccess}>
-              <FlexColumn gap="medium">
+              <FlexColumn gap="small">
                 <TitleBig>{messages.pgettext('connect-view', 'Redeem voucher')}</TitleBig>
                 <FlexColumn gap="tiny">
                   <LabelTinySemiBold>
