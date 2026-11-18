@@ -28,6 +28,8 @@ in
     value = builtins.concatStringsSep " " [
       "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${buildToolsVersion}/aapt2"
       "-Dorg.gradle.project.android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE"
+      # Users may have set cargo home property, so we need to set it explicitly
+      "-Dorg.gradle.project.mullvad.app.build.cargo.home=TBD"
     ];
   }
   {
