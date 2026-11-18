@@ -22,6 +22,8 @@ ignore = [
 
   # chrono is unmaintained.
   "RUSTSEC-2026-0543",
+  # humantime is unmaintained.
+  "RUSTSEC-2026-0542",
 ]
 
 # This section is considered when running `cargo deny check licenses`
