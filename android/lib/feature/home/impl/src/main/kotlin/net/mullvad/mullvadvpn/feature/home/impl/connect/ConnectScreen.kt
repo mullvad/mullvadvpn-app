@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -87,6 +86,7 @@ import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
+import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
@@ -363,7 +363,6 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Suppress("LongParameterList")
 fun ConnectScreen(
@@ -624,7 +623,8 @@ private fun ConnectionCard(
             }
 
             AnimatedContent(
-                state.tunnelState.featureIndicators() to expanded,
+                targetState = state.tunnelState.featureIndicators() to expanded,
+                contentKey = { it.first?.animateKey() to it.second },
                 modifier = Modifier.weight(1f, fill = false),
                 label = "connection_card_connection_details",
             ) { (featureIndicators, exp) ->
@@ -953,3 +953,11 @@ private fun FeatureIndicator.navKey(): NavKey2 =
 
         FeatureIndicator.CUSTOM_VPN -> CustomVpnListNavKey(isModal = true)
     }
+
+private fun List<FeatureIndicator>.animateKey(): List<FeatureIndicator> = map {
+    if (it in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
+        FeatureIndicator.ANTI_CENSORSHIP
+    } else {
+        it
+    }
+}
