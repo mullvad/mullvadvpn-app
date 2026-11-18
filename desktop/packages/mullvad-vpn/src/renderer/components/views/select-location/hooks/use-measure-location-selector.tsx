@@ -6,14 +6,16 @@ import { useIsLocationSelectorIsolated } from './use-is-location-selector-isolat
 import { useLocationSelectorItems } from './use-location-selector-items';
 import { useShowFilterChips } from './use-show-filter-chips';
 
-const StyledMeasureElement = styled.div`
+const StyledMeasureElementsContainer = styled.div`
   position: absolute;
   visibility: hidden;
 `;
 
 export function useMeasureLocationSelector() {
   const ref = React.useRef<HTMLDivElement>(null);
+  const collapsedRef = React.useRef<HTMLDivElement>(null);
   const [height, setHeight] = React.useState(0);
+  const [collapsedHeight, setCollapsedHeight] = React.useState(0);
   const items = useLocationSelectorItems('measure');
 
   const isolated = useIsLocationSelectorIsolated();
@@ -27,6 +29,10 @@ export function useMeasureLocationSelector() {
     if (ref.current) {
       const newHeight = ref.current.getBoundingClientRect().height;
       setHeight(newHeight);
+    }
+    if (collapsedRef.current) {
+      const newCollapsedHeight = collapsedRef.current.getBoundingClientRect().height;
+      setCollapsedHeight(newCollapsedHeight);
     }
   }, []);
 
@@ -46,17 +52,30 @@ export function useMeasureLocationSelector() {
 
   // Change key to force remount and skip animations when content changes.
   const key = `${expanded}-${showFilterChips}-${Object.keys(items).join('-')}`;
+  const collapsedKey = `${showFilterChips}-${Object.keys(items).join('-')}`;
 
   const measureElement = (
-    <StyledMeasureElement ref={ref} inert>
-      <SelectLocationHeader>
-        <SelectLocationSelector key={key} expanded={expanded} showFilterChips={showFilterChips} />
-      </SelectLocationHeader>
-    </StyledMeasureElement>
+    <StyledMeasureElementsContainer inert>
+      <div ref={ref}>
+        <SelectLocationHeader>
+          <SelectLocationSelector key={key} expanded={expanded} showFilterChips={showFilterChips} />
+        </SelectLocationHeader>
+      </div>
+      <div ref={collapsedRef}>
+        <SelectLocationHeader>
+          <SelectLocationSelector
+            key={collapsedKey}
+            expanded={false}
+            showFilterChips={showFilterChips}
+          />
+        </SelectLocationHeader>
+      </div>
+    </StyledMeasureElementsContainer>
   );
 
   return {
     measureElement,
     height,
+    collapsedHeight,
   };
 }
