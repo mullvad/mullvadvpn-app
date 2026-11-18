@@ -12,7 +12,7 @@ import Foundation
 import MullvadTypes
 import NetworkExtension
 
-class MockTunnel: TunnelProtocol, @unchecked Sendable {
+actor MockTunnel: TunnelProtocol {
     typealias TunnelManagerProtocol = SimulatorTunnelProviderManager
 
     var status: NEVPNStatus
@@ -22,7 +22,7 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
 
     var onRemoveFromPreferences: (() -> Void)?
 
-    required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) {
+    init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) async {
         status = .disconnected
         isOnDemandEnabled = false
         startDate = nil
@@ -41,17 +41,21 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
         fatalError("MockTunnel.addBlockObserver Not implemented")
     }
 
+    func setIsOnDemandEnabled(_ newValue: Bool) async {
+        isOnDemandEnabled = newValue
+    }
+
     func logFormat() -> String {
         ""
     }
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
+    func saveToPreferences(completion: @escaping (@Sendable ((any Error)?) -> Void)) {
         completion(nil)
     }
 
-    func removeFromPreferences(completion: @escaping (Error?) -> Void) {
+    func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {
         onRemoveFromPreferences?()
-        completion(nil)
+        completion?(nil)
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}

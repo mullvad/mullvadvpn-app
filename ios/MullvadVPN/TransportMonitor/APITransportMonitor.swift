@@ -27,7 +27,8 @@ struct APITransportMonitor: APITransportProviderProtocol, Sendable {
     func makeTransport() async -> APITransportProtocol {
         let tunnel = await tunnelStore.getPersistentTunnel()
 
-        return if let tunnel, let tunnelManager, shouldRouteThroughTunnel(manager: tunnelManager, tunnel: tunnel) {
+        return if let tunnel, let tunnelManager, await shouldRouteThroughTunnel(manager: tunnelManager, tunnel: tunnel)
+        {
             PacketTunnelAPITransport(tunnel: tunnel)
         } else {
             APITransport(requestFactory: requestFactory)
@@ -38,8 +39,8 @@ struct APITransportMonitor: APITransportProviderProtocol, Sendable {
     ///
     /// - Parameter tunnel: The tunnel tunnel to evaluate
     /// - Returns: `true` if the tunnel should be used; otherwise, `false`
-    private func shouldRouteThroughTunnel(manager: TunnelManager, tunnel: any TunnelProtocol) -> Bool {
-        switch tunnel.status {
+    private func shouldRouteThroughTunnel(manager: TunnelManager, tunnel: any TunnelProtocol) async -> Bool {
+        switch await tunnel.status {
         case .connected:
             switch manager.tunnelStatus.state {
             // Use tunnel if the tunnel is connected but the tunnel manager

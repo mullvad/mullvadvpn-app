@@ -22,15 +22,17 @@ actor SendTunnelMessageService {
     }
 
     public func send<Output: SendableData>(message: TunnelProviderMessage) async throws -> Output {
+        let messageData = try message.encode()
+
         let result: Output = try await withCheckedThrowingContinuation { continuation in
-            do {
-                let messageData = try message.encode()
-                /// No cancellation checks intentionally.
-                /// Otherwise there would be no easy way to send a cancellation message for a `ProxyAPIRequest`.
-                try tunnel.sendProviderMessage(messageData) { reply in
+            Task {
+                let tunnelStatus = await tunnel.status
+                try await tunnel.sendProviderMessage(messageData) { reply in
                     do {
+                        // FIXME: Technically, this is a race condition since `tunnelStatus` might have changed between
+                        // the moment it was awaited and now. How to solve this ?
                         guard let reply else {
-                            continuation.resume(throwing: SendTunnelProviderMessageError.tunnelDown(self.tunnel.status))
+                            continuation.resume(throwing: SendTunnelProviderMessageError.tunnelDown(tunnelStatus))
                             return
                         }
                         let output = try JSONDecoder().decode(TunnelProviderReply<Output>.self, from: reply)
@@ -39,11 +41,8 @@ actor SendTunnelMessageService {
                         continuation.resume(throwing: error)
                     }
                 }
-            } catch {
-                continuation.resume(throwing: error)
             }
         }
-
         return result
     }
 

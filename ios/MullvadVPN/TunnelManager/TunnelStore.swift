@@ -11,13 +11,13 @@
 import Foundation
 import MullvadLogging
 import MullvadTypes
-import NetworkExtension
+@preconcurrency import NetworkExtension
 import UIKit
 
 protocol TunnelStoreProtocol: Sendable & Actor {
-    associatedtype TunnelType: TunnelProtocol, Equatable
+    associatedtype TunnelType: TunnelProtocol
     func getPersistentTunnel() -> TunnelType?
-    func createNewTunnel() -> TunnelType
+    func createNewTunnel() async -> TunnelType
 }
 
 /// Wrapper around system VPN tunnels.
@@ -48,28 +48,31 @@ actor TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         persistentTunnel
     }
 
-    private func setPersistentTunnel(from manager: TunnelProviderManagerType) {
-        persistentTunnel?.removeObserver(self)
-        let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
-        tunnel.addObserver(self)
+    private func setPersistentTunnel(from manager: TunnelProviderManagerType) async {
+        await persistentTunnel?.removeObserver(self)
+        let tunnel = await Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
+        await tunnel.addObserver(self)
+        let status = await tunnel.status
+        let tunnelIdentifier = await tunnel.logFormat()
 
         self.logger.debug(
-            "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+            "Loaded persistent tunnel: \(tunnelIdentifier) with status: \(status)."
         )
         persistentTunnel = tunnel
     }
 
     func loadPersistentTunnels() async throws {
         guard let manager = try await TunnelProviderManagerType.loadAllFromPreferences().first else { return }
-        self.setPersistentTunnel(from: manager)
+        await setPersistentTunnel(from: manager)
     }
 
-    func createNewTunnel() -> TunnelType {
+    func createNewTunnel() async -> TunnelType {
         let tunnelProviderManager = TunnelProviderManagerType()
-        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
-        tunnel.addObserver(self)
+        let tunnel = await TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
+        await tunnel.addObserver(self)
+        let tunnelIdentifier = await tunnel.logFormat()
 
-        logger.debug("Create new tunnel: \(tunnel.logFormat()).")
+        logger.debug("Create new tunnel: \(tunnelIdentifier).")
 
         return tunnel
     }
@@ -80,20 +83,21 @@ actor TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         }
     }
 
-    private func handleTunnelStatus(tunnel: TunnelType, status: NEVPNStatus) {
+    private func handleTunnelStatus(tunnel: TunnelType, status: NEVPNStatus) async {
+        let tunnelIdentifier = await tunnel.logFormat()
         if status == .invalid {
             persistentTunnel = nil
-            logger.debug("Persistent tunnel was removed: \(tunnel.logFormat()).")
+            logger.debug("Persistent tunnel was removed: \(tunnelIdentifier).")
         }
 
         if status != .invalid {
             persistentTunnel = tunnel
-            logger.debug("New tunnel became persistent: \(tunnel.logFormat()).")
+            logger.debug("New tunnel became persistent: \(tunnelIdentifier).")
         }
     }
 
-    private func refreshStatus() {
+    private func refreshStatus() async {
         guard let persistentTunnel else { return }
-        handleTunnelStatus(tunnel: persistentTunnel, status: persistentTunnel.status)
+        await handleTunnelStatus(tunnel: persistentTunnel, status: persistentTunnel.status)
     }
 }

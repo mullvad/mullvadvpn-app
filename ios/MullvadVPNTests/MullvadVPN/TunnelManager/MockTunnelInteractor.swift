@@ -59,7 +59,7 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
     }
 
     func createNewTunnel() async -> any TunnelProtocol {
-        MockTunnel(
+        await MockTunnel(
             tunnelProvider: SimulatorTunnelProviderManager(),
             backgroundTaskProvider: backgroundTaskProvider
         )

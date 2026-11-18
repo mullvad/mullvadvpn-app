@@ -25,7 +25,9 @@ final class TunnelStatusBlockObserver: TunnelStatusObserver, @unchecked Sendable
     }
 
     func invalidate() {
-        tunnel?.removeObserver(self)
+        Task {
+            await tunnel?.removeObserver(self)
+        }
     }
 
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
