@@ -9,6 +9,7 @@ const { retrieveApprovalState } = await import('../src/check');
 vi.mock(import('../src/github'), () => ({
   getPullRequestAuthor: vi.fn(),
   getApprovers: vi.fn().mockResolvedValue(new Set<string>()),
+  getExternalContributors: vi.fn().mockResolvedValue(new Set<string>()),
   setCommitStatus: vi.fn(),
   searchMatchingFiles: vi.fn().mockResolvedValue([]),
   isUserInTeam: vi.fn(),
@@ -22,11 +23,12 @@ vi.mock(import('@actions/core'), () => ({
   endGroup: vi.fn(),
 }));
 
-const mockedMatchingFiles = vi.mocked(github.searchMatchingFiles);
 const mockedApprovers = vi.mocked(github.getApprovers);
+const mockedExternal = vi.mocked(github.getExternalContributors);
 const mockedIsInTeam = vi.mocked(github.isUserInTeam);
-const mockedTeamMembers = vi.mocked(github.getTeamMembers);
+const mockedMatchingFiles = vi.mocked(github.searchMatchingFiles);
 const mockedPullRequestAuthor = vi.mocked(github.getPullRequestAuthor);
+const mockedTeamMembers = vi.mocked(github.getTeamMembers);
 
 describe('retrieveApprovalState', () => {
   beforeEach(() => {
@@ -248,6 +250,58 @@ describe('retrieveApprovalState', () => {
           expect(result.missing).toEqual(new Set(['team', 'team2', 'team3']));
         });
       });
+
+      describe('external contributors', () => {
+        test('an external contributor counts toward the approval total', async () => {
+          const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
+            author: 'x',
+            approvers: ['ext1'],
+            teamMembers: ['m1'],
+            externalContributors: ['ext1'],
+            approverIsMemberOfTeam: false,
+          });
+
+          expect(result.requiredApprovalCount).toEqual(2);
+          expect(result.missingApprovalCount).toEqual(1);
+        });
+
+        test('two approvals from external contributors satisfy the total', async () => {
+          const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
+            author: 'x',
+            approvers: ['ext1', 'ext2'],
+            teamMembers: [],
+            externalContributors: ['ext1', 'ext2'],
+            approverIsMemberOfTeam: false,
+          });
+
+          expect(result.missingApprovalCount).toEqual(0);
+        });
+
+        test('an external contributor does not satisfy a code-owner requirement', async () => {
+          const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
+            author: 'x',
+            approvers: ['ext1'],
+            teamMembers: [],
+            externalContributors: ['ext1'],
+            approverIsMemberOfTeam: false,
+          });
+
+          expect(result.missing).toEqual(new Set(['team']));
+        });
+
+        test('a failing external contributor lookup falls back to team members only', async () => {
+          mockedExternal.mockRejectedValueOnce(new Error('API down'));
+
+          const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
+            author: 'x',
+            approvers: ['m1'],
+            teamMembers: ['m1'],
+            approverIsMemberOfTeam: false,
+          });
+
+          expect(result.missingApprovalCount).toEqual(1);
+        });
+      });
     });
   });
 });
@@ -278,6 +332,7 @@ async function checkApproval(
     approverIsMemberOfTeam?: boolean | ((user: string, team: string) => boolean);
     globMatches?: string[];
     teamMembers?: string[];
+    externalContributors?: string[];
   } = {},
 ) {
   const {
@@ -285,11 +340,13 @@ async function checkApproval(
     approvers = [],
     approverIsMemberOfTeam = false,
     teamMembers = [DEFAULT_AUTHOR],
+    externalContributors = [],
   } = options;
 
   mockedPullRequestAuthor.mockReturnValue(author);
   mockedApprovers.mockResolvedValue(new Set([...approvers]));
   mockedTeamMembers.mockResolvedValue(new Set([...teamMembers]));
+  mockedExternal.mockResolvedValue(new Set([...externalContributors]));
 
   mockedIsInTeam.mockImplementation(({ user, team }) =>
     Promise.resolve(
