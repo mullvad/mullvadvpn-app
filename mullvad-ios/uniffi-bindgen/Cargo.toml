@@ -1,0 +1,18 @@
+[package]
+name = "uniffi-bindgen"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "Tool to package the UniFFI for use with the iOS FFI bindings"
+repository.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "main.rs"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+uniffi = { workspace = true, features = ["cli"] }
+
+[lints]
+workspace = true
