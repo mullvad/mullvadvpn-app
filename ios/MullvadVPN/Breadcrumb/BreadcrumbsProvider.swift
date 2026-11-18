@@ -28,7 +28,7 @@ final class BreadcrumbsBlockObserver: BreadcrumbsObserver, @unchecked Sendable {
     }
 }
 
-final class BreadcrumbsProvider {
+final class BreadcrumbsProvider: @unchecked Sendable {
     private let observerList = ObserverList<BreadcrumbsObserver>()
     private(set) var breadcrumbs: Set<Breadcrumb> = []
 
