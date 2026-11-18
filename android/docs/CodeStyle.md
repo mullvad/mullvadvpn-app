@@ -8,7 +8,7 @@ For static analysis (Detekt, Android Lint and Konsist), see the [test suite over
 
 ## Kotlin formatting
 
-[`ktfmt`](https://github.com/facebook/ktfmt) is used for Kotlin formatting. It runs through the
+[`ktfmt`](https://github.com/Kotlin/ktfmt) is used for Kotlin formatting. It runs through the
 [`ktfmt` Gradle plugin](https://github.com/cortinico/ktfmt-gradle), which is configured in
 `build.gradle.kts`.
 
@@ -22,7 +22,7 @@ Command to check the formatting without changing any files (this is what CI runs
 ./gradlew ktfmtCheck :build-logic:ktfmtCheck
 ```
 
-See the [official documentation](https://github.com/facebook/ktfmt) for how to use `ktfmt` as the
+See the [official documentation](https://github.com/Kotlin/ktfmt) for how to use `ktfmt` as the
 default formatter in Android Studio. Make sure to set `kotlinLangStyle` as "Code Style" and to set
 the project to rely on the `EditorConfig` (`.editorconfig` file).
 
