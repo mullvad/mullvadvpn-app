@@ -1798,13 +1798,6 @@ msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr ""
 
-#. First paragraph of description text in anti-censorship view.
-#. Available placeholders:
-#. %(killSwitchSettingName)s - The name of the Kill switch setting
-msgctxt "kill-switch-view"
-msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
-msgstr ""
-
 #. Third paragraph of description text in kill switch view.
 #. Available placeholders:
 #. %(killSwitchSettingName)s - The name of the Kill switch setting
@@ -1817,7 +1810,14 @@ msgstr ""
 #. Available placeholders:
 #. %(killSwitchSettingName)s - The name of the Kill switch setting
 msgctxt "kill-switch-view"
-msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention, and can’t be disabled."
+msgstr ""
+
+#. First paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is active while you’re connected to the VPN. It automatically blocks all network traffic if your network, internet connection or the VPN tunnel stops working. Once your connection is restored, the app will unblock your traffic."
 msgstr ""
 
 #. Status text app is trying to connect to the system service.
