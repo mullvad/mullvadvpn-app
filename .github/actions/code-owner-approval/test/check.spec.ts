@@ -79,7 +79,7 @@ describe('retrieveApprovalState', () => {
           author: DEFAULT_AUTHOR,
           approvers: [],
           teamMembers: [DEFAULT_AUTHOR],
-          approverIsMemberOfTeam: true,
+          membership: EVERYONE,
         });
 
         expect(result.requiredApprovalCount).toEqual(2);
@@ -92,13 +92,14 @@ describe('retrieveApprovalState', () => {
           author: DEFAULT_AUTHOR,
           approvers: ['member1'],
           teamMembers: [DEFAULT_AUTHOR, 'member1'],
-          approverIsMemberOfTeam: true,
+          membership: EVERYONE,
         });
 
         expect(result.requiredApprovalCount).toEqual(2);
         expect(result.missingApprovalCount).toEqual(0);
       });
     });
+
     test('a non-owner approver does not satisfy the requirement', async () => {
       const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
         approvers: approvedBy('non-owner'),
@@ -111,7 +112,7 @@ describe('retrieveApprovalState', () => {
     test('a code-owner approver satisfies the requirement', async () => {
       const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
         approvers: approvedBy(DEFAULT_AUTHOR),
-        approverIsMemberOfTeam: true,
+        membership: EVERYONE,
       });
 
       expect(result.required).toEqual(new Set(['team']));
@@ -122,7 +123,7 @@ describe('retrieveApprovalState', () => {
       test('counts toward approval when they are a team member', async () => {
         const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
           approvers: [],
-          approverIsMemberOfTeam: true,
+          membership: EVERYONE,
         });
 
         expect(result.missing).toEqual(new Set());
@@ -131,7 +132,7 @@ describe('retrieveApprovalState', () => {
       test('does not count toward approval when they are not a team member', async () => {
         const result = await checkApproval(changed(['a']), owns({ team: ['a'] }), {
           approvers: [],
-          approverIsMemberOfTeam: false,
+          membership: {},
         });
 
         expect(result.missing).toEqual(new Set(['team']));
@@ -153,7 +154,7 @@ describe('retrieveApprovalState', () => {
         author: 'x',
         approvers: ['member'],
         teamMembers: ['member'],
-        approverIsMemberOfTeam: true,
+        membership: EVERYONE,
       });
 
       expect(result.required).toEqual(new Set(['team']));
@@ -178,7 +179,7 @@ describe('retrieveApprovalState', () => {
           {
             approvers: approvedBy(DEFAULT_AUTHOR, 'member2'),
             teamMembers: [DEFAULT_AUTHOR, 'member2'],
-            approverIsMemberOfTeam: (user, team) => user == 'member2' && team == 'team2',
+            membership: { member2: ['team2'] },
           },
         );
 
@@ -238,7 +239,7 @@ describe('retrieveApprovalState', () => {
             changed(['a']),
             owns({ team: ['a'], team2: ['a'], team3: ['a'] }),
             {
-              approverIsMemberOfTeam: false,
+              membership: {},
               approvers: ['a'],
               author: 'x',
               teamMembers: ['a', 'b'],
@@ -258,7 +259,7 @@ describe('retrieveApprovalState', () => {
             approvers: ['ext1'],
             teamMembers: ['m1'],
             externalContributors: ['ext1'],
-            approverIsMemberOfTeam: false,
+            membership: {},
           });
 
           expect(result.requiredApprovalCount).toEqual(2);
@@ -271,7 +272,7 @@ describe('retrieveApprovalState', () => {
             approvers: ['ext1', 'ext2'],
             teamMembers: [],
             externalContributors: ['ext1', 'ext2'],
-            approverIsMemberOfTeam: false,
+            membership: {},
           });
 
           expect(result.missingApprovalCount).toEqual(0);
@@ -283,7 +284,7 @@ describe('retrieveApprovalState', () => {
             approvers: ['ext1'],
             teamMembers: [],
             externalContributors: ['ext1'],
-            approverIsMemberOfTeam: false,
+            membership: {},
           });
 
           expect(result.missing).toEqual(new Set(['team']));
@@ -296,7 +297,7 @@ describe('retrieveApprovalState', () => {
             author: 'x',
             approvers: ['m1'],
             teamMembers: ['m1'],
-            approverIsMemberOfTeam: false,
+            membership: {},
           });
 
           expect(result.missingApprovalCount).toEqual(1);
@@ -306,7 +307,46 @@ describe('retrieveApprovalState', () => {
   });
 });
 
+/**
+ * Runs the approval check against a stubbed GitHub.
+ * Individual tests override parts of the scenario when needed.
+ */
+async function checkApproval(
+  changedFiles: string[],
+  ownership: Record<string, string[]>,
+  overrides: ScenarioOverrides = {},
+) {
+  stubGithub(changedFiles, withDefaults(overrides));
+  return retrieveApprovalState(changedFiles, ownership);
+}
+
 const DEFAULT_AUTHOR = 'author';
+
+/** Every user is on every team. */
+const EVERYONE = 'everyone' as const;
+
+/** Maps a username to the teams they belong to. */
+type TeamsByUser = Record<string, string[]>;
+
+type TeamMembership = TeamsByUser | typeof EVERYONE;
+
+interface ApprovalScenario {
+  author: string | null;
+  approvers: string[];
+  membership: TeamMembership;
+  teamMembers: string[];
+  externalContributors: string[];
+}
+
+type ScenarioOverrides = Partial<ApprovalScenario>;
+
+const DEFAULT_SCENARIO: ApprovalScenario = {
+  author: DEFAULT_AUTHOR,
+  approvers: [],
+  membership: {},
+  teamMembers: [DEFAULT_AUTHOR],
+  externalContributors: [],
+};
 
 function changed(files: string[]): string[] {
   return files;
@@ -320,45 +360,32 @@ function approvedBy(...users: string[]): string[] {
   return users;
 }
 
-/**
- * Default happy-path wiring. Individual tests override only what matters.
- */
-async function checkApproval(
-  changedFiles: string[],
-  ownership: Record<string, string[]>,
-  options: {
-    author?: string | null;
-    approvers?: string[];
-    approverIsMemberOfTeam?: boolean | ((user: string, team: string) => boolean);
-    globMatches?: string[];
-    teamMembers?: string[];
-    externalContributors?: string[];
-  } = {},
-) {
-  const {
-    author = DEFAULT_AUTHOR,
-    approvers = [],
-    approverIsMemberOfTeam = false,
-    teamMembers = [DEFAULT_AUTHOR],
-    externalContributors = [],
-  } = options;
+function isMember(membership: TeamMembership, user: string, team: string): boolean {
+  if (membership === EVERYONE) {
+    return true;
+  }
+  return membership[user]?.includes(team) ?? false;
+}
 
-  mockedPullRequestAuthor.mockReturnValue(author);
-  mockedApprovers.mockResolvedValue(new Set([...approvers]));
-  mockedTeamMembers.mockResolvedValue(new Set([...teamMembers]));
-  mockedExternal.mockResolvedValue(new Set([...externalContributors]));
+function withDefaults(overrides: ScenarioOverrides): ApprovalScenario {
+  return { ...DEFAULT_SCENARIO, ...overrides };
+}
+
+function stubGithub(changedFiles: string[], scenario: ApprovalScenario): void {
+  mockedPullRequestAuthor.mockReturnValue(scenario.author);
+  mockedApprovers.mockResolvedValue(new Set(scenario.approvers));
+  mockedTeamMembers.mockResolvedValue(new Set(scenario.teamMembers));
+  mockedExternal.mockResolvedValue(new Set(scenario.externalContributors));
 
   mockedIsInTeam.mockImplementation(({ user, team }) =>
+    Promise.resolve(isMember(scenario.membership, user, team)),
+  );
+
+  mockedMatchingFiles.mockImplementation((patterns) =>
     Promise.resolve(
-      typeof approverIsMemberOfTeam === 'function'
-        ? approverIsMemberOfTeam(user, team)
-        : approverIsMemberOfTeam,
+      changedFiles.filter((file) =>
+        patterns.some((pattern) => path.posix.matchesGlob(file, pattern)),
+      ),
     ),
   );
-  mockedMatchingFiles.mockImplementation((patterns) => {
-    const res = changedFiles.filter((s) => patterns.some((p) => path.posix.matchesGlob(s, p)));
-    return Promise.resolve(res);
-  });
-
-  return retrieveApprovalState(changedFiles, ownership);
 }
