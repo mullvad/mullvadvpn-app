@@ -133,7 +133,7 @@ struct GlobeView: View {
 
         var transform = globe.transform
         transform.rotation = fitResult.rotation
-
+        let oldGlobeAngle = globe.transform.rotation.angle
         var cameraTransform = camera.transform
         cameraTransform.translation = [0, 0, fitResult.cameraDistance]
         let duration = 1.5
@@ -144,8 +144,21 @@ struct GlobeView: View {
             if #available(iOS 26.0, *) {
                 Entity.animate(.easeInOut(duration: duration)) {
                     globe.transform = transform
-                    camera.transform = cameraTransform
                 }
+                let travelAngle = abs(oldGlobeAngle - fitResult.rotation.angle)
+                print("Distance \(travelAngle)")
+                Entity.animate(.easeInOut(duration: duration / 2)) {
+                    camera.position = [
+                        0,
+                        0,
+                        fitResult.cameraDistance * (1 + travelAngle),
+                    ]
+                } completion: {
+                    Entity.animate(.easeInOut(duration: duration / 2)) {
+                        camera.position = [0, 0, fitResult.cameraDistance]
+                    }
+                }
+
             } else {
                 globe.move(to: transform, relativeTo: nil, duration: duration)
                 camera.move(to: cameraTransform, relativeTo: nil, duration: duration)
