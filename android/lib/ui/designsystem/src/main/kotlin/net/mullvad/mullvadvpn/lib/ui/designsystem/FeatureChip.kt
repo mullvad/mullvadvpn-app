@@ -105,7 +105,7 @@ fun MullvadFeatureChip(
                                         tween(
                                             CONNECTING_BORDER_DURATION_MS,
                                             easing = LinearEasing,
-                                        ),
+                                        )
                                 ),
                             label = "connectingBorderFloat",
                         )
@@ -263,7 +263,7 @@ sealed interface State : Parcelable {
     data object Connected : State
 }
 
-private val SELECTED_BORDER_WIDTH = 3.dp
+private val SELECTED_BORDER_WIDTH = 2.dp
 private val NORMAL_BORDER_WIDTH = Hairline
 private const val CONNECTING_BORDER_DURATION_MS = 2000 // 2 seconds
 private const val CONNECTING_ARC_SLICES = 64
