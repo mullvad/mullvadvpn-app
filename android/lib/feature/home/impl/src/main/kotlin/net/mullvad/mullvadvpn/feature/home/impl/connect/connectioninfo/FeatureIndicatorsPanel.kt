@@ -167,16 +167,6 @@ private fun List<FeatureIndicator>.adjustForAntiCensorship(): List<FeatureIndica
     }
 }
 
-private val ANTI_CENSORSHIP_FEATURE_INDICATORS =
-    listOf(
-        FeatureIndicator.ANTI_CENSORSHIP,
-        FeatureIndicator.WIREGUARD_PORT,
-        FeatureIndicator.LWO,
-        FeatureIndicator.QUIC,
-        FeatureIndicator.SHADOWSOCKS,
-        FeatureIndicator.UDP_2_TCP,
-    )
-
 private fun toState(featureIndicator: FeatureIndicator, connected: Boolean) =
     when {
         featureIndicator !in ANTI_CENSORSHIP_FEATURE_INDICATORS -> State.Idle
