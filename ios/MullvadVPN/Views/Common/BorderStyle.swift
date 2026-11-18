@@ -31,11 +31,20 @@ enum BorderStyle {
     var lineWidth: CGFloat {
         switch self {
         case .focused, .error:
-            2.0
+            1.0
         case .none:
             0.0
         default:
             1.0
+        }
+    }
+
+    var textColor: Color {
+        switch self {
+        case .error:
+            Color.MullvadTextField.borderError
+        default:
+            Color.MullvadTextField.textInput
         }
     }
 }

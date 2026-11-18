@@ -58,12 +58,9 @@ extension BaseUITestCase {
             .tapSOCKS5TypeValueCell()
             .tapServerCell()
             .enterText("123.123.123.123")
-            .dismissKeyboard()
             .tapPortCell()
             .enterText("123")
-            .dismissKeyboard()
             .tapAddButton()
-            .waitForAPIUnreachableLabel()
 
         AddAccessMethodAPIUnreachableAlert(app)
             .tapSaveButton()
