@@ -9,6 +9,8 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.cargoExecutable
+import utilities.cargoHome
 import utilities.configureMissingTranslationCheck
 import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
@@ -23,6 +25,7 @@ import utilities.playImplementation
 import utilities.registerReleaseTask
 import utilities.registerSbomTasks
 import utilities.registerVerifyArtifactsTask
+import utilities.rustcExecutable
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -333,6 +336,9 @@ junitPlatform {
 }
 
 cargo {
+    cargoCommand = cargoExecutable()
+    rustcCommand = rustcExecutable()
+
     val isReleaseBuild =
         isReleaseBuild() || getBooleanProperty("mullvad.app.build.cargo.forceReleaseBuild")
     val generateDebugSymbolsForReleaseBuilds =
@@ -373,7 +379,7 @@ cargo {
 
 tasks.register<Exec>("cargoClean") {
     workingDir = File(repoRootPath)
-    commandLine("cargo", "clean")
+    commandLine(cargoExecutable(), "clean")
 }
 
 if (getBooleanProperty("mullvad.app.build.cargo.cleanBuild")) {

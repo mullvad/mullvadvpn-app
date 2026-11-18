@@ -61,7 +61,9 @@ val Project.appVersionProvider: Provider<AppVersion>
 
 private fun Project.execVersionCodeCargoCommand() =
     providers
-        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode") }
+        .exec {
+            commandLine(cargoExecutable(), "run", "-q", "--bin", "mullvad-version", "versionCode")
+        }
         .standardOutput
         .asText
         .get()
@@ -70,7 +72,9 @@ private fun Project.execVersionCodeCargoCommand() =
 
 private fun Project.execVersionNameCargoCommand() =
     providers
-        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName") }
+        .exec {
+            commandLine(cargoExecutable(), "run", "-q", "--bin", "mullvad-version", "versionName")
+        }
         .standardOutput
         .asText
         .get()

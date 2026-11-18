@@ -22,8 +22,12 @@ Android Studio, see the [debug instructions](DebugInstructions.md).
 1. Make sure new terminals and Android Studio get the `PATH` change from the rustup installer, for
    example by logging out and back in.
 
-   **On macOS**, start Android Studio from a terminal so the build can use your `PATH` to find
-   cargo.
+   **Optionally**, if you start Android Studio on macOS other than from a terminal (such as from
+   Spotlight), tell Gradle where to find cargo. The easiest way is to run the following command
+   that tries to use the default locations:
+   ```bash
+   mkdir -p ~/.gradle && echo "mullvad.app.build.cargo.home=${CARGO_HOME:-$HOME/.cargo}" >> ~/.gradle/gradle.properties
+   ```
 
 1. From the repository root, install the pinned Rust version and the Android targets:
    ```bash
