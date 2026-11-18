@@ -619,9 +619,7 @@ impl ConnectingState {
                 // endpoint we broadcast -- refers to the transport that is actually in use.
                 if let Some(selected_obfuscation) = selected_obfuscation {
                     tunnel_parameters.obfuscation = match selected_obfuscation {
-                        SelectedObfuscation::Direct => {
-                            Obfuscators::direct(tunnel_parameters.connection.get_endpoint().address)
-                        }
+                        SelectedObfuscation::Direct(address) => Obfuscators::direct(address),
                         SelectedObfuscation::Obfuscated(config) => {
                             Obfuscators(vec1::vec1![TransportConfig::Obfuscation(config)])
                         }

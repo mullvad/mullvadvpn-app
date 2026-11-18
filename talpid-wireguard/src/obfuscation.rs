@@ -219,7 +219,7 @@ pub async fn run_multiplexer(
 /// See [`Config::with_transport`] for the corresponding config.
 pub fn commit_to(selected: Selected) -> (Option<RunningObfuscation>, SelectedObfuscation) {
     match selected.config {
-        Transport::Direct(_) => (None, SelectedObfuscation::Direct),
+        Transport::Direct(addr) => (None, SelectedObfuscation::Direct(addr)),
         Transport::Obfuscated(settings) => {
             let obfuscator_config = config_from_single_settings(&settings);
             let obfuscation = match settings {
