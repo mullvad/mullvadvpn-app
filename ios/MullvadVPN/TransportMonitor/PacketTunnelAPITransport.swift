@@ -41,13 +41,15 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
                     request: request
                 )
 
-                cancellable = tunnel.sendAPIRequest(proxyRequest) { result in
-                    switch result {
-                    case let .success(reply):
-                        continuation.resume(returning: reply)
+                Task {
+                    cancellable = await tunnel.sendAPIRequest(proxyRequest) { result in
+                        switch result {
+                        case let .success(reply):
+                            continuation.resume(returning: reply)
 
-                    case let .failure(error):
-                        continuation.resume(throwing: error)
+                        case let .failure(error):
+                            continuation.resume(throwing: error)
+                        }
                     }
                 }
             }
@@ -66,22 +68,32 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
             request: request
         )
 
-        return tunnel.sendAPIRequest(proxyRequest) { result in
-            switch result {
-            case let .success(reply):
-                completion(reply)
-
-            case let .failure(error):
-                let error = error.isOperationCancellationError ? URLError(.cancelled) : error
-                completion(
-                    ProxyAPIResponse(
-                        data: nil,
-                        error: APIError(
-                            statusCode: 0,
-                            errorDescription: error.localizedDescription,
-                            serverResponseCode: nil
-                        )))
+        let cancellableTask = Task {
+            await withTaskCancellationHandler {
+                let result = await tunnel.sendAPIRequest(proxyRequest) { proxyRequestResult in
+                    switch proxyRequestResult {
+                    case let .success(reply):
+                        completion(reply)
+                    case let .failure(error):
+                        let error = error.isOperationCancellationError ? URLError(.cancelled) : error
+                        completion(
+                            ProxyAPIResponse(
+                                data: nil,
+                                error: APIError(
+                                    statusCode: 0,
+                                    errorDescription: error.localizedDescription,
+                                    serverResponseCode: nil
+                                )))
+                    }
+                }
+            } onCancel: {
+                cancellable?.cancel()
+                cancellable = nil
             }
-        }
+        }.cancellable
+
+        cancellable = cancellableTask
+        return cancellableTask
+
     }
 }
