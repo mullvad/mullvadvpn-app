@@ -46,6 +46,9 @@ ignore = [
   # to parse template config. Fixed upstream in https://github.com/askama-rs/askama/pull/771,
   # but not yet released.
   "RUSTSEC-2026-0374",
+
+  # chrono is unmaintained.
+  "RUSTSEC-2026-0543",
 ]
 
 # This section is considered when running `cargo deny check licenses`
