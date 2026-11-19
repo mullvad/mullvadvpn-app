@@ -16,7 +16,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
+        completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable
 
     func getDevice(
@@ -28,7 +28,7 @@ public protocol DeviceHandling: Sendable {
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<[Device]>
+        completion: @escaping ProxyCompletionHandler<[Device]>
     ) -> Cancellable
 
     func getDevices(
@@ -40,7 +40,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         request: CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
+        completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable
 
     func createDevice(
@@ -53,7 +53,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
+        completion: @escaping ProxyCompletionHandler<Bool>
     ) -> Cancellable
 
     func deleteDevice(
@@ -67,7 +67,7 @@ public protocol DeviceHandling: Sendable {
         identifier: String,
         publicKey: WireGuard.PublicKey,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
+        completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable
 
     func rotateDeviceKey(

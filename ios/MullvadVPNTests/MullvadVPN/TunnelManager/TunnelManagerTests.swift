@@ -67,7 +67,7 @@ class TunnelManagerTests: XCTestCase {
     func testLogInStartsKeyRotations() async throws {
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
@@ -79,13 +79,14 @@ class TunnelManagerTests: XCTestCase {
         )
 
         _ = try await tunnelManager.setNewAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, true)
+        let isRotatingAfterLogin = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogin, true)
     }
 
     func testLogOutStopsKeyRotations() async throws {
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
@@ -97,7 +98,8 @@ class TunnelManagerTests: XCTestCase {
         )
         _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, false)
+        let isRotatingAfterLogout = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogout, false)
     }
 
     /// This test verifies tunnel gets out of `blockedState` after constraints are satisfied.
@@ -114,7 +116,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
@@ -187,7 +189,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
@@ -264,7 +266,7 @@ class TunnelManagerTests: XCTestCase {
             )
         }
 
-        let tunnelManager = TunnelManager(
+        let tunnelManager = await TunnelManager(
             backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
@@ -305,7 +307,7 @@ class TunnelManagerTests: XCTestCase {
 
         tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
-        tunnelManager.reapplyTunnelConfiguration()
+        await tunnelManager.reapplyTunnelConfiguration()
         connectedExpectation = expectation(description: "Connected!")
         await fulfillment(
             of: [disconnectedExpectation, connectedExpectation],

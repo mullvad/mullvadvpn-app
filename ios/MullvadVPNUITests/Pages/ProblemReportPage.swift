@@ -52,4 +52,13 @@ class ProblemReportPage: Page {
 
         return self
     }
+
+    func getAppLogText() -> String {
+        guard let logText = app.textViews[.problemReportAppLogsTextView].value as? String else {
+            XCTFail("Failed to extract app log text")
+            return String()
+        }
+
+        return logText
+    }
 }

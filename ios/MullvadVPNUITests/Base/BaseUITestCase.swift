@@ -187,9 +187,15 @@ class BaseUITestCase: XCTestCase {
         app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
         app.launch()
 
+        FirewallClient().removeRules()
         // Wait until the app finishes launching and displays the initial screen.
         agreeToTermsOfServiceIfShown()
         handleRevokedDeviceIfShown()
+    }
+
+    override func tearDown() async throws {
+        app.terminate()
+        try await super.tearDown()
     }
 }
 

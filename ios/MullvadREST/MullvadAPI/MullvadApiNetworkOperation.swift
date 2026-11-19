@@ -60,10 +60,12 @@ extension REST {
         }
 
         override public func main() {
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+
                 let transport = await transportProvider.makeTransport()
-                dispatchQueue.async { [weak self] in
-                    self?.startRequest(with: transport)
+                dispatchQueue.async {
+                    self.startRequest(with: transport)
                 }
             }
         }

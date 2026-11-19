@@ -35,8 +35,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         appDelegate.accessMethodRepository
     }
 
+    /// The `tunnelManager` is guaranteed to have a value when this is called
     private var tunnelManager: TunnelManager {
-        appDelegate.tunnelManager
+        appDelegate.tunnelManager!
     }
 
     private var settingsManager: SettingsManager {
@@ -54,8 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] _ in
-                guard let self, appDelegate.launchArguments.target != .uiTests else { return }
-                configureScene()
+                self?.configureScene()
             },
             didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.deviceStateDidChange(deviceState)
@@ -63,7 +63,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         )
 
         self.tunnelObserver = tunnelObserver
-
         tunnelManager.addObserver(tunnelObserver)
     }
 
@@ -180,7 +179,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             }
         }
         if shouldUpdateDeviceData {
-            deviceUpdateThrottle?.requestAction(force: forceUpdate)
+            Task {
+                await deviceUpdateThrottle?.requestAction(force: forceUpdate)
+            }
         }
     }
 
@@ -188,7 +189,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        deviceUpdateThrottle?.reset()
+        Task {
+            await deviceUpdateThrottle?.reset()
+        }
     }
 
     // MARK: - UIWindowSceneDelegate
@@ -207,15 +210,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         } while appDelegate.doneStarting == false
 
         guard let windowScene = scene as? UIWindowScene else { return }
-        let launchViewController = LaunchViewController(
-            launchArguments: appDelegate.launchArguments,
-            tunnelManager: tunnelManager,
-            settingsManager: settingsManager)
-
-        launchViewController.onAppReady = { [weak self] in
-            guard let self = self else { return }
-            configureScene()
-        }
+        let launchViewController = LaunchViewController()
 
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = launchViewController
@@ -230,6 +225,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         window?.makeKeyAndVisible()
         addTunnelObserver()
+
+        configureScene()
+        // The store payment manager will issue network requests
+        // Move those in a task to avoid the scene configuration being dependant on successful networking
+        Task {
+            await appDelegate.storePaymentManager.start()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
@@ -252,9 +254,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     // MARK: - SettingsMigrationUIHandler
 
-    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+    func showMigrationError(_ error: Error) {
         guard let appCoordinator else {
-            completionHandler()
             return
         }
 
@@ -265,10 +266,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default,
-                    handler: {
-                        completionHandler()
-                    }
+                    style: .default
                 )
             ]
         )

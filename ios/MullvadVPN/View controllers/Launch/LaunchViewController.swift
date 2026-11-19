@@ -12,24 +12,9 @@ import MullvadSettings
 import UIKit
 
 class LaunchViewController: UIViewController {
-    private let appResetManager: AppResetManager
-
-    var onAppReady: (() -> Void)?
-
-    init(
-        launchArguments: LaunchArguments,
-        tunnelManager: TunnelManager,
-        settingsManager: SettingsManager
-    ) {
-        self.appResetManager = AppResetManager(
-            launchArguments: launchArguments,
-            tunnelManager: tunnelManager,
-            settingsManager: settingsManager)
+    init() {
         super.init(nibName: nil, bundle: nil)
         setupLaunchScreen()
-        self.appResetManager.onAppReady = { [weak self] in
-            self?.onAppReady?()
-        }
     }
 
     required init?(coder: NSCoder) {
@@ -38,11 +23,6 @@ class LaunchViewController: UIViewController {
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        appResetManager.start()
     }
 
     private func setupLaunchScreen() {

@@ -28,9 +28,10 @@ final class BreadcrumbsBlockObserver: BreadcrumbsObserver, @unchecked Sendable {
     }
 }
 
-final class BreadcrumbsProvider {
+@MainActor
+final class BreadcrumbsProvider: Sendable {
     private let observerList = ObserverList<BreadcrumbsObserver>()
-    private(set) var breadcrumbs: Set<Breadcrumb> = []
+    private(set) nonisolated(unsafe) var breadcrumbs: Set<Breadcrumb> = []
 
     func add(breadcrumb: Breadcrumb) {
         breadcrumbs.insert(breadcrumb)
