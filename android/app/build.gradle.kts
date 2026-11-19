@@ -9,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.cargoCommand
 import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
@@ -329,6 +330,8 @@ junitPlatform {
 }
 
 cargo {
+    cargoCommand = cargoCommand()
+
     val isReleaseBuild =
         isReleaseBuild() || getBooleanProperty("mullvad.app.build.cargo.forceReleaseBuild")
     val generateDebugSymbolsForReleaseBuilds =
@@ -369,7 +372,7 @@ cargo {
 
 tasks.register<Exec>("cargoClean") {
     workingDir = File(repoRootPath)
-    commandLine("cargo", "clean")
+    commandLine(cargoCommand(), "clean")
 }
 
 if (getBooleanProperty("mullvad.app.build.cargo.cleanBuild")) {
