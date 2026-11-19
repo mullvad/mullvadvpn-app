@@ -30,12 +30,12 @@ export function KillSwitchView() {
                 <FlexColumn gap="medium">
                   <Text variant="labelTiny" color="whiteAlpha60">
                     {sprintf(
-                      // TRANSLATORS: First paragraph of description text in anti-censorship view.
+                      // TRANSLATORS: First paragraph of description text in kill switch view.
                       // TRANSLATORS: Available placeholders:
                       // TRANSLATORS: %(killSwitchSettingName)s - The name of the Kill switch setting
                       messages.pgettext(
                         'kill-switch-view',
-                        'The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic.',
+                        'The %(killSwitchSettingName)s is active while you’re connected to the VPN. It automatically blocks all network traffic if your network, internet connection or the VPN tunnel stops working. Once your connection is restored, the app will unblock your traffic.',
                       ),
                       { killSwitchSettingName },
                     )}
@@ -47,7 +47,7 @@ export function KillSwitchView() {
                       // TRANSLATORS: %(killSwitchSettingName)s - The name of the Kill switch setting
                       messages.pgettext(
                         'kill-switch-view',
-                        'The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled.',
+                        'The %(killSwitchSettingName)s is a core part of the app’s leak prevention, and can’t be disabled.',
                       ),
                       { killSwitchSettingName },
                     )}

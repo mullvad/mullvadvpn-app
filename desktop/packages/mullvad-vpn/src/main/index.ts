@@ -703,7 +703,7 @@ class ApplicationMain
 
     // fetch settings migrations
     try {
-      this.migrations = await this.daemonRpc.getSettingsMigrations();
+      this.setSettingsMigrations(await this.daemonRpc.getSettingsMigrations());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch settings migrations: ${error.message}`);
@@ -713,7 +713,7 @@ class ApplicationMain
 
     // fetch Shadowsocks ciphers
     try {
-      this.shadowsocksCiphers = await this.daemonRpc.getShadowsocksCiphers();
+      this.setShadowSocksCiphers(await this.daemonRpc.getShadowsocksCiphers());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch Shadowsocks ciphers: ${error.message}`);
@@ -874,6 +874,16 @@ class ApplicationMain
   private setRelayList(relayList: IRelayListWithEndpointData) {
     this.relayList = relayList;
     IpcMainEventChannel.relays.notify?.(relayList);
+  }
+
+  private setShadowSocksCiphers(shadowsocksCiphers: ShadowsocksCipher[]) {
+    this.shadowsocksCiphers = shadowsocksCiphers;
+    IpcMainEventChannel.settings.notifyShadowsocksCiphersChange?.(shadowsocksCiphers);
+  }
+
+  private setSettingsMigrations(migrations: SettingsMigration[]) {
+    this.migrations = migrations;
+    IpcMainEventChannel.settings.notifyMigrationsChange?.(migrations);
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {

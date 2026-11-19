@@ -218,6 +218,7 @@ export const ipcSchema = {
     setEnableRecents: invoke<boolean, void>(),
     migrationsChange: notifyRenderer<SettingsMigration[]>(),
     clearMigrations: invoke<void, void>(),
+    shadowsocksCiphersChange: notifyRenderer<ShadowsocksCipher[]>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

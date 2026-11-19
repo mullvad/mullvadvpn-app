@@ -344,6 +344,14 @@ msgstr ""
 msgid "Your device"
 msgstr ""
 
+#. Accessibility label for carousel slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the active slide number.
+#. %(total)s - Will be replaced with the total number of slides.
+msgctxt "accessibility"
+msgid "%(index)s of %(total)s"
+msgstr ""
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -1790,13 +1798,6 @@ msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr ""
 
-#. First paragraph of description text in anti-censorship view.
-#. Available placeholders:
-#. %(killSwitchSettingName)s - The name of the Kill switch setting
-msgctxt "kill-switch-view"
-msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
-msgstr ""
-
 #. Third paragraph of description text in kill switch view.
 #. Available placeholders:
 #. %(killSwitchSettingName)s - The name of the Kill switch setting
@@ -1809,7 +1810,14 @@ msgstr ""
 #. Available placeholders:
 #. %(killSwitchSettingName)s - The name of the Kill switch setting
 msgctxt "kill-switch-view"
-msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention, and can’t be disabled."
+msgstr ""
+
+#. First paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is active while you’re connected to the VPN. It automatically blocks all network traffic if your network, internet connection or the VPN tunnel stops working. Once your connection is restored, the app will unblock your traffic."
 msgstr ""
 
 #. Status text app is trying to connect to the system service.
@@ -2160,7 +2168,7 @@ msgid "This mode allows the app to automatically multihop through an additional 
 msgstr ""
 
 msgctxt "migrated-settings-view"
-msgid "This will be indicated by the symbol: <img></img>"
+msgid "This will be indicated by the <img></img> symbol."
 msgstr ""
 
 #. Instructions shown in one step of a migration wizard.
