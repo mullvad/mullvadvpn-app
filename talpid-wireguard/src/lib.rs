@@ -23,6 +23,7 @@ use talpid_tunnel::{
     EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, TunnelArgs, TunnelEvent, TunnelMetadata,
     TunnelMonitorCommand, WIREGUARD_HEADER_SIZE, tun_provider,
 };
+use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_error::{BoxedError, ErrorExt};
 use talpid_net::bypass::SocketBypass;
@@ -168,8 +169,9 @@ impl WireguardMonitor {
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         // GotaTun applies every obfuscation method itself, so obfuscation requires it.
-        let userspace_wireguard =
-            params.use_userspace_wg() || params.obfuscation.is_some() || *FORCE_USERSPACE_WIREGUARD;
+        let userspace_wireguard = params.use_userspace_wg()
+            || !params.obfuscation.is_direct()
+            || *FORCE_USERSPACE_WIREGUARD;
         assert!(
             !(*FORCE_KERNEL_WIREGUARD && userspace_wireguard),
             "Cannot force kernel WireGuard when userspace is required (DAITA, obfuscation, etc.)"
@@ -1011,12 +1013,15 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
 /// If `config` still uses a multiplexer, this makes room for the largest overhead of any of its
 /// transports, since it is not yet known which one will be selected.
 fn mtu_with_obfuscation_overhead(params: &TunnelParameters, config: &Config) -> u16 {
-    match config.obfuscation_settings() {
-        Some(settings) if params.options.mtu.is_none() => clamp_tunnel_mtu(
+    if params.options.mtu.is_none() {
+        clamp_tunnel_mtu(
             params,
-            config.mtu.saturating_sub(settings.packet_overhead()),
-        ),
-        _ => config.mtu,
+            config
+                .mtu
+                .saturating_sub(config.obfuscation_settings().packet_overhead()),
+        )
+    } else {
+        config.mtu
     }
 }
 
@@ -1040,14 +1045,10 @@ impl IngressConnection {
     /// `self` must have been constructed by [connect_to_ingress], which has committed to a single
     /// transport.
     pub fn endpoint_addr(&self) -> IpAddr {
-        use talpid_types::net::obfuscation::Obfuscators;
-        match &self.config.obfuscator_config {
-            Some(Obfuscators::Single(obfuscator)) => obfuscator.endpoint().address.ip(),
-            Some(Obfuscators::Multiplexer { .. }) => {
-                unreachable!("connect_to_ingress commits to a single transport")
-            }
-            None => self.config.entry_peer.endpoint.ip(),
-        }
+        let [single] = &self.config.obfuscator_config[..] else {
+            unreachable!("connect_to_ingress commits to a single transport")
+        };
+        single.endpoint().address.ip()
     }
 }
 
@@ -1064,25 +1065,24 @@ async fn connect_to_ingress(
     retry_attempt: u32,
     bypass: &Arc<dyn SocketBypass>,
 ) -> std::result::Result<IngressConnection, CloseMsg> {
-    let (config, obfuscation, selected_obfuscation, session) = match config.obfuscation_settings() {
-        None => (config, None, None, None),
-        // A specific obfuscation method was selected
-        Some(obfuscation::ObfuscationSettings::Single(settings)) => {
-            let obfuscation = obfuscation::create_single(&settings, Arc::clone(bypass))
+    let settings = config.obfuscation_settings();
+    let (config, obfuscation, selected_obfuscation, session) = match settings.transports() {
+        // Plain WireGuard without obfuscation, don't invoke multiplexer
+        [Transport::Direct(_)] => (config, None, None, None),
+        // A single obfuscation method, don't invoke multiplexer
+        [Transport::Obfuscated(settings)] => {
+            let obfuscation = obfuscation::create_single(settings, Arc::clone(bypass))
                 .await
                 .map_err(CloseMsg::SetupError)?;
             (config, Some(obfuscation), None, None)
         }
-        // Multiplex over multiple obfuscation methods
-        Some(obfuscation::ObfuscationSettings::Multiplexer {
-            transports,
-            client_public_key,
-        }) => {
+        // Multiplex over multiple transports. Note: is guaranteed to be two or more as transports is a `Vec1`
+        transports => {
             let (selected, session) = obfuscation::run_multiplexer(
                 &config,
                 retry_attempt,
-                transports,
-                client_public_key,
+                transports.to_vec(),
+                settings.client_public_key().clone(),
                 bypass,
             )
             .await?;

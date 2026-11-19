@@ -4,7 +4,9 @@ use std::{
     fmt, io,
     net::{IpAddr, ToSocketAddrs},
 };
-use talpid_types::net::{Endpoint, wireguard::ConnectionConfig, wireguard::TunnelParameters};
+use talpid_types::net::{
+    Endpoint, obfuscation::Obfuscators, wireguard::ConnectionConfig, wireguard::TunnelParameters,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -37,6 +39,7 @@ impl CustomTunnelEndpoint {
         let ip = resolve_to_ip(&self.host)?;
         let mut connection = self.config.clone();
         connection.set_ip(ip);
+        let direct_endpoint = connection.peer.endpoint;
 
         let parameters = {
             let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
@@ -48,7 +51,7 @@ impl CustomTunnelEndpoint {
                 connection,
                 options,
                 generic_options: tunnel_options.generic,
-                obfuscation: None,
+                obfuscation: Obfuscators::direct(direct_endpoint),
                 #[cfg(feature = "custom-vpn")]
                 custom_vpn: None,
             }
