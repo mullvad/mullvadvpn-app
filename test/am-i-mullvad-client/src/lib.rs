@@ -78,7 +78,7 @@ async fn http_get(url: Uri) -> Result<AmIMullvadResponse, Error> {
     let https = hyper_rustls::HttpsConnectorBuilder::new()
         .with_tls_config(mullvad_tls_client::api().clone())
         .https_only()
-        .enable_http2()
+        .enable_all_versions()
         .build();
 
     let client: Client<_, Full<Bytes>> =
