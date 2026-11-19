@@ -93,10 +93,6 @@ private fun BottomSheetContent(
         text = stringResource(id = R.string.add_new_configuration),
         color = onBackgroundColor,
     )
-    Experimental(
-        text = stringResource(id = R.string.custom_tunnels_experimental_warning),
-        color = onBackgroundColor,
-    )
     HorizontalDivider(
         color = onBackgroundColor,
         modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
