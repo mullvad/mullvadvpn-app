@@ -96,7 +96,6 @@ class ConnectivityTests: LoggedOutUITestCase {
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
     func testAppStillFunctioningWhenAPIDown() async throws {
         let hasTimeAccountNumber = await getAccountWithTime()
-        let customAccessMethodName = "Disable-access-dummy"
 
         addTeardownBlock {
             await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)

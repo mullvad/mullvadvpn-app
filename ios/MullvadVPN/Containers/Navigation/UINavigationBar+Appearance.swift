@@ -24,12 +24,17 @@ extension UINavigationBar {
         var directionalMargins = directionalLayoutMargins
         directionalMargins.leading = UIMetrics.largeNavigationTitlePadding.leading
         directionalMargins.trailing = UIMetrics.largeNavigationTitlePadding.trailing
-
         directionalLayoutMargins = directionalMargins
-        tintColor = UIColor.NavigationBar.titleColor
 
-        standardAppearance = makeNavigationBarAppearance(isTransparent: false)
-        scrollEdgeAppearance = makeNavigationBarAppearance(isTransparent: true)
+        tintColor = UIColor.NavigationBar.buttonColor
+
+        let standard = makeNavigationBarAppearance(isTransparent: false)
+        let scrollEdge = makeNavigationBarAppearance(isTransparent: true)
+
+        standardAppearance = standard
+        scrollEdgeAppearance = scrollEdge
+        compactAppearance = standard
+        compactScrollEdgeAppearance = scrollEdge
     }
 
     private func makeNavigationBarAppearance(isTransparent: Bool) -> UINavigationBarAppearance {
@@ -37,7 +42,6 @@ extension UINavigationBar {
             UIColor.NavigationBar.buttonColor,
             renderingMode: .alwaysOriginal
         )
-        let backIndicatorTransitionMask = UIImage.backTransitionMask
 
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.NavigationBar.titleColor
@@ -75,7 +79,7 @@ extension UINavigationBar {
 
         navigationBarAppearance.setBackIndicatorImage(
             backIndicatorImage,
-            transitionMaskImage: backIndicatorTransitionMask
+            transitionMaskImage: nil
         )
 
         return navigationBarAppearance
