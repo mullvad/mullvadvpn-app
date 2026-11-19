@@ -492,6 +492,26 @@ uint64_t uniffi_mullvad_ios_fn_clone_socks5remotewrapper(uint64_t handle, RustCa
 void uniffi_mullvad_ios_fn_free_socks5remotewrapper(uint64_t handle, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_MOCKSERVER
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_MOCKSERVER
+uint64_t uniffi_mullvad_ios_fn_clone_mockserver(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_MOCKSERVER
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_MOCKSERVER
+void uniffi_mullvad_ios_fn_free_mockserver(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_MOCKSERVER_NEW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_MOCKSERVER_NEW
+uint64_t uniffi_mullvad_ios_fn_constructor_mockserver_new(RustBuffer get, RustBuffer post, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_MOCKSERVER_PORT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_MOCKSERVER_PORT
+uint16_t uniffi_mullvad_ios_fn_method_mockserver_port(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_RETRYSTRATEGY
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_RETRYSTRATEGY
 uint64_t uniffi_mullvad_ios_fn_clone_retrystrategy(uint64_t handle, RustCallStatus *_Nonnull out_status
@@ -1007,6 +1027,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_shadowsocksbridgeprovider_bridge(voi
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_MOCKSERVER_PORT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_MOCKSERVER_PORT
+uint16_t uniffi_mullvad_ios_checksum_method_mockserver_port(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR
 uint16_t uniffi_mullvad_ios_checksum_method_anyerror_error(void
@@ -1046,6 +1072,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW
 uint16_t uniffi_mullvad_ios_checksum_constructor_apicontext_new(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_MOCKSERVER_NEW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_MOCKSERVER_NEW
+uint16_t uniffi_mullvad_ios_checksum_constructor_mockserver_new(void
     
 );
 #endif

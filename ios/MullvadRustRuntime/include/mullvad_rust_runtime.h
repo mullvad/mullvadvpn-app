@@ -18,20 +18,6 @@ typedef struct SwiftData {
   void *ptr;
 } SwiftData;
 
-typedef struct MockEndpoint {
-  char *path;
-  uintptr_t response_code;
-  char *response_body;
-} MockEndpoint;
-
-typedef struct SwiftServerMock {
-  const void *server_ptr;
-  const void *mocks_ptr;
-  uintptr_t mocks_len;
-  uintptr_t mocks_capacity;
-  uint16_t port;
-} SwiftServerMock;
-
 typedef struct DaitaParameters {
   uint8_t *machines;
   double max_padding_frac;
@@ -85,67 +71,6 @@ char *get_shadowsocks_ciphers(void);
  * `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
  */
 void mullvad_api_cstring_drop(char *cstr_ptr);
-
-/**
- * # Safety
- *
- * `path` must be a pointer to a utf-8 null terminated string representing the url path.
- *
- * `response_code` must be a usize representing the http response code.
- *
- * `response_body` must be a pointer to a utf-8 null terminated string representing the body.
- *
- * This must be used in conjunction with [mullvad_api_mock_get] and subsequently [mullvad_api_mock_drop]
- * to make sure it is properly dropped.
- */
-struct MockEndpoint mullvad_api_mock_create_endpoint(const char *path,
-                                                     uintptr_t response_code,
-                                                     const char *response_body);
-
-/**
- * # Safety
- *
- * `endpoints` must be a pointer to an array of [MockEndpoint]s.
- *
- * `endpoint_count` must be a usize matching the length of the array
- *
- * Each [MockEndpoint] must fulfill the following:
- * - `path` must be a pointer to a utf-8 null terminated string representing the url path.
- *
- * - `response_code` must be a usize representing the http response code.
- *
- * - `response_body` must be a pointer to a utf-8 null terminated string representing the body.
- *
- * This function is safe.
- */
-struct SwiftServerMock mullvad_api_mock_get(const struct MockEndpoint *endpoints,
-                                            uintptr_t endpoint_count);
-
-/**
- * # Safety
- *
- * `path` must be a pointer to a null terminated string representing the url path.
- *
- * `response_code` must be a usize representing the http response code.
- *
- * `match_body` must be a pointer to a null terminated json string representing the body the server expects.
- *
- * This function is safe.
- */
-struct SwiftServerMock mullvad_api_mock_post(const char *path,
-                                             uintptr_t response_code,
-                                             const char *match_body);
-
-/**
- * Called by the Swift side to signal that the Rust `SwiftServerMock` can be safely
- * dropped from memory.
- *
- * # Safety
- *
- * `mock_ptr` must be pointing to a valid instance of `SwiftServerMock`. This function
- * is not safe to call multiple times with the same `SwiftServerMock`.
- */
-void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
 
 extern uint8_t *swift_data_get_ptr(const struct SwiftData *data);
 
