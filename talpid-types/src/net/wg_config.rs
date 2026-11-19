@@ -1,8 +1,8 @@
 //! Parser for the `wg-quick` config file format (sans DNS and some other things).
 //!
 //! The parser is exposed as `impl FromStr for CustomVpnConfig`, so a `.conf` file can be
-//! parsed with `CustomVpnConfig::from_str(...)`. The peer `Endpoint` must be an IP address
-//! and port; hostnames are not resolved.
+//! parsed with `CustomVpnConfig::from_str(...)`. Peer `Endpoint`s must be IP addresses
+//! and ports; hostnames are not resolved.
 
 use std::str::FromStr;
 
@@ -28,8 +28,6 @@ pub enum WgConfigParseError {
     DuplicateField(&'static str),
     #[error("Missing [Peer] section")]
     MissingPeer,
-    #[error("Expected exactly one [Peer] section")]
-    MultiplePeers,
     #[error("Invalid PrivateKey: {0}")]
     InvalidPrivateKey(#[source] InvalidKey),
     #[error("Invalid PublicKey: {0}")]
@@ -77,8 +75,7 @@ enum Section {
 ///
 /// Other wg-quick fields (`ListenPort`, `DNS`, `MTU`, `PresharedKey`,
 /// `PersistentKeepalive`, `PreUp`/`PostUp`/`PreDown`/`PostDown`, etc.) are
-/// accepted but ignored. Exactly one `[Peer]` section is required -
-/// the config only holds a single peer.
+/// accepted but ignored. At least one `[Peer]` section is required.
 ///
 /// Keys and section names are matched case-insensitively. Lines starting with
 /// `#` and trailing `#`-comments are stripped. Blank lines are ignored.
@@ -90,7 +87,7 @@ impl FromStr for CustomVpnConfig {
 
         let mut section = Section::None;
         let mut interface = InterfaceBuilder::default();
-        let mut peer: Option<PeerBuilder> = None;
+        let mut peers: Vec<PeerBuilder> = Vec::new();
 
         for (line_index, raw_line) in s.lines().enumerate() {
             let line_number = line_index + 1;
@@ -105,10 +102,7 @@ impl FromStr for CustomVpnConfig {
             if let Some(header) = line.strip_prefix('[').and_then(|l| l.strip_suffix(']')) {
                 section = parse_section_header(header.trim())?;
                 if matches!(section, Section::Peer) {
-                    if peer.is_some() {
-                        return Err(E::MultiplePeers);
-                    }
-                    peer = Some(PeerBuilder::default());
+                    peers.push(PeerBuilder::default());
                 }
                 continue;
             }
@@ -126,13 +120,15 @@ impl FromStr for CustomVpnConfig {
                 }
                 Section::Interface => handle_interface_line(&mut interface, key, value)?,
                 Section::Peer => {
-                    let peer = peer.as_mut().expect("Section::Peer implies a peer");
+                    let peer = peers
+                        .last_mut()
+                        .expect("Section::Peer implies a peer builder");
                     handle_peer_line(peer, key, value)?;
                 }
             }
         }
 
-        finalize(interface, peer)
+        finalize(interface, peers)
     }
 }
 
@@ -217,7 +213,7 @@ fn handle_peer_line(
 
 fn finalize(
     interface: InterfaceBuilder,
-    peer: Option<PeerBuilder>,
+    peers: Vec<PeerBuilder>,
 ) -> Result<CustomVpnConfig, WgConfigParseError> {
     use WgConfigParseError as E;
 
@@ -227,12 +223,29 @@ fn finalize(
     }
     let tunnel_ips: Vec<_> = interface.addresses.iter().map(|net| net.ip()).collect();
 
-    let peer = peer.ok_or(E::MissingPeer)?;
-    let public_key = peer.public_key.ok_or(E::MissingField("PublicKey"))?;
-    if peer.allowed_ips.is_empty() {
-        return Err(E::MissingField("AllowedIPs"));
+    if peers.is_empty() {
+        return Err(E::MissingPeer);
     }
-    let endpoint = peer.endpoint.ok_or(E::MissingField("Endpoint"))?;
+    let peers = peers
+        .into_iter()
+        .map(|peer| {
+            let public_key = peer.public_key.ok_or(E::MissingField("PublicKey"))?;
+            if peer.allowed_ips.is_empty() {
+                return Err(E::MissingField("AllowedIPs"));
+            }
+            let endpoint = peer.endpoint.ok_or(E::MissingField("Endpoint"))?;
+
+            Ok(CustomVpnPeerConfig {
+                public_key,
+                allowed_ip: peer.allowed_ips,
+                endpoint: endpoint
+                    .parse()
+                    .map_err(|_| WgConfigParseError::InvalidEndpoint(endpoint))?,
+            })
+        })
+        .collect::<Result<Vec<_>, WgConfigParseError>>()?;
+
+    let peers = vec1::Vec1::try_from_vec(peers).expect("checked that peers is non-empty");
 
     Ok(CustomVpnConfig {
         enabled: false,
@@ -241,22 +254,15 @@ fn finalize(
             private_key,
             ips: tunnel_ips,
         },
-        peers: vec1::vec1![CustomVpnPeerConfig {
-            public_key,
-            allowed_ip: peer.allowed_ips,
-            endpoint: endpoint
-                .parse()
-                .map_err(|_| WgConfigParseError::InvalidEndpoint(endpoint))?,
-        }],
+        peers,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
 
-    // Valid 32-byte base64 strings. Content is arbitrary - x25519 keys are
-    // not validated for strength at parse time.
     const PRIV: &str = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     const PUB: &str = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBE=";
 
@@ -286,13 +292,7 @@ Endpoint = 1.2.3.4:51820
     }
 
     #[test]
-    fn address_cidr_is_stripped_for_tunnel_ip() {
-        let config = CustomVpnConfig::from_str(&sample_config()).unwrap();
-        assert_eq!(config.tunnel.ips[0].to_string(), "10.0.0.2");
-    }
-
-    #[test]
-    fn dual_stack_addresses_are_preserved() {
+    fn mixed_ip_families() {
         let input = format!(
             "\
 [Interface]
@@ -381,10 +381,10 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = 1.2.3.4:51820
 "
         );
-        assert!(matches!(
+        assert_matches!(
             CustomVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::MissingField("Address"),
-        ));
+        );
     }
 
     #[test]
@@ -402,14 +402,14 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = 1.2.3.4:51820
 "
         );
-        assert!(matches!(
+        assert_matches!(
             CustomVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::DuplicateField("PrivateKey"),
-        ));
+        );
     }
 
     #[test]
-    fn multiple_peers_are_rejected() {
+    fn multiple_peers_are_parsed() {
         let input = format!(
             "\
 [Interface]
@@ -418,19 +418,60 @@ Address = 10.0.0.2
 
 [Peer]
 PublicKey = {PUB}
-AllowedIPs = 0.0.0.0/0
+AllowedIPs = 10.100.0.0/24, fd00:100::/64
 Endpoint = 1.2.3.4:51820
 
 [Peer]
-PublicKey = {PUB}
-AllowedIPs = 0.0.0.0/0
-Endpoint = 5.6.7.8:51820
+PublicKey = {PRIV}
+AllowedIPs = 10.200.0.0/24
+Endpoint = [2001:db8::1]:51820
 "
         );
-        assert!(matches!(
+        let config = CustomVpnConfig::from_str(&input).unwrap();
+        assert_eq!(config.peers.len(), 2);
+
+        assert_eq!(
+            config.peers[0].public_key,
+            PublicKey::from_base64(PUB).unwrap()
+        );
+        assert_eq!(
+            config.peers[0].allowed_ip,
+            vec![
+                "10.100.0.0/24".parse().unwrap(),
+                "fd00:100::/64".parse().unwrap()
+            ]
+        );
+        assert_eq!(config.peers[0].endpoint, "1.2.3.4:51820".parse().unwrap());
+
+        assert_eq!(
+            config.peers[1].public_key,
+            PublicKey::from_base64(PRIV).unwrap()
+        );
+        assert_eq!(
+            config.peers[1].allowed_ip,
+            vec!["10.200.0.0/24".parse().unwrap()]
+        );
+        assert_eq!(
+            config.peers[1].endpoint,
+            "[2001:db8::1]:51820".parse().unwrap()
+        );
+    }
+
+    #[test]
+    fn empty_peer_section_is_rejected() {
+        let input = format!(
+            "\
+[Interface]
+PrivateKey = {PRIV}
+Address = 10.0.0.2
+
+[Peer]
+"
+        );
+        assert_matches!(
             CustomVpnConfig::from_str(&input).unwrap_err(),
-            WgConfigParseError::MultiplePeers,
-        ));
+            WgConfigParseError::MissingField("PublicKey"),
+        );
     }
 
     #[test]
@@ -450,9 +491,9 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = 1.2.3.4:51820
 "
         );
-        assert!(matches!(
-            CustomVpnConfig::from_str(&input).unwrap_err(),
-            WgConfigParseError::UnknownSection(ref s) if s == "Bogus",
-        ));
+        assert_matches!(
+        CustomVpnConfig::from_str(&input).unwrap_err(),
+        WgConfigParseError::UnknownSection(ref s) if s == "Bogus",
+        );
     }
 }

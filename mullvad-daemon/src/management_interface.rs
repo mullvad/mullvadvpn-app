@@ -1,3 +1,5 @@
+#[cfg(feature = "custom-vpn")]
+use crate::custom_vpn;
 use crate::{
     DaemonCommand, DaemonCommandSender, account_history, device,
     migrations::multihop::scenario::Scenario,
@@ -36,6 +38,8 @@ use std::{
     time::Duration,
 };
 use talpid_error::ErrorExt;
+#[cfg(feature = "custom-vpn")]
+use talpid_types::net::wireguard::CustomVpnSettings;
 use tokio::time::timeout;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -1366,27 +1370,48 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
     #[cfg(feature = "custom-vpn")]
+    async fn get_custom_vpn_settings(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnSettings> {
+        log::debug!("get_custom_vpn_settings");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CustomVpn(
+            custom_vpn::CustomVpnCommand::GetSettings(tx),
+        ))?;
+        self.wait_for_result(rx).await.map(|settings| {
+            let settings = types::CustomVpnSettings::from(&settings);
+            Response::new(settings)
+        })
+    }
+
+    #[cfg(feature = "custom-vpn")]
     async fn set_custom_vpn_config(
         &self,
         request: Request<types::CustomVpnConfig>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
         log::debug!("set_custom_vpn_config");
-        let config = talpid_types::net::wireguard::CustomVpnConfig::try_from(request.into_inner())
-            .map_err(map_protobuf_type_err)?;
+        let config =
+            talpid_types::net::wireguard::CustomVpnConfigUpdate::try_from(request.into_inner())
+                .map_err(map_protobuf_type_err)?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, Some(config)))?;
+        self.send_command_to_daemon(DaemonCommand::CustomVpn(
+            custom_vpn::CustomVpnCommand::SetConfig(tx, Some(config)),
+        ))?;
         let error = self.wait_for_result(rx).await?;
         Ok(Response::new(types::CustomVpnConfigError { error }))
     }
 
     #[cfg(feature = "custom-vpn")]
-    async fn clear_custom_vpn_config(
+    async fn clear_custom_vpn_settings(
         &self,
         _: Request<()>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
-        log::debug!("clear_custom_vpn_config");
+        log::debug!("clear_custom_vpn_settings");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, None))?;
+        self.send_command_to_daemon(DaemonCommand::CustomVpn(
+            custom_vpn::CustomVpnCommand::SetConfig(tx, None),
+        ))?;
         let error = self.wait_for_result(rx).await?;
         Ok(Response::new(types::CustomVpnConfigError { error }))
     }
@@ -1402,7 +1427,9 @@ impl ManagementService for ManagementServiceImpl {
             <talpid_types::net::wireguard::CustomVpnConfig as std::str::FromStr>::from_str(&body)
                 .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, Some(config)))?;
+        self.send_command_to_daemon(DaemonCommand::CustomVpn(
+            custom_vpn::CustomVpnCommand::SetConfig(tx, Some(config.into())),
+        ))?;
         let error = self.wait_for_result(rx).await?;
         Ok(Response::new(types::CustomVpnConfigError { error }))
     }
@@ -1411,7 +1438,9 @@ impl ManagementService for ManagementServiceImpl {
     async fn get_custom_vpn_stats(&self, _: Request<()>) -> ServiceResult<types::CustomVpnStats> {
         log::debug!("get_custom_vpn_stats");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCustomVpnStats(tx))?;
+        self.send_command_to_daemon(DaemonCommand::CustomVpn(
+            custom_vpn::CustomVpnCommand::GetStats(tx),
+        ))?;
         self.wait_for_result(rx).await.map(|stats| {
             let stats = types::CustomVpnStats {
                 last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
@@ -1431,6 +1460,15 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(feature = "custom-vpn"))]
+    async fn get_custom_vpn_settings(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::CustomVpnSettings> {
+        log::debug!("get_custom_vpn_settings");
+        Ok(Response::new(types::CustomVpnSettings { configs: vec![] }))
+    }
+
+    #[cfg(not(feature = "custom-vpn"))]
     async fn set_custom_vpn_config(
         &self,
         _request: Request<types::CustomVpnConfig>,
@@ -1442,11 +1480,11 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(feature = "custom-vpn"))]
-    async fn clear_custom_vpn_config(
+    async fn clear_custom_vpn_settings(
         &self,
         _: Request<()>,
     ) -> ServiceResult<types::CustomVpnConfigError> {
-        log::debug!("clear_custom_vpn_config");
+        log::debug!("clear_custom_vpn_settings");
         Ok(Response::new(types::CustomVpnConfigError {
             error: "".to_string(),
         }))
@@ -1606,6 +1644,20 @@ impl ManagementInterfaceEventBroadcaster {
             event: Some(daemon_event::Event::Settings(types::Settings::from(
                 &settings,
             ))),
+        })
+    }
+
+    /// Notify that the custom VPN settings changed.
+    ///
+    /// Sends the new custom VPN settings to all `custom_vpn_settings`
+    /// subscribers of the management interface.
+    #[cfg(feature = "custom-vpn")]
+    pub(crate) fn notify_custom_vpn_settings(&self, settings: CustomVpnSettings) {
+        log::debug!("Broadcasting new custom VPN settings");
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::CustomVpnSettings(
+                types::CustomVpnSettings::from(&settings),
+            )),
         })
     }
 
