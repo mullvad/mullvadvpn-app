@@ -6,3 +6,9 @@
 id = "CVE-2026-118764"  # GHSA-g3hv-75wg-m249
 ignoreUntil = 2027-02-01  # The vulnerability is ignored for 3 months, after which we'll check for updates again.
 reason = "This ReDoS vulnerability is triggered through input, which is supplied by us. Worst case the CI runner on which this job runs fails, which we do not consider as critical. A fix is present but has not trickled through to the affected packages."
+
+# Ignored because `picomatch` has not released a fix yet, and the impact is limited.
+[[IgnoredVulns]]
+id = "CVE-2026-112366"  # GHSA-fc5q-39xc-vjpf
+ignoreUntil = 2027-02-01  # The vulnerability is ignored for 3 months, after which we'll check for updates again.
+reason = "This ReDoS vulnerability is triggered through input to dev-dependencies such as `vitest` and `eslint`. Worst case the CI runner on which this job runs fails, which we do not consider as critical. A fix is present but has not trickled through to the affected packages."
