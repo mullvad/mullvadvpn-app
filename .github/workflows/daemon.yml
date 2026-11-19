@@ -120,6 +120,8 @@ jobs:
 
       - name: Run nftables snapshot tests
         if: ${{ matrix.rust == 'stable' }}
+        # TODO: Debian 11 is too old, so we are not testing cgroup2. Pass --features cgroup2 when
+        # container has been updated.
         run: ci/cargo-ci.sh test -p talpid-core --test nftables_snapshot -- --ignored
 
   build-macos:

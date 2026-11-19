@@ -199,10 +199,10 @@ fn dump_nftables() -> String {
 
 /// Strip info that differs between environments.
 fn normalize(dump: &str) -> String {
-    // cgroup2 inode numbers
-    let dump = Regex::new(r"(cgroupv2 level \d+) \d+")
+    // cgroup2 inode numbers or paths, depending on the nft version
+    let dump = Regex::new(r#"(cgroupv2 level \d+) (?:\d+|"[^"]*")"#)
         .unwrap()
-        .replace_all(dump, "$1 <id>");
+        .replace_all(dump, r#"$1 <id>"#);
     // Older versions of nft print ICMPv6 code 0 by name
     dump.replace("icmpv6 code no-route", "icmpv6 code 0")
 }
