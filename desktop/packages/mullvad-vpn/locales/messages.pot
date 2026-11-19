@@ -344,6 +344,14 @@ msgstr ""
 msgid "Your device"
 msgstr ""
 
+#. Accessibility label for carousel slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the active slide number.
+#. %(total)s - Will be replaced with the total number of slides.
+msgctxt "accessibility"
+msgid "%(index)s of %(total)s"
+msgstr ""
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO

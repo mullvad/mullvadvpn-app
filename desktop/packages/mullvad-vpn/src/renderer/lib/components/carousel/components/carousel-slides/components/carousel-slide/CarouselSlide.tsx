@@ -1,6 +1,9 @@
+import { useInView } from 'motion/react';
 import React from 'react';
+import { sprintf } from 'sprintf-js';
 import styled, { css } from 'styled-components';
 
+import { messages } from '../../../../../../../../shared/gettext';
 import { durations } from '../../../../../../foundations';
 import { Gallery } from '../../../../../gallery';
 import { useCarouselContext } from '../../../../CarouselContext';
@@ -9,8 +12,8 @@ export type CarouselSlideProps = React.ComponentPropsWithRef<'div'>;
 
 const StyledSlide = styled.div<{ $active: boolean }>`
   ${({ $active }) => css`
-    width: 100%;
-    display: inline-block;
+    flex: 0 0 100%;
+
     white-space: normal;
     vertical-align: top;
     scroll-snap-align: start;
@@ -22,19 +25,34 @@ const StyledSlide = styled.div<{ $active: boolean }>`
 `;
 
 function CarouselSlide({ children, ...props }: CarouselSlideProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const id = React.useId();
   const { slides, slideIndex } = useCarouselContext();
   const isActiveSlide = slides[slideIndex]?.id === id;
 
+  const isInView = useInView(ref, { amount: 0.5 });
+
   return (
     <StyledSlide
+      ref={ref}
       id={id}
       tabIndex={-1}
-      aria-hidden={!isActiveSlide}
+      inert={!isActiveSlide}
       data-carousel-slide
       role="group"
       aria-roledescription="slide"
-      $active={isActiveSlide}
+      aria-label={sprintf(
+        // TRANSLATORS: Accessibility label for carousel slides.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(index)s - Will be replaced with the active slide number.
+        // TRANSLATORS: %(total)s - Will be replaced with the total number of slides.
+        messages.pgettext('accessibility', '%(index)s of %(total)s'),
+        {
+          index: slideIndex + 1,
+          total: slides.length,
+        },
+      )}
+      $active={isInView}
       {...props}>
       <Gallery>{children}</Gallery>
     </StyledSlide>
