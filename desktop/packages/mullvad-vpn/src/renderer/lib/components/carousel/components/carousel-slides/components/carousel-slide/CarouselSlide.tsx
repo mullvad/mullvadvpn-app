@@ -1,7 +1,9 @@
 import { useInView } from 'motion/react';
 import React from 'react';
+import { sprintf } from 'sprintf-js';
 import styled, { css } from 'styled-components';
 
+import { messages } from '../../../../../../../../shared/gettext';
 import { durations } from '../../../../../../foundations';
 import { Gallery } from '../../../../../gallery';
 import { useCarouselContext } from '../../../../CarouselContext';
@@ -39,6 +41,17 @@ function CarouselSlide({ children, ...props }: CarouselSlideProps) {
       data-carousel-slide
       role="group"
       aria-roledescription="slide"
+      aria-label={sprintf(
+        // TRANSLATORS: Accessibility label for carousel slides.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(index)s - Will be replaced with the active slide number.
+        // TRANSLATORS: %(total)s - Will be replaced with the total number of slides.
+        messages.pgettext('accessibility', '%(index)s of %(total)s'),
+        {
+          index: slideIndex + 1,
+          total: slides.length,
+        },
+      )}
       $active={isInView}
       {...props}>
       <Gallery>{children}</Gallery>
