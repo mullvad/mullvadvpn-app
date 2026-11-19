@@ -16,7 +16,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
@@ -118,17 +117,6 @@ private fun BottomSheetContent(
                 containerColorParent = backgroundColor,
                 headlineColor = onBackgroundColor,
             ),
-    )
-}
-
-@Composable
-private fun Experimental(text: String, color: Color) {
-    Text(
-        text = text,
-        color = color,
-        style = MaterialTheme.typography.labelSmall.merge(fontWeight = FontWeight.Normal),
-        modifier =
-            Modifier.padding(horizontal = Dimens.sideMarginNew, vertical = Dimens.smallPadding),
     )
 }
 

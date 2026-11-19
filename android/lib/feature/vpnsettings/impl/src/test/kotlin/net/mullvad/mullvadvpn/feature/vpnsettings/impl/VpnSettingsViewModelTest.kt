@@ -289,7 +289,6 @@ class VpnSettingsViewModelTest {
                     SplitTunnelSettings(enabled = false, excludedApps = emptySet()),
                 apiAccessMethodSettings = emptyList(),
                 recents = Recents.Disabled,
-                customVpnConfig = null,
             )
     }
 }

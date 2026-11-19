@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.mockk.coEvery
@@ -15,7 +16,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_ALLOWED_IP
 import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_ENDPOINT_HOST
@@ -32,11 +34,9 @@ import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
 import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
-import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,20 +45,23 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class CustomVpnEditViewModelTest {
 
-    private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockCustomVpnRepository: CustomVpnRepository = mockk()
 
-    private val settingsUpdates = MutableStateFlow<Settings?>(null)
+    private val configUpdates =
+        MutableSharedFlow<CustomVpnConfig?>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
 
     private lateinit var viewModel: CustomVpnEditViewModel
 
     @BeforeEach
     fun setup() {
-        every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
+        every { mockCustomVpnRepository.configFlow } returns configUpdates
+        coEvery { mockCustomVpnRepository.fetchConfig() } returns Either.Right(null)
 
         viewModel =
             CustomVpnEditViewModel(
-                settingsRepository = mockSettingsRepository,
                 customVpnRepository = mockCustomVpnRepository,
                 isNewConfig = false,
             )
@@ -120,7 +123,11 @@ class CustomVpnEditViewModelTest {
     fun `clearConfig should call management service clearCustomVpn and reset formData`() = runTest {
         // Arrange
         val customVpnConfig = createSampleCustomVpnConfig()
-        coEvery { mockCustomVpnRepository.clearConfig() } returns Unit.right()
+        coEvery { mockCustomVpnRepository.clearConfig() } coAnswers
+            {
+                initSettings(null)
+                Unit.right()
+            }
 
         // Act, Assert
         viewModel.uiState.test {
@@ -394,7 +401,11 @@ class CustomVpnEditViewModelTest {
                     enabled = true,
                     name = VALID_NAME,
                 )
-            coEvery { mockCustomVpnRepository.setConfig(expectedConfig) } returns Unit.right()
+            coEvery { mockCustomVpnRepository.setConfig(expectedConfig) } coAnswers
+                {
+                    initSettings(expectedConfig)
+                    Unit.right()
+                }
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -436,9 +447,7 @@ class CustomVpnEditViewModelTest {
         }
 
     private fun initSettings(customVpnConfig: CustomVpnConfig? = null) {
-        val mockSettings = mockk<Settings>(relaxed = true)
-        every { mockSettings.customVpnConfig } returns customVpnConfig
-        settingsUpdates.value = mockSettings
+        configUpdates.tryEmit(customVpnConfig)
     }
 
     private fun assertFormDataMatches(

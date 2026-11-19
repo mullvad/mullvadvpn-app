@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -28,30 +27,26 @@ import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.WireguardKey
 import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
-import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class CustomVpnEditViewModel(
-    settingsRepository: SettingsRepository,
     private val customVpnRepository: CustomVpnRepository,
     isNewConfig: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<CustomVpnSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val formData = MutableStateFlow<FormData?>(null)
+    private val formData = MutableStateFlow(FormData())
     private val formErrors = MutableStateFlow<FormErrors?>(null)
     private val isNew = MutableStateFlow(isNewConfig)
 
     val uiState: StateFlow<Lc<Unit, CustomVpnEditUiState>> =
         combine(
-                formData.filterNotNull().onStart {
-                    val settings = settingsRepository.settingsUpdates.filterNotNull().first()
-                    val form = settings.customVpnConfig?.let { FormData.from(it) } ?: FormData()
-                    emit(form)
+                customVpnRepository.configFlow.map { config ->
+                    config?.let { FormData.from(it) } ?: FormData()
                 },
                 formErrors,
                 isNew,
-            ) { formData: FormData, formErrors, isNew: Boolean ->
+            ) { formData, formErrors, isNew ->
                 CustomVpnEditUiState(
                         formData = formData,
                         formErrors = formErrors,
@@ -59,6 +54,7 @@ class CustomVpnEditViewModel(
                     )
                     .toLc<Unit, CustomVpnEditUiState>()
             }
+            .onStart { customVpnRepository.fetchConfig() }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),

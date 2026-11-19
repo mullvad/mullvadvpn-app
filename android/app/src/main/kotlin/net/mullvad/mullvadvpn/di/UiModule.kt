@@ -450,7 +450,6 @@ val uiModule = module {
     viewModel { params -> DeleteCustomListConfirmationViewModel(navArgs = params.get(), get()) }
     viewModel { params ->
         CustomVpnEditViewModel(
-            settingsRepository = get(),
             customVpnRepository = get(),
             isNewConfig = params.get(),
         )
@@ -565,7 +564,6 @@ val uiModule = module {
         CustomVpnListViewModel(
             isModal = params.get(),
             customVpnRepository = get(),
-            settingsRepository = get(),
             ioDispatcher = Dispatchers.IO,
         )
     }

@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.CustomVpnConfigError
 import mullvad_daemon.management_interface.CustomVpnRawImport
+import mullvad_daemon.management_interface.CustomVpnSettings
 import mullvad_daemon.management_interface.DaemonEvent
 import mullvad_daemon.management_interface.Device
 import mullvad_daemon.management_interface.DeviceRemoval
@@ -1017,7 +1018,13 @@ class ManagementService(
 
     suspend fun getCustomVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
         Either.catch { grpc.GetCustomVpnStats().executeWithRetry(Unit).toDomain() }
-            .onLeft { Logger.e("Get custom vpn event error") }
+            .onLeft { Logger.e("Get custom vpn stats error") }
+            .mapLeft { GetCustomVpnConfigError.Unknown }
+
+    suspend fun getCustomVpnSettings():
+        Either<GetCustomVpnConfigError.Unknown, List<ModelCustomVpnConfig>> =
+        Either.catch { grpc.GetCustomVpnSettings().executeWithRetry(Unit).toDomain() }
+            .onLeft { Logger.e("Get custom vpn error") }
             .mapLeft { GetCustomVpnConfigError.Unknown }
 
     suspend fun setCustomVpnConfig(
@@ -1030,7 +1037,7 @@ class ManagementService(
 
     /** Remove the custom VPN config. The daemon interprets an empty config as removal. */
     suspend fun clearCustomVpn(): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.ClearCustomVpnConfig().executeWithRetry(Unit) }
+        Either.catch { grpc.ClearCustomVpnSettings().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear custom VPN config error", it) }
             .mapLeft { SetCustomVpnConfigError.Unknown(it) }
             .flatMap { it.toResult() }

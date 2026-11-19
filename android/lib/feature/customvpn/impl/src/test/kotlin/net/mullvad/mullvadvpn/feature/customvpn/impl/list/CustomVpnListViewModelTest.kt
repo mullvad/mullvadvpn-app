@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.mockk.coEvery
@@ -18,7 +19,8 @@ import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
@@ -30,10 +32,8 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.GetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
-import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -43,19 +43,23 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class CustomVpnListViewModelTest {
 
-    private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockCustomVpnRepository: CustomVpnRepository = mockk()
     private val mockContentResolver: ContentResolver = mockk()
     private val uri: Uri = mockk()
 
-    private val settingsUpdates = MutableStateFlow<Settings?>(null)
+    private val configUpdates =
+        MutableSharedFlow<CustomVpnConfig?>(
+            replay = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     private var importedConfigContent: String = ""
 
     private lateinit var viewModel: CustomVpnListViewModel
 
     @BeforeEach
     fun setup() {
-        every { mockSettingsRepository.settingsUpdates } returns settingsUpdates
+        every { mockCustomVpnRepository.configFlow } returns configUpdates
+        coEvery { mockCustomVpnRepository.fetchConfig() } returns Either.Right(null)
         coEvery { mockCustomVpnRepository.getCustomVpnStats() } returns
             GetCustomVpnConfigError.Unknown.left()
         every { mockContentResolver.openInputStream(uri) } answers
@@ -66,7 +70,6 @@ class CustomVpnListViewModelTest {
         viewModel =
             CustomVpnListViewModel(
                 isModal = false,
-                settingsRepository = mockSettingsRepository,
                 customVpnRepository = mockCustomVpnRepository,
                 ioDispatcher = UnconfinedTestDispatcher(),
             )
@@ -312,8 +315,6 @@ class CustomVpnListViewModelTest {
     }
 
     private fun initSettings(customVpnConfig: CustomVpnConfig? = null) {
-        val mockSettings = mockk<Settings>(relaxed = true)
-        every { mockSettings.customVpnConfig } returns customVpnConfig
-        settingsUpdates.value = mockSettings
+        configUpdates.tryEmit(customVpnConfig)
     }
 }

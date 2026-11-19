@@ -386,7 +386,6 @@ internal fun Settings.toDomain(): ModelSettings =
         splitTunnelSettings = split_tunnel!!.toDomain(),
         apiAccessMethodSettings = api_access_methods!!.toDomain(),
         recents = recents.toDomain(),
-        customVpnConfig = custom_vpn?.toDomain()?.firstOrNull(),
     )
 
 internal fun RelayOverride.toDomain(): ModelRelayOverride =
@@ -856,11 +855,13 @@ internal fun CustomVpnConfig.toDomain(): ModelCustomVpnConfig =
     )
 
 @Suppress("UnsafeCallOnNullableType")
-internal fun CustomVpnConfig.TunnelConfig.toDomain(): ModelTunnelConfig =
-    ModelTunnelConfig(
-        privateKey = ModelWireguardKey.from(private_key.base64()).getOrNull()!!,
+internal fun CustomVpnConfig.TunnelConfig.toDomain(): ModelTunnelConfig {
+    val pk = private_key ?: error("private key must be set")
+    return ModelTunnelConfig(
+        privateKey = ModelWireguardKey.from(pk.base64()).getOrNull()!!,
         tunnelIps = ips.toSet(),
     )
+}
 
 @Suppress("UnsafeCallOnNullableType")
 internal fun CustomVpnConfig.PeerConfig.toDomain(): ModelPeerConfig =

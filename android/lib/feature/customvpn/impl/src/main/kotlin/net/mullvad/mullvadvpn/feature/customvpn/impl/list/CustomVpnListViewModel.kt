@@ -17,11 +17,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -32,33 +32,29 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
-import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class CustomVpnListViewModel(
     isModal: Boolean,
-    settingsRepository: SettingsRepository,
     private val customVpnRepository: CustomVpnRepository,
     private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<CustomVpnListSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val settingsUpdates = settingsRepository.settingsUpdates.filterNotNull()
-
     val uiState: StateFlow<Lc<IsModal, CustomVpnListUiState>> =
         combine(
-                settingsUpdates,
+                customVpnRepository.configFlow,
                 customVpnStats(),
-            ) { settings, stats ->
+            ) { config, stats ->
                 Lc.Content(
                     CustomVpnListUiState(
-                        customVpnConfig = settings.customVpnConfig,
+                        customVpnConfig = config,
                         tunnelStats = stats,
                         isModal = isModal,
                     ),
                 )
             }
+            .onStart { customVpnRepository.fetchConfig() }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -88,9 +84,10 @@ class CustomVpnListViewModel(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun customVpnStats(): Flow<TunnelStats?> =
-        settingsUpdates
-            .map { it.customVpnConfig?.enabled == true }
+        customVpnRepository.configFlow
+            .map { it?.enabled == true }
             .distinctUntilChanged()
             .flatMapLatest { customVpnActive ->
                 if (customVpnActive) {
