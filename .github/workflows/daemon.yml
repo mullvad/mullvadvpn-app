@@ -120,7 +120,7 @@ jobs:
 
       - name: Run nftables snapshot tests
         if: ${{ matrix.rust == 'stable' }}
-        run: ci/cargo-ci.sh test -p talpid-core --test nftables_snapshot -- --ignored
+        run: ci/cargo-ci.sh test -p talpid-core --test nftables_snapshot --features cgroup2 -- --ignored
 
   build-macos:
     runs-on: macos-latest
