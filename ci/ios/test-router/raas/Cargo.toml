@@ -9,7 +9,7 @@ description = "RaaS stands for Router as a Service"
 [dependencies]
 anyhow = "1"
 axum = "0.7"
-env_logger = "0.10"
+env_logger = "0.11"
 futures = "0.3"
 ipnetwork = { version = "0.21", features = ["serde"] }
 libc = "0.2"

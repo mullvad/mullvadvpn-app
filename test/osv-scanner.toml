@@ -1,3 +1,24 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 #
 # Keep this file in sync with test/deny.toml
+
+# chrono is unmaintained. Ignored for six months since the code has no known issues that changes to our
+# code could trigger, it is just unmaintained.
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0543"
+ignoreUntil = 2027-05-18
+reason = """
+chrono is unmaintained.
+Version 0.4.45 can still be used safely (for now).
+"""
+
+# humantime is unmaintained by the virtue of chrono being unmaintained.
+# Ignored for six months since the code has no known issues that changes to our code could trigger,
+# it is just unmaintained.
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0542"
+ignoreUntil = 2027-05-18
+reason = """
+humantime is unmaintained.
+Version 2.4.0 can still be used safely (for now).
+"""
