@@ -10,7 +10,7 @@ license.workspace = true
 bytes = { workspace = true }
 http-body-util = { workspace = true }
 hyper = { workspace = true }
-hyper-rustls = { workspace = true, features = ["aws-lc-rs", "http2"] }
+hyper-rustls = { workspace = true, features = ["aws-lc-rs", "http1", "http2"] }
 hyper-util = { workspace = true }
 mullvad-tls-client.workspace = true
 serde = { workspace = true, features = ["derive"] }
