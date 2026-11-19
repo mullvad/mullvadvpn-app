@@ -11,6 +11,7 @@ pkgs.devshell.mkShell {
       buildToolsVersion
       ndkVersion
       minSdkVersion
+      rust-toolchain
       ;
   };
 
