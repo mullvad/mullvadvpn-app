@@ -8,6 +8,8 @@ in
 {
   inherit rust-toolchain-base;
 
+  cargoHome = "\${CARGO_HOME:-$HOME/.cargo}";
+
   commonPackages = [
     pkgs.git
     pkgs.gcc

@@ -60,6 +60,7 @@ in
     ndkVersion
     minSdkVersion
     ;
+  inherit (common-toolchain) cargoHome;
 
   packages =
     common-toolchain.commonPackages
