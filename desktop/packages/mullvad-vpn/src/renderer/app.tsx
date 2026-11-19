@@ -141,7 +141,11 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.settings.listenMigrationsChange((migrations) => {
-      this.reduxActions.settings.updateMigrations(migrations);
+      this.setMigrations(migrations);
+    });
+
+    IpcRendererEventChannel.settings.listenShadowsocksCiphersChange((shadowsocksCiphers) => {
+      this.setShadowsocksCiphers(shadowsocksCiphers);
     });
 
     IpcRendererEventChannel.daemon.listenConnected(() => {
