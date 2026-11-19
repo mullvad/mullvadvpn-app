@@ -12,41 +12,29 @@ import Foundation
 import MullvadRustRuntimeProxy
 
 public class MullvadApiMock {
-    private let mock: SwiftServerMock
+    private let mock: ServerMock
 
     public var port: UInt16 {
-        mock.port
+        mock.port()
     }
 
-    private init(_ mock: SwiftServerMock) {
+    private init(_ mock: ServerMock) {
         self.mock = mock
     }
 
     public static func get(path: String, responseCode: UInt, responseData: String) -> MullvadApiMock {
-        MullvadApiMock.get([(path, responseCode, responseData)])
+        let endpoint = MockEndpoint(path: path, responseCode: UInt64(responseCode), responseBody: responseData)
+        return .init(ServerMock.get(endpoints: [endpoint]))
     }
 
     public static func get(_ endpoints: [(path: String, responseCode: UInt, responseData: String)]) -> MullvadApiMock {
-        let cEndpoints = endpoints.map { p in
-            mullvad_api_mock_create_endpoint(
-                p.path,
-                p.responseCode,
-                p.responseData
-            )
+        let endpoints = endpoints.map { p in
+            MockEndpoint(path: p.path, responseCode: UInt64(p.responseCode), responseBody: p.responseData)
         }
-        let length = cEndpoints.count
-        let newMock = cEndpoints.withUnsafeBufferPointer { ptr in
-            mullvad_api_mock_get(ptr.baseAddress, UInt(length))
-        }
-        return MullvadApiMock(newMock)
+        return .init(ServerMock.get(endpoints: endpoints))
     }
 
     public static func post(path: String, responseCode: UInt, responseData: String) -> MullvadApiMock {
-        let newMock = mullvad_api_mock_post(path, responseCode, responseData)
-        return MullvadApiMock(newMock)
-    }
-
-    deinit {
-        mullvad_api_mock_drop(self.mock)
+        .init(ServerMock.post(path: path, responseCode: UInt64(responseCode), matchBody: responseData))
     }
 }
