@@ -1,3 +1,4 @@
+import { useInView } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -22,19 +23,23 @@ const StyledSlide = styled.div<{ $active: boolean }>`
 `;
 
 function CarouselSlide({ children, ...props }: CarouselSlideProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
   const id = React.useId();
   const { slides, slideIndex } = useCarouselContext();
   const isActiveSlide = slides[slideIndex]?.id === id;
 
+  const isInView = useInView(ref, { amount: 0.5 });
+
   return (
     <StyledSlide
+      ref={ref}
       id={id}
       tabIndex={-1}
       inert={!isActiveSlide}
       data-carousel-slide
       role="group"
       aria-roledescription="slide"
-      $active={isActiveSlide}
+      $active={isInView}
       {...props}>
       <Gallery>{children}</Gallery>
     </StyledSlide>
