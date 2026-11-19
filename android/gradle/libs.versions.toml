@@ -3,7 +3,7 @@
 # Updating the sdk version requires updating the version used in the build container.
 # See Bump SDK or container image template in Linear for more details.
 compile-sdk-major = "37"
-compile-sdk-minor = "0"
+compile-sdk-minor = "2"
 build-tools = "37.0.0"
 # Updating the min sdk version also requires updating docker/Dockerfile, scripts/sign.sh,
 # test/baselineprofile/build.gradle.kts and docs/BuildInstructions.md.
