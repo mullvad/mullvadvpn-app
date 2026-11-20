@@ -1,11 +1,11 @@
 //! NetworkManager is the one-stop-shop of network configuration on Linux.
+use std::collections::HashMap;
 use std::fs;
 use std::net::IpAddr;
 use std::time::Duration;
-use std::{collections::HashMap, time::Instant};
 
 use futures::StreamExt;
-use tokio::time::timeout;
+use tokio::time::{Instant, timeout_at};
 use zbus::{Array, Connection, ObjectPath, OwnedObjectPath, OwnedVariant, Str, Variant, proxy};
 
 use super::systemd_resolved;
@@ -172,19 +172,19 @@ impl NetworkManagerConnection {
         const DEVICE_READY_TIMEOUT: Duration = Duration::from_secs(15);
         let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
 
-        while let Some(state_update) = timeout(DEVICE_READY_TIMEOUT, state_changes.next())
-            .await
-            .map_err(|_| Error::DeviceNotReady(device_state))?
-        {
-            let state = state_update.args()?;
-            log::debug!("Received new tunnel state change: {:?}", state);
-            let new_state = state.new_state;
-            if device_is_ready(new_state) {
-                return Ok(());
-            } else if Instant::now() >= deadline {
-                return Err(Error::DeviceNotReady(new_state));
+        timeout_at(deadline, async {
+            let mut state = 0; // NM_STATE_UNKNOWN = 0
+            while let Some(state_update) = state_changes.next().await {
+                log::debug!("Received new tunnel state change: {:?}", state_update);
+                state = state_update.args()?.new_state;
+                if device_is_ready(state) {
+                    return Ok(());
+                }
             }
-        }
+            Err(Error::DeviceNotReady(state))
+        })
+        .await
+        .map_err(|_| Error::DeviceNotReady(device_state))??;
 
         Ok(())
     }
