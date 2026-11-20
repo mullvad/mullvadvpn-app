@@ -116,6 +116,16 @@ extension REST {
             delay: .constant(.seconds(1)),
             applyJitter: true
         )
+
+        public static let outgoingIP = RetryStrategy(
+            maxRetryCount: 5,
+            delay: .exponentialBackoff(
+                initial: .seconds(2),
+                multiplier: 2,
+                maxDelay: .minutes(1)
+            ),
+            applyJitter: true
+        )
     }
 
     public enum RetryDelay: Codable, Equatable, Sendable {
