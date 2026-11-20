@@ -3460,7 +3460,6 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
- "futures",
  "jnix",
  "log",
  "log-panics",
@@ -3593,6 +3592,7 @@ dependencies = [
  "talpid-platform-metadata",
  "thiserror 2.0.19",
  "tokio",
+ "tokio-stream",
  "tracing-subscriber",
  "uuid",
  "winresource",

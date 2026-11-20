@@ -1,15 +1,24 @@
-use jnix::{
-    FromJava, JnixEnv,
-    jni::{
-        JNIEnv,
-        objects::{JObject, JString},
-        sys::{JNI_FALSE, JNI_TRUE, jboolean, jint},
-    },
-};
+use jnix::jni::JNIEnv;
+use jnix::jni::objects::{JObject, JString};
+use jnix::jni::sys::{JNI_FALSE, JNI_TRUE, jboolean, jint};
+use jnix::{FromJava, JnixEnv};
 use mullvad_api::ApiEndpoint;
+use mullvad_daemon::runtime::new_current_thread;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::OnceLock;
 use talpid_error::ErrorExt;
+use tokio::runtime::Runtime;
+
+/// Problem report needs to work independently of the daemon - use a dedicated runtime.
+fn runtime() -> &'static Runtime {
+    static RT: OnceLock<Runtime> = OnceLock::new();
+    RT.get_or_init(|| {
+        new_current_thread()
+            .build()
+            .expect("failed to create tokio runtime")
+    })
+}
 
 #[unsafe(no_mangle)]
 #[expect(non_snake_case)]
@@ -40,7 +49,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportR
         pending_purchases,
     };
 
-    match futures::executor::block_on(collector.write_to_path(&output_path)) {
+    match runtime().block_on(collector.write_to_path(&output_path)) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
@@ -79,7 +88,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportR
     let api_endpoint =
         crate::api::api_endpoint_from_java(&env, endpoint).unwrap_or(ApiEndpoint::from_env_vars());
 
-    let send_result = mullvad_problem_report::send_problem_report(
+    let send = mullvad_problem_report::send_problem_report(
         &user_email,
         &user_message,
         account_token.as_deref(),
@@ -88,7 +97,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_lib_repository_ProblemReportR
         api_endpoint,
     );
 
-    match send_result {
+    match runtime().block_on(send) {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
