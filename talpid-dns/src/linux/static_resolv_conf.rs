@@ -1,10 +1,10 @@
 use futures::StreamExt;
 use inotify::{Inotify, WatchMask};
 use log::trace;
-use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
-use std::{fs, io, net::IpAddr, path::Path, sync::Arc};
+use std::{net::IpAddr, path::Path, sync::Arc};
 use talpid_error::ErrorExt;
+use tokio::{fs, io, sync::Mutex};
 use triggered::{Listener, Trigger, trigger};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";
@@ -36,8 +36,8 @@ pub struct StaticResolvConf {
 }
 
 impl StaticResolvConf {
-    pub fn new() -> Result<Self> {
-        restore_from_backup()?;
+    pub async fn new() -> Result<Self> {
+        restore_from_backup().await?;
 
         let state = Arc::new(Mutex::new(None));
         let watcher = DnsWatcher::start(state.clone())?;
@@ -48,12 +48,12 @@ impl StaticResolvConf {
         })
     }
 
-    pub fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
-        let mut state = self.state.lock();
+    pub async fn set_dns(&mut self, servers: Vec<IpAddr>) -> Result<()> {
+        let mut state = self.state.lock().await;
         let new_state = match state.take() {
             None => {
-                let backup = read_config()?.unwrap_or_default();
-                write_backup(&backup)?;
+                let backup = read_config().await?.unwrap_or_default();
+                write_backup(&backup).await?;
 
                 State {
                     backup,
@@ -70,13 +70,13 @@ impl StaticResolvConf {
 
         *state = Some(new_state);
 
-        write_config(&new_config)
+        write_config(&new_config).await
     }
 
-    pub fn reset(&mut self) -> Result<()> {
-        if let Some(state) = self.state.lock().take() {
-            write_config(&state.backup)?;
-            let _ = fs::remove_file(RESOLV_CONF_BACKUP_PATH);
+    pub async fn reset(&mut self) -> Result<()> {
+        if let Some(state) = self.state.lock().await.take() {
+            write_config(&state.backup).await?;
+            let _ = fs::remove_file(RESOLV_CONF_BACKUP_PATH).await;
         }
 
         Ok(())
@@ -154,9 +154,9 @@ impl DnsWatcher {
                     break;
                 },
                 Some(_) = events.next() => {
-                    let mut locked_state = state.lock();
+                    let mut locked_state = state.lock().await;
                     if let Some(state) = locked_state.as_mut()
-                        && let Err(error) = Self::update(state)
+                        && let Err(error) = Self::update(state).await
                     {
                         log::error!(
                             "{}",
@@ -170,8 +170,8 @@ impl DnsWatcher {
         }
     }
 
-    fn update(state: &mut State) -> Result<()> {
-        let mut new_config = read_config()?.unwrap_or_default();
+    async fn update(state: &mut State) -> Result<()> {
+        let mut new_config = read_config().await?.unwrap_or_default();
         let desired_nameservers = state
             .desired_dns
             .iter()
@@ -182,31 +182,31 @@ impl DnsWatcher {
             state.backup = new_config.clone();
             new_config.nameservers = desired_nameservers;
 
-            write_config(&new_config)
+            write_config(&new_config).await
         } else {
             new_config.nameservers.clear();
             new_config.nameservers.append(&mut state.backup.nameservers);
             state.backup = new_config;
 
-            write_backup(&state.backup)
+            write_backup(&state.backup).await
         }
     }
 }
 
 /// Read `resolv.conf` config from [RESOLV_CONF_PATH]. If [RESOLV_CONF_PATH] does not exist, return
 /// [`None`].
-fn read_config() -> Result<Option<Config>> {
-    read_config_at(RESOLV_CONF_PATH)
+async fn read_config() -> Result<Option<Config>> {
+    read_config_at(RESOLV_CONF_PATH).await
 }
 
 /// Read `resolv.conf` config from [RESOLV_CONF_BACKUP_PATH]. If [RESOLV_CONF_BACKUP_PATH] does not
 /// exist, return [`None`].
-fn read_backup() -> Result<Option<Config>> {
-    read_config_at(RESOLV_CONF_BACKUP_PATH)
+async fn read_backup() -> Result<Option<Config>> {
+    read_config_at(RESOLV_CONF_BACKUP_PATH).await
 }
 
-fn read_config_at(path: impl AsRef<Path>) -> Result<Option<Config>> {
-    match fs::read(&path) {
+async fn read_config_at(path: impl AsRef<Path>) -> Result<Option<Config>> {
+    match fs::read(&path).await {
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(None),
         Err(e) => Err(Error::ReadResolvConf(
             path.as_ref().display().to_string(),
@@ -218,27 +218,30 @@ fn read_config_at(path: impl AsRef<Path>) -> Result<Option<Config>> {
     }
 }
 
-fn write_config(config: &Config) -> Result<()> {
+async fn write_config(config: &Config) -> Result<()> {
     trace!("Writing to resolve.conf config");
     fs::write(RESOLV_CONF_PATH, config.to_string().as_bytes())
+        .await
         .map_err(|e| Error::WriteResolvConf(RESOLV_CONF_PATH, e))
 }
 
-fn write_backup(backup: &Config) -> Result<()> {
+async fn write_backup(backup: &Config) -> Result<()> {
     trace!("Writing to resolve.conf backup");
     fs::write(RESOLV_CONF_BACKUP_PATH, backup.to_string().as_bytes())
+        .await
         .map_err(|e| Error::WriteResolvConf(RESOLV_CONF_BACKUP_PATH, e))
 }
 
 /// Swap `resolv.conf` config at [RESOLV_CONF_BACKUP_PATH] to [RESOLV_CONF_PATH], deleting file at
 /// [RESOLV_CONF_BACKUP_PATH] upon completion.
-fn restore_from_backup() -> Result<()> {
-    let Some(config) = read_backup()? else {
+async fn restore_from_backup() -> Result<()> {
+    let Some(config) = read_backup().await? else {
         log::debug!("No DNS state backup to restore");
         return Ok(());
     };
     log::info!("Restoring DNS state from backup");
-    write_config(&config)?;
+    write_config(&config).await?;
     fs::remove_file(RESOLV_CONF_BACKUP_PATH)
+        .await
         .map_err(|e| Error::RemoveBackup(RESOLV_CONF_BACKUP_PATH, e))
 }
