@@ -13,7 +13,7 @@ resolv-conf = "0.7.6"
 serde.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "rt", "time"] }
-zbus.workspace = true
+zbus = { workspace = true, default-features = false, features = ["proxy", "service", "tokio"] }
 
 [target.'cfg(target_os = "linux")'.dev-dependencies]
 tokio = { workspace = true, features = ["macros"] }
