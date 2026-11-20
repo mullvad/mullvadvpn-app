@@ -12,5 +12,5 @@ export const FeatureIndicatorText = <T extends React.ElementType = 'span'>(
   props: FeatureIndicatorTextProps<T>,
 ) => {
   const { disabled } = useFeatureIndicatorContext();
-  return <StyledFeatureIndicatorText color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
+  return <StyledFeatureIndicatorText color={disabled ? 'whiteAlpha20' : 'white'} {...props} />;
 };
