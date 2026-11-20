@@ -58,7 +58,7 @@ fun SearchTextField(
     enabled: Boolean = true,
     singleLine: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+    @Suppress("DEPRECATION") visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit,
 ) {
     val textFieldState = rememberTextFieldState("")

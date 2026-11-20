@@ -48,7 +48,7 @@ fun CustomTextField(
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+    @Suppress("DEPRECATION") visualTransformation: VisualTransformation = VisualTransformation.None,
     colors: TextFieldColors = mullvadDarkTextFieldColors(),
     textStyle: TextStyle = LocalTextStyle.current,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
