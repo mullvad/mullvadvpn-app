@@ -25,6 +25,7 @@ talpid-logging.workspace = true
 talpid-platform-metadata.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
+tokio-stream = { workspace = true, features = ["fs"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 
 [build-dependencies]
