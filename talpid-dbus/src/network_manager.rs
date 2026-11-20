@@ -225,7 +225,9 @@ impl NetworkManagerConnection {
         }
     }
 
-    /// Enabled NetworkManager's connectivity check. Fails silently.
+    /// Enabled NetworkManager's connectivity check.
+    ///
+    /// Returns an error if the dbus connection is broken. Otherwise fails silently.
     pub async fn enable_connectivity_check(&self) -> zbus::Result<()> {
         let nm = NetworkManagerProxy::new(&self.connection).await?;
         let result = nm.set_connectivity_check_enabled(true).await;
