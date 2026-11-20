@@ -90,14 +90,16 @@ async fn run() -> Result<(), Error> {
                 &message.unwrap_or_default(),
                 None,
                 &report,
-            )?;
+            )
+            .await?;
+            println!("Problem report sent");
         }
     }
 
     Ok(())
 }
 
-fn send_problem_report(
+async fn send_problem_report(
     user_email: &str,
     user_message: &str,
     account_token: Option<&str>,
@@ -112,10 +114,9 @@ fn send_problem_report(
         &cache_dir,
         ApiEndpoint::from_env_vars(),
     )
+    .await
     .inspect_err(|error| {
         eprintln!("{}", error.display_chain());
     })?;
-
-    println!("Problem report sent");
     Ok(())
 }

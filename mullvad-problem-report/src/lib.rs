@@ -292,7 +292,7 @@ fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
     Ok(logcat_path)
 }
 
-pub fn send_problem_report(
+pub async fn send_problem_report(
     user_email: &str,
     user_message: &str,
     account_token: Option<&str>,
@@ -309,19 +309,15 @@ pub fn send_problem_report(
         })?,
     );
 
-    let runtime = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(2)
-        .enable_all()
-        .build()
-        .map_err(Error::CreateRuntime)?;
-    runtime.block_on(send_problem_report_inner(
+    send_problem_report_inner(
         user_email,
         user_message,
         account_token,
         &report_content,
         cache_dir,
         &endpoint,
-    ))
+    )
+    .await
 }
 
 async fn send_problem_report_inner(
