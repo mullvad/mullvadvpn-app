@@ -124,7 +124,6 @@ impl NetworkManagerConnection {
             .await
         {
             Ok((path, _result)) => path,
-            // Err(zbus::Error::XXX) => todo!("Handle DBUS_UNKNOWN_METHOD case"),
             Err(err) => {
                 log::error!(
                     "Failed to create a new interface via AddConnection2: {}",
