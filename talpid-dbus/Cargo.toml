@@ -15,5 +15,8 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "rt", "time"] }
 zbus.workspace = true
 
+[target.'cfg(target_os = "linux")'.dev-dependencies]
+tokio = { workspace = true, features = ["macros"] }
+
 [lints]
 workspace = true

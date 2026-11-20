@@ -274,7 +274,7 @@ impl NetworkManagerConnection {
             _ => (),
         };
 
-        if !verify_etc_resolv_conf_contents() {
+        if !verify_etc_resolv_conf_contents().await {
             log::debug!(
                 "/etc/resolv.conf differs from reference resolv.conf, therefore NM is not managing DNS"
             );
@@ -485,16 +485,17 @@ pub fn device_is_ready(device_state: u32) -> bool {
 }
 
 // Verify that the contents of /etc/resolv.conf match what NM expects them to be.
-fn verify_etc_resolv_conf_contents() -> bool {
-    let parse_resolv_conf_file = |path| {
-        let buf = fs::read(path).ok()?;
+async fn verify_etc_resolv_conf_contents() -> bool {
+    let parse_resolv_conf_file = async |path| {
+        let buf = fs::read(path).await.ok()?;
         resolv_conf::Config::parse(&buf).ok()
     };
 
-    let Some(actual_resolv_conf) = parse_resolv_conf_file("/etc/resolv.conf") else {
+    let Some(actual_resolv_conf) = parse_resolv_conf_file("/etc/resolv.conf").await else {
         return false;
     };
-    let Some(expected_resolv_conf) = parse_resolv_conf_file("/var/run/NetworkManager/resolv.conf")
+    let Some(expected_resolv_conf) =
+        parse_resolv_conf_file("/var/run/NetworkManager/resolv.conf").await
     else {
         return false;
     };
