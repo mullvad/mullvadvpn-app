@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -126,7 +127,7 @@ private fun Notification(modifier: Modifier = Modifier, notificationBannerData: 
             },
         )
         Text(
-            text = title.toUpperCase(),
+            text = title.toUpperCase(LocalLocaleList.current.first()),
             modifier =
                 Modifier.constrainAs(textTitle) {
                         top.linkTo(parent.top)
