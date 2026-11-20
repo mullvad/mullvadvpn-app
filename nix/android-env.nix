@@ -30,7 +30,7 @@ in
       "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${buildToolsVersion}/aapt2"
       "-Dorg.gradle.project.android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE"
       # Users may have set the cargo property, so we need to set it explicitly
-      "-Dorg.gradle.project.mullvad.build.cargo=${rust-toolchain}/bin/cargo"
+      "-Dorg.gradle.project.mullvad.build.cargo.command=${rust-toolchain}/bin/cargo"
     ];
   }
   {
