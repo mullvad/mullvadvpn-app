@@ -108,6 +108,17 @@ export async function getTeamMembers(team: string): Promise<Set<string>> {
   return new Set(members.map((m) => m.login));
 }
 
+export async function getExternalContributors(): Promise<Set<string>> {
+  const octokit = getOctokitClient();
+  const { owner } = context.repo;
+
+  const members = await octokit.paginate(octokit.rest.orgs.listOutsideCollaborators, {
+    org: owner,
+  });
+
+  return new Set(members.map((m) => m.login));
+}
+
 export async function isFork() {
   const client = getOctokitClient();
   const prNumber = context.payload.pull_request?.number;
