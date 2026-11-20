@@ -12,6 +12,7 @@ use http::Uri;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use tokio::net::TcpStream;
 use tracing::{Level, instrument};
+use vec1::Vec1;
 
 use crate::proxy::{ApiConnectionMode, ProxyConfig};
 
@@ -53,7 +54,7 @@ pub async fn resolve_with(config: &DfConfig) -> Option<ApiConnectionMode> {
         .ok()?;
 
     let addr = DfConfigResolved {
-        addr: proxy_config.addr,
+        addrs: proxy_config.addrs,
         front: config.front().clone(),
         proxy_host: config.proxy_host().to_string(),
         session_key: config.session_key().to_string(),
@@ -67,7 +68,7 @@ pub async fn resolve_with(config: &DfConfig) -> Option<ApiConnectionMode> {
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct DfConfigResolved {
     /// Resolved address of the fronting domain.
-    pub addr: SocketAddr,
+    pub addrs: Vec1<SocketAddr>,
 
     /// Domain that will be used to connect to a CDN.
     #[serde(serialize_with = "ser_display", deserialize_with = "de_from_str")]
