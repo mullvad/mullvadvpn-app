@@ -56,7 +56,7 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
             controller.navigationItem.rightBarButtonItem = doneButton
         }
 
-        navigationController.pushViewController(controller, animated: animated)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: animated)
     }
 }
 

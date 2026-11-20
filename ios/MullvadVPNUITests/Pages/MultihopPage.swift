@@ -20,8 +20,7 @@ class MultihopPage: Page {
     }
 
     @discardableResult func tapBackButton() -> Self {
-        // Workaround for setting accessibility identifier on navigation bar button being non-trivial
-        app.buttons.matching(identifier: "Settings").allElementsBoundByIndex.last?.tap()
+        app.buttons[.navigationBackButton].tap()
         return self
     }
 

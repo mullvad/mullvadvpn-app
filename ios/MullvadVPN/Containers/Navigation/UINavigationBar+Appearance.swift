@@ -71,12 +71,6 @@ extension UINavigationBar {
 
         navigationBarAppearance.buttonAppearance = plainBarButtonAppearance
         navigationBarAppearance.doneButtonAppearance = doneBarButtonAppearance
-        navigationBarAppearance.backButtonAppearance = backButtonAppearance
-
-        navigationBarAppearance.setBackIndicatorImage(
-            backIndicatorImage,
-            transitionMaskImage: backIndicatorTransitionMask
-        )
 
         return navigationBarAppearance
     }
@@ -93,6 +87,23 @@ extension UIBarButtonItem {
     static func mullvadCancelButton(primaryAction: UIAction) -> UIBarButtonItem {
         mullvadTextButton(
             title: NSLocalizedString("Cancel", comment: ""), textStyle: .body, primaryAction: primaryAction)
+    }
+
+    /// Text "Back" button without the iOS 26+ glass capsule or prominent checkmark rendering.
+    static func mullvadBackButton(navigationController: UINavigationController) -> UIBarButtonItem {
+        let backAction = UIAction(handler: { _ in
+            navigationController.popViewController(animated: true)
+        })
+        let image = UIImage.Buttons.back.withTintColor(
+            UIColor.NavigationBar.buttonColor,
+            renderingMode: .alwaysOriginal
+        )
+        let item = UIImageView(image: image)
+        item.contentMode = .scaleAspectFill
+        let barButtonItem = UIBarButtonItem(image: image, primaryAction: backAction)
+        barButtonItem.setAccessibilityIdentifier(.navigationBackButton)
+        barButtonItem.hidesSharedBackgroundIfAvailable()
+        return barButtonItem
     }
 
     static func mullvadTextButton(

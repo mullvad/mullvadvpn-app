@@ -37,7 +37,7 @@ struct ShadowsocksCipherPicker {
             completion(selectedItem.cipher)
         }
 
-        navigationController.pushViewController(controller, animated: true)
+        navigationController.pushViewControllerAddingCustomButtons(controller, animated: true)
     }
 }
 
