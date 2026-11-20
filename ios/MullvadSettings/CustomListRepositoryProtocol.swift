@@ -30,3 +30,28 @@ public protocol CustomListRepositoryProtocol {
     /// - Returns: all custom list model .
     func fetchAll() -> [CustomList]
 }
+
+public class CustomListsRepositoryStub: CustomListRepositoryProtocol {
+    var customLists: [CustomList]
+
+    public init(customLists: [CustomList] = []) {
+        self.customLists = customLists
+    }
+
+    public func save(list: CustomList) throws {
+        delete(id: list.id)
+        customLists.append(list)
+    }
+
+    public func delete(id: UUID) {
+        customLists.removeAll { $0.id == id }
+    }
+
+    public func fetch(by id: UUID) -> CustomList? {
+        customLists.first { $0.id == id }
+    }
+
+    public func fetchAll() -> [CustomList] {
+        customLists
+    }
+}

@@ -12,21 +12,23 @@ import MullvadTypes
 import SwiftUI
 
 struct CustomListLocationItemView: View {
-    let node: LocationNode
+    @Bindable var node: CustomListSelectableLocationNode
     let level: Int
-    @Binding var isSelected: Bool
 
     var title: String {
         node.name
     }
 
-    var isDisabled: Bool {
-        !node.isActive
-    }
-
     @ViewBuilder var statusIndicator: some View {
         let itemFactory = SegmentedListItemFactory()
-        itemFactory.statusIndicator(for: .checkbox(isOn: $isSelected))
+        Group {
+            itemFactory
+                .statusIndicator(for: .checkbox(isOn: $node.isCustomListSelected))
+            if !node.isActive {
+                itemFactory
+                    .statusIndicator(for: .dot(.offline))
+            }
+        }
     }
 
     var body: some View {
@@ -35,20 +37,19 @@ struct CustomListLocationItemView: View {
             level: level,
             statusIndicator: { statusIndicator }
         )
-        .disabled(isDisabled)
     }
 }
 
 #Preview {
-    @Previewable @State var isSelected: Bool = false
-
-    CustomListLocationItemView(
-        node: LocationNode(
+    @Previewable @State var node = CustomListSelectableLocationNode(
+        fromLocationNode: LocationNode(
             name: "A great location",
             code: "a-great-location"
-        ),
-        level: 0,
-        isSelected: $isSelected
+        ))
+
+    CustomListLocationItemView(
+        node: node,
+        level: 0
     )
     .background(Color.MullvadList.Item.parent)
 }
