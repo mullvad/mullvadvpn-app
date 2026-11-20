@@ -11,8 +11,10 @@ import { Button, ButtonProps, Flex, LabelTinySemiBold, Spinner } from '../lib/co
 import { Dialog } from '../lib/components/dialog';
 import { FlexColumn } from '../lib/components/flex-column';
 import { useSelector } from '../redux/store';
-import { StyledEmptyResponse, StyledInput } from './RedeemVoucherStyles';
+import { StyledAccountNumberMessageContainer, StyledEmptyResponse, StyledInput } from './RedeemVoucherStyles';
 import { StatusDialog } from './status-dialog';
+import { LogoutButton } from './LogoutButton';
+import { colors } from '../lib/foundations';
 
 const MIN_VOUCHER_LENGTH = 16;
 
@@ -175,19 +177,24 @@ export function RedeemVoucherResponse() {
         return <StyledEmptyResponse />;
       case 'invalid':
         return (
-          <FlexColumn gap="medium">
+          <>
             <LabelTinySemiBold color="red">
               {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
             </LabelTinySemiBold>
             {isAccountNumber(submittedValue) ? (
-              <LabelTinySemiBold>
-                {messages.pgettext(
-                  'redeem-voucher-view',
-                  'It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.',
-                )}
-              </LabelTinySemiBold>
+              <StyledAccountNumberMessageContainer>
+                <FlexColumn gap="medium">
+                  <LabelTinySemiBold color="white">
+                    {messages.pgettext(
+                      'redeem-voucher-view',
+                      'It looks like you’ve entered a Mullvad account number instead of a voucher code. Do you want to log in to an existing account? If so, click log out below to log in with the other account number.',
+                    )}
+                  </LabelTinySemiBold>
+                  <LogoutButton />
+                </FlexColumn>
+              </StyledAccountNumberMessageContainer>
             ) : null}
-          </FlexColumn>
+          </>
         );
       case 'already_used':
         return (

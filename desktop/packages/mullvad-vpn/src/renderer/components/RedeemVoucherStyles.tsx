@@ -22,3 +22,13 @@ export const StyledInput = styled(FormattableTextInput)(normalText, {
 export const StyledEmptyResponse = styled.span({
   height: '18px',
 });
+
+export const StyledAccountNumberMessageContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  alignSelf: 'start',
+  backgroundColor: colors.darkerBlue10Alpha80,
+  borderRadius: '8px',
+  padding: '16px',
+});
