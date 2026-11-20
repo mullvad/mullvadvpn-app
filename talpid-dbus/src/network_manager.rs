@@ -1,10 +1,10 @@
 //! NetworkManager is the one-stop-shop of network configuration on Linux.
 use std::collections::HashMap;
-use std::fs;
 use std::net::IpAddr;
 use std::time::Duration;
 
 use futures::StreamExt;
+use tokio::fs;
 use tokio::time::{Instant, timeout_at};
 use zbus::{Array, Connection, ObjectPath, OwnedObjectPath, OwnedVariant, Str, Variant, proxy};
 
