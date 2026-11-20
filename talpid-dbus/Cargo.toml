@@ -12,7 +12,7 @@ nix.workspace = true
 resolv-conf = "0.7.6"
 serde.workspace = true
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["rt", "time"] }
+tokio = { workspace = true, features = ["fs", "rt", "time"] }
 zbus.workspace = true
 
 [lints]
