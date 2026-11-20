@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.di
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.system.Os
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
@@ -15,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscationRepository
-import net.mullvad.mullvadvpn.feature.language.impl.LanguageRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -32,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotifi
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LanguageRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
@@ -74,9 +73,7 @@ val appModule = module {
     single { AccountExpiryNotificationActionUseCase(get(), get()) }
     // TODO Move these back to UiModule when fixDisableBug is removed
     single { AppObfuscationRepository(get(), get()) }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        single { LanguageRepository(androidContext()) }
-    }
+    single { LanguageRepository(androidContext()) }
     single<PackageManager> { androidContext().packageManager }
 
     single { NotificationChannel.TunnelUpdates } bind NotificationChannel::class
