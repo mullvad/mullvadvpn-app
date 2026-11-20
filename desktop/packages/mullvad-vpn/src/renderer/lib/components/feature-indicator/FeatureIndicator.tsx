@@ -29,6 +29,7 @@ const styles = {
 const StyledFeatureIndicator = styled.button<{
   $variant: FeatureIndicatorProps['variant'];
   $clickable?: boolean;
+  $inactive?: boolean;
 }>`
   ${({ $variant: variantProp = 'primary', $clickable }) => {
     const variant = styles.variants[variantProp];
@@ -42,7 +43,10 @@ const StyledFeatureIndicator = styled.button<{
 
       border-radius: ${Radius.radius8};
       background: ${variant.backgroundColor};
-      border: 1px solid ${variant.borderColor};
+
+      &&:not(:disabled) {
+        border: 1px solid ${variant.borderColor};
+      }
 
       ${() => {
         if ($clickable) {
@@ -58,9 +62,6 @@ const StyledFeatureIndicator = styled.button<{
         return null;
       }}
 
-      &&:disabled {
-        background: var(--disabled);
-      }
       &&:focus-visible {
         outline: 2px solid ${colors.white};
         outline-offset: -2px;
