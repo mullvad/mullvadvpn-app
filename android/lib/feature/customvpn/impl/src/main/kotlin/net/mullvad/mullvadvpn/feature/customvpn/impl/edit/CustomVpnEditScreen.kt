@@ -13,19 +13,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -299,32 +295,18 @@ fun LazyListScope.interfaceSection(
             ListHeader(text = stringResource(R.string.custom_tunnels_edit_interface))
 
             val error = privateKeyError.takeIf { it?.errorValue == privateKeyTextFieldState.text }
-            var showPassword by rememberSaveable { mutableStateOf(false) }
 
-            SecureTextField(
+            BiometricPasswordField(
                 modifier = Modifier.fillMaxWidth().focusChainItem(FormFocus.PRIVATE_KEY_KEY),
                 state = privateKeyTextFieldState,
                 label = { Text(stringResource(R.string.private_key)) },
                 isError = error != null,
                 placeholder = { Text(KEY_PLACEHOLDER) },
                 colors = mullvadDarkTextFieldColors(),
-                textObfuscationMode =
-                    if (showPassword) TextObfuscationMode.Visible
-                    else TextObfuscationMode.RevealLastTyped,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                trailingIcon = {
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            imageVector =
-                                if (showPassword) Icons.Outlined.VisibilityOff
-                                else Icons.Outlined.Visibility,
-                            contentDescription =
-                                if (showPassword) stringResource(id = R.string.hide_account_number)
-                                else stringResource(id = R.string.show_account_number),
-                        )
-                    }
-                },
                 supportingText = error?.let { { Text(it.toErrorMessage()) } },
+                authTitle = stringResource(R.string.authentication_required),
+                authSubtitle = stringResource(R.string.show_private_key_auth_subtitle),
             )
         }
     }

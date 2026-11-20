@@ -16,4 +16,6 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.biometric.compose)
 }
