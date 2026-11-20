@@ -113,7 +113,7 @@ tokio = { workspace = true, features = [
   "sync",
   "time",
 ] }
-tokio-stream = { version = "0.1", features = ["sync"] }
+tokio-stream = { workspace = true, features = ["sync"] }
 tracing-appender = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["chrono"] }
 
