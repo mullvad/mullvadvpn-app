@@ -169,7 +169,7 @@ impl HttpsConnector {
             // Set up a TCP-socket connection.
             ApiConnectionMode::Direct => {
                 let first_hop = addr;
-                let make_proxy_stream = |tcp_stream| async { Ok(tcp_stream) };
+                let make_proxy_stream = async |tcp_stream| Ok(tcp_stream);
                 proxyer
                     .connect_proxied(first_hop, make_proxy_stream)
                     .await?
@@ -178,7 +178,7 @@ impl HttpsConnector {
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks)) => {
                 let first_hop = shadowsocks.endpoint;
                 let proxy_context = SsContext::new_shared(ServerType::Local);
-                let make_proxy_stream = |tcp_stream| async {
+                let make_proxy_stream = async |tcp_stream| {
                     Ok(ProxyClientStream::from_stream(
                         proxy_context,
                         tcp_stream,
@@ -199,7 +199,7 @@ impl HttpsConnector {
             ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(config)) => {
                 let first_hop =
                     SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port);
-                let make_proxy_stream = |tcp_stream| async {
+                let make_proxy_stream = async |tcp_stream| {
                     tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
                         .await
                         .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
@@ -210,7 +210,7 @@ impl HttpsConnector {
             }
             ApiConnectionMode::Proxied(ProxyConfig::Socks5Remote(socks)) => {
                 let first_hop = socks.endpoint;
-                let make_proxy_stream = |tcp_stream| async {
+                let make_proxy_stream = async |tcp_stream| {
                     match &socks.auth {
                         None => {
                             tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
@@ -234,7 +234,7 @@ impl HttpsConnector {
             }
             ApiConnectionMode::Proxied(ProxyConfig::EncryptedDnsProxy(proxy_config)) => {
                 let first_hop = SocketAddr::V4(proxy_config.addr);
-                let make_proxy_stream = |tcp_stream| async {
+                let make_proxy_stream = async |tcp_stream| {
                     let forwarder = EncryptedDNSForwarder::from_stream(proxy_config, tcp_stream);
                     Ok(forwarder)
                 };
@@ -246,12 +246,17 @@ impl HttpsConnector {
                 let use_http2 = crate::domain_fronting::USE_HTTP2;
                 let domain_fronting = &config.config();
                 let connect_tls = async || {
-                    let tcp_stream = open_socket(
-                        config.addr,
-                        #[cfg(target_os = "android")]
-                        self.socket_bypass_tx.clone(),
-                    )
-                    .await?;
+                    #[cfg(target_os = "android")]
+                    let socket_bypass_tx = self.socket_bypass_tx.clone();
+                    let tcp_stream =
+                        domain_fronting::happy_eyeballs::connect(&config.addrs, move |addr| {
+                            open_socket(
+                                addr,
+                                #[cfg(target_os = "android")]
+                                socket_bypass_tx.clone(),
+                            )
+                        })
+                        .await?;
                     crate::domain_fronting::cdn_tls_connect(
                         tcp_stream,
                         domain_fronting.front_host(),
