@@ -1,8 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { spacings } from '../../../../foundations';
 import { useCarouselContext } from '../../CarouselContext';
 import { CarouselSlide } from './components';
+import { useEffectHandleSnapChange } from './hooks';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
@@ -12,6 +14,10 @@ export const StyledCarouselSlides = styled.div`
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
 
+  display: flex;
+  width: 100%;
+  gap: ${spacings.medium};
+
   &&::-webkit-scrollbar {
     display: none;
   }
@@ -19,6 +25,8 @@ export const StyledCarouselSlides = styled.div`
 
 function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const { slidesRef } = useCarouselContext();
+
+  useEffectHandleSnapChange();
 
   return (
     <StyledCarouselSlides

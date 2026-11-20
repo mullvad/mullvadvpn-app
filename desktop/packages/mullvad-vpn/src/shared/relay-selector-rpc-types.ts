@@ -68,8 +68,6 @@ export type RelaySelectorPredicateEntryConstraints = {
   ipVersion: Constraint<IpVersion>;
 };
 
-export type RelaySelectorPredicateAutohopConstraints = RelaySelectorPredicateEntryConstraints;
-
 export type RelaySelectorPredicateMultihopConstraints = {
   entry: RelaySelectorPredicateEntryConstraints;
   exit: RelaySelectorPredicateGeneralConstraints;
@@ -82,7 +80,7 @@ export type RelaySelectorPredicate =
     }
   | {
       type: 'autohop';
-      constraints: RelaySelectorPredicateAutohopConstraints;
+      constraints: RelaySelectorPredicateEntryConstraints;
     }
   | {
       type: 'multihopEntry';
