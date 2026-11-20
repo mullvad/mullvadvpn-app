@@ -3696,6 +3696,9 @@ msgstr ""
 msgid "Attention: With the “Automatic” location, filters are ignored for the entry server."
 msgstr ""
 
+msgid "Authentication required"
+msgstr ""
+
 msgid "Auto-connect & Lockdown mode"
 msgstr ""
 
@@ -3949,6 +3952,9 @@ msgid "Google Play payment verification failed"
 msgstr ""
 
 msgid "Google Play unavailable"
+msgstr ""
+
+msgid "Hide text"
 msgstr ""
 
 msgid "How it works"
@@ -4278,6 +4284,9 @@ msgstr ""
 msgid "Show system apps"
 msgstr ""
 
+msgid "Show text"
+msgstr ""
+
 msgid "Shows current VPN tunnel status"
 msgstr ""
 
@@ -4486,6 +4495,9 @@ msgid "Valid range for all servers: %s"
 msgstr ""
 
 msgid "Value: %s"
+msgstr ""
+
+msgid "Verify your identity to view the private key"
 msgstr ""
 
 msgid "Verifying API method..."

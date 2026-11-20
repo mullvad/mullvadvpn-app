@@ -632,4 +632,8 @@
     <string name="custom_tunnels_name_cannot_be_empty">Name cannot be empty</string>
     <string name="custom_tunnels_form_contains_errors_message">Unable to save the configuration. Please correct the errors in the form and try again.</string>
     <string name="custom_tunnels_form_saved_success">Configuration saved.</string>
+    <string name="hide_text">Hide text</string>
+    <string name="show_text">Show text</string>
+    <string name="authentication_required">Authentication required</string>
+    <string name="show_private_key_auth_subtitle">Verify your identity to view the private key</string>
 </resources>
