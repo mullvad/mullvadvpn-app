@@ -23,9 +23,10 @@ use proto::{
     EphemeralPeerRequestV1, EphemeralPeerResponseV1, PostQuantumResponseV1,
     ephemeral_peer_server::{EphemeralPeer, EphemeralPeerServer},
 };
-use rand_core::{CryptoRng, RngCore};
 use talpid_types::net::wireguard::PresharedKey;
 
+use ml_kem::kem::{Encapsulate, Kem};
+use ml_kem::{Key, MlKem1024};
 use tonic::{Request, Response, Status, transport::Server};
 
 #[derive(Debug, Default)]
@@ -37,7 +38,6 @@ impl EphemeralPeer for EphemeralPeerImpl {
         &self,
         request: Request<EphemeralPeerRequestV1>,
     ) -> Result<Response<EphemeralPeerResponseV1>, Status> {
-        let mut rng = rand_core::OsRng;
         let request = request.into_inner();
 
         println!("wg_parent_pubkey: {:?}", request.wg_parent_pubkey);
@@ -57,7 +57,7 @@ impl EphemeralPeer for EphemeralPeerImpl {
             for kem_pubkey in post_quantum.kem_pubkeys {
                 println!("\tKEM algorithm: {}", kem_pubkey.algorithm_name);
                 let (ciphertext, shared_secret) = match kem_pubkey.algorithm_name.as_str() {
-                    "ML-KEM-1024" => encapsulate_ml_kem(kem_pubkey.key_data.as_slice(), &mut rng),
+                    "ML-KEM-1024" => encapsulate_ml_kem(kem_pubkey.key_data.as_slice()),
                     "HQC-256" => encapsulate_hqc(kem_pubkey.key_data.as_slice()),
                     name => panic!("Unsupported KEM algorithm: {name}"),
                 };
@@ -89,18 +89,13 @@ impl EphemeralPeer for EphemeralPeerImpl {
 /// Generate a random shared secret and encapsulate it with the given
 /// public key/encapsulation key. Returns the ciphertext to return
 /// to the owner of the public key, along with the shared secret.
-fn encapsulate_ml_kem<R: RngCore + CryptoRng>(
-    public_key: &[u8],
-    rng: &mut R,
-) -> (Vec<u8>, [u8; 32]) {
-    use ml_kem::{Encoded, EncodedSizeUser, KemCore, MlKem1024, kem::Encapsulate};
+fn encapsulate_ml_kem(public_key: &[u8]) -> (Vec<u8>, [u8; 32]) {
+    type EncapsulationKey = <MlKem1024 as Kem>::EncapsulationKey;
 
-    type EncapsulationKey = <MlKem1024 as KemCore>::EncapsulationKey;
+    let encapsulation_key_array: Key<EncapsulationKey> = public_key.try_into().unwrap();
+    let encapsulation_key = EncapsulationKey::new(&encapsulation_key_array).unwrap();
 
-    let encapsulation_key_array = <Encoded<EncapsulationKey>>::try_from(public_key).unwrap();
-    let encapsulation_key = EncapsulationKey::from_bytes(&encapsulation_key_array);
-
-    let (ciphertext, shared_secret) = encapsulation_key.encapsulate(rng).unwrap();
+    let (ciphertext, shared_secret) = encapsulation_key.encapsulate();
 
     (ciphertext.to_vec(), shared_secret.into())
 }
