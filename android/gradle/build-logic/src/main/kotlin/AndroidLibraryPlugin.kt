@@ -24,8 +24,6 @@ class AndroidLibraryPlugin : Plugin<Project> {
 
                 lint {
                     lintConfig = file("${project.rootDir}/config/lint.xml")
-                    baseline =
-                        file("${rootProject.projectDir.absolutePath}/config/lint-baseline.xml")
                     abortOnError = true
                     warningsAsErrors = true
                 }
