@@ -37,7 +37,7 @@ talpid-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "rt-multi-thread", "sync"] }
 tokio-util = { workspace = true, features = ["rt"] }
-udp-over-tcp = { workspace = true }
+udp2tcp.workspace = true
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }

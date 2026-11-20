@@ -9,7 +9,7 @@ use tokio::{
     sync::{Mutex, mpsc},
 };
 use tokio_util::task::AbortOnDropHandle;
-use udp_over_tcp::{DatagramSocket, HEADER_LEN, process_udp_over_tcp};
+use udp2tcp::{DatagramSocket, HEADER_LEN, process_udp_over_tcp};
 
 use crate::transport::ObfuscatedTransport;
 
@@ -50,9 +50,9 @@ pub enum Error {
     SetNodelay(#[source] io::Error),
 }
 
-/// Forwards datagrams over a TCP stream, using the `udp-over-tcp` protocol.
+/// Forwards datagrams over a TCP stream, using the `udp2tcp` protocol.
 ///
-/// The framing is done by `udp-over-tcp`'s forwarder, which owns the TCP stream and runs as a
+/// The framing is done by `udp2tcp`'s forwarder, which owns the TCP stream and runs as a
 /// background task. It picks datagrams up from, and delivers them to, a pair of in-memory queues,
 /// so [Self::send] and [Self::recv] only ever touch those queues.
 pub struct Udp2Tcp {
@@ -104,7 +104,7 @@ impl Udp2Tcp {
         let peer = settings.peer;
         let forwarder = tokio::spawn(async move {
             if let Err(err) = forward(queues, tcp_socket, peer).await {
-                log::error!("The udp-over-tcp forwarder stopped: {err}");
+                log::error!("The udp2tcp forwarder stopped: {err}");
             }
         });
 
@@ -158,7 +158,7 @@ async fn forward(queues: Queues, tcp_socket: TcpSocket, peer: SocketAddr) -> Res
 
 /// The forwarder's end of the queues that [Udp2Tcp] holds the other end of.
 ///
-/// This stands in for the UDP socket that `udp-over-tcp` would otherwise read datagrams from and
+/// This stands in for the UDP socket that `udp2tcp` would otherwise read datagrams from and
 /// write them to, which lets the datagrams stay in memory rather than take a trip through the
 /// kernel.
 struct Queues {
@@ -198,10 +198,7 @@ fn copy_datagram(datagram: &[u8], buf: &mut [u8]) -> io::Result<usize> {
 }
 
 fn stopped() -> io::Error {
-    io::Error::new(
-        io::ErrorKind::BrokenPipe,
-        "the udp-over-tcp forwarder stopped",
-    )
+    io::Error::new(io::ErrorKind::BrokenPipe, "the udp2tcp forwarder stopped")
 }
 
 #[cfg(test)]
@@ -214,7 +211,7 @@ mod test {
     };
 
     /// Send a packet in each direction and assert that it appears on the TCP stream with the
-    /// length header that the `udp-over-tcp` protocol prescribes.
+    /// length header that the `udp2tcp` protocol prescribes.
     #[tokio::test]
     async fn test_length_prefixed_framing() {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
