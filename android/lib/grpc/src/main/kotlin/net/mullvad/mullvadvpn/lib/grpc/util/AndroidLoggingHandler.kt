@@ -35,6 +35,14 @@ class AndroidLoggingHandler : Handler() {
         // No-op, not required since we have nothing to close
     }
 
+    private fun Level.toSeverity(): Severity =
+        when (this) {
+            Level.SEVERE -> Severity.Error
+            Level.WARNING -> Severity.Warn
+            Level.INFO -> Severity.Info
+            else -> Severity.Debug
+        }
+
     companion object {
         const val MAX_TAG_LENGTH = 30
 
@@ -47,11 +55,3 @@ class AndroidLoggingHandler : Handler() {
         }
     }
 }
-
-private fun Level.toSeverity(): Severity =
-    when (this) {
-        Level.SEVERE -> Severity.Error
-        Level.WARNING -> Severity.Warn
-        Level.INFO -> Severity.Info
-        else -> Severity.Debug
-    }

@@ -9,7 +9,6 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
-import utilities.configureMissingTranslationCheck
 import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
@@ -61,12 +60,9 @@ android {
 
         lint {
             lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-            baseline = file("${rootProject.projectDir}/config/lint-baseline.xml")
             abortOnError = true
             checkAllWarnings = true
             warningsAsErrors = true
-            checkDependencies = true
-            configureMissingTranslationCheck(project, appVersion)
         }
     }
 

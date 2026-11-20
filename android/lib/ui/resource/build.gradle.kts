@@ -27,7 +27,10 @@ android {
         }
     }
 
-    lint { configureMissingTranslationCheck(project, appVersion) }
+    lint {
+        baseline = File("lint-baseline.xml")
+        configureMissingTranslationCheck(project, appVersion)
+    }
 }
 
 dependencies {

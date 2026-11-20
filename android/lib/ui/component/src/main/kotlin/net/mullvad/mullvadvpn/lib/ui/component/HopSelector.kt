@@ -98,6 +98,7 @@ private fun PreviewCollapsibleSinglehopSelector() {
 
     AppTheme {
         Column(Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)) {
+            @Suppress("DEPRECATION")
             Slider(
                 value = progress,
                 modifier = Modifier.padding(20.dp),
@@ -126,6 +127,7 @@ private fun PreviewCollapsibleMultihopSelector() {
 
     AppTheme {
         Column(Modifier.background(MaterialTheme.colorScheme.background).padding(16.dp)) {
+            @Suppress("DEPRECATION")
             Slider(
                 value = progress,
                 modifier = Modifier.padding(20.dp),

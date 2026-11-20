@@ -16,8 +16,6 @@ android {
                 )
         }
     }
-
-    lint { baseline = file("${rootProject.projectDir.absolutePath}/config/lint-baseline.xml") }
 }
 
 dependencies {

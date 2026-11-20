@@ -121,39 +121,39 @@ class FilteredRelayListUseCase(
     private fun List<RelayItem.Location.Country>.filter(
         validHostnames: Map<PartitionHostname, NeedsOtherEntry>,
     ): List<FilteredCountry> = mapNotNull { it.filter(validHostnames) }
+
+    private fun Settings.toEntryConstraint(
+        overrideExitLocation: Constraint<RelayItemId>? = null,
+        ownershipProviderSource: RelayHopType = RelayHopType.EXIT,
+    ): EntryConstraints =
+        EntryConstraints(
+            generalConstraints =
+                ExitConstraints(
+                    location = overrideExitLocation ?: relaySettings.relayConstraints.location,
+                    providers =
+                        when (ownershipProviderSource) {
+                            RelayHopType.ENTRY ->
+                                relaySettings.relayConstraints.wireguardConstraints.entryProviders
+                            RelayHopType.EXIT -> relaySettings.relayConstraints.providers
+                        },
+                    ownership =
+                        when (ownershipProviderSource) {
+                            RelayHopType.ENTRY ->
+                                relaySettings.relayConstraints.wireguardConstraints.entryOwnership
+                            RelayHopType.EXIT -> relaySettings.relayConstraints.ownership
+                        },
+                ),
+            obfuscation = Constraint.Only(obfuscationSettings),
+            daitaSettings = Constraint.Only(tunnelOptions.daitaSettings),
+            ipVersion = relaySettings.relayConstraints.wireguardConstraints.ipVersion,
+        )
+
+    private fun Settings.toExitConstraint(
+        overrideEntryLocation: Constraint<RelayItemId>? = null,
+    ): ExitConstraints =
+        ExitConstraints(
+            location = overrideEntryLocation ?: relaySettings.relayConstraints.location,
+            providers = relaySettings.relayConstraints.providers,
+            ownership = relaySettings.relayConstraints.ownership,
+        )
 }
-
-private fun Settings.toEntryConstraint(
-    overrideExitLocation: Constraint<RelayItemId>? = null,
-    ownershipProviderSource: RelayHopType = RelayHopType.EXIT,
-): EntryConstraints =
-    EntryConstraints(
-        generalConstraints =
-            ExitConstraints(
-                location = overrideExitLocation ?: relaySettings.relayConstraints.location,
-                providers =
-                    when (ownershipProviderSource) {
-                        RelayHopType.ENTRY ->
-                            relaySettings.relayConstraints.wireguardConstraints.entryProviders
-                        RelayHopType.EXIT -> relaySettings.relayConstraints.providers
-                    },
-                ownership =
-                    when (ownershipProviderSource) {
-                        RelayHopType.ENTRY ->
-                            relaySettings.relayConstraints.wireguardConstraints.entryOwnership
-                        RelayHopType.EXIT -> relaySettings.relayConstraints.ownership
-                    },
-            ),
-        obfuscation = Constraint.Only(obfuscationSettings),
-        daitaSettings = Constraint.Only(tunnelOptions.daitaSettings),
-        ipVersion = relaySettings.relayConstraints.wireguardConstraints.ipVersion,
-    )
-
-private fun Settings.toExitConstraint(
-    overrideEntryLocation: Constraint<RelayItemId>? = null,
-): ExitConstraints =
-    ExitConstraints(
-        location = overrideEntryLocation ?: relaySettings.relayConstraints.location,
-        providers = relaySettings.relayConstraints.providers,
-        ownership = relaySettings.relayConstraints.ownership,
-    )

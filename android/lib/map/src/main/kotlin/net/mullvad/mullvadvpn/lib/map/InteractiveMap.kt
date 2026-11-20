@@ -347,7 +347,7 @@ private fun Offset.coerceIn(
         y.coerceIn(yMin, yMax),
     )
 
-private fun LatLong.toOffset(): Offset = Offset(longitude.value, latitude.value)
+internal fun LatLong.toOffset(): Offset = Offset(longitude.value, latitude.value)
 
 private fun Offset.unwind(): Offset = Offset(Longitude.unwind(x), Latitude.unwind(y))
 

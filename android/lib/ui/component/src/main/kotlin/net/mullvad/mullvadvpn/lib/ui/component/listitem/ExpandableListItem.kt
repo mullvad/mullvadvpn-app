@@ -58,6 +58,10 @@ fun ExpandableListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
+        isExpanded = isExpanded,
+        isEnabled = isEnabled,
+        onCellClicked = onCellClicked,
+        onInfoClicked = onInfoClicked,
         content = {
             Text(
                 text = title,
@@ -65,10 +69,6 @@ fun ExpandableListItem(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        isExpanded = isExpanded,
-        isEnabled = isEnabled,
-        onCellClicked = onCellClicked,
-        onInfoClicked = onInfoClicked,
     )
 }
 
@@ -77,12 +77,12 @@ fun ExpandableListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
-    content: @Composable (BoxScope) -> Unit,
     isExpanded: Boolean,
     isEnabled: Boolean = true,
     backgroundAlpha: Float = 1f,
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
+    content: @Composable (BoxScope) -> Unit,
 ) {
     MullvadListItem(
         modifier = modifier.applyIfNotNull(onInfoClicked) { focusProperties { canFocus = false } },

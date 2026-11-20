@@ -64,7 +64,7 @@ fun ObfuscationModeListItem(
         onClick = { onSelected(obfuscationMode) },
         testTag = testTag,
         mainClickArea = ListItemClickArea.LeadingAndMain,
-        trailingContent = {
+        content = {
             DividerButton(
                 modifier = Modifier.testTag(buttonRightTestTag),
                 onClick = onNavigate,

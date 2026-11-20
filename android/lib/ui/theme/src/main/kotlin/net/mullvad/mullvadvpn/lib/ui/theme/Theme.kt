@@ -104,6 +104,7 @@ fun AppTheme(content: @Composable () -> Unit) {
             shapes = Shapes,
             typography = typography,
             content = {
+                @Suppress("DEPRECATION")
                 CompositionLocalProvider(
                     LocalRippleConfiguration provides
                         RippleConfiguration(rippleAlpha = rippleAlpha),

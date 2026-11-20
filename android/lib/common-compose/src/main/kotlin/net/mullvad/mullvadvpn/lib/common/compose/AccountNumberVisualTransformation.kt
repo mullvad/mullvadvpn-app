@@ -27,6 +27,7 @@ fun accountNumberVisualTransformation(showAccount: Boolean = true, showLastX: In
             inputString.chunked(ACCOUNT_NUMBER_CHUNK_SIZE).joinToString(ACCOUNT_NUMBER_SEPARATOR)
         val transformedAnnotatedString = AnnotatedString(transformedString)
 
+        @Suppress("DEPRECATION")
         TransformedText(
             transformedAnnotatedString,
             object : OffsetMapping {

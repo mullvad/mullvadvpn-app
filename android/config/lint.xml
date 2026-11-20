@@ -14,4 +14,6 @@
     <issue id="ObsoleteLintCustomCheck" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="OldTargetApi" severity="ignore" />
+    <!-- Disabled since app icon depend on app version (dev/alpha/beta/stable) resulting it being hard to baseline -->
+    <issue id="ConvertToWebp" severity="ignore" />
 </lint>

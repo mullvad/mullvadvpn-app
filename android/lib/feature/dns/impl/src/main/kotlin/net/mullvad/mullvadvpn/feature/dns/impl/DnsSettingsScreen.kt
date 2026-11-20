@@ -385,7 +385,6 @@ private fun Content(
         item(key = ContentKey.DNS_CONTENT_BLOCKERS) {
             ContentBlockers(
                 focusDnsBlockersRequester = focusDnsBlockersRequester,
-                highlightBackgroundAlpha = { highlightBackgroundAlpha(it) },
                 numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
                 contentBlockersEnabled = state.contentBlockersEnabled,
                 defaultDnsOptions = state.defaultDnsOptions,
@@ -397,6 +396,7 @@ private fun Content(
                 onToggleBlockGambling = onToggleBlockGambling,
                 onToggleBlockSocialMedia = onToggleBlockSocialMedia,
                 navigateToMalwareInfo = navigateToMalwareInfo,
+                highlightBackgroundAlpha = { highlightBackgroundAlpha(it) },
             )
         }
 
@@ -487,12 +487,13 @@ private fun LazyItemScope.Description() {
 
 @Composable
 private fun LazyItemScope.ContentBlockersHeader(
-    highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
     numberOfBlockersEnabled: Int,
+    highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
 ) {
     InfoListItem(
         modifier = Modifier.animateItem(),
         position = Position.Top,
+        backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.DNS_CONTENT_BLOCKERS),
         content = {
             Row {
                 Text(
@@ -511,7 +512,6 @@ private fun LazyItemScope.ContentBlockersHeader(
                 }
             }
         },
-        backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.DNS_CONTENT_BLOCKERS),
     )
     HorizontalDivider(modifier = Modifier.animateItem(), color = Color.Transparent)
 }
@@ -520,7 +520,6 @@ private fun LazyItemScope.ContentBlockersHeader(
 @Composable
 private fun LazyItemScope.ContentBlockers(
     focusDnsBlockersRequester: FocusRequester,
-    highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
     numberOfBlockersEnabled: Int,
     contentBlockersEnabled: Boolean,
     defaultDnsOptions: DefaultDnsOptions,
@@ -532,6 +531,7 @@ private fun LazyItemScope.ContentBlockers(
     onToggleBlockGambling: (Boolean) -> Unit,
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
+    highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
 ) {
     ContentBlockersHeader(
         numberOfBlockersEnabled = numberOfBlockersEnabled,

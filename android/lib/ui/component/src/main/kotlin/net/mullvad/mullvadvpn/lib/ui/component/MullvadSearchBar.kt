@@ -27,6 +27,7 @@ fun MullvadSearchBar(
     onGoBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    @Suppress("DEPRECATION")
     SearchBarDefaults.InputField(
         modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
         query = searchTerm,

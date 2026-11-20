@@ -20,6 +20,7 @@ fun vouchersVisualTransformation() = VisualTransformation { text ->
     ) {
         out += VOUCHER_SEPARATOR
     }
+    @Suppress("DEPRECATION")
     TransformedText(
         AnnotatedString(out),
         object : OffsetMapping {

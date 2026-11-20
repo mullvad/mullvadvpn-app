@@ -199,9 +199,7 @@ private fun MultihopOptionsList(
             onClick = { onMultihopModeSelected(MultihopMode.WHEN_NEEDED) },
             mainClickArea = ListItemClickArea.LeadingAndMain,
             title = stringResource(R.string.when_needed),
-            trailingContent = {
-                DividerButton(onClick = onWhenNeededInfoClick, icon = Icons.Rounded.Info)
-            },
+            content = { DividerButton(onClick = onWhenNeededInfoClick, icon = Icons.Rounded.Info) },
         )
         HorizontalDivider()
         SelectableListItem(
