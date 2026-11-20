@@ -142,20 +142,19 @@ pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
 
 /// Get VPN tunnel interface name
 pub async fn get_tunnel_interface(client: MullvadProxyClient) -> anyhow::Result<String> {
-    let tunnel_state = wait_for_tunnel_state(client, |state| {
-        state.is_connected() || state.is_connecting()
-    })
-    .await?;
+    let tunnel_state =
+        wait_for_tunnel_state(client, |state| state_tunnel_interface(state).is_some()).await?;
 
-    match tunnel_state {
-        TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
-            let Some(tunnel_interface) = endpoint.tunnel_interface else {
-                bail!("Unknown tunnel interface");
-            };
-            Ok(tunnel_interface)
-        }
-        _ => bail!("Tunnel is not up"),
-    }
+    let tunnel_interface =
+        state_tunnel_interface(&tunnel_state).expect("wait succeeds if tunnel interface exists");
+
+    Ok(tunnel_interface)
+}
+
+fn state_tunnel_interface(state: &TunnelState) -> Option<String> {
+    state
+        .endpoint()
+        .and_then(|endpoint| endpoint.tunnel_interface.clone())
 }
 
 /// Sends a number of probes and returns the number of observed packets (UDP, TCP, or ICMP)
