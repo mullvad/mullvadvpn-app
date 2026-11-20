@@ -9,7 +9,7 @@ use tokio::{
     sync::{Mutex, mpsc},
 };
 use tokio_util::task::AbortOnDropHandle;
-use udp_over_tcp::{DatagramSocket, HEADER_LEN, process_udp_over_tcp};
+use udp2tcp::{DatagramSocket, HEADER_LEN, process_udp_over_tcp};
 
 use crate::transport::ObfuscatedTransport;
 
