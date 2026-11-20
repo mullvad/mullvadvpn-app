@@ -1,15 +1,15 @@
+use std::borrow::Cow;
+use std::cmp::min;
+use std::collections::{BTreeMap, HashSet};
+use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
+use tokio::fs::{self, File};
+use tokio::io::{self, AsyncReadExt, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter, SeekFrom};
+use tokio_stream::StreamExt;
+
 use mullvad_api::{ApiEndpoint, proxy::ApiConnectionMode};
 use regex::Regex;
-use std::{
-    borrow::Cow,
-    cmp::min,
-    collections::{BTreeMap, HashSet},
-    ffi::OsStr,
-    fs::{self, File},
-    io::{self, BufWriter, Read, Seek, SeekFrom, Write},
-    path::{Path, PathBuf},
-    sync::LazyLock,
-};
 use talpid_error::ErrorExt;
 use talpid_logging::LogFile;
 
@@ -125,30 +125,28 @@ pub struct ProblemReportCollector {
 impl ProblemReportCollector {
     /// Collect the problem report and writes it to the specified path
     pub async fn write_to_path(self, path: impl AsRef<Path>) -> Result<(), Error> {
-        self.write(open_output_file(path)?).await
+        self.write(open_output_file(path).await?).await
     }
 
     /// Collect the problem report and writes it to the specified output
-    pub async fn write(self, output: WriteSource<impl Write>) -> Result<(), Error> {
+    pub async fn write(self, output: WriteSource<impl AsyncWrite + Unpin>) -> Result<(), Error> {
         let mut problem_report = ProblemReport::new(self.redact_custom_strings).await;
 
-        let daemon_logs_dir = {
-            #[cfg(target_os = "android")]
-            {
-                Ok(&self.android_log_dir)
-            }
-            #[cfg(not(target_os = "android"))]
-            {
-                mullvad_paths::get_log_dir().map_err(LogError::GetLogDir)
+        let daemon_logs = cfg_select! {
+            target_os = "android" => list_logs(&self.android_log_dir).await,
+            not(target_os = "android") => {
+                match mullvad_paths::get_log_dir().map_err(LogError::GetLogDir) {
+                    Ok(dir) => list_logs(dir).await,
+                    Err(error) => Err(error),
+                }
             }
         };
 
-        let daemon_logs = daemon_logs_dir.and_then(list_logs);
         match daemon_logs {
             Ok(daemon_logs) => {
                 for log in daemon_logs {
                     match log {
-                        Ok(path) => problem_report.add_log(&path),
+                        Ok(path) => problem_report.add_log(&path).await,
                         Err(error) => problem_report.add_error("Unable to get log path", &error),
                     }
                 }
@@ -158,59 +156,65 @@ impl ProblemReportCollector {
             }
         };
 
-        #[cfg(not(target_os = "android"))]
-        match mullvad_paths::frontend_log_dir()
-            .map_err(LogError::GetLogDir)
-            .and_then(list_logs)
-        {
-            Ok(frontend_logs) => {
-                for log in frontend_logs {
-                    match log {
-                        Ok(path) => problem_report.add_log(&path),
-                        Err(error) => problem_report.add_error("Unable to get log path", &error),
-                    }
+        cfg_select! {
+            target_os = "android" => {
+                match write_logcat_to_file(&self.android_log_dir).await {
+                    Ok(logcat_path) => problem_report.add_log(&logcat_path),
+                    Err(error) => problem_report.add_error("Failed to collect logcat", &error),
                 }
-            }
-            Err(error) => {
-                problem_report.add_error("Failed to list logs in frontend log directory", &error)
-            }
-        }
-        #[cfg(target_os = "android")]
-        {
-            match write_logcat_to_file(&self.android_log_dir) {
-                Ok(logcat_path) => problem_report.add_log(&logcat_path),
-                Err(error) => problem_report.add_error("Failed to collect logcat", &error),
-            }
 
-            match list_logs(self.extra_logs_dir) {
-                Ok(android_app_logs) => {
-                    for log in android_app_logs {
-                        match log {
-                            Ok(path) => problem_report.add_log(&path),
-                            Err(error) => {
-                                problem_report.add_error("Unable to get log path", &error)
+                match list_logs(self.extra_logs_dir).await {
+                    Ok(android_app_logs) => {
+                        for log in android_app_logs {
+                            match log {
+                                Ok(path) => problem_report.add_log(&path),
+                                Err(error) => {
+                                    problem_report.add_error("Unable to get log path", &error)
+                                }
                             }
                         }
                     }
+                    Err(error) => problem_report
+                        .add_error("Failed to list logs in android app log directory", &error),
                 }
-                Err(error) => problem_report
-                    .add_error("Failed to list logs in android app log directory", &error),
-            }
 
-            problem_report.add_metadata(
-                "unverified-purchases".to_string(),
-                self.unverified_purchases.to_string(),
-            );
-            problem_report.add_metadata(
-                "pending-purchases".to_string(),
-                self.pending_purchases.to_string(),
-            );
+                problem_report.add_metadata(
+                    "unverified-purchases".to_string(),
+                    self.unverified_purchases.to_string(),
+                );
+                problem_report.add_metadata(
+                    "pending-purchases".to_string(),
+                    self.pending_purchases.to_string(),
+                );
+            }
+            not(target_os = "android") => {
+                let log_dir = mullvad_paths::frontend_log_dir().map_err(LogError::GetLogDir);
+                match log_dir {
+                    Ok(dir) => match list_logs(dir).await {
+                        Ok(frontend_logs) => {
+                            for log in frontend_logs {
+                                match log {
+                                    Ok(path) => problem_report.add_log(&path).await,
+                                    Err(error) => {
+                                        problem_report.add_error("Unable to get log path", &error)
+                                    }
+                                }
+                            }
+                        }
+                        Err(error) => problem_report
+                            .add_error("Failed to list logs in frontend log directory", &error),
+                    },
+                    Err(error) => problem_report
+                        .add_error("Failed to list logs in frontend log directory", &error),
+                }
+            }
         }
 
-        problem_report.add_logs(self.extra_logs);
+        problem_report.add_logs(self.extra_logs).await;
 
         problem_report
             .write_to(output.write)
+            .await
             .map_err(|source| Error::WriteReportError {
                 path: output.source,
                 source,
@@ -218,28 +222,32 @@ impl ProblemReportCollector {
     }
 }
 
-/// A [Write] with a named source.
-pub struct WriteSource<W: Write> {
+/// An [AsyncWrite] with a named source.
+pub struct WriteSource<W> {
     pub write: W,
     pub source: String,
 }
 
 /// Open a file to write the problem report to.
-pub fn open_output_file(path: impl AsRef<Path>) -> Result<WriteSource<BufWriter<File>>, Error> {
-    fn inner(path: impl AsRef<Path>) -> io::Result<BufWriter<File>> {
-        let file = File::create(path)?;
-        let mut permissions = file.metadata()?.permissions();
+pub async fn open_output_file(
+    path: impl AsRef<Path>,
+) -> Result<WriteSource<BufWriter<File>>, Error> {
+    async fn inner(path: impl AsRef<Path>) -> io::Result<BufWriter<File>> {
+        let file = File::create(path).await?;
+        let mut permissions = file.metadata().await?.permissions();
         permissions.set_readonly(true);
-        file.set_permissions(permissions)?;
+        file.set_permissions(permissions).await?;
         Ok(BufWriter::new(file))
     }
 
     let file_path = path.as_ref().display().to_string();
 
-    let write = inner(path).map_err(|source| Error::WriteReportError {
-        path: file_path.clone(),
-        source,
-    })?;
+    let write = inner(path)
+        .await
+        .map_err(|source| Error::WriteReportError {
+            path: file_path.clone(),
+            source,
+        })?;
 
     Ok(WriteSource {
         write,
@@ -247,36 +255,41 @@ pub fn open_output_file(path: impl AsRef<Path>) -> Result<WriteSource<BufWriter<
     })
 }
 
-impl<W: Write> From<(W, String)> for WriteSource<W> {
+impl<W: AsyncWrite> From<(W, String)> for WriteSource<W> {
     fn from((write, source): (W, String)) -> Self {
         WriteSource { write, source }
     }
 }
 
 /// Returns an iterator over all files in the given directory that has the `.log` extension.
-fn list_logs(
-    log_dir: impl AsRef<Path>,
-) -> Result<impl Iterator<Item = Result<PathBuf, LogError>>, LogError> {
-    let dir_entries = fs::read_dir(log_dir.as_ref()).map_err(|source| LogError::ListLogDir {
-        path: log_dir.as_ref().display().to_string(),
-        source,
-    })?;
-    let logs = dir_entries.filter_map(move |dir_entry| match dir_entry {
-        Ok(dir_entry) => {
-            let path = dir_entry.path();
-            (path.extension() == Some(OsStr::new("log"))).then_some(Ok(path))
-        }
-        Err(source) => Some(Err(LogError::ListLogDir {
-            path: log_dir.as_ref().display().to_string(),
-            source,
-        })),
-    });
+async fn list_logs(log_dir: impl AsRef<Path>) -> Result<Vec<Result<PathBuf, LogError>>, LogError> {
+    let dir_entries =
+        fs::read_dir(log_dir.as_ref())
+            .await
+            .map_err(|source| LogError::ListLogDir {
+                path: log_dir.as_ref().display().to_string(),
+                source,
+            })?;
+    let dir_entries = tokio_stream::wrappers::ReadDirStream::new(dir_entries);
+    let logs = dir_entries
+        .filter_map(move |dir_entry| match dir_entry {
+            Ok(dir_entry) => {
+                let path = dir_entry.path();
+                (path.extension() == Some(OsStr::new("log"))).then_some(Ok(path))
+            }
+            Err(source) => Some(Err(LogError::ListLogDir {
+                path: log_dir.as_ref().display().to_string(),
+                source,
+            })),
+        })
+        .collect()
+        .await;
     Ok(logs)
 }
 
 #[cfg(target_os = "android")]
-fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
-    use std::process::{Command, Stdio};
+async fn write_logcat_to_file(log_dir: &Path) -> Result<PathBuf, io::Error> {
+    use tokio::process::Command;
 
     let logcat_path = log_dir.join("logcat.txt");
     let logcat_file = File::create(&logcat_path)?;
@@ -301,12 +314,12 @@ pub async fn send_problem_report(
     endpoint: ApiEndpoint,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
-        read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
-            Error::ReadProblemReportError {
+        read_file_lossy(report_path, REPORT_MAX_SIZE)
+            .await
+            .map_err(|source| Error::ReadProblemReportError {
                 path: report_path.display().to_string(),
                 source,
-            }
-        })?,
+            })?,
     );
 
     send_problem_report_inner(
@@ -408,19 +421,20 @@ impl ProblemReport {
 
     /// Attach some file logs to this report. This method adds the error chain instead of the log
     /// contents if an error occurs while reading one of the log files.
-    pub fn add_logs<I>(&mut self, paths: I)
+    #[inline]
+    pub async fn add_logs<I>(&mut self, paths: I)
     where
         I: IntoIterator,
         I::Item: AsRef<Path>,
     {
         for path in paths {
-            self.add_log(path.as_ref());
+            self.add_log(path.as_ref()).await;
         }
     }
 
     /// Attach a file log to this report. This method adds the error chain instead of the log
     /// contents if an error occurs while reading the log file.
-    pub fn add_log(&mut self, path: &Path) {
+    pub async fn add_log(&mut self, path: &Path) {
         let expanded_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
         if !self.log_paths.insert(expanded_path.clone()) {
             return;
@@ -434,18 +448,22 @@ impl ProblemReport {
         //   ..
         //   <basename>     // <- Most recent logs.
         // ]
-        let mut content = LogFile::from_file_path(path)
-            .paths()
-            .map(|path| {
-                read_file_lossy(&path, LOG_MAX_READ_BYTES).unwrap_or_else(|error| {
-                    error.display_chain_with_msg(&format!(
-                        "Error reading the contents of log file: {}",
-                        expanded_path.display()
-                    ))
-                })
-            })
-            .map(|content| self.redact(&content))
-            .collect::<Vec<String>>();
+        let mut content = {
+            let mut buf = vec![];
+            for path in LogFile::from_file_path(path).paths() {
+                let content = read_file_lossy(&path, LOG_MAX_READ_BYTES)
+                    .await
+                    .unwrap_or_else(|error| {
+                        error.display_chain_with_msg(&format!(
+                            "Error reading the contents of log file: {}",
+                            expanded_path.display()
+                        ))
+                    });
+                let redacted_content = self.redact(&content);
+                buf.push(redacted_content);
+            }
+            buf
+        };
         content.reverse();
         let content = content.join("");
 
@@ -517,21 +535,24 @@ impl ProblemReport {
         out
     }
 
-    fn write_to<W: Write>(&self, mut output: W) -> io::Result<()> {
+    async fn write_to<W: AsyncWrite + Unpin>(&self, mut output: W) -> io::Result<()> {
+        use std::io::Write as _;
+        let mut buf = vec![];
         // IMPORTANT: Make sure this implementation stays in sync with `parse_metadata` below.
-        write_line!(output, "System information:")?;
+        write_line!(buf, "System information:")?;
         for (key, value) in &self.metadata {
-            write_line!(output, "{}: {}", key, value)?;
+            write_line!(buf, "{}: {}", key, value)?;
         }
         // Write empty line to separate metadata from first log
-        write_line!(output)?;
+        write_line!(buf)?;
         for (label, content) in &self.logs {
-            write_line!(output, "{}", LOG_DELIMITER)?;
-            write_line!(output, "Log: {}", label)?;
-            write_line!(output, "{}", LOG_DELIMITER)?;
-            output.write_all(content.as_bytes())?;
-            write_line!(output)?;
+            write_line!(buf, "{}", LOG_DELIMITER)?;
+            write_line!(buf, "Log: {}", label)?;
+            write_line!(buf, "{}", LOG_DELIMITER)?;
+            std::io::Write::write_all(&mut buf, content.as_bytes())?;
+            write_line!(buf)?;
         }
+        AsyncWriteExt::write_all(&mut output, &buf).await?;
         Ok(())
     }
 
@@ -665,17 +686,18 @@ fn build_ipv6_regex() -> String {
 
 /// Helper to lossily read a file to a `String`. If the file size exceeds the given `max_bytes`,
 /// only the last `max_bytes` bytes of the file are read.
-fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
-    let mut file = File::open(path)?;
-    let file_size = file.metadata()?.len();
+async fn read_file_lossy(path: &Path, max_bytes: usize) -> io::Result<String> {
+    let mut file = File::open(path).await?;
+    let file_size = file.metadata().await?.len();
 
     if file_size > max_bytes as u64 {
-        file.seek(SeekFrom::Start(file_size - max_bytes as u64))?;
+        file.seek(SeekFrom::Start(file_size - max_bytes as u64))
+            .await?;
     }
 
     let capacity = min(file_size, max_bytes as u64) as usize;
     let mut buffer = Vec::with_capacity(capacity);
-    file.take(max_bytes as u64).read_to_end(&mut buffer)?;
+    file.take(max_bytes as u64).read_to_end(&mut buffer).await?;
     Ok(String::from_utf8_lossy(&buffer).into_owned())
 }
 
@@ -819,6 +841,7 @@ mod tests {
         let mut report_data = Vec::new();
         report
             .write_to(&mut report_data)
+            .await
             .expect("Unable to write report to vector");
 
         let report_string = std::str::from_utf8(&report_data).expect("Report is not correct UTF-8");

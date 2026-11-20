@@ -1,11 +1,11 @@
+use std::env;
+use std::path::{Path, PathBuf};
+use std::process;
+use tokio::io;
+
 use clap::Parser;
 use mullvad_api::ApiEndpoint;
 use mullvad_problem_report::{Error, ProblemReportCollector, WriteSource};
-use std::{
-    env, io,
-    path::{Path, PathBuf},
-    process,
-};
 use talpid_error::ErrorExt;
 
 #[tokio::main]
