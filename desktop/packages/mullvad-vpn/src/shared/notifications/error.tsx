@@ -26,6 +26,7 @@ interface ErrorNotificationContext {
   splitTunnelingSupported: boolean;
   showFullDiskAccessSettings?: () => void;
   disableSplitTunneling?: () => void;
+  deviceInstallDisabled?: boolean;
 }
 
 export class ErrorNotificationProvider
@@ -182,6 +183,13 @@ export class ErrorNotificationProvider
             return messages.pgettext(
               'notifications',
               'Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot.',
+            );
+          }
+
+          if (this.context.deviceInstallDisabled) {
+            return messages.pgettext(
+              'notifications',
+              'Unable to start tunnel connection. This is because device installation is disabled on this system, please troubleshoot.',
             );
           }
 
@@ -359,6 +367,34 @@ export class ErrorNotificationProvider
           steps: [
             messages.pgettext('troubleshoot', 'Try to reinstall VMware.'),
             messages.pgettext('troubleshoot', 'Try to uninstall VMware.'),
+          ],
+        },
+      };
+    } else if (
+      errorState.cause === ErrorStateCause.createTunnelDeviceError &&
+      this.context.deviceInstallDisabled
+    ) {
+      return {
+        type: 'troubleshoot-dialog',
+        troubleshoot: {
+          details: messages.pgettext(
+            'troubleshoot',
+            'Unable to start tunnel connection because of a failure when creating the tunnel device. This is caused by device installation being disabled on this system.',
+          ),
+          steps: [
+            messages.pgettext(
+              'troubleshoot',
+              'Check if security software or a system policy on your device disables device installation.',
+            ),
+            messages.pgettext(
+              'troubleshoot',
+              'In the registry editor, go to HKEY_LOCAL_MACHINE > SYSTEM > CurrentControlSet > Services > DeviceInstall > Parameters.',
+            ),
+            messages.pgettext(
+              'troubleshoot',
+              'Set the registry value “DeviceInstallDisabled” to 0, or delete it.',
+            ),
+            messages.pgettext('troubleshoot', 'Try restarting your device.'),
           ],
         },
       };
