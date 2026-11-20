@@ -7,7 +7,12 @@ pub async fn collect() -> BTreeMap<String, String> {
         "mullvad-product-version".to_owned(),
         mullvad_version::VERSION.to_owned(),
     );
-    metadata.insert("os".to_owned(), talpid_platform_metadata::version());
+    metadata.insert(
+        "os".to_owned(),
+        tokio::task::spawn_blocking(talpid_platform_metadata::version)
+            .await
+            .unwrap(),
+    );
     metadata.extend(talpid_platform_metadata::extra_metadata().await);
     metadata
 }
