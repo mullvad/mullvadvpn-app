@@ -2,15 +2,17 @@ package net.mullvad.mullvadvpn.lib.model
 
 // The order of the variants match the priority order and can be sorted on.
 enum class FeatureIndicator {
-    DAITA,
-    MULTIHOP,
-    MULTIHOP_AUTO,
-    SPLIT_TUNNELING,
+    // This is derived from the other feature indicators, it is never sent by the daemon
+    ANTI_CENSORSHIP,
     UDP_2_TCP,
     SHADOWSOCKS,
     QUIC,
     LWO,
     WIREGUARD_PORT,
+    DAITA,
+    MULTIHOP,
+    MULTIHOP_AUTO,
+    SPLIT_TUNNELING,
     LAN_SHARING,
     DNS_CONTENT_BLOCKERS,
     CUSTOM_DNS,

@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -86,6 +85,7 @@ import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
+import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
@@ -362,7 +362,6 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Suppress("LongParameterList")
 fun ConnectScreen(
@@ -623,15 +622,17 @@ private fun ConnectionCard(
             }
 
             AnimatedContent(
-                state.tunnelState.featureIndicators() to expanded,
+                targetState = state.tunnelState.featureIndicators() to expanded,
+                contentKey = { it.first?.animateKey() to it.second },
                 modifier = Modifier.weight(1f, fill = false),
                 label = "connection_card_connection_details",
             ) { (featureIndicators, exp) ->
                 if (featureIndicators != null) {
                     ConnectionInfo(
-                        featureIndicators,
-                        state.tunnelState.toConnectionsDetails(),
-                        exp,
+                        featureIndicators = featureIndicators,
+                        connectionDetails = state.tunnelState.toConnectionsDetails(),
+                        connected = state.tunnelState is TunnelState.Connected,
+                        expanded = exp,
                         onToggleExpand = { expanded = !exp },
                         onNavigateToFeature = onNavigateToFeature,
                     )
@@ -764,6 +765,7 @@ private fun GeoIpLocation.multihopEntryCountryCity(): MultihopEntryInfo? {
 private fun ConnectionInfo(
     featureIndicators: List<FeatureIndicator>,
     connectionDetails: ConnectionDetails?,
+    connected: Boolean,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
@@ -785,20 +787,34 @@ private fun ConnectionInfo(
                     )
                     .verticalScroll(scrollState),
         ) {
-            FeatureIndicatorsPanel(featureIndicators, expanded, onToggleExpand, onNavigateToFeature)
-
+            FeatureIndicatorsPanel(
+                featureIndicators = featureIndicators,
+                expanded = expanded,
+                connected = connected,
+                onToggleExpand = onToggleExpand,
+                onNavigateToFeature = onNavigateToFeature,
+            )
             AnimatedVisibility(expanded && connectionDetails != null) {
-                ConnectionDetailPanel(connectionDetails, enableSelectableText = !isTv())
+                if (connectionDetails?.hasData == true) {
+                    ConnectionDetailPanel(connectionDetails, enableSelectableText = !isTv())
+                }
             }
         }
     }
 }
 
 data class ConnectionDetails(
-    val inAddress: String,
+    val inAddress: String?,
     val outIpv4Address: String?,
     val outIpv6Address: String?,
-)
+) {
+    val isEmpty =
+        inAddress.isNullOrEmpty() &&
+            outIpv4Address.isNullOrEmpty() &&
+            outIpv6Address.isNullOrEmpty()
+
+    val hasData = !isEmpty
+}
 
 @Composable
 fun TunnelState.toConnectionsDetails(): ConnectionDetails? {
@@ -812,9 +828,10 @@ fun TunnelState.toConnectionsDetails(): ConnectionDetails? {
     if (endpoint == null) return null
 
     return ConnectionDetails(
-        endpoint.toInAddress(),
-        location()?.ipv4?.hostAddress,
-        location()?.ipv6?.hostAddress,
+        // Only show in ip address when connected because otherwise it is likely incorrect
+        inAddress = if (this is TunnelState.Connected) endpoint.toInAddress() else null,
+        outIpv4Address = location()?.ipv4?.hostAddress,
+        outIpv6Address = location()?.ipv6?.hostAddress,
     )
 }
 
@@ -918,6 +935,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
 
         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverrideNavKey(isModal = true)
 
+        FeatureIndicator.ANTI_CENSORSHIP,
         FeatureIndicator.UDP_2_TCP,
         FeatureIndicator.QUIC,
         FeatureIndicator.WIREGUARD_PORT,
@@ -932,3 +950,11 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }
+
+private fun List<FeatureIndicator>.animateKey(): List<FeatureIndicator> = map {
+    if (it in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
+        FeatureIndicator.ANTI_CENSORSHIP
+    } else {
+        it
+    }
+}
