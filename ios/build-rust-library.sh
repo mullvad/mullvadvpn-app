@@ -23,7 +23,7 @@ fi
 
 
 LOCKEDFLAG=
-PROFILE=dev-ios
+PROFILE=${OVERRIDE_PROFILE:-"dev-ios"}
 if [[ "$CONFIGURATION" == "Release" || "$CONFIGURATION" == "MockRelease" ]]; then
     PROFILE=release
     LOCKEDFLAG=--locked
@@ -78,7 +78,7 @@ for arch in $ARCHS; do
             fi
 
             echo "Generating Swift bindings from $LIB..."
-            time xcrun --sdk macosx "${HOME}/.cargo/bin/cargo" run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
+            time xcrun --sdk macosx "${HOME}/.cargo/bin/cargo" run -p uniffi-bindgen -- \
                 generate \
                 --library "$LIB" \
                 --language swift \

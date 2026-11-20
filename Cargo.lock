@@ -6955,6 +6955,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "uniffi-bindgen"
+version = "0.0.0"
+dependencies = [
+ "uniffi",
+]
+
+[[package]]
 name = "uniffi_bindgen"
 version = "0.31.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
