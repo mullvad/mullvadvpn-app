@@ -134,7 +134,7 @@ impl DnsMonitorHolder {
             Err(err) => log_err("NetworkManager")(&err),
         };
 
-        match Resolvconf::new() {
+        match tokio::task::block_in_place(Resolvconf::new) {
             Ok(systemd) => return Ok(DnsMonitorHolder::Resolvconf(systemd)),
             Err(err) => log_err("resolveconf")(&err),
         };

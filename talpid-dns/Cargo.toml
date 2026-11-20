@@ -18,7 +18,7 @@ nix = { workspace = true, features = ["net"] }
 resolv-conf = "0.7"
 safelog.workspace = true
 talpid-dbus = { workspace = true }
-tokio = { workspace = true, features = ["macros"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 triggered = "0.1.1"
 which = { version = "8.0", default-features = false, features = ["real-sys"] }
 
