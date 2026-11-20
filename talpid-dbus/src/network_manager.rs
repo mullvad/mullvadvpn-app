@@ -92,6 +92,7 @@ impl NetworkManagerConnection {
         Ok(interface)
     }
 
+    /// See [DeviceProxy::reapply].
     pub async fn reapply(
         &self,
         device: OwnedObjectPath,
