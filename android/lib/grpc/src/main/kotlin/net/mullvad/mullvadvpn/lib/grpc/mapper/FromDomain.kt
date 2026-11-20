@@ -2,12 +2,15 @@
 
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
+import java.net.Inet6Address
+import java.net.InetSocketAddress
 import mullvad_daemon.management_interface.AccessMethod
 import mullvad_daemon.management_interface.AccessMethodSetting
 import mullvad_daemon.management_interface.CustomDnsOptions
 import mullvad_daemon.management_interface.CustomList
 import mullvad_daemon.management_interface.CustomProxy
 import mullvad_daemon.management_interface.CustomProxy.ProxyMethod
+import mullvad_daemon.management_interface.CustomVpnConfig
 import mullvad_daemon.management_interface.DaitaSettings
 import mullvad_daemon.management_interface.DefaultDnsOptions
 import mullvad_daemon.management_interface.DnsOptions
@@ -41,6 +44,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings as ModelDaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
@@ -68,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings as ModelS
 import net.mullvad.mullvadvpn.lib.model.SocksAuth as ModelSocksAuth
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
+import okio.ByteString.Companion.decodeBase64
 
 internal fun Constraint<RelayItemId>.fromDomain(): LocationConstraint =
     when (this) {
@@ -341,3 +346,30 @@ internal fun RelayItemId.fromDomain(): LocationConstraint =
     }
 
 internal fun ModelCipher.fromDomain(): Shadowsocks.Cipher = Shadowsocks.Cipher(name = value)
+
+@Suppress("UnsafeCallOnNullableType")
+internal fun ModelCustomVpnConfig.fromDomain(): CustomVpnConfig =
+    CustomVpnConfig(
+        tunnel =
+            CustomVpnConfig.TunnelConfig(
+                private_key = tunnelConfig.privateKey.value.decodeBase64()!!,
+                ips = tunnelConfig.tunnelIps.toList(),
+            ),
+        peers =
+            peerConfig.map {
+                CustomVpnConfig.PeerConfig(
+                    public_key = it.publicKey.value.decodeBase64()!!,
+                    allowed_ip = it.allowedIps.toList(),
+                    endpoint = it.endpoint.toEndpointString(),
+                )
+            },
+        enabled = enabled,
+        name = name,
+    )
+
+/** Format as `<ip>:<port>`, with brackets around IPv6 addresses. */
+private fun InetSocketAddress.toEndpointString(): String =
+    when (val ip = address) {
+        is Inet6Address -> "[${ip.hostAddress}]:$port"
+        else -> "${ip.hostAddress}:$port"
+    }

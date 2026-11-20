@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Refusjoner er ikke mulig.</string>
     <string name="delete_account_unable_to_verify">Kunne ikke verifisere kontonummeret. Kontakt kundestøtte</string>
     <string name="delete_account_warning"><b>Advarsel:</b></string>
-    <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
     <string name="delete_list">Slett liste</string>
     <string name="delete_method">Slett metoden</string>
     <string name="delete_method_question">Slette metoden?</string>
+    <string name="delete_x">Slette «%1$s»?</string>
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
