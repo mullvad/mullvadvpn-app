@@ -24,6 +24,7 @@ pub fn short_version() -> String {
     format!("Linux {version}")
 }
 
+// Note: This function performs blocking I/O.
 fn read_os_release_file_short() -> Option<String> {
     let mut os_release_info = rs_release::get_os_release().ok()?;
     let os_name = os_release_info.remove("NAME");
@@ -39,6 +40,7 @@ fn read_os_release_file_short() -> Option<String> {
     os_release_info.remove("PRETTY_NAME")
 }
 
+// Note: This function performs blocking I/O.
 fn read_os_release_file() -> Result<String, Option<String>> {
     let mut os_release_info = rs_release::get_os_release().map_err(|_| None)?;
     let os_name = os_release_info.remove("NAME");
