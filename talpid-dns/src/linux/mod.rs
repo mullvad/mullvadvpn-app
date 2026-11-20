@@ -101,7 +101,9 @@ impl DnsMonitorHolder {
         let dns_module = env::var_os("TALPID_DNS_MODULE");
 
         let manager = match dns_module.as_ref().and_then(|value| value.to_str()) {
-            Some("static-file") => DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new()?),
+            Some("static-file") => {
+                DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new().await?)
+            }
             Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new()?),
             Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new().await?),
             Some("network-manager") => {
@@ -137,7 +139,7 @@ impl DnsMonitorHolder {
             Err(err) => log_err("resolveconf")(&err),
         };
 
-        match StaticResolvConf::new() {
+        match StaticResolvConf::new().await {
             Ok(systemd) => return Ok(DnsMonitorHolder::StaticResolvConf(systemd)),
             Err(err) => log_err("/etc/resolv.conf")(&err),
         };
@@ -149,7 +151,9 @@ impl DnsMonitorHolder {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers)?,
-            StaticResolvConf(static_resolv_conf) => static_resolv_conf.set_dns(servers.to_vec())?,
+            StaticResolvConf(static_resolv_conf) => {
+                static_resolv_conf.set_dns(servers.to_vec()).await?
+            }
             SystemdResolved(systemd_resolved) => {
                 systemd_resolved.set_dns(interface, servers).await?
             }
@@ -162,7 +166,7 @@ impl DnsMonitorHolder {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(resolvconf) => resolvconf.reset()?,
-            StaticResolvConf(static_resolv_conf) => static_resolv_conf.reset()?,
+            StaticResolvConf(static_resolv_conf) => static_resolv_conf.reset().await?,
             SystemdResolved(systemd_resolved) => systemd_resolved.reset().await?,
             NetworkManager(network_manager) => network_manager.reset().await?,
         }
