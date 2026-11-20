@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.addtime.impl
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -34,7 +35,7 @@ class AddTimeBottomSheetTest {
         state: Lc<Unit, AddTimeUiState> = Lc.Loading(Unit),
         sheetState: SheetState =
             SheetState(
-                skipPartiallyExpanded = true,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
                 positionalThreshold = { 0f },
                 velocityThreshold = { 0f },
             ),
