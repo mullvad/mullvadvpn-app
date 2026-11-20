@@ -25,6 +25,7 @@ class AndroidLibraryPlugin : Plugin<Project> {
                 lint {
                     lintConfig = file("${project.rootDir}/config/lint.xml")
                     abortOnError = true
+                    checkAllWarnings = true
                     warningsAsErrors = true
                 }
                 buildFeatures { buildConfig = true }

@@ -53,9 +53,11 @@ fun InfoListItem(
         hierarchy = hierarchy,
         position = position,
         isEnabled = isEnabled,
-        onCellClicked = onCellClicked,
-        testTag = testTag,
         backgroundAlpha = backgroundAlpha,
+        iconContentDescription = iconContentDescription,
+        onCellClicked = onCellClicked,
+        onInfoClicked = onInfoClicked,
+        testTag = testTag,
         content = {
             Text(
                 text = title,
@@ -63,8 +65,6 @@ fun InfoListItem(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        iconContentDescription = iconContentDescription,
-        onInfoClicked = onInfoClicked,
     )
 }
 
@@ -73,13 +73,13 @@ fun InfoListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
-    content: @Composable (BoxScope.() -> Unit),
     isEnabled: Boolean = true,
     backgroundAlpha: Float = 1f,
     iconContentDescription: String? = null,
     onCellClicked: (() -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null,
     testTag: String? = null,
+    content: @Composable (BoxScope.() -> Unit),
 ) {
     MullvadListItem(
         modifier = modifier,

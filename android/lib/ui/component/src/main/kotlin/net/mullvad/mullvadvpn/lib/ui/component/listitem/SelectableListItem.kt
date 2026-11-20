@@ -139,7 +139,7 @@ fun SelectableListItem(
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     testTag: String? = null,
-    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
+    content: @Composable ((BoxScope.() -> Unit))? = null,
 ) {
     SelectableListItem(
         modifier = modifier,
@@ -172,7 +172,7 @@ fun SelectableListItem(
                 }
             }
         },
-        trailingContent = trailingContent,
+        trailingContent = content,
     )
 }
 

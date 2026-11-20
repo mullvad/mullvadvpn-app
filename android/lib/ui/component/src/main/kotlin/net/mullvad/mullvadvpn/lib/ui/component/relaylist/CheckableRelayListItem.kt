@@ -58,7 +58,7 @@ fun CheckableRelayListItem(
             ) ?: item.item.name.toAnnotatedString(),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
-        trailingContent = {
+        content = {
             if (item.item.hasChildren) {
                 ExpandChevronDivider(
                     isExpanded = item.expanded,

@@ -14,9 +14,9 @@ import net.mullvad.mullvadvpn.core.scene.LocalSceneRole
 
 @SuppressLint("ComposableNaming")
 @Composable
-fun unlessIsDetail(block: @Composable () -> Unit) {
+fun unlessIsDetail(content: @Composable () -> Unit) {
     if (LocalSceneRole.current != ListDetailSceneStrategy.Role.Detail) {
-        block()
+        content()
     }
 }
 

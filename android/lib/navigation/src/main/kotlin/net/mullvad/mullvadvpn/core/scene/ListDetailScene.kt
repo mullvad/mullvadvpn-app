@@ -64,7 +64,7 @@ data class ListDetailScene<T : Any>(
 }
 
 @Composable
-private fun <T : Any> NavEntry<T>.ContentForRole(role: SceneRole) {
+internal fun <T : Any> NavEntry<T>.ContentForRole(role: SceneRole) {
     CompositionLocalProvider(LocalSceneRole provides role) { Content() }
 }
 

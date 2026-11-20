@@ -62,7 +62,7 @@ fun CheckableListItem(
     isChecked: Boolean,
     isEnabled: Boolean = true,
     onCheckedChange: (isChecked: Boolean) -> Unit,
-    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
+    content: @Composable ((BoxScope.() -> Unit))? = null,
 ) {
     CheckableListItem(
         title = title.toAnnotatedString(),
@@ -73,7 +73,7 @@ fun CheckableListItem(
         isChecked = isChecked,
         isEnabled = isEnabled,
         onCheckedChange = onCheckedChange,
-        trailingContent = trailingContent,
+        content = content,
     )
 }
 
@@ -87,7 +87,7 @@ fun CheckableListItem(
     isChecked: Boolean,
     isEnabled: Boolean = true,
     onCheckedChange: (isChecked: Boolean) -> Unit,
-    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
+    content: @Composable ((BoxScope.() -> Unit))? = null,
 ) {
     MullvadListItem(
         modifier = modifier,
@@ -109,6 +109,6 @@ fun CheckableListItem(
         hierarchy = hierarchy,
         isEnabled = isEnabled,
         onClick = { onCheckedChange(!isChecked) },
-        trailingContent = trailingContent,
+        trailingContent = content,
     )
 }

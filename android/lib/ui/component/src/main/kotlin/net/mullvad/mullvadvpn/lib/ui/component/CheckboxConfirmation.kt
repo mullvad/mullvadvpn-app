@@ -25,7 +25,7 @@ fun CheckboxConfirmation(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    checkedExtraContent: @Composable (() -> Unit)? = null,
+    content: @Composable (() -> Unit)? = null,
 ) {
     Column(
         modifier =
@@ -39,7 +39,7 @@ fun CheckboxConfirmation(
                 .clip(shape = MaterialTheme.shapes.medium)
                 .padding(
                     bottom =
-                        if (checkedExtraContent != null && checked) Dimens.smallPadding
+                        if (content != null && checked) Dimens.smallPadding
                         else Dimens.tinyPadding,
                     end = Dimens.tinyPadding,
                     start = Dimens.tinyPadding,
@@ -61,7 +61,7 @@ fun CheckboxConfirmation(
             Text(style = MaterialTheme.typography.bodyMedium, text = text)
         }
         if (checked) {
-            checkedExtraContent?.invoke()
+            content?.invoke()
         }
     }
 }
