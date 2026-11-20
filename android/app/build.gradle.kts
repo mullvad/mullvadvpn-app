@@ -9,7 +9,6 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
-import utilities.configureMissingTranslationCheck
 import utilities.cargoCommand
 import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
