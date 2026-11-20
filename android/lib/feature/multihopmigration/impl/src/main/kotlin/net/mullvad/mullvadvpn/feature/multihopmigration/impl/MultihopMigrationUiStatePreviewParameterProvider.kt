@@ -119,18 +119,17 @@ class MultihopMigrationUiStatePreviewParameterProvider :
                 )
                 .toUiState()
 
-        fun List<MultihopMigrationPage>.toUiState(): List<MultihopMigrationUiState> =
-            buildList {
-                repeat(this@toUiState.size) { index ->
-                    add(
-                        MultihopMigrationUiState(
-                            multihopMigrationPages = this@toUiState,
-                            currentPageIndex = index,
-                            entryLocation = null,
-                            multihopMode = null,
-                        ),
-                    )
-                }
+        fun List<MultihopMigrationPage>.toUiState(): List<MultihopMigrationUiState> = buildList {
+            repeat(this@toUiState.size) { index ->
+                add(
+                    MultihopMigrationUiState(
+                        multihopMigrationPages = this@toUiState,
+                        currentPageIndex = index,
+                        entryLocation = null,
+                        multihopMode = null,
+                    ),
+                )
             }
+        }
     }
 }

@@ -39,8 +39,7 @@ fun CheckboxConfirmation(
                 .clip(shape = MaterialTheme.shapes.medium)
                 .padding(
                     bottom =
-                        if (content != null && checked) Dimens.smallPadding
-                        else Dimens.tinyPadding,
+                        if (content != null && checked) Dimens.smallPadding else Dimens.tinyPadding,
                     end = Dimens.tinyPadding,
                     start = Dimens.tinyPadding,
                     top = Dimens.tinyPadding,

@@ -157,4 +157,3 @@ class FilteredRelayListUseCase(
             ownership = relaySettings.relayConstraints.ownership,
         )
 }
-
