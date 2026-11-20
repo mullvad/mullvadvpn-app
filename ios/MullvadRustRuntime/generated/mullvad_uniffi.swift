@@ -1786,6 +1786,131 @@ public func FfiConverterTypeGotaTunTunnel_lower(_ value: GotaTunTunnel) -> UInt6
 
 
 
+public protocol MockServerProtocol: AnyObject, Sendable {
+    
+    func port()  -> UInt16
+    
+}
+open class MockServer: MockServerProtocol, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_mockserver(self.handle, $0) }
+    }
+public convenience init(get: [MockEndpoint] = [], post: [MockEndpoint] = []) {
+    let handle =
+        try! rustCall() {
+    uniffi_mullvad_ios_fn_constructor_mockserver_new(
+        FfiConverterSequenceTypeMockEndpoint.lower(get),
+        FfiConverterSequenceTypeMockEndpoint.lower(post),$0
+    )
+}
+    self.init(unsafeFromHandle: handle)
+}
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_mockserver(handle, $0) }
+    }
+
+    
+
+    
+open func port() -> UInt16  {
+    return try!  FfiConverterUInt16.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_mockserver_port(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeMockServer: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = MockServer
+
+    public static func lift(_ handle: UInt64) throws -> MockServer {
+        return MockServer(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: MockServer) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> MockServer {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: MockServer, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMockServer_lift(_ handle: UInt64) throws -> MockServer {
+    return try FfiConverterTypeMockServer.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMockServer_lower(_ value: MockServer) -> UInt64 {
+    return FfiConverterTypeMockServer.lower(value)
+}
+
+
+
+
+
+
 public protocol RetryStrategyProtocol: AnyObject, Sendable {
     
 }
@@ -2792,6 +2917,64 @@ public func FfiConverterTypeGotaTunPeer_lower(_ value: GotaTunPeer) -> RustBuffe
 }
 
 
+public struct MockEndpoint: Equatable, Hashable, Codable {
+    public let path: String
+    public let responseCode: UInt64
+    public let responseBody: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(path: String, responseCode: UInt64, responseBody: String) {
+        self.path = path
+        self.responseCode = responseCode
+        self.responseBody = responseBody
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension MockEndpoint: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeMockEndpoint: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> MockEndpoint {
+        return
+            try MockEndpoint(
+                path: FfiConverterString.read(from: &buf), 
+                responseCode: FfiConverterUInt64.read(from: &buf), 
+                responseBody: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: MockEndpoint, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.path, into: &buf)
+        FfiConverterUInt64.write(value.responseCode, into: &buf)
+        FfiConverterString.write(value.responseBody, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMockEndpoint_lift(_ buf: RustBuffer) throws -> MockEndpoint {
+    return try FfiConverterTypeMockEndpoint.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMockEndpoint_lower(_ value: MockEndpoint) -> RustBuffer {
+    return FfiConverterTypeMockEndpoint.lower(value)
+}
+
+
 public struct ProblemReportRequest: Equatable, Hashable, Codable {
     public let address: String
     public let message: String
@@ -3732,6 +3915,31 @@ fileprivate struct FfiConverterSequenceTypeAccessMethodSettingWrapper: FfiConver
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterSequenceTypeMockEndpoint: FfiConverterRustBuffer {
+    typealias SwiftType = [MockEndpoint]
+
+    public static func write(_ value: [MockEndpoint], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeMockEndpoint.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [MockEndpoint] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [MockEndpoint]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeMockEndpoint.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     public static func write(_ value: [String: String], into buf: inout [UInt8]) {
         let len = Int32(value.count)
@@ -3999,6 +4207,9 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_shadowsocksbridgeprovider_bridge() != 3536) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_mullvad_ios_checksum_method_mockserver_port() != 7528) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_mullvad_ios_checksum_method_anyerror_error() != 14183) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -4018,6 +4229,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_apicontext_new() != 23691) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_constructor_mockserver_new() != 62077) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_retrystrategy_constant() != 61653) {

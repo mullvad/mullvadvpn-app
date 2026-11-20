@@ -76,8 +76,10 @@ class MullvadApiTests: XCTestCase {
         let bodyData = try encoder.encode(expectedEndpoints)
         let body = String(data: bodyData, encoding: .utf8)!
 
-        let mock = MullvadApiMock.get(path: "/app/v1/api-addrs", responseCode: 200, responseData: body)
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let mock = MockServer(get: [
+            MockEndpoint(path: "/app/v1/api-addrs", responseCode: 200, responseBody: body)
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
             _ =
@@ -99,9 +101,10 @@ class MullvadApiTests: XCTestCase {
 
     func testHTTPError() async throws {
         let expectedResponseCode = 500
-        let mock = MullvadApiMock.get(
-            path: "/app/v1/api-addrs", responseCode: UInt(expectedResponseCode), responseData: "")
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let mock = MockServer(get: [
+            MockEndpoint(path: "/app/v1/api-addrs", responseCode: UInt64(expectedResponseCode), responseBody: "")
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
             _ =
@@ -124,10 +127,12 @@ class MullvadApiTests: XCTestCase {
     }
 
     func testInvalidBody() async throws {
-        let mock = MullvadApiMock.get(
-            path: "/app/v1/api-addrs", responseCode: 200, responseData: "This is an invalid JSON"
-        )
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let mock = MockServer(get: [
+            MockEndpoint(
+                path: "/app/v1/api-addrs", responseCode: 200, responseBody: "This is an invalid JSON"
+            )
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
             _ =
@@ -152,16 +157,19 @@ class MullvadApiTests: XCTestCase {
     func testCustomErrorCode() async throws {
         let expectedResponseCode = 400
         let expectedErrorCode = 123
-        let mock = MullvadApiMock.get(
-            path: "/app/v1/api-addrs", responseCode: UInt(expectedResponseCode),
-            responseData:
-                """
-                {"code": "\(expectedErrorCode)",
-                "error": "A magical error occurred"
-                }
-                """
-        )
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let mock = MockServer(get: [
+            MockEndpoint(
+                path: "/app/v1/api-addrs",
+                responseCode: UInt64(expectedResponseCode),
+                responseBody:
+                    """
+                    {"code": "\(expectedErrorCode)",
+                    "error": "A magical error occurred"
+                    }
+                    """
+            )
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         let result: Result<[AnyIPEndpoint], Error> = await withCheckedContinuation { continuation in
             _ =
@@ -200,9 +208,13 @@ class MullvadApiTests: XCTestCase {
         // The mock server will only respond to requests with `matchBodyString` as body.
         let matchBodyString = String(data: try encoder.encode(problemReportRequest), encoding: .utf8)!
         let expectedResponseCode: UInt = 204
-        let mock = MullvadApiMock.post(
-            path: "/app/v1/problem-report", responseCode: expectedResponseCode, responseData: matchBodyString)
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let mock = MockServer(post: [
+            MockEndpoint(
+                path: "/app/v1/problem-report",
+                responseCode: UInt64(expectedResponseCode),
+                responseBody: matchBodyString)
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         let result: Result<Void, Error> = await withCheckedContinuation { continuation in
             _ =
