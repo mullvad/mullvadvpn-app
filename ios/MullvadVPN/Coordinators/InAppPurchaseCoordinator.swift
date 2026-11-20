@@ -35,7 +35,11 @@ final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func dismiss() {
-        didFinish?(self)
+        // Avoid racing with the payment outcome alert's own dismiss animation.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            didFinish?(self)
+        }
     }
 
     func start() {
