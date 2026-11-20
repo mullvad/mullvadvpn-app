@@ -8,8 +8,9 @@ use std::{
 };
 use talpid_error::ErrorExt;
 
-fn main() {
-    process::exit(match run() {
+#[tokio::main]
+async fn main() {
+    process::exit(match run().await {
         Ok(()) => 0,
         Err(error) => {
             eprintln!("{}", error.display_chain());
@@ -52,7 +53,7 @@ enum Cli {
     },
 }
 
-fn run() -> Result<(), Error> {
+async fn run() -> Result<(), Error> {
     tracing_subscriber::fmt::init();
 
     match Cli::parse() {
@@ -66,7 +67,7 @@ fn run() -> Result<(), Error> {
                 redact_custom_strings: redact,
             };
             if output != "-" {
-                collector.write_to_path(&output)?;
+                collector.write_to_path(&output).await?;
 
                 println!("Problem report written to {output}");
                 println!();
@@ -74,7 +75,9 @@ fn run() -> Result<(), Error> {
                 println!(" $ {} send --help", env::args().next().unwrap());
             } else {
                 // Write logs to stdout
-                collector.write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
+                collector
+                    .write(WriteSource::from((io::stdout(), "stdout".to_owned())))
+                    .await?;
             }
         }
         Cli::Send {
