@@ -147,8 +147,12 @@ struct AlertModifier: ViewModifier {
             Image.mullvadIconInfo
                 .resizable()
                 .frame(width: 48, height: 48)
-        case .error, .warning:
+        case .warning:
             Image.mullvadIconAlert
+                .resizable()
+                .frame(width: 48, height: 48)
+        case .error:
+            Image.mullvadIconFail
                 .resizable()
                 .frame(width: 48, height: 48)
         }

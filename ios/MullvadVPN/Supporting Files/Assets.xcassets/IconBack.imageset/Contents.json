@@ -1,9 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "icon-chevron-left-circle.svg",
-      "idiom" : "universal",
-      "language-direction" : "left-to-right"
+      "filename" : "IconBack.svg",
+      "idiom" : "universal"
     }
   ],
   "info" : {

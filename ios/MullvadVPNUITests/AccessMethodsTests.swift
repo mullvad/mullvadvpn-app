@@ -101,7 +101,8 @@ class AccessMethodsTests: LoggedOutUITestCase {
                 accessibilityId: AccessibilityIdentifier.accessMethodDomainFrontingCell
             )
             .tap()
+
         EditAccessMethodPage(app)
-            .verifySwitchDisabled()
+            .verifySwitchIsEnabled()
     }
 }
