@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 class SplashViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
-    private val splashCompleteRepository: SplashCompleteRepository,
+    splashCompleteRepository: SplashCompleteRepository,
 ) : ViewModel() {
 
     val uiSideEffect = flow {

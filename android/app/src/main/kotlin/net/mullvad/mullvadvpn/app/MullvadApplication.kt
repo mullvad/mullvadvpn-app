@@ -82,6 +82,7 @@ class MullvadApplication : Application() {
     }
 
     private fun initFileLogger(scope: CoroutineScope) {
+        @Suppress("InjectDispatcher")
         scope.launch(Dispatchers.IO) {
             try {
                 val fileLogWriter =
@@ -118,7 +119,7 @@ class MullvadApplication : Application() {
     }
 
     private fun enableStrictMode() {
-        val executor = Dispatchers.Default.asExecutor()
+        @Suppress("InjectDispatcher") val executor = Dispatchers.Default.asExecutor()
 
         StrictMode.setThreadPolicy(
             StrictMode.ThreadPolicy.Builder()
@@ -156,8 +157,10 @@ class MullvadApplication : Application() {
         )
     }
 
-    // Timeout for waiting for the tunnel state to be emitted when restoring the tunnel on app
-    // upgrade. Since broadcast receivers have time limit at around 10 seconds we set this to 5
-    // seconds to be extra safe.
-    private val TUNNEL_STATE_TIMEOUT = 5.seconds
+    companion object {
+        // Timeout for waiting for the tunnel state to be emitted when restoring the tunnel on app
+        // upgrade. Since broadcast receivers have time limit at around 10 seconds we set this to 5
+        // seconds to be extra safe.
+        private val TUNNEL_STATE_TIMEOUT = 5.seconds
+    }
 }
