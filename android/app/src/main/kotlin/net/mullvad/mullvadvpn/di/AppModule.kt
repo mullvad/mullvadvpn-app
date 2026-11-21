@@ -1,3 +1,5 @@
+@file:Suppress("InjectDispatcher")
+
 package net.mullvad.mullvadvpn.di
 
 import android.content.Context

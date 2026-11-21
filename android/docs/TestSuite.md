@@ -148,7 +148,7 @@ they only work when running on the `stagemole` backend):
 
 ### Detekt
 ```bash
-./gradlew detekt
+./gradlew detektMain
 ```
 
 ### Android lint
