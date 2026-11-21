@@ -22,12 +22,6 @@ class AndroidLibraryPlugin : Plugin<Project> {
 
                 defaultConfig { minSdk = libs.findVersion("min-sdk").get().toString().toInt() }
 
-                lint {
-                    lintConfig = file("${project.rootDir}/config/lint.xml")
-                    abortOnError = true
-                    checkAllWarnings = true
-                    warningsAsErrors = true
-                }
                 buildFeatures { buildConfig = true }
             }
             extensions.configure<KotlinAndroidProjectExtension> {

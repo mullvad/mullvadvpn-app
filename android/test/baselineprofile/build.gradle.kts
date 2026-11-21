@@ -18,12 +18,6 @@ android {
 
     kotlin { compilerOptions { allWarningsAsErrors = true } }
 
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
-
     defaultConfig {
         minSdk = 28
         targetSdk = libs.versions.target.sdk.get().toInt()

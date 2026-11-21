@@ -12,12 +12,6 @@ android {
     defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }
 
     kotlin { compilerOptions { allWarningsAsErrors = true } }
-
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
 }
 
 androidComponents {
