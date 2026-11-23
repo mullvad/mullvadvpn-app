@@ -402,7 +402,7 @@ private struct FutureVersionSettings: TunnelSettings {
 struct SettingNotFound: Error, Instantiable {}
 
 extension KeychainError: Instantiable {
-    init() {
+    public init() {
         self = KeychainError.itemNotFound
     }
 }
