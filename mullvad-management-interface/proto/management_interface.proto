@@ -410,16 +410,16 @@ message MultiplexObfuscation {
   repeated ObfuscationEndpoint obfuscators = 2;
 }
 
-message ObfuscationEndpoint {
-  enum ObfuscationType {
-    UDP2TCP = 0;
-    SHADOWSOCKS = 1;
-    QUIC = 2;
-    LWO = 3;
-    // Plain WireGuard, without any obfuscation.
-    DIRECT = 4;
-  }
+enum ObfuscationType {
+  UDP2TCP = 0;
+  SHADOWSOCKS = 1;
+  QUIC = 2;
+  LWO = 3;
+  // Plain WireGuard, without any obfuscation.
+  DIRECT = 4;
+}
 
+message ObfuscationEndpoint {
   Endpoint endpoint = 1;
   ObfuscationType obfuscation_type = 2;
 }
