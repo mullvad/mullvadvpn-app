@@ -1,7 +1,7 @@
 use std::fmt;
-use std::fs::{self, canonicalize, read_link};
+use std::fs::{self, canonicalize, read, read_link};
 use std::io;
-use std::net::IpAddr;
+use std::net::{IpAddr, Ipv4Addr};
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 
@@ -182,13 +182,13 @@ fn systemd_manages_resolv_conf() -> io::Result<bool> {
         }
         false => {
             trace!("/etc/resolve.conf is not a symlink");
-            // Check if the `systemd-resolved` service is running instead.
-            // An exit-code of `0` means that the `systemd-resolved` service is running.
-            use std::process::Command;
-            Ok(Command::new("systemctl")
-                .args(["is-active", "systemd-resolved.service"])
-                .status()?
-                .success())
+            // Check if the the nameserver entry in `/etc/resolv.conf` points to 127.0.0.53 -
+            // systemd-resolved's stub resolver!
+            use resolv_conf::{Config, ScopedIp};
+            let content = read(systemd_resolver_stub)?;
+            let config = Config::parse(&content).unwrap();
+            let stub_resolver = ScopedIp::V4(Ipv4Addr::new(127, 0, 0, 53));
+            Ok(config.nameservers.contains(&stub_resolver))
         }
     }
 }
