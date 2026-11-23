@@ -23,27 +23,12 @@ actor SendTunnelMessageService {
 
     public func send<Output: SendableData>(message: TunnelProviderMessage) async throws -> Output {
         let messageData = try message.encode()
-
-        let result: Output = try await withCheckedThrowingContinuation { continuation in
-            Task {
-                let tunnelStatus = await tunnel.status
-                try await tunnel.sendProviderMessage(messageData) { reply in
-                    do {
-                        // FIXME: Technically, this is a race condition since `tunnelStatus` might have changed between
-                        // the moment it was awaited and now. How to solve this ?
-                        guard let reply else {
-                            continuation.resume(throwing: SendTunnelProviderMessageError.tunnelDown(tunnelStatus))
-                            return
-                        }
-                        let output = try JSONDecoder().decode(TunnelProviderReply<Output>.self, from: reply)
-                        continuation.resume(returning: output.value)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
+        let reply = try await tunnel.sendProviderMessage(messageData)
+        guard let reply else {
+            throw SendTunnelProviderMessageError.unexpectedNilReply
         }
-        return result
+        let output = try JSONDecoder().decode(TunnelProviderReply<Output>.self, from: reply)
+        return output.value
     }
 
     nonisolated public func send<Output: SendableData>(
@@ -69,9 +54,12 @@ actor SendTunnelMessageService {
 
 enum SendTunnelProviderMessageError: LocalizedError {
     /// Tunnel process is either down or about to go down.
+    case unexpectedNilReply
     case tunnelDown(NEVPNStatus)
     var errorDescription: String? {
         switch self {
+        case .unexpectedNilReply:
+            return "Tunnel couldn't encode reply, check PacketTunnel logs"
         case let .tunnelDown(status):
             return "Tunnel is either down or about to go down (status: \(status))."
         }

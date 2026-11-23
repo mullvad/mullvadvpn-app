@@ -68,9 +68,10 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
             request: request
         )
 
+        var apiRequestCancelHandler: Cancellable?
         let cancellableTask = Task {
             await withTaskCancellationHandler {
-                let result = await tunnel.sendAPIRequest(proxyRequest) { proxyRequestResult in
+                apiRequestCancelHandler = await tunnel.sendAPIRequest(proxyRequest) { proxyRequestResult in
                     switch proxyRequestResult {
                     case let .success(reply):
                         completion(reply)
@@ -89,6 +90,7 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
             } onCancel: {
                 cancellable?.cancel()
                 cancellable = nil
+                apiRequestCancelHandler?.cancel()
             }
         }.cancellable
 
