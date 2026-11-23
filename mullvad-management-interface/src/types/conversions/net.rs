@@ -39,26 +39,13 @@ impl TryFrom<proto::Endpoint> for talpid_types::net::Endpoint {
 
 impl From<talpid_types::net::ObfuscationInfo> for proto::ObfuscationInfo {
     fn from(info: talpid_types::net::ObfuscationInfo) -> Self {
-        if info.0.len() == 1 {
-            proto::ObfuscationInfo {
-                r#type: Some(proto::obfuscation_info::Type::Single(
-                    proto::ObfuscationEndpoint::from(info.0.split_off_first().0),
-                )),
-            }
-        } else {
-            proto::ObfuscationInfo {
-                r#type: Some(proto::obfuscation_info::Type::Multiple(
-                    proto::MultiplexObfuscation {
-                        direct: None, // NOTE: This field is always left empty, since the proto type doesn't quite match
-                        obfuscators: info
-                            .0
-                            .iter()
-                            .cloned()
-                            .map(proto::ObfuscationEndpoint::from)
-                            .collect(),
-                    },
-                )),
-            }
+        proto::ObfuscationInfo {
+            transports: info
+                .0
+                .iter()
+                .cloned()
+                .map(proto::ObfuscationEndpoint::from)
+                .collect(),
         }
     }
 }
@@ -136,37 +123,28 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
             quantum_resistant: endpoint.quantum_resistant,
             obfuscation: endpoint
                 .obfuscation
-                .map(|info| match info.r#type {
-                    Some(proto::obfuscation_info::Type::Single(endpoint)) => {
-                        Ok(talpid_types::net::ObfuscationInfo(vec1::vec1![
-                            talpid_net::ObfuscationEndpoint::try_from(endpoint)?
-                        ]))
-                    }
-                    Some(proto::obfuscation_info::Type::Multiple(multiple)) => {
-                        let obfuscators = multiple
-                            .obfuscators
-                            .into_iter()
-                            .map(talpid_net::ObfuscationEndpoint::try_from)
-                            .collect::<Result<Vec<_>, _>>()?;
-                        Vec1::try_from_vec(obfuscators)
-                            .map(talpid_types::net::ObfuscationInfo)
-                            .map_err(|_| {
-                                FromProtobufTypeError::invalid_argument(
-                                    "obfuscation info must have at least one endpoint",
-                                )
-                            })
-                    }
-                    None => Err(FromProtobufTypeError::invalid_argument(
-                        "unknown obfuscation info type",
-                    )),
+                .map(|info| {
+                    let transports = info
+                        .transports
+                        .into_iter()
+                        .map(talpid_net::ObfuscationEndpoint::try_from)
+                        .collect::<Result<Vec<_>, _>>()?;
+                    Vec1::try_from_vec(transports)
+                        .map(talpid_types::net::ObfuscationInfo)
+                        .map_err(|_| {
+                            FromProtobufTypeError::invalid_argument(
+                                "obfuscation info must have at least one transport",
+                            )
+                        })
                 })
                 .unwrap_or_else(|| {
+                    // No obfuscation info: the tunnel reaches the relay directly.
                     Ok(talpid_types::net::ObfuscationInfo(vec1::vec1![
                         talpid_net::ObfuscationEndpoint {
                             endpoint: talpid_net::Endpoint {
                                 address: arg_from_str(
                                     &endpoint.address,
-                                    "invalid endpoint address"
+                                    "invalid endpoint address",
                                 )?,
                                 protocol: try_transport_protocol_from_i32(endpoint.protocol)?,
                             },

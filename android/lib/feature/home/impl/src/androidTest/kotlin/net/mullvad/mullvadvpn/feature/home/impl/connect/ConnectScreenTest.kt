@@ -13,8 +13,10 @@ import io.mockk.verify
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.net.InetSocketAddress
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectionPath
+import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -22,6 +24,8 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
+import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -519,7 +523,7 @@ class ConnectScreenTest {
             every { mockLocation.entryLocation } returns null
 
             // In
-            every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.obfuscation } returns emptyList()
             every { mockTunnelEndpoint.entryEndpoint } returns null
             every { mockTunnelEndpoint.endpoint.address.address.hostAddress } returns inHost
             every { mockTunnelEndpoint.endpoint.address.port } returns inPort
@@ -751,11 +755,17 @@ class ConnectScreenTest {
             every { mockLocation.entryLocation } returns null
 
             // In
-            every {
-                mockTunnelEndpoint.obfuscation?.endpoint?.address?.address?.hostAddress
-            } returns inHost
-            every { mockTunnelEndpoint.obfuscation?.endpoint?.address?.port } returns inPort
-            every { mockTunnelEndpoint.obfuscation?.endpoint?.protocol } returns inProtocol
+            every { mockTunnelEndpoint.obfuscation } returns
+                listOf(
+                    ObfuscationEndpoint(
+                        endpoint =
+                            Endpoint(
+                                address = InetSocketAddress(inHost, inPort),
+                                protocol = inProtocol,
+                            ),
+                        obfuscationType = ObfuscationType.Udp2Tcp,
+                    )
+                )
 
             // Out Ipv4
             val outIpv4 = "ipv4address"
@@ -813,7 +823,7 @@ class ConnectScreenTest {
             every { mockLocation.entryLocation } returns null
 
             // In
-            every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.obfuscation } returns emptyList()
             every { mockTunnelEndpoint.entryEndpoint?.address?.address?.hostAddress } returns inHost
             every { mockTunnelEndpoint.entryEndpoint?.address?.port } returns inPort
             every { mockTunnelEndpoint.entryEndpoint?.protocol } returns inProtocol
@@ -871,7 +881,7 @@ class ConnectScreenTest {
             every { mockLocation.entryLocation } returns null
 
             // In
-            every { mockTunnelEndpoint.obfuscation } returns null
+            every { mockTunnelEndpoint.obfuscation } returns emptyList()
 
             val mockClickHandler = mockk<(FeatureIndicator) -> Unit>(relaxed = true)
 

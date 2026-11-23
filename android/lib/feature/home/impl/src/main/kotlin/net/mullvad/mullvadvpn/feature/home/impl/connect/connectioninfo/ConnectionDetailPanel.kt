@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectionDetails
+import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
@@ -220,7 +221,11 @@ fun TunnelEndpoint.toInAddress(): String {
     // First we check for obfuscation (Shadowsocks, UDP-Over-UDP)
     // Then we check for entry if we have multihop
     // Finally we check for exit endpoint
-    val relayEndpoint = obfuscation?.endpoint ?: entryEndpoint ?: endpoint
+    val relayEndpoint =
+        obfuscation.firstOrNull { it.obfuscationType != ObfuscationType.Direct }
+            ?: obfuscation.firstOrNull()
+            ?: entryEndpoint
+            ?: endpoint
 
     val host = relayEndpoint.address.address.hostAddress.orEmpty()
     val port = relayEndpoint.address.port

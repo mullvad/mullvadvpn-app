@@ -12,6 +12,7 @@ const endpoint: ITunnelEndpoint = {
   address: 'wg10:80',
   protocol: 'tcp',
   quantumResistant: false,
+  obfuscation: [],
   daita: false,
 };
 

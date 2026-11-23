@@ -44,9 +44,11 @@ object TunnelStatePreviewData {
             endpoint = generateEndpoint(TransportProtocol.Udp),
             quantumResistant = quantumResistant,
             obfuscation =
-                ObfuscationEndpoint(
-                    endpoint = generateEndpoint(TransportProtocol.Tcp),
-                    ObfuscationType.Udp2Tcp,
+                listOf(
+                    ObfuscationEndpoint(
+                        endpoint = generateEndpoint(TransportProtocol.Tcp),
+                        ObfuscationType.Udp2Tcp,
+                    )
                 ),
             daita = daita,
         )

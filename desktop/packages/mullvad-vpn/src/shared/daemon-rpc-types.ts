@@ -142,7 +142,7 @@ export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   quantumResistant: boolean;
-  obfuscationEndpoint?: IObfuscationEndpoint;
+  obfuscation: IObfuscationEndpoint[];
   entryEndpoint?: IEndpoint;
   daita: boolean;
 }
