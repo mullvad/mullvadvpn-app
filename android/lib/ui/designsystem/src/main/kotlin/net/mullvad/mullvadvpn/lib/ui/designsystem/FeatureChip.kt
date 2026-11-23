@@ -13,7 +13,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -41,7 +40,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import kotlin.time.Duration.Companion.milliseconds
@@ -130,15 +128,17 @@ fun MullvadFeatureChip(
                 State.Idle -> {
                     FilterChipDefaults.filterChipBorder(
                         borderColor = borderColor,
-                        selectedBorderColor = selectedBorderColor,
                         enabled = true,
                         selected = false,
                     )
                 }
                 State.Connected -> {
-                    BorderStroke(
-                        width = lerp(NORMAL_BORDER_WIDTH, SELECTED_BORDER_WIDTH, highlight.value),
-                        color = lerp(borderColor, selectedBorderColor, highlight.value),
+                    FilterChipDefaults.filterChipBorder(
+                        borderColor = lerp(borderColor, selectedBorderColor, highlight.value),
+                        enabled = true,
+                        selected = false,
+                        borderWidth =
+                            lerp(NORMAL_BORDER_WIDTH, SELECTED_BORDER_WIDTH, highlight.value),
                     )
                 }
                 State.Connecting -> null
@@ -272,7 +272,7 @@ sealed interface State : Parcelable {
 }
 
 private val SELECTED_BORDER_WIDTH = 2.dp
-private val NORMAL_BORDER_WIDTH = Hairline
+private val NORMAL_BORDER_WIDTH = 1.dp
 private const val CONNECTING_BORDER_DURATION_MS = 2000 // 2 seconds
 private const val CONNECTING_ARC_SLICES = 64
 private const val CONNECTED_WIND_UP_MS = 600
