@@ -951,10 +951,11 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }
 
-private fun List<FeatureIndicator>.animateKey(): List<FeatureIndicator> = map {
+private fun List<FeatureIndicator>.animateKey(): Set<FeatureIndicator> = map {
     if (it in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
         FeatureIndicator.ANTI_CENSORSHIP
     } else {
         it
     }
 }
+    .toSet()
