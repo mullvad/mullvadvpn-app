@@ -1190,7 +1190,7 @@ impl ConnCheckerHandle<'_> {
         .await
         .with_context(|| {
             anyhow!(
-                "assert_secure failed (leak_destination={})",
+                "assert_blocked failed (leak_destination={})",
                 self.checker.leak_destination,
             )
         })
@@ -1230,7 +1230,7 @@ impl ConnCheckerHandle<'_> {
         .await
         .with_context(|| {
             anyhow!(
-                "assert_secure failed (leak_destination={})",
+                "assert_insecure failed (leak_destination={})",
                 self.checker.leak_destination,
             )
         })
