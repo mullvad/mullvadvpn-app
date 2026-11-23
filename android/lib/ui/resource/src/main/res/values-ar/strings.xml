@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">لن يعمل خادم DNS المحلي ما لم يتم تفعيل خاصية \"مشاركة الشبكة المحلية\" ضمن إعدادات شبكة VPN.</string>
     <string name="confirm_no_email">أنت على وشك إرسال بلاغ بالمشكلة دون توفير وسيلة لنا للرد عليك. إذا كنت تريد الرد على بلاغك، فسيتعين عليك إدخال عنوان بريد إلكتروني.</string>
     <string name="confirm_removal">نعم، تسجيل الخروج من الجهاز</string>
-    <string name="congrats">تهانينا!</string>
     <string name="connect">الاتصال</string>
     <string name="connect_on_start">الاتصال عند بدء تشغيل الجهاز</string>
     <string name="connect_on_start_info_first">الاتصال تلقائيًا عند بدء تشغيل الجهاز.</string>

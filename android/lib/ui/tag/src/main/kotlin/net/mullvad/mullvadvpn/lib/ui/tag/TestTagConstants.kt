@@ -186,3 +186,15 @@ const val MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG =
 
 const val MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG =
     "multihop_migration_screen_back_button_test_tag"
+
+// New account onboarding
+const val GET_STARTED_BUTTON_TEST_TAG = "get_started_button_test_tag"
+const val ONBOARDING_SCREEN_TEST_TAG = "onboarding_screen_test_tag"
+const val ONBOARDING_ADD_TIME_BUTTON_TEST_TAG = "onboarding_add_time_button_test_tag"
+const val ONBOARDING_ENABLE_NOTIFICATIONS_BUTTON_TEST_TAG =
+    "onboarding_enable_notifications_button_test_tag"
+const val ONBOARDING_NO_THANKS_BUTTON_TEST_TAG = "onboarding_no_thanks_button_test_tag"
+const val ONBOARDING_NEXT_BUTTON_TEST_TAG = "onboarding_next_button_test_tag"
+const val ONBOARDING_SKIP_BUTTON_TEST_TAG = "onboarding_skip_button_test_tag"
+const val ONBOARDING_CONNECT_BUTTON_TEST_TAG = "onboarding_connect_button_test_tag"
+const val ONBOARDING_LATER_BUTTON_TEST_TAG = "onboarding_later_button_test_tag"

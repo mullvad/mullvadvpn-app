@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
     <string name="confirm_removal">はい。デバイスをログアウトします</string>
-    <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
     <string name="connect_on_start">デバイス起動時に接続</string>
     <string name="connect_on_start_info_first">デバイスの起動時に自動接続します。</string>

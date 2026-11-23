@@ -153,7 +153,6 @@ fun RedeemVoucherDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                TimeUnit.DAYS.toSeconds(1)
                 if (state.voucherState is VoucherDialogState.Success) {
                     val days: Int =
                         (state.voucherState.addedTime / TimeUnit.DAYS.toSeconds(1)).toInt()

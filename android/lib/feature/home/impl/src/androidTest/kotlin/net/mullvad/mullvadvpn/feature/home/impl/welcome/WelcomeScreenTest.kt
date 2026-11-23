@@ -5,62 +5,63 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
-import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeUiState
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
-import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.koin.core.context.loadKoinModules
-import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.module
 
 @OptIn(ExperimentalTestApi::class)
 class WelcomeScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
-
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        loadKoinModules(module { viewModel { addTimeViewModel } })
-        every { addTimeViewModel.uiState } returns
-            MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
-    }
+    private fun contentState(
+        tunnelState: TunnelState = TunnelState.Disconnected(),
+        accountNumber: AccountNumber? = null,
+    ): Lc<Unit, WelcomeUiState> =
+        WelcomeUiState(
+                tunnelState = tunnelState,
+                accountNumber = accountNumber,
+                deviceName = null,
+            )
+            .toLc()
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, WelcomeUiState> = Lc.Loading(Unit),
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
         onDisconnectClick: () -> Unit = {},
-        navigateToDeviceInfoDialog: () -> Unit = {},
-        onPlayPaymentInfoClick: (PaymentStatus) -> Unit = {},
-        onAddMoreTimeClick: () -> Unit = {},
+        onGetStartedClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             WelcomeScreen(
                 state = state,
                 onSettingsClick = onSettingsClick,
                 onAccountClick = onAccountClick,
-                navigateToDeviceInfoDialog = navigateToDeviceInfoDialog,
                 onDisconnectClick = onDisconnectClick,
-                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-                onAddMoreTimeClick = onAddMoreTimeClick,
+                onGetStartedClick = onGetStartedClick,
             )
         }
+    }
+
+    @Test
+    fun testOnGetStartedClick() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(state = contentState(), onGetStartedClick = clickHandler)
+
+        // Act
+        onNodeWithTag(GET_STARTED_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 1) { clickHandler() }
     }
 
     @Test
@@ -69,18 +70,7 @@ class WelcomeScreenTest {
         initScreen()
 
         // Assert
-        onNodeWithText("Congrats!").assertExists()
-        onNodeWithText("Here’s your account number. Save it!").assertExists()
-    }
-
-    @Test
-    fun testDisableSitePayment() = composeExtension.use {
-        // Arrange
-        initScreen()
-
-        // Assert
-        onNodeWithText("Either buy credit on our website or redeem a voucher.", substring = true)
-            .assertDoesNotExist()
+        onNodeWithText("New account created").assertExists()
     }
 
     @Test
@@ -88,63 +78,10 @@ class WelcomeScreenTest {
         // Arrange
         val rawAccountNumber = AccountNumber("1111222233334444")
         val expectedAccountNumber = "1111 2222 3333 4444"
-        initScreen(
-            state =
-                WelcomeUiState(
-                        tunnelState = TunnelState.Disconnected(),
-                        accountNumber = rawAccountNumber,
-                        deviceName = null,
-                        showSitePayment = false,
-                        paymentStatus = null,
-                    )
-                    .toLc(),
-        )
+        initScreen(state = contentState(accountNumber = rawAccountNumber))
 
         // Assert
         onNodeWithText(expectedAccountNumber).assertExists()
-    }
-
-    @Test
-    fun testShowPendingPaymentInfoDialog() = composeExtension.use {
-        // Arrange
-        val mockShowPendingInfo = mockk<(PaymentStatus) -> Unit>(relaxed = true)
-        initScreen(
-            state =
-                WelcomeUiState(
-                        tunnelState = TunnelState.Disconnected(),
-                        accountNumber = null,
-                        deviceName = null,
-                        showSitePayment = false,
-                        paymentStatus = PaymentStatus.PURCHASED_UNVERIFIED,
-                    )
-                    .toLc(),
-            onPlayPaymentInfoClick = mockShowPendingInfo,
-        )
-
-        // Act
-        onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
-
-        // Assert
-        verify(exactly = 1) { mockShowPendingInfo(PaymentStatus.PURCHASED_UNVERIFIED) }
-    }
-
-    @Test
-    fun testShowVerificationInProgress() = composeExtension.use {
-        // Arrange
-        initScreen(
-            state =
-                WelcomeUiState(
-                        tunnelState = TunnelState.Disconnected(),
-                        accountNumber = null,
-                        deviceName = null,
-                        showSitePayment = false,
-                        paymentStatus = PaymentStatus.PENDING,
-                    )
-                    .toLc(),
-        )
-
-        // Assert
-        onNodeWithText("Google Play payment pending").assertExists()
     }
 
     @Test
@@ -154,15 +91,7 @@ class WelcomeScreenTest {
         val tunnelState: TunnelState = mockk(relaxed = true)
         every { tunnelState.isSecured() } returns true
         initScreen(
-            state =
-                WelcomeUiState(
-                        tunnelState = tunnelState,
-                        accountNumber = null,
-                        deviceName = null,
-                        showSitePayment = false,
-                        paymentStatus = null,
-                    )
-                    .toLc(),
+            state = contentState(tunnelState = tunnelState),
             onDisconnectClick = clickHandler,
         )
 

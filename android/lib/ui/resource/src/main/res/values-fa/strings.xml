@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">سرور DNS محلی تنها زمانی کار می‌کند که «اشتراک‌گذاری شبکهٔ محلی» را در تنظیمات VPN فعال کنید.</string>
     <string name="confirm_no_email">در حال ارسال گزارش مشکل هستید، اما راهی برای تماس با شما وجود ندارد. اگر مایل به دریافت پاسخ هستید، لطفاً یک آدرس ایمیل وارد کنید.</string>
     <string name="confirm_removal">بله، خروج از دستگاه</string>
-    <string name="congrats">تبریک!</string>
     <string name="connect">اتصال</string>
     <string name="connect_on_start">اتصال هنگام روشن شدن دستگاه</string>
     <string name="connect_on_start_info_first">اتصال خودکار هنگام روشن شدن دستگاه.</string>

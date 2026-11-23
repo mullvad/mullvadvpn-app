@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">Le serveur DNS local ne fonctionnera pas si vous n\'activez pas le « Partage du réseau local » dans les paramètres VPN.</string>
     <string name="confirm_no_email">Vous êtes sur le point d\'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</string>
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
-    <string name="congrats">Félicitations !</string>
     <string name="connect">Connexion</string>
     <string name="connect_on_start">Connexion au démarrage de l\'appareil</string>
     <string name="connect_on_start_info_first">Se connecter automatiquement au démarrage de l\'appareil.</string>

@@ -25,7 +25,6 @@ fun EntryProviderScope<NavKey2>.homeEntry(navigator: Navigator) {
 
     android16UpgradeInfoEntry(navigator)
     deviceRevokedEntry(navigator)
-    deviceNameInfoEntry(navigator)
     outOfTimeEntry(navigator)
     welcomeEntry(navigator)
 }

@@ -4,6 +4,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import co.touchlab.kermit.Logger
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
@@ -16,6 +17,10 @@ class WelcomePage internal constructor() : Page() {
 
     fun clickAccount() {
         uiDevice.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON_TEST_TAG)).click()
+    }
+
+    fun clickGetStarted() {
+        uiDevice.findObjectWithTimeout(By.res(GET_STARTED_BUTTON_TEST_TAG)).click()
     }
 }
 

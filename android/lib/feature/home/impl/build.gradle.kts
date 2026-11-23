@@ -23,6 +23,7 @@ dependencies {
     implementation(projects.lib.feature.multihop.api)
     implementation(projects.lib.feature.multihopmigration.api)
     implementation(projects.lib.feature.customvpn.api)
+    implementation(projects.lib.feature.onboarding.api)
     implementation(projects.lib.feature.redeemvoucher.api)
     implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.settings.api)

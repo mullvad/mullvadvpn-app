@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu etkinleşmez.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
-    <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlan</string>
     <string name="connect_on_start">Cihaz başlatılırken bağlan</string>
     <string name="connect_on_start_info_first">Cihaz başlatıldığında otomatik bağlan.</string>

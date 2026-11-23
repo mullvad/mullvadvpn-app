@@ -128,6 +128,10 @@ class ConnectViewModelTest {
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
 
         every { mockMultihopGuideMigrationHintUseCase() } returns flowOf(false)
+
+        every { mockUserPreferencesRepository.notificationPermissionAsked() } returns flowOf(true)
+        coEvery { mockUserPreferencesRepository.setNotificationPermissionAsked() } just Runs
+
         viewModel =
             ConnectViewModel(
                 accountRepository = mockAccountRepository,
@@ -147,7 +151,6 @@ class ConnectViewModelTest {
                 relayListRepository = mockRelayListRepository,
                 connectionPath = mockConnectionPathUseCase,
                 multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
-                hasShownNotificationPromptRepository = mockk(relaxed = true),
             )
     }
 
