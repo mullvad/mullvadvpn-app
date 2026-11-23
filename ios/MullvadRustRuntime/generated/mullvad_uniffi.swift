@@ -3194,6 +3194,11 @@ public enum GotaTunFfiError: Swift.Error, Equatable, Hashable, Codable, Foundati
     case BindSockets(String
     )
     /**
+     * The network is up, but has no route to the relay.
+     */
+    case NetworkUnreachable(String
+    )
+    /**
      * Post-quantum key negotiation failed, typically a timeout or other retryable event
      */
     case PqNegotiation(String
@@ -3238,10 +3243,13 @@ public struct FfiConverterTypeGotaTunFfiError: FfiConverterRustBuffer {
         case 2: return .BindSockets(
             try FfiConverterString.read(from: &buf)
             )
-        case 3: return .PqNegotiation(
+        case 3: return .NetworkUnreachable(
             try FfiConverterString.read(from: &buf)
             )
-        case 4: return .Internal(
+        case 4: return .PqNegotiation(
+            try FfiConverterString.read(from: &buf)
+            )
+        case 5: return .Internal(
             try FfiConverterString.read(from: &buf)
             )
 
@@ -3266,13 +3274,18 @@ public struct FfiConverterTypeGotaTunFfiError: FfiConverterRustBuffer {
             FfiConverterString.write(v1, into: &buf)
             
         
-        case let .PqNegotiation(v1):
+        case let .NetworkUnreachable(v1):
             writeInt(&buf, Int32(3))
             FfiConverterString.write(v1, into: &buf)
             
         
-        case let .Internal(v1):
+        case let .PqNegotiation(v1):
             writeInt(&buf, Int32(4))
+            FfiConverterString.write(v1, into: &buf)
+            
+        
+        case let .Internal(v1):
+            writeInt(&buf, Int32(5))
             FfiConverterString.write(v1, into: &buf)
             
         }

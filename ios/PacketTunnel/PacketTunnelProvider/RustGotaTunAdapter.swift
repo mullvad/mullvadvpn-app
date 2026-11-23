@@ -134,6 +134,8 @@ extension GotaTunFfiError {
             return .invalidConfig(description)
         case .BindSockets(let description):
             return .bindSockets(description)
+        case .NetworkUnreachable(let description):
+            return .networkUnreachable(description)
         case .PqNegotiation(let description):
             return .pqNegotiation(description)
         case .Internal(let description):

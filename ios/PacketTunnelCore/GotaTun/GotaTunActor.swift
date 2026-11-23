@@ -436,7 +436,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case let .error(blocked):
             // Restoration requires connectivity to have been lost first, otherwise the first
             // update after starting would masquerade as a recovery and pre-empt the retry timer.
-            guard newReachability == .reachable, previousReachability == .unreachable,
+            // Being offline on a reachable path means that the network could not carry traffic,
+            // which any change to the path may have fixed.
+            guard newReachability == .reachable,
+                previousReachability == .unreachable || blocked.reason == .offline,
                 blocked.reason.recoverableError()
             else { return }
             logger.debug("Network reachable, restoring connectivity from \(blocked.reason)")
@@ -847,10 +850,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return .tunnelAdapter
         case .internalError:
             return .unknown
-        case .bindSockets:
-            return .tunnelAdapter
+        case .bindSockets, .networkUnreachable:
+            return .offline
         case .pqNegotiation:
-            return .tunnelAdapter
+            return .pqNegotiationError
         }
     }
 }

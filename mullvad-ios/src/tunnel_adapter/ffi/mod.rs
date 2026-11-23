@@ -6,7 +6,8 @@
 //! [`GotaTunTunnel::start`]; the object owns the running [`IosTunnelAdapter`] and
 //! stops it on drop.
 
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::io;
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, UdpSocket};
 use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
@@ -70,6 +71,8 @@ pub enum GotaTunFfiError {
     InvalidConfig(String),
     /// UDP sockets could not be bound, typically because no interface is available.
     BindSockets(String),
+    /// The network is up, but has no route to the relay.
+    NetworkUnreachable(String),
     /// Post-quantum key negotiation failed, typically a timeout or other retryable event
     PQNegotiation(String),
     /// An internal failure (e.g. the async runtime was unavailable).
@@ -81,6 +84,7 @@ impl std::fmt::Display for GotaTunFfiError {
         match self {
             GotaTunFfiError::InvalidConfig(msg) => write!(f, "invalid config: {msg}"),
             GotaTunFfiError::BindSockets(msg) => write!(f, "failed to bind UDP sockets: {msg}"),
+            GotaTunFfiError::NetworkUnreachable(msg) => write!(f, "network unreachable: {msg}"),
             GotaTunFfiError::PQNegotiation(msg) => {
                 write!(f, "post-quantum key negotiation failed: {msg}")
             }
@@ -165,6 +169,8 @@ impl GotaTunTunnel {
         let udp = runtime
             .block_on(BoundUdpTransports::bind())
             .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
+        check_route(params.ingress_peer().endpoint)
+            .map_err(|e| GotaTunFfiError::NetworkUnreachable(e.to_string()))?;
 
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
         let adapter = IosTunnelAdapter::start(runtime, params, udp, handler);
@@ -211,6 +217,15 @@ where
 /// The full IPv4 + IPv6 internet, used as the exit peer's allowed IPs.
 fn catch_all_ips() -> Vec<IpNetwork> {
     vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()]
+}
+
+/// Connecting a UDP socket looks up the route to `address` without sending anything.
+fn check_route(address: SocketAddr) -> io::Result<()> {
+    let unspecified: IpAddr = match address {
+        SocketAddr::V4(_) => Ipv4Addr::UNSPECIFIED.into(),
+        SocketAddr::V6(_) => Ipv6Addr::UNSPECIFIED.into(),
+    };
+    UdpSocket::bind((unspecified, 0))?.connect(address)
 }
 
 fn build_peer(

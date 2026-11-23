@@ -1045,6 +1045,35 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(states.map(\.name), ["Initial", "Connecting", "Connecting", "Connected"])
     }
 
+    func testNetworkUnreachableBlocksWithoutRetrying() async throws {
+        let clock = TestClock()
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.error(.networkUnreachable("")), .connected()])
+        let actor = makeActor(adapterFactory: factory, clock: clock)
+        let launchOptions = launchOptions
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await actor.start(options: launchOptions) })
+
+        await clock.advance(by: .seconds(60))
+        await actor.drainEvents()
+
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+        let state = await actor.observedState
+        XCTAssertEqual(state.blockedReason, .offline)
+    }
+
+    func testPathUpdateRestoresConnectivityWhenNetworkUnreachable() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.error(.networkUnreachable("")), .connected()])
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await actor.start(options: launchOptions) })
+
+        // The path was reachable all along, so it is a change to it that prompts another attempt.
+        await waitFor(actor, until: { $0.isConnected }, while: { await pathObserver.updatePath(.satisfied) })
+    }
+
     func testReconnectingOnSocketBindErrorWhenConnected() async throws {
         let factory = GotaTunAdapterFactoryStub()
         let timings = GotaTunActorTimings()

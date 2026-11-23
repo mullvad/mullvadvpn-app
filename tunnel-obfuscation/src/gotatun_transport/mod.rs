@@ -53,11 +53,16 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
     type SendManyBuf = S::SendManyBuf;
 
     async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
-        match self {
+        let result = match self {
             Self::Plain(inner) => inner.send_to(packet, destination).await,
             Self::Lwo(inner) => inner.send_to(packet, destination).await,
             Self::Transport(inner) => inner.send_to(packet, destination).await,
+        };
+        // Swallow errors like WireGuardGo
+        if let Err(error) = result {
+            log::trace!("Failed to send datagram: {error}");
         }
+        Ok(())
     }
 
     fn max_number_of_packets_to_send(&self) -> usize {
