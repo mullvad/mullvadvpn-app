@@ -221,11 +221,10 @@ fun TunnelEndpoint.toInAddress(): String {
     // First we check for obfuscation (Shadowsocks, UDP-Over-UDP)
     // Then we check for entry if we have multihop
     // Finally we check for exit endpoint
-    val relayEndpoint =
+    val obfuscatedEndpoint =
         obfuscation.firstOrNull { it.obfuscationType != ObfuscationType.Direct }
             ?: obfuscation.firstOrNull()
-            ?: entryEndpoint
-            ?: endpoint
+    val relayEndpoint = obfuscatedEndpoint?.endpoint ?: entryEndpoint ?: endpoint
 
     val host = relayEndpoint.address.address.hostAddress.orEmpty()
     val port = relayEndpoint.address.port

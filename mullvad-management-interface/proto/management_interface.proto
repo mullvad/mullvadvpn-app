@@ -396,11 +396,10 @@ enum FeatureIndicator {
   CUSTOM_VPN = 16;
 }
 
-// The transports that the tunnel may reach a relay through: a list of obfuscated or direct
-// (plain WireGuard) endpoints. Mirrors `talpid_types::net::ObfuscationInfo`.
-message ObfuscationInfo {
-  repeated ObfuscationEndpoint transports = 1;
-}
+// The transports that the tunnel may reach a relay through: a list of
+// obfuscated or direct (plain WireGuard) endpoints. Mirrors
+// `talpid_types::net::ObfuscationInfo`.
+message ObfuscationInfo { repeated ObfuscationEndpoint transports = 1; }
 
 message ObfuscationEndpoint {
   enum ObfuscationType {

@@ -48,7 +48,7 @@ object TunnelStatePreviewData {
                     ObfuscationEndpoint(
                         endpoint = generateEndpoint(TransportProtocol.Tcp),
                         ObfuscationType.Udp2Tcp,
-                    )
+                    ),
                 ),
             daita = daita,
         )

@@ -10,10 +10,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import java.net.InetSocketAddress
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
-import java.net.InetSocketAddress
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.Endpoint
@@ -764,7 +764,7 @@ class ConnectScreenTest {
                                 protocol = inProtocol,
                             ),
                         obfuscationType = ObfuscationType.Udp2Tcp,
-                    )
+                    ),
                 )
 
             // Out Ipv4
