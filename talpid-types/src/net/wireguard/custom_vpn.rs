@@ -28,7 +28,7 @@ pub struct CustomVpnPeerConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CustomVpnConfig {
     pub enabled: bool,
-    pub name: Option<String>,
+    pub name: String,
     pub tunnel: CustomVpnTunnelConfig,
     pub peers: Vec1<CustomVpnPeerConfig>,
 }
@@ -52,7 +52,7 @@ impl CustomVpnSettings {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CustomVpnConfigUpdate {
     pub enabled: bool,
-    pub name: Option<String>,
+    pub name: String,
     pub tunnel: CustomVpnTunnelUpdate,
     pub peers: Vec1<CustomVpnPeerConfig>,
 }

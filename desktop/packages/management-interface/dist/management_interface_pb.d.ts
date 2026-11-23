@@ -2362,10 +2362,7 @@ export class CustomVpnConfig extends jspb.Message {
     addPeers(value?: CustomVpnConfig.PeerConfig, index?: number): CustomVpnConfig.PeerConfig;
     getEnabled(): boolean;
     setEnabled(value: boolean): CustomVpnConfig;
-
-    hasName(): boolean;
-    clearName(): void;
-    getName(): string | undefined;
+    getName(): string;
     setName(value: string): CustomVpnConfig;
 
     serializeBinary(): Uint8Array;
@@ -2383,7 +2380,7 @@ export namespace CustomVpnConfig {
         tunnel?: CustomVpnConfig.TunnelConfig.AsObject,
         peersList: Array<CustomVpnConfig.PeerConfig.AsObject>,
         enabled: boolean,
-        name?: string,
+        name: string,
     }
 
 

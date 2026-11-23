@@ -208,7 +208,7 @@ mod test {
     fn sample_config() -> CustomVpnConfig {
         CustomVpnConfig {
             enabled: true,
-            name: Some("sample".to_string()),
+            name: "sample".to_string(),
             tunnel: CustomVpnTunnelConfig {
                 private_key: PrivateKey::new_from_random(),
                 ips: vec!["10.0.0.2".parse().unwrap()],

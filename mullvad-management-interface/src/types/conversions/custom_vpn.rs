@@ -161,7 +161,7 @@ mod test {
     fn sample_config() -> CustomVpnConfig {
         CustomVpnConfig {
             enabled: true,
-            name: Some("test".to_string()),
+            name: "test".to_string(),
             tunnel: CustomVpnTunnelConfig {
                 private_key: PrivateKey::from(KEY_BYTES),
                 ips: vec!["10.0.0.2".parse().unwrap(), "fd00::2".parse().unwrap()],
@@ -186,7 +186,7 @@ mod test {
                 endpoint: "1.2.3.4:51820".to_string(),
             }],
             enabled: true,
-            name: None,
+            name: "".to_string(),
         }
     }
 
@@ -211,7 +211,7 @@ mod test {
             vec!["10.0.0.2".to_string(), "fd00::2".to_string()]
         );
         assert!(proto_config.enabled);
-        assert_eq!(proto_config.name.as_deref(), Some("test"));
+        assert_eq!(proto_config.name, "test".to_string());
         assert_eq!(proto_config.peers.len(), 1);
     }
 

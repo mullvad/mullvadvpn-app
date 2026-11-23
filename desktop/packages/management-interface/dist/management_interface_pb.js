@@ -18856,8 +18856,8 @@ proto.mullvad_daemon.management_interface.CustomVpnConfig.serializeBinaryToWrite
       f
     );
   }
-  f = /** @type {string} */ (jspb.Message.getField(message, 4));
-  if (f != null) {
+  f = message.getName();
+  if (f.length > 0) {
     writer.writeString(
       4,
       f
@@ -19441,25 +19441,7 @@ proto.mullvad_daemon.management_interface.CustomVpnConfig.prototype.getName = fu
  * @return {!proto.mullvad_daemon.management_interface.CustomVpnConfig} returns this
  */
 proto.mullvad_daemon.management_interface.CustomVpnConfig.prototype.setName = function(value) {
-  return jspb.Message.setField(this, 4, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.CustomVpnConfig} returns this
- */
-proto.mullvad_daemon.management_interface.CustomVpnConfig.prototype.clearName = function() {
-  return jspb.Message.setField(this, 4, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.CustomVpnConfig.prototype.hasName = function() {
-  return jspb.Message.getField(this, 4) != null;
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
