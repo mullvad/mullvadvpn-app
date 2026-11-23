@@ -31,6 +31,8 @@ import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -154,7 +156,6 @@ class MullvadTileService : TileService() {
                 mapToTileState(
                     tunnelState = tunnelState,
                     connectionState = connectionState,
-                    isSetup = isSetup(),
                 )
             }
             .collect { updateTileState(it) }
@@ -163,14 +164,7 @@ class MullvadTileService : TileService() {
     private fun mapToTileState(
         tunnelState: TunnelState,
         connectionState: GrpcConnectivityState,
-        isSetup: Boolean,
     ): TileState {
-        if (!isSetup) {
-            return TileState.Unavailable(
-                subtitle = resources.getString(R.string.disconnected_vpn_permission_error),
-            )
-        }
-
         return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
                 is TunnelState.Disconnected ->
@@ -192,18 +186,24 @@ class MullvadTileService : TileService() {
                     }
                 }
 
-                is TunnelState.Error -> {
-                    if (tunnelState.errorState.isBlocking) {
-                        TileState.Active(subtitle = resources.getString(R.string.blocking_internet))
-                    } else {
-                        TileState.Inactive(subtitle = resources.getString(R.string.critical_error))
-                    }
-                }
+                is TunnelState.Error -> mapErrorToTileState(tunnelState.errorState)
             }
         } else {
             TileState.Inactive(subtitle = resources.getString(R.string.disconnected))
         }
     }
+
+    private fun mapErrorToTileState(errorState: ErrorState): TileState =
+        when {
+            errorState.cause is ErrorStateCause.NotPrepared ||
+                errorState.cause is ErrorStateCause.OtherAlwaysOnApp ->
+                TileState.Inactive(
+                    subtitle = resources.getString(R.string.disconnected_vpn_permission_error),
+                )
+            errorState.isBlocking ->
+                TileState.Active(subtitle = resources.getString(R.string.blocking_internet))
+            else -> TileState.Inactive(subtitle = resources.getString(R.string.critical_error))
+        }
 
     private fun updateTileState(newState: TileState) {
         qsTile?.apply {
@@ -211,13 +211,11 @@ class MullvadTileService : TileService() {
                 when (newState) {
                     is TileState.Active -> Tile.STATE_ACTIVE
                     is TileState.Inactive -> Tile.STATE_INACTIVE
-                    is TileState.Unavailable -> Tile.STATE_UNAVAILABLE
                 }
             icon =
                 when (newState) {
                     is TileState.Active -> securedIcon
                     is TileState.Inactive -> unsecuredIcon
-                    is TileState.Unavailable -> unsecuredIcon
                 }
             label = resources.getString(R.string.app_name)
             setSubtitleIfSupported(newState.subtitle)
