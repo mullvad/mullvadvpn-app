@@ -597,8 +597,7 @@ private fun ConnectionCard(
     onConnectClick: () -> Unit,
     onNavigateToFeature: (FeatureIndicator) -> Unit,
 ) {
-    var expanded by
-        rememberSaveable(state.tunnelState is TunnelState.Disconnected) { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     val containerColor =
         animateColorAsState(
             if (expanded) MaterialTheme.colorScheme.secondaryContainer
