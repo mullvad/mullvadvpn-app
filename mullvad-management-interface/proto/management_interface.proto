@@ -411,12 +411,12 @@ message MultiplexObfuscation {
 }
 
 enum ObfuscationType {
-  UDP2TCP = 0;
-  SHADOWSOCKS = 1;
-  QUIC = 2;
-  LWO = 3;
+  OBFUSCATION_TYPE_UDP2TCP = 0;
+  OBFUSCATION_TYPE_SHADOWSOCKS = 1;
+  OBFUSCATION_TYPE_QUIC = 2;
+  OBFUSCATION_TYPE_LWO = 3;
   // Plain WireGuard, without any obfuscation.
-  DIRECT = 4;
+  OBFUSCATION_TYPE_DIRECT = 4;
 }
 
 message ObfuscationEndpoint {
