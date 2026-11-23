@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 #. AU ADL
 msgid "Adelaide"

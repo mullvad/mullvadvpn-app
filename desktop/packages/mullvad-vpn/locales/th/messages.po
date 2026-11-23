@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -57,6 +57,9 @@ msgstr "การตั้งค่าบัญชี"
 msgid "Add"
 msgstr "เพิ่ม"
 
+msgid "Always"
+msgstr "ตลอดเวลา"
+
 msgid "Any"
 msgstr "อะไรก็ได้"
 
@@ -65,6 +68,9 @@ msgstr "ใช้"
 
 msgid "Automatic"
 msgstr "อัตโนมัติ"
+
+msgid "Automatic (%(location)s)"
+msgstr "อัตโนมัติ (%(location)s)"
 
 msgid "Back"
 msgstr "ย้อนกลับ"
@@ -107,6 +113,9 @@ msgstr "กำลังเชื่อมต่อ"
 
 msgid "CONNECTING..."
 msgstr "กำลังเชื่อมต่อ..."
+
+msgid "Continue"
+msgstr "ดำเนินการต่อ"
 
 msgid "Create"
 msgstr "สร้าง"
@@ -162,9 +171,6 @@ msgstr "แก้ไข"
 msgid "Enable"
 msgstr "เปิดใช้งาน"
 
-msgid "Enable anyway"
-msgstr "เปิดใช้งานต่อไป"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -173,8 +179,8 @@ msgstr "ไม่สามารถดึงรายการอุปกรณ
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้"
 
-msgid "Filters"
-msgstr "ตัวกรอง"
+msgid "Go back"
+msgstr "ย้อนกลับ"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
@@ -189,11 +195,17 @@ msgstr "คำแนะนำ"
 msgid "Import"
 msgstr "นำเข้า"
 
+msgid "Internet"
+msgstr "อินเทอร์เน็ต"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
+
+msgid "Kill switch"
+msgstr "คิลสวิตช์"
 
 msgid "Learn more"
 msgstr "เรียนรู้เพิ่มเติม"
@@ -204,6 +216,15 @@ msgstr "น้อยกว่าหนึ่งวัน"
 msgid "less than a day left"
 msgstr "เหลือเวลาน้อยกว่าหนึ่งวัน"
 
+msgid "Lockdown mode"
+msgstr "โหมดล็อกดาวน์"
+
+msgid "Magic"
+msgstr ""
+
+msgid "Magic multihop"
+msgstr ""
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -211,6 +232,9 @@ msgstr "มัลติฮอป"
 
 msgid "Name"
 msgstr "ชื่อ"
+
+msgid "Never"
+msgstr "ไม่เลย"
 
 msgid "New list"
 msgstr "รายการใหม่"
@@ -245,8 +269,6 @@ msgstr "รหัสผ่าน"
 msgid "Port"
 msgstr "พอร์ต"
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr "การต่อต้านควอนตัม"
 
@@ -273,12 +295,14 @@ msgstr "จำเป็น"
 msgid "Save"
 msgstr "บันทึก"
 
+msgid "Search entry location or server"
+msgstr "ค้นหาตำแหน่งที่ตั้งหรือเซิร์ฟเวอร์ขาเข้า"
+
+msgid "Search exit location or server"
+msgstr "ค้นหาตำแหน่งที่ตั้งหรือเซิร์ฟเวอร์ขาออก"
+
 msgid "Search for..."
 msgstr "ค้นหา…"
-
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
-msgstr "ค้นหาตำแหน่งที่ตั้งหรือเซิร์ฟเวอร์"
 
 msgid "SECURE CONNECTION"
 msgstr "การเชื่อมต่อที่ปลอดภัย"
@@ -321,6 +345,12 @@ msgstr "ใช้"
 msgid "Username"
 msgstr "ชื่อผู้ใช้"
 
+msgid "When needed"
+msgstr "เมื่อจำเป็น"
+
+msgid "Your device"
+msgstr "อุปกรณ์ของคุณ"
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -338,6 +368,11 @@ msgstr "%(title)s โหลดมุมมองแล้ว"
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "การตั้งค่าพอร์ต %(wireguard)s"
+
+#. Accessibility description for the list of active filters.
+msgctxt "accessibility"
+msgid "Active filters"
+msgstr "ตัวกรองที่ใช้งานอยู่"
 
 #. This is an accessibility label for a button that adds a location to a custom list.
 #. Available placeholders:
@@ -358,10 +393,14 @@ msgctxt "accessibility"
 msgid "Add a new custom list"
 msgstr "เพิ่มรายการแบบกำหนดเองใหม่"
 
-#. Accessibility description for button clearing the ownership filter.
+#. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
-msgid "Clear ownership filter"
-msgstr "ล้างตัวกรองความเป็นเจ้าของ"
+msgid "Anti-censorship settings"
+msgstr "การตั้งค่าการป้องกันการเซ็นเซอร์"
+
+msgctxt "accessibility"
+msgid "Clear search"
+msgstr "ล้างการค้นหา"
 
 msgctxt "accessibility"
 msgid "Close notification"
@@ -371,7 +410,26 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "ย่อ %(location)s"
 
-#. Accessibility label for a button that connects to a location.
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Configure filters for entry location"
+msgstr "กำหนดค่าตัวกรองสำหรับตำแหน่งที่ตั้งขาเข้า"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Configure filters for exit location"
+msgstr "กำหนดค่าตัวกรองสำหรับตำแหน่งที่ตั้งขาออก"
+
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr "เชื่อมต่อและใช้ %(location)s เป็นขาออก"
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -389,6 +447,11 @@ msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "ภาพสไลด์ข้อมูล DAITA"
 
+#. Accessibility label for link to DAITA settings.
+msgctxt "accessibility"
+msgid "DAITA settings"
+msgstr "การตั้งค่า DAITA"
+
 #. Accessibility label for button to delete a custom list.
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
@@ -400,6 +463,12 @@ msgstr "ลบรายการแบบกำหนดเอง %(listName)s"
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
 msgstr "แก้ไขรายการแบบกำหนดเอง %(listName)s"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
+msgstr "ตัวกรองตำแหน่งที่ตั้งขาเข้าถูกแทนที่ เนื่องจากมีการใช้ตำแหน่งที่ตั้งขาเข้าอัตโนมัติ"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -438,6 +507,36 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "ซ่อนหมายเลขบัญชี"
 
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr "ภาพประกอบแสดงการตั้งค่ามัลติฮอปขาเข้าเป็นอัตโนมัติ"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
+msgstr "ภาพประกอบแสดงการแยกตัวกรองสำหรับตำแหน่งที่ตั้งขาเข้าและขาออก"
+
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr "ภาพประกอบแสดงการรับส่งข้อมูลเมื่อใช้มัลติฮอป"
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr "ภาพประกอบแสดงการรับส่งข้อมูลเมื่อใช้มัลติฮอปโดยเปิดโหมด \"ตลอดเวลา\""
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr "ภาพประกอบแสดงการรับส่งข้อมูลเมื่อใช้มัลติฮอปโดยเปิดโหมด \"เมื่อจำเป็น\""
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr "ภาพประกอบแสดงการรับส่งข้อมูลโดยไม่ใช้มัลติฮอป"
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -463,6 +562,11 @@ msgstr "เข้าสู่ระบบด้วยหมายเลขบั
 msgctxt "accessibility"
 msgid "More information"
 msgstr "ข้อมูลเพิ่มเติม"
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
+msgstr "ภาพสไลด์ข้อมูลมัลติฮอป"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
@@ -511,6 +615,10 @@ msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "สไลด์ก่อนหน้า"
 
+msgctxt "accessibility"
+msgid "Read more about the automatic entry location"
+msgstr "อ่านเพิ่มเติมเกี่ยวกับตำแหน่งที่ตั้งขาเข้าอัตโนมัติ"
+
 #. Accessibility label for button to remove a location from a custom list.
 #. The first placeholder is replaced with the name of the location.
 #. The second placeholder is replaced with the name of the custom list.
@@ -530,6 +638,28 @@ msgctxt "accessibility"
 msgid "Remove item"
 msgstr "นำรายการออก"
 
+#. Accessibility description for button removing the ownership filter.
+msgctxt "accessibility"
+msgid "Remove ownership filter"
+msgstr "ลบตัวกรองความเป็นเจ้าของ"
+
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr "ลบตัวกรองความเป็นเจ้าของ (ไม่ได้ใช้งาน)"
+
+#. Accessibility description for button removing the providers filter.
+msgctxt "accessibility"
+msgid "Remove providers filter"
+msgstr "ลบตัวกรองผู้ให้บริการ"
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
+msgstr "ลบตัวกรองผู้ให้บริการ (ไม่ได้ใช้งาน)"
+
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "เลือกตำแหน่งที่ตั้ง ตำแหน่งที่ตั้งปัจจุบันคือ %(location)s"
@@ -547,6 +677,17 @@ msgstr "แสดงหมายเลขบัญชี"
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "การตั้งค่า UDP-ผ่าน-TCP"
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
+msgstr "ใช้ %(location)s เป็นขาเข้า"
+
+msgctxt "accessibility"
+msgid "Use automatic entry location"
+msgstr "ใช้ตำแหน่งที่ตั้งขาเข้าอัตโนมัติ"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
@@ -831,6 +972,11 @@ msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "เปิดใช้งานเพื่อรับการแจ้งเตือนเมื่อมีการเปิดตัวเวอร์ชันเบต้าใหม่ของแอป"
 
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
+msgstr "ย้ายข้อมูลการตั้งค่าแล้ว"
+
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ตัวเลือกนี้จะใช้ไม่ได้ในขณะที่ใช้เวอร์ชันเบต้า"
@@ -1062,12 +1208,6 @@ msgstr "%(city)s (%(hostname)s)"
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "คุณลักษณะที่ใช้งาน"
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
-msgstr "มัลติฮอปแบบอัตโนมัติ"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -1375,14 +1515,24 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "เกิดข้อผิดพลาดขึ้น โปรดติดต่อเราที่ %(email)s"
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
-msgstr "กรอง"
+msgid "Entry filter"
+msgstr "ตัวกรองขาเข้า"
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
+msgstr "ตัวกรองขาออก"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "ผู้ให้บริการทั้งหมด"
+
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr "ตัวกรองจะถูกยกเลิก เมื่อใช้ตำแหน่งแบบอัตโนมัติ"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
@@ -1419,9 +1569,12 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s พร้อมที่จะติดตั้งแล้ว"
 
+#. Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
-msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
-msgstr "<a>%(lockdownModeSettingName)s</a> เปิดใช้งานอยู่ โปรดคลิก “เชื่อมต่อ” หรือปิดใช้งาน “%(lockdownModeSettingName)s” เพื่อปลดบล็อกอินเทอร์เน็ต"
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
+msgstr "เปิดใช้งาน <a>%(lockdownModeSettingName)s</a> แล้ว เชื่อมต่อไปยังตำแหน่งที่ตั้งหรือปิดใช้งาน %(lockdownModeSettingName)s เพื่อเลิกบล็อกอินเทอร์เน็ต แอปที่ได้รับการยกเว้นผ่านการแยกอุโมงค์อาจทำงานได้ไม่สมบูรณ์ในโหมดนี้"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1443,6 +1596,10 @@ msgstr "กำลังบล็อกอินเทอร์เน็ต"
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr "คลิกที่นี่เพื่อติดตั้งการอัปเดต"
+
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr "คลิกที่นี่เพื่ออ่านเพิ่มเติม"
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
@@ -1527,6 +1684,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr "พร้อมที่จะติดตั้งการอัปเดต"
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr "แก้ไขปัญหาการเชื่อมต่อ"
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1541,6 +1702,18 @@ msgstr "ลองติดตั้งใหม่อีกครั้ง"
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "ส่งรายงานปัญหา"
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr "ย้ายข้อมูลการตั้งค่าแล้ว"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลงและแก้ไขปัญหาที่อาจเกิดขึ้น"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลง"
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
@@ -1606,6 +1779,28 @@ msgstr "การตรวจสอบเสร็จสมบูรณ์! ก�
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "การตรวจสอบล้มเหลว"
+
+#. First paragraph of description text in anti-censorship view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
+msgstr "%(killSwitchSettingName)s จะบล็อกการรับส่งข้อมูลเครือข่ายทั้งหมดโดยอัตโนมัติ หากการเชื่อมต่ออุโมงค์ VPN เครือข่าย หรืออินเทอร์เน็ตของคุณหยุดทำงาน เมื่อการเชื่อมต่อของคุณกลับมา แอปจะเลิกบล็อกการรับส่งข้อมูลของคุณ"
+
+#. Third paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s doesn’t protect you if you manually disconnect or quit the app. If that’s something you want, you can enable %(lockdownModeSettingName)s."
+msgstr "%(killSwitchSettingName)s จะไม่ปกป้องคุณ หากคุณตัดการเชื่อมต่อหรือออกจากแอปด้วยตนเอง หากคุณต้องการได้รับการปกป้อง คุณสามารถเปิดใช้งาน %(lockdownModeSettingName)s ได้"
+
+#. Second paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgstr "%(killSwitchSettingName)s เป็นส่วนสำคัญหลักในการป้องกันข้อมูลรั่วไหลของแอป และไม่สามารถปิดใช้งานได้"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1702,6 +1897,10 @@ msgstr "เข้า"
 msgctxt "locations-feature"
 msgid "Exit"
 msgstr "ออก"
+
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr "ปัจจุบันคุณมีการใช้งานตัวกรองขาเข้าอยู่ หากเปลี่ยนเป็น “เมื่อจำเป็น“ แอปจะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ขาเข้าที่ถูกเลือกโดยอัตโนมัติ"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1854,6 +2053,156 @@ msgstr "พอร์ตแบบกำหนดเองอาจมีค่า
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "ช่วงที่ใช้ได้: %(portRanges)s"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr "นำ “โดยตรงเท่านั้น” ออกแล้ว"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "ข้อควรระวัง: ตัวกรองจะถูกละเว้นสำหรับเซิร์ฟเวอร์เพิ่มเติมในโหมดนี้"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr "ข้อควรระวัง: ตัวกรองจะถูกละเว้นสำหรับเซิร์ฟเวอร์ขาเข้า สำหรับตำแหน่งที่ตั้ง “อัตโนมัติ”"
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr "เปลี่ยนเป็น “เมื่อจำเป็น\""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr "สามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งที่ตั้งขาเข้าและขาออกได้แล้วในขณะนี้"
+
+#. Title for the migrated settings view
+msgctxt "migrated-settings-view"
+msgid "Migrated settings"
+msgstr "ย้ายข้อมูลการตั้งค่าแล้ว"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr "ตั้งค่ามัลติฮอปขาเข้าเป็น “อัตโนมัติ”"
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "มัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ"
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "มัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr "ขณะนี้มัลติฮอปถูกแบ่งออกเป็นสามโหมด: เมื่อจำเป็น ตลอดเวลา และไม่เลย ซึ่งจะช่วยให้คุณมีความยืดหยุ่นตามความต้องการในการเชื่อมต่อของคุณมากขึ้น"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr "โหมดมัลติฮอปใหม่"
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr "ไม่มีการโยกย้ายการตั้งค่าที่พร้อมใช้งาน"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr "แยกตัวกรอง"
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr "ตั้งค่าจุดเข้าเป็น “อัตโนมัติ”"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr "คำแนะนำสำหรับมัลติฮอปขาเข้า"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr "โหมดมัลติฮอปที่แนะนำ"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr "การตั้งค่าย่อย \"โดยตรงเท่านั้น\" ของ DAITA ถูกนำออก และปรับให้เรียบง่ายขึ้นเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อ แทนที่จะเป็นเช่นนั้น การเปิดใช้งาน DAITA จะช่วยให้คุณสามารถเลือกตัวเลือกนี้ได้ด้วยการตั้งค่ามัลติฮอป"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr "ตอนนี้โหมดมัลติฮอปแบบ “ตลอดเวลา” มีคุณลักษณะตำแหน่งที่ตั้ง “อัตโนมัติ” สำหรับการเลือกเซิร์ฟเวอร์ขาเข้าแล้ว"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "โหมดนี้ช่วยให้แอปสามารถทำมัลติฮอปผ่านเซิร์ฟเวอร์เพิ่มเติมโดยอัตโนมัติ หากจำเป็น เพื่อให้มั่นใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่เลือกได้"
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr "รายการนี้จะแสดงด้วยสัญลักษณ์: <img></img>"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr "เราขอแนะนำให้คุณตั้งค่าโหมดมัลติฮอปเป็น “เมื่อจำเป็น” เพื่อหลีกเลี่ยงการถูกบล็อก"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr "เราขอแนะนำให้คุณตั้งค่าเซิร์ฟเวอร์มัลติฮอปขาเข้าเป็น “อัตโนมัติ” เพื่อหลีกเลี่ยงการต้องเปลี่ยนเซิร์ฟเวอร์ขาเข้าด้วยตนเอง"
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr "แอปอาจเปิดมัลติฮอปอัตโนมัติผ่านเซิร์ฟเวอร์ขาเข้าอื่น เพื่อให้แน่ใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่ตั้งที่คุณเลือกได้ และเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อของคุณ"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr "คุณต้องเลือกเซิร์ฟเวอร์ DAITA ด้วยตนเอง เมื่อตั้งค่ามัลติฮอปเป็น “ตลอดเวลา” หรือ “ไม่เลย”"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "แอปอาจใช้เซิร์ฟเวอร์เพิ่มเติม เพื่อให้แน่ใจว่าคุณเชื่อมต่อกับตำแหน่งที่ตั้งที่เลือกโดยใช้ DAITA เมื่อตั้งค่ามัลติฮอปเป็น “เมื่อจำเป็น”"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "เมื่อเลือกรายการนี้ แอปจะสุ่มเลือกเซิร์ฟเวอร์โดยอัตโนมัติ โดยให้ความสำคัญกับเซิร์ฟเวอร์ที่อยู่ใกล้กับตำแหน่งขาออกเพื่อประสิทธิภาพที่ดีขึ้น"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "ตัวกรองปัจจุบันของคุณถูกนำไปใช้กับทั้งตำแหน่งขาเข้าและขาออก"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr "การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “ตลอดเวลา”"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr "การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “ไม่เลย”"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr "การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “ปิด” เป็น “เมื่อจำเป็น”"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
+msgstr "การตั้งค่ามัลติฮอปของคุณถูกเปลี่ยนจาก “เปิด” เป็น “ตลอดเวลา”"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2099,6 +2448,15 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr "ตลอดเวลา"
 
+#. Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
+msgctxt "select-location-view"
+msgid "Attention: With the “Automatic” location, any enabled filters are ignored for the entry server."
+msgstr "ข้อควรระวัง: ตัวกรองที่เปิดใช้งานอยู่จะถูกละเว้นสำหรับเซิร์ฟเวอร์ขาเข้าสำหรับตำแหน่ง “อัตโนมัติ”"
+
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr "ล้างการค้นหา"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2122,18 +2480,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr "เปิดใช้งานล่าสุด"
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr "เข้า"
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr "ออก"
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr "กรอง:"
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2145,17 +2491,24 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr "ไม่เลย"
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr "ไม่พบเซิร์ฟเวอร์ที่ตรงกัน"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
 msgstr "ไม่มีประวัติการเลือกล่าสุด"
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr "การทำให้สับสน: %(obfuscation)s"
+msgid "No result for: “%(searchTerm)s“"
+msgstr "ไม่มีผลลัพธ์สำหรับ: “%(searchTerm)s“"
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
+msgstr "โปรดลองเปลี่ยนตัวกรองของคุณ"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2166,9 +2519,22 @@ msgctxt "select-location-view"
 msgid "Recents"
 msgstr "ล่าสุด"
 
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
-msgstr "การตั้งค่า: %(settingName)s"
+msgid "Selection does not match filter settings"
+msgstr "รายการที่เลือกไม่ตรงกับการตั้งค่าตัวกรอง"
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
+msgstr "รายการที่เลือกไม่พร้อมใช้งาน"
+
+#. Text for a button that sets multihop mode to "Always".
+msgctxt "select-location-view"
+msgid "Set multihop to \"Always\""
+msgstr "ตั้งค่ามัลติฮอปเป็น “ตลอดเวลา\""
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
 #. Available placeholders:
@@ -2178,11 +2544,32 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "กำลังแสดง %(visibleRelays)s จาก %(totalRelays)s"
 
+#. Text explaining that the entry server is automatically selected based on the chosen location.
+msgctxt "select-location-view"
+msgid "The entry server is currently selected to automatically work with your selected location."
+msgstr "เซิร์ฟเวอร์ขาเข้าถูกเลือกไว้ในปัจจุบัน เพื่อให้ทำงานร่วมกับตำแหน่งที่ตั้งที่คุณเลือกโดยอัตโนมัติ"
+
+#. Text explaning that if the user want to manually select a server, they need to switch multihop mode.
+msgctxt "select-location-view"
+msgid "To manually select an entry server please switch multihop mode to \"Always\"."
+msgstr "หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น “ตลอดเวลา”"
+
 #. Label for a menu option to change the Multihop mode setting
 #. option to "When needed".
 msgctxt "select-location-view"
 msgid "When needed"
 msgstr "เมื่อจำเป็น"
+
+#. Text in dialog explaining the behavior of the “Automatic” location option
+msgctxt "select-location-view"
+msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr "เมื่อเลือกตำแหน่ง “อัตโนมัติ” แอปจะสุ่มเลือกเซิร์ฟเวอร์ขาเข้าโดยอัตโนมัติ โดยให้ความสำคัญกับเซิร์ฟเวอร์ที่อยู่ใกล้กับตำแหน่งที่ตั้งขาออก เพื่อประสิทธิภาพที่ดีขึ้น"
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
+msgstr "ขณะนี้คุณกำลังเปิดใช้งานตัวกรองขาเข้าอยู่ หากเลือกตำแหน่งแบบ “อัตโนมัติ” แอปจะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ขาเข้า"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2275,11 +2662,32 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "มัลติฮอป"
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "มัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ"
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "มัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก"
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr "มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณเข้าสู่เซิร์ฟเวอร์ %(wireGuard)s ตัวหนึ่ง และออกไปอีกตัวหนึ่ง ซึ่งทำให้ยากต่อการติดตาม โดยจะเพิ่มความไม่เปิดเผยตัวตนทางออนไลน์ โดยแลกกับเวลาความหน่วงแฝงที่เพิ่มขึ้น มัลติฮอปมีสามโหมดให้เลือก ได้แก่: <br></br> เมื่อจำเป็น ตลอดเวลา และไม่เลย"
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
 msgstr "ไม่เลย"
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "ไม่ใช่ทุกตำแหน่งหรือเซิร์ฟเวอร์ของเราที่จะรองรับทุกฟีเจอร์ในแอป หากตำแหน่ง/เซิร์ฟเวอร์ที่คุณเลือกไม่รองรับฟีเจอร์ที่คุณเปิดใช้งานไว้ แอปจะเชื่อมต่อแบบมัลติฮอปผ่านเซิร์ฟเวอร์ที่รองรับโดยอัตโนมัติ"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2290,6 +2698,16 @@ msgstr "การตั้งค่า"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "การสนับสนุน"
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "นี่จะช่วยให้มั่นใจได้ว่าการเชื่อมต่อของคุณจะไม่ถูกบล็อก เนื่องจากการตั้งค่าที่ไม่เข้ากัน"
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
+msgstr "รายการนี้จะแสดงด้วยสัญลักษณ์ <img></img>"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
@@ -2696,10 +3114,6 @@ msgid "Anti-censorship"
 msgstr "การป้องกันการเซ็นเซอร์"
 
 msgctxt "vpn-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "โปรดทราบ: การเปิดใช้งานสิ่งนี้จะทำให้คุณจำเป็นต้องเชื่อมต่อ Mullvad VPN ไว้ตลอดเวลา เพื่อที่จะเข้าถึงอินเทอร์เน็ต"
-
-msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ<b>%(customDnsFeatureName)s</b>ได้"
 
@@ -2773,10 +3187,6 @@ msgid "It does this by allowing network communication outside the tunnel to loca
 msgstr "ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:"
 
 msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "คิลสวิตช์"
-
-msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "เปิดใช้แอปทันทีที่เปิดเครื่อง"
 
@@ -2803,24 +3213,8 @@ msgid "Social media"
 msgstr "โซเชียลมีเดีย"
 
 msgctxt "vpn-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "คิลสวิตช์ภายในแอปจะเปิดใช้งานอยู่เสมอ การตั้งค่านี้จะบล็อกอินเทอร์เน็ตเพิ่มเติม หากมีการคลิก ตัดการเชื่อมต่อ หรือ ออก"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "ความแตกต่างระหว่างคิลสวิตช์ และโหมดล็อกดาวน์ก็คือ คิลสวิตช์จะป้องกันไม่ให้มีข้อมูลรั่วไหว ในระหว่างการเชื่อมต่ออุโมงค์อัตโนมัติใหม่อีกครั้ง ซอฟต์แวร์ล้มเหลว และอุบัติเหตุที่คล้ายคลึงกัน"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "ความแตกต่างระหว่างคิลสวิตช์ และโหมดล็อกดาวน์ก็คือ คิลสวิตช์จะป้องกันไม่ให้มีข้อมูลรั่วไหว ในระหว่างการเชื่อมต่ออุโมงค์อัตโนมัติใหม่อีกครั้ง ซอฟต์แวร์ล้มเหลว และอุบัติเหตุที่คล้ายคลึงกัน เมื่อเปิดใช้งานโหมดล็อกดาวน์ คุณจำเป็นต้องเชื่อมต่อเซิร์ฟเวอร์ Mullvad VPN เพื่อเข้าถึงอินเทอร์เน็ต ทั้งนี้การตัดการเชื่อมต่อด้วยตนเอง หรือออกจากแอป จะเป็นบล็อกการเชื่อมต่อของคุณ"
-
-msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "เซิร์ฟเวอร์ DNS ที่คุณต้องการเพิ่มเป็น IP ส่วนตัว คุณต้องตรวจสอบให้แน่ใจว่า อินเทอร์เฟซเครือข่ายของคุณ ได้รับการกำหนดค่าให้ใช้เซิร์ฟเวอร์นี้"
-
-msgctxt "vpn-settings-view"
-msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "คุณลักษณะในตัวนี้ จะป้องกันไม่ให้การรับส่งข้อมูลของคุณรั่วไหลออกจากอุโมงค์ VPN หากเครือข่ายของคุณหยุดทำงานกะทันหัน หรือหากอุโมงค์ทำงานผิดพลาด โดยคุณลักษณะนี้จะบล็อกการรับส่งข้อมูลของคุณ จนกว่าการเชื่อมต่อจะถูกสร้างขึ้นมาใหม่"
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
@@ -2854,6 +3248,11 @@ msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น"
 
+#. Warning message shown in dialog when enabling lockdown mode.
+msgctxt "vpn-settings-view"
+msgid "Warning: this will block the internet if you aren’t connected through the Mullvad app."
+msgstr "คำเตือน: การดำเนินการนี้จะบล็อกอินเทอร์เน็ต หากคุณไม่ได้เชื่อมต่อผ่านแอป Mullvad"
+
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ"
@@ -2862,9 +3261,12 @@ msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr "ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณจะสามารถใช้งาน IPv6 ร่วมกับ IPv4 ในอุโมงค์ VPN เพื่อสื่อสารกับบริการอินเทอร์เน็ตได้"
 
+#. Explanation shown in the info dialog for Lockdown mode.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "vpn-settings-view"
-msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "เมื่อเปิดใช้งานโหมดล็อกดาวน์ คุณจำเป็นต้องเชื่อมต่อเซิร์ฟเวอร์ Mullvad VPN เพื่อเข้าถึงอินเทอร์เน็ต ทั้งนี้การตัดการเชื่อมต่อด้วยตนเอง หรือออกจากแอป จะเป็นบล็อกการเชื่อมต่อของคุณ"
+msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
+msgstr "เมื่อเปิดใช้งาน %(lockdownModeSettingName)s คุณจะสามารถเข้าถึงอินเทอร์เน็ตได้เฉพาะเมื่อเชื่อมต่อผ่านแอป Mullvad เท่านั้น การรับส่งข้อมูลเครือข่ายของคุณจะถูกบล็อก หากคุณตัดการเชื่อมต่อหรือออกจากแอปด้วยตนเอง"
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2900,8 +3302,17 @@ msgid "Always"
 msgstr "ตลอดเวลา"
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "มีการใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้ตรงกับการตั้งค่าของคุณสำหรับตำแหน่งที่เลือก"
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด"
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
+msgstr "ข้อควรระวัง: การดำเนินการนี้จะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ขาเข้าที่ถูกเลือกโดยอัตโนมัติ"
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
@@ -2935,10 +3346,6 @@ msgstr "MTU"
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "มัลติฮอป"
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น"
 
 #. Label for the Multihop mode setting's option to never use the multihop
 #. feature.
@@ -2993,6 +3400,17 @@ msgstr "พอร์ตแบบกำหนดเองอาจมีค่า
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้"
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr "รายการนี้จะแสดงด้วยสัญลักษณ์ <img></img>"
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
+msgstr "แอปอาจใช้มัลติฮอปอัตโนมัติผ่านเซิร์ฟเวอร์ขาเข้าอื่น เพื่อให้แน่ใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่ตั้งที่คุณเลือกได้ และเพื่อหลีกเลี่ยงการบล็อกการเชื่อมต่อของคุณ"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -3188,9 +3606,6 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง VPN อื่นแล้ว"
 
-msgid "An additional server is used to match your settings for your selected location"
-msgstr "มีการใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้ตรงกับการตั้งค่าของคุณสำหรับตำแหน่งที่เลือก"
-
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "ปัจจุบันเซิร์ฟเวอร์ขาเข้าจะถูกเลือกโดยอัตโนมัติเมื่อจำเป็น เพื่อให้แน่ใจว่าการเชื่อมต่อสามารถใช้งานได้ หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น \"ตลอดเวลา”"
 
@@ -3218,9 +3633,6 @@ msgstr "จำเป็นต้องเปิดใช้อย่างน้
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "โปรดทราบ: แอปแยกจะไม่มีอินเทอร์เน็ต ในกรณีที่เปิดใช้งาน \"ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN\" โปรดทราบว่า การการแยกอุโมงค์จะก่อให้เกิดความเสี่ยงต่อความเป็นส่วนตัว"
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "ข้อควรระวัง: ตัวกรองจะถูกละเว้นสำหรับเซิร์ฟเวอร์เพิ่มเติมในโหมดนี้"
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "ข้อควรระวัง: การดำเนินการนี้จะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ที่ถูกใช้เป็นจุดทางเข้า"
 
@@ -3232,9 +3644,6 @@ msgstr "เชื่อมต่ออัตโนมัติและโหม
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต"
-
-msgid "Automatic (%s)"
-msgstr "อัตโนมัติ (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "เชื่อมต่ออัตโนมัติเมื่อเริ่มต้นอุปกรณ์"
@@ -3266,9 +3675,6 @@ msgstr "เปลี่ยนเป็น “เมื่อจำเป็น�
 msgid "Clear input"
 msgstr "ล้างข้อมูลอินพุต"
 
-msgid "Click here to read more"
-msgstr "คลิกที่นี่เพื่ออ่านเพิ่มเติม"
-
 msgid "Collapse"
 msgstr "ยุบ"
 
@@ -3278,14 +3684,14 @@ msgstr "เชื่อมต่อเมื่ออุปกรณ์เริ
 msgid "Connect to a different network"
 msgstr "เชื่อมต่อกับเครือข่ายอื่น"
 
+msgid "Connected server"
+msgstr "เซิร์ฟเวอร์ที่เชื่อมต่อ"
+
 msgid "Connecting..."
 msgstr "กำลังเชื่อมต่อ..."
 
 msgid "Contact support"
 msgstr "ติดต่อฝ่ายสนับสนุน"
-
-msgid "Continue"
-msgstr "ดำเนินการต่อ"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว"
@@ -3377,6 +3783,9 @@ msgstr "เปิดใช้งานทั้งหมดและลองใ
 msgid "Enable all access methods in the app"
 msgstr "เปิดใช้งานวิธีการเข้าถึงทั้งหมดในแอป"
 
+msgid "Enable anyway"
+msgstr "เปิดใช้งานต่อไป"
+
 msgid "Enable method"
 msgstr "เปิดใช้งานวิธีการ"
 
@@ -3392,17 +3801,11 @@ msgstr "ป้อนหมายเลขบัญชี"
 msgid "Enter an account number"
 msgstr "ป้อนหมายเลขบัญชี"
 
-msgid "Entry filter"
-msgstr "ตัวกรองขาเข้า"
-
 msgid "Entry relay is the same as exit relay"
 msgstr "Entry Relay เหมือนกับ Exit Relay"
 
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
-
-msgid "Exit filter"
-msgstr "ตัวกรองขาออก"
 
 msgid "Expand"
 msgstr "ขยาย"
@@ -3431,8 +3834,8 @@ msgstr "ไม่สามารถตั้งค่าเป็นปัจจ
 msgid "File"
 msgstr "ไฟล์"
 
-msgid "Filters are overridden when using an automatic location"
-msgstr "ตัวกรองจะถูกยกเลิก เมื่อใช้ตำแหน่งแบบอัตโนมัติ"
+msgid "Filter"
+msgstr "กรอง"
 
 msgid "Filters can now be set separately for entry and exit locations."
 msgstr "สามารถตั้งค่าตัวกรองแยกกันสำหรับตำแหน่งขาเข้าและขาออกได้แล้วในขณะนี้"
@@ -3503,9 +3906,6 @@ msgstr "รวมโทเค็นบัญชีของฉันเพื่
 msgid "Info"
 msgstr "ข้อมูล"
 
-msgid "Internet"
-msgstr "อินเทอร์เน็ต"
-
 msgid "Invalid IP address"
 msgstr "ที่อยู่ IP ไม่ถูกต้อง"
 
@@ -3545,9 +3945,6 @@ msgstr "เข้าสู่ระบบ"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "ตรวจสอบให้แน่ใจว่า อุปกรณ์อยู่ในช่องทาง VPN เสมอ"
 
-msgid "Migrated settings"
-msgstr "ย้ายข้อมูลการตั้งค่าแล้ว"
-
 msgid "More actions"
 msgstr "การดำเนินการเพิ่มเติม"
 
@@ -3560,20 +3957,14 @@ msgstr "ตั้งค่ามัลติฮอปขาเข้าเป็
 msgid "Multihop is disabled"
 msgstr "ปิดใช้งาน Multihop แล้ว"
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "มัลติฮอปถูกปิดใช้งาน ตำแหน่งที่คุณเลือกต้องรองรับการตั้งค่าที่เปิดใช้งานอยู่ทั้งหมดเพื่อสร้างการเชื่อมต่อ"
-
 msgid "Multihop is enabled"
 msgstr "เปิดใช้งาน Multihop แล้ว"
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "มัลติฮอปเปิดใช้งานอยู่ การเชื่อมต่อของคุณจะถูกกำหนดเส้นทางผ่านเซิร์ฟเวอร์ขาเข้าก่อนที่จะออกไปยังตำแหน่งที่เลือก"
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "ขณะนี้ มัลติฮอปถูกแบ่งออกเป็น 3 โหมด: เมื่อจำเป็น ตลอดเวลา และไม่เลย\\nสิ่งนี้จะช่วยให้คุณมีความยืดหยุ่นในการตั้งค่าการเชื่อมต่อของคุณมากขึ้น"
 
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
-msgstr "มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณเข้าสู่เซิร์ฟเวอร์ WireGuard ตัวหนึ่งและออกไปอีกตัวหนึ่ง ซึ่งทำให้ยากต่อการติดตาม โดยจะส่งผลให้มีความหน่วงแฝงเพิ่มขึ้น แต่ช่วยเพิ่มการปกปิดตัวตนบนโลกออนไลน์ได้ โหมดมัลติฮอปมีสามโหมดให้เลือก ได้แก่:\\nเมื่อจำเป็น ตลอดเวลา และไม่เลย"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr ""
 
 msgid "Multihop when needed"
 msgstr "มัลติฮอป เมื่อจำเป็น"
@@ -3586,9 +3977,6 @@ msgstr "ชื่อถูกเปลี่ยนเป็น %s"
 
 msgid "Navigate"
 msgstr "นำทาง"
-
-msgid "New multihop modes"
-msgstr "โหมดมัลติฮอปใหม่"
 
 msgid "Next %1$s"
 msgstr "ถัดไป %1$s"
@@ -3689,9 +4077,6 @@ msgstr "โปรดนำอุปกรณ์ออกก่อนดำเน
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %s เป็นภาษาสวีเดนหรืออังกฤษ"
 
-msgid "Please try changing your filters."
-msgstr "โปรดลองเปลี่ยนตัวกรองของคุณ"
-
 msgid "Port is out of range"
 msgstr "พอร์ตอยู่นอกระยะ"
 
@@ -3743,9 +4128,6 @@ msgstr "ค้นหา"
 msgid "Send email"
 msgstr "ส่งอีเมล"
 
-msgid "Separate filters"
-msgstr "แยกตัวกรอง"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d"
 
@@ -3788,12 +4170,6 @@ msgstr "แสดงสถานะอุโมงค์ VPN ในปัจจ�
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลงและแก้ไขปัญหาที่อาจเกิดขึ้น"
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr "การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลง"
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "เกิดข้อผิดพลาดขณะตรวจสอบยืนยันการซื้อของคุณ โปรดติดต่อฝ่ายสนับสนุน"
 
@@ -3802,9 +4178,6 @@ msgstr "ส่ง"
 
 msgid "Suggested action"
 msgstr "การดำเนินการที่แนะนำ"
-
-msgid "Suggested multihop entry"
-msgstr "คำแนะนำสำหรับมัลติฮอปขาเข้า"
 
 msgid "System network settings"
 msgstr "การตั้งค่าเครือข่ายของระบบ"
@@ -3869,9 +4242,6 @@ msgstr "วิธีการเหล่านี้อาจมีประโ
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
 
-msgid "This ensures your connection does not get blocked due to incompatible settings."
-msgstr "นี่จะช่วยให้มั่นใจได้ว่าการเชื่อมต่อของคุณจะไม่ถูกบล็อก เนื่องจากการตั้งค่าที่ไม่เข้ากัน"
-
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
 
@@ -3883,9 +4253,6 @@ msgstr "นี่ได้รับการตั้งค่าเป็นป
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "นี่อาจเกิดจากการเซ็นเซอร์หรือปัญหาเครือข่าย โปรดลอง:"
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "โหมดนี้ช่วยให้แอปสามารถทำมัลติฮอปผ่านเซิร์ฟเวอร์เพิ่มเติมโดยอัตโนมัติ หากจำเป็น เพื่อให้มั่นใจว่าการตั้งค่าปัจจุบันของคุณทำงานร่วมกับตำแหน่งที่เลือกได้"
 
 msgid "This will be indicated by the %1$s symbol."
 msgstr "รายการนี้จะแสดงด้วยสัญลักษณ์ %1$s"
@@ -4040,9 +4407,6 @@ msgstr "คุณต้องเลือกเซิร์ฟเวอร์ DA
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr "แอปอาจใช้เซิร์ฟเวอร์เพิ่มเติมเพื่อให้แน่ใจว่าคุณเชื่อมต่อกับตำแหน่งที่เลือกโดยใช้ DAITA เมื่อตั้งค่ามัลติฮอปเป็น “เมื่อจำเป็น”"
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "เมื่อเลือกรายการนี้ แอปจะสุ่มเลือกเซิร์ฟเวอร์โดยอัตโนมัติ โดยให้ความสำคัญกับเซิร์ฟเวอร์ที่อยู่ใกล้กับตำแหน่งขาออกเพื่อประสิทธิภาพที่ดีขึ้น"
-
 msgid "WireGuard port"
 msgstr "พอร์ต WireGuard"
 
@@ -4066,12 +4430,6 @@ msgstr "คุณจะสูญเสียการเข้าถึงบั
 
 msgid "You will lose your remaining"
 msgstr "คุณจะสูญเสียจำนวนวันที่เหลืออยู่"
-
-msgid "Your current filters were applied to both entry and exit locations."
-msgstr "ตัวกรองปัจจุบันของคุณถูกนำไปใช้กับทั้งตำแหน่งขาเข้าและขาออก"
-
-msgid "Your device"
-msgstr "อุปกรณ์ของคุณ"
 
 msgid "Your device (%s)"
 msgstr "อุปกรณ์ของคุณ (%s)"

@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">有効な機能</string>
     <string name="connect_panel_connection_details">接続の詳細</string>
     <string name="connected">接続済み</string>
+    <string name="connected_server">接続先サーバー</string>
     <string name="connecting">接続中...</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">値: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>必要時</b>\nすべてのロケーションやサーバーが、アプリのすべての機能に対応しているわけではありません。選択したロケーションやサーバーが有効にした機能に対応していない場合、アプリは対応するサーバーを経由して自動的にマルチホップ接続を行います。</string>
     <string name="multihop_description_slide_2_second_paragraph">これにより、互換性のない設定によって接続がブロックされるのを防ぎます。</string>
     <string name="multihop_description_slide_2_third_paragraph">この状態は%1$sアイコンで示されます。</string>

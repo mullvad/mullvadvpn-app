@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Actieve functies</string>
     <string name="connect_panel_connection_details">Verbindingsgegevens</string>
     <string name="connected">Verbonden</string>
+    <string name="connected_server">Verbonden server</string>
     <string name="connecting">Verbinden ...</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Waarde: %1$s</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_1_first_paragraph">Multihop leidt uw verkeer via de ene WireGuard-server naar de andere, waardoor het moeilijker te traceren is. Dit verhoogt de anonimiteit online, maar verhoogt de latentie. Multihop biedt drie verschillende modussen waaruit u kunt kiezen:\nWanneer nodig, Altijd en Nooit.</string>
     <string name="multihop_description_slide_2_first_paragraph"><b>Wanneer nodig</b>\nNiet al onze locaties/servers ondersteunen alle functies in de app. Indien de door u geselecteerde locatie/server de functies die u heeft ingeschakeld niet ondersteunt, multihopt de app automatisch via een compatibele server.</string>
     <string name="multihop_description_slide_2_second_paragraph">Dit zorgt ervoor dat uw verbinding niet wordt geblokkeerd als gevolg van incompatibele instellingen.</string>
     <string name="multihop_description_slide_2_third_paragraph">Dit wordt aangegeven met het symbool %1$s.</string>

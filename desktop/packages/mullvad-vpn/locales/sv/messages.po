@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2026-10-19 11:16\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
@@ -63,6 +63,9 @@ msgstr "Kontoinställningar"
 msgid "Add"
 msgstr "Lägg till"
 
+msgid "Always"
+msgstr "Alltid"
+
 msgid "Any"
 msgstr "Valfri"
 
@@ -71,6 +74,9 @@ msgstr "Använd"
 
 msgid "Automatic"
 msgstr "Automatisk"
+
+msgid "Automatic (%(location)s)"
+msgstr "Automatisk (%(location)s)"
 
 msgid "Back"
 msgstr "Tillbaka"
@@ -113,6 +119,9 @@ msgstr "Ansluter"
 
 msgid "CONNECTING..."
 msgstr "ANSLUTER ..."
+
+msgid "Continue"
+msgstr "Fortsätt"
 
 msgid "Create"
 msgstr "Skapa"
@@ -168,9 +177,6 @@ msgstr "Redigera"
 msgid "Enable"
 msgstr "Aktivera"
 
-msgid "Enable anyway"
-msgstr "Aktivera ändå"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -179,8 +185,8 @@ msgstr "Det gick inte att hämta lista med enheter"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "DET GICK INTE ATT SÄKRA ANSLUTNINGEN"
 
-msgid "Filters"
-msgstr "Filter"
+msgid "Go back"
+msgstr "Gå tillbaka"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
@@ -195,11 +201,17 @@ msgstr "Guide"
 msgid "Import"
 msgstr "Importera"
 
+msgid "Internet"
+msgstr "Internet"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
+
+msgid "Kill switch"
+msgstr "Kill Switch"
 
 msgid "Learn more"
 msgstr "Läs mer"
@@ -210,6 +222,15 @@ msgstr "mindre än en dag"
 msgid "less than a day left"
 msgstr "mindre än en dag kvar"
 
+msgid "Lockdown mode"
+msgstr "Låsningsläge"
+
+msgid "Magic"
+msgstr "Magiskt"
+
+msgid "Magic multihop"
+msgstr "Magiskt multihopp"
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -217,6 +238,9 @@ msgstr "Multihopp"
 
 msgid "Name"
 msgstr "Namn"
+
+msgid "Never"
+msgstr "Aldrig"
 
 msgid "New list"
 msgstr "Ny lista"
@@ -251,8 +275,6 @@ msgstr "Lösenord"
 msgid "Port"
 msgstr "Port"
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr "Kvantresistens"
 
@@ -279,12 +301,14 @@ msgstr "Obligatoriskt"
 msgid "Save"
 msgstr "Spara"
 
+msgid "Search entry location or server"
+msgstr "Sök efter ingångsplats eller ingångsserver"
+
+msgid "Search exit location or server"
+msgstr "Sök efter utgångsplats eller utgångsserver"
+
 msgid "Search for..."
 msgstr "Sök efter …"
-
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
-msgstr "Sök efter platser eller servrar"
 
 msgid "SECURE CONNECTION"
 msgstr "SÄKER ANSLUTNING"
@@ -327,6 +351,12 @@ msgstr "Använd"
 msgid "Username"
 msgstr "Användarnamn"
 
+msgid "When needed"
+msgstr "Vid behov"
+
+msgid "Your device"
+msgstr "Din enhet"
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -344,6 +374,11 @@ msgstr "%(title)s, visa laddad"
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s-portinställningar"
+
+#. Accessibility description for the list of active filters.
+msgctxt "accessibility"
+msgid "Active filters"
+msgstr "Aktiva filter"
 
 #. This is an accessibility label for a button that adds a location to a custom list.
 #. Available placeholders:
@@ -364,10 +399,14 @@ msgctxt "accessibility"
 msgid "Add a new custom list"
 msgstr "Lägg till en ny anpassad lista"
 
-#. Accessibility description for button clearing the ownership filter.
+#. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
-msgid "Clear ownership filter"
-msgstr "Rensa ägarskapsfilter"
+msgid "Anti-censorship settings"
+msgstr "Inställningar för anti-censur"
+
+msgctxt "accessibility"
+msgid "Clear search"
+msgstr "Rensa sökning"
 
 msgctxt "accessibility"
 msgid "Close notification"
@@ -377,7 +416,26 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "Dölj %(location)s"
 
-#. Accessibility label for a button that connects to a location.
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Configure filters for entry location"
+msgstr "Konfigurera filter för ingångsplats"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Configure filters for exit location"
+msgstr "Konfigurera filter för utgångsplats"
+
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr "Anslut och använd %(location)s som utgång"
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -395,6 +453,11 @@ msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "Informationskarusell för DAITA"
 
+#. Accessibility label for link to DAITA settings.
+msgctxt "accessibility"
+msgid "DAITA settings"
+msgstr "DAITA-inställningar"
+
 #. Accessibility label for button to delete a custom list.
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
@@ -406,6 +469,12 @@ msgstr "Ta bort den anpassade listan %(listName)s"
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
 msgstr "Redigera den anpassade listan %(listName)s"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
+msgstr "Filter för ingångsplats åsidosätts eftersom automatisk ingångsplats används"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -444,6 +513,36 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Dölj kontonummer"
 
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr "Bild som visar hur multihopp-ingång ställts in på automatisk"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
+msgstr "Bild som visar separata filter för ingångs- och utgångsplatser"
+
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr "Bild som visar trafik när multihopp används"
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr "Bild som visar trafik när multihopp används i läget \"Alltid\""
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr "Bild som visar trafik när multihopp används i läget \"Vid behov\""
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr "Bild som visar trafik utan att multihopp används"
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -469,6 +568,11 @@ msgstr "Logga in med kontonumret %(accountNumber)s"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Mer information"
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
+msgstr "Informationskarusell för multihopp"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
@@ -517,6 +621,10 @@ msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "Föregående bild"
 
+msgctxt "accessibility"
+msgid "Read more about the automatic entry location"
+msgstr "Läs mer om automatisk ingångsplats"
+
 #. Accessibility label for button to remove a location from a custom list.
 #. The first placeholder is replaced with the name of the location.
 #. The second placeholder is replaced with the name of the custom list.
@@ -536,6 +644,28 @@ msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Ta bort föremål"
 
+#. Accessibility description for button removing the ownership filter.
+msgctxt "accessibility"
+msgid "Remove ownership filter"
+msgstr "Ta bort ägarskapsfilter"
+
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr "Ta bort ägarskapsfilter (inaktivt)"
+
+#. Accessibility description for button removing the providers filter.
+msgctxt "accessibility"
+msgid "Remove providers filter"
+msgstr "Ta bort leverantörsfilter"
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
+msgstr "Ta bort leverantörsfilter (inaktivt)"
+
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Välj plats. Nuvarande plats är %(location)s"
@@ -553,6 +683,17 @@ msgstr "Visa kontonummer"
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP över TCP-inställningar"
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
+msgstr "Använd %(location)s som ingång"
+
+msgctxt "accessibility"
+msgid "Use automatic entry location"
+msgstr "Använd automatisk ingångsplats"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
@@ -837,6 +978,11 @@ msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Aktivera för att få en avisering när nya betaversioner av appen släpps."
 
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
+msgstr "Migrerade inställningar"
+
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Det här alternativet är inte tillgängligt när du använder en betaversion."
@@ -1068,12 +1214,6 @@ msgstr "%(city)s (%(hostname)s)"
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Aktiva funktioner"
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
-msgstr "Automatiskt multihopp"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -1381,14 +1521,24 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Ett fel har inträffat. Kontakta oss på %(email)s"
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
-msgstr "Filtrera"
+msgid "Entry filter"
+msgstr "Ingångsfilter"
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
+msgstr "Utgångsfilter"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "Alla leverantörer"
+
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr "Filtren åsidosätts när du använder en automatisk plats"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
@@ -1425,9 +1575,12 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s är klar att installeras."
 
+#. Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
-msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
-msgstr "<a>%(lockdownModeSettingName)s</a> är aktiverat. Klicka på \"Anslut\" eller inaktivera \"%(lockdownModeSettingName)s\" för att avblockera internet."
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
+msgstr "<a>%(lockdownModeSettingName)s</a> är aktiverat. Anslut till en plats eller inaktivera %(lockdownModeSettingName)s för att avblockera internet. Appar som exkluderas med split tunneling kanske inte fungerar korrekt i det här läget."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1449,6 +1602,10 @@ msgstr "BLOCKERAR INTERNET"
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr "Klicka här för att installera uppdateringen."
+
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr "Klicka här för att läsa mer"
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
@@ -1533,6 +1690,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr "KLAR ATT INSTALLERA UPPDATERING"
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr "LÖS ANSLUTNINGSPROBLEMEN"
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1547,6 +1708,18 @@ msgstr "Prova att installera igen"
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Skicka problemrapport"
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr "INSTÄLLNINGARNA HAR MIGRERATS"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "Vissa av inställningarna har migrerats. Gå igenom ändringarna och lös eventuella problem."
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "Vissa av inställningarna har migrerats. Gå igenom ändringarna."
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
@@ -1612,6 +1785,28 @@ msgstr "VERIFIERINGEN HAR SLUTFÖRTS! STARTAR INSTALLATIONSPROGRAMMET ..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "DET GICK INTE ATT VERIFIERA"
+
+#. First paragraph of description text in anti-censorship view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
+msgstr "%(killSwitchSettingName)s blockerar all nätverkstrafik automatiskt om VPN-tunneln, nätverket eller internetanslutningen slutar fungera. När anslutningen återställs, avblockerar appen din trafik."
+
+#. Third paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s doesn’t protect you if you manually disconnect or quit the app. If that’s something you want, you can enable %(lockdownModeSettingName)s."
+msgstr "%(killSwitchSettingName)s skyddar dig inte om du kopplar från eller avslutar appen manuellt. Om du vill göra det kan du aktivera %(lockdownModeSettingName)s."
+
+#. Second paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgstr "%(killSwitchSettingName)s är en viktig del av appens läckageskydd och kan inte inaktiveras."
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1708,6 +1903,10 @@ msgstr "Ingång"
 msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Utgång"
+
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr "Du tillämpar för närvarande ingångsfilter. Om du växlar till \"Vid behov\" kommer appen att ignorera filterinställningarna för den automatiskt valda ingångsservern."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1860,6 +2059,156 @@ msgstr "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %(
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "Giltiga intervall: %(portRanges)s"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr "\"Endast direkt\" har tagits bort"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "Obs! I det här läget ignoreras filtren för extra server."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr "Obs! Med \"Automatisk\" plats ignoreras filtren för ingångsservern."
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr "Ändra till \"Vid behov\""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr "Det går nu att ange separata filter för ingångs- och utgångsplatserna"
+
+#. Title for the migrated settings view
+msgctxt "migrated-settings-view"
+msgid "Migrated settings"
+msgstr "Migrerade inställningar"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr "Multihoppingång inställd på \"Automatisk\""
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning."
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr "Multihopp är nu uppdelat i tre lägen: Vid behov, Alltid och Aldrig. Detta ger dig mer flexibilitet i anslutningsinställningarna."
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr "Nya multihopplägen"
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr "Inga inställningsmigreringar är tillgängliga."
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr "Separata filter"
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr "Ange ingång som \"Automatisk\""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr "Föreslagen multihoppingång"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr "Föreslaget multihoppläge"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr "Det underställda DAITA-alternativet \"Endast direkt\" har tagits bort och förenklats för att undvika att anslutningarna blockeras. När DAITA är aktiverat kan du istället välja det här alternativet med multihoppinställningen."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr "Multihoppläget \"Alltid\" har nu en \"Automatisk\" plats för val av ingångsserver."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "Det här läget ger appen möjlighet att vid behov automatiskt multihoppa via en extra server för att säkerställa att dina nuvarande inställningar fungerar med din valda plats."
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr "Detta anges med symbolen: <img></img>"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr "För att undvika att blockeras rekommenderar vi att du ställer in multihoppläget \"Vid behov\"."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr "För att undvika att ändra ingångsservern manuellt rekommenderar vi att du ställer in ingångsservern för multihopp som \"Automatisk\"."
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr "Appen kanske aktiverar multihopp automatiskt via en annan ingångsserver så att dina nuvarande inställningar ska fungera samt för att undvika att anslutningen blockeras."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr "När multihopp är inställt på \"Alltid\" eller \"Aldrig\" måste du välja DAITA-server manuellt."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "När multihopp är inställt på \"Vid behov\" kan appen använda en extra server för att se till att du ansluter till din valda plats via DAITA."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "När det är valt väljer appen automatiskt en slumpmässig server och prioriterar dem som är närmare utgångsplatsen för bättre prestanda."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "Dina nuvarande filter har använts på både ingångs- och utgångsplatserna."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr "Din multihoppinställning har migrerats från \"Av\" till \"Alltid\"."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr "Din multihoppinställning har migrerats från \"Av\" till \"Aldrig\"."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr "Din multihoppinställning har migrerats från \"Av\" till \"Vid behov\"."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
+msgstr "Din multihoppinställning har migrerats från \"På\" till \"Alltid\"."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2105,6 +2454,15 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr "Alltid"
 
+#. Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
+msgctxt "select-location-view"
+msgid "Attention: With the “Automatic” location, any enabled filters are ignored for the entry server."
+msgstr "Obs! Med platsen \"automatisk\" ignoreras alla aktiverade filter för ingångsservern."
+
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr "Rensa sökning"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2128,18 +2486,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr "Aktivera senaste"
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr "Ingång"
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr "Utgång"
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr "Filtrerat:"
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2151,17 +2497,24 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr "Aldrig"
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr "Inga överensstämmande servrar hittades"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
 msgstr "Ingen historik av senaste val"
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr "Obfuskering: %(obfuscation)s"
+msgid "No result for: “%(searchTerm)s“"
+msgstr "Inga resultat för: \"%(searchTerm)s\""
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
+msgstr "Prova att ändra dina filter."
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2172,9 +2525,22 @@ msgctxt "select-location-view"
 msgid "Recents"
 msgstr "Senaste"
 
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
-msgstr "Inställning: %(settingName)s"
+msgid "Selection does not match filter settings"
+msgstr "Valet matchar inte filterinställningarna"
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
+msgstr "Valet är inte tillgängligt"
+
+#. Text for a button that sets multihop mode to "Always".
+msgctxt "select-location-view"
+msgid "Set multihop to \"Always\""
+msgstr "Ställ in multihopp som \"Alltid\""
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
 #. Available placeholders:
@@ -2184,11 +2550,32 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "Visar %(visibleRelays)s av %(totalRelays)s"
 
+#. Text explaining that the entry server is automatically selected based on the chosen location.
+msgctxt "select-location-view"
+msgid "The entry server is currently selected to automatically work with your selected location."
+msgstr "Ingångsservern väljs för närvarande så att den fungerar automatiskt med din valda plats."
+
+#. Text explaning that if the user want to manually select a server, they need to switch multihop mode.
+msgctxt "select-location-view"
+msgid "To manually select an entry server please switch multihop mode to \"Always\"."
+msgstr "Om du vill välja ingångsserver manuellt växlar du multihoppläget till \"Alltid\"."
+
 #. Label for a menu option to change the Multihop mode setting
 #. option to "When needed".
 msgctxt "select-location-view"
 msgid "When needed"
 msgstr "Vid behov"
+
+#. Text in dialog explaining the behavior of the “Automatic” location option
+msgctxt "select-location-view"
+msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr "När \"Automatisk\" plats är vald väljer appen automatiskt en slumpmässig ingångsserver och prioriterar dem som är närmare utgångsplatsen för bättre prestanda."
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
+msgstr "Du tillämpar för närvarande ingångsfilter. Om du väljer platsen \"Automatisk\" kommer appen att ignorera filterinställningarna för ingångsservern."
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2281,11 +2668,32 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Multihopp"
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning."
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen."
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr "Multihopp dirigerar in din trafik till en %(wireGuard)s-server och ut ur en annan, vilket gör den svårare att spåra. Detta förbättrar anonymiteten på internet på bekostnad av längre fördröjning. Multihopp har tre olika lägen att välja mellan: <br></br>Vid behov, Alltid och Aldrig."
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
 msgstr "Aldrig"
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "Det är inte alla våra platser/servrar som har stöd för alla funktioner i appen. Om din valda plats/server inte har stöd för funktionerna du har aktiverat kommer appen automatiskt att multihoppa via en kompatibel server."
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2296,6 +2704,16 @@ msgstr "Inställningar"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Support"
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "Det säkerställer att din anslutning inte blockeras på grund av inkompatibla inställningar."
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
+msgstr "Detta anges med <img></img>-symbolen"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
@@ -2702,10 +3120,6 @@ msgid "Anti-censorship"
 msgstr "Anti-censur"
 
 msgctxt "vpn-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "Obs! Om du aktiverar detta behöver du alltid en Mullvad VPN-anslutning för att nå internet."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "Obs! Den här inställningen kan inte användas tillsammans med <b>%(customDnsFeatureName)s</b>"
 
@@ -2779,10 +3193,6 @@ msgid "It does this by allowing network communication outside the tunnel to loca
 msgstr "Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:"
 
 msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "Kill Switch"
-
-msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "Starta appen vid uppstart"
 
@@ -2809,24 +3219,8 @@ msgid "Social media"
 msgstr "Sociala medier"
 
 msgctxt "vpn-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "Appens inbyggda Kill Switch är alltid på. Den här inställningen kommer dessutom att blockera internet när du klickar på Koppla från eller Avsluta."
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "Skillnaden mellan Kill Switch och Låsningsläge är att Kill Switch förhindrar att läckor inträffar vid automatisk återanslutning av tunnlar, programkraschar och liknande olyckor."
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "Skillnaden mellan Kill Switch och Låsningsläge är att Kill Switch förhindrar att läckor inträffar vid automatisk återanslutning av tunnlar, programkraschar och liknande olyckor. När Låsningsläge är aktiverat måste du vara ansluten till en Mullvad VPN-server för att kunna nå internet. Om du kopplar från automatiskt eller avslutar appen blockeras din anslutning."
-
-msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "DNS-servern du vill lägga till är en privat IP. Se till att dina nätverksgränssnitt är konfigurerade för att använda den."
-
-msgctxt "vpn-settings-view"
-msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "Den här inbyggda funktionen hindrar din trafik från att läcka utanför VPN-tunneln om ditt nätverk plötsligt slutar fungera eller om tunneln misslyckas. Den gör detta genom att blockera din trafik tills anslutningen återupprättats."
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
@@ -2860,6 +3254,11 @@ msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "Varning! Blockering av skadlig kod är inte ett antivirusprogram och bör inte behandlas som ett. Det här är bara ett extra skyddslager."
 
+#. Warning message shown in dialog when enabling lockdown mode.
+msgctxt "vpn-settings-view"
+msgid "Warning: this will block the internet if you aren’t connected through the Mullvad app."
+msgstr "Varning! Detta blockerar internet om du inte är ansluten via Mullvad-appen."
+
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera."
@@ -2868,9 +3267,12 @@ msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr "När funktionen är aktiverad kan IPv6 användas tillsammans med IPv4 i VPN-tunneln för att kommunicera med internettjänster."
 
+#. Explanation shown in the info dialog for Lockdown mode.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "vpn-settings-view"
-msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "När Låsningsläge är aktiverat måste du vara ansluten till en Mullvad VPN-server för att kunna nå internet. Om du kopplar från automatiskt eller avslutar appen blockeras din anslutning."
+msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
+msgstr "När %(lockdownModeSettingName)s är aktiverat kan du bara öppna internet om du är ansluten via Mullvad-appen. Din nätverkstrafik blockeras om du kopplar från eller avslutar appen manuellt."
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2906,8 +3308,17 @@ msgid "Always"
 msgstr "Alltid"
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "En extra server används för att anpassa inställningarna till din valda plats"
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd."
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
+msgstr "Obs! Det här kommer att ignorera filterinställningarna för ingångsservern som väljs automatiskt."
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
@@ -2941,10 +3352,6 @@ msgstr "MTU"
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "Multihopp"
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online."
 
 #. Label for the Multihop mode setting's option to never use the multihop
 #. feature.
@@ -2999,6 +3406,17 @@ msgstr "Den anpassade porten kan vara ett värde inom de giltiga intervallen: %(
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer."
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr "Detta anges med <img></img>-symbolen."
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
+msgstr "Appen kanske multihoppar automatiskt via en annan ingångsserver så att dina nuvarande inställningar fungerar samt för att undvika att anslutningen blockeras."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -3194,9 +3612,6 @@ msgstr "Alltid på-VPN har tilldelats %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Alltid på-VPN har tilldelats en annan VPN"
 
-msgid "An additional server is used to match your settings for your selected location"
-msgstr "En extra server används för att anpassa inställningarna till din valda plats"
-
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "En ingångsserver väljs för närvarande automatiskt om det behövs för att säkerställa en fungerande anslutning. Byt multihoppläget till \"Alltid\" om du vill välja en ingångsserver manuellt."
 
@@ -3224,9 +3639,6 @@ msgstr "Minst en metod måste vara aktiverad"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar."
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "Obs! I det här läget ignoreras filtren för den extra servern."
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "Obs! Detta ignorerar filterinställningarna för servern som används som startpunkt."
 
@@ -3238,9 +3650,6 @@ msgstr "Anslut automatiskt och Låsningsläge"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart."
-
-msgid "Automatic (%s)"
-msgstr "Automatisk (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "Anslut automatiskt när enheten startas."
@@ -3272,9 +3681,6 @@ msgstr "Ändra till \"Vid behov\""
 msgid "Clear input"
 msgstr "Rensa inmatning"
 
-msgid "Click here to read more"
-msgstr "Klicka här för att läsa mer"
-
 msgid "Collapse"
 msgstr "Dölj"
 
@@ -3284,14 +3690,14 @@ msgstr "Anslut när enheten startas"
 msgid "Connect to a different network"
 msgstr "Anslut till ett annat nätverk"
 
+msgid "Connected server"
+msgstr "Ansluten server"
+
 msgid "Connecting..."
 msgstr "Ansluter ..."
 
 msgid "Contact support"
 msgstr "Kontakta supporten"
-
-msgid "Continue"
-msgstr "Fortsätt"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierade Mullvad-kontonummer till urklipp"
@@ -3383,6 +3789,9 @@ msgstr "Aktivera alla och försök igen"
 msgid "Enable all access methods in the app"
 msgstr "Aktivera alla åtkomstmetoder i appen"
 
+msgid "Enable anyway"
+msgstr "Aktivera ändå"
+
 msgid "Enable method"
 msgstr "Aktivera metod"
 
@@ -3398,17 +3807,11 @@ msgstr "Ange siffrorna i kontonumret"
 msgid "Enter an account number"
 msgstr "Ange ett kontonummer"
 
-msgid "Entry filter"
-msgstr "Ingångsfilter"
-
 msgid "Entry relay is the same as exit relay"
 msgstr "Ingångsrelä är samma som utgångsrelä"
 
 msgid "Excluded applications"
 msgstr "Exkluderade applikationer"
-
-msgid "Exit filter"
-msgstr "Utgångsfilter"
 
 msgid "Expand"
 msgstr "Visa"
@@ -3437,8 +3840,8 @@ msgstr "Kan inte ställas in som aktuell – Okänd anledning"
 msgid "File"
 msgstr "Fil"
 
-msgid "Filters are overridden when using an automatic location"
-msgstr "Filtren åsidosätts när du använder en automatisk plats"
+msgid "Filter"
+msgstr "Filtrera"
 
 msgid "Filters can now be set separately for entry and exit locations."
 msgstr "Det går nu att ange separata filter för ingångs- och utgångsplatserna."
@@ -3509,9 +3912,6 @@ msgstr "Inkludera min kontotoken för snabbare hjälp med betalnings- eller kont
 msgid "Info"
 msgstr "Info"
 
-msgid "Internet"
-msgstr "Internet"
-
 msgid "Invalid IP address"
 msgstr "Ogiltig IP-adress"
 
@@ -3551,9 +3951,6 @@ msgstr "Logga in"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Ser till att enheten alltid är i VPN-tunneln."
 
-msgid "Migrated settings"
-msgstr "Migrerade inställningar"
-
 msgid "More actions"
 msgstr "Fler åtgärder"
 
@@ -3566,20 +3963,14 @@ msgstr "Inställningen för multihopp är \"Automatisk\""
 msgid "Multihop is disabled"
 msgstr "Multihopp är inaktiverat"
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning."
-
 msgid "Multihop is enabled"
 msgstr "Multihopp är aktiverat"
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "Multihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen."
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "Multihopp är nu uppdelat i tre lägen: Vid behov, Alltid och Aldrig.\\nDetta ger dig mer flexibilitet i anslutningsinställningarna."
 
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
-msgstr "Multihopp leder din trafik in till en WireGuard-server och ut ur en annan, vilket gör det svårare att spåra den. Det leder till längre fördröjning men förbättrar anonymiteten på internet. Multihopp har tre olika valbara lägen:\\nVid behov, Alltid och Aldrig."
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr ""
 
 msgid "Multihop when needed"
 msgstr "Multihopp vid behov"
@@ -3592,9 +3983,6 @@ msgstr "Namnet har ändrats till %s"
 
 msgid "Navigate"
 msgstr "Navigera"
-
-msgid "New multihop modes"
-msgstr "Nya multihopplägen"
 
 msgid "Next %1$s"
 msgstr "Nästa %1$s"
@@ -3695,9 +4083,6 @@ msgstr "Ta bort en enhet innan du fortsätter med inloggningen"
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "Starta om enheten och försök att ansluta igen. Om det inte fungerar kan du skicka ett e-postmeddelande till %s på svenska eller engelska."
 
-msgid "Please try changing your filters."
-msgstr "Prova att ändra dina filter."
-
 msgid "Port is out of range"
 msgstr "Porten är utanför intervallet"
 
@@ -3749,9 +4134,6 @@ msgstr "Sök"
 msgid "Send email"
 msgstr "Skicka e-post"
 
-msgid "Separate filters"
-msgstr "Separata filter"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d."
 
@@ -3794,12 +4176,6 @@ msgstr "Visar nuvarande status för VPN-tunnel"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Visar påminnelser när kontots tidsgräns uppnås"
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "Vissa av inställningarna har migrerats. Gå igenom ändringarna och lös eventuella problem."
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr "Vissa av inställningarna har migrerats. Gå igenom ändringarna."
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "Något gick fel när ditt köp skulle bekräftas. Kontakta supporten."
 
@@ -3808,9 +4184,6 @@ msgstr "Skicka"
 
 msgid "Suggested action"
 msgstr "Föreslagen åtgärd"
-
-msgid "Suggested multihop entry"
-msgstr "Föreslagen multihoppingång"
 
 msgid "System network settings"
 msgstr "Systemets nätverksinställningar"
@@ -3875,9 +4248,6 @@ msgstr "Dessa metoder kan vara användbara i situationer där du blockeras från
 msgid "This address has already been entered."
 msgstr "Adressen har redan angetts."
 
-msgid "This ensures your connection does not get blocked due to incompatible settings."
-msgstr "Det säkerställer att din anslutning inte blockeras på grund av inkompatibla inställningar."
-
 msgid "This field is required"
 msgstr "Fältet är obligatoriskt"
 
@@ -3889,9 +4259,6 @@ msgstr "Den har redan ställts in som aktuell"
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "Det kan bero på censur- eller nätverksfel. Försök att:"
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "Det här läget ger appen möjlighet att vid behov automatiskt multihoppa via en extra server för att säkerställa att dina nuvarande inställningar fungerar med din valda plats."
 
 msgid "This will be indicated by the %1$s symbol."
 msgstr "Detta anges med symbolen %1$s."
@@ -4046,9 +4413,6 @@ msgstr "När multihopp är inställt på \"Alltid\" eller \"Aldrig\" måste du v
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr "När multihopp är inställt på \"Vid behov\" kan appen använda en extra server för att se till att du ansluter till din valda plats via DAITA."
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "När det är valt väljer appen automatiskt en slumpmässig server och prioriterar dem som är närmare utgångsplatsen för bättre prestanda."
-
 msgid "WireGuard port"
 msgstr "WireGuard-port"
 
@@ -4072,12 +4436,6 @@ msgstr "Du förlorar åtkomsten till kontot på alla enheter."
 
 msgid "You will lose your remaining"
 msgstr "Du förlorar dina återstående"
-
-msgid "Your current filters were applied to both entry and exit locations."
-msgstr "Dina nuvarande filter har använts på både ingångs- och utgångsplatserna."
-
-msgid "Your device"
-msgstr "Din enhet"
 
 msgid "Your device (%s)"
 msgstr "Din enhet (%s)"

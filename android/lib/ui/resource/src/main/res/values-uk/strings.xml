@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Активні функції</string>
     <string name="connect_panel_connection_details">Відомості про підключення</string>
     <string name="connected">Підключено</string>
+    <string name="connected_server">Підключений сервер</string>
     <string name="connecting">Підключення...</string>
     <string name="connecting_to_daemon">Підключення до системного сервісу Mullvad…</string>
     <string name="connection_details_in">Вхід</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Значення: %1$s</string>
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>За потреби</b>\nНе всі розташування та сервери підтримують повний функціонал застосунку. Якщо вибране вами розташування або сервер не підтримують деякі ввімкнені функції, застосунок автоматично використовуватиме подвійний VPN із застосуванням сумісного сервера.</string>
     <string name="multihop_description_slide_2_second_paragraph">Це дозволяє запобігти блокуванню підключення через несумісні налаштування.</string>
     <string name="multihop_description_slide_2_third_paragraph">Позначається символом %1$s.</string>

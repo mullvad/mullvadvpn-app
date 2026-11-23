@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>
+    <string name="connected_server">已連線的伺服器</string>
     <string name="connecting">正在連線…</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中…</string>
     <string name="connection_details_in">入境</string>
@@ -239,7 +240,7 @@
     <string name="entry">入口</string>
     <string name="entry_and_exit_are_same">入口節點與出口節點相同</string>
     <string name="entry_filter">入口篩選器</string>
-    <string name="entry_filters_overridden_info">選擇「自動」位置時，將不套用原有的篩選條件</string>
+    <string name="entry_filters_overridden_info">使用自動定位時，將會覆寫篩選條件</string>
     <string name="entry_set_to_automatic_first_paragraph">現在多點跳躍模式「一律」可選擇「自動」作為入口伺服器位置。</string>
     <string name="entry_set_to_automatic_title">多點跳躍入口已設為「自動」</string>
     <string name="error_occurred">發生錯誤了。</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">值：%1$s</string>
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="multihop">多點跳躍</string>
+    <string name="multihop_description_slide_1_first_paragraph">多點跳躍會將您的流量路由至一部 WireGuard 伺服器，再從另一部伺服器路由出去，使流量更難追蹤。這會增加延遲，但能提高線上匿名性。多點跳躍有三種模式可供選擇：\n「必要時」、「一律」和「永不」。</string>
     <string name="multihop_description_slide_2_first_paragraph"><b>必要時</b>\n並非所有位置/伺服器都支援應用程式中的每項功能。如果您選擇的位置/伺服器不支援已啟用的功能，應用程式會自動透過相容的伺服器進行多點跳躍。</string>
     <string name="multihop_description_slide_2_second_paragraph">這能確保您的連線不會因為不相容的設定而被封鎖。</string>
     <string name="multihop_description_slide_2_third_paragraph">這將以 %1$s 符號標示。</string>
@@ -373,7 +375,7 @@
     <string name="new_device_notification_message">歡迎，此裝置現在名為 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
-    <string name="new_multihop_modes_always_description">已啟用多點跳躍。您的連線會先經過入口伺服器，再透過所選位置的伺服器連出。</string>
+    <string name="new_multihop_modes_always_description">已啟用多點跳躍。您的連線將先行經入口伺服器，再從所選位置出口。</string>
     <string name="new_multihop_modes_first_paragraph">多點跳躍現在分為三種模式：「必要時」、「一律」和「從不」。\n這讓您在設定連線喜好設定時更有彈性。</string>
     <string name="new_multihop_modes_never_description">已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。</string>
     <string name="new_multihop_modes_off_to_always">您的多點跳躍設定已從「關閉」遷移至「一律」</string>
@@ -510,7 +512,7 @@
     <string name="suggested_action_first_paragraph">為避免被封鎖，建議您將多點跳躍模式設為「必要時」。</string>
     <string name="suggested_action_second_paragraph">此模式允許應用程式在需要時自動透過其他伺服器進行多點跳躍，以確保您目前的設定與所選位置相容。</string>
     <string name="suggested_action_title">建議的操作</string>
-    <string name="suggested_action_warning">注意：在此模式下，篩選條件不會套用至額外的伺服器。</string>
+    <string name="suggested_action_warning">注意：在此模式下，額外伺服器會忽略篩選器。</string>
     <string name="suggested_multihop_entry_button">將入口設為「自動」</string>
     <string name="suggested_multihop_entry_first_paragraph">為避免必須手動變更入口伺服器，建議您將多點跳躍入口伺服器設為「自動」。</string>
     <string name="suggested_multihop_entry_title">建議的多點跳躍入口</string>

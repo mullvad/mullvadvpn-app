@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -57,6 +57,9 @@ msgstr "アカウント設定"
 msgid "Add"
 msgstr "追加"
 
+msgid "Always"
+msgstr "常に有効"
+
 msgid "Any"
 msgstr "すべて"
 
@@ -65,6 +68,9 @@ msgstr "適用"
 
 msgid "Automatic"
 msgstr "自動"
+
+msgid "Automatic (%(location)s)"
+msgstr "自動 (%(location)s)"
 
 msgid "Back"
 msgstr "戻る"
@@ -107,6 +113,9 @@ msgstr "接続中"
 
 msgid "CONNECTING..."
 msgstr "接続しています..."
+
+msgid "Continue"
+msgstr "続行"
 
 msgid "Create"
 msgstr "作成"
@@ -162,9 +171,6 @@ msgstr "編集"
 msgid "Enable"
 msgstr "有効にする"
 
-msgid "Enable anyway"
-msgstr "それでも有効にする"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -173,8 +179,8 @@ msgstr "デバイスのリストを取得できませんでした"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
 
-msgid "Filters"
-msgstr "絞り込み"
+msgid "Go back"
+msgstr "戻る"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
@@ -189,11 +195,17 @@ msgstr "ガイド"
 msgid "Import"
 msgstr "インポート"
 
+msgid "Internet"
+msgstr "インターネット"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
+
+msgid "Kill switch"
+msgstr "キルスイッチ"
 
 msgid "Learn more"
 msgstr "詳細"
@@ -204,6 +216,15 @@ msgstr "1 日未満"
 msgid "less than a day left"
 msgstr "残り1日未満"
 
+msgid "Lockdown mode"
+msgstr "ロックダウンモード"
+
+msgid "Magic"
+msgstr ""
+
+msgid "Magic multihop"
+msgstr ""
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -211,6 +232,9 @@ msgstr "マルチホップ"
 
 msgid "Name"
 msgstr "名前"
+
+msgid "Never"
+msgstr "無効"
 
 msgid "New list"
 msgstr "新規リスト"
@@ -245,8 +269,6 @@ msgstr "パスワード"
 msgid "Port"
 msgstr "ポート"
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr "耐量子"
 
@@ -273,12 +295,14 @@ msgstr "必須"
 msgid "Save"
 msgstr "保存"
 
+msgid "Search entry location or server"
+msgstr "入口ロケーションまたはサーバーを検索"
+
+msgid "Search exit location or server"
+msgstr "出口ロケーションまたはサーバーを検索"
+
 msgid "Search for..."
 msgstr "検索..."
-
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
-msgstr "場所またはサーバーを検索"
 
 msgid "SECURE CONNECTION"
 msgstr "セキュリティ保護された接続"
@@ -321,6 +345,12 @@ msgstr "使用"
 msgid "Username"
 msgstr "ユーザー名"
 
+msgid "When needed"
+msgstr "必要時"
+
+msgid "Your device"
+msgstr "お使いのデバイス"
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -338,6 +368,11 @@ msgstr "%(title)s、ビューが読み込まれました"
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)sポートの設定"
+
+#. Accessibility description for the list of active filters.
+msgctxt "accessibility"
+msgid "Active filters"
+msgstr "適用中のフィルター"
 
 #. This is an accessibility label for a button that adds a location to a custom list.
 #. Available placeholders:
@@ -358,10 +393,14 @@ msgctxt "accessibility"
 msgid "Add a new custom list"
 msgstr "新しいカスタムリストを追加する"
 
-#. Accessibility description for button clearing the ownership filter.
+#. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
-msgid "Clear ownership filter"
-msgstr "所有者フィルターをクリアする"
+msgid "Anti-censorship settings"
+msgstr "検閲回避の設定"
+
+msgctxt "accessibility"
+msgid "Clear search"
+msgstr "検索をクリア"
 
 msgctxt "accessibility"
 msgid "Close notification"
@@ -371,7 +410,26 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "%(location)sを折りたたむ"
 
-#. Accessibility label for a button that connects to a location.
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Configure filters for entry location"
+msgstr "入口ロケーションのフィルターを設定"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Configure filters for exit location"
+msgstr "出口ロケーションのフィルターを設定"
+
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr "接続して、%(location)sを出口ロケーションとして使用"
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -389,6 +447,11 @@ msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "DAITA情報カルーセル"
 
+#. Accessibility label for link to DAITA settings.
+msgctxt "accessibility"
+msgid "DAITA settings"
+msgstr "DAITA設定"
+
 #. Accessibility label for button to delete a custom list.
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
@@ -400,6 +463,12 @@ msgstr "カスタムリストの%(listName)sを削除する"
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
 msgstr "カスタムリストの%(listName)sを編集する"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
+msgstr "入口ロケーションの自動選択が有効になっているため、入口ロケーションのフィルターは適用されません"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -438,6 +507,36 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "アカウント番号の非表示"
 
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr "マルチホップの入口ロケーションを「自動」に設定した状態の図"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
+msgstr "入口ロケーションと出口ロケーションに個別のフィルターを設定した状態の図"
+
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr "マルチホップ使用時の通信の流れを示す図"
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr "マルチホップで「常に有効」モードを有効にした状態の通信の流れを示す図"
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr "マルチホップで「必要時」モードを有効にした状態の通信の流れを示す図"
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr "マルチホップを使用しない状態の通信の流れを示す図"
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -463,6 +562,11 @@ msgstr "アカウント番号 %(accountNumber)s でログインしてくださ�
 msgctxt "accessibility"
 msgid "More information"
 msgstr "詳細情報"
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
+msgstr "マルチホップに関する情報カルーセル"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
@@ -511,6 +615,10 @@ msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "前のスライド"
 
+msgctxt "accessibility"
+msgid "Read more about the automatic entry location"
+msgstr "入口ロケーションの自動選択について詳しく見る"
+
 #. Accessibility label for button to remove a location from a custom list.
 #. The first placeholder is replaced with the name of the location.
 #. The second placeholder is replaced with the name of the custom list.
@@ -530,6 +638,28 @@ msgctxt "accessibility"
 msgid "Remove item"
 msgstr "アイテムを削除する"
 
+#. Accessibility description for button removing the ownership filter.
+msgctxt "accessibility"
+msgid "Remove ownership filter"
+msgstr "所有者フィルターを解除"
+
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr "所有者フィルターを解除 (無効)"
+
+#. Accessibility description for button removing the providers filter.
+msgctxt "accessibility"
+msgid "Remove providers filter"
+msgstr "プロバイダーフィルターを解除"
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
+msgstr "プロバイダーフィルターを解除 (無効)"
+
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "場所を選択します。現在の場所は%(location)sです"
@@ -547,6 +677,17 @@ msgstr "アカウント番号の表示"
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCPの設定"
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
+msgstr "%(location)sを入口ロケーションとして使用"
+
+msgctxt "accessibility"
+msgid "Use automatic entry location"
+msgstr "入口ロケーションを自動選択"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
@@ -831,6 +972,11 @@ msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "有効にすると、アプリの新しいベータ版がリリースされた際に通知が届きます。"
 
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
+msgstr "移行された設定"
+
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ベータ版を使用中はこのオプションを使用できません。"
@@ -1062,12 +1208,6 @@ msgstr "%(city)s (%(hostname)s)"
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "有効な機能"
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
-msgstr "自動マルチホップ"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -1375,14 +1515,24 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
-msgstr "絞り込み"
+msgid "Entry filter"
+msgstr "入口フィルター"
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
+msgstr "出口フィルター"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "すべてのプロバイダ"
+
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr "自動ロケーションを使用中は、フィルターが上書きされます"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
@@ -1419,9 +1569,12 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)sをインストールできます。"
 
+#. Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
-msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
-msgstr "<a>%(lockdownModeSettingName)s</a>が有効です。「接続」をクリックするか、「%(lockdownModeSettingName)s」を無効にしてインターネットのブロックを解除してください。"
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
+msgstr "<a>%(lockdownModeSettingName)s</a>が有効になっています。インターネットへのアクセスを再開するには、ロケーションに接続するか、%(lockdownModeSettingName)sを無効にしてください。このモードでは、Split tunnelingで除外したアプリが正常に動作しない場合があります。"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1443,6 +1596,10 @@ msgstr "インターネットをブロック中"
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr "更新をインストールするにはここをクリックしてください。"
+
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr "詳細はこちら"
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
@@ -1527,6 +1684,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr "更新をインストールできます"
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr "接続の問題を解決してください"
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1541,6 +1702,18 @@ msgstr "インストールを再試行"
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "問題の報告を送信"
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr "設定が移行されました"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "一部の設定が移行されました。変更内容を確認し、必要に応じて問題を解決してください。"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "一部の設定が移行されました。変更内容を確認してください。"
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
@@ -1606,6 +1779,28 @@ msgstr "検証が完了しました！インストーラーを起動中..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "検証に失敗しました"
+
+#. First paragraph of description text in anti-censorship view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
+msgstr "%(killSwitchSettingName)sは、VPNトンネル、ネットワーク、またはインターネット接続が切断されると、すべてのネットワークトラフィックを自動的にブロックします。接続が復旧すると、アプリが通信のブロックを解除します。"
+
+#. Third paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s doesn’t protect you if you manually disconnect or quit the app. If that’s something you want, you can enable %(lockdownModeSettingName)s."
+msgstr "%(killSwitchSettingName)sは、手動で接続を切断した場合やアプリを終了した場合には、保護機能が働きません。そのような場合にも保護を有効にしたい場合は、%(lockdownModeSettingName)sを有効にしてください。"
+
+#. Second paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgstr "%(killSwitchSettingName)sは、アプリの情報漏えい防止機能の中核を担っているため、無効にすることはできません。"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1702,6 +1897,10 @@ msgstr "入口"
 msgctxt "locations-feature"
 msgid "Exit"
 msgstr "出口"
+
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr "現在、入口フィルターが適用されています。「必要時」に切り替えると、自動選択される入口サーバーのフィルター設定は適用されません。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1854,6 +2053,156 @@ msgstr "カスタムポートは次の有効範囲内の任意の値に設定で
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "有効な範囲: %(portRanges)s"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr "「ダイレクトのみ」は削除されました"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "注意: このモードでは、追加サーバーに対してフィルター設定は適用されません。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr "注意:「自動」ロケーションでは、入口サーバーにはフィルター設定が適用されません。"
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr "「必要時」に変更"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr "今後は入口と出口のロケーションでフィルターを個別に設定できます"
+
+#. Title for the migrated settings view
+msgctxt "migrated-settings-view"
+msgid "Migrated settings"
+msgstr "移行された設定"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr "マルチホップの入口は「自動」に設定されました"
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。"
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr "マルチホップは「必要時」「常に有効」「無効」の3つのモードに分かれました。これにより、接続設定をより柔軟に選択できます。"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr "新しいマルチホップモード"
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr "移行できる設定はありません。"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr "個別フィルター"
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr "入口を「自動」に設定"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr "マルチホップの推奨入口"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr "マルチホップの推奨モード"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr "DAITAのサブ設定「ダイレクトのみ」は、接続がブロックされるのを防ぐために削除され、設定が簡素化されました。今後は、DAITAを有効にした状態で、マルチホップ設定からこのオプションを選択できます。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr "マルチホップモード「常に有効」において、入口サーバー選択時に「自動」ロケーションが選べるようになりました。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "このモードでは、現在選択しているサーバーと設定が正常に動作するよう、必要に応じてアプリが自動的に別のサーバーを経由してマルチホップ接続を行います。"
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr "この状態はアイコンで示されます: <img></img>"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr "接続がブロックされるのを防ぐため、マルチホップモードを「必要時」に設定することをお勧めします。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr "入口サーバーを手動で変更する手間を省くため、マルチホップの入口サーバーを「自動」に設定することをお勧めします。"
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr "現在の設定が選択したロケーションで機能し、接続がブロックされないように、アプリが別の入口サーバーを経由するマルチホップ接続を自動的に有効にする場合があります。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr "マルチホップが「常に有効」または「無効」の場合は、DAITAサーバーを手動で選択する必要があります。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "マルチホップの設定が「必要時」の場合、DAITAを使用して選択したロケーションに確実に接続するため、アプリは追加のサーバーを使用することがあります。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "選択すると、パフォーマンス向上のため、出口ロケーションに近いサーバーが優先的に自動選択されます。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "現在のフィルター設定は、入口と出口の両方に適用されています。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr "マルチホップ設定が「オフ」から「常に有効」に変更されました。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr "マルチホップ設定が「オフ」から「無効」に変更されました。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr "マルチホップ設定が「オフ」から「必要時」に変更されました。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
+msgstr "マルチホップ設定が「オン」から「常に有効」に変更されました。"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2099,6 +2448,15 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr "常に有効"
 
+#. Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
+msgctxt "select-location-view"
+msgid "Attention: With the “Automatic” location, any enabled filters are ignored for the entry server."
+msgstr "注意:「自動」ロケーションでは、入口サーバーに対する有効なフィルター設定は適用されません。"
+
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr "検索をクリア"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2122,18 +2480,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr "最近の項目を有効化"
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr "入口"
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr "出口"
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr "絞り込み結果:"
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2145,17 +2491,24 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr "無効"
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr "一致するサーバーが見つかりません"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
 msgstr "最近の選択履歴はありません"
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr "難読化: %(obfuscation)s"
+msgid "No result for: “%(searchTerm)s“"
+msgstr "「%(searchTerm)s」に一致する結果はありません"
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
+msgstr "条件を変更してみてください。"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2166,9 +2519,22 @@ msgctxt "select-location-view"
 msgid "Recents"
 msgstr "最近の項目"
 
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
-msgstr "設定: %(settingName)s"
+msgid "Selection does not match filter settings"
+msgstr "選択したサーバーがフィルター設定に一致しません"
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
+msgstr "選択したサーバーは利用できません"
+
+#. Text for a button that sets multihop mode to "Always".
+msgctxt "select-location-view"
+msgid "Set multihop to \"Always\""
+msgstr "マルチホップを「常に有効」に設定"
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
 #. Available placeholders:
@@ -2178,11 +2544,32 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "%(totalRelays)s件中%(visibleRelays)s件を表示中"
 
+#. Text explaining that the entry server is automatically selected based on the chosen location.
+msgctxt "select-location-view"
+msgid "The entry server is currently selected to automatically work with your selected location."
+msgstr "現在、選択したロケーションに合わせて入口サーバーが自動選択されています。"
+
+#. Text explaning that if the user want to manually select a server, they need to switch multihop mode.
+msgctxt "select-location-view"
+msgid "To manually select an entry server please switch multihop mode to \"Always\"."
+msgstr "入口サーバーを手動で選択するには、マルチホップモードを「常に有効」に切り替えてください。"
+
 #. Label for a menu option to change the Multihop mode setting
 #. option to "When needed".
 msgctxt "select-location-view"
 msgid "When needed"
 msgstr "必要時"
+
+#. Text in dialog explaining the behavior of the “Automatic” location option
+msgctxt "select-location-view"
+msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr "「自動」ロケーションを選択すると、アプリはパフォーマンスを向上させるため、出口ロケーションに近いサーバーを優先して入口サーバーをランダムに選択します。"
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
+msgstr "現在、入口サーバーにフィルターが適用されています。「自動」ロケーションを選択すると、アプリは入口サーバーのフィルター設定を無視します。"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2275,11 +2662,32 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "マルチホップ"
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。"
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。"
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr "マルチホップでは、通信を1台の%(wireGuard)sサーバーに送り、別のサーバーから送信することで、通信の追跡を困難にします。これにより、通信の遅延は大きくなりますが、オンラインでの匿名性は高まります。マルチホップには、次の3つのモードがあります。<br></br>「必要時」「常に有効」「無効」"
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
 msgstr "無効"
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "すべてのロケーションやサーバーが、アプリ内のすべての機能に対応しているわけではありません。選択したロケーションやサーバーが有効にした機能に対応していない場合、アプリは対応可能なサーバーを経由して自動的にマルチホップ接続を行います。"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2290,6 +2698,16 @@ msgstr "設定"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "サポート"
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "これにより、互換性のない設定によって接続がブロックされるのを防ぎます。"
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
+msgstr "この状態は<img></img>アイコンで示されます"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
@@ -2696,10 +3114,6 @@ msgid "Anti-censorship"
 msgstr "検閲回避"
 
 msgctxt "vpn-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "注意: この設定を有効にすると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
-
-msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "注意: この設定を「<b>%(customDnsFeatureName)s</b>」と一緒に使用することはできません"
 
@@ -2773,10 +3187,6 @@ msgid "It does this by allowing network communication outside the tunnel to loca
 msgstr "これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。"
 
 msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "キルスイッチ"
-
-msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "システム起動時にアプリを起動"
 
@@ -2803,24 +3213,8 @@ msgid "Social media"
 msgstr "ソーシャルメディア"
 
 msgctxt "vpn-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、\"接続解除\" または \"終了\" をクリックした場合にインターネットが補助的にブロックされます。"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "キルスイッチとロックダウンモードの違いは、キルスイッチではトンネルの自動再接続やソフトウェアのクラッシュなどが発生した場合に漏洩を防止できることです。"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "キルスイッチとロックダウンモードの違いは、キルスイッチではトンネルの自動再接続やソフトウェアのクラッシュなどが発生した場合に漏洩を防止できるのに対し、ロックダウンモードが有効な場合はMullvad VPNサーバーに接続しなければインターネットにアクセスできないことです。手動で接続を解除するか、アプリを終了すると接続がブロックされます。"
-
-msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "追加するDNSサーバーのIPアドレスは、プライベートIPです。ネットワークインターフェイスがこのアドレスを使用するように構成されていることを確認してください。"
-
-msgctxt "vpn-settings-view"
-msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "この組み込みの機能は、突然のネットワーク停止やトンネルの障害が発生した場合に接続が再確立されるまでトラフィックをブロックすることで、トラフィックがVPNトンネルの外に漏洩するのを防ぎます。"
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
@@ -2854,6 +3248,11 @@ msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。"
 
+#. Warning message shown in dialog when enabling lockdown mode.
+msgctxt "vpn-settings-view"
+msgid "Warning: this will block the internet if you aren’t connected through the Mullvad app."
+msgstr "警告: Mullvadアプリ経由で接続していない場合、インターネットへのアクセスがブロックされます。"
+
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。"
@@ -2862,9 +3261,12 @@ msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr "この機能が有効である場合、VPNトンネルにIPv6とIPv4を併用してインターネットサービスと通信できます。"
 
+#. Explanation shown in the info dialog for Lockdown mode.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "vpn-settings-view"
-msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "ロックダウンモードが有効な場合はMullvad VPNサーバーに接続しなければインターネットにアクセスできません。手動で接続を解除するか、アプリを終了すると接続がブロックされます。"
+msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
+msgstr "%(lockdownModeSettingName)sを有効にすると、Mullvadアプリ経由で接続している場合にのみインターネットにアクセスできます。手動で接続を切断した場合やアプリを終了した場合は、ネットワークトラフィックがブロックされます。"
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2900,8 +3302,17 @@ msgid "Always"
 msgstr "常に有効"
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "選択したロケーションの設定に合わせるため、追加のサーバーが使用されます"
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。"
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
+msgstr "注意: これにより、自動選択される入口サーバーのフィルター設定は無視されます。"
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
@@ -2935,10 +3346,6 @@ msgstr "MTU"
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "マルチホップ"
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。"
 
 #. Label for the Multihop mode setting's option to never use the multihop
 #. feature.
@@ -2993,6 +3400,17 @@ msgstr "カスタムポートは次の有効範囲内の任意の値に設定で
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。"
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr "この状態は<img></img>アイコンで示されます。"
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
+msgstr "現在の設定が選択したロケーションで機能し、接続がブロックされないように、アプリは別の入口サーバーを経由するマルチホップ接続を自動的に行う場合があります。"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -3188,9 +3606,6 @@ msgstr "Always-on VPNは%sに割り当てられました"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Always-on VPNは他のVPNに割り当てられました"
 
-msgid "An additional server is used to match your settings for your selected location"
-msgstr "選択したロケーションの設定に合わせるため、追加のサーバーが使用されます"
-
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "安定した接続を確保するため、必要に応じて入口サーバーが自動的に選択されます。入口サーバーを手動で選択するには、マルチホップモードを「常に有効」に切り替えてください。"
 
@@ -3218,9 +3633,6 @@ msgstr "方法は少なくとも 1 つは有効化する必要があります"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。"
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "注意: このモードでは、追加サーバーに対してフィルター設定は適用されません。"
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "注意: これにより、入口に使用されるサーバーのフィルター設定は無視されます。"
 
@@ -3232,9 +3644,6 @@ msgstr "自動接続とロックダウンモード"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
-
-msgid "Automatic (%s)"
-msgstr "自動 (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "デバイスの起動時に自動接続します。"
@@ -3266,9 +3675,6 @@ msgstr "「必要時」に変更"
 msgid "Clear input"
 msgstr "入力をクリア"
 
-msgid "Click here to read more"
-msgstr "詳細はこちら"
-
 msgid "Collapse"
 msgstr "折りたたむ"
 
@@ -3278,14 +3684,14 @@ msgstr "デバイス起動時に接続"
 msgid "Connect to a different network"
 msgstr "別のネットワークに接続する"
 
+msgid "Connected server"
+msgstr "接続先サーバー"
+
 msgid "Connecting..."
 msgstr "接続中..."
 
 msgid "Contact support"
 msgstr "サポートに問い合わせる"
-
-msgid "Continue"
-msgstr "続行"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvadアカウント番号をクリップボードにコピーしました"
@@ -3377,6 +3783,9 @@ msgstr "すべて有効化してもう一度試す"
 msgid "Enable all access methods in the app"
 msgstr "アプリですべてのアクセス方法を有効にする"
 
+msgid "Enable anyway"
+msgstr "それでも有効にする"
+
 msgid "Enable method"
 msgstr "方法を有効化する"
 
@@ -3392,17 +3801,11 @@ msgstr "アカウント番号を入力してください"
 msgid "Enter an account number"
 msgstr "アカウント番号を入力"
 
-msgid "Entry filter"
-msgstr "入口フィルター"
-
 msgid "Entry relay is the same as exit relay"
 msgstr "入口中継サーバーと出口中継サーバーが同じです"
 
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
-
-msgid "Exit filter"
-msgstr "出口フィルター"
 
 msgid "Expand"
 msgstr "展開"
@@ -3431,8 +3834,8 @@ msgstr "現在の設定に設定できません。原因は不明です"
 msgid "File"
 msgstr "ファイル"
 
-msgid "Filters are overridden when using an automatic location"
-msgstr "自動ロケーションを使用中は、フィルターが上書きされます"
+msgid "Filter"
+msgstr "絞り込み"
 
 msgid "Filters can now be set separately for entry and exit locations."
 msgstr "今後は入口と出口のロケーションでフィルターを個別に設定できます。"
@@ -3503,9 +3906,6 @@ msgstr "お支払いやアカウント関連の問題を迅速に解決するた
 msgid "Info"
 msgstr "情報"
 
-msgid "Internet"
-msgstr "インターネット"
-
 msgid "Invalid IP address"
 msgstr "無効なIPアドレス"
 
@@ -3545,9 +3945,6 @@ msgstr "ログイン"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "デバイスが必ずVPNトンネルを使用するようにします。"
 
-msgid "Migrated settings"
-msgstr "移行された設定"
-
 msgid "More actions"
 msgstr "その他の操作"
 
@@ -3560,20 +3957,14 @@ msgstr "マルチホップの入口は「自動」に設定されました"
 msgid "Multihop is disabled"
 msgstr "マルチホップは無効です"
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "マルチホップは無効になっています。接続を確立するには、選択したロケーションが現在有効なすべての設定に対応している必要があります。"
-
 msgid "Multihop is enabled"
 msgstr "マルチホップは有効です"
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "マルチホップは有効です。接続は入口サーバーを経由し、選択したロケーションから外部ネットワークへ接続されます。"
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "マルチホップが「必要時」「常に有効」「無効」の3つのモードに分かれました。\\nこれにより、接続設定をより柔軟に選択できるようになっています。"
 
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
-msgstr "マルチホップは、通信を1つのWireGuardサーバー経由で別のサーバーから送信することで、追跡を困難にします。これにより、遅延は増加しますが、オンラインでの匿名性が高まります。マルチホップには、次の3つのモードがあります。\\n「必要時」「常に有効」「無効」"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr ""
 
 msgid "Multihop when needed"
 msgstr "必要時にマルチホップ"
@@ -3586,9 +3977,6 @@ msgstr "名前が %s に変更されました"
 
 msgid "Navigate"
 msgstr "移動"
-
-msgid "New multihop modes"
-msgstr "新しいマルチホップモード"
 
 msgid "Next %1$s"
 msgstr "次へ %1$s"
@@ -3689,9 +4077,6 @@ msgstr "ログインを続ける前にデバイスを削除してください"
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%sにスウェーデン語か英語のメールでお問い合わせください。"
 
-msgid "Please try changing your filters."
-msgstr "条件を変更してみてください。"
-
 msgid "Port is out of range"
 msgstr "ポートが範囲外です"
 
@@ -3743,9 +4128,6 @@ msgstr "検索"
 msgid "Send email"
 msgstr "メールを送信する"
 
-msgid "Separate filters"
-msgstr "個別フィルター"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d"
 
@@ -3788,12 +4170,6 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "一部の設定が移行されました。変更内容を確認し、必要に応じて問題を解決してください。"
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr "一部の設定が移行されました。変更内容を確認してください。"
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "購入の確認中に問題が発生しました。サポートにお問い合わせください。"
 
@@ -3802,9 +4178,6 @@ msgstr "送信"
 
 msgid "Suggested action"
 msgstr "推奨アクション"
-
-msgid "Suggested multihop entry"
-msgstr "マルチホップの推奨入口"
 
 msgid "System network settings"
 msgstr "システムのネットワーク設定"
@@ -3869,9 +4242,6 @@ msgstr "これらの方式は、Mullvadへの接続がブロックされてい�
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
 
-msgid "This ensures your connection does not get blocked due to incompatible settings."
-msgstr "これにより、互換性のない設定によって接続がブロックされるのを防ぎます。"
-
 msgid "This field is required"
 msgstr "このフィールドは必須です"
 
@@ -3883,9 +4253,6 @@ msgstr "これはすでに現在の設定として設定されています"
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "検閲やネットワークの問題が原因である可能性があります。次の操作をお試しください。"
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "このモードでは、現在選択しているサーバーと設定が正常に動作するよう、必要に応じてアプリが自動的に別のサーバーを経由してマルチホップ接続を行います。"
 
 msgid "This will be indicated by the %1$s symbol."
 msgstr "この状態は%1$sアイコンで示されます。"
@@ -4040,9 +4407,6 @@ msgstr "マルチホップが「常に有効」または「無効」の場合は
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr "マルチホップの設定が「必要時」の場合、DAITAを使用して選択したロケーションに確実に接続するため、アプリは追加のサーバーを使用することがあります。"
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "選択すると、パフォーマンス向上のため、出口ロケーションに近いサーバーが優先的に自動選択されます。"
-
 msgid "WireGuard port"
 msgstr "WireGuardポート"
 
@@ -4066,12 +4430,6 @@ msgstr "すべてのデバイスでこのアカウントへのアクセス権が
 
 msgid "You will lose your remaining"
 msgstr "残り期間が失われます"
-
-msgid "Your current filters were applied to both entry and exit locations."
-msgstr "現在のフィルター設定は、入口と出口の両方に適用されています。"
-
-msgid "Your device"
-msgstr "お使いのデバイス"
 
 msgid "Your device (%s)"
 msgstr "お使いのデバイス (%s)"

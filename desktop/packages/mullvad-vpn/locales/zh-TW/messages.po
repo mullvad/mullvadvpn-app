@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-10-26 08:28\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -57,6 +57,9 @@ msgstr "帳戶設定"
 msgid "Add"
 msgstr "新增"
 
+msgid "Always"
+msgstr "一律"
+
 msgid "Any"
 msgstr "任何"
 
@@ -65,6 +68,9 @@ msgstr "套用"
 
 msgid "Automatic"
 msgstr "自動"
+
+msgid "Automatic (%(location)s)"
+msgstr "自動 (%(location)s)"
 
 msgid "Back"
 msgstr "返回"
@@ -107,6 +113,9 @@ msgstr "正在連線"
 
 msgid "CONNECTING..."
 msgstr "連線中…"
+
+msgid "Continue"
+msgstr "繼續"
 
 msgid "Create"
 msgstr "建立"
@@ -162,9 +171,6 @@ msgstr "編輯"
 msgid "Enable"
 msgstr "啟用"
 
-msgid "Enable anyway"
-msgstr "仍然啟用"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -173,8 +179,8 @@ msgstr "無法取得裝置清單"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "保護連線失敗"
 
-msgid "Filters"
-msgstr "篩選器"
+msgid "Go back"
+msgstr "返回"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
@@ -189,11 +195,17 @@ msgstr "指南"
 msgid "Import"
 msgstr "匯入"
 
+msgid "Internet"
+msgstr "網際網路"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
+
+msgid "Kill switch"
+msgstr "終止開關"
 
 msgid "Learn more"
 msgstr "瞭解更多"
@@ -204,6 +216,15 @@ msgstr "不足 1 天"
 msgid "less than a day left"
 msgstr "剩餘時間不足 1 天"
 
+msgid "Lockdown mode"
+msgstr "鎖定模式"
+
+msgid "Magic"
+msgstr ""
+
+msgid "Magic multihop"
+msgstr ""
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -211,6 +232,9 @@ msgstr "多點跳躍"
 
 msgid "Name"
 msgstr "名稱"
+
+msgid "Never"
+msgstr "從不"
 
 msgid "New list"
 msgstr "新清單"
@@ -245,8 +269,6 @@ msgstr "密碼"
 msgid "Port"
 msgstr "連接埠"
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr "抗量子"
 
@@ -273,12 +295,14 @@ msgstr "必填"
 msgid "Save"
 msgstr "儲存"
 
+msgid "Search entry location or server"
+msgstr "搜尋入口位置或伺服器"
+
+msgid "Search exit location or server"
+msgstr "搜尋出口位置或伺服器"
+
 msgid "Search for..."
 msgstr "搜尋…"
-
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
-msgstr "搜尋位置或伺服器"
 
 msgid "SECURE CONNECTION"
 msgstr "安全連線"
@@ -321,6 +345,12 @@ msgstr "使用"
 msgid "Username"
 msgstr "使用者名稱"
 
+msgid "When needed"
+msgstr "必要時"
+
+msgid "Your device"
+msgstr "您的裝置"
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -338,6 +368,11 @@ msgstr "%(title)s，已載入視圖"
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s 連接埠設定"
+
+#. Accessibility description for the list of active filters.
+msgctxt "accessibility"
+msgid "Active filters"
+msgstr "已啟用的篩選器"
 
 #. This is an accessibility label for a button that adds a location to a custom list.
 #. Available placeholders:
@@ -358,10 +393,14 @@ msgctxt "accessibility"
 msgid "Add a new custom list"
 msgstr "新增自訂清單"
 
-#. Accessibility description for button clearing the ownership filter.
+#. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
-msgid "Clear ownership filter"
-msgstr "清除所有權篩選器"
+msgid "Anti-censorship settings"
+msgstr "反審查設定"
+
+msgctxt "accessibility"
+msgid "Clear search"
+msgstr "清除搜尋"
 
 msgctxt "accessibility"
 msgid "Close notification"
@@ -371,7 +410,26 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "折疊 %(location)s"
 
-#. Accessibility label for a button that connects to a location.
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Configure filters for entry location"
+msgstr "設定入口位置的篩選器"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Configure filters for exit location"
+msgstr "設定出口位置的篩選器"
+
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr "連線並使用 %(location)s 作為出口"
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -389,6 +447,11 @@ msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "DAITA 資訊輪播"
 
+#. Accessibility label for link to DAITA settings.
+msgctxt "accessibility"
+msgid "DAITA settings"
+msgstr "DAITA 設定"
+
 #. Accessibility label for button to delete a custom list.
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
@@ -400,6 +463,12 @@ msgstr "刪除自訂清單 %(listName)s"
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
 msgstr "編輯自訂清單 %(listName)s"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
+msgstr "由於使用了「自動」入口位置，入口位置的篩選器將不會生效"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -438,6 +507,36 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "隱藏帳號"
 
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr "顯示多點跳躍入口設為「自動」的示意圖"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
+msgstr "顯示入口位置與出口位置分別設定篩選器的示意圖"
+
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr "顯示使用多點跳躍時網路流量傳輸情形的示意圖"
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr "顯示多點跳躍啟用「一律」模式時網路流量傳輸情形的示意圖"
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr "顯示多點跳躍啟用「必要時」模式時網路流量傳輸情形的示意圖"
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr "顯示未使用多點跳躍時網路流量傳輸情形的示意圖"
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -463,6 +562,11 @@ msgstr "使用帳號 %(accountNumber)s 登入"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "更多資訊"
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
+msgstr "多點跳躍資訊輪播"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
@@ -511,6 +615,10 @@ msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "上一張投影片"
 
+msgctxt "accessibility"
+msgid "Read more about the automatic entry location"
+msgstr "進一步瞭解「自動」入口位置"
+
 #. Accessibility label for button to remove a location from a custom list.
 #. The first placeholder is replaced with the name of the location.
 #. The second placeholder is replaced with the name of the custom list.
@@ -530,6 +638,28 @@ msgctxt "accessibility"
 msgid "Remove item"
 msgstr "移除項目"
 
+#. Accessibility description for button removing the ownership filter.
+msgctxt "accessibility"
+msgid "Remove ownership filter"
+msgstr "移除所有權篩選器"
+
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr "移除所有權篩選器 (未啟用)"
+
+#. Accessibility description for button removing the providers filter.
+msgctxt "accessibility"
+msgid "Remove providers filter"
+msgstr "移除供應商篩選器"
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
+msgstr "移除供應商篩選器 (未啟用)"
+
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "選擇位置。目前位置為 %(location)s"
@@ -547,6 +677,17 @@ msgstr "顯示帳號"
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP 設定"
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
+msgstr "使用 %(location)s 作為入口"
+
+msgctxt "accessibility"
+msgid "Use automatic entry location"
+msgstr "使用「自動」入口位置"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
@@ -831,6 +972,11 @@ msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "啟用後將於新測試版應用程式發佈時獲得通知"
 
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
+msgstr "已遷移設定"
+
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "使用測試版時無法使用此選項。"
@@ -1062,12 +1208,6 @@ msgstr "%(city)s (%(hostname)s)"
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "有效功能"
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
-msgstr "自動多點跳躍"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -1375,14 +1515,24 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "出現了問題。請與我們聯絡：%(email)s"
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
-msgstr "篩選器"
+msgid "Entry filter"
+msgstr "入口篩選器"
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
+msgstr "出口篩選器"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "所有供應商"
+
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr "使用自動定位時，將會覆寫篩選條件"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
@@ -1419,9 +1569,12 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s 已準備好安裝。"
 
+#. Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
-msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
-msgstr "已啟用 <a>%(lockdownModeSettingName)s</a>。請按一下「連線」或停用「%(lockdownModeSettingName)s」以解除網際網路封鎖。"
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
+msgstr "已啟用 <a>%(lockdownModeSettingName)s</a>。請連線至某個位置，或停用 %(lockdownModeSettingName)s 以解除網際網路封鎖。在此模式下，受到分割通道所排除的應用程式可能無法正常運作。"
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1443,6 +1596,10 @@ msgstr "封鎖網際網路"
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr "按一下此處安裝更新。"
+
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr "按一下此處閱讀更多資訊"
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
@@ -1527,6 +1684,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr "準備好安裝更新"
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr "解決連線問題"
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1541,6 +1702,18 @@ msgstr "重新嘗試安裝"
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "傳送問題回報"
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr "設定已遷移"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "部分設定已完成遷移，請檢查變更並解決所有問題。"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "部分設定已完成遷移，請檢查變更。"
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
@@ -1606,6 +1779,28 @@ msgstr "驗證完成！正在啟動安裝程式…"
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "驗證失敗"
+
+#. First paragraph of description text in anti-censorship view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
+msgstr "當 VPN 通道、網路或網際網路連線失效時，%(killSwitchSettingName)s 會自動封鎖所有網路流量。連線恢復後，應用程式就會解除流量封鎖。"
+
+#. Third paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s doesn’t protect you if you manually disconnect or quit the app. If that’s something you want, you can enable %(lockdownModeSettingName)s."
+msgstr "如果您手動中斷連線或結束應用程式，%(killSwitchSettingName)s 就無法提供保護。若希望在這些情況下仍能封鎖網路流量，可以啟用 %(lockdownModeSettingName)s。"
+
+#. Second paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgstr "%(killSwitchSettingName)s 是應用程式防洩漏保護的核心功能，無法停用。"
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1702,6 +1897,10 @@ msgstr "入口"
 msgctxt "locations-feature"
 msgid "Exit"
 msgstr "出口"
+
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr "您目前已套用入口篩選器。如果切換至「必要時」，應用程式將在自動選取入口伺服器時忽略篩選器設定。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1854,6 +2053,156 @@ msgstr "自訂連接埠可以是有效範圍內的任何值：%(portRanges)s。"
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "有效範圍：%(portRanges)s"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr "已移除「僅直接連線」"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "注意：在此模式下，額外伺服器會忽略篩選器。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr "注意：使用「自動」位置時，入口伺服器的篩選器將不會生效。"
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr "變更為「必要時」"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr "現在可以分別設定入口及出口位置的篩選器"
+
+#. Title for the migrated settings view
+msgctxt "migrated-settings-view"
+msgid "Migrated settings"
+msgstr "已遷移設定"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr "多點跳躍入口已設為「自動」"
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。"
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "已啟用多點跳躍。您的連線將先行經入口伺服器，再從所選位置出口。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr "多點跳躍現在分為三種模式：「必要時」、「一律」和「從不」。這讓您在設定連線喜好設定時更有彈性。"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr "新多點跳躍模式"
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr "沒有可遷移的設定。"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr "個別篩選器"
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr "將入口設為「自動」"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr "建議的多點跳躍入口"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr "多點跳躍模式 (建議使用)"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr "DAITA 的「僅直接連線」子設定已移除，並簡化相關設定以避免連線受阻。啟用 DAITA 後，您可以透過多點跳躍設定決定是否僅使用直接連線。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr "現在多點跳躍模式「一律」可選擇「自動」作為入口伺服器位置。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "此模式允許應用程式在需要時自動透過其他伺服器進行多點跳躍，以確保您目前的設定與所選位置相容。"
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr "這將以此符號表示：<img></img>"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr "為避免遭到封鎖，建議您將多點跳躍模式設為「必要時」。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr "為避免必須手動變更入口伺服器，建議您將多點跳躍入口伺服器設為「自動」。"
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr "為確保您目前的設定與所選位置相容，並避免連線遭到封鎖，應用程式可能會自動透過不同的入口伺服器進行多點跳躍。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr "若將多點跳躍設為「一律」或「永不」，則您必須手動選取 DAITA 伺服器。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "若將多點跳躍設為「必要時」，則應用程式可能會使用額外的伺服器，確保您能透過 DAITA 連線至選取的位置。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "選取後，應用程式會自動隨機選擇一部伺服器，並優先選擇較靠近出口位置的伺服器，以提升效能。"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "您目前的篩選器已套用於入口和出口位置。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr "您的多點跳躍設定已從「關閉」遷移至「一律」。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr "您的多點跳躍設定已從「關閉」遷移至「從不」。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr "您的多點跳躍設定已從「關閉」遷移至「必要時」。"
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
+msgstr "您的多點跳躍設定已從「開啟」遷移至「一律」。"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2099,6 +2448,15 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr "一律"
 
+#. Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
+msgctxt "select-location-view"
+msgid "Attention: With the “Automatic” location, any enabled filters are ignored for the entry server."
+msgstr "注意：若位置為「自動」，入口伺服器將忽略任何已啟用的篩選器。"
+
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr "清除搜尋"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2122,18 +2480,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr "啟用最近使用"
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr "入口"
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr "出口"
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr "已篩選："
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2145,17 +2491,24 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr "從不"
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr "找不到相符的伺服器"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
 msgstr "無最近選擇歷史"
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr "混淆：%(obfuscation)s"
+msgid "No result for: “%(searchTerm)s“"
+msgstr "找不到「%(searchTerm)s」的搜尋結果"
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
+msgstr "請變更您的篩選器試試。"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2166,9 +2519,22 @@ msgctxt "select-location-view"
 msgid "Recents"
 msgstr "最近使用"
 
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
-msgstr "設定：%(settingName)s"
+msgid "Selection does not match filter settings"
+msgstr "所選項目與篩選器設定不符"
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
+msgstr "所選項目無法使用"
+
+#. Text for a button that sets multihop mode to "Always".
+msgctxt "select-location-view"
+msgid "Set multihop to \"Always\""
+msgstr "將多點跳躍設為「一律」"
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
 #. Available placeholders:
@@ -2178,11 +2544,32 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "顯示 %(visibleRelays)s 個，共 %(totalRelays)s 個"
 
+#. Text explaining that the entry server is automatically selected based on the chosen location.
+msgctxt "select-location-view"
+msgid "The entry server is currently selected to automatically work with your selected location."
+msgstr "目前系統根據您選取的位置，自動選擇適用的入口伺服器。"
+
+#. Text explaning that if the user want to manually select a server, they need to switch multihop mode.
+msgctxt "select-location-view"
+msgid "To manually select an entry server please switch multihop mode to \"Always\"."
+msgstr "若要手動選取入口伺服器，請將多點跳躍模式切換為「一律」。"
+
 #. Label for a menu option to change the Multihop mode setting
 #. option to "When needed".
 msgctxt "select-location-view"
 msgid "When needed"
 msgstr "必要時"
+
+#. Text in dialog explaining the behavior of the “Automatic” location option
+msgctxt "select-location-view"
+msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr "選取「自動」位置後，應用程式會自動選擇一個隨機入口伺服器，優先選擇距離出口位置較近的伺服器，以達到更佳效能。"
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
+msgstr "您目前已套用入口篩選器。選擇「自動」位置後，應用程式將忽略入口伺服器的篩選器設定。"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2275,11 +2662,32 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "多點跳躍"
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。"
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "已啟用多點跳躍。您的連線將先行經入口伺服器，再從所選位置出口。"
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr "多點跳躍會將您的流量路由至一部 %(wireGuard)s 伺服器，再從另一部伺服器路由出去，使流量更難追蹤。這會增加延遲，但能提高線上匿名性。多點跳躍有三種模式可供選擇：<br></br>「必要時」、「一律」和「永不」。"
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
 msgstr "從不"
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "並非所有位置/伺服器都支援應用程式中的每項功能。如果您選擇的位置/伺服器不支援已啟用的功能，應用程式會自動透過相容的伺服器進行多點跳躍。"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2290,6 +2698,16 @@ msgstr "設定"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "支援"
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "這能確保您的連線不會因為不相容的設定而被封鎖。"
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
+msgstr "這將以 <img></img> 符號表示"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
@@ -2696,10 +3114,6 @@ msgid "Anti-censorship"
 msgstr "反審查"
 
 msgctxt "vpn-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
-
-msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "注意：此設定無法與 <b>%(customDnsFeatureName)s</b> 結合使用"
 
@@ -2773,10 +3187,6 @@ msgid "It does this by allowing network communication outside the tunnel to loca
 msgstr "其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播："
 
 msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "終止開關"
-
-msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "啟動時啟動應用程式"
 
@@ -2803,24 +3213,8 @@ msgid "Social media"
 msgstr "社群媒體"
 
 msgctxt "vpn-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "應用程式內建終止開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "終止開關與鎖定模式之間的區別在於，終止開關能在自動通道重新連線、軟體當機和類似事故期間防止發生任何洩漏。"
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "終止開關與鎖定模式之間區別在於，終止開關能在自動通道重新連線、軟體當機和類似事故期間防止發生任何洩漏。啟用鎖定模式後，您必須連線到 Mullvad VPN 伺服器才能存取網路。手動中斷連線或結束應用程式，都將封鎖您的連線。"
-
-msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "您要新增的 DNS 伺服器是私人 IP。您的網路介面必須經過設定，才能使用這個 IP。"
-
-msgctxt "vpn-settings-view"
-msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "如果您的網路突然停止運作或通道發生故障，此內建功能可避免您的流量洩漏到 VPN 通道之外。這會封鎖您的流量，直到重新建立連線為止。"
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
@@ -2854,6 +3248,11 @@ msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "警告：惡意軟體封鎖程式並非防毒軟體，只是提供了一層額外保護，不應將其視為防毒軟體。"
 
+#. Warning message shown in dialog when enabling lockdown mode.
+msgctxt "vpn-settings-view"
+msgid "Warning: this will block the internet if you aren’t connected through the Mullvad app."
+msgstr "警告：若未透過 Mullvad 應用程式連線，將無法存取網際網路。"
+
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。"
@@ -2862,9 +3261,12 @@ msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr "啟用此功能後，即可在 VPN 通道中同時使用 IPv6 和 IPv4，以便與網際網路服務進行通訊。"
 
+#. Explanation shown in the info dialog for Lockdown mode.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "vpn-settings-view"
-msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "啟用鎖定模式後，您必須連線到 Mullvad VPN 伺服器才能存取網路。手動中斷連線或結束應用程式，都將封鎖您的連線。"
+msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
+msgstr "啟用 %(lockdownModeSettingName)s 後，只有透過 Mullvad 應用程式連線才能存取網際網路。如果您手動中斷連線或結束應用程式，系統將封鎖所有網路流量。"
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2900,8 +3302,17 @@ msgid "Always"
 msgstr "一律"
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "系統會使用額外伺服器來配合您所選位置的設定"
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。"
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
+msgstr "注意：應用程式自動選擇入口伺服器時，將忽略篩選器設定。"
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
@@ -2935,10 +3346,6 @@ msgstr "MTU"
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "多點跳躍"
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。"
 
 #. Label for the Multihop mode setting's option to never use the multihop
 #. feature.
@@ -2993,6 +3400,17 @@ msgstr "自訂連接埠可以是有效範圍內的任何值：%(portRanges)s。"
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。"
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr "這將以 <img></img> 符號表示。"
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
+msgstr "為確保您目前的設定與所選位置相容，並避免連線遭到封鎖，應用程式可能會自動透過不同的入口伺服器進行多點跳躍。"
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -3188,9 +3606,6 @@ msgstr "「一律啟用 VPN」已指派給 %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "「一律啟用 VPN」已指派給其他 VPN"
 
-msgid "An additional server is used to match your settings for your selected location"
-msgstr "系統會使用額外伺服器來配合您所選位置的設定"
-
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "為確保連線正常運作，目前會在必要時自動選擇入口伺服器。若要手動選擇入口伺服器，請將多點跳躍模式切換至「一律」。"
 
@@ -3218,9 +3633,6 @@ msgstr "至少需要啟用一種方式"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。"
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "注意：在此模式下，篩選條件不會套用至額外的伺服器。"
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "注意：這會忽略入口伺服器的篩選器設定。"
 
@@ -3232,9 +3644,6 @@ msgstr "自動連線和鎖定模式"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。"
-
-msgid "Automatic (%s)"
-msgstr "自動 (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "裝置啟動時自動連線。"
@@ -3266,9 +3675,6 @@ msgstr "變更為「必要時」"
 msgid "Clear input"
 msgstr "清除輸入"
 
-msgid "Click here to read more"
-msgstr "按一下此處閱讀更多資訊"
-
 msgid "Collapse"
 msgstr "折疊"
 
@@ -3278,14 +3684,14 @@ msgstr "裝置啟動時連線"
 msgid "Connect to a different network"
 msgstr "連上其他網路"
 
+msgid "Connected server"
+msgstr "已連線的伺服器"
+
 msgid "Connecting..."
 msgstr "正在連線…"
 
 msgid "Contact support"
 msgstr "聯絡支援團隊"
-
-msgid "Continue"
-msgstr "繼續"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已將 Mullvad 帳號複製到剪貼簿"
@@ -3377,6 +3783,9 @@ msgstr "全部啟用並重試"
 msgid "Enable all access methods in the app"
 msgstr "啟用應用程式中所有存取方式"
 
+msgid "Enable anyway"
+msgstr "仍然啟用"
+
 msgid "Enable method"
 msgstr "啟用方式"
 
@@ -3392,17 +3801,11 @@ msgstr "請輸入帳號數字"
 msgid "Enter an account number"
 msgstr "輸入帳戶號碼"
 
-msgid "Entry filter"
-msgstr "入口篩選器"
-
 msgid "Entry relay is the same as exit relay"
 msgstr "入口節點與出口節點相同"
 
 msgid "Excluded applications"
 msgstr "已排除的應用程式"
-
-msgid "Exit filter"
-msgstr "出口篩選器"
 
 msgid "Expand"
 msgstr "展開"
@@ -3431,8 +3834,8 @@ msgstr "無法設定為目前方式 - 不明原因"
 msgid "File"
 msgstr "檔案"
 
-msgid "Filters are overridden when using an automatic location"
-msgstr "選擇「自動」位置時，將不套用原有的篩選條件"
+msgid "Filter"
+msgstr "篩選器"
 
 msgid "Filters can now be set separately for entry and exit locations."
 msgstr "現在可以分別設定入口及出口位置的篩選器。"
@@ -3503,9 +3906,6 @@ msgstr "加入我的帳戶權杖，就能更快取得付款或帳戶相關問題
 msgid "Info"
 msgstr "資訊"
 
-msgid "Internet"
-msgstr "網際網路"
-
 msgid "Invalid IP address"
 msgstr "IP 位址無效"
 
@@ -3545,9 +3945,6 @@ msgstr "登入"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "請確認裝置始終位於 VPN 通道上。"
 
-msgid "Migrated settings"
-msgstr "已遷移設定"
-
 msgid "More actions"
 msgstr "更多操作"
 
@@ -3560,20 +3957,14 @@ msgstr "多點跳躍入口已設為「自動」"
 msgid "Multihop is disabled"
 msgstr "已停用多點跳躍"
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "已停用多點跳躍。您選擇的位置必須支援所有啟用中的設定才能建立連線。"
-
 msgid "Multihop is enabled"
 msgstr "已啟用多點跳躍"
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "已啟用多點跳躍。您的連線會先經過入口伺服器，再透過所選位置的伺服器連出。"
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "多點跳躍現在分為三種模式：「必要時」、「一律」和「從不」。\\n這讓您在設定連線喜好設定時更有彈性。"
 
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
-msgstr "多點跳躍會將您的流量路由至一部 WireGuard 伺服器，再從另一部伺服器路由出去，使流量更難追蹤。這會增加延遲，但能提高線上匿名性。多點跳躍有三種模式可供選擇：\\n必要時、一律和從不。"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr "多點跳躍會將您的流量路由至一部 WireGuard 伺服器，再從另一部伺服器路由出去，使流量更難追蹤。這會增加延遲，但能提高線上匿名性。多點跳躍有三種模式可供選擇：\\n「必要時」、「一律」和「永不」。"
 
 msgid "Multihop when needed"
 msgstr "必要時多點跳躍"
@@ -3586,9 +3977,6 @@ msgstr "名稱已變更為「%s」"
 
 msgid "Navigate"
 msgstr "導覽"
-
-msgid "New multihop modes"
-msgstr "新多點跳躍模式"
 
 msgid "Next %1$s"
 msgstr "下一步 %1$s"
@@ -3689,9 +4077,6 @@ msgstr "請先移除裝置，然後再繼續登入"
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "請重新啟動您的裝置並嘗試重新連線。若不成功，請以瑞典語或英語撰寫電子郵件並寄至 %s。"
 
-msgid "Please try changing your filters."
-msgstr "請變更您的篩選器試試。"
-
 msgid "Port is out of range"
 msgstr "連接埠超出範圍"
 
@@ -3743,9 +4128,6 @@ msgstr "搜尋"
 msgid "Send email"
 msgstr "傳送電子郵件"
 
-msgid "Separate filters"
-msgstr "個別篩選器"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。"
 
@@ -3788,12 +4170,6 @@ msgstr "顯示目前的 VPN 通道狀態"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帳戶時間即將到期時顯示提醒"
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "部分設定已完成遷移，請檢查變更並解決所有問題。"
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr "部分設定已完成遷移，請檢查變更。"
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "驗證購買流程時發生問題。請聯絡支援團隊。"
 
@@ -3802,9 +4178,6 @@ msgstr "提交"
 
 msgid "Suggested action"
 msgstr "建議的操作"
-
-msgid "Suggested multihop entry"
-msgstr "建議的多點跳躍入口"
 
 msgid "System network settings"
 msgstr "系統網路設定"
@@ -3869,9 +4242,6 @@ msgstr "當您無法連上 Mullvad 時，這些方式可能會派上用場。選
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
 
-msgid "This ensures your connection does not get blocked due to incompatible settings."
-msgstr "這能確保您的連線不會因為不相容的設定而被封鎖。"
-
 msgid "This field is required"
 msgstr "此欄位為必填項"
 
@@ -3883,9 +4253,6 @@ msgstr "已將其設定為目前方式"
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "這可能是由於審查或網路問題所造成。請嘗試："
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "此模式允許應用程式在需要時自動透過其他伺服器進行多點跳躍，以確保您目前的設定與所選位置相容。"
 
 msgid "This will be indicated by the %1$s symbol."
 msgstr "這將以 %1$s 符號標示。"
@@ -4040,9 +4407,6 @@ msgstr "若多點跳躍設為「一律」或「從不」，您必須手動選擇
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr "若多點跳躍設為「必要時」，應用程式可能會使用其他伺服器，以確保您使用 DAITA 連至所選位置。"
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "選取後，應用程式會自動隨機選擇一部伺服器，並優先選擇較靠近出口位置的伺服器，以提升效能。"
-
 msgid "WireGuard port"
 msgstr "WireGuard 連接埠"
 
@@ -4066,12 +4430,6 @@ msgstr "您在所有裝置上都將無法存取此帳戶。"
 
 msgid "You will lose your remaining"
 msgstr "您將失去剩餘的"
-
-msgid "Your current filters were applied to both entry and exit locations."
-msgstr "您目前的篩選器已套用於入口和出口位置。"
-
-msgid "Your device"
-msgstr "您的裝置"
 
 msgid "Your device (%s)"
 msgstr "您的裝置 (%s)"

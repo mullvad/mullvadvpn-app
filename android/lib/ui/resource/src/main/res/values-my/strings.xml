@@ -68,7 +68,7 @@
     <string name="auto_connect_carousel_third_slide_top_text">လော့ခ်ဒေါင်းစနစ်ကို Android စနစ်ဆက်တင်များတွင် \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\"ဟု ခေါ်ဆိုပါသည်။ ၎င်းသည် ပေါက်ကြားမှုများကို လျှော့ချနိုင်အောင် ကူညီပေးနိုင်သော်လည်း အများသိ အကန့်အသတ်များရှိပြီး ၎င်းတို့အကြောင်းကို ဖော်ပြပါတွင် ဖတ်ရှုနိုင်သည်</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ဤနေရာတွင် ပိုမိုဖတ်ရှုနိုင်ပါသည်</string>
     <string name="automatic">အလိုအလျောက်</string>
-    <string name="automatic_entry_description">ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက် တည်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်။</string>
+    <string name="automatic_entry_description">ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်။</string>
     <string name="automatic_entry_extra_info">သင်ရွေးချယ်ထားသော တည်နေရာအတွက် သင့်ဆက်တင်များနှင့် ကိုက်ညီစေရန် ထပ်ဆောင်းဆာဗာကို သုံးသည်</string>
     <string name="automatic_entry_info_first_paragraph">သင့်အထွက်နေရာပေါ်တွင် အခြေခံ၍ သင့်တော်သောတည်နေရာတစ်ခုကို ရွေးပါ၊ အကွာအဝေး၊ ဝန်ဆောင်မှုပေးသူနှင့် ဆာဗာဝန်အားစသည့် အကြောင်းအချက်အမျိုးမျိုးပေါ်တွင် အခြေခံပါသည်။</string>
     <string name="automatic_entry_warning">သတိပြုရန်- ဤလုပ်ဆောင်ချက်သည် အဝင်ပွိုင့်အဖြစ် အသုံးပြုနေသောဆာဗာအတွက် စစ်ထုတ်မှုဆက်တင်များကို လျစ်လျူရှုပါမည်။</string>
@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">သက်ဝင်နေသည့် လုပ်ဆောင်ချက်များ</string>
     <string name="connect_panel_connection_details">ချိတ်ဆက်မှု အသေးစိတ်အချက်များ</string>
     <string name="connected">ချိတ်ဆက်ပြီး</string>
+    <string name="connected_server">ချိတ်ဆက်ထားသော ဆာဗာ</string>
     <string name="connecting">ချိတ်ဆက်နေဆဲ...</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="connection_details_in">အဝင်</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">တန်ဖိုး- %1$s</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်</b>\nကျွန်ုပ်တို့၏ တည်နေရာ/ဆာဗာအားလုံးသည် အက်ပ်ထဲရှိ လုပ်ဆောင်ချက်တိုင်းကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါ။ သင်ရွေးချယ်ထားသော တည်နေရာ/ဆာဗာသည် သင်ဖွင့်ထားသည့် လုပ်ဆောင်ချက်များကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါက အက်ပ်သည် ကိုက်ညီသောဆာဗာမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်သွားပါမည်။</string>
     <string name="multihop_description_slide_2_second_paragraph">ဤနည်းအားဖြင့် မကိုက်ညီသော ဆက်တင်များကြောင့် သင့်ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမခံရစေရန် သေချာစေပါသည်။</string>
     <string name="multihop_description_slide_2_third_paragraph">၎င်းကို %1$s သင်္ကေတဖြင့် ပြသပါမည်။</string>
@@ -357,7 +359,7 @@
     <string name="multihop_entry_disabled_description">အလုပ်ဖြစ်သော ချိတ်ဆက်မှု ဟုတ် မဟုတ် စစ်ဆေးရန် လိုအပ်ချိန်တွင် အဝင်ဆာဗာကို အလိုအလျောက် ရွေးချယ်ပါသည်။ အဝင်ဆာဗာတစ်ခုကို ကိုယ်တိုင်ရွေးချယ်ရန် Multihop မုဒ်ကို \"အမြဲတမ်း\" သို့ ပြောင်းပေးပါ။</string>
     <string name="multihop_is_disabled">Multihop ကို ပိတ်ထားသည်</string>
     <string name="multihop_is_enabled">Multihop ကို ဖွင့်ထားသည်</string>
-    <string name="multihop_migration_blocked_in_app_message_description">သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပြီး ပြဿနာမှန်သမျှကို ဖြေရှင်းပါ။</string>
+    <string name="multihop_migration_blocked_in_app_message_description">သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပြီး ပြဿနာများ ဖြေရှင်းပါ။</string>
     <string name="multihop_migration_blocked_in_app_message_title">ချိတ်ဆက်မှုပြဿနာများ ဖြေရှင်းရန်</string>
     <string name="multihop_migration_in_app_message_description">သင့်ဆက်တင်အချို့ကို ပြောင်းရွှေ့ထားသည်။ ပြောင်းလဲမှုများကို ပြန်စစ်ပါ။</string>
     <string name="multihop_migration_in_app_message_title">ဆက်တင်များကို ပြောင်းရွှေ့ထားသည်</string>
@@ -373,9 +375,9 @@
     <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%1$s</b> ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
-    <string name="new_multihop_modes_always_description">Multihop ကို ဖွင့်ထားသည်။ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပေးပို့ပြီး ထို့နောက်တွင် ရွေးချယ်ထားသောတည်နေရာမှတစ်ဆင့် ထွက်ခွာပါသည်။</string>
+    <string name="new_multihop_modes_always_description">Multihop ကို ဖွင့်ထားသည်။ ရွေးချယ်ထားသော တည်နေရာကိုဖြတ်ပြီး မထွက်ခွာမီ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပို့ပေးသည်။</string>
     <string name="new_multihop_modes_first_paragraph">ယခုအခါ Multihop ကို မုဒ်သုံးခုအဖြစ် ခွဲထုတ်ပါသည်- ၎င်းတို့မှာ လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။\nယင်းက သင်၏ ချိတ်ဆက်မှု ဦးစားပေးများနှင့်အညီ ပြောင်းလွယ်ပြင်လွယ် အသုံးပြုနိုင်စေသည်။</string>
-    <string name="new_multihop_modes_never_description">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန်အလို့ငှာ သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိသက်ဝင်နေသောဆက်တင်အားလုံးကို တွဲဖက်လုပ်ဆောင်နိုင်ရမည်။</string>
+    <string name="new_multihop_modes_never_description">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန် သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိအသက်ဝင်နေသော ဆက်တင်အားလုံးကို ပံ့ပိုးပေးရမည်။</string>
     <string name="new_multihop_modes_off_to_always">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “အမြဲတမ်း” သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_never">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “ဘယ်တော့မှ\" သို့ ပြောင်းရွှေ့ထားသည်</string>
     <string name="new_multihop_modes_off_to_when_needed">သင်၏ Multihop ဆက်တင်ကို “ပိတ်” မှ “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်\" သို့ ပြောင်းရွှေ့ထားသည်</string>
@@ -466,7 +468,7 @@
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
     <string name="separate_filters_title">သီးခြားစစ်ထုတ်ချက်များ</string>
     <string name="separate_filters_title_first_paragraph">ယခုအခါ အဝင်နေရာနှင့် အထွက်နေရာအတွက် စစ်ထုတ်ချက်များကို သီးခြားစီ သတ်မှတ်နိုင်ပါပြီ။</string>
-    <string name="separate_filters_title_second_paragraph">သင်၏ လက်ရှိစစ်ထုတ်ချက်များကို အဝင်နေရာနှင့် အထွက်နေရာ နှစ်ခုစလုံးအတွက် အသုံးပြုထားသည်။</string>
+    <string name="separate_filters_title_second_paragraph">သင်၏ လက်ရှိ စစ်ထုတ်ချက်များကို အဝင်နေရာနှင့် အထွက်နေရာ နှစ်ခုစလုံးအတွက် အသုံးပြုထားသည်။</string>
     <string name="server">ဆာဗာ</string>
     <string name="server_ip_override">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
@@ -508,12 +510,12 @@
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="suggested_action_button">“လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်” သို့ ပြောင်းရန်</string>
     <string name="suggested_action_first_paragraph">ပိတ်ပင်မခံရစေရန်အတွက် Multihop မုဒ်ကို \"လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်\" ဟု သတ်မှတ်ရန် အကြံပြုပါသည်။</string>
-    <string name="suggested_action_second_paragraph">သင့်လက်ရှိဆက်တင်များက သင်ရွေးချယ်ထားသော တည်နေရာတွင် အလုပ်ဖြစ်စေရန်အတွက် လိုအပ်ပါက အက်ပ်က အပိုဆောင်းဆာဗာတစ်ခုမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်နိုင်ရန် ဤမုဒ်က ဆောင်ရွက်ပေးသည်။</string>
+    <string name="suggested_action_second_paragraph">သင်၏ လက်ရှိဆက်တင်များမှာ သင်ရွေးချယ်ထားသော တည်နေရာနှင့် ကိုက်ညီကြောင်း သေချာစေရန် လိုအပ်ပါက ဤမုဒ်သည် အက်ပ်အား ထပ်ဆောင်းဆာဗာမှတစ်ဆင့် အလိုအလျောက် multihop လုပ်ဆောင်ခွင့်ပြုပါသည်။</string>
     <string name="suggested_action_title">အကြံပြုထားသော လုပ်ဆောင်ချက်</string>
     <string name="suggested_action_warning">သတိပြုရန်- ဤမုဒ်တွင် ထပ်ဆောင်းဆာဗာအတွက် စစ်ထုတ်ချက်များကို လျစ်လျူရှုသည်။</string>
     <string name="suggested_multihop_entry_button">အဝင်နေရာကို “အလိုအလျောက်” ဟု သတ်မှတ်ရန်</string>
     <string name="suggested_multihop_entry_first_paragraph">အဝင်ဆာဗာကို ကိုယ်တိုင် မပြောင်းလဲရစေရန်အတွက် Multihop အဝင်ဆာဗာကို “အလိုအလျောက်” ဟု သတ်မှတ်ရန် အကြံပြုပါသည်။</string>
-    <string name="suggested_multihop_entry_title">အကြံပြုထားသော Multihop အဝင်နေရာ</string>
+    <string name="suggested_multihop_entry_title">အကြံပြုထားသော multihop အဝင်နေရာ</string>
     <string name="suggested_multihop_entry_warning">သတိပြုရန်- \'အလိုအလျောက်\' တည်နေရာကို အသုံးပြုပါက အဝင်ဆာဗာအတွက် စစ်ထုတ်မှုများကို လျစ်လျူရှုပါသည်။</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="system_default">စနစ် ပုံသေ</string>

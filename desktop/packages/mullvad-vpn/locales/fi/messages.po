@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-10-15 07:52\n"
+"PO-Revision-Date: 2026-11-23 08:49\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -63,6 +63,9 @@ msgstr "Tiliasetukset"
 msgid "Add"
 msgstr "Lisää"
 
+msgid "Always"
+msgstr "Aina"
+
 msgid "Any"
 msgstr "Mikä tahansa"
 
@@ -71,6 +74,9 @@ msgstr "Ota käyttöön"
 
 msgid "Automatic"
 msgstr "Automaattinen"
+
+msgid "Automatic (%(location)s)"
+msgstr "Automaattinen (%(location)s)"
 
 msgid "Back"
 msgstr "Takaisin"
@@ -113,6 +119,9 @@ msgstr "Yhdistetään"
 
 msgid "CONNECTING..."
 msgstr "YHDISTETÄÄN..."
+
+msgid "Continue"
+msgstr "Jatka"
 
 msgid "Create"
 msgstr "Luo"
@@ -168,9 +177,6 @@ msgstr "Muokkaa"
 msgid "Enable"
 msgstr "Ota käyttöön"
 
-msgid "Enable anyway"
-msgstr "Ota silti käyttöön"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -179,8 +185,8 @@ msgstr "Laiteluettelon nouto epäonnistui"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 
-msgid "Filters"
-msgstr "Suodattimet"
+msgid "Go back"
+msgstr "Palaa takaisin"
 
 #. Button label for system settings.
 msgid "Go to System Settings"
@@ -195,11 +201,17 @@ msgstr "Opas"
 msgid "Import"
 msgstr "Tuo"
 
+msgid "Internet"
+msgstr "Internet"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
+
+msgid "Kill switch"
+msgstr "Tappokytkin"
 
 msgid "Learn more"
 msgstr "Lisätietoja"
@@ -210,6 +222,15 @@ msgstr "alle vuorokausi"
 msgid "less than a day left"
 msgstr "alle vuorokausi jäljellä"
 
+msgid "Lockdown mode"
+msgstr "Lukitustila"
+
+msgid "Magic"
+msgstr ""
+
+msgid "Magic multihop"
+msgstr ""
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
@@ -217,6 +238,9 @@ msgstr "Multihop"
 
 msgid "Name"
 msgstr "Nimi"
+
+msgid "Never"
+msgstr "Ei koskaan"
 
 msgid "New list"
 msgstr "Uusi luettelo"
@@ -251,8 +275,6 @@ msgstr "Salasana"
 msgid "Port"
 msgstr "Portti"
 
-#. This refers to the quantum resistance setting in the WireGuard settings view.
-#. This is displayed when the feature is on.
 msgid "Quantum resistance"
 msgstr "Kvanttihyökkäysten esto"
 
@@ -279,12 +301,14 @@ msgstr "Pakollinen"
 msgid "Save"
 msgstr "Tallenna"
 
+msgid "Search entry location or server"
+msgstr "Hae tulosijaintia tai -palvelinta"
+
+msgid "Search exit location or server"
+msgstr "Hae lähtösijaintia tai -palvelinta"
+
 msgid "Search for..."
 msgstr "Hae..."
-
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
-msgstr "Hae sijainteja tai palvelimia"
 
 msgid "SECURE CONNECTION"
 msgstr "SUOJATTU YHTEYS"
@@ -327,6 +351,12 @@ msgstr "Käytä"
 msgid "Username"
 msgstr "Käyttäjätunnus"
 
+msgid "When needed"
+msgstr "Tarvittaessa"
+
+msgid "Your device"
+msgstr "Laitteesi"
+
 #. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
@@ -344,6 +374,11 @@ msgstr "%(title)s, Näkymä ladattu"
 msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s-porttiasetukset"
+
+#. Accessibility description for the list of active filters.
+msgctxt "accessibility"
+msgid "Active filters"
+msgstr "Käytössä olevat suodattimet"
 
 #. This is an accessibility label for a button that adds a location to a custom list.
 #. Available placeholders:
@@ -364,10 +399,14 @@ msgctxt "accessibility"
 msgid "Add a new custom list"
 msgstr "Lisää uusi mukautettu luettelo"
 
-#. Accessibility description for button clearing the ownership filter.
+#. Accessibility label for link to anti-censorship settings.
 msgctxt "accessibility"
-msgid "Clear ownership filter"
-msgstr "Tyhjennä omistajuussuodatin"
+msgid "Anti-censorship settings"
+msgstr "Sensuurinesto-asetukset"
+
+msgctxt "accessibility"
+msgid "Clear search"
+msgstr "Tyhjennä haku"
 
 msgctxt "accessibility"
 msgid "Close notification"
@@ -377,7 +416,26 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "Näytä vähemmän: %(location)s"
 
-#. Accessibility label for a button that connects to a location.
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the entry location.
+msgctxt "accessibility"
+msgid "Configure filters for entry location"
+msgstr "Määritä tulosijainnin suodattimet"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that they can click the button to configure filters for the exit location.
+msgctxt "accessibility"
+msgid "Configure filters for exit location"
+msgstr "Määritä lähtösijainnin suodattimet"
+
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr "Muodosta yhteys ja käytä sijaintia %(location)s lähtösijaintina"
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -395,6 +453,11 @@ msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "DAITA-tietokaruselli"
 
+#. Accessibility label for link to DAITA settings.
+msgctxt "accessibility"
+msgid "DAITA settings"
+msgstr "DAITA-asetukset"
+
 #. Accessibility label for button to delete a custom list.
 #. The placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
@@ -406,6 +469,12 @@ msgstr "Poista mukautettu luettelo %(listName)s"
 msgctxt "accessibility"
 msgid "Edit custom list %(listName)s"
 msgstr "Muokkaa mukautettua luetteloa %(listName)s"
+
+#. Label provided to accessibility tools such as screenreaders to inform the user
+#. that entry location filters are disabled due to the use of the Automatic entry location.
+msgctxt "accessibility"
+msgid "Entry location filters are overridden due to use of Automatic entry location"
+msgstr "Tulosijaintisuodattimet ohitetaan automaattisen tulosijainnin käytön takia"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -444,6 +513,36 @@ msgctxt "accessibility"
 msgid "Hide account number"
 msgstr "Piilota tilin numero"
 
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr "Havainnekuva esittää multihopin tulopaikan asetettuna automaattiseksi"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
+msgstr "Havainnekuva esittää erillisiä suodattimia tulo- ja lähtösijainneille"
+
+#. Alt text for an illustration showing traffic when using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop"
+msgstr "Havainnekuva esittää liikennettä multihopia käytettäessä"
+
+#. Alt text for an illustration showing traffic when using multihop with the "Always" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"Always\" mode enabled"
+msgstr "Havainnekuva esittää liikennettä, kun aina-tila on käytössä multihopia käytettäessä"
+
+#. Alt text for an illustration showing traffic when using multihop with the "When needed" mode enabled.
+msgctxt "accessibility"
+msgid "Illustration showing traffic when using multihop with the \"When needed\" mode enabled"
+msgstr "Havainnekuva esittää liikennettä, kun tarvittaessa-tila on käytössä multihopia käytettäessä"
+
+#. Alt text for an illustration showing traffic without using multihop.
+msgctxt "accessibility"
+msgid "Illustration showing traffic without using multihop"
+msgstr "Havainnekuva esittää liikennettä ilman multihopia"
+
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -469,6 +568,11 @@ msgstr "Kirjaudu sisään tilille numero %(accountNumber)s"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Lisätietoja"
+
+#. Accessibility label for a carousel that explains the multihop feature to the user.
+msgctxt "accessibility"
+msgid "Multihop information carousel"
+msgstr "Multihop-tietokaruselli"
 
 #. Accessibility label for link to go to download page.
 msgctxt "accessibility"
@@ -517,6 +621,10 @@ msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "Edellinen dia"
 
+msgctxt "accessibility"
+msgid "Read more about the automatic entry location"
+msgstr "Lue lisää automaattisesta tulosijainnista"
+
 #. Accessibility label for button to remove a location from a custom list.
 #. The first placeholder is replaced with the name of the location.
 #. The second placeholder is replaced with the name of the custom list.
@@ -536,6 +644,28 @@ msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Poista kohde"
 
+#. Accessibility description for button removing the ownership filter.
+msgctxt "accessibility"
+msgid "Remove ownership filter"
+msgstr "Poista omistajuussuodatin"
+
+#. Accessibility description for button to remove the ownership filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove ownership filter (inactive)"
+msgstr "Poista omistajuussuodatin (ei aktiivinen)"
+
+#. Accessibility description for button removing the providers filter.
+msgctxt "accessibility"
+msgid "Remove providers filter"
+msgstr "Poista palveluntarjoajasuodatin"
+
+#. Accessibility description for button to remove the providers filter
+#. when the filter is currently not active.
+msgctxt "accessibility"
+msgid "Remove providers filter (inactive)"
+msgstr "Poista palveluntarjoajasuodatin (ei aktiivinen)"
+
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Valitse sijainti. Nykyinen sijainti on %(location)s."
@@ -553,6 +683,17 @@ msgstr "Näytä tilin numero"
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP TCP:n kautta -asetukset"
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
+msgstr "Käytä sijaintia %(location)s tulosijaintina"
+
+msgctxt "accessibility"
+msgid "Use automatic entry location"
+msgstr "Käytä automaattista tulosijaintia"
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
@@ -837,6 +978,11 @@ msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Ota käyttöön, niin saat ilmoituksen uusista sovelluksen beetaversioista."
 
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
+msgstr "Siirretyt asetukset"
+
 msgctxt "app-info-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Tämä toiminto ei ole käytössä beetaversiossa."
@@ -1068,12 +1214,6 @@ msgstr "%(city)s (%(hostname)s)"
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Käytössä olevat ominaisuudet"
-
-#. This is used as a feature indicator to show that multihop is used
-#. to enable the connection.
-msgctxt "connect-view"
-msgid "Automatic multihop"
-msgstr "Automaattinen multihop"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -1381,14 +1521,24 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Jokin meni vikaan. Ota meihin yhteyttä osoitteeseen %(email)s"
 
-#. Title label in navigation bar
+#. Title label in navigation bar for entry location filters
 msgctxt "filter-nav"
-msgid "Filter"
-msgstr "Suodata"
+msgid "Entry filter"
+msgstr "Tulosuodatin"
+
+#. Title label in navigation bar for exit location filters
+msgctxt "filter-nav"
+msgid "Exit filter"
+msgstr "Poistumissuodatin"
 
 msgctxt "filter-view"
 msgid "All providers"
 msgstr "Kaikki palveluntarjoajat"
+
+#. Info text describing that filters are not applied when an automatic location is used.
+msgctxt "filter-view"
+msgid "Filters are overridden when using an automatic location"
+msgstr "Suodattimet ohitetaan automaattista sijaintia käytettäessä"
 
 msgctxt "filter-view"
 msgid "Mullvad owned only"
@@ -1425,9 +1575,12 @@ msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s on valmis asennettavaksi."
 
+#. Message shown in the in-app notification when Lockdown mode is enabled and the internet is blocked.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
-msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
-msgstr "<a>%(lockdownModeSettingName)s</a> on käytössä. Poista internetin esto napsauttamalla Yhdistä tai poistamalla %(lockdownModeSettingName)s käytöstä."
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
+msgstr "<a>%(lockdownModeSettingName)s</a> on käytössä. Poista internetin esto muodostamalla yhteys sijaintiin tai poistamalla %(lockdownModeSettingName)s käytöstä. Sovellukset, jotka on suljettu pois split tunnelingilla, eivät välttämättä toimi oikein tässä tilassa."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1449,6 +1602,10 @@ msgstr "VERKKOYHTEYS ESTETTY"
 msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr "Asenna päivitys napsauttamalla tätä."
+
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr "Lue lisää napsauttamalla tästä"
 
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
@@ -1533,6 +1690,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr "VALMIS PÄIVITYKSEN ASENNUKSEEN"
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr "RATKAISE YHTEYSONGELMAT"
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1547,6 +1708,18 @@ msgstr "Yritä asennusta uudelleen"
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr "Lähetä ongelmaraportti"
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr "ASETUKSET SIIRRETTIIN"
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "Jotkin asetuksistasi on siirretty. Tarkista muutokset ja ratkaise ongelmat."
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "Jotkin asetuksistasi on siirretty, tarkista muutokset."
 
 #. Notification subtitle when the installer verification failed.
 msgctxt "in-app-notifications"
@@ -1612,6 +1785,28 @@ msgstr "VAHVISTUS ON SUORITETTU! KÄYNNISTETÄÄN ASENNUSOHJELMAA..."
 msgctxt "in-app-notifications"
 msgid "VERIFICATION FAILED"
 msgstr "VAHVISTUS EPÄONNISTUI"
+
+#. First paragraph of description text in anti-censorship view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s automatically blocks all network traffic if your VPN tunnel, network, or internet connection stops working. Once your connection is restored, the app will unblock your traffic."
+msgstr "%(killSwitchSettingName)s estää kaiken verkkoliikenteen automaattisesti, jos VPN-tunnelisi, verkkosi tai internetyhteytesi lakkaa toimimasta. Kun yhteytesi palautuu, sovellus poistaa liikenteesi eston automaattisesti."
+
+#. Third paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s doesn’t protect you if you manually disconnect or quit the app. If that’s something you want, you can enable %(lockdownModeSettingName)s."
+msgstr "%(killSwitchSettingName)s ei suojaa sinua, jos katkaiset yhteyden manuaalisesti tai poistut sovelluksesta. Jos haluat käyttää toimintoa, voit ottaa %(lockdownModeSettingName)sn käyttöön."
+
+#. Second paragraph of description text in kill switch view.
+#. Available placeholders:
+#. %(killSwitchSettingName)s - The name of the Kill switch setting
+msgctxt "kill-switch-view"
+msgid "The %(killSwitchSettingName)s is a core part of the app’s leak prevention and can’t be disabled."
+msgstr "%(killSwitchSettingName)s on keskeinen osa sovelluksen vuotojen estoa, eikä sitä voi poistaa käytöstä."
 
 #. Status text app is trying to connect to the system service.
 msgctxt "launch-view"
@@ -1708,6 +1903,10 @@ msgstr "Tulo"
 msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Lähtö"
+
+msgctxt "locations-feature"
+msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
+msgstr "Sinulla on tällä hetkellä tulosuodattimia käytössä. Jos tilaksi vaihdetaan \"tarvittaessa\", sovellus ei huomioi suodatinasetuksia automaattisesti valittavalle tulopalvelimelle."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -1860,6 +2059,156 @@ msgstr "Mukautettu portti voi olla mikä tahansa sallittu arvo: %(portRanges)s."
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "Kelvolliset portit: %(portRanges)s"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr "\"Vain suora\" poistettu"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "Huomio: tässä tilassa suodattimia ei huomioida lisäpalvelimelle."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr "Huomio: kun sijainti on \"automaattinen\", suodattimia ei huomioida tulopalvelimelle."
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr "Vaihda asetukseksi \"tarvittaessa\""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr "Suodattimia voi asettaa nyt erikseen tulo- ja poistumissijainneille"
+
+#. Title for the migrated settings view
+msgctxt "migrated-settings-view"
+msgid "Migrated settings"
+msgstr "Siirretyt asetukset"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr "Multihop-tuloksi asetettiin \"automaattinen\""
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden."
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr "Multihop on nyt jaettu kolmeen tilaan: tarvittaessa, aina ja ei koskaan. Tämä tarjoaa enemmän joustavuutta yhteysasetuksiisi."
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr "Uudet multihop-tilat"
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr "Asetusten siirtoja ei ole saatavilla."
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr "Erilliset suodattimet"
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr "Aseta tulopalvelimeksi \"automaattinen\""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr "Ehdotettu multihopin tulopaikka"
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr "Ehdotettu multihop-tila"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr "DAITAn aliasetus \"vain suora\" on poistettu käytöstä, ja sitä on yksinkertaistettu yhteyksien estämisen välttämiseksi. Kun DAITA on käytössä, tämä valinta tehdään sen sijaan multihop-asetuksella."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr "Multihop-tilassa asetus \"aina\" käsittää nyt \"automaattisen\" sijainnin tulopalvelimen valintana."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "Tämä tila sallii sovellukselle multihopin toteuttamisen automaattisesti lisäpalvelimen kautta tarvittaessa, jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa."
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr "Tämä ilmaistaan symbolilla <img></img>"
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr "Suosittelemme asettamaan multihop-tilaksi \"tarvittaessa\", jottei yhteyttäsi estettäisi."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr "Suosittelemme asettamaan multihop-tulopalvelimeksi \"automaattinen\", jottei sinun tarvitse vaihtaa tulopalvelinta manuaalisesti."
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr "Jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa eikä yhteyttä estettäisi, sovellus saattaa käyttää multihopia automaattisesti eri tulopalvelimen kautta."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr "Kun multihop-asetuksena on \"aina\" tai \"ei koskaan\", DAITA-palvelin on valittava manuaalisesti."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "Kun multihop-asetuksena on \"tarvittaessa\", sovellus voi käyttää lisäpalvelinta varmistaakseen, että muodostat yhteyden valittuun sijaintiin DAITAa käyttämällä."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "Kun tämä valitaan, sovellus valitsee automaattisesti satunnaisen palvelimen priorisoiden poistumissijaintia lähimpänä olevat palvelimet suorituskyvyn parantamiseksi."
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "Nykyiset suodattimet otettiin käyttöön sekä tulo- että poistumissijainneille."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr "Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"aina\"-tilaan."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr "Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"ei koskaan\" -tilaan."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr "Multihop-asetuksesi siirrettiin \"pois päältä\" -tilasta \"tarvittaessa\"-tilaan."
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
+msgstr "Multihop-asetuksesi siirrettiin \"päällä\" -tilasta \"aina\"-tilaan."
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
@@ -2105,6 +2454,15 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr "Aina"
 
+#. Text in dialog warning that any enabled filters are ignored for the entry server when the “Automatic” location is selected
+msgctxt "select-location-view"
+msgid "Attention: With the “Automatic” location, any enabled filters are ignored for the entry server."
+msgstr "Huomio: kun sijainti on \"automaattinen\", käytössä olevia suodattimia ei huomioida tulopalvelimelle."
+
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr "Tyhjennä haku"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2128,18 +2486,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr "Ota viimeisimmät käyttöön"
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr "Tulo"
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr "Lähtö"
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr "Suodatettu:"
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2151,17 +2497,24 @@ msgctxt "select-location-view"
 msgid "Never"
 msgstr "Ei koskaan"
 
+#. Text describing that the user has applied filters which does not match any servers
+msgctxt "select-location-view"
+msgid "No matching servers found"
+msgstr "Vastaavia palvelimia ei löytynyt"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
 msgstr "Ei viimeisimpien valintojen historiaa"
 
-#. Label for indicator that shows that obfuscation is being used as a filter.
-#. Available placeholders:
-#. %(obfuscation)s - type of obfuscation in use
 msgctxt "select-location-view"
-msgid "Obfuscation: %(obfuscation)s"
-msgstr "Hämäys: %(obfuscation)s"
+msgid "No result for: “%(searchTerm)s“"
+msgstr "Ei tuloksia haulle \"%(searchTerm)s\""
+
+#. Text describing that the user should try to update their filters
+msgctxt "select-location-view"
+msgid "Please try changing your filters."
+msgstr "Kokeile muuttaa suodattimiasi."
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2172,9 +2525,22 @@ msgctxt "select-location-view"
 msgid "Recents"
 msgstr "Viimeisimmät"
 
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
-msgstr "Asetus: %(settingName)s"
+msgid "Selection does not match filter settings"
+msgstr "Valinta ei vastaa suodatinasetuksia"
+
+#. Error label informing the user that their currently selected server
+#. does not match their current filter settings
+msgctxt "select-location-view"
+msgid "Selection is unavailable"
+msgstr "Valinta ei ole käytettävissä"
+
+#. Text for a button that sets multihop mode to "Always".
+msgctxt "select-location-view"
+msgid "Set multihop to \"Always\""
+msgstr "Aseta multihop-tilaksi \"aina\""
 
 #. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
 #. Available placeholders:
@@ -2184,11 +2550,32 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "Näytetään %(visibleRelays)s/%(totalRelays)s"
 
+#. Text explaining that the entry server is automatically selected based on the chosen location.
+msgctxt "select-location-view"
+msgid "The entry server is currently selected to automatically work with your selected location."
+msgstr "Tulopalvelin valitaan tällä hetkellä automaattisesti, jotta se toimii valitsemasi sijainnin kanssa."
+
+#. Text explaning that if the user want to manually select a server, they need to switch multihop mode.
+msgctxt "select-location-view"
+msgid "To manually select an entry server please switch multihop mode to \"Always\"."
+msgstr "Jos haluat valita tulopalvelimen manuaalisesti, vaihda multihop-tilaksi \"aina\"."
+
 #. Label for a menu option to change the Multihop mode setting
 #. option to "When needed".
 msgctxt "select-location-view"
 msgid "When needed"
 msgstr "Tarvittaessa"
+
+#. Text in dialog explaining the behavior of the “Automatic” location option
+msgctxt "select-location-view"
+msgid "When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance."
+msgstr "Kun \"automaattinen\" sijainti valitaan, sovellus valitsee automaattisesti satunnaisen tulopalvelimen priorisoiden poistumissijaintia lähimpänä olevat palvelimet suorituskyvyn parantamiseksi."
+
+#. Text in dialog explaining that selecting the “Automatic” location option
+#. will override the entry filters the user has selected.
+msgctxt "select-location-view"
+msgid "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
+msgstr "Tulosuodattimia on tällä hetkellä käytössä. Jos valitset automaattisen sijainnin, sovellus ohittaa suodatinasetukset tulopalvelimen osalta."
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2281,11 +2668,32 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Multihop"
 
+#. Information to the user about multihop "Never" mode.
+msgctxt "settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden."
+
+#. Information to the user about multihop "Always" mode.
+msgctxt "settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta."
+
+#. Information to the user about multihop in general.
+#. %(wireGuard)s - Will be replaced by "WireGuard"
+#. <br></br> - Will be replaced by a line break.
+msgctxt "settings-view"
+msgid "Multihop routes your traffic into one %(wireGuard)s server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between: <br></br> When needed, Always, and Never."
+msgstr "Multihop ohjaa liikenteesi yhteen %(wireGuard)s-palvelimeen ja ulos toisen kautta, jolloin sen jäljittäminen on vaikeampaa. Tämä vahvistaa anonymiteettia verkossa, mutta lisää viivettä. Multihopissa on valittavana kolme tilaa: <br></br>tarvittaessa, aina ja ei koskaan."
+
 #. Display name of the currently selected option for the Multihop mode setting
 #. when the "Never" option is selected.
 msgctxt "settings-view"
 msgid "Never"
 msgstr "Ei koskaan"
+
+msgctxt "settings-view"
+msgid "Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
+msgstr "Kaikki sijaintimme ja palvelimemme eivät tue kaikkia sovelluksen ominaisuuksia. Jos valitsemasi sijainti tai palvelin ei tue ominaisuuksia, jotka olet ottanut käyttöön, sovellus käyttää automaattisesti multihopia yhteensopivan palvelimen kautta."
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2296,6 +2704,16 @@ msgstr "Asetukset"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Tuki"
+
+msgctxt "settings-view"
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr "Tämä varmistaa, ettei yhteyttäsi estetä yhteensopimattomien asetusten takia."
+
+#. Information to the user about multihop "When needed" mode.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "settings-view"
+msgid "This will be indicated by the <img></img> symbol"
+msgstr "Tämä ilmaistaan symbolilla <img></img>"
 
 #. Label for the app info list item indicating that an update is available and can be downloaded
 msgctxt "settings-view"
@@ -2702,10 +3120,6 @@ msgid "Anti-censorship"
 msgstr "Sensuurinesto"
 
 msgctxt "vpn-settings-view"
-msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
-msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
-
-msgctxt "vpn-settings-view"
 msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
 msgstr "Huomio: <b>%(customDnsFeatureName)s</b> ja tämä asetus eivät voi olla käytössä samanaikaisesti."
 
@@ -2779,10 +3193,6 @@ msgid "It does this by allowing network communication outside the tunnel to loca
 msgstr "Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:"
 
 msgctxt "vpn-settings-view"
-msgid "Kill switch"
-msgstr "Tappokytkin"
-
-msgctxt "vpn-settings-view"
 msgid "Launch app on start-up"
 msgstr "Käynnistä sovellus, kun järjestelmä käynnistyy"
 
@@ -2809,24 +3219,8 @@ msgid "Social media"
 msgstr "Sosiaalinen media"
 
 msgctxt "vpn-settings-view"
-msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "Sovelluksen sisäänrakennettu tappokytkin on aina käytössä. Tämä asetus estää lisäksi verkkoyhteyden, jos katkaiset sovellusyhteyden tai suljet sovelluksen."
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
-msgstr "Tappokytkin eroaa lukitustilasta siten, että se estää vuotoja tapahtumasta automaattisten tunnelin uudelleenyhdistysten, ohjelmistojen kaatumisen ja vastaavien tapahtumien aikana."
-
-msgctxt "vpn-settings-view"
-msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "Tappokytkin eroaa lukitustilasta siten, että se estää vuotoja tapahtumasta automaattisten tunnelin uudelleenyhdistysten, ohjelmistojen kaatumisen ja vastaavien tapahtumien aikana. Kun lukitustila puolestaan on käytössä, voit muodostaa yhteyden internetiin ainoastaan Mullvadin VPN-palvelimen kautta. Sovelluksen yhteyden manuaalinen katkaiseminen tai sovelluksen sulkeminen estävät verkkoyhteyden muodostamisen."
-
-msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "DNS-palvelin, jonka haluat lisätä, on yksityinen IP-osoite. Varmista, että verkkoliittymäsi määritykset mahdollistavat palvelimen käytön."
-
-msgctxt "vpn-settings-view"
-msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
-msgstr "Tämä sisäänrakennettu ominaisuus estää liikennettäsi vuotamasta VPN-tunnelin ulkopuolelle, jos verkkosi yhtäkkiä lakkaa toimimasta tai jos tunneli epäonnistuu yhteyden muodostamisessa. Se estää liikenteen, kunnes yhteys on muodostettu uudelleen."
 
 msgctxt "vpn-settings-view"
 msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
@@ -2860,6 +3254,11 @@ msgctxt "vpn-settings-view"
 msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
 msgstr "Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros."
 
+#. Warning message shown in dialog when enabling lockdown mode.
+msgctxt "vpn-settings-view"
+msgid "Warning: this will block the internet if you aren’t connected through the Mullvad app."
+msgstr "Varoitus: tämä estää internetin, jos et ole muodostanut yhteyttä Mullvad-sovelluksen kautta."
+
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina."
@@ -2868,9 +3267,12 @@ msgctxt "vpn-settings-view"
 msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr "Kun tämä ominaisuus on käytössä, IPv6:ta voidaan käyttää IPv4:n rinnalla VPN-tunnelissa yhteydenpidossa internetpalveluiden kanssa."
 
+#. Explanation shown in the info dialog for Lockdown mode.
+#. Available placeholders:
+#. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "vpn-settings-view"
-msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
-msgstr "Kun lukitustila on käytössä, voit muodostaa yhteyden internetiin ainoastaan Mullvadin VPN-palvelimen kautta. Sovelluksen yhteyden manuaalinen katkaiseminen tai sovelluksen sulkeminen estävät verkkoyhteyden muodostamisen."
+msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
+msgstr "Kun %(lockdownModeSettingName)s on käytössä, pääset internetiin vain, jos olet muodostanut yhteyden Mullvad-sovelluksen kautta. Verkkoliikenteesi estetään, jos katkaiset yhteyden manuaalisesti tai poistut sovelluksesta."
 
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
@@ -2906,8 +3308,17 @@ msgid "Always"
 msgstr "Aina"
 
 msgctxt "wireguard-settings-view"
+msgid "An additional server is used to match your settings for your selected location"
+msgstr "Lisäpalvelinta käytetään sovittamaan asetuksesi valitsemaasi sijaintiin"
+
+msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu."
+
+#. Warning about ignoring filter settings for the automatically selected entry server.
+msgctxt "wireguard-settings-view"
+msgid "Attention: This will ignore filter settings for the entry server that is being automatically selected."
+msgstr "Huomio: tämä ohittaa suodatinasetukset automaattisesti valittavan tulopalvelimen osalta."
 
 msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
@@ -2941,10 +3352,6 @@ msgstr "MTU"
 msgctxt "wireguard-settings-view"
 msgid "Multihop"
 msgstr "Multihop"
-
-msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
-msgstr "Multihop reitittää liikenteesi yhteen WireGuard-palvelimeen ja ulos toisesta palvelimesta, mikä tekee siitä hankalampaa jäljittää. Tuloksena on suurempi viive, mutta se parantaa nimettömyyttä verkossa."
 
 #. Label for the Multihop mode setting's option to never use the multihop
 #. feature.
@@ -2999,6 +3406,17 @@ msgstr "Mukautettu portti voi olla mikä tahansa sallittu arvo: %(portRanges)s."
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan."
+
+#. Explanation for the symbol indicating automatic multihop.
+#. <img></img> - Will be replaced by an icon.
+msgctxt "wireguard-settings-view"
+msgid "This will be indicated by the <img></img> symbol."
+msgstr "Tämä ilmaistaan symbolilla <img></img>."
+
+#. Explanation for the "When needed" option in the Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server."
+msgstr "Jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa eikä yhteyttä estettäisi, sovellus saattaa käyttää multihopia automaattisesti eri tulopalvelimen kautta."
 
 msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP"
@@ -3194,9 +3612,6 @@ msgstr "%s on määritetty aina päällä olevan VPN:n asetukseksi"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Aina päällä oleva VPN on määritetty toiselle VPN:lle"
 
-msgid "An additional server is used to match your settings for your selected location"
-msgstr "Lisäpalvelinta käytetään sovittamaan asetuksesi valitsemaasi sijaintiin"
-
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr "Toimivan yhteyden varmistamiseksi tulopalvelin valitaan tällä hetkellä automaattisesti ja tarvittaessa. Jos haluat valita tulopalvelimen manuaalisesti, vaihda multihop-tilaksi \"aina\"."
 
@@ -3224,9 +3639,6 @@ msgstr "Vähintään yhden menetelmän on oltava käytössä"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski."
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr "Huomio: tässä tilassa suodattimia ei huomioida lisäpalvelimelle."
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr "Huomio: tämä ohittaa suodatinasetukset sisääntuloreittinä käytettävän tulopalvelimen osalta."
 
@@ -3238,9 +3650,6 @@ msgstr "Automaattinen yhdistäminen ja lukitustila"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen."
-
-msgid "Automatic (%s)"
-msgstr "Automaattinen (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "Muodosta yhteys automaattisesti, kun laite käynnistetään."
@@ -3272,9 +3681,6 @@ msgstr "Vaihda asetukseksi \"tarvittaessa\""
 msgid "Clear input"
 msgstr "Tyhjennä syöte"
 
-msgid "Click here to read more"
-msgstr "Lue lisää napsauttamalla tästä"
-
 msgid "Collapse"
 msgstr "Näytä vähemmän"
 
@@ -3284,14 +3690,14 @@ msgstr "Luo yhteys, kun laite käynnistyy"
 msgid "Connect to a different network"
 msgstr "Muodosta yhteys toiseen verkkoon"
 
+msgid "Connected server"
+msgstr "Yhdistetty palvelin"
+
 msgid "Connecting..."
 msgstr "Yhdistetään..."
 
 msgid "Contact support"
 msgstr "Ota yhteyttä tukeen"
-
-msgid "Continue"
-msgstr "Jatka"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
@@ -3383,6 +3789,9 @@ msgstr "Ota kaikki käyttöön ja yritä uudelleen"
 msgid "Enable all access methods in the app"
 msgstr "Ota kaikki käyttötavat käyttöön sovelluksessa"
 
+msgid "Enable anyway"
+msgstr "Ota silti käyttöön"
+
 msgid "Enable method"
 msgstr "Ota menetelmä käyttöön"
 
@@ -3398,17 +3807,11 @@ msgstr "Anna tilin numero"
 msgid "Enter an account number"
 msgstr "Syötä tilin numero"
 
-msgid "Entry filter"
-msgstr "Tulosuodatin"
-
 msgid "Entry relay is the same as exit relay"
 msgstr "Tulovälityspalvelin on sama kuin lähtövälityspalvelin"
 
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
-
-msgid "Exit filter"
-msgstr "Poistumissuodatin"
 
 msgid "Expand"
 msgstr "Näytä enemmän"
@@ -3437,8 +3840,8 @@ msgstr "Nykyisen asetus epäonnistui – Tuntematon syy"
 msgid "File"
 msgstr "Tiedosto"
 
-msgid "Filters are overridden when using an automatic location"
-msgstr "Suodattimet ohitetaan automaattista sijaintia käytettäessä"
+msgid "Filter"
+msgstr "Suodata"
 
 msgid "Filters can now be set separately for entry and exit locations."
 msgstr "Suodattimia voi asettaa nyt erikseen tulo- ja poistumissijainneille."
@@ -3509,9 +3912,6 @@ msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin l
 msgid "Info"
 msgstr "Tietoa"
 
-msgid "Internet"
-msgstr "Internet"
-
 msgid "Invalid IP address"
 msgstr "Virheellinen IP-osoite"
 
@@ -3551,9 +3951,6 @@ msgstr "Kirjaudu sisään"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta."
 
-msgid "Migrated settings"
-msgstr "Siirretyt asetukset"
-
 msgid "More actions"
 msgstr "Lisää toimintoja"
 
@@ -3566,20 +3963,14 @@ msgstr "Multihop-tuloksi asetettiin \"automaattinen\""
 msgid "Multihop is disabled"
 msgstr "Multihop ei ole käytössä"
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr "Multihop ei ole käytössä. Valitun sijainnin täytyy tukea kaikkia aktiivisia asetuksia, jotta voit muodostaa yhteyden."
-
 msgid "Multihop is enabled"
 msgstr "Multihop on käytössä"
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
-msgstr "Multihop on käytössä. Yhteytesi ohjataan tulopalvelimen kautta ennen poistumista valitun sijainnin kautta."
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr "Multihop on nyt jaettu kolmeen tilaan: tarvittaessa, aina ja ei koskaan.\\nTämä tarjoaa enemmän joustavuutta yhteysasetuksiisi."
 
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
-msgstr "Multihop ohjaa liikenteesi yhteen WireGuard-palvelimeen ja ulos toisen kautta, jolloin sen jäljittäminen on vaikeampaa. Tämä lisää viivettä, mutta vahvistaa anonymiteettia verkossa. Multihopissa on valittavana kolme tilaa:\\ntarvittaessa, aina ja ei koskaan."
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This increases anonymity online at the cost of increased latency. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
+msgstr ""
 
 msgid "Multihop when needed"
 msgstr "Multihop tarvittaessa"
@@ -3592,9 +3983,6 @@ msgstr "Nimeksi vaihdettiin \"%s\""
 
 msgid "Navigate"
 msgstr "Siirry"
-
-msgid "New multihop modes"
-msgstr "Uudet multihop-tilat"
 
 msgid "Next %1$s"
 msgstr "Seuraava %1$s"
@@ -3695,9 +4083,6 @@ msgstr "Poista laite ennen kuin jatkat sisäänkirjautumista"
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %s ruotsiksi tai englanniksi."
 
-msgid "Please try changing your filters."
-msgstr "Kokeile muuttaa suodattimiasi."
-
 msgid "Port is out of range"
 msgstr "Portti on alueen ulkopuolella"
 
@@ -3749,9 +4134,6 @@ msgstr "Haku"
 msgid "Send email"
 msgstr "Lähetä sähköpostia"
 
-msgid "Separate filters"
-msgstr "Erilliset suodattimet"
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d."
 
@@ -3794,12 +4176,6 @@ msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr "Jotkin asetuksistasi on siirretty. Tarkista muutokset ja ratkaise ongelmat."
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr "Jotkin asetuksistasi on siirretty, tarkista muutokset."
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "Jokin meni vikaan ostostasi vahvistettaessa. Ota yhteyttä tukeen."
 
@@ -3808,9 +4184,6 @@ msgstr "Lähetä"
 
 msgid "Suggested action"
 msgstr "Ehdotettu toimi"
-
-msgid "Suggested multihop entry"
-msgstr "Ehdotettu multihopin tulopaikka"
 
 msgid "System network settings"
 msgstr "järjestelmän verkkoasetuksissa"
@@ -3875,9 +4248,6 @@ msgstr "Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on este
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
 
-msgid "This ensures your connection does not get blocked due to incompatible settings."
-msgstr "Tämä varmistaa, ettei yhteyttäsi estetä yhteensopimattomien asetusten takia."
-
 msgid "This field is required"
 msgstr "Tämä kenttä on pakollinen"
 
@@ -3889,9 +4259,6 @@ msgstr "Tämä on jo asetettu nykyiseksi"
 
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:"
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
-msgstr "Tämä tila sallii sovellukselle multihopin toteuttamisen automaattisesti lisäpalvelimen kautta tarvittaessa, jotta nykyiset asetuksesi toimisivat valitun sijainnin kanssa."
 
 msgid "This will be indicated by the %1$s symbol."
 msgstr "Tämä ilmaistaan symbolilla %1$s."
@@ -4046,9 +4413,6 @@ msgstr "Kun multihop-asetuksena on \"aina\" tai \"ei koskaan\", DAITA-palvelin o
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr "Kun multihop-asetuksena on \"tarvittaessa\", sovellus voi käyttää lisäpalvelinta varmistaakseen, että muodostat yhteyden valittuun sijaintiin DAITAa käyttämällä."
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr "Kun tämä valitaan, sovellus valitsee automaattisesti satunnaisen palvelimen priorisoiden poistumissijaintia lähimpänä olevat palvelimet suorituskyvyn parantamiseksi."
-
 msgid "WireGuard port"
 msgstr "WireGuard-portti"
 
@@ -4072,12 +4436,6 @@ msgstr "Menetät pääsyn tälle tilille kaikilla laitteilla."
 
 msgid "You will lose your remaining"
 msgstr "Menetät jäljellä olevat"
-
-msgid "Your current filters were applied to both entry and exit locations."
-msgstr "Nykyiset suodattimet otettiin käyttöön sekä tulo- että poistumissijainneille."
-
-msgid "Your device"
-msgstr "Laitteesi"
 
 msgid "Your device (%s)"
 msgstr "Laitteesi (%s)"

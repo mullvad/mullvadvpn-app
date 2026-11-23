@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Aktiva funktioner</string>
     <string name="connect_panel_connection_details">Anslutningsinformation</string>
     <string name="connected">Ansluten</string>
+    <string name="connected_server">Ansluten server</string>
     <string name="connecting">Ansluter ...</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="connection_details_in">In</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Värde: %1$s</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>Vid behov</b>\nDet är inte alla våra platser/servrar som har stöd för varje funktion i appen. Om din valda plats/server inte har stöd för funktionerna du har aktiverat kommer appen automatiskt att multihoppa via en kompatibel server.</string>
     <string name="multihop_description_slide_2_second_paragraph">Det säkerställer att din anslutning inte blockeras på grund av inkompatibla inställningar.</string>
     <string name="multihop_description_slide_2_third_paragraph">Detta anges med symbolen %1$s.</string>
@@ -373,7 +375,7 @@
     <string name="new_device_notification_message">Välkommen. Den här enheten har fått namnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="new_list">Ny lista</string>
-    <string name="new_multihop_modes_always_description">Multihopp är aktiverat. Din anslutning leds via en ingångsserver innan den går ut via den valda platsen.</string>
+    <string name="new_multihop_modes_always_description">Multihopp är aktiverat. Din anslutning dirigeras via en ingångsserver innan den går ut via den valda platsen.</string>
     <string name="new_multihop_modes_first_paragraph">Multihopp är nu uppdelat i tre lägen: Vid behov, Alltid och Aldrig.\nDetta ger dig mer flexibilitet i anslutningsinställningarna.</string>
     <string name="new_multihop_modes_never_description">Multihopp är inaktiverat. Din valda plats måste ha stöd för alla aktiva inställningar för att kunna upprätta en anslutning.</string>
     <string name="new_multihop_modes_off_to_always">Din multihoppinställning har migrerats från \"Av\" till \"Alltid\"</string>
@@ -510,7 +512,7 @@
     <string name="suggested_action_first_paragraph">För att undvika att blockeras rekommenderar vi att du ställer in multihoppläget \"Vid behov\".</string>
     <string name="suggested_action_second_paragraph">Det här läget ger appen möjlighet att vid behov automatiskt multihoppa via en extra server för att säkerställa att dina nuvarande inställningar fungerar med din valda plats.</string>
     <string name="suggested_action_title">Föreslagen åtgärd</string>
-    <string name="suggested_action_warning">Obs! I det här läget ignoreras filtren för den extra servern.</string>
+    <string name="suggested_action_warning">Obs! I det här läget ignoreras filtren för extra server.</string>
     <string name="suggested_multihop_entry_button">Ange ingång som \"Automatisk\"</string>
     <string name="suggested_multihop_entry_first_paragraph">För att undvika att ändra ingångsservern manuellt rekommenderar vi att du ställer in ingångsservern för multihopp som \"Automatisk\".</string>
     <string name="suggested_multihop_entry_title">Föreslagen multihoppingång</string>

@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">คุณลักษณะที่ใช้งาน</string>
     <string name="connect_panel_connection_details">รายละเอียดการเชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
+    <string name="connected_server">เซิร์ฟเวอร์ที่เชื่อมต่อ</string>
     <string name="connecting">กำลังเชื่อมต่อ...</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="connection_details_in">เข้า</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">ค่า: %1$s</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>เมื่อจำเป็น</b>\nไม่ใช่ทุกตำแหน่งหรือเซิร์ฟเวอร์ของเราที่จะรองรับทุกฟีเจอร์ในแอป หากตำแหน่ง/เซิร์ฟเวอร์ที่คุณเลือกไม่รองรับฟีเจอร์ที่คุณเปิดใช้งานไว้ แอปจะเชื่อมต่อแบบมัลติฮอปผ่านเซิร์ฟเวอร์ที่รองรับโดยอัตโนมัติ</string>
     <string name="multihop_description_slide_2_second_paragraph">นี่จะช่วยให้มั่นใจได้ว่าการเชื่อมต่อของคุณจะไม่ถูกบล็อก เนื่องจากการตั้งค่าที่ไม่เข้ากัน</string>
     <string name="multihop_description_slide_2_third_paragraph">รายการนี้จะแสดงด้วยสัญลักษณ์ %1$s</string>

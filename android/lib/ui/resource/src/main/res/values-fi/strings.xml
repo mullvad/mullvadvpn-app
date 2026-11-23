@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
     <string name="connect_panel_connection_details">Yhteyden tiedot</string>
     <string name="connected">Yhdistetty</string>
+    <string name="connected_server">Yhdistetty palvelin</string>
     <string name="connecting">Yhdistetään...</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Arvo: %1$s</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>Tarvittaessa</b>\nKaikki sijaintimme ja palvelimemme eivät tue kaikkia sovelluksen ominaisuuksia. Jos valitsemasi sijainti tai palvelin ei tue ominaisuuksia, jotka olet ottanut käyttöön, sovellus käyttää automaattisesti multihopia yhteensopivan palvelimen kautta.</string>
     <string name="multihop_description_slide_2_second_paragraph">Tämä varmistaa, ettei yhteyttäsi estetä yhteensopimattomien asetusten takia.</string>
     <string name="multihop_description_slide_2_third_paragraph">Tämä ilmaistaan symbolilla %1$s.</string>

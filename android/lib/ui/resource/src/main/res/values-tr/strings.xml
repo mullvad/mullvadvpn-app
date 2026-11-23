@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Aktif özellikler</string>
     <string name="connect_panel_connection_details">Bağlantı ayrıntıları</string>
     <string name="connected">Bağlandı</string>
+    <string name="connected_server">Bağlanılan sunucu</string>
     <string name="connecting">Bağlanılıyor...</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Değer: %1$s</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>Gerektiğinde</b>\nBazı konumlarımız/sunucularımız, uygulamadaki her özelliği desteklemez. Seçtiğiniz konum/sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa uygulama, uyumlu bir sunucu üzerinden otomatik olarak çoklu geçiş yapar.</string>
     <string name="multihop_description_slide_2_second_paragraph">Bu, uyumsuz ayarlar nedeniyle bağlantınızın engellenmesini önler.</string>
     <string name="multihop_description_slide_2_third_paragraph">Bu  %1$s simgesiyle gösterilir.</string>
@@ -508,7 +510,7 @@
     <string name="submit_button">Gönder</string>
     <string name="suggested_action_button">“Gerektiğinde” olarak değiştir</string>
     <string name="suggested_action_first_paragraph">Bağlantınızın engellenmesini önlemek için çoklu geçiş modunu “Gerektiğinde” olarak ayarlamanızı öneririz.</string>
-    <string name="suggested_action_second_paragraph">Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışması için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır.</string>
+    <string name="suggested_action_second_paragraph">Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmas için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır.</string>
     <string name="suggested_action_title">Önerilen işlem</string>
     <string name="suggested_action_warning">Dikkat: Bu modda ek sunucu için filtreler dikkate alınmaz.</string>
     <string name="suggested_multihop_entry_button">Girişi “Otomatik” olarak ayarla</string>

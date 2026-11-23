@@ -107,6 +107,7 @@
     <string name="connect_panel_active_features">Aktive Funktionen</string>
     <string name="connect_panel_connection_details">Verbindungsdetails</string>
     <string name="connected">Verbunden</string>
+    <string name="connected_server">Verbundener Server</string>
     <string name="connecting">Verbinden …</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
     <string name="connection_details_in">Eingehend</string>
@@ -349,6 +350,7 @@
     <string name="mtu_x">Wert: %1$s</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_description_slide_1_first_paragraph"></string>
     <string name="multihop_description_slide_2_first_paragraph"><b>Bei Bedarf</b>\nNicht alle unsere Standorte/Server unterstützen alle Funktionen der App. Wenn der von Ihnen gewählte Standort/Server die von Ihnen aktivierten Funktionen nicht unterstützt, leitet die App den Datenverkehr automatisch über einen kompatiblen Server weiter.</string>
     <string name="multihop_description_slide_2_second_paragraph">Dadurch wird sichergestellt, dass Ihre Verbindung nicht aufgrund inkompatibler Einstellungen blockiert wird.</string>
     <string name="multihop_description_slide_2_third_paragraph">Dies wird durch das Symbol %1$s angezeigt.</string>
@@ -464,7 +466,7 @@
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
-    <string name="separate_filters_title">Getrennte Filter</string>
+    <string name="separate_filters_title">Filter trennen</string>
     <string name="separate_filters_title_first_paragraph">Filter können nun separat für Eingangs- und Ausgangsstandorte eingestellt werden.</string>
     <string name="separate_filters_title_second_paragraph">Ihre aktuellen Filter werden sowohl auf den Eingangs- als auch auf den Ausgangsstandort angewendet.</string>
     <string name="server">Server</string>
