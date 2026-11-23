@@ -95,5 +95,5 @@ actor TunnelStub: TunnelProtocol, Equatable {
 
     func stop() {}
 
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {}
+    func sendProviderMessage(_ messageData: Data) async throws -> Data? { nil }
 }

@@ -49,7 +49,7 @@ protocol TunnelProtocol: Actor {
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
     func stop()
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
+    func sendProviderMessage(_ messageData: Data) async throws -> Data?
 }
 
 /// Tunnel wrapper class.
@@ -153,14 +153,22 @@ actor Tunnel: TunnelProtocol {
         vpnStatusNotificationsHandler.stop()
     }
 
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
+    func sendProviderMessage(_ messageData: Data) async throws -> Data? {
         let session = tunnelProvider.connection as? VPNTunnelProviderSessionProtocol
         // Explicitly fail to send the message if the tunnel session is not up
         guard let session else {
             throw SendTunnelProviderMessageError.tunnelDown(.invalid)
         }
 
-        try session.sendProviderMessage(messageData, responseHandler: responseHandler)
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try session.sendProviderMessage(messageData) { reply in
+                    continuation.resume(returning: reply)
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {
