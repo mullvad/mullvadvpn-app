@@ -3630,6 +3630,9 @@ msgstr ""
 msgid "Add time"
 msgstr ""
 
+msgid "Add time below, or visit our website to redeem vouchers or pay using other methods."
+msgstr ""
+
 msgid "Add to list"
 msgstr ""
 
@@ -3718,6 +3721,9 @@ msgid "Blocking..."
 msgstr ""
 
 msgid "Browser"
+msgstr ""
+
+msgid "Buy one or more months, then use the VPN as much as you want during that time."
 msgstr ""
 
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
@@ -3876,6 +3882,9 @@ msgstr ""
 msgid "Enable method"
 msgstr ""
 
+msgid "Enable notifications"
+msgstr ""
+
 msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
 msgstr ""
 
@@ -3942,10 +3951,22 @@ msgstr ""
 msgid "Generating..."
 msgstr ""
 
+msgid "Get notified about your connection status and any issues with your connection or account."
+msgstr ""
+
+msgid "Get started"
+msgstr ""
+
 msgid "Go to VPN settings"
 msgstr ""
 
 msgid "Going to login will unblock the internet on this device."
+msgstr ""
+
+msgid "Good to know:\\nBlocked content"
+msgstr ""
+
+msgid "Good to know:\\nExcluding apps"
 msgstr ""
 
 msgid "Google Play payment pending"
@@ -3996,6 +4017,9 @@ msgstr ""
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr ""
 
+msgid "In order not to store any user data, Mullvad doesn’t have subscriptions. Instead, you pay upfront to add time to your account."
+msgstr ""
+
 msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
 msgstr ""
 
@@ -4030,6 +4054,9 @@ msgid "Invalid public key"
 msgstr ""
 
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr ""
+
+msgid "Later"
 msgstr ""
 
 msgid "Less than a day left on this account"
@@ -4125,6 +4152,9 @@ msgstr ""
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
+msgid "No thanks"
+msgstr ""
+
 msgid "Not found"
 msgstr ""
 
@@ -4215,6 +4245,9 @@ msgstr ""
 msgid "Read more"
 msgstr ""
 
+msgid "Ready to connect?"
+msgstr ""
+
 msgid "Recents disabled and history cleared"
 msgstr ""
 
@@ -4252,6 +4285,9 @@ msgid "Routing traffic incorrectly might expose your data, or stop the VPN from 
 msgstr ""
 
 msgid "Search"
+msgstr ""
+
+msgid "Selected location:"
 msgstr ""
 
 msgid "Send email"
@@ -4300,6 +4336,12 @@ msgid "Shows current VPN tunnel status"
 msgstr ""
 
 msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Skip"
+msgstr ""
+
+msgid "Some apps, including many banking apps, block VPN traffic. You can use the Split tunneling feature to have these apps connect outside the VPN. This way you don’t have to disconnect the VPN."
 msgstr ""
 
 msgid "Something went wrong while verifying your purchase. Please contact support."
@@ -4524,6 +4566,9 @@ msgstr ""
 msgid "Voucher code is too short"
 msgstr ""
 
+msgid "Want notifications?"
+msgstr ""
+
 msgid "Warning"
 msgstr ""
 
@@ -4545,7 +4590,13 @@ msgstr ""
 msgid "Weather"
 msgstr ""
 
+msgid "Websites and apps sometimes block VPNs. If this happens, try switching location."
+msgstr ""
+
 msgid "Welcome, this device is now called <b>%s</b>."
+msgstr ""
+
+msgid "We’ll never send you any ads or tips."
 msgstr ""
 
 msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
@@ -4567,6 +4618,9 @@ msgid "You can add more time via the account view or website to continue using t
 msgstr ""
 
 msgid "You can add more time via the account view to continue using the VPN."
+msgstr ""
+
+msgid "You can change location at any time"
 msgstr ""
 
 msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."

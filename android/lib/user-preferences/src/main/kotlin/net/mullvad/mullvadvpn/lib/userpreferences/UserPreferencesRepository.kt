@@ -111,4 +111,25 @@ class UserPreferencesRepository(
             prefs.toBuilder().setLatestSuccessfulPurchase(purchaseToken).build()
         }
     }
+
+    fun onboardingCheckpoint(): Flow<OnboardingCheckpoint> =
+        userPreferencesStore.data.map { it.onboardingCheckpoint.toDomain() }
+
+    suspend fun setOnboardingCheckpoint(checkpoint: OnboardingCheckpoint) {
+        // If onboarding is completed you have to reinstall the app to reset it.
+        if (onboardingCheckpoint().first() != OnboardingCheckpoint.COMPLETED) {
+            userPreferencesStore.updateData { prefs ->
+                prefs.toBuilder().setOnboardingCheckpoint(checkpoint.toProto()).build()
+            }
+        }
+    }
+
+    fun notificationPermissionAsked(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.notificationPermissionAsked }
+
+    suspend fun setNotificationPermissionAsked() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setNotificationPermissionAsked(true).build()
+        }
+    }
 }

@@ -46,10 +46,10 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
-import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingStep
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
@@ -64,8 +64,9 @@ import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
-import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -85,7 +86,7 @@ private fun PreviewWelcomeScreen(
             onSettingsClick = {},
             onAccountClick = {},
             navigateToDeviceInfoDialog = {},
-            onAddMoreTimeClick = {},
+            onGetStartedClick = {},
             onDisconnectClick = {},
             onPlayPaymentInfoClick = {},
         )
@@ -106,9 +107,6 @@ fun Welcome(navigator: Navigator) {
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
-            WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
-                navigator.navigate(ConnectNavKey, clearBackStack = true)
-            }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred),
@@ -134,7 +132,8 @@ fun Welcome(navigator: Navigator) {
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
         navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
-        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
+        onGetStartedClick =
+            dropUnlessResumed { navigator.navigate(OnboardingNavKey(OnboardingStep.AddTime)) },
         onPlayPaymentInfoClick =
             dropUnlessResumed { paymentStatus ->
                 navigator.navigate(VerificationPendingNavKey(paymentStatus))
@@ -148,7 +147,7 @@ fun WelcomeScreen(
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
@@ -183,7 +182,7 @@ fun WelcomeScreen(
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
                     paymentStatus = state.value.paymentStatus,
-                    onAddMoreTimeClick = onAddMoreTimeClick,
+                    onGetStartedClick = onGetStartedClick,
                     onDisconnectClick = onDisconnectClick,
                     onInfoClick = onPlayPaymentInfoClick,
                 )
@@ -334,7 +333,7 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
     paymentStatus: PaymentStatus?,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onInfoClick: (PaymentStatus) -> Unit,
 ) {
@@ -382,10 +381,12 @@ private fun ButtonPanel(
                 )
             }
         }
-        VariantButton(
-            onClick = onAddMoreTimeClick,
-            text = stringResource(id = R.string.add_time),
-            modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+        PrimaryButton(
+            onClick = onGetStartedClick,
+            text = stringResource(id = R.string.get_started),
+            modifier =
+                Modifier.padding(bottom = Dimens.buttonSpacing)
+                    .testTag(GET_STARTED_BUTTON_TEST_TAG),
         )
     }
 }

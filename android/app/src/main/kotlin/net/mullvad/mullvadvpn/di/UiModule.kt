@@ -39,7 +39,6 @@ import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsViewModel
 import net.mullvad.mullvadvpn.feature.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectViewModel
-import net.mullvad.mullvadvpn.feature.home.impl.connect.HasShowNotificationPromptRepository
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
@@ -59,6 +58,7 @@ import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.multihop.impl.MultihopViewModel
 import net.mullvad.mullvadvpn.feature.multihopmigration.impl.MultihopMigrationViewModel
 import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
+import net.mullvad.mullvadvpn.feature.onboarding.impl.OnboardingViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
@@ -192,9 +192,7 @@ val uiModule = module {
     }
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
-    single { HasShowNotificationPromptRepository() }
     single { CustomVpnRepository(managementService = get()) }
-
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
         InAppNotificationUseCase::class
@@ -349,7 +347,6 @@ val uiModule = module {
             resolveAppListing = get(),
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
-            hasShownNotificationPromptRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
@@ -367,6 +364,7 @@ val uiModule = module {
             internetAvailableUseCase = get(),
             scheduleNotificationAlarmUseCase = get(),
             accountExpiryNotificationProvider = get(),
+            preferencesRepository = get(),
             ioDispatcher = Dispatchers.IO,
         )
     }
@@ -398,7 +396,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel { SplashViewModel(get(), get(), get()) }
+    viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
@@ -411,6 +409,14 @@ val uiModule = module {
             connectionProxy = get(),
             activityLifecycle = params.get(),
             isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
+    viewModel {
+        OnboardingViewModel(
+            accountRepository = get(),
+            userPreferencesRepository = get(),
+            paymentUseCase = get(),
+            selectedLocationTitleUseCase = get(),
         )
     }
     viewModel {

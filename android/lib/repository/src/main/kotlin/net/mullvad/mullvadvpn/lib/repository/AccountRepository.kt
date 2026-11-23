@@ -18,10 +18,13 @@ import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.userpreferences.OnboardingCheckpoint
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 class AccountRepository(
     private val managementService: ManagementService,
     private val deviceRepository: DeviceRepository,
+    private val preferencesRepository: UserPreferencesRepository,
 ) {
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -36,7 +39,10 @@ class AccountRepository(
     private var lastSuccessfulAccountDataFetch: ZonedDateTime? = null
 
     suspend fun createAccount(): Either<CreateAccountError, AccountNumber> =
-        managementService.createAccount().onRight { _isNewAccount.update { true } }
+        managementService.createAccount().onRight {
+            _isNewAccount.update { true }
+            preferencesRepository.setOnboardingCheckpoint(OnboardingCheckpoint.WELCOME)
+        }
 
     suspend fun login(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
         managementService.loginAccount(accountNumber)

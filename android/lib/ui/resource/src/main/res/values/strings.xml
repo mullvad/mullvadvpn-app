@@ -640,4 +640,22 @@
     <string name="show_private_key_auth_subtitle">Verify your identity to view the private key</string>
     <string name="advanced_feature">Advanced feature</string>
     <string name="custom_tunnels_advanced_warning">Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution.</string>
+    <string name="get_started">Get started</string>
+    <string name="onboarding_add_time_first_paragraph">In order not to store any user data, Mullvad doesn’t have subscriptions. Instead, you pay upfront to add time to your account.</string>
+    <string name="onboarding_add_time_second_paragraph">Buy one or more months, then use the VPN as much as you want during that time.</string>
+    <string name="onboarding_add_time_third_paragraph">Add time below, or visit our website to redeem vouchers or pay using other methods.</string>
+    <string name="want_notifications">Want notifications?</string>
+    <string name="enable_notifications">Enable notifications</string>
+    <string name="no_thanks">No thanks</string>
+    <string name="onboarding_notifications_description">Get notified about your connection status and any issues with your connection or account.</string>
+    <string name="onboarding_notifications_no_ads">We’ll never send you any ads or tips.</string>
+    <string name="good_to_know_blocked_content_title">Good to know:\nBlocked content</string>
+    <string name="good_to_know_blocked_content_body">Websites and apps sometimes block VPNs. If this happens, try switching location.</string>
+    <string name="good_to_know_excluding_apps_title">Good to know:\nExcluding apps</string>
+    <string name="good_to_know_excluding_apps_body">Some apps, including many banking apps, block VPN traffic. You can use the Split tunneling feature to have these apps connect outside the VPN. This way you don’t have to disconnect the VPN.</string>
+    <string name="ready_to_connect">Ready to connect?</string>
+    <string name="selected_location">Selected location:</string>
+    <string name="you_can_change_location_at_any_time">You can change location at any time</string>
+    <string name="later">Later</string>
+    <string name="skip">Skip</string>
 </resources>

@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
@@ -48,7 +49,7 @@ class WelcomeScreenTest {
         onDisconnectClick: () -> Unit = {},
         navigateToDeviceInfoDialog: () -> Unit = {},
         onPlayPaymentInfoClick: (PaymentStatus) -> Unit = {},
-        onAddMoreTimeClick: () -> Unit = {},
+        onGetStartedClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             WelcomeScreen(
@@ -58,9 +59,22 @@ class WelcomeScreenTest {
                 navigateToDeviceInfoDialog = navigateToDeviceInfoDialog,
                 onDisconnectClick = onDisconnectClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-                onAddMoreTimeClick = onAddMoreTimeClick,
+                onGetStartedClick = onGetStartedClick,
             )
         }
+    }
+
+    @Test
+    fun testOnGetStartedClick() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(onGetStartedClick = clickHandler)
+
+        // Act
+        onNodeWithTag(GET_STARTED_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 1) { clickHandler() }
     }
 
     @Test

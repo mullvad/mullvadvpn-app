@@ -475,6 +475,8 @@ dependencies {
     implementation(projects.lib.feature.notification.impl)
     implementation(projects.lib.feature.customvpn.api)
     implementation(projects.lib.feature.customvpn.impl)
+    implementation(projects.lib.feature.onboarding.api)
+    implementation(projects.lib.feature.onboarding.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.serveripoverride.impl)

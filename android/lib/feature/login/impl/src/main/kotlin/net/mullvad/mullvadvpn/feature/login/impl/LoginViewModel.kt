@@ -32,6 +32,8 @@ import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNo
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.lib.userpreferences.OnboardingCheckpoint
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
@@ -61,11 +63,13 @@ sealed interface LoginUiSideEffect {
     data object GenericError : LoginUiSideEffect
 }
 
+@Suppress("LongParameterList")
 class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val newDeviceRepository: NewDeviceRepository,
     private val internetAvailableUseCase: InternetAvailableUseCase,
     private val ioDispatcher: CoroutineDispatcher,
+    private val preferencesRepository: UserPreferencesRepository,
     scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
     accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
 ) : ViewModel() {
@@ -162,6 +166,8 @@ class LoginViewModel(
         newDeviceRepository.newDeviceCreated()
 
         viewModelScope.launch(ioDispatcher) {
+            preferencesRepository.setOnboardingCheckpoint(OnboardingCheckpoint.PART_1_COMPLETED)
+
             // Find if user is out of time
             val isOutOfTimeDeferred = async {
                 accountRepository.fetchAccountData()?.expiryDate?.isBeforeNowInstant()

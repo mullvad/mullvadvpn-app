@@ -9,20 +9,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -43,7 +38,7 @@ class WelcomeViewModel(
     isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState =
         combine(
@@ -81,16 +76,6 @@ class WelcomeViewModel(
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
         }
     }
-
-    private fun hasAddedTimeEffect() =
-        accountRepository.accountData
-            .filterNotNull()
-            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNowInstant() }
-            .onEach {
-                paymentUseCase.resetPurchaseResult()
-                accountRepository.resetIsNewAccount()
-            }
-            .map { UiSideEffect.OpenConnectScreen }
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
@@ -132,14 +117,8 @@ class WelcomeViewModel(
     sealed interface UiSideEffect {
         data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
-        data object OpenConnectScreen : UiSideEffect
-
         data class StoreCredentialsRequest(val accountNumber: AccountNumber) : UiSideEffect
 
         data object GenericError : UiSideEffect
-    }
-
-    companion object {
-        private const val MIN_HOURS_PAST_ACCOUNT_EXPIRY: Long = 20
     }
 }
