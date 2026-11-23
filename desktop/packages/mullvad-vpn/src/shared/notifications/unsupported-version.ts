@@ -25,7 +25,7 @@ export class UnsupportedVersionNotificationProvider
   public constructor(private context: UnsupportedVersionNotificationContext) {}
 
   public mayDisplay() {
-    return this.context.consistent && !this.context.supported;
+    return false; // this.context.consistent && !this.context.supported;
   }
 
   public getSystemNotification(): SystemNotification {
