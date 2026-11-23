@@ -62,7 +62,7 @@ impl super::DnsMonitorT for DnsMonitor {
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
         if !servers.is_empty() {
-            self.handle.block_on(inner.set(interface, servers))?;
+            inner.set(&self.handle, interface, servers)?;
             self.inner = Some(inner);
         }
         Ok(())
@@ -142,13 +142,18 @@ impl DnsMonitorHolder {
             .map_err(|_| Error::NoDnsMonitor)
     }
 
-    async fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(
+        &mut self,
+        handle: &tokio::runtime::Handle,
+        interface: &str,
+        servers: &[IpAddr],
+    ) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers)?,
             StaticResolvConf(static_resolv_conf) => static_resolv_conf.set_dns(servers.to_vec())?,
             SystemdResolved(systemd_resolved) => {
-                systemd_resolved.set_dns(interface, servers).await?
+                handle.block_on(systemd_resolved.set_dns(interface, servers))?
             }
             NetworkManager(network_manager) => network_manager.set_dns(interface, servers)?,
         }
