@@ -394,7 +394,10 @@ enum FeatureIndicator {
   CUSTOM_VPN = 16;
 }
 
-message ObfuscationMultiplexer { repeated ObfuscationEndpoint endpoints = 1; }
+message ObfuscationMultiplexer {
+  repeated ObfuscationEndpoint active = 1;
+  repeated ObfuscationEndpoint pending = 2;
+}
 
 message ObfuscationEndpoint {
   enum ObfuscationType {
