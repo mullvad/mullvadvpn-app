@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::io;
-use std::os::windows::ffi::OsStringExt;
 use std::path::Path;
 use test_rpc::mullvad_daemon::ServiceStatus;
 use test_rpc::{meta::OsVersion, mullvad_daemon::Verbosity};
@@ -439,16 +438,7 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
                         format!("Failed to open Environment subkey: {error}",),
                     )
                 })?
-                .map(|(k, v)| {
-                    (
-                        trim(k),
-                        trim(
-                            OsString::from_wide(v.as_wide())
-                                .to_string_lossy()
-                                .into_owned(),
-                        ),
-                    )
-                })
+                .map(|(k, v)| (trim(k), trim(String::try_from(v).unwrap_or_default())))
                 .collect();
             Ok(env)
         })
