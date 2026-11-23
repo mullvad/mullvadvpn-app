@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlin.text.appendLine
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -54,6 +58,7 @@ import net.mullvad.mullvadvpn.lib.common.loadingIsModal
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.TunnelStats
+import net.mullvad.mullvadvpn.lib.ui.component.Accordion
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
@@ -67,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -207,6 +213,7 @@ fun CustomVpnListScreen(
                     .padding(bottom = bottomMargin),
         ) {
             Description()
+            AdvancedFeatureWarning()
 
             ConfigurationsHeader()
 
@@ -256,6 +263,19 @@ private fun ColumnScope.Description() {
         iconTint = MaterialTheme.colorScheme.onSurface,
         iconToTextPadding = Dimens.smallSpacer,
         shiftIconDown = true,
+    )
+}
+
+@Composable
+private fun AdvancedFeatureWarning() {
+    var expandedState by rememberSaveable { mutableStateOf(false) }
+    Accordion(
+        title = stringResource(R.string.advanced_feature),
+        expandedText = annotatedStringResource(R.string.custom_tunnels_advanced_warning),
+        icon = Icons.Outlined.Info,
+        iconTint = MaterialTheme.colorScheme.warning,
+        isExpanded = expandedState,
+        onClick = { expandedState = !expandedState },
     )
 }
 

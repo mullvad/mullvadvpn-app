@@ -40,6 +40,7 @@ fun Accordion(
     icon: ImageVector,
     iconContentDescription: String? = null,
     iconTint: Color = LocalContentColor.current,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: () -> Unit = {},
 ) {
     Column(
@@ -83,6 +84,7 @@ fun Accordion(
                         .padding(bottom = Dimens.smallPadding),
                 style = MaterialTheme.typography.bodyMedium,
                 text = expandedText,
+                color = textColor,
             )
         }
     }

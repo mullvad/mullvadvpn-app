@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="advanced_feature">Advanced feature</string>
+    <string name="custom_tunnels_advanced_warning">Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution.</string>
+</resources>
