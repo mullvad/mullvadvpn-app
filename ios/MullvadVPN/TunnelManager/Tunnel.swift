@@ -253,7 +253,7 @@ actor Tunnel: TunnelProtocol {
 
 /// This needs to be a class type or a subclass of `NSObject` because of the `NSNotification` handling code
 /// Sendability is guaranteed by this class having no state and only being used in the context of the `Tunnel` actor
-fileprivate class NotificationHandler: @unchecked Sendable {
+private class NotificationHandler: @unchecked Sendable {
     typealias VPNStatusChangedHandler = ((VPNConnectionProtocol) -> Void)
     var onVPNStatusChanged: VPNStatusChangedHandler?
 

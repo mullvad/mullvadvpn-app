@@ -308,18 +308,17 @@ actor TunnelManager {
             let operation = await StartTunnelOperation(
                 dispatchQueue: internalQueue,
                 interactor: TunnelInteractorProxy(self),
-                completionHandler: { [weak self] result in
+                completionHandler: { result in
                     if let error = result.error {
-                        self?.logger.error(
+                        self.logger.error(
                             error: error,
                             message: "Failed to start the tunnel."
                         )
 
                         let tunnelError = StartTunnelError(underlyingError: error)
 
-                        self?.observerList.notify { observer in
+                        self.observerList.notify { observer in
                             Task { @MainActor in
-                                guard let self else { return }
                                 observer.tunnelManager(self, didFailWithError: tunnelError)
                             }
                         }
@@ -348,9 +347,7 @@ actor TunnelManager {
             let operation = await StopTunnelOperation(
                 dispatchQueue: self.internalQueue,
                 interactor: TunnelInteractorProxy(self)
-            ) { [weak self] result in
-                guard let self else { return }
-
+            ) { result in
                 if let error = result.error {
                     self.logger.error(
                         error: error,
@@ -438,9 +435,7 @@ actor TunnelManager {
                 )
 
                 await tunnel.setConfiguration(configuration)
-                await tunnel.saveToPreferences { [weak self] _ in
-                    guard let self else { return }
-
+                await tunnel.saveToPreferences { _ in
                     self.stopTunnel(isOnDemandEnabled: true) { _ in
                         Task {
                             if case .disconnected = await tunnel.status {
@@ -982,10 +977,10 @@ actor TunnelManager {
 
         #if NEVER_IN_PRODUCTION
             Task {
-                _ = await tunnel?.getInAppLogs { [weak self] result in
+                _ = await tunnel?.getInAppLogs { result in
                     if case let .success(entries) = result, !entries.isEmpty {
                         Task {
-                            await self?.onInAppLogEntries?(entries)
+                            await self.onInAppLogEntries?(entries)
                         }
                     }
                 }
@@ -1228,15 +1223,15 @@ actor TunnelManager {
         guard let tunnel = _tunnel, isRemovingProfile else { return }
 
         Task {
-            await tunnel.removeFromPreferences { [weak self] error in
+            await tunnel.removeFromPreferences { error in
                 Task {
                     if let error {
-                        self?.logger.error(
+                        self.logger.error(
                             error: error,
                             message: "Failed to remove VPN configuration."
                         )
                     }
-                    await self?.setTunnel(nil, shouldRefreshTunnelState: false)
+                    await self.setTunnel(nil, shouldRefreshTunnelState: false)
                 }
             }
         }
