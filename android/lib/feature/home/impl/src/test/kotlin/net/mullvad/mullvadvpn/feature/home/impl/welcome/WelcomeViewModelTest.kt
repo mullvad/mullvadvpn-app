@@ -143,19 +143,6 @@ class WelcomeViewModelTest {
         }
 
     @Test
-    fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() =
-        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
-            // Arrange
-            accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusHours(24)))
-
-            // Act, Assert
-            viewModel.uiSideEffect.test {
-                val action = awaitItem()
-                assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
-            }
-        }
-
-    @Test
     fun `when on disconnect click is called should call connection proxy disconnect`() =
         runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
             // Arrange

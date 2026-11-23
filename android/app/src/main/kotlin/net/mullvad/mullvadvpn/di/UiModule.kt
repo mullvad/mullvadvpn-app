@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.app.MainActivity
 import net.mullvad.mullvadvpn.app.MullvadAppViewModel
 import net.mullvad.mullvadvpn.feature.account.impl.AccountViewModel
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.AntiCensorshipSettingsViewModel
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.customport.CustomPortDialogViewModel
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport.SelectPortViewModel
@@ -39,7 +38,6 @@ import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsViewModel
 import net.mullvad.mullvadvpn.feature.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectViewModel
-import net.mullvad.mullvadvpn.feature.home.impl.connect.HasShowNotificationPromptRepository
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
@@ -59,6 +57,10 @@ import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.multihop.impl.MultihopViewModel
 import net.mullvad.mullvadvpn.feature.multihopmigration.impl.MultihopMigrationViewModel
 import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
+import net.mullvad.mullvadvpn.feature.onboarding.impl.AddTimeViewModel
+import net.mullvad.mullvadvpn.feature.onboarding.impl.GoodToKnowViewModel
+import net.mullvad.mullvadvpn.feature.onboarding.impl.NotificationsViewModel
+import net.mullvad.mullvadvpn.feature.onboarding.impl.ReadyToConnectViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
@@ -192,9 +194,7 @@ val uiModule = module {
     }
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
-    single { HasShowNotificationPromptRepository() }
     single { CustomVpnRepository(managementService = get()) }
-
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
         InAppNotificationUseCase::class
@@ -349,7 +349,6 @@ val uiModule = module {
             resolveAppListing = get(),
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
-            hasShownNotificationPromptRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
@@ -367,6 +366,7 @@ val uiModule = module {
             internetAvailableUseCase = get(),
             scheduleNotificationAlarmUseCase = get(),
             accountExpiryNotificationProvider = get(),
+            preferencesRepository = get(),
             ioDispatcher = Dispatchers.IO,
         )
     }
@@ -398,19 +398,37 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel { SplashViewModel(get(), get(), get()) }
+    viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
     viewModel { params -> LocalNetworkSharingViewModel(isModal = params.get(), get()) }
-    viewModel { params ->
+    viewModel {
         WelcomeViewModel(
             accountRepository = get(),
             deviceRepository = get(),
-            paymentUseCase = get(),
             connectionProxy = get(),
+        )
+    }
+    viewModel { params ->
+        AddTimeViewModel(
+            accountRepository = get(),
+            paymentUseCase = get(),
+            userPreferencesRepository = get(),
             activityLifecycle = params.get(),
-            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
+    viewModel { NotificationsViewModel(userPreferencesRepository = get()) }
+    viewModel { params ->
+        GoodToKnowViewModel(
+            userPreferencesRepository = get(),
+            step = params.get(),
+        )
+    }
+    viewModel {
+        ReadyToConnectViewModel(
+            selectedLocationTitleUseCase = get(),
+            userPreferencesRepository = get(),
         )
     }
     viewModel {
@@ -508,12 +526,12 @@ val uiModule = module {
         )
     }
     viewModel { params -> DaitaViewModel(isModal = params.get(), get()) }
-    viewModel {
+    viewModel { params ->
         AddTimeViewModel(
             paymentUseCase = get(),
             accountRepository = get(),
-            connectionProxy = get(),
-            isPlayBuild = IS_PLAY_BUILD,
+            userPreferencesRepository = get(),
+            activityLifecycle = params.get(),
         )
     }
     viewModel { params ->

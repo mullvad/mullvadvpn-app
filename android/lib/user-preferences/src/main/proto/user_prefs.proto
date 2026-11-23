@@ -13,4 +13,16 @@ message UserPreferences {
   bool has_seen_multihop_migration_guide = 7;
   bool has_dismissed_multihop_migration_guide_banner = 8;
   optional string latest_successful_purchase = 9;
+  bool notification_permission_asked = 10;
+  OnboardingCheckpointProto onboarding_checkpoint = 11;
+}
+
+enum OnboardingCheckpointProto {
+  ONBOARDING_CHECKPOINT_NOT_STARTED = 0;
+  ONBOARDING_CHECKPOINT_WELCOME = 1;
+  ONBOARDING_CHECKPOINT_NOTIFICATIONS = 2;
+  ONBOARDING_CHECKPOINT_GOOD_TO_KNOW = 3;
+  ONBOARDING_CHECKPOINT_PART_1_COMPLETED = 4;
+  ONBOARDING_CHECKPOINT_PREFERRED_SETTINGS = 5;
+  ONBOARDING_CHECKPOINT_COMPLETED = 6;
 }

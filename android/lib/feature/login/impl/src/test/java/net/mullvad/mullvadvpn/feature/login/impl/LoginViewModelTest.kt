@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseC
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -41,6 +42,7 @@ class LoginViewModelTest {
 
     @MockK private lateinit var connectivityUseCase: InternetAvailableUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
+    @MockK private lateinit var mockedPreferencesRepository: UserPreferencesRepository
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var accountHistoryFlow: MutableStateFlow<AccountNumber?>
@@ -66,6 +68,7 @@ class LoginViewModelTest {
                 internetAvailableUseCase = connectivityUseCase,
                 scheduleNotificationAlarmUseCase = mockScheduleNotificationAlarmUseCase,
                 accountExpiryNotificationProvider = mockAccountExpiryNotificationProvider,
+                preferencesRepository = mockedPreferencesRepository,
                 ioDispatcher = UnconfinedTestDispatcher(),
             )
     }

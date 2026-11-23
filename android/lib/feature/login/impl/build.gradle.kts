@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.lib.pushNotification)
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.userPreferences)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

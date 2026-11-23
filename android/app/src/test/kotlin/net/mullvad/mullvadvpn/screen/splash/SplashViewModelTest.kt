@@ -2,13 +2,17 @@ package net.mullvad.mullvadvpn.screen.splash
 
 import app.cash.turbine.test
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.onboarding.api.GoodToKnowStep
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingStep
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
@@ -16,6 +20,8 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
+import net.mullvad.mullvadvpn.lib.userpreferences.OnboardingCheckpoint
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,12 +31,14 @@ class SplashViewModelTest {
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockSplashCompleteRepository: SplashCompleteRepository = mockk(relaxed = true)
+    private val mockPreferencesRepository: UserPreferencesRepository = mockk(relaxed = true)
 
     private val splashViewModel: SplashViewModel =
         SplashViewModel(
             accountRepository = mockAccountRepository,
             deviceRepository = mockDeviceRepository,
             splashCompleteRepository = mockSplashCompleteRepository,
+            preferencesRepository = mockPreferencesRepository,
         )
 
     private val deviceStateFlow = MutableStateFlow<DeviceState?>(null)
@@ -38,6 +46,8 @@ class SplashViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockDeviceRepository.deviceState } returns deviceStateFlow
+        every { mockPreferencesRepository.onboardingCheckpoint() } returns
+            flowOf(OnboardingCheckpoint.COMPLETED)
     }
 
     @Test
@@ -73,6 +83,77 @@ class SplashViewModelTest {
         splashViewModel.uiSideEffect.test {
             assertEquals(expected = SplashUiSideEffect.NavigateToConnect, actual = awaitItem())
             awaitComplete()
+        }
+    }
+
+    @Test
+    fun `when onboarding has not started should navigate to Welcome`() = runTest {
+        // Arrange
+        deviceStateFlow.update { DeviceState.LoggedIn(AccountNumber("11"), mockk()) }
+        every { mockPreferencesRepository.onboardingCheckpoint() } returns
+            flowOf(OnboardingCheckpoint.WELCOME)
+
+        // Act, Assert
+        splashViewModel.uiSideEffect.test {
+            assertEquals(SplashUiSideEffect.NavigateToWelcome, awaitItem())
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `when onboarding is at notifications should resume there`() = runTest {
+        // Arrange
+        deviceStateFlow.update { DeviceState.LoggedIn(AccountNumber("11"), mockk()) }
+        every { mockPreferencesRepository.onboardingCheckpoint() } returns
+            flowOf(OnboardingCheckpoint.NOTIFICATIONS)
+
+        // Act, Assert
+        splashViewModel.uiSideEffect.test {
+            assertEquals(
+                SplashUiSideEffect.NavigateToOnboarding(OnboardingStep.Notifications),
+                awaitItem(),
+            )
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `when onboarding is at good to know should resume at the first page`() = runTest {
+        // Arrange
+        deviceStateFlow.update { DeviceState.LoggedIn(AccountNumber("11"), mockk()) }
+        every { mockPreferencesRepository.onboardingCheckpoint() } returns
+            flowOf(OnboardingCheckpoint.GOOD_TO_KNOW)
+
+        // Act, Assert
+        splashViewModel.uiSideEffect.test {
+            assertEquals(
+                SplashUiSideEffect.NavigateToOnboarding(GoodToKnowStep.GoodToKnow1),
+                awaitItem(),
+            )
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `when onboarding has not started should skip it for existing users`() = runTest {
+        // Arrange
+        deviceStateFlow.update { DeviceState.LoggedIn(AccountNumber("11"), mockk()) }
+        every { mockPreferencesRepository.onboardingCheckpoint() } returns
+            flowOf(OnboardingCheckpoint.NOT_STARTED)
+        coEvery { mockAccountRepository.fetchAccountData(timeout = any()) } returns
+            AccountData(
+                mockk(relaxed = true),
+                AccountNumber("11"),
+                expiryDate = ZonedDateTime.now().plusDays(1),
+            )
+
+        // Act, Assert
+        splashViewModel.uiSideEffect.test {
+            assertEquals(SplashUiSideEffect.NavigateToConnect, awaitItem())
+            awaitComplete()
+        }
+        coVerify {
+            mockPreferencesRepository.setOnboardingCheckpoint(OnboardingCheckpoint.COMPLETED)
         }
     }
 

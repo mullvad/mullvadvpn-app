@@ -14,6 +14,8 @@ import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.userpreferences.OnboardingCheckpoint
+import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
@@ -24,6 +26,7 @@ class AccountRepositoryTest {
 
     private val mockManagementService: ManagementService = mockk()
     private val mockDeviceRepository: DeviceRepository = mockk()
+    private val mockPreferencesRepository: UserPreferencesRepository = mockk(relaxed = true)
 
     private val mockDeviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
@@ -38,6 +41,7 @@ class AccountRepositoryTest {
             AccountRepository(
                 managementService = mockManagementService,
                 deviceRepository = mockDeviceRepository,
+                preferencesRepository = mockPreferencesRepository,
             )
     }
 
@@ -137,5 +141,30 @@ class AccountRepositoryTest {
             // Check that account data is null
             assertNull(awaitItem())
         }
+    }
+
+    @Test
+    fun `when an account is created should set the welcome onboarding checkpoint`() = runTest {
+        // Arrange
+        val accountNumber = AccountNumber("1234567890")
+        coEvery { mockManagementService.createAccount() } returns accountNumber.right()
+
+        // Act
+        accountRepository.createAccount()
+
+        // Assert
+        coVerify { mockPreferencesRepository.setOnboardingCheckpoint(OnboardingCheckpoint.WELCOME) }
+    }
+
+    @Test
+    fun `when an account is deleted should not change the onboarding checkpoint`() = runTest {
+        // Arrange
+        coEvery { mockManagementService.deleteAccount() } returns Unit.right()
+
+        // Act
+        accountRepository.deleteAccount()
+
+        // Assert
+        coVerify(exactly = 0) { mockPreferencesRepository.setOnboardingCheckpoint(any()) }
     }
 }

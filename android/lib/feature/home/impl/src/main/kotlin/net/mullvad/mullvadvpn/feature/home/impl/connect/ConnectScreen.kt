@@ -96,6 +96,7 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingConnectNavResult
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
@@ -315,6 +316,10 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
         if (result.connect) {
             connectViewModel.onConnectClick()
         }
+    }
+
+    LocalResultStore.current.consumeResult<OnboardingConnectNavResult> {
+        connectViewModel.onConnectClick()
     }
 
     CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {

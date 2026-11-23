@@ -46,10 +46,9 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
-import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
-import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingStep
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
@@ -58,15 +57,14 @@ import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
-import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
@@ -85,9 +83,8 @@ private fun PreviewWelcomeScreen(
             onSettingsClick = {},
             onAccountClick = {},
             navigateToDeviceInfoDialog = {},
-            onAddMoreTimeClick = {},
+            onGetStartedClick = {},
             onDisconnectClick = {},
-            onPlayPaymentInfoClick = {},
         )
     }
 }
@@ -106,9 +103,6 @@ fun Welcome(navigator: Navigator) {
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
-            WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
-                navigator.navigate(ConnectNavKey, clearBackStack = true)
-            }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred),
@@ -134,11 +128,8 @@ fun Welcome(navigator: Navigator) {
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
         navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
-        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
-        onPlayPaymentInfoClick =
-            dropUnlessResumed { paymentStatus ->
-                navigator.navigate(VerificationPendingNavKey(paymentStatus))
-            },
+        onGetStartedClick =
+            dropUnlessResumed { navigator.navigate(OnboardingNavKey(OnboardingStep.AddTime)) },
     )
 }
 
@@ -148,9 +139,8 @@ fun WelcomeScreen(
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -182,10 +172,8 @@ fun WelcomeScreen(
             if (state is Lc.Content) {
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
-                    paymentStatus = state.value.paymentStatus,
-                    onAddMoreTimeClick = onAddMoreTimeClick,
+                    onGetStartedClick = onGetStartedClick,
                     onDisconnectClick = onDisconnectClick,
-                    onInfoClick = onPlayPaymentInfoClick,
                 )
             }
         }
@@ -245,7 +233,7 @@ private fun WelcomeInfo(
             text =
                 buildString {
                     append(stringResource(id = R.string.pay_to_start_using))
-                    if (state.contentOrNull()?.showSitePayment == true) {
+                    if (true) {
                         append(" ")
                         append(stringResource(id = R.string.add_time_to_account))
                     }
@@ -333,10 +321,8 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 @Composable
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
-    paymentStatus: PaymentStatus?,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onInfoClick: (PaymentStatus) -> Unit,
 ) {
     Column(
         modifier =
@@ -355,37 +341,12 @@ private fun ButtonPanel(
                 modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
             )
         }
-        if (paymentStatus != null) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { onInfoClick(paymentStatus) },
-                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                Text(
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    text =
-                        stringResource(
-                            id =
-                                when (paymentStatus) {
-                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
-                                    PaymentStatus.PURCHASED_UNVERIFIED ->
-                                        R.string.payment_status_verification_failed
-                                },
-                        ),
-                )
-            }
-        }
-        VariantButton(
-            onClick = onAddMoreTimeClick,
-            text = stringResource(id = R.string.add_time),
-            modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+        PrimaryButton(
+            onClick = onGetStartedClick,
+            text = stringResource(id = R.string.get_started),
+            modifier =
+                Modifier.padding(bottom = Dimens.buttonSpacing)
+                    .testTag(GET_STARTED_BUTTON_TEST_TAG),
         )
     }
 }
