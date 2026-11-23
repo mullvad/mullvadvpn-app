@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.core.os.UserManagerCompat
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -20,6 +21,12 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
         // a worker instead.
         Logger.d("Account expiry alarm triggered")
 
+        // If we make request to work manager before user is unlocked it will crash. See this
+        // issue for more information: https://issuetracker.google.com/issues/578572401
+        if (!UserManagerCompat.isUserUnlocked(context)) {
+            Logger.d("User is locked, not scheduling account expiry notification")
+            return
+        }
         val work =
             OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()
                 .apply {
