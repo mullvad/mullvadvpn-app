@@ -20,7 +20,7 @@ fun ListItemIconButton(
     modifier: Modifier = Modifier,
     containerWidth: Dp = ListItemComponentTokens.iconContainerWidth,
     onClick: () -> Unit,
-    icon: @Composable () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier = Modifier.width(containerWidth).fillMaxHeight(),
@@ -30,7 +30,7 @@ fun ListItemIconButton(
             modifier = modifier,
             onClick = onClick,
         ) {
-            icon()
+            content()
         }
     }
 }

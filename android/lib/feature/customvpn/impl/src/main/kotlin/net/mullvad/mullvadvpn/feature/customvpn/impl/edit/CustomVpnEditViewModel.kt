@@ -198,7 +198,7 @@ class CustomVpnEditViewModel(
     private fun parseTunnelIps(
         tunnelIps: Set<String>,
     ): Either<Map<String, FormDataError.TunnelIp>, Set<String>> {
-        val (valid, invalid) = tunnelIps.partition(::isValidIp)
+        val (valid, invalid) = tunnelIps.partition(IpValidator::isValidIp)
 
         return if (invalid.isEmpty()) {
             Either.Right(valid.toSet())
@@ -210,7 +210,7 @@ class CustomVpnEditViewModel(
     private fun parseAllowedIpsCidr(
         allowedIps: Set<String>,
     ): Either<Map<String, FormDataError.AllowedIp>, Set<String>> {
-        val (valid, invalid) = allowedIps.partition(::isValidIpOrCidr)
+        val (valid, invalid) = allowedIps.partition(IpValidator::isValidIpOrCidr)
 
         return if (invalid.isEmpty()) {
             Either.Right(valid.toSet())
@@ -222,7 +222,7 @@ class CustomVpnEditViewModel(
     private fun parseEndpointAddress(
         endpointAddress: String,
     ): Either<FormDataError.EndpointAddress, String> =
-        if (isValidIp(endpointAddress)) {
+        if (IpValidator.isValidIp(endpointAddress)) {
             Either.Right(endpointAddress)
         } else {
             Either.Left(FormDataError.EndpointAddress(endpointAddress))
@@ -246,38 +246,41 @@ class CustomVpnEditViewModel(
                 )
             else -> Either.Right(port)
         }
+
+    private object IpValidator {
+        private const val IPV4_OCTET = """(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)"""
+        private const val IPV4_BASE = """$IPV4_OCTET(\.$IPV4_OCTET){3}"""
+
+        private const val IPV6_BASE =
+            "(" +
+                "([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|" + // 1:2:3:4:5:6:7:8
+                "([0-9a-f]{1,4}:){1,7}:|" + // 1:: to 1:2:3:4:5:6:7::
+                "([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|" + // 1::8 to 1:2:3:4:5:6::8
+                "([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|" +
+                "([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|" +
+                "([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|" +
+                "([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|" +
+                "[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|" + // 1::2:3:4:5:6:7
+                ":((:[0-9a-f]{1,4}){1,7}|:)" + // ::2:3:4:5:6:7 or ::
+                ")"
+
+        private val IPV4_EXACT_REGEX = """^$IPV4_BASE$""".toRegex()
+        private val IPV6_EXACT_REGEX = """^$IPV6_BASE$""".toRegex(RegexOption.IGNORE_CASE)
+
+        // CIDR Regexes (Allows base IP, plus optional /0 to /32 or /128)
+        private val IPV4_CIDR_REGEX = """^$IPV4_BASE(/([0-9]|[12][0-9]|3[0-2]))?$""".toRegex()
+        private val IPV6_CIDR_REGEX =
+            """^$IPV6_BASE(/([0-9]|[1-9][0-9]|1[01][0-9]|12[0-8]))?$"""
+                .toRegex(RegexOption.IGNORE_CASE)
+
+        fun isValidIpOrCidr(raw: String): Boolean =
+            IPV4_CIDR_REGEX.matches(raw) || IPV6_CIDR_REGEX.matches(raw)
+
+        fun isValidIp(raw: String): Boolean =
+            IPV4_EXACT_REGEX.matches(raw) || IPV6_EXACT_REGEX.matches(raw)
+    }
 }
 
 operator fun <L, R> Either<L, R>.component1(): L? = leftOrNull()
 
 operator fun <L, R> Either<L, R>.component2(): R? = getOrNull()
-
-private const val IPV4_OCTET = """(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)"""
-private const val IPV4_BASE = """$IPV4_OCTET(\.$IPV4_OCTET){3}"""
-
-private const val IPV6_BASE =
-    "(" +
-        "([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|" + // 1:2:3:4:5:6:7:8
-        "([0-9a-f]{1,4}:){1,7}:|" + // 1:: to 1:2:3:4:5:6:7::
-        "([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|" + // 1::8 to 1:2:3:4:5:6::8
-        "([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|" +
-        "([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|" +
-        "([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|" +
-        "([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|" +
-        "[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|" + // 1::2:3:4:5:6:7
-        ":((:[0-9a-f]{1,4}){1,7}|:)" + // ::2:3:4:5:6:7 or ::
-        ")"
-
-private val IPV4_EXACT_REGEX = """^$IPV4_BASE$""".toRegex()
-private val IPV6_EXACT_REGEX = """^$IPV6_BASE$""".toRegex(RegexOption.IGNORE_CASE)
-
-// CIDR Regexes (Allows base IP, plus optional /0 to /32 or /128)
-private val IPV4_CIDR_REGEX = """^$IPV4_BASE(/([0-9]|[12][0-9]|3[0-2]))?$""".toRegex()
-private val IPV6_CIDR_REGEX =
-    """^$IPV6_BASE(/([0-9]|[1-9][0-9]|1[01][0-9]|12[0-8]))?$""".toRegex(RegexOption.IGNORE_CASE)
-
-private fun isValidIpOrCidr(raw: String): Boolean =
-    IPV4_CIDR_REGEX.matches(raw) || IPV6_CIDR_REGEX.matches(raw)
-
-private fun isValidIp(raw: String): Boolean =
-    IPV4_EXACT_REGEX.matches(raw) || IPV6_EXACT_REGEX.matches(raw)
