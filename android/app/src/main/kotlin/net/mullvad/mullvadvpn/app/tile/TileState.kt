@@ -6,6 +6,4 @@ sealed interface TileState {
     data class Active(override val subtitle: String) : TileState
 
     data class Inactive(override val subtitle: String) : TileState
-
-    data class Unavailable(override val subtitle: String) : TileState
 }
