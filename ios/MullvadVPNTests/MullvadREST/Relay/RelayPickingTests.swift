@@ -44,7 +44,7 @@ class RelayPickingTests: XCTestCase {
 
     // MARK: IP version
 
-    private func pickSinglehop(ipVersion: IPVersion) throws -> SelectedRelay {
+    private func pickSinglehopInGotWith(ipVersion: IPVersion) throws -> SelectedRelay {
         var settings = LatestTunnelSettings()
         settings.relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
@@ -56,7 +56,7 @@ class RelayPickingTests: XCTestCase {
     }
 
     func testAutomaticIpVersionSelectsBothAddresses() throws {
-        let relay = try pickSinglehop(ipVersion: .automatic)
+        let relay = try pickSinglehopInGotWith(ipVersion: .automatic)
         let serverRelay = try XCTUnwrap(sampleRelays.wireguard.relays.first { $0.hostname == relay.hostname })
         let port = relay.endpoint.socketAddress.port
 
@@ -70,10 +70,10 @@ class RelayPickingTests: XCTestCase {
     }
 
     func testExplicitIpVersionSelectsOneAddress() throws {
-        guard case .ipv4 = try pickSinglehop(ipVersion: .ipv4).endpoint.socketAddress else {
+        guard case .ipv4 = try pickSinglehopInGotWith(ipVersion: .ipv4).endpoint.socketAddress else {
             return XCTFail("Expected only an IPv4 address")
         }
-        guard case .ipv6 = try pickSinglehop(ipVersion: .ipv6).endpoint.socketAddress else {
+        guard case .ipv6 = try pickSinglehopInGotWith(ipVersion: .ipv6).endpoint.socketAddress else {
             return XCTFail("Expected only an IPv6 address")
         }
     }
