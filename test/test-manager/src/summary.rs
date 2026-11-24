@@ -222,14 +222,9 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     for summary in &summaries {
         let total_tests = summary.applicable_tests();
         let total_passed = summary.passed().len();
-        let counter_text = if summary.is_success() {
-            String::from(TestResult::PASS_STR)
-        } else {
-            format!("({total_passed}/{total_tests})")
-        };
         println!(
-            "<td style='text-align: center;'>{} {}</td>",
-            summary.config_name, counter_text
+            "<td style='text-align: center;'>{} ({total_passed}/{total_tests})</td>",
+            summary.config_name
         );
     }
 
