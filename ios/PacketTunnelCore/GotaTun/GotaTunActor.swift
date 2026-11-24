@@ -353,6 +353,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             info.connectionAttemptCount = 0
             observedState = .connected(info)
             providerDelegate.reassertTunnel()
+            ipv6First = false
             logger.debug("Connected")
         default:
             logger.debug("Ignoring onConnected in state \(observedState)")
