@@ -1,11 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import { colors, Radius } from '../../foundations';
-import {
-  FeatureIndicatorIcon,
-  FeatureIndicatorText,
-  StyledFeatureIndicatorText,
-} from './components';
+import { FeatureIndicatorIcon, FeatureIndicatorText } from './components';
 import { FeatureIndicatorProvider } from './FeatureIndicatorContext';
 
 export type FeatureIndicatorProps = {
@@ -38,45 +34,19 @@ const StyledFeatureIndicator = styled.button<{
 
       background: ${variables.backgroundColor};
 
-      ${() => {
-        if (!$inactive) {
-          return css`
-            &&:not(:disabled) {
-              border: 1px solid ${variables.borderColor};
-            }
-          `;
-        }
-
-        return null;
-      }}
+      &&:not(:disabled) {
+        border: 1px solid ${$inactive ? 'transparent' : variables.borderColor};
+      }
 
       ${() => {
         if ($clickable) {
-          if ($inactive) {
-            return css`
-              &&:hover {
-                background: ${variables.backgroundColorInactiveHover};
-
-                > ${StyledFeatureIndicatorText} {
-                  color: ${colors.whiteAlpha40};
-                }
-              }
-
-              &&:active {
-                background: ${variables.backgroundColorInactivePressed};
-
-                > ${StyledFeatureIndicatorText} {
-                  color: ${colors.whiteAlpha60};
-                }
-              }
-            `;
-          }
-
           return css`
             &&:not(:disabled):hover {
+              border: 1px solid ${variables.borderColor};
               border-color: ${variables.borderColorHover};
             }
             &&:not(:disabled):active {
+              border: 1px solid ${variables.borderColor};
               border-color: ${variables.borderColorPressed};
             }
           `;
