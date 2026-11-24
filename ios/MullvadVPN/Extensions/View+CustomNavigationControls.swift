@@ -10,23 +10,37 @@
 
 import SwiftUI
 
-extension View {
-    /// Adjust this view so that it does not have a system-provided Back button, but
-    /// instead has a custom Mullvad-style Back button, which executes an arbitrary
-    /// action (which should pop the top view from the navigation stack).
-    /// This is to avoid the Liquid Glass look of system-provided navigation controls.
-    func withCustomBackButton(_ action: @escaping (() -> Void)) -> some View {
-        self
+private struct CustomBackButtonContainerView<Content: View>: View {
+    @Environment(\.dismiss) var dismiss
+
+    let content: () -> Content
+    var body: some View {
+        content()
             .navigationBarBackButtonHidden(true)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(
-                        action: action
-                    ) {
+                ToolbarItem(placement: .navigation) {
+                    Button {
+                        dismiss()
+                    } label: {
                         Image.mullvadIconBack
                     }
                     .accessibilityIdentifier(.navigationBackButton)
                 }.hideLiquidGlassEffect()
             }
+    }
+}
+
+extension View {
+    /// Adjust this view so that it does not have a system-provided Back button, but
+    /// instead has a custom Mullvad-style Back button.
+    /// This is to avoid the Liquid Glass look of system-provided navigation controls.
+    @ViewBuilder
+    func withCustomBackButton() -> some View {
+        if #available(iOS 26.0, *) {
+            CustomBackButtonContainerView { self }
+        } else {
+            self
+        }
+
     }
 }

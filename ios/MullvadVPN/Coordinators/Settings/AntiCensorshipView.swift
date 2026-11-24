@@ -15,7 +15,6 @@ struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
     @Bindable var settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
-    let navigationController: UINavigationController
 
     struct Option: Identifiable {
         typealias ID = String
@@ -185,9 +184,7 @@ struct AntiCensorshipView: View {
                     .onDisappear {
                         updateSettings()
                     }
-                    .withCustomBackButton {
-                        navigationController.popViewController(animated: true)
-                    }
+                    .withCustomBackButton()
             } label: {
                 switch state {
                 case .shadowsocks:
