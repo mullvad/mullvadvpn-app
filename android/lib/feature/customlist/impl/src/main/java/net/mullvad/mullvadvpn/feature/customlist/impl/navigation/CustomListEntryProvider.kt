@@ -17,5 +17,4 @@ fun EntryProviderScope<NavKey2>.customListEntry(navigator: Navigator) {
     editCustomListEntry(navigator)
     editCustomListLocationsEntry(navigator)
     editCustomListNameEntry(navigator)
-    discardCustomListChangesEntry(navigator)
 }

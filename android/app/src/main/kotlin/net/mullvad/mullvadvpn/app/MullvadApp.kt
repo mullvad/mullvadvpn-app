@@ -72,6 +72,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.discardChangesEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
@@ -152,6 +153,7 @@ fun MullvadApp() {
         splitTunnelingEntry(nav3)
         vpnSettingsEntry(nav3)
         dnsSettingsEntry(nav3)
+        discardChangesEntry(nav3)
     }
 
     SharedTransitionLayout {

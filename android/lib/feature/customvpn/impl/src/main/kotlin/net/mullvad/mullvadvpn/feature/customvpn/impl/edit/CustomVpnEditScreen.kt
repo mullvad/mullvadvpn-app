@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -68,6 +70,8 @@ import net.mullvad.mullvadvpn.lib.ui.component.ProvideFocusChain
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.ListItemIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.DiscardChangesConfirmedNavResult
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.DiscardChangesNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.focusChainItem
 import net.mullvad.mullvadvpn.lib.ui.component.keepFocusedInView
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
@@ -90,6 +94,7 @@ private fun PreviewCustomVpnEditScreen() {
             onBackClick = {},
             saveConfig = {},
             clearConfig = {},
+            onFormHasChanges = {},
             snackbarHostState = remember { SnackbarHostState() },
         )
     }
@@ -126,6 +131,8 @@ fun CustomVpnEdit(
     val formHasErrorMessage = stringResource(R.string.custom_tunnels_form_contains_errors_message)
     val saveSuccessMessage = stringResource(R.string.custom_tunnels_form_saved_success)
 
+    LocalResultStore.current.consumeResult<DiscardChangesConfirmedNavResult> { navigator.goBack() }
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is CustomVpnSideEffect.FailedToSave ->
@@ -139,14 +146,27 @@ fun CustomVpnEdit(
         }
     }
 
+    var formHasChanges by rememberSaveable { mutableStateOf(false) }
+
+    val onBack = dropUnlessResumed {
+        if (formHasChanges) {
+            navigator.navigate(DiscardChangesNavKey)
+        } else {
+            navigator.goBack()
+        }
+    }
+
+    BackHandler(enabled = formHasChanges) { onBack() }
+
     CustomVpnEditScreen(
         state = state,
-        onBackClick = dropUnlessResumed { navigator.goBack() },
+        onBackClick = onBack,
         saveConfig = vm::save,
         clearConfig =
             dropUnlessResumed<FormData> {
                 navigator.navigate(RemoveCustomTunnelConfigConfirmationNavKey(name = it.name))
             },
+        onFormHasChanges = { formHasChanges = it },
         snackbarHostState = snackbarHostState,
     )
 }
@@ -159,6 +179,7 @@ fun CustomVpnEditScreen(
     modifier: Modifier = Modifier,
     saveConfig: (FormData) -> Unit,
     clearConfig: (FormData) -> Unit,
+    onFormHasChanges: (hasChanges: Boolean) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     if (state !is Lc.Content) {
@@ -218,6 +239,8 @@ fun CustomVpnEditScreen(
         )
 
     val formHasChanges = currentFormData != formData
+
+    LaunchedEffect(formHasChanges) { onFormHasChanges(formHasChanges) }
 
     ScaffoldWithSmallTopBar(
         appBarTitle =
