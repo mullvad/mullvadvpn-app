@@ -9,6 +9,7 @@ license.workspace = true
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
 talpid-dbus = { workspace = true, optional = true }
+tokio = { workspace = true, features = ["process"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 talpid-windows.workspace = true
