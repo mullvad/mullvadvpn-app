@@ -68,7 +68,6 @@ function upload_to_crowdin {
 
     pushd ../desktop/packages/mullvad-vpn
     crowdin upload sources
-    crowdin upload translations
     popd
 }
 
