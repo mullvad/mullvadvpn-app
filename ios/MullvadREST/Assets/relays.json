@@ -924,13 +924,19 @@
         "public_key": "1WN0Mqa0Azw7cYYEamHPgHXE8SuylNIG2QobZKOaclA=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
-          "149.22.83.5"
+          "149.22.83.5",
+          "2a02:6ea0:f002:1::b001",
+          "2a02:6ea0:f002:1::b002",
+          "2a02:6ea0:f002:1::b003"
         ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "149.22.83.4"
+              "149.22.83.4",
+              "2a02:6ea0:f002:1::c001",
+              "2a02:6ea0:f002:1::c002",
+              "2a02:6ea0:f002:1::c003"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ar-bue-wg-001.blockerad.eu"
@@ -952,13 +958,19 @@
         "public_key": "gGrdozNHVCnmcX5x8OPOXfnyZ+TZWqD9GlHl1kRekyA=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
-          "149.22.83.34"
+          "149.22.83.34",
+          "2a02:6ea0:f002:2::b001",
+          "2a02:6ea0:f002:2::b002",
+          "2a02:6ea0:f002:2::b003"
         ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "149.22.83.33"
+              "149.22.83.33",
+              "2a02:6ea0:f002:2::c001",
+              "2a02:6ea0:f002:2::c002",
+              "2a02:6ea0:f002:2::c003"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ar-bue-wg-002.blockerad.eu"
@@ -1023,7 +1035,52 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "146.70.116.151",
+              "146.70.116.152",
+              "146.70.116.153",
+              "146.70.116.154",
+              "146.70.116.155",
+              "146.70.116.156",
+              "146.70.116.157",
+              "146.70.116.158",
+              "146.70.116.159",
+              "146.70.116.160",
+              "2001:ac8:29:b3::c002",
+              "2001:ac8:29:b3::c003",
+              "2001:ac8:29:b3::c004",
+              "2001:ac8:29:b3::c005",
+              "2001:ac8:29:b3::c006",
+              "2001:ac8:29:b3::c007",
+              "2001:ac8:29:b3::c008",
+              "2001:ac8:29:b3::c009",
+              "2001:ac8:29:b3::c00a",
+              "2001:ac8:29:b3::c00b",
+              "2001:ac8:29:b3::c00c",
+              "2001:ac8:29:b3::c00d",
+              "2001:ac8:29:b3::c00e",
+              "2001:ac8:29:b3::c00f",
+              "2001:ac8:29:b3::c010",
+              "2001:ac8:29:b3::c011",
+              "2001:ac8:29:b3::c012",
+              "2001:ac8:29:b3::c013",
+              "2001:ac8:29:b3::c014",
+              "2001:ac8:29:b3::c015",
+              "2001:ac8:29:b3::c016",
+              "2001:ac8:29:b3::c017",
+              "2001:ac8:29:b3::c018",
+              "2001:ac8:29:b3::c019",
+              "2001:ac8:29:b3::c01a",
+              "2001:ac8:29:b3::c01b",
+              "2001:ac8:29:b3::c01c",
+              "2001:ac8:29:b3::c01d",
+              "2001:ac8:29:b3::c01e",
+              "2001:ac8:29:b3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "at-vie-wg-001.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -1084,7 +1141,52 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "135.136.51.23",
+              "135.136.51.24",
+              "135.136.51.25",
+              "135.136.51.26",
+              "135.136.51.27",
+              "135.136.51.28",
+              "135.136.51.29",
+              "135.136.51.30",
+              "135.136.51.31",
+              "135.136.51.32",
+              "2001:ac8:29:b4::c002",
+              "2001:ac8:29:b4::c003",
+              "2001:ac8:29:b4::c004",
+              "2001:ac8:29:b4::c005",
+              "2001:ac8:29:b4::c006",
+              "2001:ac8:29:b4::c007",
+              "2001:ac8:29:b4::c008",
+              "2001:ac8:29:b4::c009",
+              "2001:ac8:29:b4::c00a",
+              "2001:ac8:29:b4::c00b",
+              "2001:ac8:29:b4::c00c",
+              "2001:ac8:29:b4::c00d",
+              "2001:ac8:29:b4::c00e",
+              "2001:ac8:29:b4::c00f",
+              "2001:ac8:29:b4::c010",
+              "2001:ac8:29:b4::c011",
+              "2001:ac8:29:b4::c012",
+              "2001:ac8:29:b4::c013",
+              "2001:ac8:29:b4::c014",
+              "2001:ac8:29:b4::c015",
+              "2001:ac8:29:b4::c016",
+              "2001:ac8:29:b4::c017",
+              "2001:ac8:29:b4::c018",
+              "2001:ac8:29:b4::c019",
+              "2001:ac8:29:b4::c01a",
+              "2001:ac8:29:b4::c01b",
+              "2001:ac8:29:b4::c01c",
+              "2001:ac8:29:b4::c01d",
+              "2001:ac8:29:b4::c01e",
+              "2001:ac8:29:b4::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "at-vie-wg-002.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -1145,7 +1247,52 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "135.136.51.151",
+              "135.136.51.152",
+              "135.136.51.153",
+              "135.136.51.154",
+              "135.136.51.155",
+              "135.136.51.156",
+              "135.136.51.157",
+              "135.136.51.158",
+              "135.136.51.159",
+              "135.136.51.160",
+              "2001:ac8:29:b5::c002",
+              "2001:ac8:29:b5::c003",
+              "2001:ac8:29:b5::c004",
+              "2001:ac8:29:b5::c005",
+              "2001:ac8:29:b5::c006",
+              "2001:ac8:29:b5::c007",
+              "2001:ac8:29:b5::c008",
+              "2001:ac8:29:b5::c009",
+              "2001:ac8:29:b5::c00a",
+              "2001:ac8:29:b5::c00b",
+              "2001:ac8:29:b5::c00c",
+              "2001:ac8:29:b5::c00d",
+              "2001:ac8:29:b5::c00e",
+              "2001:ac8:29:b5::c00f",
+              "2001:ac8:29:b5::c010",
+              "2001:ac8:29:b5::c011",
+              "2001:ac8:29:b5::c012",
+              "2001:ac8:29:b5::c013",
+              "2001:ac8:29:b5::c014",
+              "2001:ac8:29:b5::c015",
+              "2001:ac8:29:b5::c016",
+              "2001:ac8:29:b5::c017",
+              "2001:ac8:29:b5::c018",
+              "2001:ac8:29:b5::c019",
+              "2001:ac8:29:b5::c01a",
+              "2001:ac8:29:b5::c01b",
+              "2001:ac8:29:b5::c01c",
+              "2001:ac8:29:b5::c01d",
+              "2001:ac8:29:b5::c01e",
+              "2001:ac8:29:b5::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "at-vie-wg-003.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -1163,11 +1310,22 @@
         "public_key": "dj3qNfJfA4dWXsWokPcDh4oo6xaPtOTPfbr5UzHKZ0M=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
-          "185.24.11.132"
+          "185.24.11.132",
+          "2a02:6ea0:cb1b:1::b001",
+          "2a02:6ea0:cb1b:1::b002",
+          "2a02:6ea0:cb1b:1::b003"
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:cb1b:1::c001",
+              "2a02:6ea0:cb1b:1::c002",
+              "2a02:6ea0:cb1b:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "at-vie-wg-101.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -1185,11 +1343,22 @@
         "public_key": "DANFtH+sFB19BnW1CYEwZ2pOIt7P8nLjSadjpS2rLWE=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
-          "185.24.11.161"
+          "185.24.11.161",
+          "2a02:6ea0:cb1b:2::b001",
+          "2a02:6ea0:cb1b:2::b002",
+          "2a02:6ea0:cb1b:2::b003"
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:cb1b:2::c001",
+              "2a02:6ea0:cb1b:2::c002",
+              "2a02:6ea0:cb1b:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "at-vie-wg-102.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -2051,8 +2220,296 @@
         }
       },
       {
-        "hostname": "au-per-wg-301",
+        "hostname": "au-per-wg-001",
         "active": true,
+        "owned": false,
+        "location": "au-per",
+        "provider": "hostuniversal",
+        "ipv4_addr_in": "158.173.123.2",
+        "ipv6_addr_in": "2406:d501:f:dfe::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "IUX8+21VQCeIwa1eLTcpottsIf2aDWFwBSyoZ6jn9C8=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "158.173.123.8",
+          "158.173.123.9",
+          "158.173.123.10",
+          "158.173.123.11",
+          "158.173.123.12",
+          "2406:d501:f:dfe::b002",
+          "2406:d501:f:dfe::b003",
+          "2406:d501:f:dfe::b004",
+          "2406:d501:f:dfe::b005",
+          "2406:d501:f:dfe::b006",
+          "2406:d501:f:dfe::b007",
+          "2406:d501:f:dfe::b008",
+          "2406:d501:f:dfe::b009",
+          "2406:d501:f:dfe::b00a",
+          "2406:d501:f:dfe::b00b",
+          "2406:d501:f:dfe::b00c",
+          "2406:d501:f:dfe::b00d",
+          "2406:d501:f:dfe::b00e",
+          "2406:d501:f:dfe::b00f",
+          "2406:d501:f:dfe::b010",
+          "2406:d501:f:dfe::b011",
+          "2406:d501:f:dfe::b012",
+          "2406:d501:f:dfe::b013",
+          "2406:d501:f:dfe::b014",
+          "2406:d501:f:dfe::b015",
+          "2406:d501:f:dfe::b016",
+          "2406:d501:f:dfe::b017",
+          "2406:d501:f:dfe::b018",
+          "2406:d501:f:dfe::b019",
+          "2406:d501:f:dfe::b01a",
+          "2406:d501:f:dfe::b01b",
+          "2406:d501:f:dfe::b01c",
+          "2406:d501:f:dfe::b01d",
+          "2406:d501:f:dfe::b01e",
+          "2406:d501:f:dfe::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "158.173.123.13",
+              "158.173.123.14",
+              "158.173.123.15",
+              "158.173.123.16",
+              "158.173.123.17",
+              "2406:d501:f:dfe::c002",
+              "2406:d501:f:dfe::c003",
+              "2406:d501:f:dfe::c004",
+              "2406:d501:f:dfe::c005",
+              "2406:d501:f:dfe::c006",
+              "2406:d501:f:dfe::c007",
+              "2406:d501:f:dfe::c008",
+              "2406:d501:f:dfe::c009",
+              "2406:d501:f:dfe::c00a",
+              "2406:d501:f:dfe::c00b",
+              "2406:d501:f:dfe::c00c",
+              "2406:d501:f:dfe::c00d",
+              "2406:d501:f:dfe::c00e",
+              "2406:d501:f:dfe::c00f",
+              "2406:d501:f:dfe::c010",
+              "2406:d501:f:dfe::c011",
+              "2406:d501:f:dfe::c012",
+              "2406:d501:f:dfe::c013",
+              "2406:d501:f:dfe::c014",
+              "2406:d501:f:dfe::c015",
+              "2406:d501:f:dfe::c016",
+              "2406:d501:f:dfe::c017",
+              "2406:d501:f:dfe::c018",
+              "2406:d501:f:dfe::c019",
+              "2406:d501:f:dfe::c01a",
+              "2406:d501:f:dfe::c01b",
+              "2406:d501:f:dfe::c01c",
+              "2406:d501:f:dfe::c01d",
+              "2406:d501:f:dfe::c01e",
+              "2406:d501:f:dfe::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-per-wg-001.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "au-per-wg-002",
+        "active": false,
+        "owned": false,
+        "location": "au-per",
+        "provider": "hostuniversal",
+        "ipv4_addr_in": "158.173.123.81",
+        "ipv6_addr_in": "2406:d501:f:dff::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "crTrjN1YwjM+Q6z6KhMZmSNKkuu7JN39tum18sW0rCo=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "158.173.123.87",
+          "158.173.123.88",
+          "158.173.123.89",
+          "158.173.123.90",
+          "158.173.123.91",
+          "2406:d501:f:dff::b002",
+          "2406:d501:f:dff::b003",
+          "2406:d501:f:dff::b004",
+          "2406:d501:f:dff::b005",
+          "2406:d501:f:dff::b006",
+          "2406:d501:f:dff::b007",
+          "2406:d501:f:dff::b008",
+          "2406:d501:f:dff::b009",
+          "2406:d501:f:dff::b00a",
+          "2406:d501:f:dff::b00b",
+          "2406:d501:f:dff::b00c",
+          "2406:d501:f:dff::b00d",
+          "2406:d501:f:dff::b00e",
+          "2406:d501:f:dff::b00f",
+          "2406:d501:f:dff::b010",
+          "2406:d501:f:dff::b011",
+          "2406:d501:f:dff::b012",
+          "2406:d501:f:dff::b013",
+          "2406:d501:f:dff::b014",
+          "2406:d501:f:dff::b015",
+          "2406:d501:f:dff::b016",
+          "2406:d501:f:dff::b017",
+          "2406:d501:f:dff::b018",
+          "2406:d501:f:dff::b019",
+          "2406:d501:f:dff::b01a",
+          "2406:d501:f:dff::b01b",
+          "2406:d501:f:dff::b01c",
+          "2406:d501:f:dff::b01d",
+          "2406:d501:f:dff::b01e",
+          "2406:d501:f:dff::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "158.173.123.92",
+              "158.173.123.93",
+              "158.173.123.94",
+              "158.173.123.95",
+              "158.173.123.96",
+              "2406:d501:f:dff::c002",
+              "2406:d501:f:dff::c003",
+              "2406:d501:f:dff::c004",
+              "2406:d501:f:dff::c005",
+              "2406:d501:f:dff::c006",
+              "2406:d501:f:dff::c007",
+              "2406:d501:f:dff::c008",
+              "2406:d501:f:dff::c009",
+              "2406:d501:f:dff::c00a",
+              "2406:d501:f:dff::c00b",
+              "2406:d501:f:dff::c00c",
+              "2406:d501:f:dff::c00d",
+              "2406:d501:f:dff::c00e",
+              "2406:d501:f:dff::c00f",
+              "2406:d501:f:dff::c010",
+              "2406:d501:f:dff::c011",
+              "2406:d501:f:dff::c012",
+              "2406:d501:f:dff::c013",
+              "2406:d501:f:dff::c014",
+              "2406:d501:f:dff::c015",
+              "2406:d501:f:dff::c016",
+              "2406:d501:f:dff::c017",
+              "2406:d501:f:dff::c018",
+              "2406:d501:f:dff::c019",
+              "2406:d501:f:dff::c01a",
+              "2406:d501:f:dff::c01b",
+              "2406:d501:f:dff::c01c",
+              "2406:d501:f:dff::c01d",
+              "2406:d501:f:dff::c01e",
+              "2406:d501:f:dff::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-per-wg-002.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "au-per-wg-003",
+        "active": true,
+        "owned": false,
+        "location": "au-per",
+        "provider": "hostuniversal",
+        "ipv4_addr_in": "158.173.123.161",
+        "ipv6_addr_in": "2406:d501:f:e00::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "SiCa/5nX0KFwI7R+CR+HTCM3FhIxNt4Fx0a8l01KF04=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "158.173.123.167",
+          "158.173.123.168",
+          "158.173.123.169",
+          "158.173.123.170",
+          "158.173.123.171",
+          "2406:d501:f:e00::b002",
+          "2406:d501:f:e00::b003",
+          "2406:d501:f:e00::b004",
+          "2406:d501:f:e00::b005",
+          "2406:d501:f:e00::b006",
+          "2406:d501:f:e00::b007",
+          "2406:d501:f:e00::b008",
+          "2406:d501:f:e00::b009",
+          "2406:d501:f:e00::b00a",
+          "2406:d501:f:e00::b00b",
+          "2406:d501:f:e00::b00c",
+          "2406:d501:f:e00::b00d",
+          "2406:d501:f:e00::b00e",
+          "2406:d501:f:e00::b00f",
+          "2406:d501:f:e00::b010",
+          "2406:d501:f:e00::b011",
+          "2406:d501:f:e00::b012",
+          "2406:d501:f:e00::b013",
+          "2406:d501:f:e00::b014",
+          "2406:d501:f:e00::b015",
+          "2406:d501:f:e00::b016",
+          "2406:d501:f:e00::b017",
+          "2406:d501:f:e00::b018",
+          "2406:d501:f:e00::b019",
+          "2406:d501:f:e00::b01a",
+          "2406:d501:f:e00::b01b",
+          "2406:d501:f:e00::b01c",
+          "2406:d501:f:e00::b01d",
+          "2406:d501:f:e00::b01e",
+          "2406:d501:f:e00::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "158.173.123.172",
+              "158.173.123.173",
+              "158.173.123.174",
+              "158.173.123.175",
+              "158.173.123.176",
+              "2406:d501:f:e00::c002",
+              "2406:d501:f:e00::c003",
+              "2406:d501:f:e00::c004",
+              "2406:d501:f:e00::c005",
+              "2406:d501:f:e00::c006",
+              "2406:d501:f:e00::c007",
+              "2406:d501:f:e00::c008",
+              "2406:d501:f:e00::c009",
+              "2406:d501:f:e00::c00a",
+              "2406:d501:f:e00::c00b",
+              "2406:d501:f:e00::c00c",
+              "2406:d501:f:e00::c00d",
+              "2406:d501:f:e00::c00e",
+              "2406:d501:f:e00::c00f",
+              "2406:d501:f:e00::c010",
+              "2406:d501:f:e00::c011",
+              "2406:d501:f:e00::c012",
+              "2406:d501:f:e00::c013",
+              "2406:d501:f:e00::c014",
+              "2406:d501:f:e00::c015",
+              "2406:d501:f:e00::c016",
+              "2406:d501:f:e00::c017",
+              "2406:d501:f:e00::c018",
+              "2406:d501:f:e00::c019",
+              "2406:d501:f:e00::c01a",
+              "2406:d501:f:e00::c01b",
+              "2406:d501:f:e00::c01c",
+              "2406:d501:f:e00::c01d",
+              "2406:d501:f:e00::c01e",
+              "2406:d501:f:e00::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-per-wg-003.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "au-per-wg-301",
+        "active": false,
         "owned": false,
         "location": "au-per",
         "provider": "hostuniversal",
@@ -2140,7 +2597,7 @@
       },
       {
         "hostname": "au-per-wg-302",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "au-per",
         "provider": "hostuniversal",
@@ -2238,10 +2695,22 @@
         "include_in_country": true,
         "public_key": "4JpfHBvthTFOhCK0f5HAbzLXAVcB97uAkuLx7E8kqW0=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:84:5::b001",
+          "2001:ac8:84:5::b002",
+          "2001:ac8:84:5::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:84:5::c001",
+              "2001:ac8:84:5::c002",
+              "2001:ac8:84:5::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-syd-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2258,10 +2727,22 @@
         "include_in_country": true,
         "public_key": "lUeDAOy+iAhZDuz5+6zh0Co8wZcs3ahdu2jfqQoDW3E=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:84:6::b001",
+          "2001:ac8:84:6::b002",
+          "2001:ac8:84:6::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:84:6::c001",
+              "2001:ac8:84:6::c002",
+              "2001:ac8:84:6::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-syd-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2278,10 +2759,22 @@
         "include_in_country": true,
         "public_key": "LXuRwa9JRTt2/UtldklKGlj/IVLORITqgET4II4DRkU=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:84:4::b001",
+          "2001:ac8:84:4::b002",
+          "2001:ac8:84:4::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:84:4::c001",
+              "2001:ac8:84:4::c002",
+              "2001:ac8:84:4::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "au-syd-wg-003.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2491,10 +2984,22 @@
         "include_in_country": true,
         "public_key": "GE2WP6hmwVggSvGVWLgq2L10T3WM2VspnUptK5F4B0U=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:27:88::b001",
+          "2001:ac8:27:88::b002",
+          "2001:ac8:27:88::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:27:88::c001",
+              "2001:ac8:27:88::c002",
+              "2001:ac8:27:88::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "be-bru-wg-101.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2511,10 +3016,22 @@
         "include_in_country": true,
         "public_key": "IY+FKw487MEWqMGNyyrT4PnTrJxce8oiGNHT0zifam8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:27:89::b001",
+          "2001:ac8:27:89::b002",
+          "2001:ac8:27:89::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:27:89::c001",
+              "2001:ac8:27:89::c002",
+              "2001:ac8:27:89::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "be-bru-wg-102.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2531,10 +3048,22 @@
         "include_in_country": true,
         "public_key": "b5A1ela+BVI+AbNXz7SWekZHvdWWpt3rqUKTJj0SqCU=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:27:92::b001",
+          "2001:ac8:27:92::b002",
+          "2001:ac8:27:92::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:27:92::c001",
+              "2001:ac8:27:92::c002",
+              "2001:ac8:27:92::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "be-bru-wg-103.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2930,7 +3459,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d00e:1::c001",
+              "2a02:6ea0:d00e:1::c002",
+              "2a02:6ea0:d00e:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "br-sao-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -2950,14 +3487,52 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d00e:2::c001",
+              "2a02:6ea0:d00e:2::c002",
+              "2a02:6ea0:d00e:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "br-sao-wg-202.blockerad.eu"
+          },
+          "lwo": null,
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "br-sao-wg-301",
+        "active": true,
+        "owned": false,
+        "location": "br-sao",
+        "provider": "HostRoyale",
+        "ipv4_addr_in": "103.139.178.3",
+        "ipv6_addr_in": "2a06:3040:10:610::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "mWkFN+rnHoC8l/i4p1pj6E8aSZVYnJNu/68F/dhs4xM=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "103.139.178.14",
+          "103.139.178.15"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "103.139.178.13",
+              "2a06:3040:10:610::f00a"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "br-sao-wg-301.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
       },
       {
         "hostname": "br-sao-wg-302",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "br-sao",
         "provider": "HostRoyale",
@@ -3057,7 +3632,11 @@
         "include_in_country": true,
         "public_key": "TUCaQc26/R6AGpkDUr8A8ytUs/e5+UVlIVujbuBwlzI=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:9:c::b001",
+          "2a0d:5600:9:c::b002",
+          "2a0d:5600:9:c::b003"
+        ],
         "features": {
           "daita": null,
           "quic": {
@@ -3084,10 +3663,22 @@
         "include_in_country": true,
         "public_key": "7X6zOgtJfJAK8w8C3z+hekcS9Yf3qK3Bp4yx56lqxBQ=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:9:d::b001",
+          "2a0d:5600:9:d::b002",
+          "2a0d:5600:9:d::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:9:d::c001",
+              "2a0d:5600:9:d::c002",
+              "2a0d:5600:9:d::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-mtr-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -3104,10 +3695,22 @@
         "include_in_country": true,
         "public_key": "57Zu2qPzRScZWsoC2NhXgz0FiC0HiKkbEa559sbxB3k=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:9:e::b001",
+          "2a0d:5600:9:e::b002",
+          "2a0d:5600:9:e::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:9:e::c001",
+              "2a0d:5600:9:e::c002",
+              "2a0d:5600:9:e::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-mtr-wg-003.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -3124,10 +3727,22 @@
         "include_in_country": true,
         "public_key": "Cc5swfQ9f2tAgLduuIqC3bLbwDVoOFkkETghsE6/twA=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:9:16::b001",
+          "2a0d:5600:9:16::b002",
+          "2a0d:5600:9:16::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:9:16::c001",
+              "2a0d:5600:9:16::c002",
+              "2a0d:5600:9:16::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-mtr-wg-004.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -3149,7 +3764,15 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:a03:2::c001",
+              "2a02:6ea0:a03:2::c002",
+              "2a02:6ea0:a03:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-mtr-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -3171,7 +3794,15 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:a03::c001",
+              "2a02:6ea0:a03::c002",
+              "2a02:6ea0:a03::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-mtr-wg-202.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4074,7 +4705,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:de08:1::c001",
+              "2a02:6ea0:de08:1::c002",
+              "2a02:6ea0:de08:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-tor-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4094,7 +4733,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:de08:2::c001",
+              "2a02:6ea0:de08:2::c002",
+              "2a02:6ea0:de08:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-tor-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4352,7 +4999,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:5100:1::c001",
+              "2a02:6ea0:5100:1::c002",
+              "2a02:6ea0:5100:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-van-wg-301.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4372,7 +5027,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:5100:2::c001",
+              "2a02:6ea0:5100:2::c002",
+              "2a02:6ea0:5100:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-van-wg-302.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4422,7 +5085,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2606:9580:438:32::c002",
+              "2606:9580:438:32::c003",
+              "2606:9580:438:32::c004",
+              "2606:9580:438:32::c005",
+              "2606:9580:438:32::c006",
+              "2606:9580:438:32::c007",
+              "2606:9580:438:32::c008",
+              "2606:9580:438:32::c009",
+              "2606:9580:438:32::c00a",
+              "2606:9580:438:32::c00b",
+              "2606:9580:438:32::c00c",
+              "2606:9580:438:32::c00d",
+              "2606:9580:438:32::c00e",
+              "2606:9580:438:32::c00f",
+              "2606:9580:438:32::c010",
+              "2606:9580:438:32::c011",
+              "2606:9580:438:32::c012",
+              "2606:9580:438:32::c013",
+              "2606:9580:438:32::c014",
+              "2606:9580:438:32::c015",
+              "2606:9580:438:32::c016",
+              "2606:9580:438:32::c017",
+              "2606:9580:438:32::c018",
+              "2606:9580:438:32::c019",
+              "2606:9580:438:32::c01a",
+              "2606:9580:438:32::c01b",
+              "2606:9580:438:32::c01c",
+              "2606:9580:438:32::c01d",
+              "2606:9580:438:32::c01e",
+              "2606:9580:438:32::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-yyc-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4473,7 +5171,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2606:9580:438:64::c002",
+              "2606:9580:438:64::c003",
+              "2606:9580:438:64::c004",
+              "2606:9580:438:64::c005",
+              "2606:9580:438:64::c006",
+              "2606:9580:438:64::c007",
+              "2606:9580:438:64::c008",
+              "2606:9580:438:64::c009",
+              "2606:9580:438:64::c00a",
+              "2606:9580:438:64::c00b",
+              "2606:9580:438:64::c00c",
+              "2606:9580:438:64::c00d",
+              "2606:9580:438:64::c00e",
+              "2606:9580:438:64::c00f",
+              "2606:9580:438:64::c010",
+              "2606:9580:438:64::c011",
+              "2606:9580:438:64::c012",
+              "2606:9580:438:64::c013",
+              "2606:9580:438:64::c014",
+              "2606:9580:438:64::c015",
+              "2606:9580:438:64::c016",
+              "2606:9580:438:64::c017",
+              "2606:9580:438:64::c018",
+              "2606:9580:438:64::c019",
+              "2606:9580:438:64::c01a",
+              "2606:9580:438:64::c01b",
+              "2606:9580:438:64::c01c",
+              "2606:9580:438:64::c01d",
+              "2606:9580:438:64::c01e",
+              "2606:9580:438:64::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ca-yyc-wg-202.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -4903,7 +5636,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:29b8:dc01:1832::c002",
+              "2a02:29b8:dc01:1832::c003",
+              "2a02:29b8:dc01:1832::c004",
+              "2a02:29b8:dc01:1832::c005",
+              "2a02:29b8:dc01:1832::c006",
+              "2a02:29b8:dc01:1832::c007",
+              "2a02:29b8:dc01:1832::c008",
+              "2a02:29b8:dc01:1832::c009",
+              "2a02:29b8:dc01:1832::c00a",
+              "2a02:29b8:dc01:1832::c00b",
+              "2a02:29b8:dc01:1832::c00c",
+              "2a02:29b8:dc01:1832::c00d",
+              "2a02:29b8:dc01:1832::c00e",
+              "2a02:29b8:dc01:1832::c00f",
+              "2a02:29b8:dc01:1832::c010",
+              "2a02:29b8:dc01:1832::c011",
+              "2a02:29b8:dc01:1832::c012",
+              "2a02:29b8:dc01:1832::c013",
+              "2a02:29b8:dc01:1832::c014",
+              "2a02:29b8:dc01:1832::c015",
+              "2a02:29b8:dc01:1832::c016",
+              "2a02:29b8:dc01:1832::c017",
+              "2a02:29b8:dc01:1832::c018",
+              "2a02:29b8:dc01:1832::c019",
+              "2a02:29b8:dc01:1832::c01a",
+              "2a02:29b8:dc01:1832::c01b",
+              "2a02:29b8:dc01:1832::c01c",
+              "2a02:29b8:dc01:1832::c01d",
+              "2a02:29b8:dc01:1832::c01e",
+              "2a02:29b8:dc01:1832::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4954,7 +5722,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:29b8:dc01:1831::c102",
+              "2a02:29b8:dc01:1831::c103",
+              "2a02:29b8:dc01:1831::c104",
+              "2a02:29b8:dc01:1831::c105",
+              "2a02:29b8:dc01:1831::c106",
+              "2a02:29b8:dc01:1831::c107",
+              "2a02:29b8:dc01:1831::c108",
+              "2a02:29b8:dc01:1831::c109",
+              "2a02:29b8:dc01:1831::c10a",
+              "2a02:29b8:dc01:1831::c10b",
+              "2a02:29b8:dc01:1831::c10c",
+              "2a02:29b8:dc01:1831::c10d",
+              "2a02:29b8:dc01:1831::c10e",
+              "2a02:29b8:dc01:1831::c10f",
+              "2a02:29b8:dc01:1831::c110",
+              "2a02:29b8:dc01:1831::c111",
+              "2a02:29b8:dc01:1831::c112",
+              "2a02:29b8:dc01:1831::c113",
+              "2a02:29b8:dc01:1831::c114",
+              "2a02:29b8:dc01:1831::c115",
+              "2a02:29b8:dc01:1831::c116",
+              "2a02:29b8:dc01:1831::c117",
+              "2a02:29b8:dc01:1831::c118",
+              "2a02:29b8:dc01:1831::c119",
+              "2a02:29b8:dc01:1831::c11a",
+              "2a02:29b8:dc01:1831::c11b",
+              "2a02:29b8:dc01:1831::c11c",
+              "2a02:29b8:dc01:1831::c11d",
+              "2a02:29b8:dc01:1831::c11e",
+              "2a02:29b8:dc01:1831::c11f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-202.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4974,7 +5777,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d406:1::c001",
+              "2a02:6ea0:d406:1::c002",
+              "2a02:6ea0:d406:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-401.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -4994,7 +5805,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d406:2::c001",
+              "2a02:6ea0:d406:2::c002",
+              "2a02:6ea0:d406:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-402.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5014,7 +5833,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d406:3::c001",
+              "2a02:6ea0:d406:3::c002",
+              "2a02:6ea0:d406:3::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-403.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5034,7 +5861,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:d406:4::c001",
+              "2a02:6ea0:d406:4::c002",
+              "2a02:6ea0:d406:4::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "ch-zrh-wg-404.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5520,7 +6355,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:fc02:2::c001",
+              "2a02:6ea0:fc02:2::c002",
+              "2a02:6ea0:fc02:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "cl-scl-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5540,7 +6383,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:fc02:3::c001",
+              "2a02:6ea0:fc02:3::c002",
+              "2a02:6ea0:fc02:3::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "cl-scl-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5560,7 +6411,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:f101:1::c001",
+              "2a02:6ea0:f101:1::c002",
+              "2a02:6ea0:f101:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "co-bog-wg-001.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -5580,7 +6439,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:f101:2::c001",
+              "2a02:6ea0:f101:2::c002",
+              "2a02:6ea0:f101:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "co-bog-wg-002.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -5856,7 +6723,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:c201:1::c001",
+              "2a02:6ea0:c201:1::c002",
+              "2a02:6ea0:c201:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "cz-prg-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -5889,7 +6764,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.248.66",
         "ipv6_addr_in": "2a03:1b20:b:f011::a01f",
-        "weight": 50,
+        "weight": 30,
         "include_in_country": true,
         "public_key": "0qSP0VxoIhEhRK+fAHVvmfRdjPs2DmmpOCNLFP/7cGw=",
         "daita": false,
@@ -5995,7 +6870,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.248.67",
         "ipv6_addr_in": "2a03:1b20:b:f011::a02f",
-        "weight": 50,
+        "weight": 30,
         "include_in_country": true,
         "public_key": "8ov1Ws0ut3ixWDh9Chp7/WLVn9qC6/WVHtcBcuWBlgo=",
         "daita": false,
@@ -6101,7 +6976,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.248.68",
         "ipv6_addr_in": "2a03:1b20:b:f011::f201",
-        "weight": 100,
+        "weight": 30,
         "include_in_country": true,
         "public_key": "FojZmpH6DjNRwkDDPeSeFPOV9xKPJ1HmgTMkowZ1Lwg=",
         "daita": false,
@@ -6212,7 +7087,7 @@
         "provider": "31173",
         "ipv4_addr_in": "193.32.248.69",
         "ipv6_addr_in": "2a03:1b20:b:f011::f301",
-        "weight": 100,
+        "weight": 30,
         "include_in_country": true,
         "public_key": "34m7HVsChYI4i43ni8u2jUoIy0oqNGmKjbtqVhH9OVU=",
         "daita": false,
@@ -6932,7 +7807,7 @@
         "provider": "31173",
         "ipv4_addr_in": "185.213.155.73",
         "ipv6_addr_in": "2a03:1b20:6:f011::f001",
-        "weight": 25,
+        "weight": 20,
         "include_in_country": true,
         "public_key": "HQHCrq4J6bSpdW1fI5hR/bvcrYa6HgGgwaa5ZY749ik=",
         "daita": false,
@@ -7019,7 +7894,7 @@
         "provider": "31173",
         "ipv4_addr_in": "185.213.155.74",
         "ipv6_addr_in": "2a03:1b20:6:f011::f101",
-        "weight": 25,
+        "weight": 20,
         "include_in_country": true,
         "public_key": "s1c/NsfnqnwQSxao70DY4Co69AFT9e0h88IFuMD5mjs=",
         "daita": false,
@@ -7145,7 +8020,7 @@
         "provider": "31173",
         "ipv4_addr_in": "185.209.196.73",
         "ipv6_addr_in": "2a03:1b20:6:f011::f201",
-        "weight": 25,
+        "weight": 20,
         "include_in_country": true,
         "public_key": "vVQKs2TeTbdAvl3sH16UWLSESncXAj0oBaNuFIUkLVk=",
         "daita": false,
@@ -7271,7 +8146,7 @@
         "provider": "31173",
         "ipv4_addr_in": "185.209.196.74",
         "ipv6_addr_in": "2a03:1b20:6:f011::f301",
-        "weight": 25,
+        "weight": 20,
         "include_in_country": true,
         "public_key": "tzYLWgBdwrbbBCXYHRSoYIho4dHtrm+8bdONU1I8xzc=",
         "daita": true,
@@ -7397,7 +8272,7 @@
         "provider": "31173",
         "ipv4_addr_in": "185.209.196.75",
         "ipv6_addr_in": "2a03:1b20:6:f011::f401",
-        "weight": 25,
+        "weight": 20,
         "include_in_country": true,
         "public_key": "tpobOO6t18CzHjOg0S3RlZJMxd2tz4+BnRYS7NrjTnM=",
         "daita": false,
@@ -7532,7 +8407,7 @@
         "location": "de-fra",
         "provider": "M247",
         "ipv4_addr_in": "146.70.117.2",
-        "ipv6_addr_in": "2001:ac8:20:270:1::f001",
+        "ipv6_addr_in": "2001:ac8:20:269::f001",
         "weight": 100,
         "include_in_country": true,
         "public_key": "wxbDlI3xb+Cc05XKb4usdKSzKe1byK7brmsHU2DJB14=",
@@ -7549,36 +8424,36 @@
           "146.70.117.24",
           "146.70.117.25",
           "146.70.117.26",
-          "2001:ac8:20:270:1::b002",
-          "2001:ac8:20:270:1::b003",
-          "2001:ac8:20:270:1::b004",
-          "2001:ac8:20:270:1::b005",
-          "2001:ac8:20:270:1::b006",
-          "2001:ac8:20:270:1::b007",
-          "2001:ac8:20:270:1::b008",
-          "2001:ac8:20:270:1::b009",
-          "2001:ac8:20:270:1::b00a",
-          "2001:ac8:20:270:1::b00b",
-          "2001:ac8:20:270:1::b00c",
-          "2001:ac8:20:270:1::b00d",
-          "2001:ac8:20:270:1::b00e",
-          "2001:ac8:20:270:1::b00f",
-          "2001:ac8:20:270:1::b010",
-          "2001:ac8:20:270:1::b011",
-          "2001:ac8:20:270:1::b012",
-          "2001:ac8:20:270:1::b013",
-          "2001:ac8:20:270:1::b014",
-          "2001:ac8:20:270:1::b015",
-          "2001:ac8:20:270:1::b016",
-          "2001:ac8:20:270:1::b017",
-          "2001:ac8:20:270:1::b018",
-          "2001:ac8:20:270:1::b019",
-          "2001:ac8:20:270:1::b01a",
-          "2001:ac8:20:270:1::b01b",
-          "2001:ac8:20:270:1::b01c",
-          "2001:ac8:20:270:1::b01d",
-          "2001:ac8:20:270:1::b01e",
-          "2001:ac8:20:270:1::b01f"
+          "2001:ac8:20:269::b002",
+          "2001:ac8:20:269::b003",
+          "2001:ac8:20:269::b004",
+          "2001:ac8:20:269::b005",
+          "2001:ac8:20:269::b006",
+          "2001:ac8:20:269::b007",
+          "2001:ac8:20:269::b008",
+          "2001:ac8:20:269::b009",
+          "2001:ac8:20:269::b00a",
+          "2001:ac8:20:269::b00b",
+          "2001:ac8:20:269::b00c",
+          "2001:ac8:20:269::b00d",
+          "2001:ac8:20:269::b00e",
+          "2001:ac8:20:269::b00f",
+          "2001:ac8:20:269::b010",
+          "2001:ac8:20:269::b011",
+          "2001:ac8:20:269::b012",
+          "2001:ac8:20:269::b013",
+          "2001:ac8:20:269::b014",
+          "2001:ac8:20:269::b015",
+          "2001:ac8:20:269::b016",
+          "2001:ac8:20:269::b017",
+          "2001:ac8:20:269::b018",
+          "2001:ac8:20:269::b019",
+          "2001:ac8:20:269::b01a",
+          "2001:ac8:20:269::b01b",
+          "2001:ac8:20:269::b01c",
+          "2001:ac8:20:269::b01d",
+          "2001:ac8:20:269::b01e",
+          "2001:ac8:20:269::b01f"
         ],
         "features": {
           "daita": {},
@@ -7595,36 +8470,36 @@
               "146.70.117.13",
               "146.70.117.14",
               "146.70.117.15",
-              "2001:ac8:20:270:1::c002",
-              "2001:ac8:20:270:1::c003",
-              "2001:ac8:20:270:1::c004",
-              "2001:ac8:20:270:1::c005",
-              "2001:ac8:20:270:1::c006",
-              "2001:ac8:20:270:1::c007",
-              "2001:ac8:20:270:1::c008",
-              "2001:ac8:20:270:1::c009",
-              "2001:ac8:20:270:1::c00a",
-              "2001:ac8:20:270:1::c00b",
-              "2001:ac8:20:270:1::c00c",
-              "2001:ac8:20:270:1::c00d",
-              "2001:ac8:20:270:1::c00e",
-              "2001:ac8:20:270:1::c00f",
-              "2001:ac8:20:270:1::c010",
-              "2001:ac8:20:270:1::c011",
-              "2001:ac8:20:270:1::c012",
-              "2001:ac8:20:270:1::c013",
-              "2001:ac8:20:270:1::c014",
-              "2001:ac8:20:270:1::c015",
-              "2001:ac8:20:270:1::c016",
-              "2001:ac8:20:270:1::c017",
-              "2001:ac8:20:270:1::c018",
-              "2001:ac8:20:270:1::c019",
-              "2001:ac8:20:270:1::c01a",
-              "2001:ac8:20:270:1::c01b",
-              "2001:ac8:20:270:1::c01c",
-              "2001:ac8:20:270:1::c01d",
-              "2001:ac8:20:270:1::c01e",
-              "2001:ac8:20:270:1::c01f"
+              "2001:ac8:20:269::c002",
+              "2001:ac8:20:269::c003",
+              "2001:ac8:20:269::c004",
+              "2001:ac8:20:269::c005",
+              "2001:ac8:20:269::c006",
+              "2001:ac8:20:269::c007",
+              "2001:ac8:20:269::c008",
+              "2001:ac8:20:269::c009",
+              "2001:ac8:20:269::c00a",
+              "2001:ac8:20:269::c00b",
+              "2001:ac8:20:269::c00c",
+              "2001:ac8:20:269::c00d",
+              "2001:ac8:20:269::c00e",
+              "2001:ac8:20:269::c00f",
+              "2001:ac8:20:269::c010",
+              "2001:ac8:20:269::c011",
+              "2001:ac8:20:269::c012",
+              "2001:ac8:20:269::c013",
+              "2001:ac8:20:269::c014",
+              "2001:ac8:20:269::c015",
+              "2001:ac8:20:269::c016",
+              "2001:ac8:20:269::c017",
+              "2001:ac8:20:269::c018",
+              "2001:ac8:20:269::c019",
+              "2001:ac8:20:269::c01a",
+              "2001:ac8:20:269::c01b",
+              "2001:ac8:20:269::c01c",
+              "2001:ac8:20:269::c01d",
+              "2001:ac8:20:269::c01e",
+              "2001:ac8:20:269::c01f"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "de-fra-wg-101.blockerad.eu"
@@ -7635,12 +8510,12 @@
       },
       {
         "hostname": "de-fra-wg-102",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "de-fra",
         "provider": "M247",
         "ipv4_addr_in": "146.70.117.130",
-        "ipv6_addr_in": "2001:ac8:20:270:2::f001",
+        "ipv6_addr_in": "2001:ac8:20:270::f001",
         "weight": 100,
         "include_in_country": true,
         "public_key": "inG8qBhgEFhcs2EZsT9PezeWBI6+9p8tXeo0BojhpBQ=",
@@ -7657,36 +8532,36 @@
           "146.70.117.152",
           "146.70.117.153",
           "146.70.117.154",
-          "2001:ac8:20:270:2::b002",
-          "2001:ac8:20:270:2::b003",
-          "2001:ac8:20:270:2::b004",
-          "2001:ac8:20:270:2::b005",
-          "2001:ac8:20:270:2::b006",
-          "2001:ac8:20:270:2::b007",
-          "2001:ac8:20:270:2::b008",
-          "2001:ac8:20:270:2::b009",
-          "2001:ac8:20:270:2::b00a",
-          "2001:ac8:20:270:2::b00b",
-          "2001:ac8:20:270:2::b00c",
-          "2001:ac8:20:270:2::b00d",
-          "2001:ac8:20:270:2::b00e",
-          "2001:ac8:20:270:2::b00f",
-          "2001:ac8:20:270:2::b010",
-          "2001:ac8:20:270:2::b011",
-          "2001:ac8:20:270:2::b012",
-          "2001:ac8:20:270:2::b013",
-          "2001:ac8:20:270:2::b014",
-          "2001:ac8:20:270:2::b015",
-          "2001:ac8:20:270:2::b016",
-          "2001:ac8:20:270:2::b017",
-          "2001:ac8:20:270:2::b018",
-          "2001:ac8:20:270:2::b019",
-          "2001:ac8:20:270:2::b01a",
-          "2001:ac8:20:270:2::b01b",
-          "2001:ac8:20:270:2::b01c",
-          "2001:ac8:20:270:2::b01d",
-          "2001:ac8:20:270:2::b01e",
-          "2001:ac8:20:270:2::b01f"
+          "2001:ac8:20:270::b002",
+          "2001:ac8:20:270::b003",
+          "2001:ac8:20:270::b004",
+          "2001:ac8:20:270::b005",
+          "2001:ac8:20:270::b006",
+          "2001:ac8:20:270::b007",
+          "2001:ac8:20:270::b008",
+          "2001:ac8:20:270::b009",
+          "2001:ac8:20:270::b00a",
+          "2001:ac8:20:270::b00b",
+          "2001:ac8:20:270::b00c",
+          "2001:ac8:20:270::b00d",
+          "2001:ac8:20:270::b00e",
+          "2001:ac8:20:270::b00f",
+          "2001:ac8:20:270::b010",
+          "2001:ac8:20:270::b011",
+          "2001:ac8:20:270::b012",
+          "2001:ac8:20:270::b013",
+          "2001:ac8:20:270::b014",
+          "2001:ac8:20:270::b015",
+          "2001:ac8:20:270::b016",
+          "2001:ac8:20:270::b017",
+          "2001:ac8:20:270::b018",
+          "2001:ac8:20:270::b019",
+          "2001:ac8:20:270::b01a",
+          "2001:ac8:20:270::b01b",
+          "2001:ac8:20:270::b01c",
+          "2001:ac8:20:270::b01d",
+          "2001:ac8:20:270::b01e",
+          "2001:ac8:20:270::b01f"
         ],
         "features": {
           "daita": {},
@@ -7703,36 +8578,36 @@
               "146.70.117.141",
               "146.70.117.142",
               "146.70.117.143",
-              "2001:ac8:20:270:2::c002",
-              "2001:ac8:20:270:2::c003",
-              "2001:ac8:20:270:2::c004",
-              "2001:ac8:20:270:2::c005",
-              "2001:ac8:20:270:2::c006",
-              "2001:ac8:20:270:2::c007",
-              "2001:ac8:20:270:2::c008",
-              "2001:ac8:20:270:2::c009",
-              "2001:ac8:20:270:2::c00a",
-              "2001:ac8:20:270:2::c00b",
-              "2001:ac8:20:270:2::c00c",
-              "2001:ac8:20:270:2::c00d",
-              "2001:ac8:20:270:2::c00e",
-              "2001:ac8:20:270:2::c00f",
-              "2001:ac8:20:270:2::c010",
-              "2001:ac8:20:270:2::c011",
-              "2001:ac8:20:270:2::c012",
-              "2001:ac8:20:270:2::c013",
-              "2001:ac8:20:270:2::c014",
-              "2001:ac8:20:270:2::c015",
-              "2001:ac8:20:270:2::c016",
-              "2001:ac8:20:270:2::c017",
-              "2001:ac8:20:270:2::c018",
-              "2001:ac8:20:270:2::c019",
-              "2001:ac8:20:270:2::c01a",
-              "2001:ac8:20:270:2::c01b",
-              "2001:ac8:20:270:2::c01c",
-              "2001:ac8:20:270:2::c01d",
-              "2001:ac8:20:270:2::c01e",
-              "2001:ac8:20:270:2::c01f"
+              "2001:ac8:20:270::c002",
+              "2001:ac8:20:270::c003",
+              "2001:ac8:20:270::c004",
+              "2001:ac8:20:270::c005",
+              "2001:ac8:20:270::c006",
+              "2001:ac8:20:270::c007",
+              "2001:ac8:20:270::c008",
+              "2001:ac8:20:270::c009",
+              "2001:ac8:20:270::c00a",
+              "2001:ac8:20:270::c00b",
+              "2001:ac8:20:270::c00c",
+              "2001:ac8:20:270::c00d",
+              "2001:ac8:20:270::c00e",
+              "2001:ac8:20:270::c00f",
+              "2001:ac8:20:270::c010",
+              "2001:ac8:20:270::c011",
+              "2001:ac8:20:270::c012",
+              "2001:ac8:20:270::c013",
+              "2001:ac8:20:270::c014",
+              "2001:ac8:20:270::c015",
+              "2001:ac8:20:270::c016",
+              "2001:ac8:20:270::c017",
+              "2001:ac8:20:270::c018",
+              "2001:ac8:20:270::c019",
+              "2001:ac8:20:270::c01a",
+              "2001:ac8:20:270::c01b",
+              "2001:ac8:20:270::c01c",
+              "2001:ac8:20:270::c01d",
+              "2001:ac8:20:270::c01e",
+              "2001:ac8:20:270::c01f"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "de-fra-wg-102.blockerad.eu"
@@ -8337,66 +9212,6 @@
         }
       },
       {
-        "hostname": "de-fra-wg-401",
-        "active": false,
-        "owned": false,
-        "location": "de-fra",
-        "provider": "DataPacket",
-        "ipv4_addr_in": "169.150.201.2",
-        "ipv6_addr_in": "2a02:6ea0:c762:1::a35f",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "AbM8fnQWmmX6Nv0Tz68LigPbGkamJgNjxgzPfENOdXU=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {},
-          "lwo_v2": null
-        }
-      },
-      {
-        "hostname": "de-fra-wg-402",
-        "active": false,
-        "owned": false,
-        "location": "de-fra",
-        "provider": "DataPacket",
-        "ipv4_addr_in": "169.150.201.15",
-        "ipv6_addr_in": "2a02:6ea0:c762:2::a36f",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "6/PBbPtoeWpJA+HZc9Iqg/PPQWD7mGVvZdwQlr1vtRk=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {},
-          "lwo_v2": null
-        }
-      },
-      {
-        "hostname": "de-fra-wg-403",
-        "active": false,
-        "owned": false,
-        "location": "de-fra",
-        "provider": "DataPacket",
-        "ipv4_addr_in": "169.150.201.28",
-        "ipv6_addr_in": "2a02:6ea0:c762:3::a37f",
-        "weight": 100,
-        "include_in_country": true,
-        "public_key": "HWzSNMbQOQafkVp68B7aLRirhNJ6x5Wjw8/y7oUuHW0=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {},
-          "lwo_v2": null
-        }
-      },
-      {
         "hostname": "de-fra-wg-404",
         "active": true,
         "owned": false,
@@ -8803,7 +9618,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:8:f011:2::c002",
+              "2a03:1b20:8:f011:2::c003",
+              "2a03:1b20:8:f011:2::c004",
+              "2a03:1b20:8:f011:2::c005",
+              "2a03:1b20:8:f011:2::c006",
+              "2a03:1b20:8:f011:2::c007",
+              "2a03:1b20:8:f011:2::c008",
+              "2a03:1b20:8:f011:2::c009",
+              "2a03:1b20:8:f011:2::c00a",
+              "2a03:1b20:8:f011:2::c00b",
+              "2a03:1b20:8:f011:2::c00c",
+              "2a03:1b20:8:f011:2::c00d",
+              "2a03:1b20:8:f011:2::c00e",
+              "2a03:1b20:8:f011:2::c00f",
+              "2a03:1b20:8:f011:2::c010",
+              "2a03:1b20:8:f011:2::c011",
+              "2a03:1b20:8:f011:2::c012",
+              "2a03:1b20:8:f011:2::c013",
+              "2a03:1b20:8:f011:2::c014",
+              "2a03:1b20:8:f011:2::c015",
+              "2a03:1b20:8:f011:2::c016",
+              "2a03:1b20:8:f011:2::c017",
+              "2a03:1b20:8:f011:2::c018",
+              "2a03:1b20:8:f011:2::c019",
+              "2a03:1b20:8:f011:2::c01a",
+              "2a03:1b20:8:f011:2::c01b",
+              "2a03:1b20:8:f011:2::c01c",
+              "2a03:1b20:8:f011:2::c01d",
+              "2a03:1b20:8:f011:2::c01e",
+              "2a03:1b20:8:f011:2::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "dk-cph-wg-002.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -9734,24 +10584,103 @@
         "owned": false,
         "location": "es-bcn",
         "provider": "M247",
-        "ipv4_addr_in": "185.253.99.30",
-        "ipv6_addr_in": "2001:ac8:17:20::f001",
+        "ipv4_addr_in": "146.70.22.130",
+        "ipv6_addr_in": "2001:ac8:35:1::f001",
         "weight": 100,
         "include_in_country": true,
-        "public_key": "TQDQ/SUW7pme5aRWFT4ugr9YAABS/uwJNZgqYKTM+iU=",
+        "public_key": "gt7Aseim6plwp2WxHz+4UFOZLkz2LMj/g+ss0tMAIj8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:35:1::b002",
+          "2001:ac8:35:1::b003",
+          "2001:ac8:35:1::b004",
+          "2001:ac8:35:1::b005",
+          "2001:ac8:35:1::b006",
+          "2001:ac8:35:1::b007",
+          "2001:ac8:35:1::b008",
+          "2001:ac8:35:1::b009",
+          "2001:ac8:35:1::b00a",
+          "2001:ac8:35:1::b00b",
+          "2001:ac8:35:1::b00c",
+          "2001:ac8:35:1::b00d",
+          "2001:ac8:35:1::b00e",
+          "2001:ac8:35:1::b00f",
+          "2001:ac8:35:1::b010",
+          "2001:ac8:35:1::b011",
+          "2001:ac8:35:1::b012",
+          "2001:ac8:35:1::b013",
+          "2001:ac8:35:1::b014",
+          "2001:ac8:35:1::b015",
+          "2001:ac8:35:1::b016",
+          "2001:ac8:35:1::b017",
+          "2001:ac8:35:1::b018",
+          "2001:ac8:35:1::b019",
+          "2001:ac8:35:1::b01a",
+          "2001:ac8:35:1::b01b",
+          "2001:ac8:35:1::b01c",
+          "2001:ac8:35:1::b01d",
+          "2001:ac8:35:1::b01e",
+          "2001:ac8:35:1::b01f",
+          "146.70.22.151",
+          "146.70.22.152",
+          "146.70.22.153",
+          "146.70.22.154",
+          "146.70.22.155",
+          "146.70.22.156",
+          "146.70.22.157",
+          "146.70.22.158",
+          "146.70.22.159",
+          "146.70.22.160"
+        ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "146.70.22.130",
-              "2001:ac8:17:20::f00a"
+              "2001:ac8:35:1::c002",
+              "2001:ac8:35:1::c003",
+              "2001:ac8:35:1::c004",
+              "2001:ac8:35:1::c005",
+              "2001:ac8:35:1::c006",
+              "2001:ac8:35:1::c007",
+              "2001:ac8:35:1::c008",
+              "2001:ac8:35:1::c009",
+              "2001:ac8:35:1::c00a",
+              "2001:ac8:35:1::c00b",
+              "2001:ac8:35:1::c00c",
+              "2001:ac8:35:1::c00d",
+              "2001:ac8:35:1::c00e",
+              "2001:ac8:35:1::c00f",
+              "2001:ac8:35:1::c010",
+              "2001:ac8:35:1::c011",
+              "2001:ac8:35:1::c012",
+              "2001:ac8:35:1::c013",
+              "2001:ac8:35:1::c014",
+              "2001:ac8:35:1::c015",
+              "2001:ac8:35:1::c016",
+              "2001:ac8:35:1::c017",
+              "2001:ac8:35:1::c018",
+              "2001:ac8:35:1::c019",
+              "2001:ac8:35:1::c01a",
+              "2001:ac8:35:1::c01b",
+              "2001:ac8:35:1::c01c",
+              "2001:ac8:35:1::c01d",
+              "2001:ac8:35:1::c01e",
+              "2001:ac8:35:1::c01f",
+              "146.70.22.141",
+              "146.70.22.142",
+              "146.70.22.143",
+              "146.70.22.144",
+              "146.70.22.145",
+              "146.70.22.146",
+              "146.70.22.147",
+              "146.70.22.148",
+              "146.70.22.149",
+              "146.70.22.150"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "es-bcn-wg-101.blockerad.eu"
           },
-          "lwo": null,
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -9761,24 +10690,209 @@
         "owned": false,
         "location": "es-bcn",
         "provider": "M247",
-        "ipv4_addr_in": "185.253.99.98",
-        "ipv6_addr_in": "2001:ac8:17:20::f101",
+        "ipv4_addr_in": "135.136.126.2",
+        "ipv6_addr_in": "2001:ac8:17:20::f001",
         "weight": 100,
         "include_in_country": true,
-        "public_key": "GqDjspXPQWM3V5nh1M9IhnxgiIwctvxuFyj73oYTRwo=",
+        "public_key": "tTfcj6GfaWl8JK4XQkoi5Apqgi7XaP7+73hut/F1c3Y=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "135.136.126.23",
+          "135.136.126.24",
+          "135.136.126.25",
+          "135.136.126.26",
+          "135.136.126.27",
+          "135.136.126.28",
+          "135.136.126.29",
+          "135.136.126.30",
+          "135.136.126.31",
+          "135.136.126.32",
+          "2001:ac8:17:20::b002",
+          "2001:ac8:17:20::b003",
+          "2001:ac8:17:20::b004",
+          "2001:ac8:17:20::b005",
+          "2001:ac8:17:20::b006",
+          "2001:ac8:17:20::b007",
+          "2001:ac8:17:20::b008",
+          "2001:ac8:17:20::b009",
+          "2001:ac8:17:20::b00a",
+          "2001:ac8:17:20::b00b",
+          "2001:ac8:17:20::b00c",
+          "2001:ac8:17:20::b00d",
+          "2001:ac8:17:20::b00e",
+          "2001:ac8:17:20::b00f",
+          "2001:ac8:17:20::b010",
+          "2001:ac8:17:20::b011",
+          "2001:ac8:17:20::b012",
+          "2001:ac8:17:20::b013",
+          "2001:ac8:17:20::b014",
+          "2001:ac8:17:20::b015",
+          "2001:ac8:17:20::b016",
+          "2001:ac8:17:20::b017",
+          "2001:ac8:17:20::b018",
+          "2001:ac8:17:20::b019",
+          "2001:ac8:17:20::b01a",
+          "2001:ac8:17:20::b01b",
+          "2001:ac8:17:20::b01c",
+          "2001:ac8:17:20::b01d",
+          "2001:ac8:17:20::b01e",
+          "2001:ac8:17:20::b01f"
+        ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "146.70.22.194",
-              "2001:ac8:17:20::f10a"
+              "135.136.126.13",
+              "135.136.126.14",
+              "135.136.126.15",
+              "135.136.126.16",
+              "135.136.126.17",
+              "135.136.126.18",
+              "135.136.126.19",
+              "135.136.126.20",
+              "135.136.126.21",
+              "135.136.126.22",
+              "2001:ac8:17:20::c002",
+              "2001:ac8:17:20::c003",
+              "2001:ac8:17:20::c004",
+              "2001:ac8:17:20::c005",
+              "2001:ac8:17:20::c006",
+              "2001:ac8:17:20::c007",
+              "2001:ac8:17:20::c008",
+              "2001:ac8:17:20::c009",
+              "2001:ac8:17:20::c00a",
+              "2001:ac8:17:20::c00b",
+              "2001:ac8:17:20::c00c",
+              "2001:ac8:17:20::c00d",
+              "2001:ac8:17:20::c00e",
+              "2001:ac8:17:20::c00f",
+              "2001:ac8:17:20::c010",
+              "2001:ac8:17:20::c011",
+              "2001:ac8:17:20::c012",
+              "2001:ac8:17:20::c013",
+              "2001:ac8:17:20::c014",
+              "2001:ac8:17:20::c015",
+              "2001:ac8:17:20::c016",
+              "2001:ac8:17:20::c017",
+              "2001:ac8:17:20::c018",
+              "2001:ac8:17:20::c019",
+              "2001:ac8:17:20::c01a",
+              "2001:ac8:17:20::c01b",
+              "2001:ac8:17:20::c01c",
+              "2001:ac8:17:20::c01d",
+              "2001:ac8:17:20::c01e",
+              "2001:ac8:17:20::c01f"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "es-bcn-wg-102.blockerad.eu"
           },
-          "lwo": null,
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "es-bcn-wg-103",
+        "active": true,
+        "owned": false,
+        "location": "es-bcn",
+        "provider": "M247",
+        "ipv4_addr_in": "135.136.126.130",
+        "ipv6_addr_in": "2001:ac8:17:30::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "Tom+GYTekEBZZhYT1mUTkrRLrsyzwlN1Jwr9h5TBNx8=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:17:30::b002",
+          "2001:ac8:17:30::b003",
+          "2001:ac8:17:30::b004",
+          "2001:ac8:17:30::b005",
+          "2001:ac8:17:30::b006",
+          "2001:ac8:17:30::b007",
+          "2001:ac8:17:30::b008",
+          "2001:ac8:17:30::b009",
+          "2001:ac8:17:30::b00a",
+          "2001:ac8:17:30::b00b",
+          "2001:ac8:17:30::b00c",
+          "2001:ac8:17:30::b00d",
+          "2001:ac8:17:30::b00e",
+          "2001:ac8:17:30::b00f",
+          "2001:ac8:17:30::b010",
+          "2001:ac8:17:30::b011",
+          "2001:ac8:17:30::b012",
+          "2001:ac8:17:30::b013",
+          "2001:ac8:17:30::b014",
+          "2001:ac8:17:30::b015",
+          "2001:ac8:17:30::b016",
+          "2001:ac8:17:30::b017",
+          "2001:ac8:17:30::b018",
+          "2001:ac8:17:30::b019",
+          "2001:ac8:17:30::b01a",
+          "2001:ac8:17:30::b01b",
+          "2001:ac8:17:30::b01c",
+          "2001:ac8:17:30::b01d",
+          "2001:ac8:17:30::b01e",
+          "2001:ac8:17:30::b01f",
+          "135.136.126.151",
+          "135.136.126.152",
+          "135.136.126.153",
+          "135.136.126.154",
+          "135.136.126.155",
+          "135.136.126.156",
+          "135.136.126.157",
+          "135.136.126.158",
+          "135.136.126.159",
+          "135.136.126.160"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "135.136.126.141",
+              "135.136.126.142",
+              "135.136.126.143",
+              "135.136.126.144",
+              "135.136.126.145",
+              "135.136.126.146",
+              "135.136.126.147",
+              "135.136.126.148",
+              "135.136.126.149",
+              "135.136.126.150",
+              "2001:ac8:17:30::c002",
+              "2001:ac8:17:30::c003",
+              "2001:ac8:17:30::c004",
+              "2001:ac8:17:30::c005",
+              "2001:ac8:17:30::c006",
+              "2001:ac8:17:30::c007",
+              "2001:ac8:17:30::c008",
+              "2001:ac8:17:30::c009",
+              "2001:ac8:17:30::c00a",
+              "2001:ac8:17:30::c00b",
+              "2001:ac8:17:30::c00c",
+              "2001:ac8:17:30::c00d",
+              "2001:ac8:17:30::c00e",
+              "2001:ac8:17:30::c00f",
+              "2001:ac8:17:30::c010",
+              "2001:ac8:17:30::c011",
+              "2001:ac8:17:30::c012",
+              "2001:ac8:17:30::c013",
+              "2001:ac8:17:30::c014",
+              "2001:ac8:17:30::c015",
+              "2001:ac8:17:30::c016",
+              "2001:ac8:17:30::c017",
+              "2001:ac8:17:30::c018",
+              "2001:ac8:17:30::c019",
+              "2001:ac8:17:30::c01a",
+              "2001:ac8:17:30::c01b",
+              "2001:ac8:17:30::c01c",
+              "2001:ac8:17:30::c01d",
+              "2001:ac8:17:30::c01e",
+              "2001:ac8:17:30::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "es-bcn-wg-103.blockerad.eu"
+          },
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -9797,7 +10911,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:c318:1::c001",
+              "2a02:6ea0:c318:1::c002",
+              "2a02:6ea0:c318:1::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "es-mad-wg-101.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -9817,7 +10939,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:c318:2::c001",
+              "2a02:6ea0:c318:2::c002",
+              "2a02:6ea0:c318:2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "es-mad-wg-102.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -10189,7 +11319,7 @@
       },
       {
         "hostname": "fi-hel-wg-001",
-        "active": false,
+        "active": true,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -11349,7 +12479,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:dc05::c001",
+              "2a02:6ea0:dc05::c002",
+              "2a02:6ea0:dc05::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "fr-mrs-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -11369,7 +12507,15 @@
         "shadowsocks_extra_addr_in": [],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a02:6ea0:dc06::c001",
+              "2a02:6ea0:dc06::c002",
+              "2a02:6ea0:dc06::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "fr-mrs-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -12105,7 +13251,7 @@
         "ipv4_addr_in": "185.201.188.3",
         "ipv6_addr_in": "2a06:3040:d:410::f001",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "xCPSxGj0QVKC637D8HpRsUUCaSfgAF4ephG/CjhQ2kU=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -12125,7 +13271,7 @@
         "ipv4_addr_in": "185.201.188.33",
         "ipv6_addr_in": "2a06:3040:d:410::f101",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "tX+LKwiFvZhGtbuJq8e62+/vhogHNqdAdjHeoOlWqws=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -12281,7 +13427,47 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.98.252.95",
+              "141.98.252.96",
+              "141.98.252.97",
+              "141.98.252.98",
+              "141.98.252.99",
+              "2a03:1b20:7:f011:2::c002",
+              "2a03:1b20:7:f011:2::c003",
+              "2a03:1b20:7:f011:2::c004",
+              "2a03:1b20:7:f011:2::c005",
+              "2a03:1b20:7:f011:2::c006",
+              "2a03:1b20:7:f011:2::c007",
+              "2a03:1b20:7:f011:2::c008",
+              "2a03:1b20:7:f011:2::c009",
+              "2a03:1b20:7:f011:2::c00a",
+              "2a03:1b20:7:f011:2::c00b",
+              "2a03:1b20:7:f011:2::c00c",
+              "2a03:1b20:7:f011:2::c00d",
+              "2a03:1b20:7:f011:2::c00e",
+              "2a03:1b20:7:f011:2::c00f",
+              "2a03:1b20:7:f011:2::c010",
+              "2a03:1b20:7:f011:2::c011",
+              "2a03:1b20:7:f011:2::c012",
+              "2a03:1b20:7:f011:2::c013",
+              "2a03:1b20:7:f011:2::c014",
+              "2a03:1b20:7:f011:2::c015",
+              "2a03:1b20:7:f011:2::c016",
+              "2a03:1b20:7:f011:2::c017",
+              "2a03:1b20:7:f011:2::c018",
+              "2a03:1b20:7:f011:2::c019",
+              "2a03:1b20:7:f011:2::c01a",
+              "2a03:1b20:7:f011:2::c01b",
+              "2a03:1b20:7:f011:2::c01c",
+              "2a03:1b20:7:f011:2::c01d",
+              "2a03:1b20:7:f011:2::c01e",
+              "2a03:1b20:7:f011:2::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-002.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -12335,7 +13521,46 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.98.252.106",
+              "141.98.252.107",
+              "141.98.252.108",
+              "141.98.252.109",
+              "2a03:1b20:7:f011:3::c002",
+              "2a03:1b20:7:f011:3::c003",
+              "2a03:1b20:7:f011:3::c004",
+              "2a03:1b20:7:f011:3::c005",
+              "2a03:1b20:7:f011:3::c006",
+              "2a03:1b20:7:f011:3::c007",
+              "2a03:1b20:7:f011:3::c008",
+              "2a03:1b20:7:f011:3::c009",
+              "2a03:1b20:7:f011:3::c00a",
+              "2a03:1b20:7:f011:3::c00b",
+              "2a03:1b20:7:f011:3::c00c",
+              "2a03:1b20:7:f011:3::c00d",
+              "2a03:1b20:7:f011:3::c00e",
+              "2a03:1b20:7:f011:3::c00f",
+              "2a03:1b20:7:f011:3::c010",
+              "2a03:1b20:7:f011:3::c011",
+              "2a03:1b20:7:f011:3::c012",
+              "2a03:1b20:7:f011:3::c013",
+              "2a03:1b20:7:f011:3::c014",
+              "2a03:1b20:7:f011:3::c015",
+              "2a03:1b20:7:f011:3::c016",
+              "2a03:1b20:7:f011:3::c017",
+              "2a03:1b20:7:f011:3::c018",
+              "2a03:1b20:7:f011:3::c019",
+              "2a03:1b20:7:f011:3::c01a",
+              "2a03:1b20:7:f011:3::c01b",
+              "2a03:1b20:7:f011:3::c01c",
+              "2a03:1b20:7:f011:3::c01d",
+              "2a03:1b20:7:f011:3::c01e",
+              "2a03:1b20:7:f011:3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-003.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -12388,7 +13613,44 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.98.252.114",
+              "141.98.252.115",
+              "2a03:1b20:7:f011:4::c002",
+              "2a03:1b20:7:f011:4::c003",
+              "2a03:1b20:7:f011:4::c004",
+              "2a03:1b20:7:f011:4::c005",
+              "2a03:1b20:7:f011:4::c006",
+              "2a03:1b20:7:f011:4::c007",
+              "2a03:1b20:7:f011:4::c008",
+              "2a03:1b20:7:f011:4::c009",
+              "2a03:1b20:7:f011:4::c00a",
+              "2a03:1b20:7:f011:4::c00b",
+              "2a03:1b20:7:f011:4::c00c",
+              "2a03:1b20:7:f011:4::c00d",
+              "2a03:1b20:7:f011:4::c00e",
+              "2a03:1b20:7:f011:4::c00f",
+              "2a03:1b20:7:f011:4::c010",
+              "2a03:1b20:7:f011:4::c011",
+              "2a03:1b20:7:f011:4::c012",
+              "2a03:1b20:7:f011:4::c013",
+              "2a03:1b20:7:f011:4::c014",
+              "2a03:1b20:7:f011:4::c015",
+              "2a03:1b20:7:f011:4::c016",
+              "2a03:1b20:7:f011:4::c017",
+              "2a03:1b20:7:f011:4::c018",
+              "2a03:1b20:7:f011:4::c019",
+              "2a03:1b20:7:f011:4::c01a",
+              "2a03:1b20:7:f011:4::c01b",
+              "2a03:1b20:7:f011:4::c01c",
+              "2a03:1b20:7:f011:4::c01d",
+              "2a03:1b20:7:f011:4::c01e",
+              "2a03:1b20:7:f011:4::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-004.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -12444,7 +13706,47 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "185.195.232.80",
+              "185.195.232.81",
+              "185.195.232.82",
+              "185.195.232.83",
+              "185.195.232.84",
+              "2a03:1b20:7:f011:5::c002",
+              "2a03:1b20:7:f011:5::c003",
+              "2a03:1b20:7:f011:5::c004",
+              "2a03:1b20:7:f011:5::c005",
+              "2a03:1b20:7:f011:5::c006",
+              "2a03:1b20:7:f011:5::c007",
+              "2a03:1b20:7:f011:5::c008",
+              "2a03:1b20:7:f011:5::c009",
+              "2a03:1b20:7:f011:5::c00a",
+              "2a03:1b20:7:f011:5::c00b",
+              "2a03:1b20:7:f011:5::c00c",
+              "2a03:1b20:7:f011:5::c00d",
+              "2a03:1b20:7:f011:5::c00e",
+              "2a03:1b20:7:f011:5::c00f",
+              "2a03:1b20:7:f011:5::c010",
+              "2a03:1b20:7:f011:5::c011",
+              "2a03:1b20:7:f011:5::c012",
+              "2a03:1b20:7:f011:5::c013",
+              "2a03:1b20:7:f011:5::c014",
+              "2a03:1b20:7:f011:5::c015",
+              "2a03:1b20:7:f011:5::c016",
+              "2a03:1b20:7:f011:5::c017",
+              "2a03:1b20:7:f011:5::c018",
+              "2a03:1b20:7:f011:5::c019",
+              "2a03:1b20:7:f011:5::c01a",
+              "2a03:1b20:7:f011:5::c01b",
+              "2a03:1b20:7:f011:5::c01c",
+              "2a03:1b20:7:f011:5::c01d",
+              "2a03:1b20:7:f011:5::c01e",
+              "2a03:1b20:7:f011:5::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-005.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -12500,7 +13802,47 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "185.195.232.95",
+              "185.195.232.96",
+              "185.195.232.97",
+              "185.195.232.98",
+              "185.195.232.99",
+              "2a03:1b20:7:f011:6::c002",
+              "2a03:1b20:7:f011:6::c003",
+              "2a03:1b20:7:f011:6::c004",
+              "2a03:1b20:7:f011:6::c005",
+              "2a03:1b20:7:f011:6::c006",
+              "2a03:1b20:7:f011:6::c007",
+              "2a03:1b20:7:f011:6::c008",
+              "2a03:1b20:7:f011:6::c009",
+              "2a03:1b20:7:f011:6::c00a",
+              "2a03:1b20:7:f011:6::c00b",
+              "2a03:1b20:7:f011:6::c00c",
+              "2a03:1b20:7:f011:6::c00d",
+              "2a03:1b20:7:f011:6::c00e",
+              "2a03:1b20:7:f011:6::c00f",
+              "2a03:1b20:7:f011:6::c010",
+              "2a03:1b20:7:f011:6::c011",
+              "2a03:1b20:7:f011:6::c012",
+              "2a03:1b20:7:f011:6::c013",
+              "2a03:1b20:7:f011:6::c014",
+              "2a03:1b20:7:f011:6::c015",
+              "2a03:1b20:7:f011:6::c016",
+              "2a03:1b20:7:f011:6::c017",
+              "2a03:1b20:7:f011:6::c018",
+              "2a03:1b20:7:f011:6::c019",
+              "2a03:1b20:7:f011:6::c01a",
+              "2a03:1b20:7:f011:6::c01b",
+              "2a03:1b20:7:f011:6::c01c",
+              "2a03:1b20:7:f011:6::c01d",
+              "2a03:1b20:7:f011:6::c01e",
+              "2a03:1b20:7:f011:6::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-006.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -12645,7 +13987,47 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.98.252.118",
+              "141.98.252.119",
+              "141.98.252.120",
+              "141.98.252.121",
+              "141.98.252.122",
+              "2a03:1b20:7:f011:8::c002",
+              "2a03:1b20:7:f011:8::c003",
+              "2a03:1b20:7:f011:8::c004",
+              "2a03:1b20:7:f011:8::c005",
+              "2a03:1b20:7:f011:8::c006",
+              "2a03:1b20:7:f011:8::c007",
+              "2a03:1b20:7:f011:8::c008",
+              "2a03:1b20:7:f011:8::c009",
+              "2a03:1b20:7:f011:8::c00a",
+              "2a03:1b20:7:f011:8::c00b",
+              "2a03:1b20:7:f011:8::c00c",
+              "2a03:1b20:7:f011:8::c00d",
+              "2a03:1b20:7:f011:8::c00e",
+              "2a03:1b20:7:f011:8::c00f",
+              "2a03:1b20:7:f011:8::c010",
+              "2a03:1b20:7:f011:8::c011",
+              "2a03:1b20:7:f011:8::c012",
+              "2a03:1b20:7:f011:8::c013",
+              "2a03:1b20:7:f011:8::c014",
+              "2a03:1b20:7:f011:8::c015",
+              "2a03:1b20:7:f011:8::c016",
+              "2a03:1b20:7:f011:8::c017",
+              "2a03:1b20:7:f011:8::c018",
+              "2a03:1b20:7:f011:8::c019",
+              "2a03:1b20:7:f011:8::c01a",
+              "2a03:1b20:7:f011:8::c01b",
+              "2a03:1b20:7:f011:8::c01c",
+              "2a03:1b20:7:f011:8::c01d",
+              "2a03:1b20:7:f011:8::c01e",
+              "2a03:1b20:7:f011:8::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "gb-lon-wg-008.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -13347,7 +14729,7 @@
         "ipv4_addr_in": "146.70.132.2",
         "ipv6_addr_in": "2001:ac8:8b:104::f001",
         "weight": 200,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "Q2khJLbTSFxmppPGHgq2HdxMQx7CczPZCgVpYZMoNnM=",
         "daita": true,
         "shadowsocks_extra_addr_in": [
@@ -13457,7 +14839,7 @@
         "ipv4_addr_in": "135.136.22.2",
         "ipv6_addr_in": "2001:ac8:8b:105::f001",
         "weight": 200,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "1yWXDkKtU7NQU1349DS/nvGr0XjQgsZFhRt2P+fVtTg=",
         "daita": true,
         "shadowsocks_extra_addr_in": [
@@ -13560,7 +14942,7 @@
       },
       {
         "hostname": "gb-mnc-wg-003",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "gb-mnc",
         "provider": "M247",
@@ -13670,7 +15052,7 @@
       },
       {
         "hostname": "gb-mnc-wg-004",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "gb-mnc",
         "provider": "M247",
@@ -13776,14 +15158,14 @@
       },
       {
         "hostname": "gb-mnc-wg-201",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "gb-mnc",
         "provider": "Veloxserv",
         "ipv4_addr_in": "167.160.13.3",
         "ipv6_addr_in": "2a03:ee40:3304::f001",
         "weight": 400,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "x3APiw/mxJzdD+3WAPxTFnvOZHVotm6SGomHtMoR4Hg=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13805,7 +15187,7 @@
         "ipv4_addr_in": "167.160.13.127",
         "ipv6_addr_in": "2a03:ee40:3304::f101",
         "weight": 1,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "OpQgffPufxbHQUbItRoezS2V+yAEBKZ10jfU82YIByI=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13879,7 +15261,6 @@
         "public_key": "Oxh13dmwY6nNUa5rVHr7sLiFOj0fjzsaAUAUV87/nGs=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
-          "103.125.233.3",
           "103.125.233.4",
           "103.125.233.5",
           "103.125.233.6",
@@ -13918,7 +15299,48 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "103.125.233.9",
+              "103.125.233.10",
+              "103.125.233.11",
+              "103.125.233.12",
+              "103.125.233.13",
+              "103.125.233.14",
+              "2403:2c81:1000::c002",
+              "2403:2c81:1000::c003",
+              "2403:2c81:1000::c004",
+              "2403:2c81:1000::c005",
+              "2403:2c81:1000::c006",
+              "2403:2c81:1000::c007",
+              "2403:2c81:1000::c008",
+              "2403:2c81:1000::c009",
+              "2403:2c81:1000::c00a",
+              "2403:2c81:1000::c00b",
+              "2403:2c81:1000::c00c",
+              "2403:2c81:1000::c00d",
+              "2403:2c81:1000::c00e",
+              "2403:2c81:1000::c00f",
+              "2403:2c81:1000::c010",
+              "2403:2c81:1000::c011",
+              "2403:2c81:1000::c012",
+              "2403:2c81:1000::c013",
+              "2403:2c81:1000::c014",
+              "2403:2c81:1000::c015",
+              "2403:2c81:1000::c016",
+              "2403:2c81:1000::c017",
+              "2403:2c81:1000::c018",
+              "2403:2c81:1000::c019",
+              "2403:2c81:1000::c01a",
+              "2403:2c81:1000::c01b",
+              "2403:2c81:1000::c01c",
+              "2403:2c81:1000::c01d",
+              "2403:2c81:1000::c01e",
+              "2403:2c81:1000::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hk-hkg-wg-201.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -13972,7 +15394,46 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "103.125.233.38",
+              "103.125.233.39",
+              "103.125.233.40",
+              "103.125.233.41",
+              "2403:2c81:1000::c302",
+              "2403:2c81:1000::c303",
+              "2403:2c81:1000::c304",
+              "2403:2c81:1000::c305",
+              "2403:2c81:1000::c306",
+              "2403:2c81:1000::c307",
+              "2403:2c81:1000::c308",
+              "2403:2c81:1000::c309",
+              "2403:2c81:1000::c30a",
+              "2403:2c81:1000::c30b",
+              "2403:2c81:1000::c30c",
+              "2403:2c81:1000::c30d",
+              "2403:2c81:1000::c30e",
+              "2403:2c81:1000::c30f",
+              "2403:2c81:1000::c310",
+              "2403:2c81:1000::c311",
+              "2403:2c81:1000::c312",
+              "2403:2c81:1000::c313",
+              "2403:2c81:1000::c314",
+              "2403:2c81:1000::c315",
+              "2403:2c81:1000::c316",
+              "2403:2c81:1000::c317",
+              "2403:2c81:1000::c318",
+              "2403:2c81:1000::c319",
+              "2403:2c81:1000::c31a",
+              "2403:2c81:1000::c31b",
+              "2403:2c81:1000::c31c",
+              "2403:2c81:1000::c31d",
+              "2403:2c81:1000::c31e",
+              "2403:2c81:1000::c31f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hk-hkg-wg-203.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -13989,12 +15450,19 @@
         "include_in_country": true,
         "public_key": "qbvU06SBHXnqMnpb49rnE0yC4AOWQcWl2bEScu18dh8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:a:f::b001",
+          "2001:ac8:a:f::b002",
+          "2001:ac8:a:f::b003"
+        ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "146.70.224.62"
+              "146.70.224.62",
+              "2001:ac8:a:f::c001",
+              "2001:ac8:a:f::c002",
+              "2001:ac8:a:f::c003"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "hk-hkg-wg-301.blockerad.eu"
@@ -14015,10 +15483,22 @@
         "include_in_country": true,
         "public_key": "7FADgmd9KyAVs3eFJE/ob9tV3E6m/klONEEIOfCoPTU=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:a:19::b001",
+          "2001:ac8:a:19::b002",
+          "2001:ac8:a:19::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:a:19::c001",
+              "2001:ac8:a:19::c002",
+              "2001:ac8:a:19::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hk-hkg-wg-302.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -14035,10 +15515,22 @@
         "include_in_country": true,
         "public_key": "RtTENHB7VBUiowxtdAzopcb2Fvd+OFneN73k13oPUEo=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:a:1b::b001",
+          "2001:ac8:a:1b::b002",
+          "2001:ac8:a:1b::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:a:1b::c001",
+              "2001:ac8:a:1b::c002",
+              "2001:ac8:a:1b::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hk-hkg-wg-303.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -14095,10 +15587,22 @@
         "include_in_country": true,
         "public_key": "u+h0GmQJ8UBaMTi2BP9Ls6UUszcGC51y6vTmNr/y+AU=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:26:55::b001",
+          "2001:ac8:26:55::b002",
+          "2001:ac8:26:55::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:26:55::c001",
+              "2001:ac8:26:55::c002",
+              "2001:ac8:26:55::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hu-bud-wg-101.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -14115,10 +15619,22 @@
         "include_in_country": true,
         "public_key": "iEWLm2F4xV013ZETeZcT1dyUd5O+JnyndHso8RP8txw=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:26:54::b001",
+          "2001:ac8:26:54::b002",
+          "2001:ac8:26:54::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:26:54::c001",
+              "2001:ac8:26:54::c002",
+              "2001:ac8:26:54::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "hu-bud-wg-102.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -14769,13 +16285,99 @@
         "ipv6_addr_in": "2001:ac8:24:17::f001",
         "weight": 100,
         "include_in_country": true,
-        "public_key": "XHwDoIVZGoVfUYbfcPiRp1LhaOCDc0A3QrS72i3ztBw=",
+        "public_key": "JAUrudFS+OPJ8QaFeQT9N2bySipgEE0jpQ7f8ww5pmY=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:24:17::b002",
+          "2001:ac8:24:17::b003",
+          "2001:ac8:24:17::b004",
+          "2001:ac8:24:17::b005",
+          "2001:ac8:24:17::b006",
+          "2001:ac8:24:17::b007",
+          "2001:ac8:24:17::b008",
+          "2001:ac8:24:17::b009",
+          "2001:ac8:24:17::b00a",
+          "2001:ac8:24:17::b00b",
+          "2001:ac8:24:17::b00c",
+          "2001:ac8:24:17::b00d",
+          "2001:ac8:24:17::b00e",
+          "2001:ac8:24:17::b00f",
+          "2001:ac8:24:17::b010",
+          "2001:ac8:24:17::b011",
+          "2001:ac8:24:17::b012",
+          "2001:ac8:24:17::b013",
+          "2001:ac8:24:17::b014",
+          "2001:ac8:24:17::b015",
+          "2001:ac8:24:17::b016",
+          "2001:ac8:24:17::b017",
+          "2001:ac8:24:17::b018",
+          "2001:ac8:24:17::b019",
+          "2001:ac8:24:17::b01a",
+          "2001:ac8:24:17::b01b",
+          "2001:ac8:24:17::b01c",
+          "2001:ac8:24:17::b01d",
+          "2001:ac8:24:17::b01e",
+          "2001:ac8:24:17::b01f",
+          "146.70.225.23",
+          "146.70.225.24",
+          "146.70.225.25",
+          "146.70.225.26",
+          "146.70.225.27",
+          "146.70.225.28",
+          "146.70.225.29",
+          "146.70.225.30",
+          "146.70.225.31",
+          "146.70.225.32"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
-          "lwo": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:24:17::c002",
+              "2001:ac8:24:17::c003",
+              "2001:ac8:24:17::c004",
+              "2001:ac8:24:17::c005",
+              "2001:ac8:24:17::c006",
+              "2001:ac8:24:17::c007",
+              "2001:ac8:24:17::c008",
+              "2001:ac8:24:17::c009",
+              "2001:ac8:24:17::c00a",
+              "2001:ac8:24:17::c00b",
+              "2001:ac8:24:17::c00c",
+              "2001:ac8:24:17::c00d",
+              "2001:ac8:24:17::c00e",
+              "2001:ac8:24:17::c00f",
+              "2001:ac8:24:17::c010",
+              "2001:ac8:24:17::c011",
+              "2001:ac8:24:17::c012",
+              "2001:ac8:24:17::c013",
+              "2001:ac8:24:17::c014",
+              "2001:ac8:24:17::c015",
+              "2001:ac8:24:17::c016",
+              "2001:ac8:24:17::c017",
+              "2001:ac8:24:17::c018",
+              "2001:ac8:24:17::c019",
+              "2001:ac8:24:17::c01a",
+              "2001:ac8:24:17::c01b",
+              "2001:ac8:24:17::c01c",
+              "2001:ac8:24:17::c01d",
+              "2001:ac8:24:17::c01e",
+              "2001:ac8:24:17::c01f",
+              "146.70.225.13",
+              "146.70.225.14",
+              "146.70.225.15",
+              "146.70.225.16",
+              "146.70.225.17",
+              "146.70.225.18",
+              "146.70.225.19",
+              "146.70.225.20",
+              "146.70.225.21",
+              "146.70.225.22"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "it-mil-wg-201.blockerad.eu"
+          },
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -14785,17 +16387,211 @@
         "owned": false,
         "location": "it-mil",
         "provider": "M247",
-        "ipv4_addr_in": "146.70.225.66",
-        "ipv6_addr_in": "2001:ac8:24:18::f001",
+        "ipv4_addr_in": "146.70.225.130",
+        "ipv6_addr_in": "2001:ac8:24:19::f001",
         "weight": 100,
         "include_in_country": true,
-        "public_key": "y5raL0QZx2CpOozrL+Knmjj7nnly3JKatFnxynjXpE0=",
+        "public_key": "O0KuklK9aUdxTm4B2D1BU2ntKKLwBWAL5MTgJvYSU3Q=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "146.70.225.151",
+          "146.70.225.152",
+          "146.70.225.153",
+          "146.70.225.154",
+          "146.70.225.155",
+          "146.70.225.156",
+          "146.70.225.157",
+          "146.70.225.158",
+          "146.70.225.159",
+          "146.70.225.160",
+          "2001:ac8:24:19::b001",
+          "2001:ac8:24:19::b002",
+          "2001:ac8:24:19::b003",
+          "2001:ac8:24:19::b004",
+          "2001:ac8:24:19::b005",
+          "2001:ac8:24:19::b006",
+          "2001:ac8:24:19::b007",
+          "2001:ac8:24:19::b008",
+          "2001:ac8:24:19::b009",
+          "2001:ac8:24:19::b00a",
+          "2001:ac8:24:19::b00b",
+          "2001:ac8:24:19::b00c",
+          "2001:ac8:24:19::b00d",
+          "2001:ac8:24:19::b00e",
+          "2001:ac8:24:19::b00f",
+          "2001:ac8:24:19::b010",
+          "2001:ac8:24:19::b011",
+          "2001:ac8:24:19::b012",
+          "2001:ac8:24:19::b013",
+          "2001:ac8:24:19::b014",
+          "2001:ac8:24:19::b015",
+          "2001:ac8:24:19::b016",
+          "2001:ac8:24:19::b017",
+          "2001:ac8:24:19::b018",
+          "2001:ac8:24:19::b019",
+          "2001:ac8:24:19::b01a",
+          "2001:ac8:24:19::b01b",
+          "2001:ac8:24:19::b01c",
+          "2001:ac8:24:19::b01d",
+          "2001:ac8:24:19::b01e",
+          "2001:ac8:24:19::b01f"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
-          "lwo": null,
+          "quic": {
+            "addr_in": [
+              "146.70.225.141",
+              "146.70.225.142",
+              "146.70.225.143",
+              "146.70.225.144",
+              "146.70.225.145",
+              "146.70.225.146",
+              "146.70.225.147",
+              "146.70.225.148",
+              "146.70.225.149",
+              "146.70.225.150",
+              "2001:ac8:24:19::c001",
+              "2001:ac8:24:19::c002",
+              "2001:ac8:24:19::c003",
+              "2001:ac8:24:19::c004",
+              "2001:ac8:24:19::c005",
+              "2001:ac8:24:19::c006",
+              "2001:ac8:24:19::c007",
+              "2001:ac8:24:19::c008",
+              "2001:ac8:24:19::c009",
+              "2001:ac8:24:19::c00a",
+              "2001:ac8:24:19::c00b",
+              "2001:ac8:24:19::c00c",
+              "2001:ac8:24:19::c00d",
+              "2001:ac8:24:19::c00e",
+              "2001:ac8:24:19::c00f",
+              "2001:ac8:24:19::c010",
+              "2001:ac8:24:19::c011",
+              "2001:ac8:24:19::c012",
+              "2001:ac8:24:19::c013",
+              "2001:ac8:24:19::c014",
+              "2001:ac8:24:19::c015",
+              "2001:ac8:24:19::c016",
+              "2001:ac8:24:19::c017",
+              "2001:ac8:24:19::c018",
+              "2001:ac8:24:19::c019",
+              "2001:ac8:24:19::c01a",
+              "2001:ac8:24:19::c01b",
+              "2001:ac8:24:19::c01c",
+              "2001:ac8:24:19::c01d",
+              "2001:ac8:24:19::c01e",
+              "2001:ac8:24:19::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "it-mil-wg-202.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "it-mil-wg-203",
+        "active": true,
+        "owned": false,
+        "location": "it-mil",
+        "provider": "M247",
+        "ipv4_addr_in": "135.136.125.2",
+        "ipv6_addr_in": "2001:ac8:24:1a::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "NnGPBOc4YhwU0s9RAMrwVKFSqIBZUkgKqpX+oPlOo3s=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "135.136.125.23",
+          "135.136.125.24",
+          "135.136.125.25",
+          "135.136.125.26",
+          "135.136.125.27",
+          "135.136.125.28",
+          "135.136.125.29",
+          "135.136.125.30",
+          "135.136.125.31",
+          "135.136.125.32",
+          "2001:ac8:24:1a::b002",
+          "2001:ac8:24:1a::b003",
+          "2001:ac8:24:1a::b004",
+          "2001:ac8:24:1a::b005",
+          "2001:ac8:24:1a::b006",
+          "2001:ac8:24:1a::b007",
+          "2001:ac8:24:1a::b008",
+          "2001:ac8:24:1a::b009",
+          "2001:ac8:24:1a::b00a",
+          "2001:ac8:24:1a::b00b",
+          "2001:ac8:24:1a::b00c",
+          "2001:ac8:24:1a::b00d",
+          "2001:ac8:24:1a::b00e",
+          "2001:ac8:24:1a::b00f",
+          "2001:ac8:24:1a::b010",
+          "2001:ac8:24:1a::b011",
+          "2001:ac8:24:1a::b012",
+          "2001:ac8:24:1a::b013",
+          "2001:ac8:24:1a::b014",
+          "2001:ac8:24:1a::b015",
+          "2001:ac8:24:1a::b016",
+          "2001:ac8:24:1a::b017",
+          "2001:ac8:24:1a::b018",
+          "2001:ac8:24:1a::b019",
+          "2001:ac8:24:1a::b01a",
+          "2001:ac8:24:1a::b01b",
+          "2001:ac8:24:1a::b01c",
+          "2001:ac8:24:1a::b01d",
+          "2001:ac8:24:1a::b01e",
+          "2001:ac8:24:1a::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "135.136.125.13",
+              "135.136.125.14",
+              "135.136.125.15",
+              "135.136.125.16",
+              "135.136.125.17",
+              "135.136.125.18",
+              "135.136.125.19",
+              "135.136.125.20",
+              "135.136.125.21",
+              "135.136.125.22",
+              "2001:ac8:24:1a::c002",
+              "2001:ac8:24:1a::c003",
+              "2001:ac8:24:1a::c004",
+              "2001:ac8:24:1a::c005",
+              "2001:ac8:24:1a::c006",
+              "2001:ac8:24:1a::c007",
+              "2001:ac8:24:1a::c008",
+              "2001:ac8:24:1a::c009",
+              "2001:ac8:24:1a::c00a",
+              "2001:ac8:24:1a::c00b",
+              "2001:ac8:24:1a::c00c",
+              "2001:ac8:24:1a::c00d",
+              "2001:ac8:24:1a::c00e",
+              "2001:ac8:24:1a::c00f",
+              "2001:ac8:24:1a::c010",
+              "2001:ac8:24:1a::c011",
+              "2001:ac8:24:1a::c012",
+              "2001:ac8:24:1a::c013",
+              "2001:ac8:24:1a::c014",
+              "2001:ac8:24:1a::c015",
+              "2001:ac8:24:1a::c016",
+              "2001:ac8:24:1a::c017",
+              "2001:ac8:24:1a::c018",
+              "2001:ac8:24:1a::c019",
+              "2001:ac8:24:1a::c01a",
+              "2001:ac8:24:1a::c01b",
+              "2001:ac8:24:1a::c01c",
+              "2001:ac8:24:1a::c01d",
+              "2001:ac8:24:1a::c01e",
+              "2001:ac8:24:1a::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "it-mil-wg-203.blockerad.eu"
+          },
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -15724,7 +17520,62 @@
         ],
         "features": {
           "daita": {},
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.11.20.42",
+              "141.11.20.43",
+              "141.11.20.44",
+              "141.11.20.45",
+              "141.11.20.46",
+              "141.11.20.47",
+              "141.11.20.48",
+              "141.11.20.49",
+              "141.11.20.50",
+              "141.11.20.51",
+              "141.11.20.52",
+              "141.11.20.53",
+              "141.11.20.54",
+              "141.11.20.55",
+              "141.11.20.56",
+              "141.11.20.57",
+              "141.11.20.58",
+              "141.11.20.59",
+              "141.11.20.60",
+              "141.11.20.61",
+              "2a03:1b20:3:f011:1::c002",
+              "2a03:1b20:3:f011:1::c003",
+              "2a03:1b20:3:f011:1::c004",
+              "2a03:1b20:3:f011:1::c005",
+              "2a03:1b20:3:f011:1::c006",
+              "2a03:1b20:3:f011:1::c007",
+              "2a03:1b20:3:f011:1::c008",
+              "2a03:1b20:3:f011:1::c009",
+              "2a03:1b20:3:f011:1::c00a",
+              "2a03:1b20:3:f011:1::c00b",
+              "2a03:1b20:3:f011:1::c00c",
+              "2a03:1b20:3:f011:1::c00d",
+              "2a03:1b20:3:f011:1::c00e",
+              "2a03:1b20:3:f011:1::c00f",
+              "2a03:1b20:3:f011:1::c010",
+              "2a03:1b20:3:f011:1::c011",
+              "2a03:1b20:3:f011:1::c012",
+              "2a03:1b20:3:f011:1::c013",
+              "2a03:1b20:3:f011:1::c014",
+              "2a03:1b20:3:f011:1::c015",
+              "2a03:1b20:3:f011:1::c016",
+              "2a03:1b20:3:f011:1::c017",
+              "2a03:1b20:3:f011:1::c018",
+              "2a03:1b20:3:f011:1::c019",
+              "2a03:1b20:3:f011:1::c01a",
+              "2a03:1b20:3:f011:1::c01b",
+              "2a03:1b20:3:f011:1::c01c",
+              "2a03:1b20:3:f011:1::c01d",
+              "2a03:1b20:3:f011:1::c01e",
+              "2a03:1b20:3:f011:1::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-001.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -15922,7 +17773,62 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.11.20.162",
+              "141.11.20.163",
+              "141.11.20.164",
+              "141.11.20.165",
+              "141.11.20.166",
+              "141.11.20.167",
+              "141.11.20.168",
+              "141.11.20.169",
+              "141.11.20.170",
+              "141.11.20.171",
+              "141.11.20.172",
+              "141.11.20.173",
+              "141.11.20.174",
+              "141.11.20.175",
+              "141.11.20.176",
+              "141.11.20.177",
+              "141.11.20.178",
+              "141.11.20.179",
+              "141.11.20.180",
+              "141.11.20.181",
+              "2a03:1b20:3:f011:3::c002",
+              "2a03:1b20:3:f011:3::c003",
+              "2a03:1b20:3:f011:3::c004",
+              "2a03:1b20:3:f011:3::c005",
+              "2a03:1b20:3:f011:3::c006",
+              "2a03:1b20:3:f011:3::c007",
+              "2a03:1b20:3:f011:3::c008",
+              "2a03:1b20:3:f011:3::c009",
+              "2a03:1b20:3:f011:3::c00a",
+              "2a03:1b20:3:f011:3::c00b",
+              "2a03:1b20:3:f011:3::c00c",
+              "2a03:1b20:3:f011:3::c00d",
+              "2a03:1b20:3:f011:3::c00e",
+              "2a03:1b20:3:f011:3::c00f",
+              "2a03:1b20:3:f011:3::c010",
+              "2a03:1b20:3:f011:3::c011",
+              "2a03:1b20:3:f011:3::c012",
+              "2a03:1b20:3:f011:3::c013",
+              "2a03:1b20:3:f011:3::c014",
+              "2a03:1b20:3:f011:3::c015",
+              "2a03:1b20:3:f011:3::c016",
+              "2a03:1b20:3:f011:3::c017",
+              "2a03:1b20:3:f011:3::c018",
+              "2a03:1b20:3:f011:3::c019",
+              "2a03:1b20:3:f011:3::c01a",
+              "2a03:1b20:3:f011:3::c01b",
+              "2a03:1b20:3:f011:3::c01c",
+              "2a03:1b20:3:f011:3::c01d",
+              "2a03:1b20:3:f011:3::c01e",
+              "2a03:1b20:3:f011:3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-003.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -15993,7 +17899,62 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "141.11.20.222",
+              "141.11.20.223",
+              "141.11.20.224",
+              "141.11.20.225",
+              "141.11.20.226",
+              "141.11.20.227",
+              "141.11.20.228",
+              "141.11.20.229",
+              "141.11.20.230",
+              "141.11.20.231",
+              "141.11.20.232",
+              "141.11.20.233",
+              "141.11.20.234",
+              "141.11.20.235",
+              "141.11.20.236",
+              "141.11.20.237",
+              "141.11.20.238",
+              "141.11.20.239",
+              "141.11.20.240",
+              "141.11.20.241",
+              "2a03:1b20:3:f011:4::c002",
+              "2a03:1b20:3:f011:4::c003",
+              "2a03:1b20:3:f011:4::c004",
+              "2a03:1b20:3:f011:4::c005",
+              "2a03:1b20:3:f011:4::c006",
+              "2a03:1b20:3:f011:4::c007",
+              "2a03:1b20:3:f011:4::c008",
+              "2a03:1b20:3:f011:4::c009",
+              "2a03:1b20:3:f011:4::c00a",
+              "2a03:1b20:3:f011:4::c00b",
+              "2a03:1b20:3:f011:4::c00c",
+              "2a03:1b20:3:f011:4::c00d",
+              "2a03:1b20:3:f011:4::c00e",
+              "2a03:1b20:3:f011:4::c00f",
+              "2a03:1b20:3:f011:4::c010",
+              "2a03:1b20:3:f011:4::c011",
+              "2a03:1b20:3:f011:4::c012",
+              "2a03:1b20:3:f011:4::c013",
+              "2a03:1b20:3:f011:4::c014",
+              "2a03:1b20:3:f011:4::c015",
+              "2a03:1b20:3:f011:4::c016",
+              "2a03:1b20:3:f011:4::c017",
+              "2a03:1b20:3:f011:4::c018",
+              "2a03:1b20:3:f011:4::c019",
+              "2a03:1b20:3:f011:4::c01a",
+              "2a03:1b20:3:f011:4::c01b",
+              "2a03:1b20:3:f011:4::c01c",
+              "2a03:1b20:3:f011:4::c01d",
+              "2a03:1b20:3:f011:4::c01e",
+              "2a03:1b20:3:f011:4::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-004.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -16044,7 +18005,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:3:f011:5::c002",
+              "2a03:1b20:3:f011:5::c003",
+              "2a03:1b20:3:f011:5::c004",
+              "2a03:1b20:3:f011:5::c005",
+              "2a03:1b20:3:f011:5::c006",
+              "2a03:1b20:3:f011:5::c007",
+              "2a03:1b20:3:f011:5::c008",
+              "2a03:1b20:3:f011:5::c009",
+              "2a03:1b20:3:f011:5::c00a",
+              "2a03:1b20:3:f011:5::c00b",
+              "2a03:1b20:3:f011:5::c00c",
+              "2a03:1b20:3:f011:5::c00d",
+              "2a03:1b20:3:f011:5::c00e",
+              "2a03:1b20:3:f011:5::c00f",
+              "2a03:1b20:3:f011:5::c010",
+              "2a03:1b20:3:f011:5::c011",
+              "2a03:1b20:3:f011:5::c012",
+              "2a03:1b20:3:f011:5::c013",
+              "2a03:1b20:3:f011:5::c014",
+              "2a03:1b20:3:f011:5::c015",
+              "2a03:1b20:3:f011:5::c016",
+              "2a03:1b20:3:f011:5::c017",
+              "2a03:1b20:3:f011:5::c018",
+              "2a03:1b20:3:f011:5::c019",
+              "2a03:1b20:3:f011:5::c01a",
+              "2a03:1b20:3:f011:5::c01b",
+              "2a03:1b20:3:f011:5::c01c",
+              "2a03:1b20:3:f011:5::c01d",
+              "2a03:1b20:3:f011:5::c01e",
+              "2a03:1b20:3:f011:5::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-005.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -16095,7 +18091,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:3:f011:6::c002",
+              "2a03:1b20:3:f011:6::c003",
+              "2a03:1b20:3:f011:6::c004",
+              "2a03:1b20:3:f011:6::c005",
+              "2a03:1b20:3:f011:6::c006",
+              "2a03:1b20:3:f011:6::c007",
+              "2a03:1b20:3:f011:6::c008",
+              "2a03:1b20:3:f011:6::c009",
+              "2a03:1b20:3:f011:6::c00a",
+              "2a03:1b20:3:f011:6::c00b",
+              "2a03:1b20:3:f011:6::c00c",
+              "2a03:1b20:3:f011:6::c00d",
+              "2a03:1b20:3:f011:6::c00e",
+              "2a03:1b20:3:f011:6::c00f",
+              "2a03:1b20:3:f011:6::c010",
+              "2a03:1b20:3:f011:6::c011",
+              "2a03:1b20:3:f011:6::c012",
+              "2a03:1b20:3:f011:6::c013",
+              "2a03:1b20:3:f011:6::c014",
+              "2a03:1b20:3:f011:6::c015",
+              "2a03:1b20:3:f011:6::c016",
+              "2a03:1b20:3:f011:6::c017",
+              "2a03:1b20:3:f011:6::c018",
+              "2a03:1b20:3:f011:6::c019",
+              "2a03:1b20:3:f011:6::c01a",
+              "2a03:1b20:3:f011:6::c01b",
+              "2a03:1b20:3:f011:6::c01c",
+              "2a03:1b20:3:f011:6::c01d",
+              "2a03:1b20:3:f011:6::c01e",
+              "2a03:1b20:3:f011:6::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-006.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -16146,7 +18177,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:3:f011:7::c002",
+              "2a03:1b20:3:f011:7::c003",
+              "2a03:1b20:3:f011:7::c004",
+              "2a03:1b20:3:f011:7::c005",
+              "2a03:1b20:3:f011:7::c006",
+              "2a03:1b20:3:f011:7::c007",
+              "2a03:1b20:3:f011:7::c008",
+              "2a03:1b20:3:f011:7::c009",
+              "2a03:1b20:3:f011:7::c00a",
+              "2a03:1b20:3:f011:7::c00b",
+              "2a03:1b20:3:f011:7::c00c",
+              "2a03:1b20:3:f011:7::c00d",
+              "2a03:1b20:3:f011:7::c00e",
+              "2a03:1b20:3:f011:7::c00f",
+              "2a03:1b20:3:f011:7::c010",
+              "2a03:1b20:3:f011:7::c011",
+              "2a03:1b20:3:f011:7::c012",
+              "2a03:1b20:3:f011:7::c013",
+              "2a03:1b20:3:f011:7::c014",
+              "2a03:1b20:3:f011:7::c015",
+              "2a03:1b20:3:f011:7::c016",
+              "2a03:1b20:3:f011:7::c017",
+              "2a03:1b20:3:f011:7::c018",
+              "2a03:1b20:3:f011:7::c019",
+              "2a03:1b20:3:f011:7::c01a",
+              "2a03:1b20:3:f011:7::c01b",
+              "2a03:1b20:3:f011:7::c01c",
+              "2a03:1b20:3:f011:7::c01d",
+              "2a03:1b20:3:f011:7::c01e",
+              "2a03:1b20:3:f011:7::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-007.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -16198,7 +18264,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:3:f011:8::c002",
+              "2a03:1b20:3:f011:8::c003",
+              "2a03:1b20:3:f011:8::c004",
+              "2a03:1b20:3:f011:8::c005",
+              "2a03:1b20:3:f011:8::c006",
+              "2a03:1b20:3:f011:8::c007",
+              "2a03:1b20:3:f011:8::c008",
+              "2a03:1b20:3:f011:8::c009",
+              "2a03:1b20:3:f011:8::c00a",
+              "2a03:1b20:3:f011:8::c00b",
+              "2a03:1b20:3:f011:8::c00c",
+              "2a03:1b20:3:f011:8::c00d",
+              "2a03:1b20:3:f011:8::c00e",
+              "2a03:1b20:3:f011:8::c00f",
+              "2a03:1b20:3:f011:8::c010",
+              "2a03:1b20:3:f011:8::c011",
+              "2a03:1b20:3:f011:8::c012",
+              "2a03:1b20:3:f011:8::c013",
+              "2a03:1b20:3:f011:8::c014",
+              "2a03:1b20:3:f011:8::c015",
+              "2a03:1b20:3:f011:8::c016",
+              "2a03:1b20:3:f011:8::c017",
+              "2a03:1b20:3:f011:8::c018",
+              "2a03:1b20:3:f011:8::c019",
+              "2a03:1b20:3:f011:8::c01a",
+              "2a03:1b20:3:f011:8::c01b",
+              "2a03:1b20:3:f011:8::c01c",
+              "2a03:1b20:3:f011:8::c01d",
+              "2a03:1b20:3:f011:8::c01e",
+              "2a03:1b20:3:f011:8::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "nl-ams-wg-008.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -17743,7 +19844,46 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "194.127.199.179",
+              "194.127.199.180",
+              "194.127.199.181",
+              "194.127.199.182",
+              "2a02:20c8:4120::c202",
+              "2a02:20c8:4120::c203",
+              "2a02:20c8:4120::c204",
+              "2a02:20c8:4120::c205",
+              "2a02:20c8:4120::c206",
+              "2a02:20c8:4120::c207",
+              "2a02:20c8:4120::c208",
+              "2a02:20c8:4120::c209",
+              "2a02:20c8:4120::c20a",
+              "2a02:20c8:4120::c20b",
+              "2a02:20c8:4120::c20c",
+              "2a02:20c8:4120::c20d",
+              "2a02:20c8:4120::c20e",
+              "2a02:20c8:4120::c20f",
+              "2a02:20c8:4120::c210",
+              "2a02:20c8:4120::c211",
+              "2a02:20c8:4120::c212",
+              "2a02:20c8:4120::c213",
+              "2a02:20c8:4120::c214",
+              "2a02:20c8:4120::c215",
+              "2a02:20c8:4120::c216",
+              "2a02:20c8:4120::c217",
+              "2a02:20c8:4120::c218",
+              "2a02:20c8:4120::c219",
+              "2a02:20c8:4120::c21a",
+              "2a02:20c8:4120::c21b",
+              "2a02:20c8:4120::c21c",
+              "2a02:20c8:4120::c21d",
+              "2a02:20c8:4120::c21e",
+              "2a02:20c8:4120::c21f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "no-svg-wg-003.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -17801,7 +19941,49 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "194.127.199.162",
+              "194.127.199.163",
+              "194.127.199.164",
+              "194.127.199.165",
+              "194.127.199.166",
+              "194.127.199.167",
+              "194.127.199.168",
+              "2a02:20c8:4120::c302",
+              "2a02:20c8:4120::c303",
+              "2a02:20c8:4120::c304",
+              "2a02:20c8:4120::c305",
+              "2a02:20c8:4120::c306",
+              "2a02:20c8:4120::c307",
+              "2a02:20c8:4120::c308",
+              "2a02:20c8:4120::c309",
+              "2a02:20c8:4120::c30a",
+              "2a02:20c8:4120::c30b",
+              "2a02:20c8:4120::c30c",
+              "2a02:20c8:4120::c30d",
+              "2a02:20c8:4120::c30e",
+              "2a02:20c8:4120::c30f",
+              "2a02:20c8:4120::c310",
+              "2a02:20c8:4120::c311",
+              "2a02:20c8:4120::c312",
+              "2a02:20c8:4120::c313",
+              "2a02:20c8:4120::c314",
+              "2a02:20c8:4120::c315",
+              "2a02:20c8:4120::c316",
+              "2a02:20c8:4120::c317",
+              "2a02:20c8:4120::c318",
+              "2a02:20c8:4120::c319",
+              "2a02:20c8:4120::c31a",
+              "2a02:20c8:4120::c31b",
+              "2a02:20c8:4120::c31c",
+              "2a02:20c8:4120::c31d",
+              "2a02:20c8:4120::c31e",
+              "2a02:20c8:4120::c31f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "no-svg-wg-004.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -18233,10 +20415,22 @@
         "include_in_country": true,
         "public_key": "XwFAczY5LdogFwE9soDecXWqywSCDGuRyJhr/0psI00=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:13:67::b001",
+          "2a0d:5600:13:67::b002",
+          "2a0d:5600:13:67::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:13:67::c001",
+              "2a0d:5600:13:67::c002",
+              "2a0d:5600:13:67::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "pl-waw-wg-201.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -18253,10 +20447,22 @@
         "include_in_country": true,
         "public_key": "nyfOkamv1ryTS62lsmyU96cqI0dtqek84DhyxWgAQGY=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:13:c47::b001",
+          "2a0d:5600:13:c47::b002",
+          "2a0d:5600:13:c47::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:13:c47::c001",
+              "2a0d:5600:13:c47::c002",
+              "2a0d:5600:13:c47::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "pl-waw-wg-202.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -18673,16 +20879,102 @@
         "location": "rs-beg",
         "provider": "M247",
         "ipv4_addr_in": "146.70.193.2",
-        "ipv6_addr_in": "2001:ac8:7d:37::a01f",
+        "ipv6_addr_in": "2001:ac8:7d:37::f001",
         "weight": 100,
         "include_in_country": true,
         "public_key": "Orrce1127WpljZa+xKbF21zJkJ9wM1M3VJ5GJ/UsIDU=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:7d:37::b002",
+          "2001:ac8:7d:37::b003",
+          "2001:ac8:7d:37::b004",
+          "2001:ac8:7d:37::b005",
+          "2001:ac8:7d:37::b006",
+          "2001:ac8:7d:37::b007",
+          "2001:ac8:7d:37::b008",
+          "2001:ac8:7d:37::b009",
+          "2001:ac8:7d:37::b00a",
+          "2001:ac8:7d:37::b00b",
+          "2001:ac8:7d:37::b00c",
+          "2001:ac8:7d:37::b00d",
+          "2001:ac8:7d:37::b00e",
+          "2001:ac8:7d:37::b00f",
+          "2001:ac8:7d:37::b010",
+          "2001:ac8:7d:37::b011",
+          "2001:ac8:7d:37::b012",
+          "2001:ac8:7d:37::b013",
+          "2001:ac8:7d:37::b014",
+          "2001:ac8:7d:37::b015",
+          "2001:ac8:7d:37::b016",
+          "2001:ac8:7d:37::b017",
+          "2001:ac8:7d:37::b018",
+          "2001:ac8:7d:37::b019",
+          "2001:ac8:7d:37::b01a",
+          "2001:ac8:7d:37::b01b",
+          "2001:ac8:7d:37::b01c",
+          "2001:ac8:7d:37::b01d",
+          "2001:ac8:7d:37::b01e",
+          "2001:ac8:7d:37::b01f",
+          "146.70.193.23",
+          "146.70.193.24",
+          "146.70.193.25",
+          "146.70.193.26",
+          "146.70.193.27",
+          "146.70.193.28",
+          "146.70.193.29",
+          "146.70.193.30",
+          "146.70.193.31",
+          "146.70.193.32"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
-          "lwo": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:7d:37::c002",
+              "2001:ac8:7d:37::c003",
+              "2001:ac8:7d:37::c004",
+              "2001:ac8:7d:37::c005",
+              "2001:ac8:7d:37::c006",
+              "2001:ac8:7d:37::c007",
+              "2001:ac8:7d:37::c008",
+              "2001:ac8:7d:37::c009",
+              "2001:ac8:7d:37::c00a",
+              "2001:ac8:7d:37::c00b",
+              "2001:ac8:7d:37::c00c",
+              "2001:ac8:7d:37::c00d",
+              "2001:ac8:7d:37::c00e",
+              "2001:ac8:7d:37::c00f",
+              "2001:ac8:7d:37::c010",
+              "2001:ac8:7d:37::c011",
+              "2001:ac8:7d:37::c012",
+              "2001:ac8:7d:37::c013",
+              "2001:ac8:7d:37::c014",
+              "2001:ac8:7d:37::c015",
+              "2001:ac8:7d:37::c016",
+              "2001:ac8:7d:37::c017",
+              "2001:ac8:7d:37::c018",
+              "2001:ac8:7d:37::c019",
+              "2001:ac8:7d:37::c01a",
+              "2001:ac8:7d:37::c01b",
+              "2001:ac8:7d:37::c01c",
+              "2001:ac8:7d:37::c01d",
+              "2001:ac8:7d:37::c01e",
+              "2001:ac8:7d:37::c01f",
+              "146.70.193.13",
+              "146.70.193.14",
+              "146.70.193.15",
+              "146.70.193.16",
+              "146.70.193.17",
+              "146.70.193.18",
+              "146.70.193.19",
+              "146.70.193.20",
+              "146.70.193.21",
+              "146.70.193.22"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "rs-beg-wg-101.blockerad.eu"
+          },
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -18692,17 +20984,103 @@
         "owned": false,
         "location": "rs-beg",
         "provider": "M247",
-        "ipv4_addr_in": "146.70.193.66",
-        "ipv6_addr_in": "2001:ac8:7d:38::a02f",
+        "ipv4_addr_in": "146.70.193.130",
+        "ipv6_addr_in": "2001:ac8:7d:38::f001",
         "weight": 100,
         "include_in_country": true,
-        "public_key": "35lawt+YUx10ELTFhZhg4/xzXRmjxCl/j1O4RK5d60M=",
+        "public_key": "BJui1IV+a/KKCmwveV3y1o8Ay+Wkt36Nnjhek1f5hRA=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:7d:38::b002",
+          "2001:ac8:7d:38::b003",
+          "2001:ac8:7d:38::b004",
+          "2001:ac8:7d:38::b005",
+          "2001:ac8:7d:38::b006",
+          "2001:ac8:7d:38::b007",
+          "2001:ac8:7d:38::b008",
+          "2001:ac8:7d:38::b009",
+          "2001:ac8:7d:38::b00a",
+          "2001:ac8:7d:38::b00b",
+          "2001:ac8:7d:38::b00c",
+          "2001:ac8:7d:38::b00d",
+          "2001:ac8:7d:38::b00e",
+          "2001:ac8:7d:38::b00f",
+          "2001:ac8:7d:38::b010",
+          "2001:ac8:7d:38::b011",
+          "2001:ac8:7d:38::b012",
+          "2001:ac8:7d:38::b013",
+          "2001:ac8:7d:38::b014",
+          "2001:ac8:7d:38::b015",
+          "2001:ac8:7d:38::b016",
+          "2001:ac8:7d:38::b017",
+          "2001:ac8:7d:38::b018",
+          "2001:ac8:7d:38::b019",
+          "2001:ac8:7d:38::b01a",
+          "2001:ac8:7d:38::b01b",
+          "2001:ac8:7d:38::b01c",
+          "2001:ac8:7d:38::b01d",
+          "2001:ac8:7d:38::b01e",
+          "2001:ac8:7d:38::b01f",
+          "146.70.193.151",
+          "146.70.193.152",
+          "146.70.193.153",
+          "146.70.193.154",
+          "146.70.193.155",
+          "146.70.193.156",
+          "146.70.193.157",
+          "146.70.193.158",
+          "146.70.193.159",
+          "146.70.193.160"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
-          "lwo": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:7d:38::c002",
+              "2001:ac8:7d:38::c003",
+              "2001:ac8:7d:38::c004",
+              "2001:ac8:7d:38::c005",
+              "2001:ac8:7d:38::c006",
+              "2001:ac8:7d:38::c007",
+              "2001:ac8:7d:38::c008",
+              "2001:ac8:7d:38::c009",
+              "2001:ac8:7d:38::c00a",
+              "2001:ac8:7d:38::c00b",
+              "2001:ac8:7d:38::c00c",
+              "2001:ac8:7d:38::c00d",
+              "2001:ac8:7d:38::c00e",
+              "2001:ac8:7d:38::c00f",
+              "2001:ac8:7d:38::c010",
+              "2001:ac8:7d:38::c011",
+              "2001:ac8:7d:38::c012",
+              "2001:ac8:7d:38::c013",
+              "2001:ac8:7d:38::c014",
+              "2001:ac8:7d:38::c015",
+              "2001:ac8:7d:38::c016",
+              "2001:ac8:7d:38::c017",
+              "2001:ac8:7d:38::c018",
+              "2001:ac8:7d:38::c019",
+              "2001:ac8:7d:38::c01a",
+              "2001:ac8:7d:38::c01b",
+              "2001:ac8:7d:38::c01c",
+              "2001:ac8:7d:38::c01d",
+              "2001:ac8:7d:38::c01e",
+              "2001:ac8:7d:38::c01f",
+              "146.70.193.141",
+              "146.70.193.142",
+              "146.70.193.143",
+              "146.70.193.144",
+              "146.70.193.145",
+              "146.70.193.146",
+              "146.70.193.147",
+              "146.70.193.148",
+              "146.70.193.149",
+              "146.70.193.150"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "rs-beg-wg-102.blockerad.eu"
+          },
+          "lwo": {},
           "lwo_v2": null
         }
       },
@@ -18753,7 +21131,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:5:f011:1::c002",
+              "2a03:1b20:5:f011:1::c003",
+              "2a03:1b20:5:f011:1::c004",
+              "2a03:1b20:5:f011:1::c005",
+              "2a03:1b20:5:f011:1::c006",
+              "2a03:1b20:5:f011:1::c007",
+              "2a03:1b20:5:f011:1::c008",
+              "2a03:1b20:5:f011:1::c009",
+              "2a03:1b20:5:f011:1::c00a",
+              "2a03:1b20:5:f011:1::c00b",
+              "2a03:1b20:5:f011:1::c00c",
+              "2a03:1b20:5:f011:1::c00d",
+              "2a03:1b20:5:f011:1::c00e",
+              "2a03:1b20:5:f011:1::c00f",
+              "2a03:1b20:5:f011:1::c010",
+              "2a03:1b20:5:f011:1::c011",
+              "2a03:1b20:5:f011:1::c012",
+              "2a03:1b20:5:f011:1::c013",
+              "2a03:1b20:5:f011:1::c014",
+              "2a03:1b20:5:f011:1::c015",
+              "2a03:1b20:5:f011:1::c016",
+              "2a03:1b20:5:f011:1::c017",
+              "2a03:1b20:5:f011:1::c018",
+              "2a03:1b20:5:f011:1::c019",
+              "2a03:1b20:5:f011:1::c01a",
+              "2a03:1b20:5:f011:1::c01b",
+              "2a03:1b20:5:f011:1::c01c",
+              "2a03:1b20:5:f011:1::c01d",
+              "2a03:1b20:5:f011:1::c01e",
+              "2a03:1b20:5:f011:1::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-got-wg-001.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -18804,7 +21217,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:5:f011:2::b002",
+              "2a03:1b20:5:f011:2::b003",
+              "2a03:1b20:5:f011:2::b004",
+              "2a03:1b20:5:f011:2::b005",
+              "2a03:1b20:5:f011:2::b006",
+              "2a03:1b20:5:f011:2::b007",
+              "2a03:1b20:5:f011:2::b008",
+              "2a03:1b20:5:f011:2::b009",
+              "2a03:1b20:5:f011:2::b00a",
+              "2a03:1b20:5:f011:2::b00b",
+              "2a03:1b20:5:f011:2::b00c",
+              "2a03:1b20:5:f011:2::b00d",
+              "2a03:1b20:5:f011:2::b00e",
+              "2a03:1b20:5:f011:2::b00f",
+              "2a03:1b20:5:f011:2::b010",
+              "2a03:1b20:5:f011:2::b011",
+              "2a03:1b20:5:f011:2::b012",
+              "2a03:1b20:5:f011:2::b013",
+              "2a03:1b20:5:f011:2::b014",
+              "2a03:1b20:5:f011:2::b015",
+              "2a03:1b20:5:f011:2::b016",
+              "2a03:1b20:5:f011:2::b017",
+              "2a03:1b20:5:f011:2::b018",
+              "2a03:1b20:5:f011:2::b019",
+              "2a03:1b20:5:f011:2::b01a",
+              "2a03:1b20:5:f011:2::b01b",
+              "2a03:1b20:5:f011:2::b01c",
+              "2a03:1b20:5:f011:2::b01d",
+              "2a03:1b20:5:f011:2::b01e",
+              "2a03:1b20:5:f011:2::b01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-got-wg-002.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -18941,7 +21389,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:5:f011:4::c002",
+              "2a03:1b20:5:f011:4::c003",
+              "2a03:1b20:5:f011:4::c004",
+              "2a03:1b20:5:f011:4::c005",
+              "2a03:1b20:5:f011:4::c006",
+              "2a03:1b20:5:f011:4::c007",
+              "2a03:1b20:5:f011:4::c008",
+              "2a03:1b20:5:f011:4::c009",
+              "2a03:1b20:5:f011:4::c00a",
+              "2a03:1b20:5:f011:4::c00b",
+              "2a03:1b20:5:f011:4::c00c",
+              "2a03:1b20:5:f011:4::c00d",
+              "2a03:1b20:5:f011:4::c00e",
+              "2a03:1b20:5:f011:4::c00f",
+              "2a03:1b20:5:f011:4::c010",
+              "2a03:1b20:5:f011:4::c011",
+              "2a03:1b20:5:f011:4::c012",
+              "2a03:1b20:5:f011:4::c013",
+              "2a03:1b20:5:f011:4::c014",
+              "2a03:1b20:5:f011:4::c015",
+              "2a03:1b20:5:f011:4::c016",
+              "2a03:1b20:5:f011:4::c017",
+              "2a03:1b20:5:f011:4::c018",
+              "2a03:1b20:5:f011:4::c019",
+              "2a03:1b20:5:f011:4::c01a",
+              "2a03:1b20:5:f011:4::c01b",
+              "2a03:1b20:5:f011:4::c01c",
+              "2a03:1b20:5:f011:4::c01d",
+              "2a03:1b20:5:f011:4::c01e",
+              "2a03:1b20:5:f011:4::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-got-wg-004.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -18975,7 +21458,7 @@
       },
       {
         "hostname": "se-got-wg-006",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-got",
         "provider": "31173",
@@ -19149,7 +21632,7 @@
       },
       {
         "hostname": "se-got-wg-008",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-got",
         "provider": "31173",
@@ -19280,7 +21763,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:5:f011:a::c002",
+              "2a03:1b20:5:f011:a::c003",
+              "2a03:1b20:5:f011:a::c004",
+              "2a03:1b20:5:f011:a::c005",
+              "2a03:1b20:5:f011:a::c006",
+              "2a03:1b20:5:f011:a::c007",
+              "2a03:1b20:5:f011:a::c008",
+              "2a03:1b20:5:f011:a::c009",
+              "2a03:1b20:5:f011:a::c00a",
+              "2a03:1b20:5:f011:a::c00b",
+              "2a03:1b20:5:f011:a::c00c",
+              "2a03:1b20:5:f011:a::c00d",
+              "2a03:1b20:5:f011:a::c00e",
+              "2a03:1b20:5:f011:a::c00f",
+              "2a03:1b20:5:f011:a::c010",
+              "2a03:1b20:5:f011:a::c011",
+              "2a03:1b20:5:f011:a::c012",
+              "2a03:1b20:5:f011:a::c013",
+              "2a03:1b20:5:f011:a::c014",
+              "2a03:1b20:5:f011:a::c015",
+              "2a03:1b20:5:f011:a::c016",
+              "2a03:1b20:5:f011:a::c017",
+              "2a03:1b20:5:f011:a::c018",
+              "2a03:1b20:5:f011:a::c019",
+              "2a03:1b20:5:f011:a::c01a",
+              "2a03:1b20:5:f011:a::c01b",
+              "2a03:1b20:5:f011:a::c01c",
+              "2a03:1b20:5:f011:a::c01d",
+              "2a03:1b20:5:f011:a::c01e",
+              "2a03:1b20:5:f011:a::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-got-wg-101.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": {}
         }
@@ -19331,7 +21849,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:1::c002",
+              "2a03:1b20:1:f410:1::c003",
+              "2a03:1b20:1:f410:1::c004",
+              "2a03:1b20:1:f410:1::c005",
+              "2a03:1b20:1:f410:1::c006",
+              "2a03:1b20:1:f410:1::c007",
+              "2a03:1b20:1:f410:1::c008",
+              "2a03:1b20:1:f410:1::c009",
+              "2a03:1b20:1:f410:1::c00a",
+              "2a03:1b20:1:f410:1::c00b",
+              "2a03:1b20:1:f410:1::c00c",
+              "2a03:1b20:1:f410:1::c00d",
+              "2a03:1b20:1:f410:1::c00e",
+              "2a03:1b20:1:f410:1::c00f",
+              "2a03:1b20:1:f410:1::c010",
+              "2a03:1b20:1:f410:1::c011",
+              "2a03:1b20:1:f410:1::c012",
+              "2a03:1b20:1:f410:1::c013",
+              "2a03:1b20:1:f410:1::c014",
+              "2a03:1b20:1:f410:1::c015",
+              "2a03:1b20:1:f410:1::c016",
+              "2a03:1b20:1:f410:1::c017",
+              "2a03:1b20:1:f410:1::c018",
+              "2a03:1b20:1:f410:1::c019",
+              "2a03:1b20:1:f410:1::c01a",
+              "2a03:1b20:1:f410:1::c01b",
+              "2a03:1b20:1:f410:1::c01c",
+              "2a03:1b20:1:f410:1::c01d",
+              "2a03:1b20:1:f410:1::c01e",
+              "2a03:1b20:1:f410:1::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -19382,14 +21935,49 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:2::c002",
+              "2a03:1b20:1:f410:2::c003",
+              "2a03:1b20:1:f410:2::c004",
+              "2a03:1b20:1:f410:2::c005",
+              "2a03:1b20:1:f410:2::c006",
+              "2a03:1b20:1:f410:2::c007",
+              "2a03:1b20:1:f410:2::c008",
+              "2a03:1b20:1:f410:2::c009",
+              "2a03:1b20:1:f410:2::c00a",
+              "2a03:1b20:1:f410:2::c00b",
+              "2a03:1b20:1:f410:2::c00c",
+              "2a03:1b20:1:f410:2::c00d",
+              "2a03:1b20:1:f410:2::c00e",
+              "2a03:1b20:1:f410:2::c00f",
+              "2a03:1b20:1:f410:2::c010",
+              "2a03:1b20:1:f410:2::c011",
+              "2a03:1b20:1:f410:2::c012",
+              "2a03:1b20:1:f410:2::c013",
+              "2a03:1b20:1:f410:2::c014",
+              "2a03:1b20:1:f410:2::c015",
+              "2a03:1b20:1:f410:2::c016",
+              "2a03:1b20:1:f410:2::c017",
+              "2a03:1b20:1:f410:2::c018",
+              "2a03:1b20:1:f410:2::c019",
+              "2a03:1b20:1:f410:2::c01a",
+              "2a03:1b20:1:f410:2::c01b",
+              "2a03:1b20:1:f410:2::c01c",
+              "2a03:1b20:1:f410:2::c01d",
+              "2a03:1b20:1:f410:2::c01e",
+              "2a03:1b20:1:f410:2::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
       },
       {
         "hostname": "se-mma-wg-003",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-mma",
         "provider": "31173",
@@ -19433,7 +22021,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:3::c002",
+              "2a03:1b20:1:f410:3::c003",
+              "2a03:1b20:1:f410:3::c004",
+              "2a03:1b20:1:f410:3::c005",
+              "2a03:1b20:1:f410:3::c006",
+              "2a03:1b20:1:f410:3::c007",
+              "2a03:1b20:1:f410:3::c008",
+              "2a03:1b20:1:f410:3::c009",
+              "2a03:1b20:1:f410:3::c00a",
+              "2a03:1b20:1:f410:3::c00b",
+              "2a03:1b20:1:f410:3::c00c",
+              "2a03:1b20:1:f410:3::c00d",
+              "2a03:1b20:1:f410:3::c00e",
+              "2a03:1b20:1:f410:3::c00f",
+              "2a03:1b20:1:f410:3::c010",
+              "2a03:1b20:1:f410:3::c011",
+              "2a03:1b20:1:f410:3::c012",
+              "2a03:1b20:1:f410:3::c013",
+              "2a03:1b20:1:f410:3::c014",
+              "2a03:1b20:1:f410:3::c015",
+              "2a03:1b20:1:f410:3::c016",
+              "2a03:1b20:1:f410:3::c017",
+              "2a03:1b20:1:f410:3::c018",
+              "2a03:1b20:1:f410:3::c019",
+              "2a03:1b20:1:f410:3::c01a",
+              "2a03:1b20:1:f410:3::c01b",
+              "2a03:1b20:1:f410:3::c01c",
+              "2a03:1b20:1:f410:3::c01d",
+              "2a03:1b20:1:f410:3::c01e",
+              "2a03:1b20:1:f410:3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-003.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -19447,7 +22070,7 @@
         "ipv4_addr_in": "193.138.218.130",
         "ipv6_addr_in": "2a03:1b20:1:f410:40::a04f",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "m4jnogFbACz7LByjo++8z5+1WV0BuR1T7E1OWA+n8h0=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -19484,7 +22107,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:4::c002",
+              "2a03:1b20:1:f410:4::c003",
+              "2a03:1b20:1:f410:4::c004",
+              "2a03:1b20:1:f410:4::c005",
+              "2a03:1b20:1:f410:4::c006",
+              "2a03:1b20:1:f410:4::c007",
+              "2a03:1b20:1:f410:4::c008",
+              "2a03:1b20:1:f410:4::c009",
+              "2a03:1b20:1:f410:4::c00a",
+              "2a03:1b20:1:f410:4::c00b",
+              "2a03:1b20:1:f410:4::c00c",
+              "2a03:1b20:1:f410:4::c00d",
+              "2a03:1b20:1:f410:4::c00e",
+              "2a03:1b20:1:f410:4::c00f",
+              "2a03:1b20:1:f410:4::c010",
+              "2a03:1b20:1:f410:4::c011",
+              "2a03:1b20:1:f410:4::c012",
+              "2a03:1b20:1:f410:4::c013",
+              "2a03:1b20:1:f410:4::c014",
+              "2a03:1b20:1:f410:4::c015",
+              "2a03:1b20:1:f410:4::c016",
+              "2a03:1b20:1:f410:4::c017",
+              "2a03:1b20:1:f410:4::c018",
+              "2a03:1b20:1:f410:4::c019",
+              "2a03:1b20:1:f410:4::c01a",
+              "2a03:1b20:1:f410:4::c01b",
+              "2a03:1b20:1:f410:4::c01c",
+              "2a03:1b20:1:f410:4::c01d",
+              "2a03:1b20:1:f410:4::c01e",
+              "2a03:1b20:1:f410:4::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-004.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -19535,7 +22193,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:5::c002",
+              "2a03:1b20:1:f410:5::c003",
+              "2a03:1b20:1:f410:5::c004",
+              "2a03:1b20:1:f410:5::c005",
+              "2a03:1b20:1:f410:5::c006",
+              "2a03:1b20:1:f410:5::c007",
+              "2a03:1b20:1:f410:5::c008",
+              "2a03:1b20:1:f410:5::c009",
+              "2a03:1b20:1:f410:5::c00a",
+              "2a03:1b20:1:f410:5::c00b",
+              "2a03:1b20:1:f410:5::c00c",
+              "2a03:1b20:1:f410:5::c00d",
+              "2a03:1b20:1:f410:5::c00e",
+              "2a03:1b20:1:f410:5::c00f",
+              "2a03:1b20:1:f410:5::c010",
+              "2a03:1b20:1:f410:5::c011",
+              "2a03:1b20:1:f410:5::c012",
+              "2a03:1b20:1:f410:5::c013",
+              "2a03:1b20:1:f410:5::c014",
+              "2a03:1b20:1:f410:5::c015",
+              "2a03:1b20:1:f410:5::c016",
+              "2a03:1b20:1:f410:5::c017",
+              "2a03:1b20:1:f410:5::c018",
+              "2a03:1b20:1:f410:5::c019",
+              "2a03:1b20:1:f410:5::c01a",
+              "2a03:1b20:1:f410:5::c01b",
+              "2a03:1b20:1:f410:5::c01c",
+              "2a03:1b20:1:f410:5::c01d",
+              "2a03:1b20:1:f410:5::c01e",
+              "2a03:1b20:1:f410:5::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-005.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -19587,7 +22280,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:b::c002",
+              "2a03:1b20:1:f410:b::c003",
+              "2a03:1b20:1:f410:b::c004",
+              "2a03:1b20:1:f410:b::c005",
+              "2a03:1b20:1:f410:b::c006",
+              "2a03:1b20:1:f410:b::c007",
+              "2a03:1b20:1:f410:b::c008",
+              "2a03:1b20:1:f410:b::c009",
+              "2a03:1b20:1:f410:b::c00a",
+              "2a03:1b20:1:f410:b::c00b",
+              "2a03:1b20:1:f410:b::c00c",
+              "2a03:1b20:1:f410:b::c00d",
+              "2a03:1b20:1:f410:b::c00e",
+              "2a03:1b20:1:f410:b::c00f",
+              "2a03:1b20:1:f410:b::c010",
+              "2a03:1b20:1:f410:b::c011",
+              "2a03:1b20:1:f410:b::c012",
+              "2a03:1b20:1:f410:b::c013",
+              "2a03:1b20:1:f410:b::c014",
+              "2a03:1b20:1:f410:b::c015",
+              "2a03:1b20:1:f410:b::c016",
+              "2a03:1b20:1:f410:b::c017",
+              "2a03:1b20:1:f410:b::c018",
+              "2a03:1b20:1:f410:b::c019",
+              "2a03:1b20:1:f410:b::c01a",
+              "2a03:1b20:1:f410:b::c01b",
+              "2a03:1b20:1:f410:b::c01c",
+              "2a03:1b20:1:f410:b::c01d",
+              "2a03:1b20:1:f410:b::c01e",
+              "2a03:1b20:1:f410:b::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-011.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -19639,7 +22367,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:f410:c::c002",
+              "2a03:1b20:1:f410:c::c003",
+              "2a03:1b20:1:f410:c::c004",
+              "2a03:1b20:1:f410:c::c005",
+              "2a03:1b20:1:f410:c::c006",
+              "2a03:1b20:1:f410:c::c007",
+              "2a03:1b20:1:f410:c::c008",
+              "2a03:1b20:1:f410:c::c009",
+              "2a03:1b20:1:f410:c::c00a",
+              "2a03:1b20:1:f410:c::c00b",
+              "2a03:1b20:1:f410:c::c00c",
+              "2a03:1b20:1:f410:c::c00d",
+              "2a03:1b20:1:f410:c::c00e",
+              "2a03:1b20:1:f410:c::c00f",
+              "2a03:1b20:1:f410:c::c010",
+              "2a03:1b20:1:f410:c::c011",
+              "2a03:1b20:1:f410:c::c012",
+              "2a03:1b20:1:f410:c::c013",
+              "2a03:1b20:1:f410:c::c014",
+              "2a03:1b20:1:f410:c::c015",
+              "2a03:1b20:1:f410:c::c016",
+              "2a03:1b20:1:f410:c::c017",
+              "2a03:1b20:1:f410:c::c018",
+              "2a03:1b20:1:f410:c::c019",
+              "2a03:1b20:1:f410:c::c01a",
+              "2a03:1b20:1:f410:c::c01b",
+              "2a03:1b20:1:f410:c::c01c",
+              "2a03:1b20:1:f410:c::c01d",
+              "2a03:1b20:1:f410:c::c01e",
+              "2a03:1b20:1:f410:c::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-012.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -19690,7 +22453,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:e011:1::c002",
+              "2a03:1b20:1:e011:1::c003",
+              "2a03:1b20:1:e011:1::c004",
+              "2a03:1b20:1:e011:1::c005",
+              "2a03:1b20:1:e011:1::c006",
+              "2a03:1b20:1:e011:1::c007",
+              "2a03:1b20:1:e011:1::c008",
+              "2a03:1b20:1:e011:1::c009",
+              "2a03:1b20:1:e011:1::c00a",
+              "2a03:1b20:1:e011:1::c00b",
+              "2a03:1b20:1:e011:1::c00c",
+              "2a03:1b20:1:e011:1::c00d",
+              "2a03:1b20:1:e011:1::c00e",
+              "2a03:1b20:1:e011:1::c00f",
+              "2a03:1b20:1:e011:1::c010",
+              "2a03:1b20:1:e011:1::c011",
+              "2a03:1b20:1:e011:1::c012",
+              "2a03:1b20:1:e011:1::c013",
+              "2a03:1b20:1:e011:1::c014",
+              "2a03:1b20:1:e011:1::c015",
+              "2a03:1b20:1:e011:1::c016",
+              "2a03:1b20:1:e011:1::c017",
+              "2a03:1b20:1:e011:1::c018",
+              "2a03:1b20:1:e011:1::c019",
+              "2a03:1b20:1:e011:1::c01a",
+              "2a03:1b20:1:e011:1::c01b",
+              "2a03:1b20:1:e011:1::c01c",
+              "2a03:1b20:1:e011:1::c01d",
+              "2a03:1b20:1:e011:1::c01e",
+              "2a03:1b20:1:e011:1::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-101.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -19741,7 +22539,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:e011:2::c002",
+              "2a03:1b20:1:e011:2::c003",
+              "2a03:1b20:1:e011:2::c004",
+              "2a03:1b20:1:e011:2::c005",
+              "2a03:1b20:1:e011:2::c006",
+              "2a03:1b20:1:e011:2::c007",
+              "2a03:1b20:1:e011:2::c008",
+              "2a03:1b20:1:e011:2::c009",
+              "2a03:1b20:1:e011:2::c00a",
+              "2a03:1b20:1:e011:2::c00b",
+              "2a03:1b20:1:e011:2::c00c",
+              "2a03:1b20:1:e011:2::c00d",
+              "2a03:1b20:1:e011:2::c00e",
+              "2a03:1b20:1:e011:2::c00f",
+              "2a03:1b20:1:e011:2::c010",
+              "2a03:1b20:1:e011:2::c011",
+              "2a03:1b20:1:e011:2::c012",
+              "2a03:1b20:1:e011:2::c013",
+              "2a03:1b20:1:e011:2::c014",
+              "2a03:1b20:1:e011:2::c015",
+              "2a03:1b20:1:e011:2::c016",
+              "2a03:1b20:1:e011:2::c017",
+              "2a03:1b20:1:e011:2::c018",
+              "2a03:1b20:1:e011:2::c019",
+              "2a03:1b20:1:e011:2::c01a",
+              "2a03:1b20:1:e011:2::c01b",
+              "2a03:1b20:1:e011:2::c01c",
+              "2a03:1b20:1:e011:2::c01d",
+              "2a03:1b20:1:e011:2::c01e",
+              "2a03:1b20:1:e011:2::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-102.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -19792,7 +22625,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:1:e011:3::c002",
+              "2a03:1b20:1:e011:3::c003",
+              "2a03:1b20:1:e011:3::c004",
+              "2a03:1b20:1:e011:3::c005",
+              "2a03:1b20:1:e011:3::c006",
+              "2a03:1b20:1:e011:3::c007",
+              "2a03:1b20:1:e011:3::c008",
+              "2a03:1b20:1:e011:3::c009",
+              "2a03:1b20:1:e011:3::c00a",
+              "2a03:1b20:1:e011:3::c00b",
+              "2a03:1b20:1:e011:3::c00c",
+              "2a03:1b20:1:e011:3::c00d",
+              "2a03:1b20:1:e011:3::c00e",
+              "2a03:1b20:1:e011:3::c00f",
+              "2a03:1b20:1:e011:3::c010",
+              "2a03:1b20:1:e011:3::c011",
+              "2a03:1b20:1:e011:3::c012",
+              "2a03:1b20:1:e011:3::c013",
+              "2a03:1b20:1:e011:3::c014",
+              "2a03:1b20:1:e011:3::c015",
+              "2a03:1b20:1:e011:3::c016",
+              "2a03:1b20:1:e011:3::c017",
+              "2a03:1b20:1:e011:3::c018",
+              "2a03:1b20:1:e011:3::c019",
+              "2a03:1b20:1:e011:3::c01a",
+              "2a03:1b20:1:e011:3::c01b",
+              "2a03:1b20:1:e011:3::c01c",
+              "2a03:1b20:1:e011:3::c01d",
+              "2a03:1b20:1:e011:3::c01e",
+              "2a03:1b20:1:e011:3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-mma-wg-103.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -20019,7 +22887,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:1::c002",
+              "2a03:1b20:4:f011:1::c003",
+              "2a03:1b20:4:f011:1::c004",
+              "2a03:1b20:4:f011:1::c005",
+              "2a03:1b20:4:f011:1::c006",
+              "2a03:1b20:4:f011:1::c007",
+              "2a03:1b20:4:f011:1::c008",
+              "2a03:1b20:4:f011:1::c009",
+              "2a03:1b20:4:f011:1::c00a",
+              "2a03:1b20:4:f011:1::c00b",
+              "2a03:1b20:4:f011:1::c00c",
+              "2a03:1b20:4:f011:1::c00d",
+              "2a03:1b20:4:f011:1::c00e",
+              "2a03:1b20:4:f011:1::c00f",
+              "2a03:1b20:4:f011:1::c010",
+              "2a03:1b20:4:f011:1::c011",
+              "2a03:1b20:4:f011:1::c012",
+              "2a03:1b20:4:f011:1::c013",
+              "2a03:1b20:4:f011:1::c014",
+              "2a03:1b20:4:f011:1::c015",
+              "2a03:1b20:4:f011:1::c016",
+              "2a03:1b20:4:f011:1::c017",
+              "2a03:1b20:4:f011:1::c018",
+              "2a03:1b20:4:f011:1::c019",
+              "2a03:1b20:4:f011:1::c01a",
+              "2a03:1b20:4:f011:1::c01b",
+              "2a03:1b20:4:f011:1::c01c",
+              "2a03:1b20:4:f011:1::c01d",
+              "2a03:1b20:4:f011:1::c01e",
+              "2a03:1b20:4:f011:1::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -20156,14 +23059,49 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:3::c002",
+              "2a03:1b20:4:f011:3::c003",
+              "2a03:1b20:4:f011:3::c004",
+              "2a03:1b20:4:f011:3::c005",
+              "2a03:1b20:4:f011:3::c006",
+              "2a03:1b20:4:f011:3::c007",
+              "2a03:1b20:4:f011:3::c008",
+              "2a03:1b20:4:f011:3::c009",
+              "2a03:1b20:4:f011:3::c00a",
+              "2a03:1b20:4:f011:3::c00b",
+              "2a03:1b20:4:f011:3::c00c",
+              "2a03:1b20:4:f011:3::c00d",
+              "2a03:1b20:4:f011:3::c00e",
+              "2a03:1b20:4:f011:3::c00f",
+              "2a03:1b20:4:f011:3::c010",
+              "2a03:1b20:4:f011:3::c011",
+              "2a03:1b20:4:f011:3::c012",
+              "2a03:1b20:4:f011:3::c013",
+              "2a03:1b20:4:f011:3::c014",
+              "2a03:1b20:4:f011:3::c015",
+              "2a03:1b20:4:f011:3::c016",
+              "2a03:1b20:4:f011:3::c017",
+              "2a03:1b20:4:f011:3::c018",
+              "2a03:1b20:4:f011:3::c019",
+              "2a03:1b20:4:f011:3::c01a",
+              "2a03:1b20:4:f011:3::c01b",
+              "2a03:1b20:4:f011:3::c01c",
+              "2a03:1b20:4:f011:3::c01d",
+              "2a03:1b20:4:f011:3::c01e",
+              "2a03:1b20:4:f011:3::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-003.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
       },
       {
         "hostname": "se-sto-wg-007",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-sto",
         "provider": "31173",
@@ -20207,7 +23145,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:7::c002",
+              "2a03:1b20:4:f011:7::c003",
+              "2a03:1b20:4:f011:7::c004",
+              "2a03:1b20:4:f011:7::c005",
+              "2a03:1b20:4:f011:7::c006",
+              "2a03:1b20:4:f011:7::c007",
+              "2a03:1b20:4:f011:7::c008",
+              "2a03:1b20:4:f011:7::c009",
+              "2a03:1b20:4:f011:7::c00a",
+              "2a03:1b20:4:f011:7::c00b",
+              "2a03:1b20:4:f011:7::c00c",
+              "2a03:1b20:4:f011:7::c00d",
+              "2a03:1b20:4:f011:7::c00e",
+              "2a03:1b20:4:f011:7::c00f",
+              "2a03:1b20:4:f011:7::c010",
+              "2a03:1b20:4:f011:7::c011",
+              "2a03:1b20:4:f011:7::c012",
+              "2a03:1b20:4:f011:7::c013",
+              "2a03:1b20:4:f011:7::c014",
+              "2a03:1b20:4:f011:7::c015",
+              "2a03:1b20:4:f011:7::c016",
+              "2a03:1b20:4:f011:7::c017",
+              "2a03:1b20:4:f011:7::c018",
+              "2a03:1b20:4:f011:7::c019",
+              "2a03:1b20:4:f011:7::c01a",
+              "2a03:1b20:4:f011:7::c01b",
+              "2a03:1b20:4:f011:7::c01c",
+              "2a03:1b20:4:f011:7::c01d",
+              "2a03:1b20:4:f011:7::c01e",
+              "2a03:1b20:4:f011:7::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-007.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -20258,7 +23231,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:8::c002",
+              "2a03:1b20:4:f011:8::c003",
+              "2a03:1b20:4:f011:8::c004",
+              "2a03:1b20:4:f011:8::c005",
+              "2a03:1b20:4:f011:8::c006",
+              "2a03:1b20:4:f011:8::c007",
+              "2a03:1b20:4:f011:8::c008",
+              "2a03:1b20:4:f011:8::c009",
+              "2a03:1b20:4:f011:8::c00a",
+              "2a03:1b20:4:f011:8::c00b",
+              "2a03:1b20:4:f011:8::c00c",
+              "2a03:1b20:4:f011:8::c00d",
+              "2a03:1b20:4:f011:8::c00e",
+              "2a03:1b20:4:f011:8::c00f",
+              "2a03:1b20:4:f011:8::c010",
+              "2a03:1b20:4:f011:8::c011",
+              "2a03:1b20:4:f011:8::c012",
+              "2a03:1b20:4:f011:8::c013",
+              "2a03:1b20:4:f011:8::c014",
+              "2a03:1b20:4:f011:8::c015",
+              "2a03:1b20:4:f011:8::c016",
+              "2a03:1b20:4:f011:8::c017",
+              "2a03:1b20:4:f011:8::c018",
+              "2a03:1b20:4:f011:8::c019",
+              "2a03:1b20:4:f011:8::c01a",
+              "2a03:1b20:4:f011:8::c01b",
+              "2a03:1b20:4:f011:8::c01c",
+              "2a03:1b20:4:f011:8::c01d",
+              "2a03:1b20:4:f011:8::c01e",
+              "2a03:1b20:4:f011:8::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-008.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -20272,7 +23280,7 @@
         "ipv4_addr_in": "185.195.233.69",
         "ipv6_addr_in": "2a03:1b20:4:f011::a09f",
         "weight": 1,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "t1XlQD7rER0JUPrmh3R5IpxjUP9YOqodJAwfRorNxl4=",
         "daita": true,
         "shadowsocks_extra_addr_in": [
@@ -20397,7 +23405,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:a::c002",
+              "2a03:1b20:4:f011:a::c003",
+              "2a03:1b20:4:f011:a::c004",
+              "2a03:1b20:4:f011:a::c005",
+              "2a03:1b20:4:f011:a::c006",
+              "2a03:1b20:4:f011:a::c007",
+              "2a03:1b20:4:f011:a::c008",
+              "2a03:1b20:4:f011:a::c009",
+              "2a03:1b20:4:f011:a::c00a",
+              "2a03:1b20:4:f011:a::c00b",
+              "2a03:1b20:4:f011:a::c00c",
+              "2a03:1b20:4:f011:a::c00d",
+              "2a03:1b20:4:f011:a::c00e",
+              "2a03:1b20:4:f011:a::c00f",
+              "2a03:1b20:4:f011:a::c010",
+              "2a03:1b20:4:f011:a::c011",
+              "2a03:1b20:4:f011:a::c012",
+              "2a03:1b20:4:f011:a::c013",
+              "2a03:1b20:4:f011:a::c014",
+              "2a03:1b20:4:f011:a::c015",
+              "2a03:1b20:4:f011:a::c016",
+              "2a03:1b20:4:f011:a::c017",
+              "2a03:1b20:4:f011:a::c018",
+              "2a03:1b20:4:f011:a::c019",
+              "2a03:1b20:4:f011:a::c01a",
+              "2a03:1b20:4:f011:a::c01b",
+              "2a03:1b20:4:f011:a::c01c",
+              "2a03:1b20:4:f011:a::c01d",
+              "2a03:1b20:4:f011:a::c01e",
+              "2a03:1b20:4:f011:a::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-010.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -20448,7 +23491,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a03:1b20:4:f011:b::c002",
+              "2a03:1b20:4:f011:b::c003",
+              "2a03:1b20:4:f011:b::c004",
+              "2a03:1b20:4:f011:b::c005",
+              "2a03:1b20:4:f011:b::c006",
+              "2a03:1b20:4:f011:b::c007",
+              "2a03:1b20:4:f011:b::c008",
+              "2a03:1b20:4:f011:b::c009",
+              "2a03:1b20:4:f011:b::c00a",
+              "2a03:1b20:4:f011:b::c00b",
+              "2a03:1b20:4:f011:b::c00c",
+              "2a03:1b20:4:f011:b::c00d",
+              "2a03:1b20:4:f011:b::c00e",
+              "2a03:1b20:4:f011:b::c00f",
+              "2a03:1b20:4:f011:b::c010",
+              "2a03:1b20:4:f011:b::c011",
+              "2a03:1b20:4:f011:b::c012",
+              "2a03:1b20:4:f011:b::c013",
+              "2a03:1b20:4:f011:b::c014",
+              "2a03:1b20:4:f011:b::c015",
+              "2a03:1b20:4:f011:b::c016",
+              "2a03:1b20:4:f011:b::c017",
+              "2a03:1b20:4:f011:b::c018",
+              "2a03:1b20:4:f011:b::c019",
+              "2a03:1b20:4:f011:b::c01a",
+              "2a03:1b20:4:f011:b::c01b",
+              "2a03:1b20:4:f011:b::c01c",
+              "2a03:1b20:4:f011:b::c01d",
+              "2a03:1b20:4:f011:b::c01e",
+              "2a03:1b20:4:f011:b::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "se-sto-wg-011.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -21300,7 +24378,7 @@
         "ipv4_addr_in": "45.134.140.130",
         "ipv6_addr_in": "2a02:6ea0:c122:1::b79f",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "nvyBkaEXHwyPBAm8spGB0TFzf2W5wPAl8EEuJ0t+bzs=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -21326,7 +24404,7 @@
         "ipv4_addr_in": "45.134.140.143",
         "ipv6_addr_in": "2a02:6ea0:c122:2::b80f",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "ECeGYeh8CfPJO3v56ucCDdl+PlKcj2bBszUGkT+hVWQ=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -21559,7 +24637,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a06:3040:12:610::c002",
+              "2a06:3040:12:610::c003",
+              "2a06:3040:12:610::c004",
+              "2a06:3040:12:610::c005",
+              "2a06:3040:12:610::c006",
+              "2a06:3040:12:610::c007",
+              "2a06:3040:12:610::c008",
+              "2a06:3040:12:610::c009",
+              "2a06:3040:12:610::c00a",
+              "2a06:3040:12:610::c00b",
+              "2a06:3040:12:610::c00c",
+              "2a06:3040:12:610::c00d",
+              "2a06:3040:12:610::c00e",
+              "2a06:3040:12:610::c00f",
+              "2a06:3040:12:610::c010",
+              "2a06:3040:12:610::c011",
+              "2a06:3040:12:610::c012",
+              "2a06:3040:12:610::c013",
+              "2a06:3040:12:610::c014",
+              "2a06:3040:12:610::c015",
+              "2a06:3040:12:610::c016",
+              "2a06:3040:12:610::c017",
+              "2a06:3040:12:610::c018",
+              "2a06:3040:12:610::c019",
+              "2a06:3040:12:610::c01a",
+              "2a06:3040:12:610::c01b",
+              "2a06:3040:12:610::c01c",
+              "2a06:3040:12:610::c01d",
+              "2a06:3040:12:610::c01e",
+              "2a06:3040:12:610::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-bos-wg-001.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -21610,7 +24723,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a06:3040:12:610::c102",
+              "2a06:3040:12:610::c103",
+              "2a06:3040:12:610::c104",
+              "2a06:3040:12:610::c105",
+              "2a06:3040:12:610::c106",
+              "2a06:3040:12:610::c107",
+              "2a06:3040:12:610::c108",
+              "2a06:3040:12:610::c109",
+              "2a06:3040:12:610::c10a",
+              "2a06:3040:12:610::c10b",
+              "2a06:3040:12:610::c10c",
+              "2a06:3040:12:610::c10d",
+              "2a06:3040:12:610::c10e",
+              "2a06:3040:12:610::c10f",
+              "2a06:3040:12:610::c110",
+              "2a06:3040:12:610::c111",
+              "2a06:3040:12:610::c112",
+              "2a06:3040:12:610::c113",
+              "2a06:3040:12:610::c114",
+              "2a06:3040:12:610::c115",
+              "2a06:3040:12:610::c116",
+              "2a06:3040:12:610::c117",
+              "2a06:3040:12:610::c118",
+              "2a06:3040:12:610::c119",
+              "2a06:3040:12:610::c11a",
+              "2a06:3040:12:610::c11b",
+              "2a06:3040:12:610::c11c",
+              "2a06:3040:12:610::c11d",
+              "2a06:3040:12:610::c11e",
+              "2a06:3040:12:610::c11f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-bos-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -21651,6 +24799,324 @@
         "features": {
           "daita": null,
           "quic": null,
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "us-chi-wg-101",
+        "active": true,
+        "owned": false,
+        "location": "us-chi",
+        "provider": "M247",
+        "ipv4_addr_in": "135.136.54.2",
+        "ipv6_addr_in": "2a0d:5600:144:30::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "9A86/dLBUSAD6+n7EV25NdW0jDKZNA2kNgHZXlnuxEI=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "135.136.54.23",
+          "135.136.54.24",
+          "135.136.54.25",
+          "135.136.54.26",
+          "135.136.54.27",
+          "135.136.54.28",
+          "135.136.54.29",
+          "135.136.54.30",
+          "135.136.54.31",
+          "135.136.54.32",
+          "2a0d:5600:144:30::b002",
+          "2a0d:5600:144:30::b003",
+          "2a0d:5600:144:30::b004",
+          "2a0d:5600:144:30::b005",
+          "2a0d:5600:144:30::b006",
+          "2a0d:5600:144:30::b007",
+          "2a0d:5600:144:30::b008",
+          "2a0d:5600:144:30::b009",
+          "2a0d:5600:144:30::b00a",
+          "2a0d:5600:144:30::b00b",
+          "2a0d:5600:144:30::b00c",
+          "2a0d:5600:144:30::b00d",
+          "2a0d:5600:144:30::b00e",
+          "2a0d:5600:144:30::b00f",
+          "2a0d:5600:144:30::b010",
+          "2a0d:5600:144:30::b011",
+          "2a0d:5600:144:30::b012",
+          "2a0d:5600:144:30::b013",
+          "2a0d:5600:144:30::b014",
+          "2a0d:5600:144:30::b015",
+          "2a0d:5600:144:30::b016",
+          "2a0d:5600:144:30::b017",
+          "2a0d:5600:144:30::b018",
+          "2a0d:5600:144:30::b019",
+          "2a0d:5600:144:30::b01a",
+          "2a0d:5600:144:30::b01b",
+          "2a0d:5600:144:30::b01c",
+          "2a0d:5600:144:30::b01d",
+          "2a0d:5600:144:30::b01e",
+          "2a0d:5600:144:30::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "135.136.54.13",
+              "135.136.54.14",
+              "135.136.54.15",
+              "135.136.54.16",
+              "135.136.54.17",
+              "135.136.54.18",
+              "135.136.54.19",
+              "135.136.54.20",
+              "135.136.54.21",
+              "135.136.54.22",
+              "2a0d:5600:144:30::c002",
+              "2a0d:5600:144:30::c003",
+              "2a0d:5600:144:30::c004",
+              "2a0d:5600:144:30::c005",
+              "2a0d:5600:144:30::c006",
+              "2a0d:5600:144:30::c007",
+              "2a0d:5600:144:30::c008",
+              "2a0d:5600:144:30::c009",
+              "2a0d:5600:144:30::c00a",
+              "2a0d:5600:144:30::c00b",
+              "2a0d:5600:144:30::c00c",
+              "2a0d:5600:144:30::c00d",
+              "2a0d:5600:144:30::c00e",
+              "2a0d:5600:144:30::c00f",
+              "2a0d:5600:144:30::c010",
+              "2a0d:5600:144:30::c011",
+              "2a0d:5600:144:30::c012",
+              "2a0d:5600:144:30::c013",
+              "2a0d:5600:144:30::c014",
+              "2a0d:5600:144:30::c015",
+              "2a0d:5600:144:30::c016",
+              "2a0d:5600:144:30::c017",
+              "2a0d:5600:144:30::c018",
+              "2a0d:5600:144:30::c019",
+              "2a0d:5600:144:30::c01a",
+              "2a0d:5600:144:30::c01b",
+              "2a0d:5600:144:30::c01c",
+              "2a0d:5600:144:30::c01d",
+              "2a0d:5600:144:30::c01e",
+              "2a0d:5600:144:30::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-chi-wg-101.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "us-chi-wg-102",
+        "active": true,
+        "owned": false,
+        "location": "us-chi",
+        "provider": "M247",
+        "ipv4_addr_in": "135.136.54.130",
+        "ipv6_addr_in": "2a0d:5600:144:31::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "QBco9d7PtNGAqZhlowbNAtRyT3/RSlNcsfl020AExRs=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "135.136.54.151",
+          "135.136.54.152",
+          "135.136.54.153",
+          "135.136.54.154",
+          "135.136.54.155",
+          "135.136.54.156",
+          "135.136.54.157",
+          "135.136.54.158",
+          "135.136.54.159",
+          "135.136.54.160",
+          "2a0d:5600:144:31::b002",
+          "2a0d:5600:144:31::b003",
+          "2a0d:5600:144:31::b004",
+          "2a0d:5600:144:31::b005",
+          "2a0d:5600:144:31::b006",
+          "2a0d:5600:144:31::b007",
+          "2a0d:5600:144:31::b008",
+          "2a0d:5600:144:31::b009",
+          "2a0d:5600:144:31::b00a",
+          "2a0d:5600:144:31::b00b",
+          "2a0d:5600:144:31::b00c",
+          "2a0d:5600:144:31::b00d",
+          "2a0d:5600:144:31::b00e",
+          "2a0d:5600:144:31::b00f",
+          "2a0d:5600:144:31::b010",
+          "2a0d:5600:144:31::b011",
+          "2a0d:5600:144:31::b012",
+          "2a0d:5600:144:31::b013",
+          "2a0d:5600:144:31::b014",
+          "2a0d:5600:144:31::b015",
+          "2a0d:5600:144:31::b016",
+          "2a0d:5600:144:31::b017",
+          "2a0d:5600:144:31::b018",
+          "2a0d:5600:144:31::b019",
+          "2a0d:5600:144:31::b01a",
+          "2a0d:5600:144:31::b01b",
+          "2a0d:5600:144:31::b01c",
+          "2a0d:5600:144:31::b01d",
+          "2a0d:5600:144:31::b01e",
+          "2a0d:5600:144:31::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "135.136.54.141",
+              "135.136.54.142",
+              "135.136.54.143",
+              "135.136.54.144",
+              "135.136.54.145",
+              "135.136.54.146",
+              "135.136.54.147",
+              "135.136.54.148",
+              "135.136.54.149",
+              "135.136.54.150",
+              "2a0d:5600:144:31::c002",
+              "2a0d:5600:144:31::c003",
+              "2a0d:5600:144:31::c004",
+              "2a0d:5600:144:31::c005",
+              "2a0d:5600:144:31::c006",
+              "2a0d:5600:144:31::c007",
+              "2a0d:5600:144:31::c008",
+              "2a0d:5600:144:31::c009",
+              "2a0d:5600:144:31::c00a",
+              "2a0d:5600:144:31::c00b",
+              "2a0d:5600:144:31::c00c",
+              "2a0d:5600:144:31::c00d",
+              "2a0d:5600:144:31::c00e",
+              "2a0d:5600:144:31::c00f",
+              "2a0d:5600:144:31::c010",
+              "2a0d:5600:144:31::c011",
+              "2a0d:5600:144:31::c012",
+              "2a0d:5600:144:31::c013",
+              "2a0d:5600:144:31::c014",
+              "2a0d:5600:144:31::c015",
+              "2a0d:5600:144:31::c016",
+              "2a0d:5600:144:31::c017",
+              "2a0d:5600:144:31::c018",
+              "2a0d:5600:144:31::c019",
+              "2a0d:5600:144:31::c01a",
+              "2a0d:5600:144:31::c01b",
+              "2a0d:5600:144:31::c01c",
+              "2a0d:5600:144:31::c01d",
+              "2a0d:5600:144:31::c01e",
+              "2a0d:5600:144:31::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-chi-wg-102.blockerad.eu"
+          },
+          "lwo": {},
+          "lwo_v2": null
+        }
+      },
+      {
+        "hostname": "us-chi-wg-103",
+        "active": true,
+        "owned": false,
+        "location": "us-chi",
+        "provider": "M247",
+        "ipv4_addr_in": "66.234.159.130",
+        "ipv6_addr_in": "2a0d:5600:144:32::f001",
+        "weight": 100,
+        "include_in_country": true,
+        "public_key": "31OnnQQnUTVWFWnk7FgmI5yYzy+S+ByQ4PpnHI8w8ng=",
+        "daita": false,
+        "shadowsocks_extra_addr_in": [
+          "66.234.159.151",
+          "66.234.159.152",
+          "66.234.159.153",
+          "66.234.159.154",
+          "66.234.159.155",
+          "66.234.159.156",
+          "66.234.159.157",
+          "66.234.159.158",
+          "66.234.159.159",
+          "66.234.159.160",
+          "2a0d:5600:144:32::b002",
+          "2a0d:5600:144:32::b003",
+          "2a0d:5600:144:32::b004",
+          "2a0d:5600:144:32::b005",
+          "2a0d:5600:144:32::b006",
+          "2a0d:5600:144:32::b007",
+          "2a0d:5600:144:32::b008",
+          "2a0d:5600:144:32::b009",
+          "2a0d:5600:144:32::b00a",
+          "2a0d:5600:144:32::b00b",
+          "2a0d:5600:144:32::b00c",
+          "2a0d:5600:144:32::b00d",
+          "2a0d:5600:144:32::b00e",
+          "2a0d:5600:144:32::b00f",
+          "2a0d:5600:144:32::b010",
+          "2a0d:5600:144:32::b011",
+          "2a0d:5600:144:32::b012",
+          "2a0d:5600:144:32::b013",
+          "2a0d:5600:144:32::b014",
+          "2a0d:5600:144:32::b015",
+          "2a0d:5600:144:32::b016",
+          "2a0d:5600:144:32::b017",
+          "2a0d:5600:144:32::b018",
+          "2a0d:5600:144:32::b019",
+          "2a0d:5600:144:32::b01a",
+          "2a0d:5600:144:32::b01b",
+          "2a0d:5600:144:32::b01c",
+          "2a0d:5600:144:32::b01d",
+          "2a0d:5600:144:32::b01e",
+          "2a0d:5600:144:32::b01f"
+        ],
+        "features": {
+          "daita": null,
+          "quic": {
+            "addr_in": [
+              "66.234.159.141",
+              "66.234.159.142",
+              "66.234.159.143",
+              "66.234.159.144",
+              "66.234.159.145",
+              "66.234.159.146",
+              "66.234.159.147",
+              "66.234.159.148",
+              "66.234.159.149",
+              "66.234.159.150",
+              "2a0d:5600:144:32::c002",
+              "2a0d:5600:144:32::c003",
+              "2a0d:5600:144:32::c004",
+              "2a0d:5600:144:32::c005",
+              "2a0d:5600:144:32::c006",
+              "2a0d:5600:144:32::c007",
+              "2a0d:5600:144:32::c008",
+              "2a0d:5600:144:32::c009",
+              "2a0d:5600:144:32::c00a",
+              "2a0d:5600:144:32::c00b",
+              "2a0d:5600:144:32::c00c",
+              "2a0d:5600:144:32::c00d",
+              "2a0d:5600:144:32::c00e",
+              "2a0d:5600:144:32::c00f",
+              "2a0d:5600:144:32::c010",
+              "2a0d:5600:144:32::c011",
+              "2a0d:5600:144:32::c012",
+              "2a0d:5600:144:32::c013",
+              "2a0d:5600:144:32::c014",
+              "2a0d:5600:144:32::c015",
+              "2a0d:5600:144:32::c016",
+              "2a0d:5600:144:32::c017",
+              "2a0d:5600:144:32::c018",
+              "2a0d:5600:144:32::c019",
+              "2a0d:5600:144:32::c01a",
+              "2a0d:5600:144:32::c01b",
+              "2a0d:5600:144:32::c01c",
+              "2a0d:5600:144:32::c01d",
+              "2a0d:5600:144:32::c01e",
+              "2a0d:5600:144:32::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-chi-wg-103.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -22831,12 +26297,19 @@
         "include_in_country": true,
         "public_key": "EAzbWMQXxJGsd8j2brhYerGB3t5cPOXqdIDFspDGSng=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:9a:76::b001",
+          "2001:ac8:9a:76::b002",
+          "2001:ac8:9a:76::b003"
+        ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "146.70.211.126"
+              "146.70.211.126",
+              "2001:ac8:9a:76::c001",
+              "2001:ac8:9a:76::c002",
+              "2001:ac8:9a:76::c003"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-dal-wg-001.blockerad.eu"
@@ -22857,10 +26330,22 @@
         "include_in_country": true,
         "public_key": "OYG1hxzz3kUGpVeGjx9DcCYreMO3S6tZN17iHUK+zDE=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:9a:75::b001",
+          "2001:ac8:9a:75::b002",
+          "2001:ac8:9a:75::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:9a:75::c001",
+              "2001:ac8:9a:75::c002",
+              "2001:ac8:9a:75::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-dal-wg-002.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -22877,10 +26362,22 @@
         "include_in_country": true,
         "public_key": "jn/i/ekJOkkRUdMj2I4ViUKd3d/LAdTQ+ICKmBy1tkM=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2001:ac8:9a:78::b001",
+          "2001:ac8:9a:78::b002",
+          "2001:ac8:9a:78::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2001:ac8:9a:78::c001",
+              "2001:ac8:9a:78::c002",
+              "2001:ac8:9a:78::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-dal-wg-003.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -22969,7 +26466,7 @@
       },
       {
         "hostname": "us-dal-wg-602",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-dal",
         "provider": "HostRoyale",
@@ -25234,14 +28731,14 @@
       },
       {
         "hostname": "us-lax-wg-201",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-lax",
         "provider": "DataPacket",
         "ipv4_addr_in": "169.150.203.2",
         "ipv6_addr_in": "2a02:6ea0:c859:1::a01f",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "xWobY7DWTL+vL1yD4NWwbQ3V4e8qz10Yz+EFdkIjq0Y=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -25261,7 +28758,7 @@
         "ipv4_addr_in": "169.150.203.15",
         "ipv6_addr_in": "2a02:6ea0:c859:2::a02f",
         "weight": 100,
-        "include_in_country": false,
+        "include_in_country": true,
         "public_key": "SDnciTlujuy2APFTkhzfq5X+LDi+lhfU38wI2HBCxxs=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -26878,7 +30375,42 @@
         ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2602:fed2:7e0a::c002",
+              "2602:fed2:7e0a::c003",
+              "2602:fed2:7e0a::c004",
+              "2602:fed2:7e0a::c005",
+              "2602:fed2:7e0a::c006",
+              "2602:fed2:7e0a::c007",
+              "2602:fed2:7e0a::c008",
+              "2602:fed2:7e0a::c009",
+              "2602:fed2:7e0a::c00a",
+              "2602:fed2:7e0a::c00b",
+              "2602:fed2:7e0a::c00c",
+              "2602:fed2:7e0a::c00d",
+              "2602:fed2:7e0a::c00e",
+              "2602:fed2:7e0a::c00f",
+              "2602:fed2:7e0a::c010",
+              "2602:fed2:7e0a::c011",
+              "2602:fed2:7e0a::c012",
+              "2602:fed2:7e0a::c013",
+              "2602:fed2:7e0a::c014",
+              "2602:fed2:7e0a::c015",
+              "2602:fed2:7e0a::c016",
+              "2602:fed2:7e0a::c017",
+              "2602:fed2:7e0a::c018",
+              "2602:fed2:7e0a::c019",
+              "2602:fed2:7e0a::c01a",
+              "2602:fed2:7e0a::c01b",
+              "2602:fed2:7e0a::c01c",
+              "2602:fed2:7e0a::c01d",
+              "2602:fed2:7e0a::c01e",
+              "2602:fed2:7e0a::c01f"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-mkc-wg-104.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27421,10 +30953,22 @@
         "include_in_country": true,
         "public_key": "FMNXnFgDHNTrT9o49U8bb3Z8J90LZzVJPpRzKtJM9W8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2b6::b001",
+          "2a0d:5600:24:2b6::b002",
+          "2a0d:5600:24:2b6::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2b6::c001",
+              "2a0d:5600:24:2b6::c002",
+              "2a0d:5600:24:2b6::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-501.blockerad.eu"
+          },
           "lwo": {},
           "lwo_v2": null
         }
@@ -27441,10 +30985,22 @@
         "include_in_country": true,
         "public_key": "cmUR4g9aIFDa5Xnp4B6Zjyp20jwgTTMgBdhcdvDV0FM=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2b8::b001",
+          "2a0d:5600:24:2b8::b002",
+          "2a0d:5600:24:2b8::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2b8::c001",
+              "2a0d:5600:24:2b8::c002",
+              "2a0d:5600:24:2b8::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-502.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27461,10 +31017,22 @@
         "include_in_country": true,
         "public_key": "czE6NJ8CccA5jnJkKoZGDpMXFqSudeVTzxU5scLP/H8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2b9::b001",
+          "2a0d:5600:24:2b9::b002",
+          "2a0d:5600:24:2b9::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2b9::c001",
+              "2a0d:5600:24:2b9::c002",
+              "2a0d:5600:24:2b9::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-503.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27481,10 +31049,22 @@
         "include_in_country": true,
         "public_key": "MVa5yuoYnjXJtSCeBsyvaemuaK4KFN1p78+37Nvm2m0=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2c2::b001",
+          "2a0d:5600:24:2c2::b002",
+          "2a0d:5600:24:2c2::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2c2::c001",
+              "2a0d:5600:24:2c2::c002",
+              "2a0d:5600:24:2c2::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-504.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27501,10 +31081,22 @@
         "include_in_country": true,
         "public_key": "jrjogHbVDuPxyloBldvtB51TmebNJo+4rW2JFrN33iM=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2c3::b001",
+          "2a0d:5600:24:2c3::b002",
+          "2a0d:5600:24:2c3::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2c3::c001",
+              "2a0d:5600:24:2c3::c002",
+              "2a0d:5600:24:2c3::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-505.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27521,17 +31113,29 @@
         "include_in_country": true,
         "public_key": "IjdtI6sz8ZjU5tlK3eW4HAPp+GRvHErDtqxBcr8JvTM=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:2b7::b001",
+          "2a0d:5600:24:2b7::b002",
+          "2a0d:5600:24:2b7::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:2b7::c001",
+              "2a0d:5600:24:2b7::c002",
+              "2a0d:5600:24:2b7::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-506.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
       },
       {
         "hostname": "us-nyc-wg-601",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-nyc",
         "provider": "M247",
@@ -27541,12 +31145,19 @@
         "include_in_country": true,
         "public_key": "OKyEPafS1lnUTWqtVeWElkTzcmkvLi9dncBHbSyFrH8=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:136a::b001",
+          "2a0d:5600:24:136a::b002",
+          "2a0d:5600:24:136a::b003"
+        ],
         "features": {
           "daita": null,
           "quic": {
             "addr_in": [
-              "146.70.185.62"
+              "146.70.185.62",
+              "2a0d:5600:24:136a::c001",
+              "2a0d:5600:24:136a::c002",
+              "2a0d:5600:24:136a::c003"
             ],
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-nyc-wg-601.blockerad.eu"
@@ -27567,10 +31178,22 @@
         "include_in_country": true,
         "public_key": "4Lg7yQlukAMp6EX+2Ap+q4O+QIV/OEZyybtFJmN9umw=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:1378::b001",
+          "2a0d:5600:24:1378::b002",
+          "2a0d:5600:24:1378::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:1378::c001",
+              "2a0d:5600:24:1378::c002",
+              "2a0d:5600:24:1378::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-602.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27587,10 +31210,22 @@
         "include_in_country": true,
         "public_key": "s3N8Xeh6khECbgRYPk9pp5slw2uE0deOxa9rSJ6bzwE=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:1377::b001",
+          "2a0d:5600:24:1377::b002",
+          "2a0d:5600:24:1377::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:1377::c001",
+              "2a0d:5600:24:1377::c002",
+              "2a0d:5600:24:1377::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-603.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27607,10 +31242,22 @@
         "include_in_country": true,
         "public_key": "FIcFPDjxfF24xBrv+W7Bcqb2wADSWd+HAWPKYo6xZEk=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:1372::b001",
+          "2a0d:5600:24:1372::b002",
+          "2a0d:5600:24:1372::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:1372::c001",
+              "2a0d:5600:24:1372::c002",
+              "2a0d:5600:24:1372::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-604.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27627,10 +31274,22 @@
         "include_in_country": true,
         "public_key": "78nFhfPEjrfOxBkUf2ylM7w6upYBEcHXm93sr8CMTE4=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:1374::b001",
+          "2a0d:5600:24:1374::b002",
+          "2a0d:5600:24:1374::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:1374::c001",
+              "2a0d:5600:24:1374::c002",
+              "2a0d:5600:24:1374::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-605.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -27647,10 +31306,22 @@
         "include_in_country": true,
         "public_key": "a8+VB6Cgah7Q5mWY860VfgU/h3Zf+pMpMdHB22e1uTQ=",
         "daita": false,
-        "shadowsocks_extra_addr_in": [],
+        "shadowsocks_extra_addr_in": [
+          "2a0d:5600:24:1379::b001",
+          "2a0d:5600:24:1379::b002",
+          "2a0d:5600:24:1379::b003"
+        ],
         "features": {
           "daita": null,
-          "quic": null,
+          "quic": {
+            "addr_in": [
+              "2a0d:5600:24:1379::c001",
+              "2a0d:5600:24:1379::c002",
+              "2a0d:5600:24:1379::c003"
+            ],
+            "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+            "domain": "us-nyc-wg-606.blockerad.eu"
+          },
           "lwo": null,
           "lwo_v2": null
         }
@@ -30848,7 +34519,7 @@
         "ipv4_addr_in": "62.133.44.202",
         "ipv6_addr_in": null,
         "weight": 100,
-        "include_in_country": false
+        "include_in_country": true
       },
       {
         "hostname": "us-nyc-br-501",
@@ -30875,7 +34546,7 @@
     ]
   },
   "digest": {
-    "digest": "29dc1a71ddfa5246a1dca033ca92fc3fe17d5a2b5504f22d9fae7b1612924ed0",
-    "timestamp": "2026-10-28T09:18:55Z"
+    "digest": "8f8718b6b72f0686cace4a0030b0107f6b86d800bc4789495e73d6c712d3b426",
+    "timestamp": "2026-11-23T13:07:21Z"
   }
 }
