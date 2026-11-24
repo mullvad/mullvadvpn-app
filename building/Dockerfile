@@ -57,6 +57,7 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # === Install rust ===
+
 COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
 RUN /tmp/rust/install-rust.sh linux && rm -r /tmp/rust
 ENV PATH=/root/.cargo/bin:$PATH
@@ -82,6 +83,11 @@ RUN apt-get update -y && \
     cmake --install . && \
     cd .. && rm -rf protobuf && \
     apt-get autoremove -y
+
+# === Install SBOM tools ===
+
+RUN --mount=type=bind,source=building/install-cyclonedx.sh,target=/tmp/install-cyclonedx.sh \
+    /tmp/install-cyclonedx.sh
 
 # === Volta for npm + node ===
 
