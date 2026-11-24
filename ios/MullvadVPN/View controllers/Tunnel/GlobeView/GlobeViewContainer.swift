@@ -11,63 +11,6 @@
 import MapKit
 import SwiftUI
 
-@Observable
-class GlobeViewModel {
-    var globeTarget = GlobeTarget.none
-    var locationPins: [LocationPin] = []
-
-    func removeLocationMarker() {
-        locationPins = []
-    }
-
-    func addLocationMarker(coordinate: CLLocationCoordinate2D) {
-        locationPins
-            .append(
-                .init(
-                    geoPoint: .init(
-                        latitude: coordinate.latitude,
-                        longitude: coordinate
-                            .longitude),
-                    image: Image.mullvadLocationMarkerSecure
-                )
-            )
-    }
-
-    func showLocations(_ locations: [CLLocationCoordinate2D]) {
-        if locations.isEmpty {
-            globeTarget = .none
-        } else if locations.count == 1,
-            let center = locations.first
-        {
-            globeTarget =
-                .region(
-                    center: GeoPoint(
-                        latitude: center.latitude,
-                        longitude: center
-                            .longitude)
-                )
-        } else {
-            globeTarget =
-                .points(
-                    locations
-                        .map {
-                            GeoPoint(
-                                latitude: $0.latitude,
-                                longitude: $0.longitude
-                            )
-                        })
-        }
-    }
-
-    func setCenter(_ center: CLLocationCoordinate2D?) {
-        var locations = [CLLocationCoordinate2D]()
-        if let center {
-            locations.append(center)
-        }
-        showLocations(locations)
-    }
-}
-
 struct GlobeViewContainer: View {
     @State var viewModel: GlobeViewModel
     var offset: CGFloat = 0  // 0 none, -1 top, 1 bottom
@@ -76,12 +19,15 @@ struct GlobeViewContainer: View {
             GeometryReader { geo in
                 let h = geo.size.height
                 let vh = h * (1 + abs(offset))
-                GlobeView(target: viewModel.globeTarget, locationPins: viewModel.locationPins)
-                    .ignoresSafeArea()
-                    .frame(width: geo.size.width, height: vh)
-                    .offset(y: min(offset, 0) * h)
-                    .clipped()
-                    .background(Color.mullvadDarkBackground.ignoresSafeArea())
+                ZStack {
+                    mullvadLoadingSpinner(isPresented: viewModel.isShowingSpinner)
+//                    GlobeView(target: viewModel.globeTarget, locationPins: viewModel.locationPins)
+//                        .ignoresSafeArea()
+//                        .frame(width: geo.size.width, height: vh)
+                }
+                .offset(y: min(offset, 0) * h)
+                .clipped()
+                .background(Color.mullvadDarkBackground.ignoresSafeArea())
             }
         } else {
             // Fallback on earlier versions

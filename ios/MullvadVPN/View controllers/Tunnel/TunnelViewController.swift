@@ -188,29 +188,35 @@ class TunnelViewController: UIViewController, RootContainment {
         case let .connecting(tunnelRelays, _, _):
             globeViewModel.removeLocationMarker()
             globeViewModel.setCenter(tunnelRelays?.exit.location.geoCoordinate)
-            activityIndicator.startAnimating()
+//            activityIndicator.startAnimating()
+            globeViewModel.isShowingSpinner = true
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
-            activityIndicator.startAnimating()
+//            activityIndicator.startAnimating()
+            globeViewModel.isShowingSpinner = true
             globeViewModel.removeLocationMarker()
             globeViewModel.setCenter(tunnelRelays.exit.location.geoCoordinate)
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
             globeViewModel.setCenter(center)
-            activityIndicator.stopAnimating()
+//            activityIndicator.stopAnimating()
+            globeViewModel.isShowingSpinner = false
             globeViewModel.addLocationMarker(coordinate: center)
 
         case .pendingReconnect:
-            activityIndicator.startAnimating()
+//            activityIndicator.startAnimating()
+            globeViewModel.isShowingSpinner = true
             globeViewModel.removeLocationMarker()
 
         case .waitingForConnectivity, .error:
-            activityIndicator.stopAnimating()
+//            activityIndicator.stopAnimating()
+            globeViewModel.isShowingSpinner = false
             globeViewModel.removeLocationMarker()
 
         case .disconnected, .disconnecting:
-            activityIndicator.stopAnimating()
+//            activityIndicator.stopAnimating()
+            globeViewModel.isShowingSpinner = false
             globeViewModel.removeLocationMarker()
             globeViewModel.setCenter(nil)
         }
