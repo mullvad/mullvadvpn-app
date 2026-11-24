@@ -4,7 +4,7 @@ import android.os.Parcelable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -86,9 +86,9 @@ fun MullvadFeatureChip(
     val highlight = remember { Animatable(0f) }
     LaunchedEffect(state) {
         if (state == State.Connected) {
-            highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = EaseInOut))
+            highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = CONNECTED_EASING))
             delay(CONNECTED_HOLD)
-            highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = EaseInOut))
+            highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = CONNECTED_EASING))
         }
     }
     FilterChip(
@@ -105,7 +105,7 @@ fun MullvadFeatureChip(
                                         tween(
                                             CONNECTING_BORDER_DURATION_MS,
                                             easing = LinearEasing,
-                                        )
+                                        ),
                                 ),
                             label = "connectingBorderFloat",
                         )
@@ -275,6 +275,7 @@ private val SELECTED_BORDER_WIDTH = 2.dp
 private val NORMAL_BORDER_WIDTH = 1.dp
 private const val CONNECTING_BORDER_DURATION_MS = 2000 // 2 seconds
 private const val CONNECTING_ARC_SLICES = 64
-private const val CONNECTED_WIND_UP_MS = 600
+private const val CONNECTED_WIND_UP_MS = 100
 private val CONNECTED_HOLD = 600.milliseconds
 private const val CONNECTED_FADE_OUT_MS = 600
+private val CONNECTED_EASING = CubicBezierEasing(0.5f, 0f, 0.5f, 1f)
