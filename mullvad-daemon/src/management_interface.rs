@@ -1428,7 +1428,7 @@ impl ManagementService for ManagementServiceImpl {
                 &import.wireguard_config,
             )
             .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
-        config.name = Some(import.name);
+        config.name = import.name;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::CustomVpn(
             custom_vpn::CustomVpnCommand::SetConfig(tx, Some(config.into())),

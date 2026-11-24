@@ -364,7 +364,7 @@ internal fun ModelCustomVpnConfig.fromDomain(): CustomVpnConfig =
                 )
             },
         enabled = enabled,
-        name = name,
+        name = name.orEmpty(),
     )
 
 /** Format as `<ip>:<port>`, with brackets around IPv6 addresses. */
