@@ -25,7 +25,6 @@ mod allowed_nets;
 
 pub use allowed_nets::*;
 
-// TODO: understand the relation of TunnelEndpoint and TunnelParameters
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
