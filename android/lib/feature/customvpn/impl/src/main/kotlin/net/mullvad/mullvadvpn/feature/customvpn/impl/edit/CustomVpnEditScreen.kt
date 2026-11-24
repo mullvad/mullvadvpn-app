@@ -51,6 +51,8 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import java.util.UUID
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelConfigDeletedResult
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelConfigSavedResult
 import net.mullvad.mullvadvpn.feature.customvpn.api.RemoveCustomTunnelConfigConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.api.RemoveCustomTunnelConfigConfirmationNavResult
 import net.mullvad.mullvadvpn.feature.customvpn.impl.edit.FormFocus.addIpFocusKey
@@ -128,12 +130,11 @@ fun CustomVpnEdit(
         vm.clearConfig()
     }
 
+    LocalResultStore.current.consumeResult<DiscardChangesConfirmedNavResult> { navigator.goBack() }
+
     val formHasErrorMessage = stringResource(R.string.custom_tunnels_form_contains_errors_message)
     val noPeerErrorMessage =
         stringResource(R.string.custom_tunnels_form_must_have_at_least_one_peer)
-    val saveSuccessMessage = stringResource(R.string.custom_tunnels_form_saved_success)
-
-    LocalResultStore.current.consumeResult<DiscardChangesConfirmedNavResult> { navigator.goBack() }
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
@@ -146,8 +147,13 @@ fun CustomVpnEdit(
             CustomVpnSideEffect.FormErrors.MissingPeerError ->
                 snackbarHostState.showSnackbarImmediately(noPeerErrorMessage)
 
-            CustomVpnSideEffect.ConfigurationSaved ->
-                snackbarHostState.showSnackbarImmediately(saveSuccessMessage)
+            CustomVpnSideEffect.ConfigurationSaved -> {
+                navigator.goBack(result = CustomTunnelConfigSavedResult)
+            }
+
+            CustomVpnSideEffect.ConfigurationDeleted -> {
+                navigator.goBack(result = CustomTunnelConfigDeletedResult)
+            }
         }
     }
 

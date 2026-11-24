@@ -633,6 +633,7 @@
     <string name="custom_tunnels_form_contains_errors_message">Unable to save the configuration. Please correct the errors in the form and try again.</string>
     <string name="custom_tunnels_form_must_have_at_least_one_peer">You must add at least one peer.</string>
     <string name="custom_tunnels_form_saved_success">Configuration saved.</string>
+    <string name="custom_tunnels_form_deleted_success">Configuration removed.</string>
     <string name="hide_text">Hide text</string>
     <string name="show_text">Show text</string>
     <string name="authentication_required">Authentication required</string>

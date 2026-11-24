@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +46,8 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomVpnImportConfigurationNavResult
 import net.mullvad.mullvadvpn.feature.customvpn.api.CreateCustomVpnNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelConfigDeletedResult
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelConfigSavedResult
 import net.mullvad.mullvadvpn.feature.customvpn.api.EditCustomTunnelNavKey
 import net.mullvad.mullvadvpn.feature.customvpn.impl.R
 import net.mullvad.mullvadvpn.lib.common.IsModal
@@ -115,13 +116,24 @@ fun SharedTransitionScope.CustomVpnList(
             }
         }
 
+    val resources = LocalResources.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val resultStore = LocalResultStore.current
     resultStore.consumeResult<CreateCustomVpnImportConfigurationNavResult> {
         openFileLauncher.launch(SUPPORTED_WIREGUARD_CONFIG_FILE_TYPES)
     }
+    resultStore.consumeResult<CustomTunnelConfigSavedResult> {
+        snackbarHostState.showSnackbarImmediately(
+            resources.getString(R.string.custom_tunnels_form_saved_success),
+        )
+    }
+    resultStore.consumeResult<CustomTunnelConfigDeletedResult> {
+        snackbarHostState.showSnackbarImmediately(
+            resources.getString(R.string.custom_tunnels_form_deleted_success),
+        )
+    }
 
-    val resources = LocalResources.current
-    val snackbarHostState = remember { SnackbarHostState() }
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             CustomVpnListSideEffect.ConfigurationSaved ->

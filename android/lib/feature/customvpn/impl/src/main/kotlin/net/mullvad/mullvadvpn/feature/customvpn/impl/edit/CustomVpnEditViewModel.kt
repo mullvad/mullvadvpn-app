@@ -69,18 +69,24 @@ class CustomVpnEditViewModel(
                 Lc.Loading(Unit),
             )
 
-    fun clearConfig() {
-        viewModelScope.launch {
-            customVpnRepository.clearConfig()
-            formData.value = FormData()
-            isNew.value = false
-        }
+    fun clearConfig() = viewModelScope.launch {
+        val sideEffect: CustomVpnSideEffect =
+            customVpnRepository
+                .clearConfig()
+                .mapLeft { CustomVpnSideEffect.FailedToSave(it.toString()) }
+                .map { CustomVpnSideEffect.ConfigurationDeleted }
+                .onRight {
+                    formData.value = FormData()
+                    isNew.value = false
+                }
+                .merge()
+
+        _uiSideEffect.send(sideEffect)
     }
 
     fun save(form: FormData) = viewModelScope.launch {
         val sideEffect: CustomVpnSideEffect =
             parseFormData(form)
-                .onRight { formErrors.value = null }
                 .mapLeft {
                     formErrors.value = it
                     if (it.missingPeerError) {
@@ -96,6 +102,7 @@ class CustomVpnEditViewModel(
                         .mapLeft { CustomVpnSideEffect.FailedToSave(it.toString()) }
                         .map { CustomVpnSideEffect.ConfigurationSaved }
                 }
+                .onRight { formErrors.value = null }
                 .merge()
 
         _uiSideEffect.send(sideEffect)

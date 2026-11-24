@@ -9,5 +9,7 @@ sealed interface CustomVpnSideEffect {
 
     data object ConfigurationSaved : CustomVpnSideEffect
 
+    data object ConfigurationDeleted : CustomVpnSideEffect
+
     data class FailedToSave(val reason: String) : CustomVpnSideEffect
 }
