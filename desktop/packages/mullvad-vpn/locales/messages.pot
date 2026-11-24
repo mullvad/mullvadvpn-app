@@ -3639,6 +3639,9 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
+msgid "Advanced feature"
+msgstr ""
+
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr ""
 
@@ -3736,6 +3739,9 @@ msgid "Clear input"
 msgstr ""
 
 msgid "Collapse"
+msgstr ""
+
+msgid "Configuration removed."
 msgstr ""
 
 msgid "Configuration saved."
@@ -4242,6 +4248,9 @@ msgstr ""
 msgid "Restart your device"
 msgstr ""
 
+msgid "Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution."
+msgstr ""
+
 msgid "Search"
 msgstr ""
 
@@ -4561,6 +4570,9 @@ msgid "You can add more time via the account view to continue using the VPN."
 msgstr ""
 
 msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
+msgstr ""
+
+msgid "You must add at least one peer."
 msgstr ""
 
 msgid "You will lose access to this account on all devices."
