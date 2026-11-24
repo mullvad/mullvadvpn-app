@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.feature.customvpn.impl.VALID_TUNNEL_IP
 import net.mullvad.mullvadvpn.feature.customvpn.impl.createSampleCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.validator.IpValidator
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
@@ -46,6 +47,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CustomVpnEditViewModelTest {
 
     private val mockCustomVpnRepository: CustomVpnRepository = mockk()
+    private val ipValidator = IpValidator()
 
     private val configUpdates =
         MutableSharedFlow<CustomVpnConfig?>(
@@ -63,6 +65,7 @@ class CustomVpnEditViewModelTest {
         viewModel =
             CustomVpnEditViewModel(
                 customVpnRepository = mockCustomVpnRepository,
+                ipValidator = ipValidator,
                 isNewConfig = false,
             )
     }

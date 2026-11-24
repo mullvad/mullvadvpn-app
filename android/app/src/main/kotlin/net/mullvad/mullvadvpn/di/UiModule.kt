@@ -72,6 +72,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunn
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
+import net.mullvad.mullvadvpn.lib.common.validator.IpValidator
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -157,6 +158,7 @@ val uiModule = module {
     single { ApplicationsProvider(get(), get()) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
+    single { IpValidator() }
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
@@ -451,6 +453,7 @@ val uiModule = module {
     viewModel { params ->
         CustomVpnEditViewModel(
             customVpnRepository = get(),
+            ipValidator = get(),
             isNewConfig = params.get(),
         )
     }

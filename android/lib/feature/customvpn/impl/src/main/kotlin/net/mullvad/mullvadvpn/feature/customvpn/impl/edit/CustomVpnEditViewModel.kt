@@ -3,9 +3,14 @@ package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
+import arrow.core.EitherNel
 import arrow.core.flatMap
+import arrow.core.mapOrAccumulate
 import arrow.core.merge
+import arrow.core.raise.context.ensure
+import arrow.core.raise.either
 import java.net.InetSocketAddress
+import kotlin.collections.associateBy
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,8 +25,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.common.util.zipFold
+import net.mullvad.mullvadvpn.lib.common.validator.IpValidator
 import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
-import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.TunnelConfig
@@ -30,6 +36,7 @@ import net.mullvad.mullvadvpn.lib.repository.CustomVpnRepository
 
 class CustomVpnEditViewModel(
     private val customVpnRepository: CustomVpnRepository,
+    private val ipValidator: IpValidator,
     isNewConfig: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<CustomVpnSideEffect>()
@@ -89,197 +96,114 @@ class CustomVpnEditViewModel(
         _uiSideEffect.send(sideEffect)
     }
 
-    private fun parseFormData(formData: FormData): Either<FormErrors, CustomVpnConfig> {
-        val nameError = validateName(formData.name)
-        val (privateKeyError, privateKey) = parsePrivateKey(formData.privateKey)
-        val (tunnelIpErrors, tunnelIps) = parseTunnelIps(formData.tunnelIps)
-        val (peerErrors, peerConfigs) = parsePeers(formData.peers)
-
-        return if (
-            nameError == null && privateKey != null && tunnelIps != null && peerConfigs != null
-        ) {
-            Either.Right(
-                CustomVpnConfig(
-                    tunnelConfig = TunnelConfig(privateKey = privateKey, tunnelIps = tunnelIps),
-                    peerConfig = peerConfigs,
-                    enabled = formData.enabled,
-                    name = formData.name,
-                ),
-            )
-        } else {
-            Either.Left(
+    private fun parseFormData(formData: FormData): Either<FormErrors, CustomVpnConfig> =
+        zipFold(
+            validateName(formData.name),
+            parsePrivateKey(formData.privateKey),
+            parseTunnelIps(formData.tunnelIps),
+            parsePeers(formData.peers),
+            transformError = { nameError, privateKeyError, tunnelIpError, parsePeersError ->
                 FormErrors(
                     nameError = nameError,
                     privateKeyError = privateKeyError,
-                    tunnelIpErrors = tunnelIpErrors.orEmpty(),
-                    peerErrors = peerErrors.orEmpty(),
-                ),
+                    tunnelIpErrors = tunnelIpError?.associateBy { it.errorValue }.orEmpty(),
+                    peerErrors = parsePeersError?.toMap().orEmpty(),
+                )
+            },
+        ) { name, privateKey, tunnelIps, peerConfigs ->
+            CustomVpnConfig(
+                tunnelConfig = TunnelConfig(privateKey = privateKey, tunnelIps = tunnelIps),
+                peerConfig = peerConfigs,
+                enabled = formData.enabled,
+                name = name,
             )
         }
-    }
 
-    private fun validateName(name: String): FormDataError.EmptyName? =
-        if (name.isEmpty()) {
-            FormDataError.EmptyName
-        } else {
-            null
-        }
+    private fun validateName(name: String): Either<FormDataError.EmptyName, String> = either {
+        ensure(name.isNotEmpty()) { FormDataError.EmptyName }
+        name
+    }
 
     private fun parsePeers(
         peers: List<PeerFormData>,
-    ): Either<Map<String, PeerErrors>, List<PeerConfig>> {
-        val errors = mutableMapOf<String, PeerErrors>()
-
-        val parsed = peers.mapNotNull { peer ->
-            parsePeer(peer)
-                .fold(
-                    { error ->
-                        errors[peer.id] = error
-                        null
-                    },
-                    { config -> config },
-                )
-        }
-
-        return if (errors.isNotEmpty()) {
-            Either.Left(errors)
-        } else {
-            Either.Right(parsed)
-        }
+    ): EitherNel<Pair<String, PeerErrors>, List<PeerConfig>> = peers.mapOrAccumulate {
+        parsePeer(it).mapLeft { peerErrors -> it.id to peerErrors }.bind()
     }
 
-    private fun parsePeer(peer: PeerFormData): Either<PeerErrors, PeerConfig> {
-        val (publicKeyError, publicKey) = parsePeerPublicKey(peer.publicKey)
-        val (allowedIpsError, allowedIps) = parseAllowedIpsCidr(peer.allowedIps)
-        val (endpointAddressError, endpointAddress) = parseEndpointAddress(peer.endpointAddress)
-        val (endpointPortError, endpointPort) = parseEndpointPort(peer.endpointPort)
-
-        return if (
-            publicKey != null &&
-                allowedIps != null &&
-                endpointAddress != null &&
-                endpointPort != null
-        ) {
-            Either.Right(
-                PeerConfig(
-                    publicKey = publicKey,
-                    endpoint = InetSocketAddress(endpointAddress, endpointPort),
-                    allowedIps = allowedIps,
-                ),
-            )
-        } else {
-            Either.Left(
+    private fun parsePeer(peer: PeerFormData): Either<PeerErrors, PeerConfig> =
+        zipFold(
+            parsePeerPublicKey(peer.publicKey),
+            parseAllowedIpsCidr(peer.allowedIps),
+            parseEndpointAddress(peer.endpointAddress),
+            parseEndpointPort(peer.endpointPort),
+            { publicKeyError, allowedIpsError, endpointAddressError, endpointPortError ->
                 PeerErrors(
                     publicKeyError = publicKeyError,
                     allowedIpErrors = allowedIpsError.orEmpty(),
                     endpointAddressError = endpointAddressError,
                     endpointPortError = endpointPortError,
-                ),
+                )
+            },
+        ) {
+            publicKey: WireguardKey,
+            allowedIps: Set<String>,
+            endpointAddress: String,
+            endpointPort: Port ->
+            PeerConfig(
+                publicKey = publicKey,
+                endpoint = InetSocketAddress(endpointAddress, endpointPort.value),
+                allowedIps = allowedIps,
             )
         }
-    }
 
     private fun parsePrivateKey(
         privateKey: String,
-    ): Either<FormDataError.PrivateKey, WireguardKey> {
-        return WireguardKey.from(privateKey).mapLeft {
+    ): Either<FormDataError.PrivateKey, WireguardKey> =
+        WireguardKey.from(privateKey).mapLeft {
             FormDataError.PrivateKey(errorValue = privateKey, keyParseError = it)
         }
-    }
 
     private fun parsePeerPublicKey(
         publicKey: String,
-    ): Either<FormDataError.PublicKey, WireguardKey> {
-        return WireguardKey.from(publicKey).mapLeft {
+    ): Either<FormDataError.PublicKey, WireguardKey> =
+        WireguardKey.from(publicKey).mapLeft {
             FormDataError.PublicKey(errorValue = publicKey, keyParseError = it)
         }
-    }
 
     private fun parseTunnelIps(
         tunnelIps: Set<String>,
-    ): Either<Map<String, FormDataError.TunnelIp>, Set<String>> {
-        val (valid, invalid) = tunnelIps.partition(IpValidator::isValidIp)
-
-        return if (invalid.isEmpty()) {
-            Either.Right(valid.toSet())
-        } else {
-            Either.Left(invalid.associateWith(FormDataError::TunnelIp))
-        }
-    }
+    ): EitherNel<FormDataError.TunnelIp, Set<String>> =
+        tunnelIps
+            .mapOrAccumulate {
+                ensure(ipValidator.isValidIp(it)) { FormDataError.TunnelIp(it) }
+                it
+            }
+            .map { it.toSet() }
 
     private fun parseAllowedIpsCidr(
         allowedIps: Set<String>,
-    ): Either<Map<String, FormDataError.AllowedIp>, Set<String>> {
-        val (valid, invalid) = allowedIps.partition(IpValidator::isValidIpOrCidr)
-
-        return if (invalid.isEmpty()) {
-            Either.Right(valid.toSet())
-        } else {
-            Either.Left(invalid.associateWith(FormDataError::AllowedIp))
-        }
-    }
+    ): Either<Map<String, FormDataError.AllowedIp>, Set<String>> =
+        allowedIps
+            .mapOrAccumulate { ipAddress ->
+                ensure(ipValidator.isValidIpOrCidr(ipAddress)) {
+                    ipAddress to FormDataError.AllowedIp(ipAddress)
+                }
+                ipAddress
+            }
+            .mapLeft { it.toMap() }
+            .map { it.toSet() }
 
     private fun parseEndpointAddress(
         endpointAddress: String,
-    ): Either<FormDataError.EndpointAddress, String> =
-        if (IpValidator.isValidIp(endpointAddress)) {
-            Either.Right(endpointAddress)
-        } else {
-            Either.Left(FormDataError.EndpointAddress(endpointAddress))
+    ): Either<FormDataError.EndpointAddress, String> = either {
+        ensure(ipValidator.isValidIp(endpointAddress)) {
+            FormDataError.EndpointAddress(endpointAddress)
         }
+        endpointAddress
+    }
 
-    private fun parseEndpointPort(endpointPort: String): Either<FormDataError.EndpointPort, Int> =
-        when (val port = endpointPort.toIntOrNull()) {
-            null ->
-                Either.Left(
-                    FormDataError.EndpointPort(
-                        errorValue = endpointPort,
-                        ParsePortError.NotANumber(endpointPort),
-                    ),
-                )
-            !in 1..Port.MAX_VALUE ->
-                Either.Left(
-                    FormDataError.EndpointPort(
-                        errorValue = endpointPort,
-                        ParsePortError.OutOfRange(port),
-                    ),
-                )
-            else -> Either.Right(port)
+    private fun parseEndpointPort(endpointPort: String): Either<FormDataError.EndpointPort, Port> =
+        Port.fromString(endpointPort).mapLeft {
+            FormDataError.EndpointPort(errorValue = endpointPort, parsePortError = it)
         }
 }
-
-private object IpValidator {
-    private const val IPV4_OCTET = """(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)"""
-    private const val IPV4_BASE = """$IPV4_OCTET(\.$IPV4_OCTET){3}"""
-
-    private const val IPV6_BASE =
-        "(" +
-            "([0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|" + // 1:2:3:4:5:6:7:8
-            "([0-9a-f]{1,4}:){1,7}:|" + // 1:: to 1:2:3:4:5:6:7::
-            "([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|" + // 1::8 to 1:2:3:4:5:6::8
-            "([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|" +
-            "([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|" +
-            "([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|" +
-            "([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|" +
-            "[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|" + // 1::2:3:4:5:6:7
-            ":((:[0-9a-f]{1,4}){1,7}|:)" + // ::2:3:4:5:6:7 or ::
-            ")"
-
-    private val IPV4_EXACT_REGEX = """^$IPV4_BASE$""".toRegex()
-    private val IPV6_EXACT_REGEX = """^$IPV6_BASE$""".toRegex(RegexOption.IGNORE_CASE)
-
-    // CIDR Regexes (Allows base IP, plus optional /0 to /32 or /128)
-    private val IPV4_CIDR_REGEX = """^$IPV4_BASE(/([0-9]|[12][0-9]|3[0-2]))?$""".toRegex()
-    private val IPV6_CIDR_REGEX =
-        """^$IPV6_BASE(/([0-9]|[1-9][0-9]|1[01][0-9]|12[0-8]))?$""".toRegex(RegexOption.IGNORE_CASE)
-
-    fun isValidIpOrCidr(raw: String): Boolean =
-        IPV4_CIDR_REGEX.matches(raw) || IPV6_CIDR_REGEX.matches(raw)
-
-    fun isValidIp(raw: String): Boolean =
-        IPV4_EXACT_REGEX.matches(raw) || IPV6_EXACT_REGEX.matches(raw)
-}
-
-operator fun <L, R> Either<L, R>.component1(): L? = leftOrNull()
-
-operator fun <L, R> Either<L, R>.component2(): R? = getOrNull()

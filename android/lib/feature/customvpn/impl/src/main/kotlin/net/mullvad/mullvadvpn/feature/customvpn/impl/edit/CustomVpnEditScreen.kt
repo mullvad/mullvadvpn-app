@@ -363,14 +363,15 @@ fun LazyListScope.tunnelIpFieldList(
                     supportingText = err?.let { { Text(it.toErrorMessage()) } },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     trailingIcon =
-                        (index > 0).then {
-                            IconButton(onClick = onRequestRemove) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.delete),
-                                )
-                            }
-                        },
+                        (index > 0) then
+                            {
+                                IconButton(onClick = onRequestRemove) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = stringResource(R.string.delete),
+                                    )
+                                }
+                            },
                 )
             }
         }
@@ -467,14 +468,15 @@ fun PeerItem(
         isExpanded = expanded,
         onCellClicked = { expanded = !expanded },
         extraTrailingContent =
-            canDelete.then {
-                ListItemIconButton(onClick = onDeletePeer) {
-                    Icon(
-                        imageVector = Icons.Rounded.Delete,
-                        contentDescription = stringResource(R.string.delete),
-                    )
-                }
-            },
+            canDelete then
+                {
+                    ListItemIconButton(onClick = onDeletePeer) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = stringResource(R.string.delete),
+                        )
+                    }
+                },
         expandedContent = {
             Column(
                 modifier =
@@ -494,7 +496,7 @@ fun PeerItem(
                     lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     supportingText =
-                        publicKeyError?.let { keyError.then { Text(it.toErrorMessage()) } },
+                        publicKeyError?.let { keyError then { Text(it.toErrorMessage()) } },
                 )
 
                 AllowedIpFieldList(
@@ -544,7 +546,7 @@ fun PeerItem(
                     lineLimits = TextFieldLineLimits.SingleLine,
                     supportingText =
                         endpointAddressError?.let {
-                            addressError.then { Text(it.toErrorMessage()) }
+                            addressError then { Text(it.toErrorMessage()) }
                         },
                 )
 
@@ -561,7 +563,7 @@ fun PeerItem(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     lineLimits = TextFieldLineLimits.SingleLine,
                     supportingText =
-                        endpointPortError?.let { portError.then { Text(it.toErrorMessage()) } },
+                        endpointPortError?.let { portError then { Text(it.toErrorMessage()) } },
                 )
 
                 Spacer(Modifier.height(Dimens.verticalSpace))
