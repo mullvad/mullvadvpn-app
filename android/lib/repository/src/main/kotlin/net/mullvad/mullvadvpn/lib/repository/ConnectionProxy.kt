@@ -20,7 +20,7 @@ class ConnectionProxy(
         combine(managementService.tunnelState, translationRepository.translations) {
             tunnelState,
             translations ->
-            tunnelState.translateLocations(translations)
+            tunnelState.translateLocations(translations.second)
         }
 
     private fun TunnelState.translateLocations(translations: Map<String, String>): TunnelState {

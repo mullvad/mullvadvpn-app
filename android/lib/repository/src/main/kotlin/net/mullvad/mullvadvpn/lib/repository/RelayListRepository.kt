@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.repository
 import arrow.optics.Every
 import arrow.optics.copy
 import arrow.optics.dsl.every
+import java.util.Locale
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,14 +40,14 @@ class RelayListRepository(
         combine(managementService.relayCountries, translationRepository.translations) {
                 countries,
                 translations ->
-                countries.translateRelays(translations).sortLocations()
+                countries.translateRelays(translations).sortLocations(translations.first)
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
 
     private fun List<RelayItem.Location.Country>.translateRelays(
         translations: Translations,
     ): List<RelayItem.Location.Country> {
-        if (translations.isEmpty()) {
+        if (translations.second.isEmpty()) {
             return this
         }
 
@@ -67,11 +68,16 @@ class RelayListRepository(
         }
     }
 
-    private fun List<RelayItem.Location.Country>.sortLocations(): List<RelayItem.Location.Country> {
-        return this.sortedByName(languageRepository.getSupportedLocaleOrEnglish()).map { country ->
+    private fun List<RelayItem.Location.Country>.sortLocations(
+        locale: Locale,
+    ): List<RelayItem.Location.Country> {
+        return this.sortedByName(languageRepository.getSupportedLocaleOrEnglish(locale)).map {
+            country ->
             country.copy {
                 RelayItem.Location.Country.cities set
-                    country.cities.sortedByName(languageRepository.getSupportedLocaleOrEnglish())
+                    country.cities.sortedByName(
+                        languageRepository.getSupportedLocaleOrEnglish(locale),
+                    )
             }
         }
     }

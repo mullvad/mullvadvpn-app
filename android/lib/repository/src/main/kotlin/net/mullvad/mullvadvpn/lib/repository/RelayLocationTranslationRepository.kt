@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 
-typealias Translations = Map<String, String>
+typealias Translations = Pair<Locale, Map<String, String>>
 
-fun Translations.lookup(key: String): String = getOrDefault(key, key)
+fun Translations.lookup(key: String): String = second.getOrDefault(key, key)
 
 class RelayLocationTranslationRepository(
     val context: Context,
@@ -31,17 +31,22 @@ class RelayLocationTranslationRepository(
         localeRepository.currentLocale
             .filterNotNull()
             .map { loadTranslations(it) }
-            .stateIn(externalScope, SharingStarted.Eagerly, emptyMap())
+            .stateIn(
+                externalScope,
+                SharingStarted.Eagerly,
+                Locale.Builder().setLanguage(DEFAULT_LANGUAGE).build() to emptyMap(),
+            )
 
     private suspend fun loadTranslations(locale: Locale): Translations =
         withContext(dispatcher) {
             Logger.d("Updating translations based on $locale")
-            if (locale.language == DEFAULT_LANGUAGE) emptyMap()
-            else {
-                // Load current translations
-                val xml = context.resources.getXml(R.xml.relay_locations)
-                xml.loadRelayTranslation()
-            }
+            locale to
+                if (locale.language == DEFAULT_LANGUAGE) emptyMap()
+                else {
+                    // Load current translations
+                    val xml = context.resources.getXml(R.xml.relay_locations)
+                    xml.loadRelayTranslation()
+                }
         }
 
     private fun XmlResourceParser.loadRelayTranslation(): Map<String, String> {

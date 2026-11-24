@@ -231,6 +231,7 @@ val uiModule = module {
             customListsRepository = get(),
             filteredRelayListUseCase = get(),
             languageRepository = get(),
+            localeRepository = get(),
         )
     }
     single {
@@ -238,6 +239,7 @@ val uiModule = module {
             customListsRepository = get(),
             relayListRepository = get(),
             languageRepository = get(),
+            localeRepository = get(),
         )
     }
     single { CustomListRelayItemsUseCase(get(), get()) }
