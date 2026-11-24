@@ -160,9 +160,9 @@ fun MullvadFeatureChip(
                     targetState = text,
                     transitionSpec = { fadeIn() togetherWith fadeOut() using SizeTransform() },
                     label = "featureChipText",
-                ) { text ->
+                ) {
                     Text(
-                        text = text,
+                        text = it,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
