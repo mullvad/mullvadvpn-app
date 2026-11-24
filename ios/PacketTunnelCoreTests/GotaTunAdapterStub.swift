@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import PacketTunnelCore
 import os
 
@@ -47,6 +48,8 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
     }
 
     let outcome: Outcome
+    /// Whether the network cannot reach the first address of the ingress relay.
+    let isFirstEndpointUnreachable: Bool
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     var lastConfig: GotaTunConfig? { state.withLock { $0.lastConfig } }
@@ -56,11 +59,15 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
     var isStopped: Bool { state.withLock { $0.isStopped } }
     var recycleUdpSocketsCount: Int { state.withLock { $0.recycleUdpSocketsCount } }
 
-    init(outcome: Outcome = .connected()) {
+    init(outcome: Outcome = .connected(), isFirstEndpointUnreachable: Bool = false) {
         self.outcome = outcome
+        self.isFirstEndpointUnreachable = isFirstEndpointUnreachable
     }
 
-    func startTunnel(config: GotaTunConfig, callbackHandler: GotaTunCallbackHandler) throws {
+    func startTunnel(
+        config: GotaTunConfig,
+        callbackHandler: GotaTunCallbackHandler
+    ) throws -> AnyIPEndpoint {
         state.withLock {
             $0.lastConfig = config
             $0.callbackHandler = callbackHandler
@@ -75,6 +82,8 @@ final class GotaTunAdapterStub: GotaTunAdapterProtocol, Sendable {
                 }
             }
         }
+        let endpoints = config.entryPeerEndpoints ?? config.exitPeerEndpoints
+        return isFirstEndpointUnreachable && endpoints.count > 1 ? endpoints[1] : endpoints[0]
     }
 
     func stopTunnel() {
@@ -129,15 +138,17 @@ final class TunnelProviderDelegateStub: TunnelProviderDelegate, Sendable {
 /// Factory that returns a sequence of adapters with configurable outcomes.
 final class GotaTunAdapterFactoryStub: GotaTunAdapterFactory {
     private let outcomes: [GotaTunAdapterStub.Outcome]
+    private let isFirstEndpointUnreachable: Bool
     private let created = OSAllocatedUnfairLock(initialState: [GotaTunAdapterStub]())
 
     var adaptersCreated: [GotaTunAdapterStub] { created.withLock { $0 } }
 
     /// Create a factory that returns adapters with the given outcomes in order.
     /// Once outcomes are exhausted, the last outcome is reused.
-    init(outcomes: [GotaTunAdapterStub.Outcome]) {
+    init(outcomes: [GotaTunAdapterStub.Outcome], isFirstEndpointUnreachable: Bool = false) {
         precondition(!outcomes.isEmpty)
         self.outcomes = outcomes
+        self.isFirstEndpointUnreachable = isFirstEndpointUnreachable
     }
 
     /// Convenience: all adapters use the same outcome.
@@ -147,7 +158,10 @@ final class GotaTunAdapterFactoryStub: GotaTunAdapterFactory {
 
     func makeAdapter() -> GotaTunAdapterProtocol {
         created.withLock {
-            let adapter = GotaTunAdapterStub(outcome: outcomes[min($0.count, outcomes.count - 1)])
+            let adapter = GotaTunAdapterStub(
+                outcome: outcomes[min($0.count, outcomes.count - 1)],
+                isFirstEndpointUnreachable: isFirstEndpointUnreachable
+            )
             $0.append(adapter)
             return adapter
         }

@@ -1509,6 +1509,11 @@ public func FfiConverterTypeApiContext_lower(_ value: ApiContext) -> UInt64 {
 public protocol GotaTunTunnelProtocol: AnyObject, Sendable {
     
     /**
+     * The address of the ingress peer that the tunnel connected to, as "ip:port".
+     */
+    func ingressEndpoint()  -> String
+    
+    /**
      * Recycle UDP sockets after a network path change.
      */
     func recycleUdpSockets() 
@@ -1601,6 +1606,17 @@ public static func start(tunFd: Int32, config: GotaTunConfig, callback: GotaTunC
 }
     
 
+    
+    /**
+     * The address of the ingress peer that the tunnel connected to, as "ip:port".
+     */
+open func ingressEndpoint() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_gotatuntunnel_ingress_endpoint(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
     
     /**
      * Recycle UDP sockets after a network path change.
@@ -2976,9 +2992,9 @@ public struct GotaTunPeer: Equatable, Hashable, Codable {
      */
     public let publicKey: Data
     /**
-     * Peer endpoint as "ip:port".
+     * Peer addresses as "ip:port", in the order to try them.
      */
-    public let endpoint: String
+    public let endpoints: [String]
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
@@ -2987,10 +3003,10 @@ public struct GotaTunPeer: Equatable, Hashable, Codable {
          * Peer's WireGuard public key (32 bytes).
          */publicKey: Data, 
         /**
-         * Peer endpoint as "ip:port".
-         */endpoint: String) {
+         * Peer addresses as "ip:port", in the order to try them.
+         */endpoints: [String]) {
         self.publicKey = publicKey
-        self.endpoint = endpoint
+        self.endpoints = endpoints
     }
 
     
@@ -3010,13 +3026,13 @@ public struct FfiConverterTypeGotaTunPeer: FfiConverterRustBuffer {
         return
             try GotaTunPeer(
                 publicKey: FfiConverterData.read(from: &buf), 
-                endpoint: FfiConverterString.read(from: &buf)
+                endpoints: FfiConverterSequenceString.read(from: &buf)
         )
     }
 
     public static func write(_ value: GotaTunPeer, into buf: inout [UInt8]) {
         FfiConverterData.write(value.publicKey, into: &buf)
-        FfiConverterString.write(value.endpoint, into: &buf)
+        FfiConverterSequenceString.write(value.endpoints, into: &buf)
     }
 }
 
@@ -3853,6 +3869,31 @@ fileprivate struct FfiConverterOptionTypeGotaTunPeer: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterSequenceString: FfiConverterRustBuffer {
+    typealias SwiftType = [String]
+
+    public static func write(_ value: [String], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterString.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [String] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [String]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterString.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterSequenceTypeAccessMethodChangeCallback: FfiConverterRustBuffer {
     typealias SwiftType = [AccessMethodChangeCallback]
 
@@ -4183,6 +4224,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_anyerror_error_debug() != 55136) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_ingress_endpoint() != 61201) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets() != 48993) {

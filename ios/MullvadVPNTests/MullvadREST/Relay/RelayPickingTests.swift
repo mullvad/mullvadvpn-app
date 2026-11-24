@@ -42,6 +42,64 @@ class RelayPickingTests: XCTestCase {
         XCTAssertEqual(selectedRelays.exit.hostname, "se10-wireguard")
     }
 
+    // MARK: IP version
+
+    private func pickSinglehop(ipVersion: IPVersion) throws -> SelectedRelay {
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+        settings.ipVersion = ipVersion
+
+        return try SinglehopPicker(relays: sampleRelays, tunnelSettings: settings, connectionAttemptCount: 0)
+            .pick().exit
+    }
+
+    func testAutomaticIpVersionSelectsBothAddresses() throws {
+        let relay = try pickSinglehop(ipVersion: .automatic)
+        let serverRelay = try XCTUnwrap(sampleRelays.wireguard.relays.first { $0.hostname == relay.hostname })
+        let port = relay.endpoint.socketAddress.port
+
+        XCTAssertEqual(
+            relay.endpoint.socketAddress,
+            .both(
+                IPv4Endpoint(ip: serverRelay.ipv4AddrIn, port: port),
+                IPv6Endpoint(ip: serverRelay.ipv6AddrIn, port: port)
+            )
+        )
+    }
+
+    func testExplicitIpVersionSelectsOneAddress() throws {
+        guard case .ipv4 = try pickSinglehop(ipVersion: .ipv4).endpoint.socketAddress else {
+            return XCTFail("Expected only an IPv4 address")
+        }
+        guard case .ipv6 = try pickSinglehop(ipVersion: .ipv6).endpoint.socketAddress else {
+            return XCTFail("Expected only an IPv6 address")
+        }
+    }
+
+    // Only the entry is reached over the network. The exit is reached through the entry, over IPv4.
+    func testMultihopOnlySelectsBothAddressesForTheEntry() throws {
+        var settings = LatestTunnelSettings(tunnelMultihopState: .always)
+        settings.relayConstraints = RelayConstraints(
+            entryLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
+        )
+        settings.ipVersion = .automatic
+
+        let selectedRelays = try MultihopPicker(
+            relays: sampleRelays, tunnelSettings: settings, connectionAttemptCount: 0
+        )
+        .pick()
+
+        guard case .both = selectedRelays.entry?.endpoint.socketAddress else {
+            return XCTFail("Expected both addresses for the entry")
+        }
+        guard case .ipv4 = selectedRelays.exit.endpoint.socketAddress else {
+            return XCTFail("Expected only an IPv4 address for the exit")
+        }
+    }
+
     func testMultihopPicker() throws {
         let constraints = RelayConstraints(
             entryLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])),

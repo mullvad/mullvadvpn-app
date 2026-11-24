@@ -58,6 +58,19 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
     }
 }
 
+extension SelectedRelay {
+    /// The relay with `socketAddress` as its only address.
+    public func with(socketAddress: AnyIPEndpoint) -> SelectedRelay {
+        SelectedRelay(
+            endpoint: endpoint.with(socketAddress: socketAddress),
+            hostname: hostname,
+            location: location,
+            isIPOverridden: isIPOverridden,
+            features: features
+        )
+    }
+}
+
 extension SelectedRelay: CustomDebugStringConvertible {
     public var debugDescription: String {
         "\(hostname)\(isIPOverridden ? " [IP Overridden]" : "")"
@@ -86,5 +99,14 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
         self.entry = entry
         self.exit = exit
         self.retryAttempt = retryAttempt
+    }
+
+    /// The relays with `socketAddress` as the only address of the ingress relay.
+    public func with(ingressSocketAddress socketAddress: AnyIPEndpoint) -> SelectedRelays {
+        if let entry {
+            SelectedRelays(entry: entry.with(socketAddress: socketAddress), exit: exit, retryAttempt: retryAttempt)
+        } else {
+            SelectedRelays(entry: nil, exit: exit.with(socketAddress: socketAddress), retryAttempt: retryAttempt)
+        }
     }
 }

@@ -52,9 +52,10 @@ public struct GotaTunConfig: Sendable {
     /// Client (device) public key, derived from privateKey.
     public let clientPublicKey: Data
     public let exitPeerPublicKey: Data
-    public let exitPeerEndpoint: String
+    /// In the order to try them.
+    public let exitPeerEndpoints: [AnyIPEndpoint]
     public let entryPeerPublicKey: Data?
-    public let entryPeerEndpoint: String?
+    public let entryPeerEndpoints: [AnyIPEndpoint]?
     public let isPostQuantum: Bool
     public let isDaitaEnabled: Bool
     /// How long to wait for the tunnel to establish connectivity (seconds).
@@ -79,7 +80,9 @@ public protocol GotaTunAdapterProtocol: Sendable {
     /// Start the tunnel. Non-blocking.
     /// Exactly one of `onConnected`/`onTimeout`/`onError` will be called.
     /// After `onConnected`, `onTimeout` may fire once more if connection is lost.
-    func startTunnel(config: GotaTunConfig, callbackHandler: GotaTunCallbackHandler) throws
+    ///
+    /// Returns the address of the ingress peer that the tunnel connected to.
+    func startTunnel(config: GotaTunConfig, callbackHandler: GotaTunCallbackHandler) throws -> AnyIPEndpoint
 
     /// Stop the tunnel. Safe to call multiple times or concurrently with callbacks.
     /// After this returns, no callbacks will fire.

@@ -85,8 +85,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         tunnelObfuscator = obfuscator
 
         // LWO always binds its local proxy to IPv4 localhost, so always use IPv4 loopback for it.
-        let localAddress: AnyIPEndpoint =
-            switch (endpoint.socketAddress, obfuscationProtocol) {
+        let localAddress: SelectedSocketAddress =
+            switch (endpoint.socketAddress.preferred, obfuscationProtocol) {
             case (.ipv6, _) where !obfuscationProtocol.isLwo:
                 .ipv6(IPv6Endpoint(ip: .loopback, port: obfuscator.localUdpPort))
             default:

@@ -1045,21 +1045,64 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(states.map(\.name), ["Initial", "Connecting", "Connecting", "Connected"])
     }
 
-    func testNetworkUnreachableBlocksWithoutRetrying() async throws {
-        let clock = TestClock()
-        let factory = GotaTunAdapterFactoryStub(outcomes: [.error(.networkUnreachable("")), .connected()])
-        let actor = makeActor(adapterFactory: factory, clock: clock)
-        let launchOptions = launchOptions
+    /// Relays whose ingress has an address of each IP version.
+    private func relaySelectorWithBothAddresses() -> (RelaySelectorStub, IPv4Endpoint, IPv6Endpoint) {
+        let ipv4 = IPv4Endpoint(ip: .loopback, port: 1300)
+        let ipv6 = IPv6Endpoint(ip: .loopback, port: 1300)
+        let relay = SelectedRelay(
+            endpoint: SelectedEndpoint(
+                socketAddress: .both(ipv4, ipv6),
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                publicKey: WireGuard.PrivateKey().publicKey.rawValue,
+                obfuscation: .off
+            ),
+            hostname: "se-got",
+            location: Location(country: "", countryCode: "se", city: "", cityCode: "got", latitude: 0, longitude: 0),
+            features: nil
+        )
+        let selector = RelaySelectorStub(selectedRelaysResult: { _ in
+            SelectedRelays(entry: nil, exit: relay, retryAttempt: 0)
+        })
+        return (selector, ipv4, ipv6)
+    }
 
-        await waitFor(
-            actor, until: { $0.blockedReason == .offline }, while: { await actor.start(options: launchOptions) })
+    func testBothAddressesArePassedToTheAdapter() async throws {
+        let (relaySelector, ipv4, ipv6) = relaySelectorWithBothAddresses()
+        let factory = GotaTunAdapterFactoryStub()
+        let actor = makeActor(adapterFactory: factory, relaySelector: relaySelector)
 
-        await clock.advance(by: .seconds(60))
-        await actor.drainEvents()
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
 
-        XCTAssertEqual(factory.adaptersCreated.count, 1)
+        let config = try XCTUnwrap(factory.adaptersCreated.first?.lastConfig)
+        XCTAssertEqual(config.exitPeerEndpoints, [.ipv4(ipv4), .ipv6(ipv6)])
+
         let state = await actor.observedState
-        XCTAssertEqual(state.blockedReason, .offline)
+        XCTAssertEqual(state.connectionState?.selectedRelays.exit.endpoint.socketAddress, .ipv4(ipv4))
+    }
+
+    func testEveryConnectionTriesTheOtherIpVersionFirst() async throws {
+        let (relaySelector, ipv4, ipv6) = relaySelectorWithBothAddresses()
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.timeout(), .timeout(), .connected()])
+        let actor = makeActor(adapterFactory: factory, relaySelector: relaySelector)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        XCTAssertEqual(
+            factory.adaptersCreated.map { $0.lastConfig?.exitPeerEndpoints },
+            [[.ipv4(ipv4), .ipv6(ipv6)], [.ipv6(ipv6), .ipv4(ipv4)], [.ipv4(ipv4), .ipv6(ipv6)]]
+        )
+    }
+
+    func testStateReportsTheIpv6AddressWhenTheTunnelUsesIt() async throws {
+        let (relaySelector, _, ipv6) = relaySelectorWithBothAddresses()
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.connected()], isFirstEndpointUnreachable: true)
+        let actor = makeActor(adapterFactory: factory, relaySelector: relaySelector)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        let state = await actor.observedState
+        XCTAssertEqual(state.connectionState?.selectedRelays.exit.endpoint.socketAddress, .ipv6(ipv6))
     }
 
     func testPathUpdateRestoresConnectivityWhenNetworkUnreachable() async throws {

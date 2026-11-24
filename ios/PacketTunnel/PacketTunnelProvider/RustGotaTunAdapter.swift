@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadRustRuntime
+import MullvadTypes
 import PacketTunnelCore
 
 /// GotaTun adapter backed by the Rust FFI via the UniFFI-generated `GotaTunTunnel`.
@@ -22,9 +23,13 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
     private let logger = Logger(label: "RustGotaTunAdapter")
     private var tunnel: GotaTunTunnel?
 
-    func startTunnel(config: PacketTunnelCore.GotaTunConfig, callbackHandler: GotaTunCallbackHandler) throws {
+    func startTunnel(
+        config: PacketTunnelCore.GotaTunConfig,
+        callbackHandler: GotaTunCallbackHandler
+    ) throws -> AnyIPEndpoint {
         let ffiConfig = Self.makeFfiConfig(config)
 
+        let tunnel: GotaTunTunnel
         do {
             tunnel = try GotaTunTunnel.start(
                 tunFd: config.tunnelFd,
@@ -35,7 +40,14 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
             throw error.toGotaTunError()
         }
 
+        guard let ingressEndpoint = AnyIPEndpoint(string: tunnel.ingressEndpoint()) else {
+            tunnel.stop()
+            throw GotaTunError.internalError("Invalid ingress endpoint: \(tunnel.ingressEndpoint())")
+        }
+        self.tunnel = tunnel
+
         logger.debug("Tunnel started via GotaTunTunnel")
+        return ingressEndpoint
     }
 
     func stopTunnel() {
@@ -65,13 +77,13 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
     private static func makeFfiConfig(_ config: PacketTunnelCore.GotaTunConfig) -> MullvadRustRuntime.GotaTunConfig {
         let exitPeer = GotaTunPeer(
             publicKey: config.exitPeerPublicKey,
-            endpoint: config.exitPeerEndpoint
+            endpoints: config.exitPeerEndpoints.map { "\($0)" }
         )
 
         let entryPeer: GotaTunPeer? = {
-            guard let key = config.entryPeerPublicKey, let endpoint = config.entryPeerEndpoint
+            guard let key = config.entryPeerPublicKey, let endpoints = config.entryPeerEndpoints
             else { return nil }
-            return GotaTunPeer(publicKey: key, endpoint: endpoint)
+            return GotaTunPeer(publicKey: key, endpoints: endpoints.map { "\($0)" })
         }()
 
         return MullvadRustRuntime.GotaTunConfig(

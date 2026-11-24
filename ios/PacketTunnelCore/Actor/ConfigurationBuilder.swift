@@ -70,7 +70,7 @@ public struct ConfigurationBuilder {
 
             // Socket address is already resolved (IPv4 or IPv6) during relay selection
             return TunnelPeer(
-                endpoint: endpoint.socketAddress,
+                endpoint: endpoint.socketAddress.preferred,
                 publicKey: publicKey,
                 preSharedKey: preSharedKey
             )

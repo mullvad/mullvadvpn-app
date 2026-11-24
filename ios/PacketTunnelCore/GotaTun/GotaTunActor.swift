@@ -80,6 +80,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private var stateBroadcaster = ObservedStateBroadcaster()
     /// Unknown until the path monitor delivers its first update, which is what releases `start`.
     private var currentReachability: NetworkReachability = .undetermined
+    /// Alternates with every connection, so that a network which cannot use one IP version gets to
+    /// use the other.
+    private var ipv6First = false
     private var currentAdapter: GotaTunAdapterProtocol?
     /// Incremented whenever the current adapter is replaced or stopped. Events tagged with an
     /// older generation come from an adapter no longer in use and are dropped.
@@ -645,8 +648,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             fd: fd,
             ipv4Address: ipv4Address,
             ipv6Address: ipv6Address,
-            establishTimeout: Self.computeEstablishTimeout(attemptCount: attemptCount)
+            establishTimeout: Self.computeEstablishTimeout(attemptCount: attemptCount),
+            ipv6First: ipv6First
         )
+        ipv6First.toggle()
 
         let connectionState = Self.makeConnectionState(
             config: config,
@@ -694,10 +699,14 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         currentAdapter = adapter
 
         do {
-            try adapter.startTunnel(
+            let ingressEndpoint = try adapter.startTunnel(
                 config: config,
                 callbackHandler: CallbackProxy(continuation: eventContinuation, generation: adapterGeneration)
             )
+            // Of the addresses that were selected, report the one that the network can reach.
+            observedState.mutateConnectionState {
+                $0.selectedRelays = $0.selectedRelays.with(ingressSocketAddress: ingressEndpoint)
+            }
         } catch {
             logger.error("Failed to start tunnel: \(error)")
             currentAdapter = nil
@@ -751,9 +760,17 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         fd: Int32,
         ipv4Address: IPv4Address,
         ipv6Address: IPv6Address,
-        establishTimeout: UInt32
+        establishTimeout: UInt32,
+        ipv6First: Bool
     ) -> GotaTunConfig {
-        GotaTunConfig(
+        let endpoints = { (address: SelectedSocketAddress) -> [AnyIPEndpoint] in
+            switch address {
+            case let .ipv4(ipv4): [.ipv4(ipv4)]
+            case let .ipv6(ipv6): [.ipv6(ipv6)]
+            case let .both(ipv4, ipv6): ipv6First ? [.ipv6(ipv6), .ipv4(ipv4)] : [.ipv4(ipv4), .ipv6(ipv6)]
+            }
+        }
+        return GotaTunConfig(
             tunnelFd: fd,
             privateKey: privateKey.rawValue,
             ipv4Address: ipv4Address,
@@ -762,9 +779,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             ipv4Gateway: "\(selectedRelays.exit.endpoint.ipv4Gateway)",
             clientPublicKey: privateKey.publicKey.rawValue,
             exitPeerPublicKey: selectedRelays.exit.endpoint.publicKey,
-            exitPeerEndpoint: "\(selectedRelays.exit.endpoint.socketAddress)",
+            exitPeerEndpoints: endpoints(selectedRelays.exit.endpoint.socketAddress),
             entryPeerPublicKey: selectedRelays.entry?.endpoint.publicKey,
-            entryPeerEndpoint: selectedRelays.entry.map { "\($0.endpoint.socketAddress)" },
+            entryPeerEndpoints: selectedRelays.entry.map { endpoints($0.endpoint.socketAddress) },
             isPostQuantum: settings.tunnelSettings.tunnelQuantumResistance.isEnabled,
             isDaitaEnabled: settings.tunnelSettings.daita.isEnabled,
             establishTimeout: establishTimeout,

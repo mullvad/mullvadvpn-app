@@ -614,6 +614,11 @@ void uniffi_mullvad_ios_fn_free_gotatuntunnel(uint64_t handle, RustCallStatus *_
 uint64_t uniffi_mullvad_ios_fn_constructor_gotatuntunnel_start(int32_t tun_fd, RustBuffer config, uint64_t callback, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_GOTATUNTUNNEL_INGRESS_ENDPOINT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_GOTATUNTUNNEL_INGRESS_ENDPOINT
+RustBuffer uniffi_mullvad_ios_fn_method_gotatuntunnel_ingress_endpoint(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_GOTATUNTUNNEL_RECYCLE_UDP_SOCKETS
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_GOTATUNTUNNEL_RECYCLE_UDP_SOCKETS
 void uniffi_mullvad_ios_fn_method_gotatuntunnel_recycle_udp_sockets(uint64_t ptr, RustCallStatus *_Nonnull out_status
@@ -1090,6 +1095,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_anyerror_error(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR_DEBUG
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR_DEBUG
 uint16_t uniffi_mullvad_ios_checksum_method_anyerror_error_debug(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_INGRESS_ENDPOINT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_INGRESS_ENDPOINT
+uint16_t uniffi_mullvad_ios_checksum_method_gotatuntunnel_ingress_endpoint(void
     
 );
 #endif

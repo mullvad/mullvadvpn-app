@@ -23,8 +23,8 @@ use talpid_tunnel_config_client::negotiation::NegotiationError;
 pub struct GotaTunPeer {
     /// Peer's WireGuard public key (32 bytes).
     pub public_key: Vec<u8>,
-    /// Peer endpoint as "ip:port".
-    pub endpoint: String,
+    /// Peer addresses as "ip:port", in the order to try them.
+    pub endpoints: Vec<String>,
 }
 
 /// Full tunnel configuration.
@@ -147,6 +147,7 @@ impl TunnelCallbackHandler for CallbackBridge {
 #[derive(uniffi::Object)]
 pub struct GotaTunTunnel {
     adapter: IosTunnelAdapter,
+    ingress_endpoint: SocketAddr,
 }
 
 #[uniffi::export]
@@ -158,10 +159,9 @@ impl GotaTunTunnel {
     #[uniffi::constructor]
     pub fn start(
         tun_fd: i32,
-        config: GotaTunConfig,
+        mut config: GotaTunConfig,
         callback: Box<dyn GotaTunCallback>,
     ) -> Result<Arc<Self>, GotaTunFfiError> {
-        let params = build_tunnel_parameters(tun_fd, config)?;
         let runtime = crate::mullvad_ios_runtime().map_err(GotaTunFfiError::Internal)?;
 
         // Bind before returning, so a missing interface is reported to the caller instead of
@@ -169,12 +169,21 @@ impl GotaTunTunnel {
         let udp = runtime
             .block_on(BoundUdpTransports::bind())
             .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
-        check_route(params.ingress_peer().endpoint)
-            .map_err(|e| GotaTunFfiError::NetworkUnreachable(e.to_string()))?;
 
+        select_routable_endpoint(config.entry_peer.as_mut().unwrap_or(&mut config.exit_peer))?;
+        let params = build_tunnel_parameters(tun_fd, config)?;
+        let ingress_endpoint = params.ingress_peer().endpoint;
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
         let adapter = IosTunnelAdapter::start(runtime, params, udp, handler);
-        Ok(Arc::new(Self { adapter }))
+        Ok(Arc::new(Self {
+            adapter,
+            ingress_endpoint,
+        }))
+    }
+
+    /// The address of the ingress peer that the tunnel connected to, as "ip:port".
+    pub fn ingress_endpoint(&self) -> String {
+        self.ingress_endpoint.to_string()
     }
 
     /// Stop and tear down the tunnel. Safe to call multiple times.
@@ -228,13 +237,42 @@ fn check_route(address: SocketAddr) -> io::Result<()> {
     UdpSocket::bind((unspecified, 0))?.connect(address)
 }
 
+/// Keep only the first endpoint of `peer` that the network has a route to.
+fn select_routable_endpoint(peer: &mut GotaTunPeer) -> Result<(), GotaTunFfiError> {
+    let mut last_error = None;
+    for endpoint in std::mem::take(&mut peer.endpoints) {
+        let address = parse::<SocketAddr>(&endpoint, "peer endpoint")?;
+        match check_route(address) {
+            Ok(()) => {
+                peer.endpoints = vec![endpoint];
+                return Ok(());
+            }
+            Err(error) => {
+                let version = if address.is_ipv4() { "IPv4" } else { "IPv6" };
+                log::info!("Cannot reach {version} endpoint {address}: {error}");
+                last_error = Some(error);
+            }
+        }
+    }
+    // Without any endpoints, it is up to `build_peer` to fail.
+    last_error.map_or(Ok(()), |error| {
+        Err(GotaTunFfiError::NetworkUnreachable(error.to_string()))
+    })
+}
+
 fn build_peer(
     peer: &GotaTunPeer,
     allowed_ips: Vec<IpNetwork>,
 ) -> Result<PeerParameters, GotaTunFfiError> {
+    let Some(endpoint) = peer.endpoints.first() else {
+        log::error!("Peer has no endpoints");
+        return Err(GotaTunFfiError::Internal(
+            "Peer has no endpoints".to_owned(),
+        ));
+    };
     Ok(PeerParameters {
         public_key: key32(&peer.public_key, "peer public key")?,
-        endpoint: parse(&peer.endpoint, "peer endpoint")?,
+        endpoint: parse(endpoint, "peer endpoint")?,
         allowed_ips,
     })
 }
