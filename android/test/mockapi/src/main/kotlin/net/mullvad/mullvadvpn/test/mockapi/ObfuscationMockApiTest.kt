@@ -1,16 +1,20 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import java.time.ZonedDateTime
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.disableIPv6Story
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -32,28 +36,37 @@ class ObfuscationMockApiTest : MockApiTest() {
     }
 
     @Test
-    @Disabled("Disabled due to it not being possible to check the ui for this method is being used")
-    fun checkThatAllObfuscationsAreUsed() {
+    fun checkThatAllObfuscationsAreUsed() = runTest {
         app.launchAndLogIn(validAccountNumber)
 
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Disable IPv6 so we do not test IPv6 with the same obfuscation method
-        on<ConnectPage> { disableIPv6Story() }
+        app.applySettings(deviceIpVersion = Constraint.Only(IpVersion.IPV4))
 
         on<ConnectPage> {
             clickConnect()
             device.acceptVpnPermissionDialog()
-
-            // Wait for obfuscation methods in order
-            waitForConnectingLabel()
-            obfuscationNames.forEach { waitForFeatureIndicator(it) }
         }
+
+        // Collect tunnel states until all obfuscation methods have been seen
+        val remaining = obfuscationIndicators.toMutableSet()
+        app.tunnelStateFlow()
+            .mapNotNull { it.featureIndicators() }
+            .first {
+                remaining.removeAll(it.toSet())
+                remaining.isEmpty()
+            }
     }
 
     companion object {
-        // List of obfuscation methods in the order the relay selector uses them
-        // If the order in the relay selector changes this should be updated
-        private val obfuscationNames = listOf("LWO", "Shadowsocks", "QUIC", "UDP-over-TCP")
+        // All currently reported obfuscation methods
+        private val obfuscationIndicators =
+            listOf(
+                FeatureIndicator.LWO,
+                FeatureIndicator.QUIC,
+                FeatureIndicator.SHADOWSOCKS,
+                FeatureIndicator.UDP_2_TCP,
+            )
     }
 }

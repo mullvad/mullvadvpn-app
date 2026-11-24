@@ -10,9 +10,13 @@ import androidx.test.uiautomator.Until
 import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
@@ -24,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -69,7 +74,7 @@ class AppInteractor(
     }
 
     fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
-        timeout: Long = DEFAULT_TIMEOUT,
+        timeout: Long = DEFAULT_TIMEOUT
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             // Skipping as notification permissions are not shown.
@@ -100,18 +105,7 @@ class AppInteractor(
     ) = coroutineScope {
         try {
             val job = launch {
-                val socket =
-                    File(
-                        InstrumentationRegistry.getInstrumentation().targetContext.noBackupFilesDir,
-                        "rpc-socket",
-                    )
-                val service =
-                    ManagementService(
-                        rpcSocketFile = socket,
-                        extensiveLogging = false,
-                        scope = this,
-                        ioDispatcher = Dispatchers.IO,
-                    )
+                val service = createService(this)
 
                 pq?.let { service.setWireguardQuantumResistant(it) }
                 obfuscationMode?.let { service.setObfuscation(it) }
@@ -129,4 +123,25 @@ class AppInteractor(
             // Ignore cancel, we have just stopped ManagementService
         }
     }
+
+    fun tunnelStateFlow(scope: CoroutineScope = MainScope()): Flow<TunnelState> {
+        val service = createService(scope)
+        service.start()
+        return service.tunnelState
+    }
+
+    private fun createService(
+        scope: CoroutineScope,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    ) =
+        ManagementService(
+            rpcSocketFile =
+                File(
+                    InstrumentationRegistry.getInstrumentation().targetContext.noBackupFilesDir,
+                    "rpc-socket",
+                ),
+            extensiveLogging = false,
+            scope = scope,
+            ioDispatcher = ioDispatcher,
+        )
 }
