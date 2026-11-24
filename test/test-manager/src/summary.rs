@@ -177,6 +177,21 @@ impl Summary {
             .filter(|x| matches!(x, TestResult::Pass))
             .collect()
     }
+
+    // Return the number of tests that apply to this platform.
+    fn applicable_tests(&self) -> usize {
+        self.results
+            .values()
+            .filter(|x| !matches!(x, TestResult::Skip))
+            .count()
+    }
+
+    /// Returns whether all non-skipped tests passed.
+    fn is_success(&self) -> bool {
+        self.results
+            .values()
+            .all(|x| matches!(x, TestResult::Pass | TestResult::Skip))
+    }
 }
 
 /// Outputs an HTML table, to stdout, containing the results of the given log files.
@@ -205,9 +220,9 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     println!("<td style='text-align: center;'>Test ⬇️ / Platform ➡️ </td>");
 
     for summary in &summaries {
-        let total_tests = summary.results.len();
+        let total_tests = summary.applicable_tests();
         let total_passed = summary.passed().len();
-        let counter_text = if total_passed == total_tests {
+        let counter_text = if summary.is_success() {
             String::from(TestResult::PASS_STR)
         } else {
             format!("({total_passed}/{total_tests})")
@@ -223,7 +238,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     println!("{}", {
         let oses_passed: Vec<_> = summaries
             .iter()
-            .filter(|summary| summary.passed().len() == summary.results.len())
+            .filter(|summary| summary.is_success())
             .collect();
         if summaries.is_empty() {
             "⚠️ No test results ⚠️".to_string()
@@ -232,13 +247,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
         } else {
             let failed: usize = summaries
                 .iter()
-                .map(|summary| {
-                    if summary.passed().len() == summary.results.len() {
-                        0
-                    } else {
-                        1
-                    }
-                })
+                .map(|summary| usize::from(!summary.is_success()))
                 .sum();
             format!("🌧️ ️ {failed} Platform(s) failed 🌧️")
         }
@@ -300,4 +309,43 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     println!("<p>{} = Test passed</p>", TestResult::PASS_STR);
     println!("<p>{} = Test failed</p>", TestResult::FAIL_STR);
     println!("<p>{} = Test skipped</p>", TestResult::SKIP_STR);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn summary_with(results: &[(&str, TestResult)]) -> Summary {
+        Summary {
+            config_name: "test-platform".to_owned(),
+            results: results
+                .iter()
+                .map(|(name, result)| ((*name).to_owned(), *result))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn platform_with_passes_and_inapplicable_skips_is_success() {
+        let summary = summary_with(&[("test_a", TestResult::Pass), ("test_b", TestResult::Skip)]);
+        assert!(summary.is_success());
+        assert_eq!(summary.applicable_tests(), 1);
+    }
+
+    #[test]
+    fn platform_with_failed_test_is_not_success() {
+        let summary = summary_with(&[("test_a", TestResult::Pass), ("test_b", TestResult::Fail)]);
+        assert!(!summary.is_success());
+        assert_eq!(summary.applicable_tests(), 2);
+    }
+
+    #[test]
+    fn platform_with_unknown_result_is_not_success() {
+        let summary = summary_with(&[
+            ("test_a", TestResult::Pass),
+            ("test_b", TestResult::Unknown),
+        ]);
+        assert!(!summary.is_success());
+        assert_eq!(summary.applicable_tests(), 2);
+    }
 }
