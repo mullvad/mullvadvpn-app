@@ -38,10 +38,12 @@ extension RelayPicking {
 
         // Resolve the addresses that the IP version preference allows
         let ipVersion = tunnelSettings.ipVersion
-        let ipv4 =
-            ipVersion.isIPv6 && !forceV4Address ? nil : resolveIpv4Endpoint(match: match, obfuscation: obfuscation)
-        let ipv6 =
-            ipVersion.isIPv4 || forceV4Address ? nil : resolveIpv6Endpoint(match: match, obfuscation: obfuscation)
+
+        let shouldPickIpv6 = !ipVersion.isIPv4 && !forceV4Address
+        let shouldPickIpv4 = !ipVersion.isIPv6 || forceV4Address
+
+        let ipv6 = shouldPickIpv6 ? resolveIpv6Endpoint(match: match, obfuscation: obfuscation) : nil
+        let ipv4 = shouldPickIpv4 ? resolveIpv4Endpoint(match: match, obfuscation: obfuscation) : nil
 
         let socketAddress: SelectedSocketAddress
         switch (ipv4, ipv6) {
