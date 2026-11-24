@@ -29,7 +29,6 @@ struct SegmentedListItem<Leading: View>: View {
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
     var footer: AnyView?
-    let customDismissAction: (() -> Void)?
     let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
@@ -48,7 +47,6 @@ struct SegmentedListItem<Leading: View>: View {
         @ViewBuilder segment: () -> Segment = { EmptyView() },
         @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
         @ViewBuilder footer: () -> Footer = { EmptyView() },
-        customDismissAction: (() -> Void)? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -63,7 +61,6 @@ struct SegmentedListItem<Leading: View>: View {
         self.segment = segment().typeErase()
         self.groupedContent = groupedContent().typeErase()
         self.footer = footer().typeErase()
-        self.customDismissAction = customDismissAction
         self.onSelect = onSelect
     }
 
@@ -79,12 +76,8 @@ struct SegmentedListItem<Leading: View>: View {
     @ViewBuilder func leadingAndTrailing() -> some View {
         if let leadingAndTrailingDestination {
             NavigationLink {
-                if let customDismissAction {
-                    leadingAndTrailingDestination
-                        .withCustomBackButton(customDismissAction)
-                } else {
-                    leadingAndTrailingDestination
-                }
+                leadingAndTrailingDestination
+                        .withCustomBackButton()
             } label: {
                 leading()
                     .environment(\.segmentedListItemAppearance, appearance)
