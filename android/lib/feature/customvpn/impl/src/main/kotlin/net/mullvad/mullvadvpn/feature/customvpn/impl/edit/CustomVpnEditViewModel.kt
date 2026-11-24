@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.EitherNel
+import arrow.core.NonEmptyList
 import arrow.core.flatMap
 import arrow.core.mapOrAccumulate
 import arrow.core.merge
@@ -82,7 +83,11 @@ class CustomVpnEditViewModel(
                 .onRight { formErrors.value = null }
                 .mapLeft {
                     formErrors.value = it
-                    CustomVpnSideEffect.FormErrors
+                    if (it.missingPeerError) {
+                        CustomVpnSideEffect.FormErrors.MissingPeerError
+                    } else {
+                        CustomVpnSideEffect.FormErrors.FieldError
+                    }
                 }
                 .flatMap { vpnConfig ->
                     customVpnRepository
@@ -107,7 +112,13 @@ class CustomVpnEditViewModel(
                     nameError = nameError,
                     privateKeyError = privateKeyError,
                     tunnelIpErrors = tunnelIpError?.associateBy { it.errorValue }.orEmpty(),
-                    peerErrors = parsePeersError?.toMap().orEmpty(),
+                    peerErrors =
+                        when (parsePeersError) {
+                            is PeersError.InvalidPeer -> parsePeersError.errors.toMap()
+                            PeersError.Empty,
+                            null -> emptyMap()
+                        },
+                    missingPeerError = parsePeersError is PeersError.Empty,
                 )
             },
         ) { name, privateKey, tunnelIps, peerConfigs ->
@@ -126,8 +137,13 @@ class CustomVpnEditViewModel(
 
     private fun parsePeers(
         peers: List<PeerFormData>,
-    ): EitherNel<Pair<String, PeerErrors>, List<PeerConfig>> = peers.mapOrAccumulate {
-        parsePeer(it).mapLeft { peerErrors -> it.id to peerErrors }.bind()
+    ): Either<PeersError, List<PeerConfig>> = either {
+        ensure(peers.isNotEmpty()) { PeersError.Empty }
+
+        peers
+            .mapOrAccumulate { parsePeer(it).mapLeft { peerErrors -> it.id to peerErrors }.bind() }
+            .mapLeft(PeersError::InvalidPeer)
+            .bind()
     }
 
     private fun parsePeer(peer: PeerFormData): Either<PeerErrors, PeerConfig> =
@@ -206,4 +222,10 @@ class CustomVpnEditViewModel(
         Port.fromString(endpointPort).mapLeft {
             FormDataError.EndpointPort(errorValue = endpointPort, parsePortError = it)
         }
+}
+
+private sealed interface PeersError {
+    data object Empty : PeersError
+
+    data class InvalidPeer(val errors: NonEmptyList<Pair<String, PeerErrors>>) : PeersError
 }

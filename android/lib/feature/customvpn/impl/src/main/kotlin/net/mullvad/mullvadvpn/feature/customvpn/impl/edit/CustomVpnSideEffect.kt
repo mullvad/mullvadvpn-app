@@ -2,7 +2,10 @@ package net.mullvad.mullvadvpn.feature.customvpn.impl.edit
 
 sealed interface CustomVpnSideEffect {
 
-    data object FormErrors : CustomVpnSideEffect
+    enum class FormErrors : CustomVpnSideEffect {
+        FieldError,
+        MissingPeerError,
+    }
 
     data object ConfigurationSaved : CustomVpnSideEffect
 

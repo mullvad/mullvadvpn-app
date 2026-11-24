@@ -129,6 +129,8 @@ fun CustomVpnEdit(
     }
 
     val formHasErrorMessage = stringResource(R.string.custom_tunnels_form_contains_errors_message)
+    val noPeerErrorMessage =
+        stringResource(R.string.custom_tunnels_form_must_have_at_least_one_peer)
     val saveSuccessMessage = stringResource(R.string.custom_tunnels_form_saved_success)
 
     LocalResultStore.current.consumeResult<DiscardChangesConfirmedNavResult> { navigator.goBack() }
@@ -138,8 +140,11 @@ fun CustomVpnEdit(
             is CustomVpnSideEffect.FailedToSave ->
                 snackbarHostState.showSnackbarImmediately(sideEffect.reason)
 
-            CustomVpnSideEffect.FormErrors ->
+            CustomVpnSideEffect.FormErrors.FieldError ->
                 snackbarHostState.showSnackbarImmediately(formHasErrorMessage)
+
+            CustomVpnSideEffect.FormErrors.MissingPeerError ->
+                snackbarHostState.showSnackbarImmediately(noPeerErrorMessage)
 
             CustomVpnSideEffect.ConfigurationSaved ->
                 snackbarHostState.showSnackbarImmediately(saveSuccessMessage)
@@ -430,7 +435,6 @@ fun LazyListScope.peersSection(
                 PeerItem(
                     title = peerTitle,
                     peerState = peerState,
-                    canDelete = index > 0,
                     onDeletePeer = onRequestRemove,
                     publicKeyError = state.formErrors?.peerErrors[peerState.id]?.publicKeyError,
                     endpointAddressError =
@@ -476,7 +480,6 @@ fun PeerItem(
     modifier: Modifier = Modifier,
     title: String,
     peerState: PeerState,
-    canDelete: Boolean,
     onDeletePeer: () -> Unit,
     publicKeyError: FormDataError.PublicKey?,
     endpointAddressError: FormDataError.EndpointAddress?,
@@ -490,16 +493,14 @@ fun PeerItem(
         title = title,
         isExpanded = expanded,
         onCellClicked = { expanded = !expanded },
-        extraTrailingContent =
-            canDelete then
-                {
-                    ListItemIconButton(onClick = onDeletePeer) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = stringResource(R.string.delete),
-                        )
-                    }
-                },
+        extraTrailingContent = {
+            ListItemIconButton(onClick = onDeletePeer) {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                )
+            }
+        },
         expandedContent = {
             Column(
                 modifier =

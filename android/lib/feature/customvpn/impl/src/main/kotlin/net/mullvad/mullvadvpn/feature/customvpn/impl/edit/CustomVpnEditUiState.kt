@@ -17,6 +17,7 @@ data class FormErrors(
     val privateKeyError: FormDataError.PrivateKey? = null,
     val tunnelIpErrors: Map<String, FormDataError.TunnelIp> = emptyMap(),
     val peerErrors: Map<String, PeerErrors> = emptyMap(),
+    val missingPeerError: Boolean,
 )
 
 data class PeerErrors(

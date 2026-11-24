@@ -160,7 +160,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -183,7 +183,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -209,7 +209,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -236,7 +236,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -267,7 +267,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -298,7 +298,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -329,7 +329,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
@@ -360,7 +360,7 @@ class CustomVpnEditViewModelTest {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 viewModel.save(invalidForm)
-                assertEquals(CustomVpnSideEffect.FormErrors, awaitItem())
+                assertEquals(CustomVpnSideEffect.FormErrors.FieldError, awaitItem())
             }
 
             viewModel.uiState.test {
