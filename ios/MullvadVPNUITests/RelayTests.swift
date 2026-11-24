@@ -939,6 +939,44 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapDisconnectButton()
     }
+
+    func testOutgoingIpsBeingShown() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapIPVersionIPv6Cell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        // Verify connection works
+        try Networking.verifyCanAccessInternet()
+        try Networking.verifyConnectedThroughMullvad()
+
+        // Verify that both outgoing IPv4 and IPv6 addresses are shown
+        TunnelControlPage(app).tapRelayStatusExpandCollapseButton()
+        let (ipv4, ipv6) = TunnelControlPage(app)
+            .getOutIPAddressesFromConnectionStatus()
+        // Assert validity of IPs
+        XCTAssertTrue(IPv4Address(ipv4) != nil, "malformed IPv4 address")
+        XCTAssertTrue(IPv6Address(ipv6) != nil, "malformed IPv6 address")
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+    }
 }
 
 extension RelayTests {

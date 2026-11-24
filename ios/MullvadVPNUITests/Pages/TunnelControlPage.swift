@@ -281,6 +281,16 @@ class TunnelControlPage: Page {
         return (inIpAddress, Int(inPort)!)
     }
 
+    func getOutIPAddressesFromConnectionStatus() -> (ipv4: String, ipv6: String) {
+        let outIpv4AddressRow = app.staticTexts[.connectionPanelOutAddressRow]
+        let ipv4 = Self.connectionDetailValue(from: outIpv4AddressRow.label)
+
+        let outIpv6AddressRow = app.staticTexts[.connectionPanelOutIpv6AddressRow]
+        let ipv6 = Self.connectionDetailValue(from: outIpv6AddressRow.label)
+
+        return (ipv4, ipv6)
+    }
+
     func getCurrentRelayName() -> String {
         let server = app.staticTexts[.connectionPanelServerLabel]
         return server.label
