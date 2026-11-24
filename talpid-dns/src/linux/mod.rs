@@ -104,7 +104,7 @@ impl DnsMonitorHolder {
             Some("static-file") => {
                 DnsMonitorHolder::StaticResolvConf(StaticResolvConf::new().await?)
             }
-            Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new()?),
+            Some("resolvconf") => DnsMonitorHolder::Resolvconf(Resolvconf::new().await?),
             Some("systemd") => DnsMonitorHolder::SystemdResolved(SystemdResolved::new().await?),
             Some("network-manager") => {
                 DnsMonitorHolder::NetworkManager(NetworkManager::new().await?)
@@ -134,7 +134,7 @@ impl DnsMonitorHolder {
             Err(err) => log_err("NetworkManager")(&err),
         };
 
-        match tokio::task::block_in_place(Resolvconf::new) {
+        match Resolvconf::new().await {
             Ok(systemd) => return Ok(DnsMonitorHolder::Resolvconf(systemd)),
             Err(err) => log_err("resolveconf")(&err),
         };
@@ -150,7 +150,7 @@ impl DnsMonitorHolder {
     async fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
-            Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers)?,
+            Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers).await?,
             StaticResolvConf(static_resolv_conf) => {
                 static_resolv_conf.set_dns(servers.to_vec()).await?
             }
@@ -165,7 +165,7 @@ impl DnsMonitorHolder {
     async fn reset(&mut self) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
-            Resolvconf(resolvconf) => resolvconf.reset()?,
+            Resolvconf(resolvconf) => resolvconf.reset().await?,
             StaticResolvConf(static_resolv_conf) => static_resolv_conf.reset().await?,
             SystemdResolved(systemd_resolved) => systemd_resolved.reset().await?,
             NetworkManager(network_manager) => network_manager.reset().await?,
