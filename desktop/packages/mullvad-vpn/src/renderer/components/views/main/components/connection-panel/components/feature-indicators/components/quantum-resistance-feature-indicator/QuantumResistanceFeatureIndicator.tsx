@@ -21,7 +21,10 @@ export function QuantumResistanceFeatureIndicator() {
   }, [history]);
 
   return (
-    <FeatureIndicator data-testid="feature-indicator" onClick={gotoQuantumResistantFeature}>
+    <FeatureIndicator
+      data-testid="feature-indicator"
+      onClick={gotoQuantumResistantFeature}
+      inactive>
       <FeatureIndicator.Text>{messages.gettext('Quantum resistance')}</FeatureIndicator.Text>
     </FeatureIndicator>
   );

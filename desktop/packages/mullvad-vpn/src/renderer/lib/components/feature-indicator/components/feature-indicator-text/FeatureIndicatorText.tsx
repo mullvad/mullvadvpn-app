@@ -11,6 +11,8 @@ export const StyledFeatureIndicatorText = styled(LabelTinySemiBold)``;
 export const FeatureIndicatorText = <T extends React.ElementType = 'span'>(
   props: FeatureIndicatorTextProps<T>,
 ) => {
-  const { disabled } = useFeatureIndicatorContext();
-  return <StyledFeatureIndicatorText color={disabled ? 'whiteAlpha20' : 'white'} {...props} />;
+  const { disabled, inactive } = useFeatureIndicatorContext();
+  const color = disabled || inactive ? 'whiteAlpha20' : 'white';
+
+  return <StyledFeatureIndicatorText color={color} {...props} />;
 };

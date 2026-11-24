@@ -1,37 +1,31 @@
 import styled, { css } from 'styled-components';
 
 import { colors, Radius } from '../../foundations';
-import { FeatureIndicatorIcon, FeatureIndicatorText } from './components';
+import {
+  FeatureIndicatorIcon,
+  FeatureIndicatorText,
+  StyledFeatureIndicatorText,
+} from './components';
 import { FeatureIndicatorProvider } from './FeatureIndicatorContext';
 
 export type FeatureIndicatorProps = {
-  variant?: 'primary' | 'transparent';
+  inactive?: boolean;
 } & React.ComponentPropsWithRef<'button'>;
 
-const styles = {
-  radius: Radius.radius4,
-  variants: {
-    primary: {
-      backgroundColor: colors.blue10,
-      borderColor: colors.blue,
-      borderColorHover: colors.whiteAlpha80,
-      borderColorPressed: colors.white,
-    },
-    transparent: {
-      backgroundColor: 'transparent',
-      borderColor: 'transparent',
-      borderColorHover: 'transparent',
-      borderColorPressed: 'transparent',
-    },
-  },
+const variables = {
+  backgroundColor: colors.blue10,
+  backgroundColorInactiveHover: colors.blue40,
+  backgroundColorInactivePressed: colors.blue60,
+  borderColor: colors.blue,
+  borderColorHover: colors.whiteAlpha80,
+  borderColorPressed: colors.white,
 };
 
 const StyledFeatureIndicator = styled.button<{
-  $variant: FeatureIndicatorProps['variant'];
   $clickable?: boolean;
+  $inactive?: boolean;
 }>`
-  ${({ $variant: variantProp = 'primary', $clickable }) => {
-    const variant = styles.variants[variantProp];
+  ${({ $clickable, $inactive }) => {
     return css`
       display: flex;
       width: fit-content;
@@ -41,23 +35,53 @@ const StyledFeatureIndicator = styled.button<{
       padding: 2px 8px;
 
       border-radius: ${Radius.radius8};
-      background: ${variant.backgroundColor};
 
-      &&:not(:disabled) {
-        border: 1px solid ${variant.borderColor};
-      }
+      background: ${variables.backgroundColor};
 
       ${() => {
-        if ($clickable) {
+        if (!$inactive) {
           return css`
-            &&:not(:disabled):hover {
-              border-color: ${variant.borderColorHover};
-            }
-            &&:not(:disabled):active {
-              border-color: ${variant.borderColorPressed};
+            &&:not(:disabled) {
+              border: 1px solid ${variables.borderColor};
             }
           `;
         }
+
+        return null;
+      }}
+
+      ${() => {
+        if ($clickable) {
+          if ($inactive) {
+            return css`
+              &&:hover {
+                background: ${variables.backgroundColorInactiveHover};
+
+                > ${StyledFeatureIndicatorText} {
+                  color: ${colors.whiteAlpha40};
+                }
+              }
+
+              &&:active {
+                background: ${variables.backgroundColorInactivePressed};
+
+                > ${StyledFeatureIndicatorText} {
+                  color: ${colors.whiteAlpha60};
+                }
+              }
+            `;
+          }
+
+          return css`
+            &&:not(:disabled):hover {
+              border-color: ${variables.borderColorHover};
+            }
+            &&:not(:disabled):active {
+              border-color: ${variables.borderColorPressed};
+            }
+          `;
+        }
+
         return null;
       }}
 
@@ -71,20 +95,20 @@ const StyledFeatureIndicator = styled.button<{
 
 function FeatureIndicator({
   ref,
-  variant,
   children,
   disabled,
+  inactive,
   style,
   onClick,
   ...props
 }: FeatureIndicatorProps) {
   const clickable = !disabled && !!onClick;
   return (
-    <FeatureIndicatorProvider disabled={disabled}>
+    <FeatureIndicatorProvider disabled={disabled} inactive={inactive}>
       <StyledFeatureIndicator
         ref={ref}
-        $variant={variant}
         $clickable={clickable}
+        $inactive={inactive}
         disabled={disabled}
         onClick={onClick}
         {...props}>

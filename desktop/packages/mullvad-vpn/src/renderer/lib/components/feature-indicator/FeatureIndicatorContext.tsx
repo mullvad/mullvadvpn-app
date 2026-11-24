@@ -1,6 +1,7 @@
 import React from 'react';
 interface FeatureIndicatorContextProps {
   disabled?: boolean;
+  inactive?: boolean;
 }
 const FeatureIndicatorContext = React.createContext<FeatureIndicatorContextProps | undefined>(
   undefined,
@@ -16,13 +17,18 @@ export const useFeatureIndicatorContext = (): FeatureIndicatorContextProps => {
 
 interface FeatureIndicatorProviderProps {
   disabled?: boolean;
+  inactive?: boolean;
   children: React.ReactNode;
 }
 
-export const FeatureIndicatorProvider = ({ disabled, children }: FeatureIndicatorProviderProps) => {
+export const FeatureIndicatorProvider = ({
+  disabled,
+  inactive,
+  children,
+}: FeatureIndicatorProviderProps) => {
+  const value = React.useMemo(() => ({ disabled, inactive }), [disabled, inactive]);
+
   return (
-    <FeatureIndicatorContext.Provider value={{ disabled }}>
-      {children}
-    </FeatureIndicatorContext.Provider>
+    <FeatureIndicatorContext.Provider value={value}>{children}</FeatureIndicatorContext.Provider>
   );
 };
