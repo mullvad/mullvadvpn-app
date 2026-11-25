@@ -34,6 +34,14 @@ rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
 rustc-link-lib = ["nftnl", "mnl"]
 rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
 
+[target.aarch64-unknown-linux-musl.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-musl"]
+
+[target.aarch64-unknown-linux-musl.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-musl"]
+
 [target.i686-pc-windows-msvc]
 rustflags = [
   "-Ctarget-feature=+crt-static",
@@ -49,6 +57,14 @@ rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
 rustc-link-lib = ["nftnl", "mnl"]
 rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
 
+[target.riscv64gc-unknown-linux-musl.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-musl"]
+
+[target.riscv64gc-unknown-linux-musl.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-musl"]
+
 [target.x86_64-pc-windows-msvc]
 rustflags = [
   "-Ctarget-feature=+crt-static",
@@ -63,6 +79,14 @@ rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
 [target.x86_64-unknown-linux-gnu.nftnl]
 rustc-link-lib = ["nftnl", "mnl"]
 rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
+
+[target.x86_64-unknown-linux-musl.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-musl"]
+
+[target.x86_64-unknown-linux-musl.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-musl"]
 
 [unstable]
 # Enables the trim-paths feature, which makes rustc record fixed file paths instead of machine
