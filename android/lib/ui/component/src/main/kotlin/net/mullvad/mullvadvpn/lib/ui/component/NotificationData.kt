@@ -367,26 +367,24 @@ private fun AuthFailedError.errorMessageId(): Int =
 
 private fun ParameterGenerationError.errorMessageId(): Int =
     when (this) {
-        is ParameterGenerationError.NoMatchingRelay if this.unavailableIpVersion -> {
-            R.string.no_matching_relay_ip_availability
-        }
-        is ParameterGenerationError.NoMatchingRelay,
+        ParameterGenerationError.NoMatchingRelay,
         ParameterGenerationError.NoMatchingBridgeRelay -> {
             R.string.no_matching_relay
         }
         ParameterGenerationError.NoMatchingRelayExit -> {
             R.string.no_matching_relay_exit
         }
-        is ParameterGenerationError.NoMatchingRelayEntry if this.unavailableIpVersion -> {
-            R.string.no_matching_relay_entry_ip_availability
-        }
-        is ParameterGenerationError.NoMatchingRelayEntry -> {
+        ParameterGenerationError.NoMatchingRelayEntry -> {
             R.string.no_matching_relay_entry
         }
         ParameterGenerationError.CustomTunnelHostResolutionError ->
             R.string.custom_tunnel_host_resolution_error
-        ParameterGenerationError.Ipv4_Unavailable -> R.string.ip_version_v4_unavailable
-        ParameterGenerationError.Ipv6_Unavailable -> R.string.ip_version_v6_unavailable
+        ParameterGenerationError.Ipv4Unavailable -> R.string.ip_version_v4_unavailable
+        ParameterGenerationError.Ipv6Unavailable -> R.string.ip_version_v6_unavailable
+        ParameterGenerationError.NoMatchingRelayUnavailableIpVersion,
+        ParameterGenerationError.NoMatchingRelayEntryUnavailableIpVersion -> {
+            R.string.no_matching_relay_ip_availability
+        }
     }
 
 private fun InetAddress.addressString(): String {

@@ -77,9 +77,9 @@ class TunnelStateNotificationUseCase(
 
     private fun ErrorState.isPossiblePortError(): Boolean =
         (cause as? ErrorStateCause.TunnelParameterError)?.error?.let {
-            it is ParameterGenerationError.NoMatchingRelayEntry ||
+            it == ParameterGenerationError.NoMatchingRelayEntry ||
                 it == ParameterGenerationError.NoMatchingRelayExit ||
-                it is ParameterGenerationError.NoMatchingRelay
+                it == ParameterGenerationError.NoMatchingRelay
         } ?: false
 
     private fun Constraint<Port>.invalidPortOrNull(availablePortRanges: List<PortRange>): Port? =
