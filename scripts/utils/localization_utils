@@ -6,6 +6,16 @@ function commit_changes {
   fi
 }
 
+# Stage all changes, including new files. Crowdin may add translations
+# for new languages, which `git commit -a` alone would not pick up.
+function commit_all_changes {
+  if [[ $(git status --porcelain) ]]; then
+    git add -A
+    git commit -S -m "$1"
+  fi
+}
+
 function ensure_crowdin_api_key {
   test ! -z "$CROWDIN_API_KEY"
 }
+

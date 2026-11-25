@@ -108,7 +108,7 @@ function download_app_translations {
     fi
 
     log "Committing app translations"
-    commit_changes "Update app translations"
+    commit_all_changes "Update app translations"
 }
 
 function download_relay_translations {
@@ -120,7 +120,7 @@ function download_relay_translations {
     normalize_relay_locations
 
     log "Committing relay translations"
-    commit_changes "Update relay translations"
+    commit_all_changes "Update relay translations"
 }
 
 function normalize_relay_locations {
