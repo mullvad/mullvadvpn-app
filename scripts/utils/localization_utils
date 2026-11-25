@@ -18,4 +18,3 @@ function commit_all_changes {
 function ensure_crowdin_api_key {
   test ! -z "$CROWDIN_API_KEY"
 }
-
