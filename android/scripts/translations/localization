@@ -59,7 +59,7 @@ function main {
                 shift
             done
             ensure_clean_working_directory
-            download_relay_locations
+            download_relay_translations
             download_app_translations "$skip_missing_check"
             ;;
         download-app-translations)

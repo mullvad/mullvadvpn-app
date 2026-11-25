@@ -9,7 +9,7 @@ App strings and plurals are managed directly as Crowdin sources, see
 
 Relay locations are not managed here. They are translated with shared
 relay-locations.pot and downloaded via a Crowdin bundle, see the
-`download-relay-locations` command in the localization script.
+`download-relay-translations` command in the localization script.
 
 ## Prerequisites
 
