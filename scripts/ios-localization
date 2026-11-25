@@ -38,11 +38,9 @@ function upload_to_crowdin {
   if [ -n "$branch_args" ]; then
     log_header "Uploading iOS translations to Crowdin, branch: ${branch_args#-b }"
     crowdin upload sources "$branch_args"
-    crowdin upload translations "$branch_args"
   else
     log_header "Uploading iOS translations to Crowdin"
     crowdin upload sources
-    crowdin upload translations
   fi
 
   popd
