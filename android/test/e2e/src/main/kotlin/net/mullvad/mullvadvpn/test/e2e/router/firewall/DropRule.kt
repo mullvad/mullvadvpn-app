@@ -26,6 +26,12 @@ data class DropRule(
         fun blockWireGuardTrafficRule(toIpv4: String): List<DropRule> =
             blockTrafficToRule(protocols = listOf(NetworkingProtocol.WireGuard), toIpv4 = toIpv4)
 
+        fun blockAllTrafficRule(toIpv4: String): List<DropRule> =
+            blockTrafficToRule(
+                protocols = emptyList(),
+                toIpv4 = toIpv4,
+            )
+
         fun blockAllTrafficExceptToDestinationRule(toIpv4: String): List<DropRule> =
             blockTrafficToRule(
                 protocols = emptyList(),

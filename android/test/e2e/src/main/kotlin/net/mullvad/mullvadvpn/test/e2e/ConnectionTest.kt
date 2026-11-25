@@ -6,12 +6,16 @@ import java.net.Inet6Address
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.test.api.connectioncheck.ConnectionCheckApi
 import net.mullvad.mullvadvpn.test.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
@@ -578,6 +582,50 @@ class ConnectionTest : EndToEndTest() {
         assertInstanceOf<Inet6Address>(parsedAddress)
     }
 
+    @Test
+    @HasDependencyOnLocalAPI
+    @ClearFirewallRules
+    fun checkThatAllObfuscationsAreUsed() = runTest {
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
+        // Disable IPv6 so we do not test IPv6 with the same obfuscation method
+        app.applySettings(deviceIpVersion = Constraint.Only(IpVersion.IPV4))
+
+        var relayIpAddress: String? = null
+
+        on<ConnectPage> {
+            clickConnect()
+            device.acceptVpnPermissionDialog()
+            waitForConnectedLabel()
+            relayIpAddress = extractInIpAddress()
+            clickDisconnect()
+        }
+
+        // Block all traffic to the relay
+        createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
+
+        on<ConnectPage> { clickConnect() }
+
+        // Collect tunnel states until all obfuscation methods have been seen
+        val remaining = obfuscationIndicators.toMutableSet()
+        app.tunnelStateFlow()
+            // ConnectionState.featureIndicators() will filter out multiple obfuscation methods used
+            // at the same time.
+            .mapNotNull { it.allFeatureIndicators() }
+            .first {
+                remaining.removeAll(it.toSet())
+                remaining.isEmpty()
+            }
+    }
+
+    private fun TunnelState.allFeatureIndicators() =
+        when (this) {
+            is TunnelState.Connecting -> featureIndicators
+            is TunnelState.Connected -> featureIndicators
+            else -> null
+        }
+
     private suspend fun createFirewallRules(block: () -> List<DropRule>) =
         block().forEach { firewallClient.createRule(it) }
 
@@ -585,5 +633,14 @@ class ConnectionTest : EndToEndTest() {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 80000L
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 30000L
         const val ANY_IPV4_ADDRESS = "0.0.0.0/0"
+
+        // All currently reported obfuscation methods
+        private val obfuscationIndicators =
+            listOf(
+                FeatureIndicator.LWO,
+                FeatureIndicator.QUIC,
+                FeatureIndicator.SHADOWSOCKS,
+                FeatureIndicator.UDP_2_TCP,
+            )
     }
 }
