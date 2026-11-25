@@ -86,7 +86,6 @@ import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
-import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
@@ -119,6 +118,7 @@ import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.model.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.LatLong

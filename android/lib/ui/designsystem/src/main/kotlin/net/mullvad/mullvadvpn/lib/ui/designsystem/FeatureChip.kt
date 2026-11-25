@@ -24,7 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.lerp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.lib.common.compose.rememberPrevious
 import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -84,8 +87,10 @@ fun MullvadFeatureChip(
 ) {
     val chipShape = MaterialTheme.shapes.chipShape
     val highlight = remember { Animatable(0f) }
+    val previousState = rememberPrevious(current = state, shouldUpdate = { _, _ -> true })
     LaunchedEffect(state) {
-        if (state == State.Connected) {
+        val shouldHighlight = state == State.Connected && previousState == State.Connecting
+        if (shouldHighlight) {
             highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = CONNECTED_EASING))
             delay(CONNECTED_HOLD)
             highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = CONNECTED_EASING))

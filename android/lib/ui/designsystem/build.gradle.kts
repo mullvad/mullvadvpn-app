@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
     implementation(projects.lib.ui.icon)
+    implementation(projects.lib.commonCompose)
 
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)

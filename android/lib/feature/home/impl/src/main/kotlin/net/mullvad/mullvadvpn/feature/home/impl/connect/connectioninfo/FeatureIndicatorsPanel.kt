@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.model.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
@@ -45,7 +46,7 @@ fun FeatureIndicatorsPanel(
             )
         }
         FeatureIndicators(
-            features = featureIndicators.adjustForAntiCensorship(),
+            features = featureIndicators,
             expanded = expanded,
             connected = connected,
             onToggleExpand = onToggleExpand,
@@ -157,16 +158,6 @@ private fun FeatureIndicator.icon(): ImageVector? =
         FeatureIndicator.MULTIHOP_AUTO -> MultihopWhenNeeded
         else -> null
     }
-
-private fun List<FeatureIndicator>.adjustForAntiCensorship(): List<FeatureIndicator> {
-    val hasMultipleAntiCensorshipActive = count { it in ANTI_CENSORSHIP_FEATURE_INDICATORS }
-    return if (hasMultipleAntiCensorshipActive >= 2) {
-        listOf(FeatureIndicator.ANTI_CENSORSHIP) +
-            this.filter { it !in ANTI_CENSORSHIP_FEATURE_INDICATORS }
-    } else {
-        this
-    }
-}
 
 private fun toState(featureIndicator: FeatureIndicator, connected: Boolean) =
     when {

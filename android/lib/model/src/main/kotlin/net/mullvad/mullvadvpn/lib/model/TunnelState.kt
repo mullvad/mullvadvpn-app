@@ -24,7 +24,7 @@ sealed class TunnelState {
             is Connected -> featureIndicators
             is Connecting -> featureIndicators
             else -> null
-        }
+        }?.adjustForAntiCensorship()
 
     fun location(): GeoIpLocation? =
         when (this) {
@@ -72,4 +72,14 @@ sealed class TunnelState {
     /// setting being active and it being necessary.
     fun isWhenNeededMultihopInEffect(): Boolean =
         featureIndicators()?.contains(FeatureIndicator.MULTIHOP_AUTO) == true
+
+    private fun List<FeatureIndicator>.adjustForAntiCensorship(): List<FeatureIndicator> {
+        val hasMultipleAntiCensorshipActive = count { it in ANTI_CENSORSHIP_FEATURE_INDICATORS }
+        return if (hasMultipleAntiCensorshipActive >= 2) {
+            listOf(FeatureIndicator.ANTI_CENSORSHIP) +
+                this.filter { it !in ANTI_CENSORSHIP_FEATURE_INDICATORS }
+        } else {
+            this
+        }
+    }
 }
