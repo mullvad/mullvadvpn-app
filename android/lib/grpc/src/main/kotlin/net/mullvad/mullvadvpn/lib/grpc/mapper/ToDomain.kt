@@ -347,21 +347,25 @@ internal fun ErrorState.FirewallPolicyError.toDomain(): ErrorStateCause.Firewall
     }
 
 internal fun ErrorState.GenerationError.toDomain(): ModelParameterGenerationError =
-    when (type) {
-        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_ENTRY ->
-            ModelParameterGenerationError.NoMatchingRelayEntry(unavailable_ip_version!!)
-        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY_EXIT ->
+    when (this) {
+        ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY ->
+            ModelParameterGenerationError.NoMatchingRelayEntry
+        ErrorState.GenerationError.NO_MATCHING_RELAY_EXIT ->
             ModelParameterGenerationError.NoMatchingRelayExit
-        ErrorState.GenerationError.ErrorType.NO_MATCHING_RELAY ->
-            ModelParameterGenerationError.NoMatchingRelay(unavailable_ip_version!!)
-        ErrorState.GenerationError.ErrorType.NO_MATCHING_BRIDGE_RELAY ->
+        ErrorState.GenerationError.NO_MATCHING_RELAY ->
+            ModelParameterGenerationError.NoMatchingRelay
+        ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY ->
             ModelParameterGenerationError.NoMatchingBridgeRelay
-        ErrorState.GenerationError.ErrorType.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
+        ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
             ModelParameterGenerationError.CustomTunnelHostResolutionError
-        ErrorState.GenerationError.ErrorType.NETWORK_IPV4_UNAVAILABLE ->
-            ModelParameterGenerationError.Ipv4_Unavailable
-        ErrorState.GenerationError.ErrorType.NETWORK_IPV6_UNAVAILABLE ->
-            ModelParameterGenerationError.Ipv6_Unavailable
+        ErrorState.GenerationError.NETWORK_IPV4_UNAVAILABLE ->
+            ModelParameterGenerationError.Ipv4Unavailable
+        ErrorState.GenerationError.NETWORK_IPV6_UNAVAILABLE ->
+            ModelParameterGenerationError.Ipv6Unavailable
+        ErrorState.GenerationError.NO_MATCHING_RELAY_ENTRY_UNAVAILABLE_IP_VERSION ->
+            ModelParameterGenerationError.NoMatchingRelayEntryUnavailableIpVersion
+        ErrorState.GenerationError.NO_MATCHING_RELAY_IP_UNAVAILABLE_IP_VERSION ->
+            ModelParameterGenerationError.NoMatchingRelayUnavailableIpVersion
     }
 
 @Suppress("UnsafeCallOnNullableType")

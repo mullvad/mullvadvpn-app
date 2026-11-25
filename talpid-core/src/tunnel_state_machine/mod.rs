@@ -545,6 +545,9 @@ pub trait TunnelParametersGenerator: Send + 'static {
         retry_attempt: u32,
         ip_availability: IpAvailability,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>>;
+
+    /// If the relay selector is able to select any relay given the current parameters
+    fn has_relays(&self, ip_availability: IpAvailability) -> Pin<Box<dyn Future<Output = bool>>>;
 }
 
 /// Values that are common to all tunnel states.

@@ -266,7 +266,7 @@ fn select_wireguard_relay(
             }
             match helpers::pick_random_relay(&partitions.matches) {
                 Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
-                None => Err(Error::NoRelay(Vec::default())),
+                None => Err(Error::NoRelay(partitions.get_all_blocking_reasons())),
             }
         }
         Hops::Auto(constraints) => {
@@ -312,7 +312,7 @@ fn select_from_multihop_partitions(
     }
 
     let exit = helpers::pick_random_relay(&partitions.exits.matches)
-        .ok_or_else(|| Error::NoRelayExit(Vec::default()))?;
+        .ok_or_else(|| Error::NoRelayExit(partitions.exits.get_all_blocking_reasons()))?;
 
     let entry = if matches!(entry_constraints.general.location, Constraint::Any) {
         // `Constraint::Any` implies an automatic entry selection with no geographical constraints.
@@ -331,11 +331,11 @@ fn select_from_multihop_partitions(
             .map(|r| r.relay)
             .collect();
         helpers::pick_random_relay_excluding(&closest, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Vec::default()))?
+            .ok_or_else(|| Error::NoRelayEntry(partitions.entries.get_all_blocking_reasons()))?
             .clone()
     } else {
         helpers::pick_random_relay_excluding(&partitions.entries.matches, exit)
-            .ok_or_else(|| Error::NoRelayEntry(Vec::default()))?
+            .ok_or_else(|| Error::NoRelayEntry(partitions.entries.get_all_blocking_reasons()))?
             .clone()
     };
 

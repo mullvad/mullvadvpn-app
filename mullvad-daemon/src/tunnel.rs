@@ -320,6 +320,23 @@ impl TunnelParametersGenerator for ParametersGenerator {
                 .map_err(ParameterGenerationError::from)
         })
     }
+
+    fn has_relays(&self, ip_availability: IpAvailability) -> Pin<Box<dyn Future<Output = bool>>> {
+        let generator = self.0.clone();
+        Box::pin(async move {
+            let mut inner = generator.lock().await;
+            inner
+                .generate(0, ip_availability)
+                .await
+                .inspect_err(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to generate tunnel parameters")
+                    );
+                })
+                .is_ok()
+        })
+    }
 }
 
 impl From<Error> for ParameterGenerationError {
