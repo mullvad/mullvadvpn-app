@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use talpid_dbus::network_manager::{
     DeviceConfig, Error as NetworkManagerError, NMDevice, NetworkManagerConnection,
 };
+use talpid_error::ErrorExt;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -20,7 +21,7 @@ pub type NetworkManagerTunnel = (NetworkManagerDevice, TunnelType);
 
 pub struct NetworkManagerDevice {
     network_manager: NetworkManagerConnection,
-    network_manager_device: NMDevice,
+    network_manager_device: Option<NMDevice>,
     interface: String,
     handle: tokio::runtime::Handle,
 }
@@ -34,10 +35,10 @@ impl NetworkManagerDevice {
             .await
             .map_err(Error::NetworkManager)?;
         let config_map = convert_config_to_dbus(config, interface.clone());
-        let network_manager_device = network_manager.create_network_device(config_map).await?;
+        let device = network_manager.create_network_device(config_map).await?;
         Ok(NetworkManagerDevice {
             network_manager,
-            network_manager_device,
+            network_manager_device: Some(device),
             interface,
             handle: tokio::runtime::Handle::current(),
         })
@@ -45,6 +46,23 @@ impl NetworkManagerDevice {
 
     pub fn interface_name(&self) -> &str {
         &self.interface
+    }
+
+    fn remove_associated_network_device(&mut self) {
+        let Some(device) = self.network_manager_device.take() else {
+            return;
+        };
+        let nm = &self.network_manager;
+        if let Err(err) = self.handle.block_on(nm.remove_network_device(&device)) {
+            let err_msg = err.display_chain_with_msg("Failed to remove NetworkManager device");
+            log::error!("{err_msg}");
+        }
+    }
+}
+
+impl Drop for NetworkManagerDevice {
+    fn drop(&mut self) {
+        self.remove_associated_network_device();
     }
 }
 
@@ -55,15 +73,9 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError> {
-        let nm = self.0.network_manager;
-        if let Err(err) = self
-            .0
-            .handle
-            .block_on(nm.remove_network_device(self.0.network_manager_device))
-        {
-            log::error!("Failed to remove NetworkManager device: {}", err);
-        }
-        Box::new(self.1).stop()
+        let (mut nm, tunnel) = (self.0, self.1);
+        nm.remove_associated_network_device();
+        Box::new(tunnel).stop()
     }
 
     async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {

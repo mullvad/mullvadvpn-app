@@ -11,6 +11,7 @@ log = { workspace = true }
 nix.workspace = true
 resolv-conf = "0.7.6"
 serde.workspace = true
+talpid-error.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "rt", "time"] }
 zbus = { workspace = true, default-features = false, features = ["proxy", "service", "tokio"] }

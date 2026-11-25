@@ -5944,6 +5944,7 @@ dependencies = [
  "nix 0.31.3",
  "resolv-conf",
  "serde",
+ "talpid-error",
  "thiserror 2.0.19",
  "tokio",
  "zbus",

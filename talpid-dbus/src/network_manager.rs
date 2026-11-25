@@ -4,6 +4,8 @@ use std::net::IpAddr;
 use std::time::Duration;
 
 use futures::StreamExt;
+use log::debug;
+use talpid_error::ErrorExt;
 use tokio::fs;
 use tokio::time::{Instant, timeout_at};
 use zbus::{Array, Connection, ObjectPath, OwnedObjectPath, OwnedVariant, Str, Variant, proxy};
@@ -71,11 +73,11 @@ impl NetworkManagerConnection {
             .wait_until_device_is_ready(device.device_path.clone())
             .await
         {
-            if let Err(removal_error) = self.remove_network_device(device).await {
-                log::error!(
-                    "Failed to remove network device after it not becoming ready fast enough: {}",
-                    removal_error
+            if let Err(removal_error) = self.remove_network_device(&device).await {
+                let error_msg = removal_error.display_chain_with_msg(
+                    "Failed to remove network device after it not becoming ready fast enough",
                 );
+                log::error!("{error_msg}");
             }
             return Err(err);
         }
@@ -189,17 +191,22 @@ impl NetworkManagerConnection {
             Err(Error::DeviceNotReady(state))
         })
         .await
+        .inspect_err(|err| debug!("{err}"))
         .map_err(|_| Error::DeviceNotReady(device_state))??;
 
         Ok(())
     }
 
-    pub async fn remove_network_device(&self, device: NMDevice) -> Result<(), Error> {
+    /// Deactivate and remove the NetworKmanager device.
+    pub async fn remove_network_device(&self, device: &NMDevice) -> Result<(), Error> {
         let nm = NetworkManagerProxy::new(&self.connection).await?;
         let deactivation_result = nm.deactivate_connection(&device.connection_path).await;
 
-        let device = DeviceProxy::new_from_path(device.config_path, &self.connection).await?;
-        let config_result = device.delete().await;
+        let config_proxy =
+            SettingsConnectionProxy::new_from_path(device.config_path.clone(), &self.connection)
+                .await?;
+
+        let config_result = config_proxy.delete().await;
 
         deactivation_result?;
         config_result?;
@@ -581,6 +588,30 @@ pub trait Settings {
 }
 
 #[proxy(
+    default_path = "/org/freedesktop/NetworkManager/Settings/Connection",
+    default_service = "org.freedesktop.NetworkManager",
+    interface = "org.freedesktop.NetworkManager.Settings.Connection"
+)]
+pub trait SettingsConnection {
+    /// Delete the connection.
+    ///
+    /// <https://www.networkmanager.dev/docs/api/latest/gdbus-org.freedesktop.NetworkManager.Settings.Connection.html#gdbus-method-org-freedesktop-NetworkManager-Settings-Connection.Delete>
+    fn delete(&self) -> zbus::Result<()>;
+}
+
+impl SettingsConnectionProxy<'_> {
+    pub async fn new_from_path(
+        device_path: zbus::OwnedObjectPath,
+        connection: &Connection,
+    ) -> zbus::Result<SettingsConnectionProxy<'_>> {
+        SettingsConnectionProxy::builder(connection)
+            .path(device_path)
+            .build()
+            .await
+    }
+}
+
+#[proxy(
     default_path = "/org/freedesktop/NetworkManager/DnsManager",
     default_service = "org.freedesktop.NetworkManager",
     interface = "org.freedesktop.NetworkManager.DnsManager",
@@ -613,11 +644,6 @@ pub trait DnsManager {
     assume_defaults = true
 )]
 pub trait Device {
-    /// Delete method
-    ///
-    /// <https://www.networkmanager.dev/docs/api/latest/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-method-org-freedesktop-NetworkManager-Device.Delete>
-    fn delete(&self) -> zbus::Result<()>;
-
     /// GetAppliedConnection method
     ///
     /// <https://www.networkmanager.dev/docs/api/latest/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-method-org-freedesktop-NetworkManager-Device.GetAppliedConnection>
