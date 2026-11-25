@@ -14,6 +14,31 @@ $TaskName = 'Mullvad Test Runner'
 # How long to wait for the test runner task to start
 $StartTimeoutSeconds = 60
 
+# Synchronize the guest clock.
+try {
+    # The time service is trigger-started and may not be running yet.
+    Start-Service w32time -ErrorAction SilentlyContinue
+
+    $resynced = $false
+    foreach ($attempt in 1..3) {
+        w32tm /resync /force | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            $resynced = $true
+            break
+        }
+        Start-Sleep -Seconds 5
+    }
+
+    if (-not $resynced) {
+        Write-Output 'w32tm /resync did not succeed'
+    }
+
+    Write-Output 'Guest clock state after sync attempt:'
+    w32tm /query /status
+} catch {
+    Write-Warning "Failed to synchronize guest clock: $_"
+}
+
 # Stop any runner that is already running so that its files can be replaced
 Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 
