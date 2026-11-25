@@ -98,6 +98,12 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+      - name: Set up output artifacts directory
+        run: |
+          mkdir artifacts
+          echo "ARTIFACTS_DIR=artifacts" >> "$GITHUB_ENV"
+        working-directory: ios/
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
@@ -108,17 +114,14 @@ jobs:
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             -allowProvisioningUpdates \
-            -resultBundlePath xcode-test-report \
+            -resultBundlePath "${ARTIFACTS_DIR}/xcode-test-report.xcresult" \
             test 2>&1 | xcbeautify
         working-directory: ios/
-
-      - name: Archive test report
-        if: always()
-        run: zip -r test-report.zip ios/xcode-test-report.xcresult
 
       - name: Store test report artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: test-report
-          path: test-report.zip
+          path: ios/${{ env.ARTIFACTS_DIR }}
+          compression-level: 0
