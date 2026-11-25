@@ -14,13 +14,13 @@ relay-locations.pot and downloaded via a Crowdin bundle, see the
 ## Prerequisites
 
 - [Crowdin CLI][crowdin-cli] 3.11 or later
-    - Alternatively, you use the [nix devshell][nix-devshell]
+    - Alternatively, use the [nix devshell][nix-devshell]
 - The `CROWDIN_API_KEY` environment variable set to a Crowdin API token
 
 
 ### API key
 
-To the create the API key do the following:
+To create the API key do the following:
 - Login to [Crowdin][crowdin].
 - Go to [API][crowdin-api-key] settings page
 - Click Personal Access Token - New Token
