@@ -30,8 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.customlist.api.DiscardCustomListChangesConfirmedNavResult
-import net.mullvad.mullvadvpn.feature.customlist.api.DiscardCustomListChangesNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.ContentType
@@ -41,6 +39,8 @@ import net.mullvad.mullvadvpn.lib.common.compose.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.DiscardChangesConfirmedNavResult
+import net.mullvad.mullvadvpn.lib.ui.component.dialog.DiscardChangesNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -76,9 +76,7 @@ private fun PreviewCustomListLocationScreen(
 fun CustomListLocations(navArgs: EditCustomListLocationsNavKey, navigator: Navigator) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel> { parametersOf(navArgs) }
 
-    LocalResultStore.current.consumeResult<DiscardCustomListChangesConfirmedNavResult> {
-        navigator.goBack()
-    }
+    LocalResultStore.current.consumeResult<DiscardChangesConfirmedNavResult> { navigator.goBack() }
 
     CollectSideEffectWithLifecycle(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
@@ -88,20 +86,25 @@ fun CustomListLocations(navArgs: EditCustomListLocationsNavKey, navigator: Navig
     }
 
     val state by customListsViewModel.uiState.collectAsStateWithLifecycle()
+    val hasChanges = state.content.contentOrNull()?.hasUnsavedChanges == true
+
+    val onBack = dropUnlessResumed {
+        if (hasChanges) {
+            navigator.navigate(DiscardChangesNavKey)
+        } else {
+            navigator.goBack()
+        }
+    }
+
+    BackHandler(enabled = hasChanges) { onBack() }
+
     CustomListLocationsScreen(
         state = state,
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
         onExpand = customListsViewModel::onExpand,
-        onBackClick =
-            dropUnlessResumed {
-                if (state.content.contentOrNull()?.hasUnsavedChanges == true) {
-                    navigator.navigate(DiscardCustomListChangesNavKey)
-                } else {
-                    navigator.goBack()
-                }
-            },
+        onBackClick = onBack,
     )
 }
 

@@ -79,6 +79,10 @@ data class VpnSettingsUiState(
                     // Server IP override
                     add(VpnSettingItem.ServerIpOverrides)
                     add(VpnSettingItem.Spacer)
+
+                    // Custom VPN
+                    add(VpnSettingItem.CustomVpn)
+                    add(VpnSettingItem.Spacer)
                 },
                 isModal = isModal,
                 obfuscationMode = obfuscationMode,

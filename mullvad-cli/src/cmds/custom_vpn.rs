@@ -90,8 +90,8 @@ impl CustomVpn {
         match config {
             None => println!("Configuration: none"),
             Some(config) => {
-                if let Some(name) = &config.name {
-                    println!("Name:               {name}");
+                if !&config.name.is_empty() {
+                    println!("Name:               {}", config.name);
                 }
                 let ips = config
                     .tunnel
@@ -126,7 +126,7 @@ impl CustomVpn {
         let enabled = configs.first().is_some_and(|config| config.enabled);
         let update = CustomVpnConfigUpdate {
             enabled,
-            name: None,
+            name: "".to_string(),
             tunnel: talpid_types::net::wireguard::CustomVpnTunnelUpdate {
                 private_key: Some(private_key),
                 ips: tunnel_ip,

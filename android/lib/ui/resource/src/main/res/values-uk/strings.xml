@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Ви не зможете повернути кошти.</string>
     <string name="delete_account_unable_to_verify">Не вдалося перевірити номер облікового запису, зверніться до служби підтримки</string>
     <string name="delete_account_warning"><b>Увага:</b></string>
-    <string name="delete_custom_list_confirmation_description">Видалити «%1$s»?</string>
     <string name="delete_custom_list_message">Видалено «%1$s»</string>
     <string name="delete_list">Видалити список</string>
     <string name="delete_method">Видалити метод</string>
     <string name="delete_method_question">Видалити метод?</string>
+    <string name="delete_x">Видалити «%1$s»?</string>
     <string name="device_inactive_description">Ви вилучили цей пристрій. Щоб підключитися знову, потрібно ввійти в обліковий запис.</string>
     <string name="device_inactive_title">Пристрій неактивний</string>
     <string name="device_inactive_unblock_warning">Вхід в обліковий запис розблокує Інтернет на цьому пристрої.</string>

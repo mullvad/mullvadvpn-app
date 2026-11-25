@@ -249,7 +249,7 @@ fn finalize(
 
     Ok(CustomVpnConfig {
         enabled: false,
-        name: None,
+        name: "".to_string(),
         tunnel: CustomVpnTunnelConfig {
             private_key,
             ips: tunnel_ips,

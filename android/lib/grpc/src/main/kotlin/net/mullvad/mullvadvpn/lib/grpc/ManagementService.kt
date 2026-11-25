@@ -5,8 +5,11 @@
 package net.mullvad.mullvadvpn.lib.grpc
 
 import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.right
 import arrow.optics.Lens
 import arrow.optics.copy
 import arrow.optics.dsl.index
@@ -42,6 +45,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import mullvad_daemon.management_interface.CustomVpnConfigError
+import mullvad_daemon.management_interface.CustomVpnRawImport
+import mullvad_daemon.management_interface.CustomVpnSettings
 import mullvad_daemon.management_interface.DaemonEvent
 import mullvad_daemon.management_interface.Device
 import mullvad_daemon.management_interface.DeviceRemoval
@@ -73,6 +79,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig as ModelCustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
@@ -89,6 +96,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
+import net.mullvad.mullvadvpn.lib.model.GetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetMigrationEventError
 import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
@@ -126,6 +134,7 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
+import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
@@ -138,6 +147,7 @@ import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelStats as ModelTunnelStats
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
@@ -241,6 +251,10 @@ class ManagementService(
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
     val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map { it.countries }
+
+    private val _mutableTunnelStats = MutableStateFlow<ModelTunnelStats?>(null)
+    /** Traffic stats of the custom VPN, while it is in use. */
+    val tunnelStats: Flow<ModelTunnelStats> = _mutableTunnelStats.filterNotNull()
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.map {
         it.wireguardEndpointData
@@ -1001,6 +1015,59 @@ class ManagementService(
         Either.catch { grpc.ClearMigrationMessage().executeWithRetry(Unit) }
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
+
+    suspend fun getCustomVpnStats(): Either<GetCustomVpnConfigError, ModelTunnelStats> =
+        Either.catch { grpc.GetCustomVpnStats().executeWithRetry(Unit).toDomain() }
+            .onLeft { Logger.e("Get custom vpn stats error") }
+            .mapLeft { GetCustomVpnConfigError.Unknown }
+
+    suspend fun getCustomVpnSettings():
+        Either<GetCustomVpnConfigError.Unknown, List<ModelCustomVpnConfig>> =
+        Either.catch { grpc.GetCustomVpnSettings().executeWithRetry(Unit).toDomain() }
+            .onLeft { Logger.e("Get custom vpn error") }
+            .mapLeft { GetCustomVpnConfigError.Unknown }
+
+    suspend fun setCustomVpnConfig(
+        config: ModelCustomVpnConfig,
+    ): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.SetCustomVpnConfig().executeWithRetry(config.fromDomain()) }
+            .onLeft { Logger.e("Set custom VPN config error", it) }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
+            .flatMap { it.toResult() }
+
+    /** Remove the custom VPN config. The daemon interprets an empty config as removal. */
+    suspend fun clearCustomVpn(): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch { grpc.ClearCustomVpnSettings().executeWithRetry(Unit) }
+            .onLeft { Logger.e("Clear custom VPN config error", it) }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
+            .flatMap { it.toResult() }
+
+    /**
+     * Parse and store a wg-quick formatted custom VPN config on the daemon side.
+     *
+     * The daemon parses the `wg-quick` body, and persists the resulting config and name.
+     */
+    suspend fun importCustomVpnConfig(
+        name: String,
+        config: String,
+    ): Either<SetCustomVpnConfigError, Unit> =
+        Either.catch {
+                grpc
+                    .ImportCustomVpnConfig()
+                    .executeWithRetry(CustomVpnRawImport(name = name, wireguard_config = config))
+            }
+            .onLeft { Logger.e("Import custom VPN config error", it) }
+            .mapLeft { SetCustomVpnConfigError.Unknown(it) }
+            .flatMap { it.toResult() }
+
+    @Suppress("UnreachableCode")
+    private fun CustomVpnConfigError.toResult(): Either<SetCustomVpnConfigError, Unit> =
+        if (error.isEmpty()) {
+            Unit.right()
+        } else {
+            Logger.e("Custom VPN config error: $error")
+            SetCustomVpnConfigError.Unknown(Throwable(error)).left()
+        }
 
     private fun Boolean.toBoolValue() = WireBoolValue(this)
 
