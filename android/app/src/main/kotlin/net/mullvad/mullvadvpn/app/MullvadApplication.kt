@@ -5,6 +5,7 @@ import android.os.StrictMode
 import android.os.strictmode.UntaggedSocketViolation
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
+import androidx.work.Configuration
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import java.io.IOException
@@ -38,7 +39,7 @@ import org.koin.core.context.startKoin
 
 private const val LOG_TAG = "mullvad"
 
-class MullvadApplication : Application() {
+class MullvadApplication : Application(), Configuration.Provider {
     private val connectionProxy by inject<ConnectionProxy>()
     private val applicationScope by inject<ApplicationScope>()
 
@@ -69,6 +70,11 @@ class MullvadApplication : Application() {
             )
         }
     }
+
+    // This is required due to the automatic work manager initialization has been disabled
+    // When WorkManager.getInstance(context) is called, the WorkManager will be initialized with
+    // this configuration. If this configuration does not exist it will crash instead.
+    override val workManagerConfiguration = Configuration.Builder().build()
 
     // Restores the tunnel state by binding to the VPN service and waiting for the tunnel state to
     // be emitted. If the tunnel state is secured the system will bind to the service after it has
