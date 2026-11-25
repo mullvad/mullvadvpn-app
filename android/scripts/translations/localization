@@ -52,7 +52,7 @@ function main {
                         ;;
                     *)
                         log_error "Unsupported argument for download: \`$1\`"
-                        usage >&2
+                        print_usage >&2
                         exit 1
                         ;;
                 esac
