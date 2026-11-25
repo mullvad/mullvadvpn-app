@@ -22,14 +22,15 @@ RESOURCES_DIR="lib/ui/resource/src/main/res"
 print_usage() {
   log "Usage: $(basename "$0") <command> [options]"
   log "Commands:"
-  log "  upload                    Upload source strings to Crowdin"
-  log "  download [-s]             Download translations from Crowdin, check for"
-  log "                            missing translations and commit the changes"
-  log "  download-relay-locations  Download relay locations from Crowdin"
+  log "  upload                       Upload source strings to Crowdin"
+  log "  download [-s]                Download all translations, check for missing"
+  log "                               translations and commit the changes"
+  log "  download-app-translations    Download app translations and commit the changes"
+  log "  download-relay-translations  Download relay translations and commit the changes"
   log ""
   log "Options:"
-  log "  -s, --skip-missing-check  Skip the missing translations check. Only use"
-  log "                            this when the check is known to fail."
+  log "  -s, --skip-missing-check     Skip the missing translations check. Only use"
+  log "                               this when the check is known to fail."
   log ""
   log "Both download commands commit their changes to the current branch."
   log ""
@@ -57,10 +58,18 @@ function main {
                 esac
                 shift
             done
+            ensure_clean_working_directory
             download_relay_locations
             download_app_translations "$skip_missing_check"
             ;;
-        download-relay-locations) download_relay_locations;;
+        download-app-translations)
+            ensure_clean_working_directory
+            download_app_translations false
+            ;;
+        download-relay-translations)
+            ensure_clean_working_directory
+            download_relay_translations
+            ;;
         -h|--help) print_usage;;
         "")
             print_usage
@@ -76,7 +85,7 @@ function main {
 function upload_to_crowdin {
     ensure_crowdin_api_key
 
-    log_header "Uploading translations to crowdin"
+    log_header "Uploading app sources to crowdin"
 
     crowdin upload sources
 }
@@ -86,7 +95,7 @@ function download_app_translations {
 
     ensure_crowdin_api_key
 
-    log_header "Downloading translations from crowdin"
+    log_header "Downloading app translations from crowdin"
     crowdin download
 
     if [ "$skip_missing_check" = false ]; then
@@ -102,10 +111,10 @@ function download_app_translations {
     commit_changes "Update app translations"
 }
 
-function download_relay_locations {
+function download_relay_translations {
     ensure_crowdin_api_key
 
-    log_header "Downloading relay locations from crowdin"
+    log_header "Downloading relay translations from crowdin"
     crowdin bundle download "$RELAY_BUNDLE_ID"
 
     normalize_relay_locations
@@ -138,6 +147,14 @@ function normalize_relay_language {
     if [ -f "$exported_dir/relay_locations.xml" ]; then
         mv "$exported_dir/relay_locations.xml" "$resource_dir/relay_locations.xml"
         rm -rf "$exported_dir"
+    fi
+}
+
+function ensure_clean_working_directory {
+    if [[ -n "$(git status --porcelain)" ]]; then
+        log_error "Dirty working directory!"
+        log_error "Make sure the working directory is clean before proceeding!"
+        exit 1
     fi
 }
 
