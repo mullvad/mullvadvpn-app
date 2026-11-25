@@ -77,7 +77,7 @@ struct SegmentedListItem<Leading: View>: View {
         if let leadingAndTrailingDestination {
             NavigationLink {
                 leadingAndTrailingDestination
-                        .withCustomBackButton()
+                    .withCustomBackButton()
             } label: {
                 leading()
                     .environment(\.segmentedListItemAppearance, appearance)
