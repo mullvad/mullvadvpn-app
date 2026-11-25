@@ -24,6 +24,7 @@ class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
         if (!UserManagerCompat.isUserUnlocked(context)) {
             // This should not happen, but just in case we have a check here to avoid initializing
             // work manager when the user is locked since it causes a crash
+            Logger.w("User locked, skipping work request")
             return
         }
 
