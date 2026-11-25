@@ -25,7 +25,7 @@ struct HopView: View {
                                 comment: "Selected location name, with country in parentheses"
                             ),
                             location.name,
-                            automaticLocationCountry
+                            NSLocalizedString(automaticLocationCountry, comment: "")
                         )
                     } else {
                         location.asCustomListNode != nil
