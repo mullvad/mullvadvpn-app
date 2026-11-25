@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "android/translations-converter",
   "desktop/packages/nseventforwarder",
   "desktop/packages/windows-utils",
   "installer-downloader",
