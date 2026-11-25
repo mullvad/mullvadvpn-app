@@ -57,7 +57,8 @@ function main {
                 esac
                 shift
             done
-            download_from_crowdin "$skip_missing_check"
+            download_relay_locations
+            download_app_translations "$skip_missing_check"
             ;;
         download-relay-locations) download_relay_locations;;
         -h|--help) print_usage;;
@@ -80,7 +81,7 @@ function upload_to_crowdin {
     crowdin upload sources
 }
 
-function download_from_crowdin {
+function download_app_translations {
     local skip_missing_check=$1
 
     ensure_crowdin_api_key
@@ -88,10 +89,8 @@ function download_from_crowdin {
     log_header "Downloading translations from crowdin"
     crowdin download
 
-    download_relay_locations
-
     if [ "$skip_missing_check" = false ]; then
-        log_header "Checking for missing translations"
+        log "Checking for missing translations"
         pushd "$ANDROID_ROOT"
         ./gradlew -Pmullvad.app.lint.failOnMissingTranslations=true :lib:ui:resource:lintDebug
         popd
@@ -99,7 +98,8 @@ function download_from_crowdin {
         log_warn "Skipping check for missing translations"
     fi
 
-    commit_changes "Update Android translations"
+    log "Committing app translations"
+    commit_changes "Update app translations"
 }
 
 function download_relay_locations {
@@ -109,6 +109,9 @@ function download_relay_locations {
     crowdin bundle download "$RELAY_BUNDLE_ID"
 
     normalize_relay_locations
+
+    log "Committing relay translations"
+    commit_changes "Update relay translations"
 }
 
 function normalize_relay_locations {
