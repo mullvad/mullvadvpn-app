@@ -324,16 +324,14 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn has_relays(&self, ip_availability: IpAvailability) -> Pin<Box<dyn Future<Output = bool>>> {
         let generator = self.0.clone();
         Box::pin(async move {
-            let mut inner = generator.lock().await;
+            let inner = generator.lock().await;
+            let mut query = inner.relay_selector.query().clone();
+            if query.apply_ip_availability(ip_availability).is_err() {
+                return false;
+            }
             inner
-                .generate(0, ip_availability)
-                .await
-                .inspect_err(|error| {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to generate tunnel parameters")
-                    );
-                })
+                .relay_selector
+                .get_relays_with_automatic_anti_censorship(query)
                 .is_ok()
         })
     }
