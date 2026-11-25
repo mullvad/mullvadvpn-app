@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">%1$d dia</item>
-        <item quantity="other">%1$d dias</item>
-    </plurals>
-    <plurals name="number_of_locations">
-        <item quantity="one">%1$d localização</item>
-        <item quantity="other">%1$d localizações</item>
-    </plurals>
-    <plurals name="months">
-        <item quantity="one">%1$d mês</item>
-        <item quantity="other">%1$d meses</item>
-    </plurals>
-    <plurals name="days_left">
-        <item quantity="one">Resta 1 dia nesta conta</item>
-        <item quantity="other">Restam %1$d dias nesta conta</item>
-    </plurals>
-    <plurals name="years_left">
-        <item quantity="one">Resta 1 ano nesta conta</item>
-        <item quantity="other">Restam %1$d anos nesta conta</item>
-    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">O crédito da conta expira dentro de um dia</item>
-        <item quantity="other">O crédito da conta expira dentro de %1$d dias</item>
+        <item quantity="other">O crédito da conta expira dentro de %d dias</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">O crédito da conta expira dentro de uma hora</item>
-        <item quantity="other">O crédito da conta expira dentro de %1$d horas</item>
+        <item quantity="other">O crédito da conta expira dentro de %d horas</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d dia</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">Resta 1 dia nesta conta</item>
+        <item quantity="other">Restam %d dias nesta conta</item>
     </plurals>
     <plurals name="delete_account_days_left_warning">
         <item quantity="one">Irá perder o dia restante.</item>
-        <item quantity="other">Irá perder os %1$d dias restantes.</item>
+        <item quantity="other">Irá perder os %d dias restantes.</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d mês</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%d localização</item>
+        <item quantity="other">%d localizações</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">Resta 1 ano nesta conta</item>
+        <item quantity="other">Restam %d anos nesta conta</item>
     </plurals>
 </resources>

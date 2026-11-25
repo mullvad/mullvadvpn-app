@@ -1,174 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="Adelaide">အက်ဒလိတ်</string>
-    <string name="Albania">အယ်လ်ဘေးနီးယား</string>
-    <string name="Amsterdam">အမ်စတာဒမ်</string>
-    <string name="Argentina">အာဂျင်တီးနား</string>
-    <string name="Ashburn, VA">Ashburn, VA</string>
-    <string name="Athens">အေသင်</string>
-    <string name="Atlanta, GA">အတ္တလန်တာ၊ ဂျော်ဂျီယာ</string>
-    <string name="Auckland">အော့ကလန်</string>
-    <string name="Australia">သြစတြေးလျ</string>
-    <string name="Austria">သြစတြီးယား</string>
-    <string name="Bangkok">ဘန်ကောက်</string>
-    <string name="Barcelona">ဘာစီလိုနာ</string>
-    <string name="Belgium">ဘယ်လ်ဂျီယံ</string>
-    <string name="Belgrade">ဘဲလ်ဂရိတ်</string>
-    <string name="Berlin">ဘာလင်</string>
-    <string name="Bogota">ဘိုဂိုတာ</string>
-    <string name="Bordeaux">ဘော်ဒို</string>
-    <string name="Boston, MA">ဘော်စတွန်၊ မက်ဆာချူးဆက်</string>
-    <string name="Bratislava">Bratislava</string>
-    <string name="Brazil">ဘရာဇီး</string>
-    <string name="Brisbane">ဘရစ်စဘိန်း</string>
-    <string name="Brussels">ဘရပ်ဆဲလ်</string>
-    <string name="Bucharest">ဘူခါရက်စ်</string>
-    <string name="Budapest">ဘူဒါပက်</string>
-    <string name="Buenos Aires">Buenos Aires</string>
-    <string name="Bulgaria">ဘူလ်ဂေးရီးယား</string>
-    <string name="Calgary">ကယ်ဂယ်ရီ</string>
-    <string name="Canada">ကနေဒါ</string>
-    <string name="Canberra">ကင်ဘာရာ</string>
-    <string name="Charlotte, NC">ရှားလော့၊ မြောက်ကာရိုလိုင်းနား</string>
-    <string name="Chicago, IL">ချီကာဂို၊ အီလီနွိုက်</string>
-    <string name="Chile">ချီလီ</string>
-    <string name="Chisinau">ခိရှီနို</string>
-    <string name="Cleveland, OH">ကလိဗ်လန့် ၊ အိုဟိုင်းယိုး</string>
-    <string name="Colombia">ကိုလံဘီယာ</string>
-    <string name="Copenhagen">ကိုပင်ဟေဂင်</string>
-    <string name="Croatia">ခရိုအေးရှား</string>
-    <string name="Cyprus">ဆိုက်ပရပ်စ်</string>
-    <string name="Czech Republic">ချက်သမ္မတနိုင်ငံ</string>
-    <string name="Dallas, TX">ဒဲလ်လက်စ်၊ တက္ကဆက်</string>
-    <string name="Denmark">ဒိန်းမတ်</string>
-    <string name="Denver, CO">ဒန်ဗာ၊ ကော်လိုရာဒို</string>
-    <string name="Detroit, MI">ဒီထရိုက်၊ MI</string>
-    <string name="Dubai">ဒူဘိုင်း</string>
-    <string name="Dublin">ဒါဘလင်</string>
-    <string name="Dusseldorf">ဒူဆင်ဒေါ့ဖ်</string>
-    <string name="Estonia">အက်စ်တိုးနီးယား</string>
-    <string name="Finland">ဖင်လန်</string>
-    <string name="Fortaleza">Fortaleza</string>
-    <string name="France">ပြင်သစ်</string>
-    <string name="Frankfurt">ဖရန့်ဖတ်</string>
-    <string name="Germany">ဂျာမနီ</string>
-    <string name="Glasgow">ဂလပ်စဂို</string>
-    <string name="Gothenburg">ဂိုသန်ဘက်</string>
-    <string name="Greece">ဂရိ</string>
-    <string name="Helsingborg">ဟယ်ဆင်းဘော့</string>
-    <string name="Helsinki">ဟယ်လ်စင်ကီ</string>
-    <string name="Hong Kong">ဟောင်ကောင်</string>
-    <string name="Honolulu, HI">ဟိုနိုလူလူ၊ ဟာဝိုင်ယီ</string>
-    <string name="Houston, TX">Houston, TX</string>
-    <string name="Hungary">ဟန်ဂေရီ</string>
-    <string name="India">အိန္ဒိယ</string>
-    <string name="Indonesia">အင်ဒိုနီးရှား</string>
-    <string name="Ireland">အိုင်ယာလန်</string>
-    <string name="Israel">အစ္စရေး</string>
-    <string name="Istanbul">အစ္စတန်ဘူလ်</string>
-    <string name="Italy">အီတလီ</string>
-    <string name="Jackson, MS">ဂျက်ဆင်၊ မစ္စစ္စပီ</string>
-    <string name="Jakarta">ဂျာကာတာ</string>
-    <string name="Japan">ဂျပန်</string>
-    <string name="Johannesburg">ဂျိုဟန်နက်စ်ဘတ်</string>
-    <string name="Kansas City, MO">Kansas City, MO</string>
-    <string name="Kiev">ကိယက်ဗ်</string>
-    <string name="Kuala Lumpur">ကွာလာလမ်ပူ</string>
-    <string name="Kyiv">ကိယက်ဗ်</string>
-    <string name="Lagos">လာဂို့စ်</string>
-    <string name="Latvia">လတ်ဗီးယား</string>
-    <string name="Lima">လီမာ</string>
-    <string name="Lisbon">လစ္စဘွန်း</string>
-    <string name="Ljubljana">လစ်ဘီယာနာ</string>
-    <string name="London">လန်ဒန်</string>
-    <string name="Los Angeles, CA">လော့စ်အိန်ဂျလိစ်၊ ကယ်လီဖိုးနီးယား</string>
-    <string name="Louisville, KY">လူဝီဗေးလ်၊ ကင်တပ်ကီ</string>
-    <string name="Luxembourg">လူဇင်ဘတ်</string>
-    <string name="Madrid">မက်ဒရစ်</string>
-    <string name="Malaysia">မလေးရှား</string>
-    <string name="Malmö">မယ်မို</string>
-    <string name="Manchester">မန်ချက်စတာ</string>
-    <string name="Manila">မနီလာ</string>
-    <string name="Marseille">မာဆေး</string>
-    <string name="McAllen, TX">McAllen, TX</string>
-    <string name="Melbourne">မဲလ်ဘုန်း</string>
-    <string name="Mexico">မက္ကဆီကို</string>
-    <string name="Miami, FL">မိုင်ယာမီ၊ ဖလော်ရီဒါ</string>
-    <string name="Milan">မီလန်</string>
-    <string name="Milwaukee, WI">မီဝါကီ၊ ဝစ္စကန်ဆင်</string>
-    <string name="Minneapolis/St. Paul Apt, MN">မင်နီယာပိုလစ်/စိန့်ပေါလ် လေဆိပ်၊ မင်နီဆိုးတား</string>
-    <string name="Moldova">မော်လ်ဒိုဗာ</string>
-    <string name="Montreal">မွန်ထရီရယ်</string>
-    <string name="Netherlands">နယ်သာလန်</string>
-    <string name="New York, NY">နယူးယောက်</string>
-    <string name="New Zealand">နယူးဇီလန်</string>
-    <string name="Nicosia">နီကိုရှား</string>
-    <string name="Nigeria">နိုင်ဂျီးရီးယား</string>
-    <string name="Nis">နိစ်</string>
-    <string name="North Macedonia">မြောက်မက်ဆီဒိုးနီးယား</string>
-    <string name="Norway">နော်ဝေး</string>
-    <string name="Oklahoma City, OK">အိုကလာဟိုးမားစီးတီး၊ အိုကလာဟိုးမား</string>
-    <string name="Osaka">အိုဆာကာ</string>
-    <string name="Oslo">အော်စလို</string>
-    <string name="Palermo">Palermo</string>
-    <string name="Paris">ပဲရစ်</string>
-    <string name="Perth">ပါ့သ်</string>
-    <string name="Peru">ပီရူး</string>
-    <string name="Philadelphia, PA">ဖီလဒဲလ်ဖီးယား၊ ပန်ဆဲလ်ဗေးနီးယား</string>
-    <string name="Philippines">ဖိလစ်ပိုင်</string>
-    <string name="Phoenix, AZ">ဖီးနစ်၊ အရီဇိုးနား</string>
-    <string name="Piscataway, NJ">ပစ်စ်ကာတာဝေး၊ နယူးဂျာစီ</string>
-    <string name="Poland">ပိုလန်</string>
-    <string name="Portland, OR">ပို့တ်လန်၊ အော်ရီဂွန်</string>
-    <string name="Portugal">ပေါ်တူဂီ</string>
-    <string name="Prague">ပရာ့ဂ်</string>
-    <string name="Pune">ပူနာ</string>
-    <string name="Queretaro">ကီရင်တာရို (Queretaro)</string>
-    <string name="Raleigh, NC">ရာလီ၊ မြောက်ကာရိုလိုင်းနား</string>
-    <string name="Richmond, VA">ရစ်ချ်မန်၊ ဗာဂျီးနီးယား</string>
-    <string name="Riga">ရီဂါ</string>
-    <string name="Romania">ရိုမေးနီးယား</string>
-    <string name="Rome">ရောမ</string>
-    <string name="Salt Lake City, UT">ဆော့တ်လိတ်ခ်စီးတီး၊ ယူတာ</string>
-    <string name="San Francisco, CA">ဆန်ဖရန်စစ္စကို၊ ကယ်လီဖိုးနီးယား</string>
-    <string name="San Jose, CA">ဆန်ဟိုဆေး၊ ကယ်လီဖိုးနီးယား</string>
-    <string name="Santiago">ဆန်တီယာဂို</string>
-    <string name="Sao Paulo">ဆောပိုလို</string>
-    <string name="Seattle, WA">ဆီယက်တဲလ်၊ ဝါရှင်တန်</string>
-    <string name="Secaucus, NJ">ဆီကောကတ်စ်၊ နယူးဂျာစီ</string>
-    <string name="Serbia">ဆားဘီးယား</string>
-    <string name="Singapore">စင်ကာပူ</string>
-    <string name="Sioux Falls, SD">ဆူးဖော၊ တောင်ဒါကိုတာ</string>
-    <string name="Skopje">စကော့ပ်ရာ</string>
-    <string name="Slovakia">Slovakia</string>
-    <string name="Slovenia">ဆလိုဗေးနီးယား</string>
-    <string name="Sofia">ဆိုဖီယာ</string>
-    <string name="South Africa">တောင်အာဖရိက</string>
-    <string name="Spain">စပိန်</string>
-    <string name="St. Louis, MO">စိန့်လူးဝစ်၊ မစ်ဆူရီ</string>
-    <string name="Stamford, CT">စတမ်းဖို့၊ ကော်နက်တီကပ်</string>
-    <string name="Stavanger">Stavanger</string>
-    <string name="Stockholm">စတော့ဟုမ်း</string>
-    <string name="Sweden">ဆွီဒင်</string>
-    <string name="Switzerland">ဆွစ်ဇာလန်</string>
-    <string name="Sydney">ဆစ်ဒနီ</string>
-    <string name="Tallinn">တောလ်လင်း</string>
-    <string name="Tel Aviv">တဲလ်အဗစ်</string>
-    <string name="Thailand">ထိုင်း</string>
-    <string name="Tirana">တေရားနား</string>
-    <string name="Tokyo">တိုကျို</string>
-    <string name="Toronto">တိုရွန်တို</string>
-    <string name="Turkey">တူရကီ</string>
-    <string name="UK">UK</string>
-    <string name="USA">USA</string>
-    <string name="Ukraine">ယူကရိန်း</string>
-    <string name="United Arab Emirates">အာရတ်စော်ဘွားများ ပြည်ထောင်စု</string>
-    <string name="Valencia">ဗလန်စီယာ</string>
-    <string name="Vancouver">ဗန်ကူးဗား</string>
-    <string name="Vienna">ဗီယင်နာ</string>
-    <string name="Warsaw">ဝါဆော</string>
-    <string name="Washington DC">ဝါရှင်တန်ဒီစီ</string>
-    <string name="Wien">ဗင်း</string>
-    <string name="Zagreb">ဇက်ဂ်ရက်ဘ်</string>
-    <string name="Zurich">ဇူးရစ်ချ်</string>
+  <string name="Adelaide" comment="#. AU ADL">အက်ဒလိတ်</string>
+  <string name="Albania" comment="#. AL">အယ်လ်ဘေးနီးယား</string>
+  <string name="Amsterdam" comment="#. NL AMS">အမ်စတာဒမ်</string>
+  <string name="Argentina" comment="#. AR">အာဂျင်တီးနား</string>
+  <string name="Ashburn, VA" comment="#. US QAS">Ashburn, VA</string>
+  <string name="Athens" comment="#. GR ATH">အေသင်</string>
+  <string name="Atlanta, GA" comment="#. US ATL">အတ္တလန်တာ၊ ဂျော်ဂျီယာ</string>
+  <string name="Auckland" comment="#. NZ AKL">အော့ကလန်</string>
+  <string name="Australia" comment="#. AU">သြစတြေးလျ</string>
+  <string name="Austria" comment="#. AT">သြစတြီးယား</string>
+  <string name="Bangkok" comment="#. TH BKK">ဘန်ကောက်</string>
+  <string name="Barcelona" comment="#. ES BCN">ဘာစီလိုနာ</string>
+  <string name="Belgium" comment="#. BE">ဘယ်လ်ဂျီယံ</string>
+  <string name="Belgrade" comment="#. RS BEG">ဘဲလ်ဂရိတ်</string>
+  <string name="Berlin" comment="#. DE BER">ဘာလင်</string>
+  <string name="Bogota" comment="#. CO BOG">ဘိုဂိုတာ</string>
+  <string name="Bordeaux" comment="#. FR BOD">ဘော်ဒို</string>
+  <string name="Boston, MA" comment="#. US BOS">ဘော်စတွန်၊ မက်ဆာချူးဆက်</string>
+  <string name="Bratislava" comment="#. SK BTS">Bratislava</string>
+  <string name="Brazil" comment="#. BR">ဘရာဇီး</string>
+  <string name="Brisbane" comment="#. AU BNE">ဘရစ်စဘိန်း</string>
+  <string name="Brussels" comment="#. BE BRU">ဘရပ်ဆဲလ်</string>
+  <string name="Bucharest" comment="#. RO BUH">ဘူခါရက်စ်</string>
+  <string name="Budapest" comment="#. HU BUD">ဘူဒါပက်</string>
+  <string name="Buenos Aires" comment="#. AR BUE">Buenos Aires</string>
+  <string name="Bulgaria" comment="#. BG">ဘူလ်ဂေးရီးယား</string>
+  <string name="Calgary" comment="#. CA YYC">ကယ်ဂယ်ရီ</string>
+  <string name="Canada" comment="#. CA">ကနေဒါ</string>
+  <string name="Canberra" comment="#. AU CBR">ကင်ဘာရာ</string>
+  <string name="Charlotte, NC" comment="#. US CLT">ရှားလော့၊ မြောက်ကာရိုလိုင်းနား</string>
+  <string name="Chicago, IL" comment="#. US CHI">ချီကာဂို၊ အီလီနွိုက်</string>
+  <string name="Chile" comment="#. CL">ချီလီ</string>
+  <string name="Chisinau" comment="#. MD KIV">ခိရှီနို</string>
+  <string name="Cleveland, OH" comment="#. US CLE">ကလိဗ်လန့် ၊ အိုဟိုင်းယိုး</string>
+  <string name="Colombia" comment="#. CO">ကိုလံဘီယာ</string>
+  <string name="Copenhagen" comment="#. DK CPH">ကိုပင်ဟေဂင်</string>
+  <string name="Croatia" comment="#. HR">ခရိုအေးရှား</string>
+  <string name="Cyprus" comment="#. CY">ဆိုက်ပရပ်စ်</string>
+  <string name="Czech Republic" comment="#. CZ">ချက်သမ္မတနိုင်ငံ</string>
+  <string name="Dallas, TX" comment="#. US DAL">ဒဲလ်လက်စ်၊ တက္ကဆက်</string>
+  <string name="Denmark" comment="#. DK">ဒိန်းမတ်</string>
+  <string name="Denver, CO" comment="#. US DEN">ဒန်ဗာ၊ ကော်လိုရာဒို</string>
+  <string name="Detroit, MI" comment="#. US DET">ဒီထရိုက်၊ MI</string>
+  <string name="Dubai" comment="#. AE DXB">ဒူဘိုင်း</string>
+  <string name="Dublin" comment="#. IE DUB">ဒါဘလင်</string>
+  <string name="Dusseldorf" comment="#. DE DUS">ဒူဆင်ဒေါ့ဖ်</string>
+  <string name="Estonia" comment="#. EE">အက်စ်တိုးနီးယား</string>
+  <string name="Finland" comment="#. FI">ဖင်လန်</string>
+  <string name="Fortaleza" comment="#. BR FOR">Fortaleza</string>
+  <string name="France" comment="#. FR">ပြင်သစ်</string>
+  <string name="Frankfurt" comment="#. DE FRA">ဖရန့်ဖတ်</string>
+  <string name="Germany" comment="#. DE">ဂျာမနီ</string>
+  <string name="Glasgow" comment="#. GB GLW">ဂလပ်စဂို</string>
+  <string name="Gothenburg" comment="#. SE GOT">ဂိုသန်ဘက်</string>
+  <string name="Greece" comment="#. GR">ဂရိ</string>
+  <string name="Helsingborg" comment="#. SE HEL">ဟယ်ဆင်းဘော့</string>
+  <string name="Helsinki" comment="#. FI HEL">ဟယ်လ်စင်ကီ</string>
+  <string name="Hong Kong" comment="#. HK HKG">ဟောင်ကောင်</string>
+  <string name="Honolulu, HI" comment="#. US HNL">ဟိုနိုလူလူ၊ ဟာဝိုင်ယီ</string>
+  <string name="Houston, TX" comment="#. US HOU">Houston, TX</string>
+  <string name="Hungary" comment="#. HU">ဟန်ဂေရီ</string>
+  <string name="India" comment="#. IN">အိန္ဒိယ</string>
+  <string name="Indonesia" comment="#. ID">အင်ဒိုနီးရှား</string>
+  <string name="Ireland" comment="#. IE">အိုင်ယာလန်</string>
+  <string name="Israel" comment="#. IL">အစ္စရေး</string>
+  <string name="Istanbul" comment="#. TR IST">အစ္စတန်ဘူလ်</string>
+  <string name="Italy" comment="#. IT">အီတလီ</string>
+  <string name="Jackson, MS" comment="#. US JAN">ဂျက်ဆင်၊ မစ္စစ္စပီ</string>
+  <string name="Jakarta" comment="#. ID JPU">ဂျာကာတာ</string>
+  <string name="Japan" comment="#. JP">ဂျပန်</string>
+  <string name="Johannesburg" comment="#. ZA JNB">ဂျိုဟန်နက်စ်ဘတ်</string>
+  <string name="Kansas City, MO" comment="#. US MKC">Kansas City, MO</string>
+  <string name="Kiev" comment="#. UA IEV">ကိယက်ဗ်</string>
+  <string name="Kuala Lumpur" comment="#. MY KUL">ကွာလာလမ်ပူ</string>
+  <string name="Kyiv" comment="#. UA IEV">ကိယက်ဗ်</string>
+  <string name="Lagos" comment="#. NG LOS">လာဂို့စ်</string>
+  <string name="Latvia" comment="#. LV">လတ်ဗီးယား</string>
+  <string name="Lima" comment="#. PE LIM">လီမာ</string>
+  <string name="Lisbon" comment="#. PT LIS">လစ္စဘွန်း</string>
+  <string name="Ljubljana" comment="#. SI LJU">လစ်ဘီယာနာ</string>
+  <string name="London" comment="#. GB LON">လန်ဒန်</string>
+  <string name="Los Angeles, CA" comment="#. US LAX">လော့စ်အိန်ဂျလိစ်၊ ကယ်လီဖိုးနီးယား</string>
+  <string name="Louisville, KY" comment="#. US LUI">လူဝီဗေးလ်၊ ကင်တပ်ကီ</string>
+  <string name="Luxembourg" comment="#. LU LUX">လူဇင်ဘတ်</string>
+  <string name="Madrid" comment="#. ES MAD">မက်ဒရစ်</string>
+  <string name="Malaysia" comment="#. MY">မလေးရှား</string>
+  <string name="Malmö" comment="#. SE MMA">မယ်မို</string>
+  <string name="Manchester" comment="#. GB MNC">မန်ချက်စတာ</string>
+  <string name="Manila" comment="#. PH MNL">မနီလာ</string>
+  <string name="Marseille" comment="#. FR MRS">မာဆေး</string>
+  <string name="McAllen, TX" comment="#. US TXC">McAllen, TX</string>
+  <string name="Melbourne" comment="#. AU MEL">မဲလ်ဘုန်း</string>
+  <string name="Mexico" comment="#. MX">မက္ကဆီကို</string>
+  <string name="Miami, FL" comment="#. US MIA">မိုင်ယာမီ၊ ဖလော်ရီဒါ</string>
+  <string name="Milan" comment="#. IT MIL">မီလန်</string>
+  <string name="Milwaukee, WI" comment="#. US MKE">မီဝါကီ၊ ဝစ္စကန်ဆင်</string>
+  <string name="Minneapolis/St. Paul Apt, MN" comment="#. US MSP">မင်နီယာပိုလစ်/စိန့်ပေါလ် လေဆိပ်၊ မင်နီဆိုးတား</string>
+  <string name="Moldova" comment="#. MD">မော်လ်ဒိုဗာ</string>
+  <string name="Montreal" comment="#. CA MTR">မွန်ထရီရယ်</string>
+  <string name="Netherlands" comment="#. NL">နယ်သာလန်</string>
+  <string name="New York, NY" comment="#. US NYC">နယူးယောက်</string>
+  <string name="New Zealand" comment="#. NZ">နယူးဇီလန်</string>
+  <string name="Nicosia" comment="#. CY NIC">နီကိုရှား</string>
+  <string name="Nigeria" comment="#. NG">နိုင်ဂျီးရီးယား</string>
+  <string name="Nis" comment="#. RS INI">နိစ်</string>
+  <string name="North Macedonia" comment="#. MK">မြောက်မက်ဆီဒိုးနီးယား</string>
+  <string name="Norway" comment="#. NO">နော်ဝေး</string>
+  <string name="Oklahoma City, OK" comment="#. US OKC">အိုကလာဟိုးမားစီးတီး၊ အိုကလာဟိုးမား</string>
+  <string name="Osaka" comment="#. JP OSA">အိုဆာကာ</string>
+  <string name="Oslo" comment="#. NO OSL">အော်စလို</string>
+  <string name="Palermo" comment="#. IT PMO">Palermo</string>
+  <string name="Paris" comment="#. FR PAR">ပဲရစ်</string>
+  <string name="Perth" comment="#. AU PER">ပါ့သ်</string>
+  <string name="Peru" comment="#. PE">ပီရူး</string>
+  <string name="Philadelphia, PA" comment="#. US PHL">ဖီလဒဲလ်ဖီးယား၊ ပန်ဆဲလ်ဗေးနီးယား</string>
+  <string name="Philippines" comment="#. PH">ဖိလစ်ပိုင်</string>
+  <string name="Phoenix, AZ" comment="#. US PHX">ဖီးနစ်၊ အရီဇိုးနား</string>
+  <string name="Piscataway, NJ" comment="#. US PIL">ပစ်စ်ကာတာဝေး၊ နယူးဂျာစီ</string>
+  <string name="Poland" comment="#. PL">ပိုလန်</string>
+  <string name="Portland, OR" comment="#. US PDX">ပို့တ်လန်၊ အော်ရီဂွန်</string>
+  <string name="Portugal" comment="#. PT">ပေါ်တူဂီ</string>
+  <string name="Prague" comment="#. CZ PRG">ပရာ့ဂ်</string>
+  <string name="Pune" comment="#. IN PNQ">ပူနာ</string>
+  <string name="Queretaro" comment="#. MX QRO">ကီရင်တာရို (Queretaro)</string>
+  <string name="Raleigh, NC" comment="#. US RAG">ရာလီ၊ မြောက်ကာရိုလိုင်းနား</string>
+  <string name="Richmond, VA" comment="#. US RIC">ရစ်ချ်မန်၊ ဗာဂျီးနီးယား</string>
+  <string name="Riga" comment="#. LV RIX">ရီဂါ</string>
+  <string name="Romania" comment="#. RO">ရိုမေးနီးယား</string>
+  <string name="Rome" comment="#. IT ROM">ရောမ</string>
+  <string name="Salt Lake City, UT" comment="#. US SLC">ဆော့တ်လိတ်ခ်စီးတီး၊ ယူတာ</string>
+  <string name="San Francisco, CA" comment="#. US SFO">ဆန်ဖရန်စစ္စကို၊ ကယ်လီဖိုးနီးယား</string>
+  <string name="San Jose, CA" comment="#. US SJC">ဆန်ဟိုဆေး၊ ကယ်လီဖိုးနီးယား</string>
+  <string name="Santiago" comment="#. CL SCL">ဆန်တီယာဂို</string>
+  <string name="Sao Paulo" comment="#. BR SAO">ဆောပိုလို</string>
+  <string name="Seattle, WA" comment="#. US SEA">ဆီယက်တဲလ်၊ ဝါရှင်တန်</string>
+  <string name="Secaucus, NJ" comment="#. US UYK">ဆီကောကတ်စ်၊ နယူးဂျာစီ</string>
+  <string name="Serbia" comment="#. RS">ဆားဘီးယား</string>
+  <string name="Singapore" comment="#. SG SIN">စင်ကာပူ</string>
+  <string name="Sioux Falls, SD" comment="#. US FSD">ဆူးဖော၊ တောင်ဒါကိုတာ</string>
+  <string name="Skopje" comment="#. MK SKP">စကော့ပ်ရာ</string>
+  <string name="Slovakia" comment="#. SK">Slovakia</string>
+  <string name="Slovenia" comment="#. SI">ဆလိုဗေးနီးယား</string>
+  <string name="Sofia" comment="#. BG SOF">ဆိုဖီယာ</string>
+  <string name="South Africa" comment="#. ZA">တောင်အာဖရိက</string>
+  <string name="Spain" comment="#. ES">စပိန်</string>
+  <string name="St. Louis, MO" comment="#. US STL">စိန့်လူးဝစ်၊ မစ်ဆူရီ</string>
+  <string name="Stamford, CT" comment="#. US XLX">စတမ်းဖို့၊ ကော်နက်တီကပ်</string>
+  <string name="Stavanger" comment="#. NO SVG">Stavanger</string>
+  <string name="Stockholm" comment="#. SE STO">စတော့ဟုမ်း</string>
+  <string name="Sweden" comment="#. SE">ဆွီဒင်</string>
+  <string name="Switzerland" comment="#. CH">ဆွစ်ဇာလန်</string>
+  <string name="Sydney" comment="#. AU SYD">ဆစ်ဒနီ</string>
+  <string name="Tallinn" comment="#. EE TLL">တောလ်လင်း</string>
+  <string name="Tel Aviv" comment="#. IL TLV">တဲလ်အဗစ်</string>
+  <string name="Thailand" comment="#. TH">ထိုင်း</string>
+  <string name="Tirana" comment="#. AL TIA">တေရားနား</string>
+  <string name="Tokyo" comment="#. JP TYO">တိုကျို</string>
+  <string name="Toronto" comment="#. CA TOR">တိုရွန်တို</string>
+  <string name="Turkey" comment="#. TR">တူရကီ</string>
+  <string name="UK" comment="#. GB">UK</string>
+  <string name="USA" comment="#. US">USA</string>
+  <string name="Ukraine" comment="#. UA">ယူကရိန်း</string>
+  <string name="United Arab Emirates" comment="#. AE">အာရတ်စော်ဘွားများ ပြည်ထောင်စု</string>
+  <string name="Valencia" comment="#. ES VLC">ဗလန်စီယာ</string>
+  <string name="Vancouver" comment="#. CA VAN">ဗန်ကူးဗား</string>
+  <string name="Vienna" comment="#. AT VIE">ဗီယင်နာ</string>
+  <string name="Warsaw" comment="#. PL WAW">ဝါဆော</string>
+  <string name="Washington DC" comment="#. US WAS">ဝါရှင်တန်ဒီစီ</string>
+  <string name="Wien" comment="#. AT VIE">ဗင်း</string>
+  <string name="Zagreb" comment="#. HR ZAG">ဇက်ဂ်ရက်ဘ်</string>
+  <string name="Zurich" comment="#. CH ZRH">ဇူးရစ်ချ်</string>
 </resources>
