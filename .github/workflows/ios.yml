@@ -87,7 +87,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: xcode-27
+    runs-on: xcode-27-xlarge
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
