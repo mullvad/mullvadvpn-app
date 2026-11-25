@@ -22,10 +22,9 @@ final class OutgoingConnectionServiceTests: XCTestCase {
         )
         let outgoingConnectionService = OutgoingConnectionService(outgoingConnectionProxy: mockOutgoingConnectionProxy)
         let successExpectation = expectation(description: "Did receive exit IPs")
-        let result = try await outgoingConnectionService.getOutgoingConnectionInfo()
-        if result.ipv4 == .mock,
-            result.ipv6 == .mock
-        {
+        let result4 = try await outgoingConnectionService.getOutgoingIPv4ConnectionInfo()
+        let result6 = try? await outgoingConnectionService.getOutgoingIPv6ConnectionInfo()
+        if result4 == .mock, result6 == .mock {
             successExpectation.fulfill()
         }
         await fulfillment(of: [successExpectation], timeout: .UnitTest.timeout)
@@ -40,9 +39,22 @@ final class OutgoingConnectionServiceTests: XCTestCase {
         let outgoingConnectionService = OutgoingConnectionService(outgoingConnectionProxy: mockOutgoingConnectionProxy)
 
         let failExpectation = expectation(description: "Did not receive exit IPs")
+        var ipv4Failed = false
+        var ipv6Failed = false
+
         do {
-            _ = try await outgoingConnectionService.getOutgoingConnectionInfo()
+            _ = try await outgoingConnectionService.getOutgoingIPv4ConnectionInfo()
         } catch {
+            ipv4Failed = true
+        }
+
+        do {
+            _ = try await outgoingConnectionService.getOutgoingIPv4ConnectionInfo()
+        } catch {
+            ipv6Failed = true
+        }
+
+        if ipv4Failed && ipv6Failed {
             failExpectation.fulfill()
         }
         await fulfillment(of: [failExpectation], timeout: .UnitTest.timeout)

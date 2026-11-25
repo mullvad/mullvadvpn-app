@@ -30,7 +30,7 @@ class ConnectionViewViewModel: ObservableObject {
     }
 
     @Published private(set) var tunnelStatus: TunnelStatus
-    @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
+    @Published var outgoingConnectionInfo: OutgoingConnectionInfo
     @Published var showsActivityIndicator = false
 
     @Published var relayConstraints: RelayConstraints
@@ -63,6 +63,7 @@ class ConnectionViewViewModel: ObservableObject {
             relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
+        self.outgoingConnectionInfo = OutgoingConnectionInfo(ipv4: nil, ipv6: nil)
     }
 
     func update(tunnelStatus: TunnelStatus) {
@@ -255,8 +256,8 @@ extension ConnectionViewViewModel {
 
     var outAddressIpv4: String? {
         guard
-            let outgoingConnectionInfo,
-            let address = outgoingConnectionInfo.ipv4.exitIP ? outgoingConnectionInfo.ipv4.ip : nil
+            let ipv4 = outgoingConnectionInfo.ipv4,
+            let address = ipv4.exitIP ? ipv4.ip : nil
         else {
             return nil
         }
@@ -266,7 +267,6 @@ extension ConnectionViewViewModel {
 
     var outAddressIpv6: String? {
         guard
-            let outgoingConnectionInfo,
             let ipv6 = outgoingConnectionInfo.ipv6,
             let address = ipv6.exitIP ? ipv6.ip : nil
         else {

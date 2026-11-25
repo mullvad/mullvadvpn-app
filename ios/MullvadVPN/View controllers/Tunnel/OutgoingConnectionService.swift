@@ -13,7 +13,8 @@ import MullvadLogging
 import Network
 
 protocol OutgoingConnectionServiceHandling {
-    func getOutgoingConnectionInfo() async throws -> OutgoingConnectionInfo
+    func getOutgoingIPv4ConnectionInfo() async throws -> IPV4ConnectionData
+    func getOutgoingIPv6ConnectionInfo() async throws -> IPV6ConnectionData
 }
 
 final class OutgoingConnectionService: OutgoingConnectionServiceHandling {
@@ -23,22 +24,26 @@ final class OutgoingConnectionService: OutgoingConnectionServiceHandling {
         self.outgoingConnectionProxy = outgoingConnectionProxy
     }
 
-    func getOutgoingConnectionInfo() async throws -> OutgoingConnectionInfo {
-        let ipv4ConnectionInfo = try await outgoingConnectionProxy.getIPV4(retryStrategy: .default)
-        let ipv6ConnectionInfo = try? await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)
-        return OutgoingConnectionInfo(ipv4: ipv4ConnectionInfo, ipv6: ipv6ConnectionInfo)
+    func getOutgoingIPv4ConnectionInfo() async throws -> IPV4ConnectionData {
+        try await outgoingConnectionProxy.getIPV4(retryStrategy: .default)
+    }
+    func getOutgoingIPv6ConnectionInfo() async throws -> IPV6ConnectionData {
+        try await outgoingConnectionProxy.getIPV6(retryStrategy: .default)
     }
 }
 
 struct OutgoingConnectionInfo {
     /// IPv4  exit connection.
-    let ipv4: IPV4ConnectionData
+    var ipv4: IPV4ConnectionData?
 
     /// IPv6 exit connection.
-    let ipv6: IPV6ConnectionData?
+    var ipv6: IPV6ConnectionData?
 
     var outAddress: String? {
-        let ipv4String = ipv4.exitIP ? "\(ipv4.ip)" : nil
+        var ipv4String: String?
+        if let ipv4 = ipv4, ipv4.exitIP {
+            ipv4String = "\(ipv4.ip)"
+        }
 
         var ipv6String: String?
         if let ipv6 = ipv6, ipv6.exitIP {
