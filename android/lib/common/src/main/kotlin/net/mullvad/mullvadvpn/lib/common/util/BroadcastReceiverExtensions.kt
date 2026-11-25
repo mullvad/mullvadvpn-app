@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.receiver.util
+package net.mullvad.mullvadvpn.lib.common.util
 
 import android.content.BroadcastReceiver
 import kotlinx.coroutines.CoroutineScope

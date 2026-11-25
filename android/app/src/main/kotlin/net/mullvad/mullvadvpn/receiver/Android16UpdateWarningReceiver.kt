@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import kotlin.getValue
+import net.mullvad.mullvadvpn.lib.common.util.goAsync
 import net.mullvad.mullvadvpn.lib.userpreferences.UserPreferencesRepository
-import net.mullvad.mullvadvpn.receiver.util.goAsync
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

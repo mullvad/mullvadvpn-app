@@ -41,7 +41,6 @@ androidx-testorchestrator = "1.6.1"
 androidx-testrunner = "1.7.0"
 androidx-tv = "1.1.0"
 androidx-uiautomator = "2.4.1"
-androidx-work = "2.12.0"
 arrow = "2.3.0.1"
 baselineprofile = "1.5.0"
 biometric = "1.4.0-rc01"
@@ -126,7 +125,6 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-uiautomator" }
 androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
 androidx-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
-androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
 arrow-optics-ksp = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "arrow" }

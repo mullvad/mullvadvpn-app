@@ -15,7 +15,6 @@ dependencies {
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.service)
-    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.arrow)
     implementation(libs.kermit)
     implementation(libs.koin.android)

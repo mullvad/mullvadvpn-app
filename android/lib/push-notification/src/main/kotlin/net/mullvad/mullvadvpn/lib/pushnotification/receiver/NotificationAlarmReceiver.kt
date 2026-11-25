@@ -3,38 +3,62 @@ package net.mullvad.mullvadvpn.lib.pushnotification.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
 import co.touchlab.kermit.Logger
-import net.mullvad.mullvadvpn.lib.pushnotification.worker.ExpiryNotificationWorker
+import java.time.Duration
+import java.time.ZonedDateTime
+import kotlin.time.Duration.Companion.seconds
+import net.mullvad.mullvadvpn.lib.common.serviceconnection.bindVpnService
+import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
+import net.mullvad.mullvadvpn.lib.common.util.goAsync
+import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
+import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
+import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class NotificationAlarmReceiver : BroadcastReceiver(), KoinComponent {
 
+    private val notificationProvider by inject<AccountExpiryNotificationProvider>()
+    private val scheduleNotificationAlarmUseCase by inject<ScheduleNotificationAlarmUseCase>()
+    private val accountRepository by inject<AccountRepository>()
+
     override fun onReceive(context: Context, intent: Intent?) {
-        // It is not possible to bind to a service from a notification alarm receiver so we will use
-        // a worker instead.
         Logger.d("Account expiry alarm triggered")
 
-        val work =
-            OneTimeWorkRequestBuilder<ExpiryNotificationWorker>()
-                .apply {
-                    // Setting expedited on android 12 or lower will cause the work manager to
-                    // request a wake lock. We want to avoid using wakelocks so we disable expedited
-                    // on android 12 and lower.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    }
-                }
-                .setConstraints(
-                    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build(),
-                )
-                .build()
-        WorkManager.getInstance(context).enqueue(work)
-        return
+        goAsync { checkAndShowNotification(context.applicationContext) }
+    }
+
+    private suspend fun checkAndShowNotification(appContext: Context) {
+        // Bind to the VPN service to make sure the daemon is started
+        val serviceConnection = appContext.bindVpnService()
+
+        val expiry = accountRepository.fetchAccountData(timeout = ACCOUNT_WAIT_TIMEOUT)?.expiryDate
+
+        // If we get a null we should just exit and not schedule a new notification.
+        // This either because we were unable to update the account data or that we are no longer
+        // logged in.
+        if (expiry == null) {
+            Logger.e("Error! Were unable to retrieve expiry date")
+            appContext.unbindService(serviceConnection)
+            return
+        }
+
+        val untilExpiry = Duration.between(ZonedDateTime.now(), expiry)
+
+        // Only show notification if untilExpiry is less than the threshold
+        if (untilExpiry <= ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD) {
+            notificationProvider.showNotification(untilExpiry)
+        }
+
+        // Only schedule the next alarm if we still have time left on the account.
+        if (expiry > ZonedDateTime.now()) {
+            scheduleNotificationAlarmUseCase(accountExpiry = expiry, customContext = appContext)
+        }
+
+        appContext.unbindService(serviceConnection)
+    }
+
+    companion object {
+        private val ACCOUNT_WAIT_TIMEOUT = 5.seconds
     }
 }
