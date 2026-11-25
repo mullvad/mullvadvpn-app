@@ -98,6 +98,15 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+
+      - name: Boot simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j \
+            | jq -r '.devices | to_entries[] | .value[] | select(.name=="iPhone 17") | .udid' \
+            | head -1)
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true   # ignore "already booted"
+
       - name: Set up output artifacts directory
         run: |
           mkdir artifacts
@@ -119,17 +128,19 @@ jobs:
             build-for-testing 2>&1 | tee "${ARTIFACTS_DIR}/raw-xcodebuild-output.log" | xcbeautify
         working-directory: ios/
 
+      - name: Wait for simulator
+        run: xcrun simctl bootstatus "$SIM_UDID" -b
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 17" \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -derivedDataPath derived-data \
             -disableAutomaticPackageResolution \
-            -allowProvisioningUpdates \
             -resultBundlePath "${ARTIFACTS_DIR}/xcode-test-report-${{ github.run_id }}.xcresult" \
             test-without-building 2>&1 | xcbeautify
         working-directory: ios/
