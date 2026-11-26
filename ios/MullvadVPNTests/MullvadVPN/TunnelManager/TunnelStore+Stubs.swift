@@ -87,7 +87,7 @@ actor TunnelStub: TunnelProtocol, Equatable {
 
     func saveToPreferences() async throws {}
 
-    func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {}
+    func removeFromPreferences() async throws {}
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}
 

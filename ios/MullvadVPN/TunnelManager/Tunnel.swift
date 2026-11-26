@@ -44,7 +44,7 @@ protocol TunnelProtocol: Actor {
 
     func setIsOnDemandEnabled(_ newValue: Bool) async
     func saveToPreferences() async throws
-    func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?)
+    func removeFromPreferences() async throws
 
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
@@ -184,8 +184,8 @@ actor Tunnel: TunnelProtocol {
         try await tunnelProvider.loadFromPreferences()
     }
 
-    func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {
-        tunnelProvider.removeFromPreferences(completionHandler: completion)
+    func removeFromPreferences() async throws {
+        try await tunnelProvider.removeFromPreferences()
     }
 
     func addBlockObserver(

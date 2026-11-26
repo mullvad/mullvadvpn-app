@@ -147,18 +147,14 @@
             }
         }
 
-        func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {
-            var error: NEVPNError?
-
-            Self.tunnelsLock.withLock {
+        func removeFromPreferences() async throws {
+            _ = try Self.tunnelsLock.withLock {
                 if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
                     Self.tunnels.remove(at: index)
                 } else {
-                    error = NEVPNError(.configurationReadWriteFailed)
+                    throw NEVPNError(.configurationReadWriteFailed)
                 }
             }
-
-            completionHandler?(error)
         }
 
         override func isEqual(_ object: Any?) -> Bool {

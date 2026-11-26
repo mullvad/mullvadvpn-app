@@ -1218,17 +1218,12 @@ actor TunnelManager {
         guard let tunnel = _tunnel, isRemovingProfile else { return }
 
         Task {
-            await tunnel.removeFromPreferences { error in
-                Task {
-                    if let error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to remove VPN configuration."
-                        )
-                    }
-                    await self.setTunnel(nil, shouldRefreshTunnelState: false)
-                }
+            do {
+                try await tunnel.removeFromPreferences()
+            } catch {
+                logger.error(error: error, message: "Failed to remove VPN configuration.")
             }
+            await setTunnel(nil, shouldRefreshTunnelState: false)
         }
     }
 }

@@ -24,7 +24,7 @@ protocol VPNTunnelProviderManagerProtocol: Equatable {
 
     func loadFromPreferences() async throws
     func saveToPreferences() async throws
-    func removeFromPreferences(completionHandler: (@Sendable (Error?) -> Void)?)
+    func removeFromPreferences() async throws
 
     static func loadAllFromPreferences(completionHandler: @escaping @Sendable ([SelfType]?, Error?) -> Void)
 }

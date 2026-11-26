@@ -49,11 +49,10 @@ actor MockTunnel: TunnelProtocol {
         ""
     }
 
-    func saveToPreferences() async throws { }
+    func saveToPreferences() async throws {}
 
-    func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {
+    func removeFromPreferences() async throws {
         onRemoveFromPreferences?()
-        completion?(nil)
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}
