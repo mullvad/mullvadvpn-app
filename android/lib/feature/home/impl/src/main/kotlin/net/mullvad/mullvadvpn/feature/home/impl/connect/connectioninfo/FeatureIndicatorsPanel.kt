@@ -161,7 +161,6 @@ private fun FeatureIndicator.icon(): ImageVector? =
 
 private fun toState(featureIndicator: FeatureIndicator, connected: Boolean) =
     when {
-        featureIndicator !in ANTI_CENSORSHIP_FEATURE_INDICATORS -> State.Idle
-        connected -> State.Connected
-        else -> State.Connecting
+        featureIndicator in ANTI_CENSORSHIP_FEATURE_INDICATORS && !connected -> State.Loading
+        else -> State.Idle
     }

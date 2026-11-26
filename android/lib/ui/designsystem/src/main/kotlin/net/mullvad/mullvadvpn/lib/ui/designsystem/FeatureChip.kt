@@ -24,9 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -66,8 +64,8 @@ private fun PreviewMullvadFeatureChip() {
             icon = MultihopWhenNeeded,
             onClick = {},
         )
-        MullvadFeatureChip(text = "Anti-censorship", state = State.Connecting, onClick = {})
-        MullvadFeatureChip(text = "QUIC", state = State.Connected, onClick = {})
+        MullvadFeatureChip(text = "Anti-censorship", state = State.Loading, onClick = {})
+        MullvadFeatureChip(text = "QUIC", state = State.Idle, onClick = {})
     }
 }
 
@@ -89,7 +87,7 @@ fun MullvadFeatureChip(
     val highlight = remember { Animatable(0f) }
     val previousState = rememberPrevious(current = state, shouldUpdate = { _, _ -> true })
     LaunchedEffect(state) {
-        val shouldHighlight = state == State.Connected && previousState == State.Connecting
+        val shouldHighlight = state == State.Idle && previousState == State.Loading
         if (shouldHighlight) {
             highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = CONNECTED_EASING))
             delay(CONNECTED_HOLD)
@@ -98,7 +96,7 @@ fun MullvadFeatureChip(
     }
     FilterChip(
         modifier =
-            modifier.applyIf(state == State.Connecting) {
+            modifier.applyIf(state == State.Loading) {
                 val connectingProgress =
                     rememberInfiniteTransition(label = "connectingBorder")
                         .animateFloat(
@@ -132,13 +130,6 @@ fun MullvadFeatureChip(
             when (state) {
                 State.Idle -> {
                     FilterChipDefaults.filterChipBorder(
-                        borderColor = borderColor,
-                        enabled = true,
-                        selected = false,
-                    )
-                }
-                State.Connected -> {
-                    FilterChipDefaults.filterChipBorder(
                         borderColor = lerp(borderColor, selectedBorderColor, highlight.value),
                         enabled = true,
                         selected = false,
@@ -146,7 +137,7 @@ fun MullvadFeatureChip(
                             lerp(NORMAL_BORDER_WIDTH, SELECTED_BORDER_WIDTH, highlight.value),
                     )
                 }
-                State.Connecting -> null
+                State.Loading -> null
             },
         selected = false,
         onClick = onClick,
@@ -271,9 +262,7 @@ fun MullvadMoreChip(
 sealed interface State : Parcelable {
     data object Idle : State
 
-    data object Connecting : State
-
-    data object Connected : State
+    data object Loading : State
 }
 
 private val SELECTED_BORDER_WIDTH = 2.dp

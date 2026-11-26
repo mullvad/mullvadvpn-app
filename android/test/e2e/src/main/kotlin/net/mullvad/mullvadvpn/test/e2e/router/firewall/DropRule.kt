@@ -2,14 +2,12 @@ package net.mullvad.mullvadvpn.test.e2e.router.firewall
 
 import android.annotation.SuppressLint
 import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.router.NetworkingProtocol
 
 @SuppressLint("HardwareIds")
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class DropRule(
     @SerialName("src") val source: String,
@@ -25,12 +23,6 @@ data class DropRule(
 
         fun blockWireGuardTrafficRule(toIpv4: String): List<DropRule> =
             blockTrafficToRule(protocols = listOf(NetworkingProtocol.WireGuard), toIpv4 = toIpv4)
-
-        fun blockAllTrafficRule(toIpv4: String): List<DropRule> =
-            blockTrafficToRule(
-                protocols = emptyList(),
-                toIpv4 = toIpv4,
-            )
 
         fun blockAllTrafficExceptToDestinationRule(toIpv4: String): List<DropRule> =
             blockTrafficToRule(
