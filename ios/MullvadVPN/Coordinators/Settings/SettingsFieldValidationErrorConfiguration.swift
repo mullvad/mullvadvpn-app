@@ -10,10 +10,6 @@
 
 import UIKit
 
-struct SettingsFieldValidationError: Error, Equatable {
-    var errorDescription: String?
-}
-
 struct SettingsFieldValidationErrorConfiguration: UIContentConfiguration, Equatable {
     var errors: [SettingsFieldValidationError] = []
     var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.settingsValidationErrorLayoutMargins
