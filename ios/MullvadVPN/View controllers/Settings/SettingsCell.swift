@@ -30,6 +30,14 @@ enum SettingsDisclosureType {
     }
 }
 
+/// Types handling custom disclosure accessory in table view cells.
+protocol CustomCellDisclosureHandling: UITableViewCell {
+    /// Custom disclosure type.
+    ///
+    /// Cannot be used together with `accessoryType` property. Automatically resets `accessoryType` upon assignment.
+    var disclosureType: SettingsDisclosureType { get set }
+}
+
 class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     typealias InfoButtonHandler = () -> Void
 

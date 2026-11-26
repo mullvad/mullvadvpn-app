@@ -30,7 +30,9 @@ struct SegmentedListItemFactory {
         case custom(items: [TrailingItem])
         case drillDown(title: String, breadcrumb: Breadcrumb? = nil)
         case external(title: String)
-        case input(title: String, placeholder: String, text: Binding<String>)
+        case input(title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default)
+        case secureInput(
+            title: String, placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default)
         case text(title: String, breadcrumb: Breadcrumb? = nil)
         case toggle(
             isOn: Binding<Bool>,
@@ -72,7 +74,8 @@ struct SegmentedListItemFactory {
         case breadcrumb(_ breadcrumb: Breadcrumb)
         case button(icon: Icon, onSelect: () -> Void, sizing: Sizing = .button)
         case icon(_ icon: Icon, sizing: Sizing? = nil)
-        case input(placeholder: String, text: Binding<String>)
+        case input(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default)
+        case secureInput(placeholder: String, text: Binding<String>, keyboardType: UIKeyboardType = .default)
         case padding(width: CGFloat = 16)
         case string(_ string: String)
         case toggle(
@@ -151,12 +154,22 @@ struct SegmentedListItemFactory {
                     .icon(.external, sizing: .button),
                 ]
             )
-        case .input(let title, let placeholder, let text):
+        case .input(let title, let placeholder, let text, let keyboardType):
             trailingItemViews(
                 for: [
                     .string(title),
                     .padding(width: 8),
-                    .input(placeholder: placeholder, text: text),
+                    .input(placeholder: placeholder, text: text, keyboardType: keyboardType),
+                    .padding(),
+                ]
+            )
+
+        case .secureInput(let title, let placeholder, let text, let keyboardType):
+            trailingItemViews(
+                for: [
+                    .string(title),
+                    .padding(width: 8),
+                    .secureInput(placeholder: placeholder, text: text, keyboardType: keyboardType),
                     .padding(),
                 ]
             )
@@ -231,22 +244,16 @@ struct SegmentedListItemFactory {
             let type: Footer
             @Environment(\.segmentedListItemAppearance) var appearance
 
-            var textColor: Color {
-                switch appearance {
-                case .error: Color.mullvadDangerColor
-                case .normal: Color.mullvadTextPrimary
-                }
-            }
             var body: some View {
                 switch type {
                 case .generic(let text):
                     Text("\(text)")
-                        .foregroundStyle(textColor)
+                        .foregroundStyle(Color.mullvadTextPrimary)
                         .font(.mullvadTiny)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 case .infoWithLink(let text, let link, let onTapLink):
-                    MullvadInfoView(bodyText: text, link: link, onTapLink: onTapLink)
+                    InlineLinkText(text: text, linkTitle: link, onLinkTapped: onTapLink)
                 }
             }
         }
@@ -311,7 +318,7 @@ struct SegmentedListItemFactory {
                     } else {
                         image
                     }
-                case .input(let placeholder, let text):
+                case .input(let placeholder, let text, let keyboardType):
                     TextField(
                         "",
                         text: text,
@@ -320,10 +327,29 @@ struct SegmentedListItemFactory {
                                 Color.MullvadTextField.inputPlaceholder
                             )
                     )
+                    .frame(maxWidth: .infinity)
                     .textInputAutocapitalization(.never)
                     .disableAutocorrection(true)
                     .multilineTextAlignment(.trailing)
                     .foregroundStyle(Color.MullvadTextField.textInput)
+                    .keyboardType(keyboardType)
+                case .secureInput(let placeholder, let text, let keyboardType):
+                    SecureField(
+                        "",
+                        text: text,
+                        prompt: Text(placeholder)
+                            .foregroundStyle(
+                                Color.MullvadTextField.inputPlaceholder
+                            )
+                    )
+                    .frame(maxWidth: .infinity)
+                    .textInputAutocapitalization(.never)
+                    .textContentType(.none)
+                    .disableAutocorrection(true)
+                    .multilineTextAlignment(.trailing)
+                    .textInputAutocapitalization(.never)
+                    .foregroundStyle(Color.MullvadTextField.textInput)
+                    .keyboardType(keyboardType)
                 case .padding(let width):
                     Spacer()
                         .frame(width: width)
