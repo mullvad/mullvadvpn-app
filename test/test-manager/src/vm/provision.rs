@@ -240,9 +240,9 @@ fn blocking_ssh(
 
     // Run the setup script in the test runner
     log::debug!("Running setup script on remote, cmd: {cmd}");
-    ssh_exec(&session, &cmd)
-        .map(drop)
-        .context("Failed to run setup script")?;
+    let output = ssh_exec(&session, &cmd).context("Failed to run setup script")?;
+    // Includes e.g. the guest clock synchronization report on Windows.
+    log::debug!("Setup script output: {output}");
 
     Ok(remote_dir.to_string())
 }
