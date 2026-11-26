@@ -435,14 +435,9 @@ actor TunnelManager {
                 )
 
                 await tunnel.setConfiguration(configuration)
-                await tunnel.saveToPreferences { _ in
-                    self.stopTunnel(isOnDemandEnabled: true) { _ in
-                        Task {
-                            if case .disconnected = await tunnel.status {
-                                self.startTunnel()
-                            }
-                        }
-                    }
+                try? await tunnel.saveToPreferences()
+                if case .disconnected = await tunnel.status {
+                    self.startTunnel()
                 }
             }
         }

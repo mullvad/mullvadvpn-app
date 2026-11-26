@@ -43,7 +43,7 @@ protocol TunnelProtocol: Actor {
     func logFormat() -> String
 
     func setIsOnDemandEnabled(_ newValue: Bool) async
-    func saveToPreferences(completion: @escaping (@Sendable ((any Error)?) -> Void))
+    func saveToPreferences() async throws
     func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?)
 
     func setConfiguration(_ configuration: TunnelConfiguration)
@@ -175,18 +175,13 @@ actor Tunnel: TunnelProtocol {
         configuration.apply(to: tunnelProvider)
     }
 
-    func saveToPreferences(completion: @escaping (@Sendable ((any Error)?) -> Void)) {
-        tunnelProvider.saveToPreferences { error in
-            if let error {
-                completion(error)
-            } else {
-                // Refresh connection status after saving the tunnel preferences.
-                // Basically it's only necessary to do for new instances of
-                // `NETunnelProviderManager`, but we do that for the existing ones too
-                // for simplicity as it has no side effects.
-                self.tunnelProvider.loadFromPreferences(completionHandler: completion)
-            }
-        }
+    func saveToPreferences() async throws {
+        try await tunnelProvider.saveToPreferences()
+        // Refresh connection status after saving the tunnel preferences.
+        // Basically it's only necessary to do for new instances of
+        // `NETunnelProviderManager`, but we do that for the existing ones too
+        // for simplicity as it has no side effects.
+        try await tunnelProvider.loadFromPreferences()
     }
 
     func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {

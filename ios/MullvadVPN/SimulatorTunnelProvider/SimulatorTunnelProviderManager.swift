@@ -127,30 +127,24 @@
             super.init()
         }
 
-        func loadFromPreferences(completionHandler: (Error?) -> Void) {
-            var error: NEVPNError?
-
-            Self.tunnelsLock.withLock {
+        func loadFromPreferences() async throws {
+            try Self.tunnelsLock.withLock {
                 if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
                     tunnelInfo = savedTunnel
                 } else {
-                    error = NEVPNError(.configurationInvalid)
+                    throw NEVPNError(.configurationInvalid)
                 }
             }
-
-            completionHandler(error)
         }
 
-        func saveToPreferences(completionHandler: ((Error?) -> Void)?) {
+        func saveToPreferences() async throws {
             Self.tunnelsLock.withLock {
                 if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
                     Self.tunnels[index] = tunnelInfo
                 } else {
                     Self.tunnels.append(tunnelInfo)
                 }
-
             }
-            completionHandler?(nil)
         }
 
         func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {

@@ -127,8 +127,11 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             )
 
             await tunnel.setConfiguration(configuration)
-            await tunnel.saveToPreferences { error in
-                completionHandler(error.map { .failure($0) } ?? .success(tunnel))
+            do {
+                try await tunnel.saveToPreferences()
+                completionHandler(.success(tunnel))
+            } catch {
+                completionHandler(.failure(error))
             }
         }
     }

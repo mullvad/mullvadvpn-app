@@ -85,7 +85,7 @@ actor TunnelStub: TunnelProtocol, Equatable {
         isOnDemandEnabled = newValue
     }
 
-    func saveToPreferences(completion: @escaping (@Sendable ((any Error)?) -> Void)) {}
+    func saveToPreferences() async throws {}
 
     func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {}
 

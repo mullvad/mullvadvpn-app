@@ -49,9 +49,7 @@ actor MockTunnel: TunnelProtocol {
         ""
     }
 
-    func saveToPreferences(completion: @escaping (@Sendable ((any Error)?) -> Void)) {
-        completion(nil)
-    }
+    func saveToPreferences() async throws { }
 
     func removeFromPreferences(completion: (@Sendable ((any Error)?) -> Void)?) {
         onRemoveFromPreferences?()
