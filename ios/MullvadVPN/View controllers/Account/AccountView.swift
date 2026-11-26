@@ -62,7 +62,7 @@ struct AccountView: View {
         .navigationTitle("Account")
         .accessibilityIdentifier(.accountView)
         .toolbar {
-            MullvadDoneToolbarItem {
+            DoneToolbarItem {
                 viewModel.onFinish?(.none)
             }
             ToolbarItem(placement: .topBarLeading) {
@@ -238,7 +238,7 @@ struct AccountView: View {
 
             }
             .toolbar {
-                MullvadDoneToolbarItem {
+                DoneToolbarItem {
                     presentedSheet = nil
                 }
             }

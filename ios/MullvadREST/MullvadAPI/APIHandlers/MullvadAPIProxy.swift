@@ -44,9 +44,8 @@ public protocol APIQuerying: Sendable {
 
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
-        accessMethod: PersistentAccessMethod,
-        completion: @escaping ProxyCompletionHandler<Bool>
-    ) -> Cancellable
+        accessMethod: PersistentAccessMethod
+    ) async -> Result<Void, Swift.Error>
 }
 
 extension REST {
@@ -124,20 +123,21 @@ extension REST {
 
         public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
-            accessMethod: PersistentAccessMethod,
-            completion: @escaping ProxyCompletionHandler<Bool>
-        ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-            return createNetworkOperation(
-                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
-                responseHandler: responseHandler
-            ) { result in
-                if case let .failure(err) = result {
-                    completion(.failure(err))
-                } else {
-                    completion(.success(true))
-                }
-            }
+            accessMethod: PersistentAccessMethod
+        ) async -> Result<Void, Swift.Error> {
+            let request = APIRequest.checkApiAvailability(
+                retryStrategy,
+                accessMethod: accessMethod
+            )
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            return await task.startRequest()
         }
 
         public func initStoreKitPayment(
