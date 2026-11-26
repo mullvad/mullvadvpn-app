@@ -30,7 +30,6 @@ import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
 import { IChangelog, IHistoryObject } from '../shared/ipc-types';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
-import { isDeviceInstallDisabledError } from '../shared/notifications';
 import {
   SystemNotification,
   SystemNotificationCategory,
