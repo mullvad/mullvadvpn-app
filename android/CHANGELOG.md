@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.13-beta1] - 2026-11-26
+### Fixed
+- Fix a crash related to work manager that could happen on boot with some devices.
+- Fix an issue where the tile could disconnect another VPN app by just being visible.
+
+
 ## [android/2026.13-beta1] - 2026-11-10
 ### Added
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
