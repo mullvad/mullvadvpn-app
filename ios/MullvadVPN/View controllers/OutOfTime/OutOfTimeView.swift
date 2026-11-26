@@ -66,11 +66,12 @@ struct OutOfTimeView<ViewModel: OutOfTimeViewModelProtocol>: View {
 
             MullvadButton(text: "Add time", style: .success, action: { viewModel.showInAppPurchase?(.purchase) })
                 .disabled(viewModel.isConnected)
+                .accessibilityIdentifier(AccessibilityIdentifier.purchaseButton)
 
             MullvadButton(
                 text: "Restore purchases", style: .primary, action: { viewModel.showInAppPurchase?(.restorePurchase) }
             )
-            .accessibilityIdentifier(AccessibilityIdentifier.purchaseButton)
+            .accessibilityIdentifier(AccessibilityIdentifier.restorePurchasesButton)
         }
     }
 }
