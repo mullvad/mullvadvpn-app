@@ -52,6 +52,20 @@
                 tools:node="remove"
                 tools:ignore="MissingClass" />
 
+        <!--
+            Disable startup initialization of work manager due to crash when the user is blocked.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <profileable
                 android:enabled="true"
                 android:shell="true" />
