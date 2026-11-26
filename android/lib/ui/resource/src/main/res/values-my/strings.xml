@@ -402,6 +402,7 @@
     <string name="on">ဖွင့်</string>
     <string name="ongoing_verification_warning">သင့်နောက်ဆုံးဝယ်ယူမှုကို အတည်ပြုနေဆဲဖြစ်သည်။ အခြားအကောင့်သို့ ဝင်ရောက်ပါက အတည်ပြုမှု မအောင်မြင်နိုင်တော့ပါ။ အကောင့်ထွက်လိုပါသလား။</string>
     <string name="open_app_details">အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ</string>
+    <string name="open_system_settings">စနစ်ဆက်တင်ကို ဖွင့်ရန်</string>
     <string name="open_url">URL ဖွင့်ရန်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
     <string name="overrides_cleared">ကျော်လွန် ပယ်ဖျက်မှုများ ရှင်းပြီးပါပြီ</string>

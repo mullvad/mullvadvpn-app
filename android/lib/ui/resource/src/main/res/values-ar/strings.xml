@@ -402,6 +402,7 @@
     <string name="on">تشغيل</string>
     <string name="ongoing_verification_warning">ما يزال يجري التحقق من آخر عملية شراء أجريتها. سيترتب على تسجيل الدخول إلى حساب آخر فشل عملية التحقق. هل ما زلت تريد تسجيل الخروج؟</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
+    <string name="open_system_settings">فتح إعدادات النظام</string>
     <string name="open_url">فتح عنوان URL</string>
     <string name="out_of_time">انتهى الوقت</string>
     <string name="overrides_cleared">تم مسح التجاوزات</string>

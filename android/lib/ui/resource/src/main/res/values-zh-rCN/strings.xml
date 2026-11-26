@@ -402,6 +402,7 @@
     <string name="on">开</string>
     <string name="ongoing_verification_warning">您最近的购买仍在验证中。此时登录其他帐户将导致验证失败。是否仍要退出登录？</string>
     <string name="open_app_details">打开应用详细信息</string>
+    <string name="open_system_settings">打开系统设置</string>
     <string name="open_url">打开网址</string>
     <string name="out_of_time">已没有时间</string>
     <string name="overrides_cleared">覆盖设置已清除</string>

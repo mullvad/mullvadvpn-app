@@ -402,6 +402,7 @@
     <string name="on">Ein</string>
     <string name="ongoing_verification_warning">Ihr letzter Kauf wird noch verifiziert. Wenn Sie sich bei einem anderen Konto anmelden, schlägt die Verifizierung fehl. Möchten Sie sich trotzdem abmelden?</string>
     <string name="open_app_details">App-Details öffnen</string>
+    <string name="open_system_settings">Systemeinstellungen öffnen</string>
     <string name="open_url">URL öffnen</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="overrides_cleared">Überschreibungen entfernt</string>

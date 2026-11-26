@@ -402,6 +402,7 @@
     <string name="on">켜기</string>
     <string name="ongoing_verification_warning">아직 최신 구매 내역을 확인하고 있습니다. 다른 계정으로 로그인하면 확인 작업에 실패합니다. 그래도 로그아웃하시겠습니까?</string>
     <string name="open_app_details">앱 세부 정보 열기</string>
+    <string name="open_system_settings">시스템 설정 열기</string>
     <string name="open_url">URL 열기</string>
     <string name="out_of_time">시간 초과</string>
     <string name="overrides_cleared">재정의 지워짐</string>

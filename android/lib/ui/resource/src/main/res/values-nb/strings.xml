@@ -402,6 +402,7 @@
     <string name="on">På</string>
     <string name="ongoing_verification_warning">Det siste kjøpet ditt blir fortsatt verifisert. Hvis du logger inn på en annen konto, vil verifiseringen mislykkes. Vil du likevel logge ut?</string>
     <string name="open_app_details">Åpne appdetaljer</string>
+    <string name="open_system_settings">Åpne systeminnstillinger</string>
     <string name="open_url">Åpne URL</string>
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="overrides_cleared">Overstyringer fjernet</string>

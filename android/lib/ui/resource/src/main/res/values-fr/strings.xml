@@ -402,6 +402,7 @@
     <string name="on">Activé</string>
     <string name="ongoing_verification_warning">Votre dernier achat est toujours en cours de vérification. Si vous vous connectez à un autre compte, la vérification échouera. Voulez-vous quand même vous déconnecter ?</string>
     <string name="open_app_details">Ouvrir les détails de l\'application</string>
+    <string name="open_system_settings">Ouvrir les paramètres système</string>
     <string name="open_url">Ouvrir l\'URL</string>
     <string name="out_of_time">Plus de temps</string>
     <string name="overrides_cleared">Substitutions supprimées</string>

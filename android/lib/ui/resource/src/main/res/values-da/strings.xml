@@ -402,6 +402,7 @@
     <string name="on">Til</string>
     <string name="ongoing_verification_warning">Dit seneste køb verificeres stadig. Hvis du logger ind på en anden konto, vil verifikationen mislykkes. Vil du stadig logge ud?</string>
     <string name="open_app_details">Se oplysninger om app</string>
+    <string name="open_system_settings">Åbn systemindstillinger</string>
     <string name="open_url">Åbn URL</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="overrides_cleared">Tilsidesættelser ryddet</string>
