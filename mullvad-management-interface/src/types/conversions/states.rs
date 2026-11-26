@@ -201,15 +201,21 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 error_state.cause()
                             {
                                 match reason {
-                                talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry => {
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version: false } => {
                                     i32::from(GenerationError::NoMatchingRelayEntry)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version: true } => {
+                                    i32::from(GenerationError::NoMatchingRelayEntryUnavailableIpVersion)
                                 }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit => {
                                     i32::from(GenerationError::NoMatchingRelayExit)
                                 }
-                                    talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
-                                        i32::from(GenerationError::NoMatchingRelay)
-                                    }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version: false } => {
+                                    i32::from(GenerationError::NoMatchingRelay)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version: true } => {
+                                    i32::from(GenerationError::NoMatchingRelayEntryUnavailableIpVersion)
+                                }
                                 talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
                                     i32::from(GenerationError::NoMatchingBridgeRelay)
                                 }
@@ -417,11 +423,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         let parameter_error = match proto::error_state::GenerationError::try_from(parameter_error) {
                             Ok(proto::error_state::GenerationError::CustomTunnelHostResolutionError) => talpid_tunnel::ParameterGenerationError::CustomTunnelHostResolutionError,
                             Ok(proto::error_state::GenerationError::NoMatchingBridgeRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay,
-                            Ok(proto::error_state::GenerationError::NoMatchingRelayEntry) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry,
+                            Ok(proto::error_state::GenerationError::NoMatchingRelayEntry) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version: false },
+                            Ok(proto::error_state::GenerationError::NoMatchingRelayEntryUnavailableIpVersion) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayEntry { unavailable_ip_version: true },
                             Ok(proto::error_state::GenerationError::NoMatchingRelayExit) => talpid_tunnel::ParameterGenerationError::NoMatchingRelayExit,
                             Ok(proto::error_state::GenerationError::NetworkIpv4Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 },
                             Ok(proto::error_state::GenerationError::NetworkIpv6Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 },
-                            Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
+                            Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version: false },
+                            Ok(proto::error_state::GenerationError::NoMatchingRelayIpUnavailableIpVersion) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay { unavailable_ip_version: true },
                             _ => return Err(FromProtobufTypeError::invalid_argument(
                                 "invalid parameter error",
                             )),

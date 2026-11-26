@@ -9,6 +9,7 @@ use tokio::sync::Mutex;
 
 use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
+use mullvad_types::relay_selector::Reason;
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
@@ -319,6 +320,21 @@ impl TunnelParametersGenerator for ParametersGenerator {
                 .map_err(ParameterGenerationError::from)
         })
     }
+
+    fn has_relays(&self, ip_availability: IpAvailability) -> Pin<Box<dyn Future<Output = bool>>> {
+        let generator = self.0.clone();
+        Box::pin(async move {
+            let inner = generator.lock().await;
+            let mut query = inner.relay_selector.query().clone();
+            if query.apply_ip_availability(ip_availability).is_err() {
+                return false;
+            }
+            inner
+                .relay_selector
+                .get_relays_with_automatic_anti_censorship(query)
+                .is_ok()
+        })
+    }
 }
 
 impl From<Error> for ParameterGenerationError {
@@ -333,14 +349,27 @@ impl From<Error> for ParameterGenerationError {
             Error::SelectRelay(mullvad_relay_selector::Error::IpVersionUnavailable { family }) => {
                 ParameterGenerationError::IpVersionUnavailable { family }
             }
-            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayEntry(_)) => {
-                ParameterGenerationError::NoMatchingRelayEntry
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelayEntry(reasons)) => {
+                ParameterGenerationError::NoMatchingRelayEntry {
+                    unavailable_ip_version: reasons
+                        .iter()
+                        .any(|reason| matches!(reason, Reason::IpVersion)),
+                }
             }
             Error::SelectRelay(mullvad_relay_selector::Error::NoRelayExit(_)) => {
                 ParameterGenerationError::NoMatchingRelayExit
             }
+            Error::SelectRelay(mullvad_relay_selector::Error::NoRelay(reasons)) => {
+                ParameterGenerationError::NoMatchingRelay {
+                    unavailable_ip_version: reasons
+                        .iter()
+                        .any(|reason| matches!(reason, Reason::IpVersion)),
+                }
+            }
             Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
-                ParameterGenerationError::NoMatchingRelay
+                ParameterGenerationError::NoMatchingRelay {
+                    unavailable_ip_version: false,
+                }
             }
         }
     }

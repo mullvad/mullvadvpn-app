@@ -181,12 +181,28 @@ impl TunnelState for ErrorState {
             }
             Some(TunnelCommand::Connectivity(connectivity)) => {
                 shared_values.connectivity = connectivity;
-                if !connectivity.is_offline()
-                    // Reconnect if we're no longer offline
-                    && (matches!(self.block_reason, ErrorStateCause::IsOffline)
-                    // Try to reconnect if missing IP connectivity becomes available
-                    || matches!(self.block_reason, ErrorStateCause::TunnelParameterError(ParameterGenerationError::IpVersionUnavailable { family }) if connectivity.has_family(family)))
-                {
+                let should_reconnect = !connectivity.is_offline()
+                    && match &self.block_reason {
+                        // Reconnect if we're no longer offline
+                        ErrorStateCause::IsOffline => true,
+                        // Try to reconnect if missing IP connectivity becomes available
+                        ErrorStateCause::TunnelParameterError(
+                            ParameterGenerationError::IpVersionUnavailable { family },
+                        ) => connectivity.has_family(*family),
+                        // Try to reconnect if we have no matching entry relay or single hop
+                        // relay and, given the new connectivity state, the relay selector now
+                        // has relays available
+                        ErrorStateCause::TunnelParameterError(
+                            ParameterGenerationError::NoMatchingRelay { .. }
+                            | ParameterGenerationError::NoMatchingRelayEntry { .. },
+                        ) => runtime.block_on(
+                            shared_values
+                                .tunnel_parameters_generator
+                                .has_relays(connectivity.availability().unwrap()),
+                        ),
+                        _ => false,
+                    };
+                if should_reconnect {
                     #[cfg(target_os = "macos")]
                     if !*LOCAL_DNS_RESOLVER {
                         // This is probably unnecessary, since DNS is already configured on the
