@@ -339,11 +339,15 @@ message TunnelState {
   }
   message Connecting {
     message Multihop {
+        // The connecting state may multiplex several obfuscated connections for the first relay
         ObfuscationMultiplexer entry_endpoint = 1;
+        // The exit is always a wireugard endpoint
         Endpoint exit_endpoint = 2;
+        // Whether multihop was applied automatically by the "when needed" setting
         bool multihop_auto = 3;
     }
     oneof hop {
+        // The connecting state may multiplex several obfuscated connections for the first relay
         ObfuscationMultiplexer singlehop = 1;
         Multihop multihop = 2;
     }
@@ -351,15 +355,18 @@ message TunnelState {
   }
   message Connected {
     message MultihopEndpoint {
+        // The connecting state uses a single obfuscated endpoint for the first relay
         ObfuscationEndpoint entry_endpoint = 1;
+        // The exit is always a wireugard endpoint
         Endpoint exit_endpoint = 2;
+        // Whether multihop was applied automatically by the "when needed" setting
         bool multihop_auto = 3;
     }
     oneof hop {
+        // The connecting state uses a single obfuscated endpoint for the first relay
         ObfuscationEndpoint singlehop_endpoint = 1;
         MultihopEndpoint multihop = 2;
     }
-
     ConnectionInfo connection_info = 3;
   }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }
@@ -375,6 +382,7 @@ message TunnelState {
 }
 
 message ConnectionInfo {
+  // This field may not belong here. Not obvious what it applies to in a multihop scenario.
   GeoIpLocation location = 1;
   TunnelMetadata tunnel_metadata = 2;
   bool quantum_resistant = 3;
