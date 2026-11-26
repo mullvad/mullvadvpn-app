@@ -197,7 +197,7 @@ impl NetworkManagerConnection {
         Ok(())
     }
 
-    /// Deactivate and remove the NetworKmanager device.
+    /// Deactivate and remove the NetworkManager device.
     pub async fn remove_network_device(&self, device: &NMDevice) -> Result<(), Error> {
         let nm = NetworkManagerProxy::new(&self.connection).await?;
         let deactivation_result = nm.deactivate_connection(&device.connection_path).await;
