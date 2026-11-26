@@ -105,7 +105,7 @@ class AppInteractor(
     ) = coroutineScope {
         try {
             val job = launch {
-                val service = createService(this)
+                val service = createManagementService(this)
 
                 pq?.let { service.setWireguardQuantumResistant(it) }
                 obfuscationMode?.let { service.setObfuscation(it) }
@@ -125,12 +125,12 @@ class AppInteractor(
     }
 
     fun tunnelStateFlow(scope: CoroutineScope = MainScope()): Flow<TunnelState> {
-        val service = createService(scope)
+        val service = createManagementService(scope)
         service.start()
         return service.tunnelState
     }
 
-    private fun createService(
+    private fun createManagementService(
         scope: CoroutineScope,
         ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     ) =
