@@ -13,6 +13,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -20,9 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +44,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import kotlin.time.Duration.Companion.milliseconds
@@ -94,79 +99,96 @@ fun MullvadFeatureChip(
             highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = CONNECTED_EASING))
         }
     }
-    FilterChip(
-        modifier =
-            modifier.applyIf(state == State.Loading) {
-                val connectingProgress =
-                    rememberInfiniteTransition(label = "connectingBorder")
-                        .animateFloat(
-                            initialValue = 0f,
-                            targetValue = 1f,
-                            animationSpec =
-                                infiniteRepeatable(
-                                    animation =
-                                        tween(
-                                            CONNECTING_BORDER_DURATION_MS,
-                                            easing = LinearEasing,
+    // This is to handle loading state animations better.
+    // Without this the chip itself will add the minimum interactive size
+    // causing issues with aligning the border properly.
+    Box(
+        modifier = modifier.minimumInteractiveComponentSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            FilterChip(
+                modifier =
+                    Modifier.applyIf(state == State.Loading) {
+                        val connectingProgress =
+                            rememberInfiniteTransition(label = "connectingBorder")
+                                .animateFloat(
+                                    initialValue = 0f,
+                                    targetValue = 1f,
+                                    animationSpec =
+                                        infiniteRepeatable(
+                                            animation =
+                                                tween(
+                                                    CONNECTING_BORDER_DURATION_MS,
+                                                    easing = LinearEasing,
+                                                ),
                                         ),
-                                ),
-                            label = "connectingBorderFloat",
+                                    label = "connectingBorderFloat",
+                                )
+                        connectingBorder(
+                            shape = chipShape,
+                            color = borderColor,
+                            progress = { connectingProgress.value },
                         )
-                connectingBorder(
-                    shape = chipShape,
-                    color = borderColor,
-                    progress = { connectingProgress.value },
-                )
-            },
-        shape = chipShape,
-        colors =
-            FilterChipDefaults.filterChipColors(
-                containerColor = containerColor,
-                disabledLabelColor = labelColor,
-                labelColor = labelColor,
-                iconColor = iconColor,
-            ),
-        border =
-            when (state) {
-                State.Idle -> {
-                    FilterChipDefaults.filterChipBorder(
-                        borderColor = lerp(borderColor, selectedBorderColor, highlight.value),
-                        enabled = true,
-                        selected = false,
-                        borderWidth =
-                            lerp(NORMAL_BORDER_WIDTH, SELECTED_BORDER_WIDTH, highlight.value),
-                    )
-                }
-                State.Loading -> null
-            },
-        selected = false,
-        onClick = onClick,
-        label = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                icon?.let {
-                    Icon(
-                        modifier = Modifier.size(Dimens.featureIndicatorIconSize),
-                        imageVector = it,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = null,
-                    )
-                    Spacer(Modifier.width(Dimens.smallPadding))
-                }
-                AnimatedContent(
-                    targetState = text,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() using SizeTransform() },
-                    label = "featureChipText",
-                ) {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        },
-    )
+                    },
+                shape = chipShape,
+                colors =
+                    FilterChipDefaults.filterChipColors(
+                        containerColor = containerColor,
+                        disabledLabelColor = labelColor,
+                        labelColor = labelColor,
+                        iconColor = iconColor,
+                    ),
+                border =
+                    when (state) {
+                        State.Idle -> {
+                            FilterChipDefaults.filterChipBorder(
+                                borderColor =
+                                    lerp(borderColor, selectedBorderColor, highlight.value),
+                                enabled = true,
+                                selected = false,
+                                borderWidth =
+                                    lerp(
+                                        NORMAL_BORDER_WIDTH,
+                                        SELECTED_BORDER_WIDTH,
+                                        highlight.value,
+                                    ),
+                            )
+                        }
+                        State.Loading -> null
+                    },
+                selected = false,
+                onClick = onClick,
+                label = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        icon?.let {
+                            Icon(
+                                modifier = Modifier.size(Dimens.featureIndicatorIconSize),
+                                imageVector = it,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = null,
+                            )
+                            Spacer(Modifier.width(Dimens.smallPadding))
+                        }
+                        AnimatedContent(
+                            targetState = text,
+                            transitionSpec = {
+                                fadeIn() togetherWith fadeOut() using SizeTransform()
+                            },
+                            label = "featureChipText",
+                        ) {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                },
+            )
+        }
+    }
 }
 
 private fun Modifier.connectingBorder(
@@ -177,11 +199,9 @@ private fun Modifier.connectingBorder(
     drawContent()
     val strokeWidth = SELECTED_BORDER_WIDTH.toPx()
     val inset = strokeWidth / 2
-    val chipHeight = minOf(FilterChipDefaults.Height.toPx(), size.height)
-    val verticalOffset = (size.height - chipHeight) / 2
     val outline =
         shape.createOutline(
-            size = Size(size.width - strokeWidth, chipHeight - strokeWidth),
+            size = Size(size.width - strokeWidth, size.height - strokeWidth),
             layoutDirection = layoutDirection,
             density = this,
         )
@@ -203,7 +223,7 @@ private fun Modifier.connectingBorder(
         drawPath(segment, color.copy(alpha = alpha), style = Stroke(strokeWidth))
     }
 
-    translate(inset, verticalOffset + inset) {
+    translate(inset, inset) {
         for (i in 0 until CONNECTING_ARC_SLICES) {
             val start = head + sliceLength * i
             val end = start + sliceLength
