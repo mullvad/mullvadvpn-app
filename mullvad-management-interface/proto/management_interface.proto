@@ -139,8 +139,6 @@ service ManagementService {
   // Return a JSON blob containing all overridable settings, if there are any
   rpc ExportJsonSettings(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 
-  // Get current feature indicators
-  rpc GetFeatureIndicators(google.protobuf.Empty) returns (FeatureIndicators) {}
 
   // Debug features
   rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
@@ -340,12 +338,29 @@ message TunnelState {
     bool locked_down = 2;
   }
   message Connecting {
-    TunnelStateRelayInfo relay_info = 1;
-    FeatureIndicators feature_indicators = 2;
+    message Multihop {
+        ObfuscationMultiplexer entry_endpoint = 1;
+        Endpoint exit_endpoint = 2;
+        bool multihop_auto = 3;
+    }
+    oneof hop {
+        ObfuscationMultiplexer singlehop = 1;
+        Multihop multihop = 2;
+    }
+    ConnectionInfo connection_info = 3;
   }
   message Connected {
-    TunnelStateRelayInfo relay_info = 1;
-    FeatureIndicators feature_indicators = 2;
+    message MultihopEndpoint {
+        ObfuscationEndpoint entry_endpoint = 1;
+        Endpoint exit_endpoint = 2;
+        bool multihop_auto = 3;
+    }
+    oneof hop {
+        ObfuscationEndpoint singlehop_endpoint = 1;
+        MultihopEndpoint multihop = 2;
+    }
+
+    ConnectionInfo connection_info = 3;
   }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }
   message Error { ErrorState error_state = 1; }
@@ -359,55 +374,23 @@ message TunnelState {
   }
 }
 
-message TunnelStateRelayInfo {
-  TunnelEndpoint tunnel_endpoint = 1;
-  GeoIpLocation location = 2;
-}
-
-message TunnelEndpoint {
-  string address = 1;
-  TransportProtocol protocol = 2;
+message ConnectionInfo {
+  GeoIpLocation location = 1;
+  TunnelMetadata tunnel_metadata = 2;
   bool quantum_resistant = 3;
-  ObfuscationInfo obfuscation = 4;
-  Endpoint entry_endpoint = 5;
-  TunnelMetadata tunnel_metadata = 6;
-  bool daita = 7;
+  bool daita = 4;
+  bool split_tunneling = 5;
+  bool lockdown_mode = 6;
+  bool lan_sharing = 7;
+  bool dns_content_blockers = 8;
+  bool custom_dns = 9;
+  bool server_ip_override = 10;
+  bool custom_mtu = 11;
+  bool custom_vpn = 12;
 }
 
-message FeatureIndicators { repeated FeatureIndicator active_features = 1; }
 
-enum FeatureIndicator {
-  QUANTUM_RESISTANCE = 0;
-  MULTIHOP = 1;
-  SPLIT_TUNNELING = 2;
-  LOCKDOWN_MODE = 3;
-  WIREGUARD_PORT = 4;
-  UDP_2_TCP = 5;
-  SHADOWSOCKS = 6;
-  QUIC = 7;
-  LWO = 8;
-  LAN_SHARING = 9;
-  DNS_CONTENT_BLOCKERS = 10;
-  CUSTOM_DNS = 11;
-  SERVER_IP_OVERRIDE = 12;
-  CUSTOM_MTU = 13;
-  DAITA = 14;
-  MULTIHOP_AUTO = 15;
-  CUSTOM_VPN = 16;
-}
-
-message ObfuscationInfo {
-  oneof type {
-    ObfuscationEndpoint single = 1;
-    MultiplexObfuscation multiple = 2;
-  }
-}
-
-message MultiplexObfuscation {
-  // optional direct endpoint
-  Endpoint direct = 1;
-  repeated ObfuscationEndpoint obfuscators = 2;
-}
+message ObfuscationMultiplexer { repeated ObfuscationEndpoint endpoints = 1; }
 
 message ObfuscationEndpoint {
   enum ObfuscationType {
@@ -415,15 +398,18 @@ message ObfuscationEndpoint {
     SHADOWSOCKS = 1;
     QUIC = 2;
     LWO = 3;
+    // Plain WireGuard, without any obfuscation.
+    DIRECT = 4;
   }
 
   Endpoint endpoint = 1;
-  ObfuscationType obfuscation_type = 2;
+  TransportProtocol protocol = 2;
+  ObfuscationType obfuscation_type = 3;
 }
 
+// No longer has transport protocol, that was a remnent from OpenVPN
 message Endpoint {
-  string address = 1;
-  TransportProtocol protocol = 2;
+  string socket_address = 1;
 }
 
 message GeoIpLocation {
