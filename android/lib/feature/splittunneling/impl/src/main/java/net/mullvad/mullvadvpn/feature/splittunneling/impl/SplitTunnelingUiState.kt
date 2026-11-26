@@ -10,6 +10,8 @@ data class SplitTunnelingUiState(
     val includedApps: List<AppItem> = emptyList(),
     val showSystemApps: Boolean = false,
     val isModal: Boolean = false,
-)
+) {
+    val hasApps = excludedApps.isNotEmpty() || includedApps.isNotEmpty()
+}
 
 data class AppItem(val appName: String, val packageName: PackageName)
