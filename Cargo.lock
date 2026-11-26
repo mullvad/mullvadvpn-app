@@ -2035,9 +2035,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.9.0"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "121650b305d0ee6d45b08bbec1d5781a43b915a0a89a2fd869028647eb475cc9"
+checksum = "2d40029d208ab17a3280079618d4e7c4ef204e2cb3e137d4f7da570a7efe1c21"
 dependencies = [
  "aead 0.5.2",
  "aws-lc-rs",
@@ -2051,7 +2051,6 @@ dependencies = [
  "either",
  "eyre",
  "futures",
- "hex",
  "hmac 0.12.1",
  "ip_network",
  "ip_network_table",
@@ -2061,6 +2060,7 @@ dependencies = [
  "nix 0.31.3",
  "parking_lot",
  "pcap-file",
+ "portable-atomic",
  "rand 0.9.4",
  "rand_chacha",
  "rand_core 0.6.4",
@@ -2072,6 +2072,7 @@ dependencies = [
  "tun 0.8.14",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
+ "wintun-bindings",
  "x25519-dalek",
  "zerocopy",
 ]

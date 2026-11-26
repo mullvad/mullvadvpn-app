@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
   was used for both.
 - Update the Lockdown mode and Kill switch settings to better explain their purpose and where they
   intersect and where they differ.
+- Update `gotatun` to 0.10.3.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
