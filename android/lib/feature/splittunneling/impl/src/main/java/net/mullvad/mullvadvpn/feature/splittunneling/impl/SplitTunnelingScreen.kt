@@ -152,7 +152,7 @@ fun SplitTunnelingScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-        actions = { SearchButton(onClick = navigateToSearch, enabled = state.enabled()) },
+        actions = { SearchButton(onClick = navigateToSearch, enabled = state.searchEnabled()) },
     ) { contentModifier ->
         val lazyListState = rememberLazyListState()
         LazyColumn(
@@ -440,7 +440,7 @@ private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
         is Lc.Content -> value.isModal
     }
 
-private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
+private fun Lc<Loading, SplitTunnelingUiState>.searchEnabled(): Boolean =
     when (this) {
         is Lc.Loading -> false
         is Lc.Content -> value.enabled && value.hasApps

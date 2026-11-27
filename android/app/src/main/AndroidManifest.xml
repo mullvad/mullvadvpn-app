@@ -8,8 +8,6 @@
     packages to allow the user to select apps for split tunneling -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <!-- Extra runtime permission added to access installed apps used by Chinese manufacturers -->
-    <uses-permission android:name="com.android.permission.GET_INSTALLED_APPS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- https://developer.android.com/guide/components/fg-service-types#system-exempted -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
