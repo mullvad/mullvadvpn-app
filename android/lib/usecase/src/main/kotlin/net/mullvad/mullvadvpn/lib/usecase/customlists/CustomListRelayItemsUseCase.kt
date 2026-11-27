@@ -2,9 +2,11 @@ package net.mullvad.mullvadvpn.lib.usecase.customlists
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.getById
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.getRelayItemsByCodes
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.sortedByName
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
@@ -16,9 +18,10 @@ class CustomListRelayItemsUseCase(
 ) {
     operator fun invoke(customListId: CustomListId): Flow<List<RelayItem.Location>> =
         combine(
-            customListsRepository.customLists.mapNotNull { it?.getById(customListId) },
-            relayListRepository.relayList,
-        ) { customList, countries ->
-            countries.getRelayItemsByCodes(customList.locations)
-        }
+                customListsRepository.customLists.mapNotNull { it?.getById(customListId) },
+                relayListRepository.relayList,
+            ) { customList, countries ->
+                countries.getRelayItemsByCodes(customList.locations)
+            }
+            .map { it.sortedByName() }
 }
