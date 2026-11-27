@@ -2,6 +2,7 @@ import { endGroup, info, startGroup } from '@actions/core';
 
 import {
   getApprovers,
+  getExternalContributors,
   getPullRequestAuthor,
   getTeamMembers,
   isUserInTeam,
@@ -62,6 +63,17 @@ type Approvers = {
   missingApprovalCount: number;
 };
 
+async function getTrustedApprovers(): Promise<Set<string>> {
+  const [members, external] = await Promise.all([
+    getTeamMembers('appteam'),
+    getExternalContributors().catch((err) => {
+      info(`External contributors unavailable, continuing without them: ${err}`);
+      return new Set<string>();
+    }),
+  ]);
+  return members.union(external);
+}
+
 export async function retrieveApprovalState(
   changedFiles: string[],
   codeOwnerships: TeamPatterns,
@@ -90,10 +102,11 @@ export async function retrieveApprovalState(
   }
 
   const missingApprovals = await determineMissingReviewers([...approvers], affectedTeams);
+  const trustedApprovers = await getTrustedApprovers();
 
-  const approvingTeamMembers = approvers.intersection(await getTeamMembers('appteam'));
+  const trustedApprovals = approvers.intersection(trustedApprovers);
   const requiredApprovalCount = 2;
-  const missingApprovalCount = Math.max(requiredApprovalCount - approvingTeamMembers.size, 0);
+  const missingApprovalCount = Math.max(requiredApprovalCount - trustedApprovals.size, 0);
 
   return {
     required: affectedTeams,
