@@ -38,12 +38,12 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     var didFinish: ((VPNSettingsCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         interactorFactory: SettingsInteractorFactory,
         ipOverrideRepository: IPOverrideRepositoryProtocol,
         route: AppRoute
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
         self.interactorFactory = interactorFactory
         self.ipOverrideRepository = ipOverrideRepository
         self.route = route
@@ -64,10 +64,13 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
             presentOnlySection: section
         )
 
-        let host = UIHostingController(rootView: view)
+        let host = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingNavigationButtons(
+            host,
+            animated: animated
+        )
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

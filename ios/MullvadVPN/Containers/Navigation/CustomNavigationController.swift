@@ -24,6 +24,7 @@ class CustomNavigationController: UINavigationController {
         super.viewDidLoad()
 
         navigationBar.configureCustomAppearance()
+        interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLayoutSubviews() {
@@ -31,5 +32,30 @@ class CustomNavigationController: UINavigationController {
 
         // Navigation bar updates the prompt color on layout so we have to force our own appearance on each layout pass.
         navigationBar.overridePromptColor()
+    }
+}
+
+extension CustomNavigationController: UIGestureRecognizerDelegate {
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return viewControllers.count > 1
+    }
+
+    // To make it works also with ScrollView
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        true
+    }
+}
+
+extension UINavigationController {
+    func pushViewControllerAddingNavigationButtons(_ viewController: UIViewController, animated: Bool = true) {
+        if !viewControllers.isEmpty {
+            viewController.navigationItem.hidesBackButton = true
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(
+                navigationController: self)
+        }
+        self.pushViewController(viewController, animated: animated)
     }
 }

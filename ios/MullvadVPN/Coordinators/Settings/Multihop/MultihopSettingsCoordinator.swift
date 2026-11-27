@@ -25,11 +25,11 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
     var didFinish: ((MultihopSettingsCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         route: AppRoute,
         viewModel: MultihopTunnelSettingsViewModel
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
         self.route = route
         self.viewModel = viewModel
 
@@ -39,7 +39,7 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
     }
 
     func start(animated: Bool) {
-        let view = SettingsMultihopView(viewModel: self.viewModel)
+        let view = SettingsMultihopView(viewModel: self.viewModel).navigationBarBackButtonHidden(true)
 
         viewModel.didFailValidation = { [weak self] error in
             guard let self else { return }
@@ -69,7 +69,10 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
         host.view.setAccessibilityIdentifier(.multihopView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(host, animated: animated)
+        navigationController.pushViewControllerAddingNavigationButtons(
+            host,
+            animated: animated
+        )
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

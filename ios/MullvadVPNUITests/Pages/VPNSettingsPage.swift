@@ -21,9 +21,7 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapBackButton() -> Self {
-        // Sometimes there is more than one button named "Settings" but only one will be hittable, so hit that
-        app.buttons.matching(identifier: "Settings").allElementsBoundByIndex.first(where: { $0.isHittable })?
-            .tap()
+        app.buttons[.navigationBackButton].tap()
         return self
     }
 

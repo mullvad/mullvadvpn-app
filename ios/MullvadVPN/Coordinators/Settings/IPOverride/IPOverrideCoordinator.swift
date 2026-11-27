@@ -28,12 +28,12 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
     var didFinish: ((IPOverrideCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         repository: IPOverrideRepositoryProtocol,
         tunnelManager: TunnelManager,
         route: AppRoute?
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
         interactor = IPOverrideInteractor(repository: repository, tunnelManager: tunnelManager)
         self.route = route
     }
@@ -56,7 +56,10 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
             controller.navigationItem.rightBarButtonItem = doneButton
         }
 
-        navigationController.pushViewController(controller, animated: animated)
+        navigationController.pushViewControllerAddingNavigationButtons(
+            controller,
+            animated: animated
+        )
     }
 }
 

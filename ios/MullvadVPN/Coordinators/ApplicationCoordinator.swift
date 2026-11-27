@@ -801,7 +801,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             redactor: logRedactor
         )
         let coordinator = VPNSettingsCoordinator(
-            navigationController: CustomNavigationController(),
             interactorFactory: settingsInteractorFactory,
             ipOverrideRepository: ipOverrideRepository,
             route: .vpnSettings(section)
@@ -821,7 +820,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private func presentDAITA(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
         let viewModel = DAITATunnelSettingsViewModel(tunnelManager: tunnelManager)
         let coordinator = DAITASettingsCoordinator(
-            navigationController: CustomNavigationController(),
             route: .daita,
             viewModel: viewModel
         )
@@ -863,7 +861,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             appPreferences: appPreferences
         )
         let coordinator = IncludeAllNetworksSettingsCoordinator(
-            navigationController: CustomNavigationController(),
             route: .includeAllNetworks,
             viewModel: viewModel
         )
@@ -884,7 +881,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             tunnelManager: tunnelManager
         )
         let coordinator = MultihopSettingsCoordinator(
-            navigationController: CustomNavigationController(),
             route: .multihop,
             viewModel: viewModel
         )
@@ -902,7 +898,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     private func presentIPOverride(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
         let coordinator = IPOverrideCoordinator(
-            navigationController: CustomNavigationController(),
             repository: ipOverrideRepository,
             tunnelManager: tunnelManager,
             route: .ipOverrides

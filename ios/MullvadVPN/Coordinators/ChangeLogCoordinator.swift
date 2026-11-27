@@ -34,7 +34,8 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
     }
 
     func start(animated: Bool) {
-        let changeLogViewController = UIHostingController(rootView: ChangeLogView(viewModel: viewModel))
+        let changeLogViewController = UIHostingController(
+            rootView: ChangeLogView(viewModel: viewModel).navigationBarBackButtonHidden(true))
         changeLogViewController.view.setAccessibilityIdentifier(.changeLogAlert)
         changeLogViewController.navigationItem.title = NSLocalizedString("What’s new", comment: "")
 
@@ -54,6 +55,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
         default: break
         }
 
-        navigationController?.pushViewController(changeLogViewController, animated: animated)
+        navigationController?.pushViewControllerAddingNavigationButtons(
+            changeLogViewController, animated: animated)
     }
 }

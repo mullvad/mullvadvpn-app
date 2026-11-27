@@ -76,7 +76,8 @@ struct VPNSettingsNavigationView: View {
         case .obfuscation:
             AntiCensorshipView(
                 settingsInteractor: settingsInteractor,
-                settings: observableSettings)
+                settings: observableSettings
+            )
         case .none, .quantumResistance, .ipVersion:
             VPNSettingsView(
                 settingsInteractor: settingsInteractor,
