@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add "Blind" mode - Allow the app to run without storing a Mullvad account number, using only a
+  derived device (WireGuard key).
 - Add support for the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment variable. Set it to false
   to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
