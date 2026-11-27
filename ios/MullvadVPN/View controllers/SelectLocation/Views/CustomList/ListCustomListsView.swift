@@ -54,7 +54,7 @@ struct ListCustomListsView: View {
         .navigationTitle("Edit custom list")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            MullvadDoneToolbarItem(accessibilityIdentifier: .listCustomListDoneButton) { dismiss() }
+            DoneToolbarItem(accessibilityIdentifier: .listCustomListDoneButton) { dismiss() }
         }
         .padding()
         .background(Color.mullvadBackground.ignoresSafeArea())

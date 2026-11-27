@@ -24,3 +24,13 @@ struct InactiveButtonStyle: ButtonStyle {
             .opacity(isInactive ? 0.4 : (configuration.isPressed ? 0.7 : 1.0))
     }
 }
+
+struct DisabledButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(Color.mullvadTextPrimary)
+            .opacity(isEnabled ? 1.0 : 0.4)
+    }
+}
