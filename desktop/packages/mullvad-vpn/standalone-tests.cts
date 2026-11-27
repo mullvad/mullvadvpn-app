@@ -11,7 +11,9 @@ const { spawn } = child_process;
 // version of the app. This file is the entrypoint in the executable and extracts the required
 // assets and performs the tests. More info in /desktop/packages/mullvad-vpn/README.md.
 
-const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
+const TMP_DIR_PREFIX = 'mullvad-standalone-tests-';
+
+let tmpDir: string;
 
 async function main() {
   extract();
@@ -20,6 +22,23 @@ async function main() {
 
   removeTmpDir();
   process.exit(code);
+}
+
+function removeStaleTmpDirs() {
+  for (const entry of fs.readdirSync(os.tmpdir())) {
+    if (entry.startsWith(TMP_DIR_PREFIX)) {
+      try {
+        fs.rmSync(path.join(os.tmpdir(), entry), {
+          recursive: true,
+          force: true,
+          maxRetries: 2,
+          retryDelay: 200,
+        });
+      } catch {
+        // Ignore errors. This is a best effort.
+      }
+    }
+  }
 }
 
 function getTarBin() {
@@ -34,10 +53,8 @@ function getTarBin() {
 }
 
 function extract() {
-  // Remove old directory if already existing and create new clean one
-  removeTmpDir();
-  // Use `recursive` so a leftover directory from a previous run does not cause it to fail.
-  fs.mkdirSync(tmpDir, { recursive: true });
+  removeStaleTmpDirs();
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), TMP_DIR_PREFIX));
 
   // Copy assets archive to temp dir
   const tarAssets = getRawAsset('assets.tar.gz') as ArrayBuffer;
