@@ -3,13 +3,16 @@ package net.mullvad.mullvadvpn.lib.ui.designsystem
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -25,12 +28,11 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,18 +52,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import kotlin.math.atan2
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.lib.common.compose.rememberPrevious
 import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -80,15 +77,11 @@ private fun PreviewMullvadFeatureChip() {
             icon = MultihopWhenNeeded,
             onClick = {},
         )
-        var state by remember {
-            mutableStateOf(false)
-        }
+        var state by remember { mutableStateOf(false) }
 
-        Switch(
+        MullvadSwitch(
             checked = state,
-            onCheckedChange = {
-                state = !state
-            },
+            onCheckedChange = { state = !state },
         )
 
         MullvadFeatureChip(
@@ -110,21 +103,16 @@ fun MullvadFeatureChip(
     onClick: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.primary,
-    selectedBorderColor: Color = MaterialTheme.colorScheme.onPrimary,
+    highlightBorderColor: Color = MaterialTheme.colorScheme.onPrimary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
     val chipShape = MaterialTheme.shapes.chipShape
-    val highlight = remember { Animatable(0f) }
-    val previousState = rememberPrevious(current = state, shouldUpdate = { _, _ -> true })
-    LaunchedEffect(state) {
-        val shouldHighlight = state == ChipState.Idle && previousState == ChipState.Loading
-        if (shouldHighlight) {
-            highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = CONNECTED_EASING))
-            delay(CONNECTED_HOLD)
-            highlight.animateTo(0f, tween(CONNECTED_FADE_OUT_MS, easing = CONNECTED_EASING))
-        }
-    }
+    val transition = updateTransition(targetState = state, label = "chipStateTransition")
+
+    val borderWidth = transition.animateBorderWidth()
+    val animatedBorderColor = transition.animateBorderColor(highlightBorderColor, borderColor)
+
     // This is to handle loading state animations better.
     // Without this the chip itself will add the minimum interactive size
     // causing issues with aligning the border properly.
@@ -132,7 +120,9 @@ fun MullvadFeatureChip(
         modifier = modifier.minimumInteractiveComponentSize(),
         contentAlignment = Alignment.Center,
     ) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+        CompositionLocalProvider(
+            LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+        ) {
             FilterChip(
                 modifier =
                     Modifier.applyIf(state == ChipState.Loading) {
@@ -172,23 +162,12 @@ fun MullvadFeatureChip(
                         iconColor = iconColor,
                     ),
                 border =
-                    when (state) {
-                        ChipState.Idle -> {
-                            FilterChipDefaults.filterChipBorder(
-                                borderColor =
-                                    lerp(borderColor, selectedBorderColor, highlight.value),
-                                enabled = true,
-                                selected = false,
-                                borderWidth =
-                                    lerp(
-                                        IDLE_BORDER_WIDTH,
-                                        LOADING_BORDER_WIDTH,
-                                        highlight.value,
-                                    ),
-                            )
-                        }
-                        ChipState.Loading -> null
-                    },
+                    FilterChipDefaults.filterChipBorder(
+                        borderColor = animatedBorderColor.value,
+                        enabled = true,
+                        selected = false,
+                        borderWidth = borderWidth.value,
+                    ),
                 selected = false,
                 onClick = onClick,
                 label = {
@@ -223,6 +202,51 @@ fun MullvadFeatureChip(
     }
 }
 
+@Composable
+private fun Transition<ChipState>.animateBorderWidth(): State<Dp> =
+    animateDp(
+        transitionSpec = {
+            when (targetState) {
+                ChipState.Idle ->
+                    keyframes {
+                        durationMillis = HIGHLIGHT_DURATION_MS
+                        LOADING_BORDER_WIDTH at HIGHLIGHT_KEYFRAME_HOLD_MS
+                    }
+                ChipState.Loading -> tween()
+            }
+        },
+    ) {
+        when (it) {
+            ChipState.Idle -> IDLE_BORDER_WIDTH
+            ChipState.Loading -> LOADING_BORDER_WIDTH
+        }
+    }
+
+@Composable
+private fun Transition<ChipState>.animateBorderColor(
+    highlightBorderColor: Color,
+    borderColor: Color,
+): State<Color> =
+    animateColor(
+        transitionSpec = {
+            when (targetState) {
+                ChipState.Idle ->
+                    keyframes {
+                        durationMillis = HIGHLIGHT_DURATION_MS
+                        highlightBorderColor at HIGHLIGHT_KEYFRAME_FADE_IN_MS
+                        highlightBorderColor at HIGHLIGHT_KEYFRAME_HOLD_MS
+                    }
+                ChipState.Loading -> tween()
+            }
+        },
+    ) {
+        when (it) {
+            ChipState.Idle -> borderColor
+            ChipState.Loading -> Color.Transparent
+        }
+    }
+
+@Composable
 private fun Modifier.connectingBorder(
     shape: Shape,
     sweepColors: List<Color>,
@@ -340,7 +364,6 @@ private const val BRUSH_LEAD_DEGREE = 5f
 private const val PATH_DRAW_FACTOR = 0.9f
 private const val LOADING_BORDER_LOOP_DURATION_MS = 2000 // 2 seconds
 
-private const val CONNECTED_WIND_UP_MS = 100
-private val CONNECTED_HOLD = 600.milliseconds
-private const val CONNECTED_FADE_OUT_MS = 600
-private val CONNECTED_EASING = CubicBezierEasing(0.5f, 0f, 0.5f, 1f)
+private const val HIGHLIGHT_KEYFRAME_FADE_IN_MS = 100
+private const val HIGHLIGHT_KEYFRAME_HOLD_MS = 700
+private const val HIGHLIGHT_DURATION_MS = 1300
