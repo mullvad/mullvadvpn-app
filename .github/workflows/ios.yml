@@ -87,7 +87,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: xcode-27
+    runs-on: xcode-27-xlarge
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
@@ -98,27 +98,57 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+
+      - name: Boot simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j \
+            | jq -r '.devices | to_entries[] | .value[] | select(.name=="iPhone 17") | .udid' \
+            | head -1)
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true   # ignore "already booted"
+
+      - name: Set up output artifacts directory
+        run: |
+          mkdir artifacts
+          echo "ARTIFACTS_DIR=artifacts" >> "$GITHUB_ENV"
+        working-directory: ios/
+
+      - name: Build for unit tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNCI \
+            -destination "generic/platform=iOS Simulator" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -disableAutomaticPackageResolution \
+            -derivedDataPath derived-data \
+            -resultBundlePath "${ARTIFACTS_DIR}/xcode-build-report-${{ github.run_id }}.xcresult" \
+            -showBuildTimingSummary \
+            build-for-testing 2>&1 | tee "${ARTIFACTS_DIR}/raw-xcodebuild-output.log" | xcbeautify
+        working-directory: ios/
+
+      - name: Wait for simulator
+        run: xcrun simctl bootstatus "$SIM_UDID" -b
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 17" \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -derivedDataPath derived-data \
             -disableAutomaticPackageResolution \
-            -allowProvisioningUpdates \
-            -resultBundlePath xcode-test-report \
-            test 2>&1 | xcbeautify
+            -resultBundlePath "${ARTIFACTS_DIR}/xcode-test-report-${{ github.run_id }}.xcresult" \
+            test-without-building 2>&1 | xcbeautify
         working-directory: ios/
-
-      - name: Archive test report
-        if: always()
-        run: zip -r test-report.zip ios/xcode-test-report.xcresult
 
       - name: Store test report artifact
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: test-report
-          path: test-report.zip
+          name: test-report-${{ github.run_id }}
+          path: ios/${{ env.ARTIFACTS_DIR }}
+          compression-level: 0
