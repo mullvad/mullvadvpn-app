@@ -136,10 +136,10 @@ function getEntryPoint(tunnelState: TunnelState): Endpoint | undefined {
   const endpoint = tunnelState.details.endpoint;
   const inAddress = tunnelEndpointToRelayInAddress(endpoint);
   const entryLocationInAddress = tunnelEndpointToEntryLocationInAddress(endpoint);
-  const obfuscationEndpoint = tunnelEndpointToObfuscationEndpoint(endpoint);
+  const obfuscatedEndpoint = tunnelEndpointToObfuscatedEndpoint(endpoint);
 
-  if (obfuscationEndpoint) {
-    return obfuscationEndpoint;
+  if (obfuscatedEndpoint) {
+    return obfuscatedEndpoint;
   } else if (entryLocationInAddress && inAddress) {
     return entryLocationInAddress;
   } else {
@@ -171,19 +171,24 @@ function tunnelEndpointToEntryLocationInAddress(
   };
 }
 
-function tunnelEndpointToObfuscationEndpoint(
+function tunnelEndpointToObfuscatedEndpoint(
   endpoint: ITunnelEndpoint,
 ): ObfuscationData | undefined {
-  if (!endpoint.obfuscationEndpoint) {
+  // Prefer an actually-obfuscated transport over the plain WireGuard ones in the list.
+  const transport =
+    endpoint.obfuscation.find((transport) => transport.obfuscationType !== 'direct') ??
+    endpoint.obfuscation[0];
+
+  if (!transport) {
     return undefined;
   }
 
-  const socketAddr = parseSocketAddress(endpoint.obfuscationEndpoint.address);
+  const socketAddr = parseSocketAddress(transport.address);
 
   return {
     ip: socketAddr.host,
     port: socketAddr.port,
-    protocol: endpoint.obfuscationEndpoint.protocol,
-    obfuscationType: endpoint.obfuscationEndpoint.obfuscationType,
+    protocol: transport.protocol,
+    obfuscationType: transport.obfuscationType,
   };
 }

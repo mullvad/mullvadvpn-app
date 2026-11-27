@@ -376,6 +376,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
           daita: false,
           protocol: 'tcp',
           quantumResistant: false,
+          obfuscation: [],
         },
         location,
       },

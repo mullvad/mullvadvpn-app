@@ -170,6 +170,7 @@ test.describe('Unsupported wireguard port', () => {
             daita: false,
             protocol: 'tcp',
             quantumResistant: false,
+            obfuscation: [],
           },
         },
       },

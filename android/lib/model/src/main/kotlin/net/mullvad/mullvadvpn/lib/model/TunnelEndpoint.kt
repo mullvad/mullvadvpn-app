@@ -4,6 +4,6 @@ data class TunnelEndpoint(
     val entryEndpoint: Endpoint?,
     val endpoint: Endpoint,
     val quantumResistant: Boolean,
-    val obfuscation: ObfuscationEndpoint?,
+    val obfuscation: List<ObfuscationEndpoint>,
     val daita: Boolean,
 )

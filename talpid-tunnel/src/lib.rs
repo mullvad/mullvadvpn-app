@@ -1,3 +1,4 @@
+use core::net::SocketAddr;
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::Path,
@@ -123,7 +124,7 @@ impl TunnelMetadata {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum SelectedObfuscation {
     /// Traffic is sent directly to the relay, without obfuscation.
-    Direct,
+    Direct(SocketAddr),
     /// Traffic passes through this obfuscator.
     Obfuscated(ObfuscatorConfig),
 }

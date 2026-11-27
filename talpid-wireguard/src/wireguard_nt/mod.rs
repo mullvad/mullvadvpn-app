@@ -1171,6 +1171,7 @@ fn filetime_to_systemtime(filetime: u64) -> SystemTime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use talpid_types::net::obfuscation::Obfuscators;
     use talpid_types::net::wireguard;
 
     #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -1201,7 +1202,7 @@ mod tests {
         ipv4_gateway: "0.0.0.0".parse().unwrap(),
         ipv6_gateway: None,
         mtu: 0,
-        obfuscator_config: None,
+        obfuscator_config: Obfuscators::direct("1.2.3.4:1234".parse().unwrap()),
         obfuscation_mtu: 0,
         quantum_resistant: false,
         daita: false,

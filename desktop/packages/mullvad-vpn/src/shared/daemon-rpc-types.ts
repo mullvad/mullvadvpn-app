@@ -113,7 +113,7 @@ export type ErrorStateDetails =
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
 export type RelayProtocol = 'tcp' | 'udp';
-export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo';
+export type EndpointObfuscationType = 'udp2tcp' | 'shadowsocks' | 'quic' | 'lwo' | 'direct';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -142,7 +142,7 @@ export interface ITunnelEndpoint {
   address: string;
   protocol: RelayProtocol;
   quantumResistant: boolean;
-  obfuscationEndpoint?: IObfuscationEndpoint;
+  obfuscation: IObfuscationEndpoint[];
   entryEndpoint?: IEndpoint;
   daita: boolean;
 }

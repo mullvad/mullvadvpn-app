@@ -341,15 +341,10 @@ function convertFromTunnelStateRelayInfo(
       endpoint: {
         ...state.tunnelEndpoint,
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
-        obfuscationEndpoint:
-          state.tunnelEndpoint.obfuscation &&
-          state.tunnelEndpoint.obfuscation.single &&
-          state.tunnelEndpoint.obfuscation.single.endpoint &&
-          // TODO: Handle multiplexer?
-          convertFromObfuscationEndpoint(
-            state.tunnelEndpoint.obfuscation.single.obfuscationType,
-            state.tunnelEndpoint.obfuscation.single.endpoint,
-          ),
+        obfuscation:
+          state.tunnelEndpoint.obfuscation?.transportsList.map((transport) =>
+            convertFromObfuscationEndpoint(transport.obfuscationType, transport.endpoint!),
+          ) ?? [],
         entryEndpoint:
           state.tunnelEndpoint.entryEndpoint &&
           convertFromEntryEndpoint(state.tunnelEndpoint.entryEndpoint),
@@ -431,6 +426,9 @@ function convertFromObfuscationEndpoint(
       break;
     case grpcTypes.ObfuscationEndpoint.ObfuscationType.LWO:
       translatedType = 'lwo';
+      break;
+    case grpcTypes.ObfuscationEndpoint.ObfuscationType.DIRECT:
+      translatedType = 'direct';
       break;
     default:
       throw new Error('unsupported obfuscation protocol');

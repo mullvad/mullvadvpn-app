@@ -342,12 +342,16 @@ message TunnelState {
     bool locked_down = 2;
   }
   message Connecting {
-    TunnelStateRelayInfo relay_info = 1;
-    FeatureIndicators feature_indicators = 2;
+    TunnelInfo tunnel_info = 1;
+    ObfuscationMultiplexer obfuscation_multiplexer = 2;
+    GeoIpLocation location = 3;
+    FeatureIndicators feature_indicators = 4;
   }
   message Connected {
-    TunnelStateRelayInfo relay_info = 1;
-    FeatureIndicators feature_indicators = 2;
+    TunnelInfo tunnel_info = 1;
+    ObfuscationEndpoint selected_obfuscation = 2;
+    GeoIpLocation location = 3;
+    FeatureIndicators feature_indicators = 4;
   }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }
   message Error { ErrorState error_state = 1; }
@@ -361,16 +365,10 @@ message TunnelState {
   }
 }
 
-message TunnelStateRelayInfo {
-  TunnelEndpoint tunnel_endpoint = 1;
-  GeoIpLocation location = 2;
-}
-
-message TunnelEndpoint {
+message TunnelInfo {
   string address = 1;
   TransportProtocol protocol = 2;
   bool quantum_resistant = 3;
-  ObfuscationInfo obfuscation = 4;
   Endpoint entry_endpoint = 5;
   TunnelMetadata tunnel_metadata = 6;
   bool daita = 7;
@@ -398,18 +396,7 @@ enum FeatureIndicator {
   CUSTOM_VPN = 16;
 }
 
-message ObfuscationInfo {
-  oneof type {
-    ObfuscationEndpoint single = 1;
-    MultiplexObfuscation multiple = 2;
-  }
-}
-
-message MultiplexObfuscation {
-  // optional direct endpoint
-  Endpoint direct = 1;
-  repeated ObfuscationEndpoint obfuscators = 2;
-}
+message ObfuscationMultiplexer { repeated ObfuscationEndpoint endpoints = 1; }
 
 message ObfuscationEndpoint {
   enum ObfuscationType {
@@ -417,6 +404,8 @@ message ObfuscationEndpoint {
     SHADOWSOCKS = 1;
     QUIC = 2;
     LWO = 3;
+    // Plain WireGuard, without any obfuscation.
+    DIRECT = 4;
   }
 
   Endpoint endpoint = 1;

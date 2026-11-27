@@ -65,7 +65,6 @@ import mullvad_daemon.management_interface.TunnelState
 import mullvad_daemon.management_interface.VoucherSubmission
 import mullvad_daemon.management_interface.WireguardConstraints
 import mullvad_daemon.management_interface.WireguardEndpointData
-import mullvad_daemon.management_interface.single
 import mullvad_daemon.relay_selector.DiscardedRelay
 import mullvad_daemon.relay_selector.IncompatibleConstraints
 import mullvad_daemon.relay_selector.RelayPartitions
@@ -261,11 +260,10 @@ internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
                 )
             },
         quantumResistant = quantum_resistant,
-        obfuscation = obfuscation?.type?.single?.toDomain(),
+        obfuscation = obfuscation?.transports.orEmpty().map { it.toDomain() },
         daita = daita,
     )
 
-@Suppress("UnsafeCallOnNullableType")
 internal fun ObfuscationEndpoint.toDomain(): ModelObfuscationEndpoint =
     ModelObfuscationEndpoint(
         endpoint =
@@ -291,6 +289,7 @@ internal fun ObfuscationEndpoint.ObfuscationType.toDomain(): ModelObfuscationTyp
         ObfuscationEndpoint.ObfuscationType.SHADOWSOCKS -> ModelObfuscationType.Shadowsocks
         ObfuscationEndpoint.ObfuscationType.QUIC -> ModelObfuscationType.Quic
         ObfuscationEndpoint.ObfuscationType.LWO -> ModelObfuscationType.Lwo
+        ObfuscationEndpoint.ObfuscationType.DIRECT -> ModelObfuscationType.Direct
     }
 
 internal fun TransportProtocol.toDomain(): ModelTransportProtocol =
