@@ -1,15 +1,18 @@
+#![cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
+
+use std::env;
+use std::path::{Path, PathBuf};
+use std::process::exit;
+use tokio::io;
+
 use clap::Parser;
 use mullvad_api::ApiEndpoint;
 use mullvad_problem_report::{Error, ProblemReportCollector, WriteSource};
-use std::{
-    env, io,
-    path::{Path, PathBuf},
-    process,
-};
 use talpid_error::ErrorExt;
 
-fn main() {
-    process::exit(match run() {
+#[tokio::main]
+async fn main() {
+    exit(match run().await {
         Ok(()) => 0,
         Err(error) => {
             eprintln!("{}", error.display_chain());
@@ -52,7 +55,7 @@ enum Cli {
     },
 }
 
-fn run() -> Result<(), Error> {
+async fn run() -> Result<(), Error> {
     tracing_subscriber::fmt::init();
 
     match Cli::parse() {
@@ -66,7 +69,7 @@ fn run() -> Result<(), Error> {
                 redact_custom_strings: redact,
             };
             if output != "-" {
-                collector.write_to_path(&output)?;
+                collector.write_to_path(&output).await?;
 
                 println!("Problem report written to {output}");
                 println!();
@@ -74,7 +77,9 @@ fn run() -> Result<(), Error> {
                 println!(" $ {} send --help", env::args().next().unwrap());
             } else {
                 // Write logs to stdout
-                collector.write(WriteSource::from((io::stdout(), "stdout".to_owned())))?;
+                collector
+                    .write(WriteSource::from((io::stdout(), "stdout".to_owned())))
+                    .await?;
             }
         }
         Cli::Send {
@@ -87,14 +92,16 @@ fn run() -> Result<(), Error> {
                 &message.unwrap_or_default(),
                 None,
                 &report,
-            )?;
+            )
+            .await?;
+            println!("Problem report sent");
         }
     }
 
     Ok(())
 }
 
-fn send_problem_report(
+async fn send_problem_report(
     user_email: &str,
     user_message: &str,
     account_token: Option<&str>,
@@ -109,10 +116,9 @@ fn send_problem_report(
         &cache_dir,
         ApiEndpoint::from_env_vars(),
     )
+    .await
     .inspect_err(|error| {
         eprintln!("{}", error.display_chain());
     })?;
-
-    println!("Problem report sent");
     Ok(())
 }

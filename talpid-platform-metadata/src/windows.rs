@@ -51,7 +51,7 @@ pub fn short_version() -> String {
     format!("Windows {version_string}")
 }
 
-pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+pub async fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     std::iter::empty()
 }
 

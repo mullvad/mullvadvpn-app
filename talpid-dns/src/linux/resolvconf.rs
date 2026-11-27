@@ -1,12 +1,13 @@
-use std::{
-    collections::HashSet,
-    ffi::OsStr,
-    fs,
-    io::{self, Write},
-    net::IpAddr,
-    path::{Path, PathBuf},
-    process::{Command, Stdio},
-};
+use futures::{StreamExt, stream};
+use std::collections::HashSet;
+use std::ffi::OsStr;
+use std::net::IpAddr;
+use std::path::{Path, PathBuf};
+use std::process::Stdio;
+use tokio::fs::{self, DirEntry};
+use tokio::io::{self, AsyncWriteExt};
+use tokio::process::Command;
+use tokio_stream::wrappers::ReadDirStream;
 
 use which::which;
 
@@ -21,7 +22,7 @@ pub enum Error {
     ResolvconfUsesResolved,
 
     #[error("Failed to execute 'resolvconf' program")]
-    RunResolvconf(#[from] io::Error),
+    RunResolvconf(#[from] std::io::Error),
 
     #[error("Using 'resolvconf' to add a record failed: {}", stderr)]
     AddRecord { stderr: String },
@@ -42,24 +43,24 @@ pub struct Resolvconf {
 }
 
 impl Resolvconf {
-    pub fn new() -> Result<Self> {
+    pub async fn new() -> Result<Self> {
         let resolvconf_path = which("resolvconf").map_err(|_| Error::NoResolvconf)?;
-        if Self::resolvconf_is_resolved_symlink(&resolvconf_path) {
+        if Self::resolvconf_is_resolved_symlink(&resolvconf_path).await {
             return Err(Error::ResolvconfUsesResolved);
         }
 
-        let is_dnsmasq_running = Self::is_dnsmasq_running();
+        let is_dnsmasq_running = Self::is_dnsmasq_running().await;
 
         // Check if resolvconf is managing DNS by /etc/resolv.conf
         if !is_dnsmasq_running
-            && !Self::check_if_resolvconf_is_symlinked_correctly()
-            && !Self::check_if_resolvconf_was_generated()
+            && !Self::check_if_resolvconf_is_symlinked_correctly().await
+            && !Self::check_if_resolvconf_was_generated().await
         {
             return Err(Error::ResolvconfNotInUse);
         }
 
         // Check if resolvconf can manage DNS via dnsmasq
-        if is_dnsmasq_running && Self::is_dnsmasq_configured_wrong() {
+        if is_dnsmasq_running && Self::is_dnsmasq_configured_wrong().await {
             return Err(Error::DnsmasqMisconfiguration);
         }
 
@@ -69,15 +70,16 @@ impl Resolvconf {
         })
     }
 
-    fn resolvconf_is_resolved_symlink(resolvconf_path: &Path) -> bool {
+    async fn resolvconf_is_resolved_symlink(resolvconf_path: &Path) -> bool {
         fs::read_link(resolvconf_path)
+            .await
             .map(|resolvconf_target| {
                 resolvconf_target.file_name() == Some(OsStr::new("resolvectl"))
             })
             .unwrap_or_else(|_| false)
     }
 
-    pub fn set_dns(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    pub async fn set_dns(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         let record_name = format!("{interface}.mullvad");
         let mut record_contents = String::new();
 
@@ -97,9 +99,10 @@ impl Resolvconf {
             let mut stdin = child.stdin.take().expect("stdin to be present");
             stdin
                 .write_all(record_contents.as_bytes())
+                .await
                 .map_err(Error::RunResolvconf)?;
             drop(stdin);
-            child.wait_with_output()?
+            child.wait_with_output().await?
         };
 
         if !output.status.success() {
@@ -112,13 +115,14 @@ impl Resolvconf {
         Ok(())
     }
 
-    pub fn reset(&mut self) -> Result<()> {
+    pub async fn reset(&mut self) -> Result<()> {
         let mut result = Ok(());
 
         for record_name in self.record_names.drain() {
             let output = Command::new(&self.resolvconf)
                 .args(["-d", &record_name, "-f"])
                 .output()
+                .await
                 .map_err(Error::RunResolvconf)?;
 
             if !output.status.success() {
@@ -134,8 +138,8 @@ impl Resolvconf {
         result
     }
 
-    fn is_dnsmasq_running() -> bool {
-        let pid = match fs::read_to_string("/var/run/dnsmasq/dnsmasq.pid") {
+    async fn is_dnsmasq_running() -> bool {
+        let pid = match fs::read_to_string("/var/run/dnsmasq/dnsmasq.pid").await {
             Ok(pid) => pid,
             Err(_err) => {
                 return false;
@@ -149,30 +153,37 @@ impl Resolvconf {
     // DNS server lists from external sources
     // Verify if dnsmasq is configured to ignore any external servers
     // by checking for the `no-resolv` config option.
-    fn is_dnsmasq_configured_wrong() -> bool {
-        let mut config_paths: Vec<_> = fs::read_dir("/etc/dnsmasq.d/")
-            .map(|entries| {
-                entries
-                    .into_iter()
-                    .filter_map(|entry| entry.ok().map(|e| e.path()))
-                    .collect()
-            })
-            .unwrap_or_default();
+    async fn is_dnsmasq_configured_wrong() -> bool {
+        fn no_resolv_configured(config: &[u8]) -> bool {
+            String::from_utf8_lossy(config)
+                .lines()
+                .any(|line| line.trim().starts_with("no-resolv"))
+        }
+        let config_paths = {
+            let Ok(dir_entries) = fs::read_dir("/etc/dnsmasq.d/")
+                .await
+                .map(ReadDirStream::new)
+            else {
+                return false;
+            };
 
-        config_paths.push(PathBuf::from("/etc/dnsmasq.conf"));
-        config_paths
-            .iter()
-            .filter_map(|file_path| fs::read(file_path).ok())
-            .any(|contents| {
-                String::from_utf8_lossy(contents.as_slice())
-                    .lines()
-                    .any(|line| line.trim().starts_with("no-resolv"))
-            })
+            let mut paths: Vec<_> = dir_entries
+                .filter_map(async move |entry| entry.as_ref().map(DirEntry::path).ok())
+                .collect()
+                .await;
+            paths.push(PathBuf::from("/etc/dnsmasq.conf"));
+            paths
+        };
+
+        stream::iter(config_paths)
+            .filter_map(async |path| fs::read(path).await.ok())
+            .any(async |config| no_resolv_configured(&config))
+            .await
     }
 
     // Returns true if /etc/resolv.conf contents indicate that they've been generated by resolvconf
-    fn check_if_resolvconf_was_generated() -> bool {
-        match fs::read_to_string("/etc/resolv.conf") {
+    async fn check_if_resolvconf_was_generated() -> bool {
+        match fs::read_to_string("/etc/resolv.conf").await {
             Ok(contents) => contents.contains("Generated by resolvconf"),
             Err(err) => {
                 log::error!("Couldn't read /etc/resolv.conf: {}", err);
@@ -183,8 +194,8 @@ impl Resolvconf {
 
     // Returns true if /etc/resolv.conf is symlinked to resolvconf's runtime directory
     // (`/var/run/resolvconf`)
-    fn check_if_resolvconf_is_symlinked_correctly() -> bool {
-        match fs::canonicalize("/etc/resolv.conf") {
+    async fn check_if_resolvconf_is_symlinked_correctly() -> bool {
+        match fs::canonicalize("/etc/resolv.conf").await {
             Err(err) => {
                 if err.kind() != io::ErrorKind::NotFound {
                     log::error!("Failed to canonicalize /etc/resolv.conf: {}", err);

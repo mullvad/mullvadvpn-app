@@ -1,3 +1,5 @@
+use tokio::{fs, process::Command};
+
 use crate::command::command_stdout_lossy;
 
 pub fn version() -> String {
@@ -24,6 +26,7 @@ pub fn short_version() -> String {
     format!("Linux {version}")
 }
 
+// Note: This function performs blocking I/O.
 fn read_os_release_file_short() -> Option<String> {
     let mut os_release_info = rs_release::get_os_release().ok()?;
     let os_name = os_release_info.remove("NAME");
@@ -39,6 +42,7 @@ fn read_os_release_file_short() -> Option<String> {
     os_release_info.remove("PRETTY_NAME")
 }
 
+// Note: This function performs blocking I/O.
 fn read_os_release_file() -> Result<String, Option<String>> {
     let mut os_release_info = rs_release::get_os_release().map_err(|_| None)?;
     let os_name = os_release_info.remove("NAME");
@@ -71,34 +75,43 @@ fn parse_lsb_release() -> Option<String> {
         .filter(|output| !output.is_empty())
 }
 
-pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
-    #[cfg(not(feature = "network-manager"))]
-    let version_cmds = [kernel_version, wg_version, systemd_version];
-    #[cfg(feature = "network-manager")]
-    let version_cmds = [kernel_version, nm_version, wg_version, systemd_version];
+pub async fn extra_metadata() -> impl Iterator<Item = (String, String)> {
+    let metadata = [
+        kernel_version().await,
+        wg_version().await,
+        systemd_version().await,
+    ];
+    let network_manager = cfg_select! {
+        feature = "network-manager" => nm_version().await,
+        _ => None,
+    };
 
-    version_cmds.into_iter().filter_map(|f| f())
+    metadata.into_iter().chain([network_manager]).flatten()
 }
 
 /// `uname -r` outputs a single line containing only the kernel version:
 /// > 5.9.15
-fn kernel_version() -> Option<(String, String)> {
-    let kernel = command_stdout_lossy("uname", &["-r"]).ok()?;
+async fn kernel_version() -> Option<(String, String)> {
+    let out = Command::new("uname").arg("-r").output().await.ok()?;
+    let kernel = String::from_utf8_lossy(&out.stdout).trim().to_string();
     Some(("kernel".to_string(), kernel))
 }
 
 /// NetworkManager's version is returned as a numeric version string
 /// > 1.26.0
 #[cfg(feature = "network-manager")]
-fn nm_version() -> Option<(String, String)> {
-    let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
-    Some(("nm".to_string(), nm.version_string().ok()?))
+async fn nm_version() -> Option<(String, String)> {
+    let nm = talpid_dbus::network_manager::NetworkManagerConnection::new()
+        .await
+        .ok()?;
+    Some(("nm".to_string(), nm.version_string().await.ok()?))
 }
 
 /// `/sys/module/wireguard/version` contains only a numeric version string
 /// > 1.0.0
-fn wg_version() -> Option<(String, String)> {
-    let wireguard_version = std::fs::read_to_string("/sys/module/wireguard/version")
+async fn wg_version() -> Option<(String, String)> {
+    let wireguard_version = fs::read_to_string("/sys/module/wireguard/version")
+        .await
         .ok()?
         .trim()
         .to_string();
@@ -109,8 +122,13 @@ fn wg_version() -> Option<(String, String)> {
 /// features:
 /// > systemd 246 (246)
 /// > +PAM +AUDIT -SELINUX +IMA +APPARMOR +SMACK -SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT -GNUTLS +ACL
-fn systemd_version() -> Option<(String, String)> {
-    let systemd_version_output = command_stdout_lossy("systemctl", &["--version"]).ok()?;
-    let version = systemd_version_output.lines().next()?.to_string();
-    Some(("systemd".to_string(), version))
+async fn systemd_version() -> Option<(String, String)> {
+    let out = Command::new("systemctl")
+        .arg("--version")
+        .output()
+        .await
+        .ok()?;
+    let systemd = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    let systemd = systemd.lines().next()?.to_string();
+    Some(("systemd".to_string(), systemd))
 }
