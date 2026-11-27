@@ -79,18 +79,17 @@ pub enum Error {
     AccountManagerDown,
 }
 
-macro_rules! impl_into_arc_err {
-    ($ty:ty) => {
-        impl From<$ty> for Error {
-            fn from(error: $ty) -> Self {
-                Error::from(Arc::from(error))
-            }
-        }
-    };
+impl From<io::Error> for Error {
+    fn from(error: io::Error) -> Self {
+        Error::from(Arc::from(error))
+    }
 }
 
-impl_into_arc_err!(io::Error);
-impl_into_arc_err!(serde_json::Error);
+impl From<serde_json::Error> for Error {
+    fn from(error: serde_json::Error) -> Self {
+        Error::from(Arc::from(error))
+    }
+}
 
 /// Contains the current device state.
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
