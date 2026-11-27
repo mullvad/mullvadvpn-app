@@ -23,7 +23,9 @@ use talpid_types::net::{
 };
 use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError};
 
-use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
+use crate::device::{
+    AccountManagerHandle, Error as DeviceError, PrivateDevice,
+};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -240,13 +242,13 @@ impl InnerParametersGenerator {
     fn create_wireguard_tunnel_parameters(
         &self,
         mut endpoint: MullvadEndpoint,
-        data: PrivateAccountAndDevice,
+        device: PrivateDevice,
         obfuscator_config: Option<Obfuscators>,
     ) -> TunnelParameters {
-        let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
-        let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
+        let tunnel_ipv4 = device.wg_data.addresses.ipv4_address.ip();
+        let tunnel_ipv6 = device.wg_data.addresses.ipv6_address.ip();
         let tunnel = wireguard::TunnelConfig {
-            private_key: data.device.wg_data.private_key,
+            private_key: device.wg_data.private_key,
             addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
         };
 
@@ -293,12 +295,9 @@ impl InnerParametersGenerator {
         }
     }
 
-    async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
+    async fn device(&self) -> Result<PrivateDevice, Error> {
         let device_state = self.account_manager.data().await?;
-        device_state
-            .master_account()
-            .cloned()
-            .ok_or(Error::NoAuthDetails)
+        device_state.into_device().ok_or(Error::NoAuthDetails)
     }
 }
 

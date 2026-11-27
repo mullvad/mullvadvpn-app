@@ -23,6 +23,9 @@ pub enum Account {
         account: Option<String>,
     },
 
+    /// Forget the account number of this client. The device will not be revoked.
+    Forget,
+
     /// Log out of the current account
     Logout,
 
@@ -65,6 +68,11 @@ impl Account {
     pub async fn handle(self) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         match self {
+            Account::Forget => {
+                rpc.blind().await?;
+                println!("i forgor 💀");
+                Ok(())
+            }
             Account::Create => Self::create(&mut rpc).await,
             Account::Login { account } => {
                 Self::login(

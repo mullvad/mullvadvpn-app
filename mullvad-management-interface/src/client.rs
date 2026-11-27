@@ -351,6 +351,11 @@ impl MullvadProxyClient {
             .into_inner())
     }
 
+    pub async fn blind(&mut self) -> Result<()> {
+        self.0.blind(()).await.map_err(map_device_error)?;
+        Ok(())
+    }
+
     pub async fn login_account(&mut self, account: AccountNumber) -> Result<()> {
         self.0
             .login_account(account)
