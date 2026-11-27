@@ -50,6 +50,9 @@ elif [ "${PLATFORM_NAME}" = "iphonesimulator" ]; then
 TARGET=aarch64-apple-ios-sim
 fi
 
+if [ -n "$CI" ]; then
+    export CARGO_INCREMENTAL=0
+fi
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
