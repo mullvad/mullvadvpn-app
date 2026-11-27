@@ -26,6 +26,7 @@ class BillingClientConnection(
 
     private val connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
 
+    @Suppress("ThrowsCount")
     suspend fun getClient(): BillingClient {
         return withTimeoutOrNull(10.seconds) {
             withContext(connectionStateDispatcher) {
