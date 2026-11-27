@@ -45,29 +45,48 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
     type Error = FromProtobufTypeError;
 
     fn try_from(state: proto::DeviceState) -> Result<Self, FromProtobufTypeError> {
-        let state_type = proto::device_state::State::try_from(state.state)
-            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid device state"))?;
+        let Some(state) = state.state else {
+            return Err(FromProtobufTypeError::invalid_argument(
+                "invalid device state",
+            ));
+        };
 
-        match state_type {
-            proto::device_state::State::LoggedIn => {
-                let account = state.device.ok_or(FromProtobufTypeError::invalid_argument(
-                    "missing account data",
-                ))?;
-                let device = account
-                    .device
-                    .ok_or(FromProtobufTypeError::invalid_argument(
-                        "missing device data",
-                    ))?;
+        match state {
+            proto::device_state::State::LoggedIn(proto::device_state::LoggedIn { state }) => {
+                match state {
+                    Some(proto::device_state::logged_in::State::Traditional(traditional)) => {
+                        // TODO: Handle empty string!
+                        let account_number = traditional.account_number;
+                        let device =
+                            traditional
+                                .device
+                                .ok_or(FromProtobufTypeError::invalid_argument(
+                                    "missing device data",
+                                ))?;
 
-                Ok(mullvad_types::device::DeviceState::LoggedIn(
-                    mullvad_types::device::AccountAndDevice {
-                        account_number: account.account_number,
-                        device: mullvad_types::device::Device::try_from(device)?,
-                    },
-                ))
+                        Ok(mullvad_types::device::DeviceState::LoggedIn(
+                            mullvad_types::device::LoggedIn::Traditional(
+                                mullvad_types::device::AccountAndDevice {
+                                    account_number,
+                                    device: mullvad_types::device::Device::try_from(device)?,
+                                },
+                            ),
+                        ))
+                    }
+                    Some(proto::device_state::logged_in::State::Blind(device)) => {
+                        Ok(mullvad_types::device::DeviceState::LoggedIn(
+                            mullvad_types::device::LoggedIn::Blind(
+                                mullvad_types::device::Device::try_from(device)?,
+                            ),
+                        ))
+                    }
+                    None => todo!(),
+                }
             }
-            proto::device_state::State::Revoked => Ok(mullvad_types::device::DeviceState::Revoked),
-            proto::device_state::State::LoggedOut => {
+            proto::device_state::State::Revoked(proto::device_state::Revoked {}) => {
+                Ok(mullvad_types::device::DeviceState::Revoked)
+            }
+            proto::device_state::State::LoggedOut(proto::device_state::LoggedOut {}) => {
                 Ok(mullvad_types::device::DeviceState::LoggedOut)
             }
         }
@@ -77,22 +96,35 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
 impl From<mullvad_types::device::DeviceState> for proto::DeviceState {
     fn from(state: mullvad_types::device::DeviceState) -> Self {
         proto::DeviceState {
-            state: proto::device_state::State::from(&state) as i32,
-            device: state.logged_in().map(|client| proto::AccountAndDevice {
-                account_number: client.account_number,
-                device: Some(proto::Device::from(client.device)),
-            }),
+            state: Some(proto::device_state::State::from(state)),
         }
     }
 }
 
-impl From<&mullvad_types::device::DeviceState> for proto::device_state::State {
-    fn from(state: &mullvad_types::device::DeviceState) -> Self {
-        use mullvad_types::device::DeviceState as MullvadState;
+impl From<mullvad_types::device::DeviceState> for proto::device_state::State {
+    fn from(state: mullvad_types::device::DeviceState) -> Self {
+        use mullvad_types::device::{DeviceState, LoggedIn};
         match state {
-            MullvadState::LoggedIn(_) => proto::device_state::State::LoggedIn,
-            MullvadState::LoggedOut => proto::device_state::State::LoggedOut,
-            MullvadState::Revoked => proto::device_state::State::Revoked,
+            DeviceState::LoggedIn(LoggedIn::Traditional(traditional)) => {
+                proto::device_state::State::LoggedIn(proto::device_state::LoggedIn {
+                    state: Some(proto::device_state::logged_in::State::Traditional(
+                        proto::AccountAndDevice::from(traditional),
+                    )),
+                })
+            }
+            DeviceState::LoggedIn(LoggedIn::Blind(device)) => {
+                proto::device_state::State::LoggedIn(proto::device_state::LoggedIn {
+                    state: Some(proto::device_state::logged_in::State::Blind(
+                        proto::Device::from(device),
+                    )),
+                })
+            }
+            DeviceState::LoggedOut => {
+                proto::device_state::State::LoggedOut(proto::device_state::LoggedOut {})
+            }
+            DeviceState::Revoked => {
+                proto::device_state::State::Revoked(proto::device_state::Revoked {})
+            }
         }
     }
 }

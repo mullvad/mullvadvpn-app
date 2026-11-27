@@ -295,7 +295,10 @@ impl InnerParametersGenerator {
 
     async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
         let device_state = self.account_manager.data().await?;
-        device_state.into_device().ok_or(Error::NoAuthDetails)
+        device_state
+            .master_account()
+            .cloned()
+            .ok_or(Error::NoAuthDetails)
     }
 }
 

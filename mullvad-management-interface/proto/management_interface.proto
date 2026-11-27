@@ -936,13 +936,21 @@ message DeviceRemoval {
 }
 
 message DeviceState {
-  enum State {
-    LOGGED_IN = 0;
-    LOGGED_OUT = 1;
-    REVOKED = 2;
+  message LoggedIn {
+    oneof state {
+      // TODO: Explain
+      AccountAndDevice traditional = 1;
+      // TODO: Explain
+      Device blind = 2;
+    }
   }
-  State state = 1;
-  AccountAndDevice device = 2;
+  message LoggedOut {}
+  message Revoked {}
+  oneof state {
+    LoggedIn logged_in = 1;
+    LoggedOut logged_out = 2;
+    Revoked revoked = 3;
+  }
 }
 
 message DeviceEvent {

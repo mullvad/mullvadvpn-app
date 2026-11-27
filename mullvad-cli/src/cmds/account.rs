@@ -1,9 +1,12 @@
 use crate::BIN_NAME;
-use anyhow::{Result, anyhow};
+use anyhow::{Result, bail};
 use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{account::AccountNumber, device::DeviceState};
+use mullvad_types::{
+    account::AccountNumber,
+    device::{DeviceState, LoggedIn},
+};
 use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
@@ -106,10 +109,15 @@ impl Account {
         let state = rpc.get_device().await?;
 
         match state {
-            DeviceState::LoggedIn(device) => {
-                println!("{:<20}{}", "Mullvad account:", device.account_number);
+            DeviceState::LoggedIn(LoggedIn::Traditional(account_and_device)) => {
+                println!(
+                    "{:<20}{}",
+                    "Mullvad account:", account_and_device.account_number
+                );
 
-                let data = rpc.get_account_data(device.account_number).await?;
+                let data = rpc
+                    .get_account_data(account_and_device.account_number)
+                    .await?;
                 println!(
                     "{:<20}{}",
                     "Expires at:",
@@ -119,11 +127,29 @@ impl Account {
                     println!("{:<20}{}", "Account id:", data.id);
                 }
 
-                println!("{:<20}{}", "Device name:", device.device.pretty_name());
+                println!(
+                    "{:<20}{}",
+                    "Device name:",
+                    account_and_device.device.pretty_name()
+                );
                 if verbose {
-                    println!("{:<20}{}", "Device id:", device.device.id);
-                    println!("{:<20}{}", "Device pubkey:", device.device.pubkey);
-                    println!("{:<20}{}", "Device created:", device.device.created);
+                    println!("{:<20}{}", "Device id:", account_and_device.device.id);
+                    println!(
+                        "{:<20}{}",
+                        "Device pubkey:", account_and_device.device.pubkey
+                    );
+                    println!(
+                        "{:<20}{}",
+                        "Device created:", account_and_device.device.created
+                    );
+                }
+            }
+            DeviceState::LoggedIn(LoggedIn::Blind(device)) => {
+                println!("{:<20}{}", "Device name:", device.pretty_name());
+                if verbose {
+                    println!("{:<20}{}", "Device id:", device.id);
+                    println!("{:<20}{}", "Device pubkey:", device.pubkey);
+                    println!("{:<20}{}", "Device created:", device.created);
                 }
             }
             DeviceState::LoggedOut => {
@@ -214,8 +240,13 @@ async fn account_else_current(
         None => {
             let state = rpc.get_device().await?;
             match state {
-                DeviceState::LoggedIn(account) => Ok(account.account_number),
-                _ => Err(anyhow!("Log in or specify an account")),
+                DeviceState::LoggedIn(LoggedIn::Traditional(account_and_device)) => {
+                    Ok(account_and_device.account_number)
+                }
+                DeviceState::LoggedIn(LoggedIn::Blind(_)) => {
+                    bail!("Blind device is not associated with an acount")
+                }
+                _ => bail!("Log in or specify an account"),
             }
         }
     }

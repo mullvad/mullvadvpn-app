@@ -191,6 +191,9 @@ pub enum Error {
     #[error("Split tunneling error")]
     SplitTunnelError(#[source] split_tunnel::Error),
 
+    #[error("No existing device")]
+    NoDevice,
+
     #[error("An account is already set")]
     AlreadyLoggedIn,
 
@@ -883,12 +886,10 @@ impl Daemon {
         .await
         .map_err(Error::LoadAccountManager)?;
 
-        let account_history = account_history::AccountHistory::new(
-            &config.settings_dir,
-            data.device().map(|device| device.account_number.clone()),
-        )
-        .await
-        .map_err(Error::LoadAccountHistory)?;
+        let account_history =
+            account_history::AccountHistory::new(&config.settings_dir, data.account().cloned())
+                .await
+                .map_err(Error::LoadAccountHistory)?;
 
         let target_state = if settings.auto_connect {
             log::info!("Automatically connecting since auto-connect is turned on");
@@ -2020,12 +2021,12 @@ impl Daemon {
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        match self.account_manager.data().await.map(|s| s.into_device()) {
-            Ok(Some(device)) => {
+        match self.account_manager.data().await.map(|s| s.into_account()) {
+            Ok(Some(account)) => {
                 let future = self
                     .account_manager
                     .account_service
-                    .get_www_auth_token(device.account_number);
+                    .get_www_auth_token(account);
                 tokio::spawn(async {
                     Self::oneshot_send(
                         tx,
@@ -3034,8 +3035,8 @@ impl Daemon {
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
         let result = match self.account_manager.data().await.map(|s| s.into_device()) {
-            Ok(Some(config)) => Ok(Some(config.device.wg_data.get_public_key())),
-            _ => Err(Error::NoAccountNumber),
+            Ok(Some(device)) => Ok(Some(device.wg_data.get_public_key())),
+            _ => Err(Error::NoDevice),
         };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }

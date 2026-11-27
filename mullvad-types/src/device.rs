@@ -44,21 +44,42 @@ impl Device {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DeviceState {
-    LoggedIn(AccountAndDevice),
+    LoggedIn(LoggedIn),
     LoggedOut,
     Revoked,
+}
+
+/// Data in the logged in state.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum LoggedIn {
+    /// Logged in to a device belonging to a known account number.
+    Traditional(AccountAndDevice),
+    /// Logged in to a single device without any knowledge about the account from which the device
+    /// was derived from.
+    Blind(Device),
 }
 
 impl DeviceState {
     /// Returns the active account and device if the device is currently logged in to a valid
     /// account.
-    pub fn logged_in(self) -> Option<AccountAndDevice> {
+    pub fn account(self) -> Option<AccountNumber> {
         match self {
-            DeviceState::LoggedIn(client) => Some(client),
+            DeviceState::LoggedIn(LoggedIn::Traditional(client)) => Some(client.account_number),
             _ => None,
         }
     }
 
+    pub fn device(self) -> Option<Device> {
+        let DeviceState::LoggedIn(state) = self else {
+            return None;
+        };
+        match state {
+            LoggedIn::Traditional(account_and_device) => Some(account_and_device.device),
+            LoggedIn::Blind(device) => Some(device),
+        }
+    }
+
+    /// Returns true if logged in to any device.
     pub const fn is_logged_in(&self) -> bool {
         matches!(self, Self::LoggedIn(_))
     }

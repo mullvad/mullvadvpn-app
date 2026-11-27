@@ -13,6 +13,7 @@ use mullvad_types::{
     account::{AccountNumber, VoucherSubmission},
     device::{
         AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DeviceState,
+        LoggedIn,
     },
     wireguard::{self, RotationInterval, WireguardData},
 };
@@ -57,6 +58,8 @@ pub enum Error {
     MaxDevicesReached,
     #[error("No device is set")]
     NoDevice,
+    #[error("This device does not carry an account number")]
+    NoAccountNumber,
     #[error("Device not found")]
     InvalidDevice,
     #[error("Invalid account")]
@@ -95,7 +98,7 @@ impl From<serde_json::Error> for Error {
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum PrivateDeviceState {
-    LoggedIn(PrivateAccountAndDevice),
+    LoggedIn(PrivateLoggedIn),
     LoggedOut,
     Revoked,
 }
@@ -112,20 +115,57 @@ impl PrivateDeviceState {
         matches!(self, PrivateDeviceState::LoggedOut)
     }
 
+    /// Returns whether the device is in the logged in state.
+    pub const fn is_blind(&self) -> bool {
+        matches!(
+            self,
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Blind(_))
+        )
+    }
+
     /// Returns the logged in device config.
-    pub fn device(&self) -> Option<&PrivateAccountAndDevice> {
+    pub fn device(&self) -> Option<&PrivateDevice> {
         match self {
-            PrivateDeviceState::LoggedIn(device) => Some(device),
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(account_and_device)) => {
+                Some(&account_and_device.device)
+            }
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Blind(device)) => Some(device),
+            _ => None,
+        }
+    }
+
+    /// Returns the logged in account number.
+    ///
+    /// Note: "Blind" devices do not carry an account number.
+    pub fn account(&self) -> Option<&AccountNumber> {
+        match self {
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(account_and_device)) => {
+                Some(&account_and_device.account_number)
+            }
+            _ => None,
+        }
+    }
+
+    /// Returns the logged in account number and private device.
+    ///
+    /// Note: "Blind" devices do not carry an account number.
+    pub fn master_account(&self) -> Option<&PrivateAccountAndDevice> {
+        match self {
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(account_and_device)) => {
+                Some(account_and_device)
+            }
             _ => None,
         }
     }
 
     /// Returns the logged in device config.
-    pub fn into_device(self) -> Option<PrivateAccountAndDevice> {
-        match self {
-            PrivateDeviceState::LoggedIn(device) => Some(device),
-            _ => None,
-        }
+    pub fn into_device(self) -> Option<PrivateDevice> {
+        self.device().cloned()
+    }
+
+    /// Returns the logged in account number.
+    pub fn into_account(self) -> Option<AccountNumber> {
+        self.account().cloned()
     }
 
     /// Sets the state to `Revoked`.
@@ -133,10 +173,12 @@ impl PrivateDeviceState {
         *self = PrivateDeviceState::Revoked;
     }
 
-    /// Sets the state to `LoggedOut` and returns the logged-in device, if one exists.
+    /// Sets the state to `LoggedOut` and returns the logged-in device and account number (if one exists).
     fn logout(&mut self) -> Option<PrivateAccountAndDevice> {
         match std::mem::replace(self, PrivateDeviceState::LoggedOut) {
-            PrivateDeviceState::LoggedIn(data) => Some(data),
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(account_and_device)) => {
+                Some(account_and_device)
+            }
             _ => None,
         }
     }
@@ -145,9 +187,33 @@ impl PrivateDeviceState {
 impl From<PrivateDeviceState> for DeviceState {
     fn from(state: PrivateDeviceState) -> Self {
         match state {
-            PrivateDeviceState::LoggedIn(dev) => DeviceState::LoggedIn(AccountAndDevice::from(dev)),
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(account_and_device)) => {
+                DeviceState::LoggedIn(LoggedIn::Traditional(account_and_device.into()))
+            }
+            PrivateDeviceState::LoggedIn(PrivateLoggedIn::Blind(device)) => {
+                DeviceState::LoggedIn(LoggedIn::Blind(device.into()))
+            }
             PrivateDeviceState::LoggedOut => DeviceState::LoggedOut,
             PrivateDeviceState::Revoked => DeviceState::Revoked,
+        }
+    }
+}
+
+/// Sensitive data in the logged in state.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub enum PrivateLoggedIn {
+    /// Logged in to a device belonging to a known account number.
+    Traditional(PrivateAccountAndDevice),
+    /// Logged in to a single device without any knowledge about the account from which the device
+    /// was derived from.
+    Blind(PrivateDevice),
+}
+
+impl From<PrivateLoggedIn> for PrivateDevice {
+    fn from(logged_in: PrivateLoggedIn) -> Self {
+        match logged_in {
+            PrivateLoggedIn::Traditional(account_and_device) => account_and_device.device,
+            PrivateLoggedIn::Blind(device) => device,
         }
     }
 }
@@ -221,6 +287,11 @@ impl PrivateDevice {
         self.created = device.created;
         Ok(())
     }
+
+    /// TODO: Document
+    fn set_wg_data(&mut self, wg_data: WireguardData) {
+        self.wg_data = wg_data;
+    }
 }
 
 impl From<PrivateDevice> for Device {
@@ -246,14 +317,20 @@ pub(crate) enum AccountEvent {
 #[derive(Clone)]
 pub(crate) enum PrivateDeviceEvent {
     /// Logged in on a new device.
+    ///
+    /// TODO: Add login event for "Blind" devices.
     Login(PrivateAccountAndDevice),
     /// The device was removed due to user (or daemon) action.
     Logout,
     /// Device was removed because it was not found remotely.
     Revoked,
     /// The device was updated remotely, but not its key.
+    ///
+    /// Note: Updates are never performed to "Blind" devices.
     Updated(PrivateAccountAndDevice),
     /// The key was rotated.
+    ///
+    /// Note: Key rotations are never performed to "Blind" devices.
     RotatedKey(PrivateAccountAndDevice),
 }
 
@@ -274,9 +351,15 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
 impl PrivateDeviceEvent {
     pub fn state(self) -> PrivateDeviceState {
         match self {
-            PrivateDeviceEvent::Login(config) => PrivateDeviceState::LoggedIn(config),
-            PrivateDeviceEvent::Updated(config) => PrivateDeviceState::LoggedIn(config),
-            PrivateDeviceEvent::RotatedKey(config) => PrivateDeviceState::LoggedIn(config),
+            PrivateDeviceEvent::Login(config) => {
+                PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(config))
+            }
+            PrivateDeviceEvent::Updated(config) => {
+                PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(config))
+            }
+            PrivateDeviceEvent::RotatedKey(config) => {
+                PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(config))
+            }
             PrivateDeviceEvent::Logout => PrivateDeviceState::LoggedOut,
             PrivateDeviceEvent::Revoked => PrivateDeviceState::Revoked,
         }
@@ -411,6 +494,7 @@ pub(crate) struct AccountManager {
     account_service: AccountService,
     device_service: DeviceService,
     data: PrivateDeviceState,
+    // TODO: Make optional. Keys should not be rotated if device is "Blind".
     rotation_interval: RotationInterval,
     listeners: Vec<Box<dyn Sender<AccountEvent> + Send>>,
     last_validation: Option<SystemTime>,
@@ -430,10 +514,13 @@ impl AccountManager {
         listener_tx: impl Sender<AccountEvent> + Send + 'static,
     ) -> Result<(AccountManagerHandle, PrivateDeviceState), Error> {
         let (cacher, data) = DeviceCacher::new(settings_dir).await?;
-        let number = data.device().map(|state| state.account_number.clone());
+        let account_number = data.account().cloned();
         let api_availability = rest_handle.availability.clone();
-        let account_service =
-            service::spawn_account_service(rest_handle.clone(), number, api_availability.clone());
+        let account_service = service::spawn_account_service(
+            rest_handle.clone(),
+            account_number,
+            api_availability.clone(),
+        );
 
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -609,8 +696,7 @@ impl AccountManager {
         }
 
         let create_submission = move || {
-            let old_config = self.data.device().ok_or(Error::NoDevice)?;
-            let account_number = old_config.account_number.clone();
+            let account_number = self.data.account().cloned().ok_or(Error::NoDevice)?;
             let account_service = self.account_service.clone();
             Ok(async move {
                 account_service
@@ -812,7 +898,8 @@ impl AccountManager {
     ) {
         let current_config = self
             .data
-            .device()
+            .master_account()
+            .cloned()
             .expect("Received a validation response whilst having no device data");
 
         match response {
@@ -825,7 +912,7 @@ impl AccountManager {
                         .update(new_device)
                         .expect("pubkey must match privkey");
 
-                    if Some(&new_data) != self.data.device() {
+                    if Some(&new_data.device) != self.data.device() {
                         log::debug!("Updating data for the current device");
                     } else {
                         log::debug!("The current device is still valid");
@@ -860,7 +947,7 @@ impl AccountManager {
         }
 
         if (!self.rotation_requests.is_empty() || !self.validation_requests.is_empty())
-            && let Some(updated_config) = self.data.device()
+            && let Some(updated_config) = self.data.master_account()
         {
             let device_service = self.device_service.clone();
             let number = updated_config.account_number.clone();
@@ -874,14 +961,14 @@ impl AccountManager {
     async fn consume_rotation_result(&mut self, api_result: Result<WireguardData, Error>) {
         let mut config = self
             .data
-            .device()
+            .master_account()
             .cloned()
             .expect("Received a key rotation result whilst having no data");
 
         match api_result {
             Ok(wg_data) => {
                 log::debug!("Replacing WireGuard key");
-                config.device.wg_data = wg_data;
+                config.device.set_wg_data(wg_data);
                 match self.set(PrivateDeviceEvent::RotatedKey(config)).await {
                     Ok(_) => {
                         Self::drain_requests(&mut self.rotation_requests, || Ok(()));
@@ -956,7 +1043,7 @@ impl AccountManager {
     fn spawn_timed_key_rotation(
         &self,
     ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static + use<>> {
-        let config = self.data.device()?;
+        let config = self.data.master_account()?;
         let key_rotation_timer = self.key_rotation_timer(config.device.wg_data.created);
 
         let device_service = self.device_service.clone();
@@ -1104,7 +1191,7 @@ impl AccountManager {
         self.last_validation = None;
 
         if let Some(old_config) = self.data.logout()
-            && device_state.device().map(|d| &d.device.id) != Some(&old_config.device.id)
+            && device_state.device().map(|device| &device.id) != Some(&old_config.device.id)
         {
             tokio::spawn(self.logout_api_call(old_config));
         }
@@ -1121,7 +1208,11 @@ impl AccountManager {
     fn initiate_key_rotation(
         &self,
     ) -> Result<impl Future<Output = Result<WireguardData, Error>> + use<>, Error> {
-        let data = self.data.device().cloned().ok_or(Error::NoDevice)?;
+        let data = self
+            .data
+            .master_account()
+            .cloned()
+            .ok_or(Error::NoAccountNumber)?;
         let device_service = self.device_service.clone();
         Ok(async move {
             device_service
@@ -1173,15 +1264,14 @@ impl AccountManager {
     fn validation_call(
         &self,
     ) -> Result<impl Future<Output = Result<Device, Error>> + use<>, Error> {
-        let old_config = self.data.device().ok_or(Error::NoDevice)?;
+        let old_config = self.data.master_account().ok_or(Error::NoAccountNumber)?;
         Ok(self.fetch_device_config(old_config))
     }
 
     fn expiry_call(
         &self,
     ) -> Result<impl Future<Output = Result<chrono::DateTime<Utc>, Error>> + use<>, Error> {
-        let old_config = self.data.device().ok_or(Error::NoDevice)?;
-        let account_number = old_config.account_number.clone();
+        let account_number = self.data.account().cloned().ok_or(Error::NoAccountNumber)?;
         let account_service = self.account_service.clone();
         Ok(async move {
             account_service
@@ -1192,6 +1282,11 @@ impl AccountManager {
     }
 
     fn needs_validation(&mut self) -> bool {
+        // Skip validation call if this is a "Blind" device.
+        if self.data.is_blind() {
+            return false;
+        }
+
         if !self.data.logged_in() {
             return true;
         }
