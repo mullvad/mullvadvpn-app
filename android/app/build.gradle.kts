@@ -58,13 +58,6 @@ android {
         versionCode = appVersion.code
         versionName = appVersion.name.value
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        lint {
-            lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-            abortOnError = true
-            checkAllWarnings = true
-            warningsAsErrors = true
-        }
     }
 
     playConfigs {

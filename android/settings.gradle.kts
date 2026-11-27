@@ -4,13 +4,31 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    // Common workaround since settings plugins can't use the version catalog.
+    val versions = file("gradle/libs.versions.toml").readLines()
+    fun version(name: String) =
+        versions.first { it.startsWith("$name = ") }.substringAfter('"').substringBefore('"')
+
+    plugins { id("com.android.settings") version version("android-gradle-plugin") }
 }
+
+plugins { id("com.android.settings") }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+android {
+    lint {
+        lintConfig = settingsDir.resolve("config/lint.xml")
+        abortOnError = true
+        checkAllWarnings = true
+        warningsAsErrors = true
     }
 }
 

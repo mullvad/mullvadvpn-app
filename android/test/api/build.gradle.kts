@@ -20,9 +20,9 @@ android {
     kotlin { compilerOptions { allWarningsAsErrors = true } }
 
     lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
+        // ktor references java.lang.management but handles it being missing on Android:
+        // https://youtrack.jetbrains.com/issue/KTOR-3690
+        disable += "InvalidPackage"
     }
 
     packaging {

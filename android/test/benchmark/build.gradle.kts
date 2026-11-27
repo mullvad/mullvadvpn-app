@@ -56,12 +56,6 @@ android {
 
     kotlin { compilerOptions { allWarningsAsErrors = true } }
 
-    lint {
-        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        abortOnError = true
-        warningsAsErrors = true
-    }
-
     packaging {
         resources {
             pickFirsts +=
