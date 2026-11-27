@@ -15,7 +15,6 @@ import SwiftUI
 class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentable, Presenting {
     private lazy var logger = Logger(label: "IncludeAllNetworksSettingsCoordinator")
     private let navigationController: UINavigationController
-    private let hasNavigationControls: Bool
     private let viewModel: IncludeAllNetworksSettingsViewModelImpl
     private let route: AppRoute
 
@@ -31,7 +30,6 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
         viewModel: IncludeAllNetworksSettingsViewModelImpl
     ) {
         self.navigationController = navigationController ?? CustomNavigationController()
-        self.hasNavigationControls = navigationController != nil
         self.route = route
         self.viewModel = viewModel
 
@@ -47,9 +45,8 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
         host.view.setAccessibilityIdentifier(.includeAllNetworksView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(
+        navigationController.pushViewControllerAddingNavigationButtons(
             host,
-            addingNavigationButtons: hasNavigationControls,
             animated: animated
         )
     }

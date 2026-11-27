@@ -56,9 +56,8 @@ class EditAccessMethodCoordinator: Coordinator, Presenting {
         )
         controller.delegate = self
 
-        navigationController.pushViewController(
+        navigationController.pushViewControllerAddingNavigationButtons(
             controller,
-            addingNavigationButtons: true,
             animated: true
         )
     }
@@ -88,7 +87,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
 
         controller.delegate = self
 
-        navigationController.pushViewController(controller, addingNavigationButtons: true, animated: true)
+        navigationController.pushViewControllerAddingNavigationButtons(controller, animated: true)
     }
 
     func controllerDidDeleteAccessMethod(_ controller: EditAccessMethodViewController) {

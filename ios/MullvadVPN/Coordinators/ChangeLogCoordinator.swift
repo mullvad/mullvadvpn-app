@@ -55,7 +55,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
         default: break
         }
 
-        navigationController?.pushViewController(
-            changeLogViewController, addingNavigationButtons: true, animated: animated)
+        navigationController?.pushViewControllerAddingNavigationButtons(
+            changeLogViewController, animated: animated)
     }
 }

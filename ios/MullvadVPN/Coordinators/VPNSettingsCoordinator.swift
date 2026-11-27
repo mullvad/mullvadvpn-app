@@ -23,7 +23,6 @@ enum VPNSettingsSection: Equatable {
 
 class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChildCoordinator {
     private let navigationController: UINavigationController
-    private let hasNavigationControls: Bool
     private let interactorFactory: SettingsInteractorFactory
     private let ipOverrideRepository: IPOverrideRepositoryProtocol
     private let route: AppRoute
@@ -45,7 +44,6 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
         route: AppRoute
     ) {
         self.navigationController = navigationController ?? CustomNavigationController()
-        self.hasNavigationControls = navigationController != nil
         self.interactorFactory = interactorFactory
         self.ipOverrideRepository = ipOverrideRepository
         self.route = route
@@ -69,9 +67,8 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
         let host = UIHostingController(rootView: view.navigationBarBackButtonHidden(true))
         customiseNavigation(on: host)
 
-        navigationController.pushViewController(
+        navigationController.pushViewControllerAddingNavigationButtons(
             host,
-            addingNavigationButtons: hasNavigationControls,
             animated: animated
         )
     }
