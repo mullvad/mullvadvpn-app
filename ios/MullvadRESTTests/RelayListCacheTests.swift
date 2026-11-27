@@ -41,19 +41,19 @@ class RelayListCacheTests: XCTestCase {
         let timestampJSON = String(data: timestampJSONData, encoding: .utf8)!
 
         // 1. Mock the relay list endpoint with our JSON containing unknown fields.
-        let mock = MullvadApiMock.get([
-            (
+        let mock = MockServer(get: [
+            .init(
                 path: "/trl/v1/timestamps/latest",
                 responseCode: 200,
-                responseData: timestampJSON
+                responseBody: timestampJSON
             ),
-            (
+            .init(
                 path: "/trl/v1/data/\(ServerRelaysResponseStubs.digest)",
                 responseCode: 200,
-                responseData: relayJSON
+                responseBody: relayJSON
             ),
         ])
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let apiProxy = try makeApiProxy(port: mock.port())
 
         // 2. Fetch relays through the API proxy (exercises the full Rust FFI path).
         let result: Result<REST.ServerRelaysCacheResponse?, Error> =
@@ -105,14 +105,14 @@ class RelayListCacheTests: XCTestCase {
 
     func testUnchangedDigestIsNotModified() async throws {
         let timestampJSON = String(data: ServerRelaysResponseStubs.sampleRelaysDigest, encoding: .utf8)!
-        let mock = MullvadApiMock.get([
-            (
+        let mock = MockServer(get: [
+            .init(
                 path: "/trl/v1/timestamps/latest",
                 responseCode: 200,
-                responseData: timestampJSON
+                responseBody: timestampJSON
             )
         ])
-        let apiProxy = try makeApiProxy(port: mock.port)
+        let apiProxy = try makeApiProxy(port: mock.port())
         let timestamp = try XCTUnwrap(ISO8601DateFormatter().date(from: "2026-09-09T11:44:11+00:00"))
 
         let result: Result<REST.ServerRelaysCacheResponse?, Error> =
