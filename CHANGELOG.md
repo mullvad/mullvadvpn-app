@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
   to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 - Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
   proxies. The access method is enabled by default.
+- Bump the minimum iOS deployment target to 18.0
 
 #### Linux
 - Add back support for managing DNS via NetworkManager.

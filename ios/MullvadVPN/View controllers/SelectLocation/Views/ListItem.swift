@@ -27,18 +27,12 @@ struct ListItem<StatusIndicator: View>: View {
 
     var body: some View {
         HStack {
-            if #available(iOS 18.0, *) {
-                Group(subviews: statusIndicator()) { indicators in
-                    ForEach(indicators) { indicator in
-                        indicator
-                            .frame(width: 24, height: 24)
-                    }
+            Group(subviews: statusIndicator()) { indicators in
+                ForEach(indicators) { indicator in
+                    indicator
+                        .frame(width: 24, height: 24)
                 }
-            } else {
-                statusIndicator()
-                    .frame(width: 24, height: 24)
             }
-
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.mullvadSmallSemiBold)

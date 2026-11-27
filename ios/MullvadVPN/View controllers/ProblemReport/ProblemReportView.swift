@@ -52,11 +52,7 @@ struct ProblemReportView: View {
                 viewModel: viewModel
             )
             .apply {
-                if #available(iOS 18.0, *) {
-                    $0.navigationTransition(.zoom(sourceID: messageEditTransitionId, in: transitionNamespace))
-                } else {
-                    $0
-                }
+                $0.navigationTransition(.zoom(sourceID: messageEditTransitionId, in: transitionNamespace))
             }
         }
         .sheet(isPresented: viewModel.showLogs) {
@@ -150,12 +146,8 @@ struct ProblemReportView: View {
                 .background { Color.MullvadTextField.background }
                 .font(.mullvadSmall)
                 .apply {
-                    if #available(iOS 18.0, *) {
-                        $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) {
-                            $0.background(Color.MullvadTextField.background)
-                        }
-                    } else {
-                        $0
+                    $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) {
+                        $0.background(Color.MullvadTextField.background)
                     }
                 }
                 .modifier(

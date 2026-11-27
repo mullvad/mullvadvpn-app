@@ -90,12 +90,12 @@ Manual tests are performed on a set of devices that varies between releases.
 
 ## iOS
 
-Supported versions: 17.0 and newer.
+Supported versions: 18.0 and newer.
 
 ### Tested versions
 
 | Version        | Type of test |
 |----------------|--------------|
-| 17             | manual       |
+ |
 | 18             | manual       |
 | 26             | e2e, manual  |

@@ -202,15 +202,8 @@ enum SegmentedListItemAppearance {
     case error
 }
 
-private struct SegmentedListItemAppearanceKey: EnvironmentKey {
-    static let defaultValue: SegmentedListItemAppearance = .normal
-}
-
 extension EnvironmentValues {
-    var segmentedListItemAppearance: SegmentedListItemAppearance {
-        get { self[SegmentedListItemAppearanceKey.self] }
-        set { self[SegmentedListItemAppearanceKey.self] = newValue }
-    }
+    @Entry var segmentedListItemAppearance: SegmentedListItemAppearance = .normal
 }
 
 #Preview {
@@ -278,16 +271,8 @@ extension EnvironmentValues {
 }
 
 // MARK: - Nesting
-
-private struct IsNestedInSegmentedListItemKey: EnvironmentKey {
-    static let defaultValue = false
-}
-
 extension EnvironmentValues {
-    var isNestedInSegmentedListItem: Bool {
-        get { self[IsNestedInSegmentedListItemKey.self] }
-        set { self[IsNestedInSegmentedListItemKey.self] = newValue }
-    }
+    @Entry var isNestedInSegmentedListItem = false
 }
 
 // MARK: - Color helpers
