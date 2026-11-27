@@ -22,7 +22,7 @@ sealed class TunnelState {
     fun featureIndicators(): List<FeatureIndicator>? =
         when (this) {
             is Connected -> featureIndicators
-            is Connecting -> featureIndicators
+            is Connecting -> featureIndicators.adjustForAntiCensorship()
             else -> null
         }
 
@@ -72,4 +72,14 @@ sealed class TunnelState {
     /// setting being active and it being necessary.
     fun isWhenNeededMultihopInEffect(): Boolean =
         featureIndicators()?.contains(FeatureIndicator.MULTIHOP_AUTO) == true
+
+    private fun List<FeatureIndicator>.adjustForAntiCensorship(): List<FeatureIndicator> =
+        this.map {
+                if (it in ANTI_CENSORSHIP_FEATURE_INDICATORS) {
+                    FeatureIndicator.ANTI_CENSORSHIP
+                } else {
+                    it
+                }
+            }
+            .distinct()
 }
