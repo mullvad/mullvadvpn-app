@@ -14,6 +14,7 @@ import SwiftUI
 
 class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentable, Presenting {
     private let navigationController: UINavigationController
+    private let hasNavigationControls: Bool
     private let viewModel: MultihopTunnelSettingsViewModel
     private var alertPresenter: AlertPresenter?
     private let route: AppRoute
@@ -25,11 +26,12 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
     var didFinish: ((MultihopSettingsCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         route: AppRoute,
         viewModel: MultihopTunnelSettingsViewModel
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
+        self.hasNavigationControls = navigationController != nil
         self.route = route
         self.viewModel = viewModel
 
@@ -69,7 +71,11 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
         host.view.setAccessibilityIdentifier(.multihopView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewControllerAddingCustomButtons(host, animated: animated)
+        navigationController.pushViewController(
+            host,
+            addingNavigationButtons: hasNavigationControls,
+            animated: animated
+        )
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

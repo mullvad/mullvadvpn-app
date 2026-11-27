@@ -42,6 +42,6 @@ final class NotificationSettingsCoordinator: Coordinator, Presentable, SettingsC
         viewController.view.setAccessibilityIdentifier(.notificationSettingsView)
         viewController.navigationItem.title = NSLocalizedString("Notifications", comment: "")
 
-        navigationController?.pushViewControllerAddingCustomButtons(viewController, animated: animated)
+        navigationController?.pushViewController(viewController, addingNavigationButtons: true, animated: animated)
     }
 }

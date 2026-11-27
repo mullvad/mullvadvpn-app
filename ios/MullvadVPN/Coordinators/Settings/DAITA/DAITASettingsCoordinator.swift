@@ -13,6 +13,7 @@ import SwiftUI
 
 class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentable, Presenting {
     private let navigationController: UINavigationController
+    private let hasNavigationControls: Bool
     private let viewModel: DAITATunnelSettingsViewModel
     private var alertPresenter: AlertPresenter?
     private let route: AppRoute
@@ -24,11 +25,12 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
     var didFinish: ((DAITASettingsCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         route: AppRoute,
         viewModel: DAITATunnelSettingsViewModel
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
+        self.hasNavigationControls = navigationController != nil
         self.route = route
         self.viewModel = viewModel
 
@@ -56,7 +58,11 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
         host.view.setAccessibilityIdentifier(.daitaView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewControllerAddingCustomButtons(host, animated: animated)
+        navigationController.pushViewController(
+            host,
+            addingNavigationButtons: hasNavigationControls,
+            animated: animated
+        )
     }
 
     private func customiseNavigation(on viewController: UIViewController) {

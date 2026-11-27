@@ -55,8 +55,9 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
         host.view.setAccessibilityIdentifier(.apiAccessView)
         customiseNavigation(on: host)
 
-        navigationController.pushViewControllerAddingCustomButtons(
+        navigationController.pushViewController(
             host,
+            addingNavigationButtons: true,
             animated: animated
         )
     }

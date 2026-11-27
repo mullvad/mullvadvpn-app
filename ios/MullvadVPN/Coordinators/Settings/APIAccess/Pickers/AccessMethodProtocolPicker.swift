@@ -36,7 +36,7 @@ struct AccessMethodProtocolPicker {
             completion(selectedItem.method)
         }
 
-        navigationController.pushViewControllerAddingCustomButtons(controller, animated: true)
+        navigationController.pushViewController(controller, addingNavigationButtons: true, animated: true)
     }
 }
 

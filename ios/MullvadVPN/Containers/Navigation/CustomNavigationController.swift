@@ -50,9 +50,12 @@ extension CustomNavigationController: UIGestureRecognizerDelegate {
 }
 
 extension UINavigationController {
-    func pushViewControllerAddingCustomButtons(_ viewController: UIViewController, animated: Bool = true) {
-        viewController.navigationItem.hidesBackButton = true
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(navigationController: self)
+    func pushViewController(_ viewController: UIViewController, addingNavigationButtons: Bool, animated: Bool = true) {
+        if addingNavigationButtons {
+            viewController.navigationItem.hidesBackButton = true
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadBackButton(
+                navigationController: self)
+        }
         self.pushViewController(viewController, animated: animated)
     }
 }

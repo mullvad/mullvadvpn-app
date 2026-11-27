@@ -15,6 +15,7 @@ import UIKit
 
 class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChildCoordinator {
     private let navigationController: UINavigationController
+    private let hasNavigationControls: Bool
     private let interactor: IPOverrideInteractor
     private let route: AppRoute?
     var presentationContext: UIViewController {
@@ -28,12 +29,13 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
     var didFinish: ((IPOverrideCoordinator) -> Void)?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController? = nil,
         repository: IPOverrideRepositoryProtocol,
         tunnelManager: TunnelManager,
         route: AppRoute?
     ) {
-        self.navigationController = navigationController
+        self.navigationController = navigationController ?? CustomNavigationController()
+        self.hasNavigationControls = navigationController != nil
         interactor = IPOverrideInteractor(repository: repository, tunnelManager: tunnelManager)
         self.route = route
     }
@@ -56,7 +58,11 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
             controller.navigationItem.rightBarButtonItem = doneButton
         }
 
-        navigationController.pushViewControllerAddingCustomButtons(controller, animated: animated)
+        navigationController.pushViewController(
+            controller,
+            addingNavigationButtons: hasNavigationControls,
+            animated: animated
+        )
     }
 }
 
