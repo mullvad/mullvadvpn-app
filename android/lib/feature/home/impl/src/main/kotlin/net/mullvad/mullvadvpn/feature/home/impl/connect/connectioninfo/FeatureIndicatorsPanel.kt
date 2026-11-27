@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.model.ANTI_CENSORSHIP_FEATURE_INDICATORS
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
-import net.mullvad.mullvadvpn.lib.ui.designsystem.State
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ChipState
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -161,6 +161,6 @@ private fun FeatureIndicator.icon(): ImageVector? =
 
 private fun toState(featureIndicator: FeatureIndicator, connected: Boolean) =
     when {
-        featureIndicator in ANTI_CENSORSHIP_FEATURE_INDICATORS && !connected -> State.Loading
-        else -> State.Idle
+        featureIndicator in ANTI_CENSORSHIP_FEATURE_INDICATORS && !connected -> ChipState.Loading
+        else -> ChipState.Idle
     }

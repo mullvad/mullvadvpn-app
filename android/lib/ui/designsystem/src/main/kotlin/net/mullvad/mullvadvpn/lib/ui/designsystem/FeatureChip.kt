@@ -13,9 +13,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.FilterChip
@@ -23,23 +25,31 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import kotlin.math.atan2
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.parcelize.Parcelize
@@ -60,17 +71,32 @@ import net.mullvad.mullvadvpn.lib.ui.util.applyIf
 @Preview
 @Composable
 private fun PreviewMullvadFeatureChip() {
-    PreviewColumn {
-        MullvadFeatureChip(text = "DAITA", state = State.Idle, onClick = {})
-        MullvadFeatureChip(text = "Local Network Sharing", state = State.Idle, onClick = {})
+    PreviewColumn(Modifier.background(Color.Black).padding(16.dp)) {
+        MullvadFeatureChip(text = "DAITA", state = ChipState.Idle, onClick = {})
+        MullvadFeatureChip(text = "Local Network Sharing", state = ChipState.Idle, onClick = {})
         MullvadFeatureChip(
             text = "Multihop",
-            state = State.Idle,
+            state = ChipState.Idle,
             icon = MultihopWhenNeeded,
             onClick = {},
         )
-        MullvadFeatureChip(text = "Anti-censorship", state = State.Loading, onClick = {})
-        MullvadFeatureChip(text = "QUIC", state = State.Idle, onClick = {})
+        var state by remember {
+            mutableStateOf(false)
+        }
+
+        Switch(
+            checked = state,
+            onCheckedChange = {
+                state = !state
+            },
+        )
+
+        MullvadFeatureChip(
+            text = "Anti-censorship",
+            state = if (state) ChipState.Loading else ChipState.Idle,
+            onClick = {},
+        )
+        MullvadFeatureChip(text = "QUIC", state = ChipState.Idle, onClick = {})
     }
 }
 
@@ -78,7 +104,7 @@ private fun PreviewMullvadFeatureChip() {
 @Suppress("LongMethod")
 fun MullvadFeatureChip(
     text: String,
-    state: State,
+    state: ChipState,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     onClick: () -> Unit,
@@ -92,7 +118,7 @@ fun MullvadFeatureChip(
     val highlight = remember { Animatable(0f) }
     val previousState = rememberPrevious(current = state, shouldUpdate = { _, _ -> true })
     LaunchedEffect(state) {
-        val shouldHighlight = state == State.Idle && previousState == State.Loading
+        val shouldHighlight = state == ChipState.Idle && previousState == ChipState.Loading
         if (shouldHighlight) {
             highlight.animateTo(1f, tween(CONNECTED_WIND_UP_MS, easing = CONNECTED_EASING))
             delay(CONNECTED_HOLD)
@@ -109,7 +135,7 @@ fun MullvadFeatureChip(
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
             FilterChip(
                 modifier =
-                    Modifier.applyIf(state == State.Loading) {
+                    Modifier.applyIf(state == ChipState.Loading) {
                         val connectingProgress =
                             rememberInfiniteTransition(label = "connectingBorder")
                                 .animateFloat(
@@ -119,7 +145,7 @@ fun MullvadFeatureChip(
                                         infiniteRepeatable(
                                             animation =
                                                 tween(
-                                                    CONNECTING_BORDER_DURATION_MS,
+                                                    LOADING_BORDER_LOOP_DURATION_MS,
                                                     easing = LinearEasing,
                                                 ),
                                         ),
@@ -127,7 +153,13 @@ fun MullvadFeatureChip(
                                 )
                         connectingBorder(
                             shape = chipShape,
-                            color = borderColor,
+                            sweepColors =
+                                listOf(
+                                    borderColor.copy(0f),
+                                    borderColor.copy(0.3f),
+                                    borderColor,
+                                ),
+                            borderWidth = LOADING_BORDER_WIDTH,
                             progress = { connectingProgress.value },
                         )
                     },
@@ -141,7 +173,7 @@ fun MullvadFeatureChip(
                     ),
                 border =
                     when (state) {
-                        State.Idle -> {
+                        ChipState.Idle -> {
                             FilterChipDefaults.filterChipBorder(
                                 borderColor =
                                     lerp(borderColor, selectedBorderColor, highlight.value),
@@ -149,13 +181,13 @@ fun MullvadFeatureChip(
                                 selected = false,
                                 borderWidth =
                                     lerp(
-                                        NORMAL_BORDER_WIDTH,
-                                        SELECTED_BORDER_WIDTH,
+                                        IDLE_BORDER_WIDTH,
+                                        LOADING_BORDER_WIDTH,
                                         highlight.value,
                                     ),
                             )
                         }
-                        State.Loading -> null
+                        ChipState.Loading -> null
                     },
                 selected = false,
                 onClick = onClick,
@@ -193,54 +225,70 @@ fun MullvadFeatureChip(
 
 private fun Modifier.connectingBorder(
     shape: Shape,
-    color: Color,
+    sweepColors: List<Color>,
+    borderWidth: Dp,
     progress: () -> Float,
-): Modifier = drawWithContent {
-    drawContent()
-    val strokeWidth = SELECTED_BORDER_WIDTH.toPx()
-    val inset = strokeWidth / 2
-    val outline =
-        shape.createOutline(
-            size = Size(size.width - strokeWidth, size.height - strokeWidth),
-            layoutDirection = layoutDirection,
-            density = this,
-        )
-    val path =
-        when (outline) {
-            is Outline.Generic -> outline.path
-            is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
-            is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
-        }
+): Modifier = drawWithCache {
+    // We double the path to keep the right radius, the outer half will be clipped away.
+    val stroke = Stroke(borderWidth.toPx() * 2)
+
+    val path = shape.createOutline(size, layoutDirection, this).toPath()
     val measure = PathMeasure().apply { setPath(path, true) }
     val length = measure.length
-    val head = (1f - progress()) * length
-    val sliceLength = length / CONNECTING_ARC_SLICES
-    val segment = Path()
 
-    fun drawSlice(start: Float, end: Float, alpha: Float) {
-        segment.rewind()
-        measure.getSegment(start, end, segment, true)
-        drawPath(segment, color.copy(alpha = alpha), style = Stroke(strokeWidth))
-    }
+    val segments = Path()
 
-    translate(inset, inset) {
-        for (i in 0 until CONNECTING_ARC_SLICES) {
-            val start = head + sliceLength * i
-            val end = start + sliceLength
-            val position = (i + 0.5f) / CONNECTING_ARC_SLICES
-            val fade = if (position <= 0.5f) 1f else (1f - position) * 2f
-            val alpha = fade * fade * fade
+    val brush = Brush.sweepGradient(colors = sweepColors, center = size.center)
+    val counterRotation = Matrix()
+
+    onDrawWithContent {
+        drawContent()
+
+        val head = (1f - progress()) * length
+
+        clipPath(path) {
+            // Since we have a sweepingBrush and want a nice Stroke.But, we need to create a gap
+            val end = head + length * PATH_DRAW_FACTOR
+
+            segments.rewind()
             if (end <= length) {
-                drawSlice(start, end, alpha)
-            } else if (start >= length) {
-                drawSlice(start - length, end - length, alpha)
+                measure.getSegment(head, end, segments)
             } else {
-                drawSlice(start, length, alpha)
-                drawSlice(0f, end - length, alpha)
+                // If we are wrapping around the start we need to create two segments
+                measure.getSegment(head, length, segments)
+                measure.getSegment(0f, end - length, segments, false)
+            }
+
+            // The angle won't have a consistent speed, it depends on the position of the head.
+            val headPosition = measure.getPosition(head)
+            val angle = angleToPoint(center, headPosition) + BRUSH_LEAD_DEGREE
+
+            // Rotating the segment by -angle around the center cancels the canvas
+            // rotation below, so only the gradient visibly rotates.
+            counterRotation.resetToPivotedTransform(center.x, center.y, rotationZ = -angle)
+            segments.transform(counterRotation)
+            clipPath(path) {
+                rotate(degrees = angle, pivot = center) {
+                    drawPath(segments, brush = brush, style = stroke)
+                }
             }
         }
     }
 }
+
+private fun angleToPoint(center: Offset, point: Offset): Float {
+    val dx = point.x - center.x
+    val dy = point.y - center.y
+    val degrees = Math.toDegrees(atan2(dy, dx).toDouble()).toFloat()
+    return (degrees + 360f) % 360f
+}
+
+private fun Outline.toPath() =
+    when (this) {
+        is Outline.Generic -> path
+        is Outline.Rounded -> Path().apply { addRoundRect(roundRect) }
+        is Outline.Rectangle -> Path().apply { addRect(rect) }
+    }
 
 @Composable
 fun MullvadMoreChip(
@@ -279,16 +327,19 @@ fun MullvadMoreChip(
 }
 
 @Parcelize
-sealed interface State : Parcelable {
-    data object Idle : State
+sealed interface ChipState : Parcelable {
+    data object Idle : ChipState
 
-    data object Loading : State
+    data object Loading : ChipState
 }
 
-private val SELECTED_BORDER_WIDTH = 2.dp
-private val NORMAL_BORDER_WIDTH = 1.dp
-private const val CONNECTING_BORDER_DURATION_MS = 2000 // 2 seconds
-private const val CONNECTING_ARC_SLICES = 64
+private val IDLE_BORDER_WIDTH = 1.dp
+private val LOADING_BORDER_WIDTH = 2.dp
+
+private const val BRUSH_LEAD_DEGREE = 5f
+private const val PATH_DRAW_FACTOR = 0.9f
+private const val LOADING_BORDER_LOOP_DURATION_MS = 2000 // 2 seconds
+
 private const val CONNECTED_WIND_UP_MS = 100
 private val CONNECTED_HOLD = 600.milliseconds
 private const val CONNECTED_FADE_OUT_MS = 600
