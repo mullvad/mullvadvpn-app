@@ -65,6 +65,7 @@ type WireGuardCreateAdapterFn = unsafe extern "system" fn(
     tunnel_type: *const u16,
     requested_guid: *const GUID,
 ) -> RawHandle;
+type WireGuardOpenAdapterFn = unsafe extern "system" fn(name: *const u16) -> RawHandle;
 type WireGuardCloseAdapterFn = unsafe extern "system" fn(adapter: RawHandle);
 type WireGuardGetAdapterLuidFn =
     unsafe extern "system" fn(adapter: RawHandle, luid: *mut NET_LUID_LH);
@@ -435,19 +436,19 @@ impl WgNtTunnel {
         resource_dir: &Path,
         done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> std::result::Result<Self, super::TunnelError> {
-        Self::start_tunnel_inner(config, log_path, resource_dir, done_tx).map_err(|error| {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-            );
-
-            match error {
+        Self::start_tunnel_inner(config, log_path, resource_dir, done_tx)
+            .inspect_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+                );
+            })
+            .map_err(|error| match error {
                 Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(
                     talpid_tunnel::tun_provider::Error::Io(error),
                 ),
                 _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
-            }
-        })
+            })
     }
 
     fn start_tunnel_inner(
@@ -639,12 +640,34 @@ impl WgNtAdapter {
             log::debug!("Reusing the existing WireGuard adapter");
             return Ok(adapter);
         }
-        Self::create(
+        match Self::create(
             dll_handle,
             &ADAPTER_ALIAS,
             &ADAPTER_TYPE,
             Some(ADAPTER_GUID),
-        )
+        ) {
+            Ok(adapter) => Ok(adapter),
+            Err(create_error) if create_error.kind() == io::ErrorKind::AlreadyExists => {
+                log::debug!("Reusing a leftover WireGuard adapter: {create_error}");
+                Self::open_existing(dll_handle, &ADAPTER_ALIAS)
+                    .inspect_err(|open_error| {
+                        log::warn!("Failed to open the leftover WireGuard adapter: {open_error}");
+                    })
+                    .map_err(|_open_error| create_error)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
+    /// Open the adapter with the given name, if there is one.
+    fn open_existing(dll_handle: &'static WgNtDll, name: &U16CStr) -> io::Result<Arc<Self>> {
+        let handle = dll_handle.open_adapter(name)?;
+        Ok(Arc::new(Self {
+            dll_handle,
+            handle,
+            configured_addresses: Mutex::new(vec![]),
+            reusable: AtomicBool::new(true),
+        }))
     }
 
     fn create(
@@ -813,6 +836,7 @@ impl Drop for WgNtAdapter {
 struct WgNtDll {
     handle: HMODULE,
     func_create: WireGuardCreateAdapterFn,
+    func_open: WireGuardOpenAdapterFn,
     func_close: WireGuardCloseAdapterFn,
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
     func_set_configuration: WireGuardSetConfigurationFn,
@@ -850,6 +874,9 @@ impl WgNtDll {
             handle,
             func_create: unsafe {
                 *((&get_proc_fn(handle, c"WireGuardCreateAdapter")?) as *const _ as *const _)
+            },
+            func_open: unsafe {
+                *((&get_proc_fn(handle, c"WireGuardOpenAdapter")?) as *const _ as *const _)
             },
             func_close: unsafe {
                 *((&get_proc_fn(handle, c"WireGuardCloseAdapter")?) as *const _ as *const _)
@@ -894,6 +921,16 @@ impl WgNtDll {
             None => ptr::null_mut(),
         };
         let handle = unsafe { (self.func_create)(name.as_ptr(), tunnel_type.as_ptr(), guid_ptr) };
+        if handle.is_null() {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(handle)
+    }
+
+    pub fn open_adapter(&self, name: &U16CStr) -> io::Result<RawHandle> {
+        // SAFETY: The function pointer and signature are correct, and `name.as_ptr()` is a
+        // null-terminated WTF-16 string.
+        let handle = unsafe { (self.func_open)(name.as_ptr()) };
         if handle.is_null() {
             return Err(io::Error::last_os_error());
         }
@@ -1331,7 +1368,57 @@ mod tests {
         assert!(WgAllowedIp::new(address, address_family, cidr).is_err());
     }
 
+    #[test]
+    fn test_open_adopts_leftover_adapter_on_creation_conflict() {
+        // A leftover adapter has the same GUID as the one being created, making the
+        // creation fail with ERROR_ALREADY_EXISTS. Adopt leftover adapter.
+        let dll = Box::leak(Box::new(
+            WgNtDll::new_inner(ptr::null_mut(), get_proc_fn_conflicting_create).unwrap(),
+        ));
+
+        let _adapter = WgNtAdapter::open(dll)
+            .expect("the leftover adapter should be adopted when creating a new one fails");
+    }
+
+    unsafe extern "system" fn create_adapter_conflict_stub() -> isize {
+        unsafe {
+            windows_sys::Win32::Foundation::SetLastError(
+                windows_sys::Win32::Foundation::ERROR_ALREADY_EXISTS,
+            )
+        };
+        0
+    }
+
+    unsafe extern "system" fn open_adapter_stub() -> isize {
+        ptr::NonNull::<std::ffi::c_void>::dangling().as_ptr() as isize
+    }
+
+    fn get_proc_fn_stub(
+        symbol: &CStr,
+        create_fn: unsafe extern "system" fn() -> isize,
+        open_fn: unsafe extern "system" fn() -> isize,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        Ok(if symbol == c"WireGuardCreateAdapter" {
+            create_fn
+        } else if symbol == c"WireGuardOpenAdapter" {
+            open_fn
+        } else {
+            noop_fn
+        })
+    }
+
+    fn get_proc_fn_conflicting_create(
+        _handle: HMODULE,
+        symbol: &CStr,
+    ) -> io::Result<unsafe extern "system" fn() -> isize> {
+        get_proc_fn_stub(symbol, create_adapter_conflict_stub, open_adapter_stub)
+    }
+
     unsafe extern "system" fn null_fn() -> isize {
         unreachable!("unexpected call of function")
+    }
+
+    unsafe extern "system" fn noop_fn() -> isize {
+        0
     }
 }
