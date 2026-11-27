@@ -793,13 +793,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         animated: Bool,
         completion: @escaping @Sendable (Coordinator) -> Void
     ) {
-        let interactorFactory = SettingsInteractorFactory(
-            tunnelManager: tunnelManager,
-            apiProxy: apiProxy,
-            relayCacheTracker: relayCacheTracker,
-            ipOverrideRepository: ipOverrideRepository,
-            redactor: logRedactor
-        )
         let coordinator = VPNSettingsCoordinator(
             navigationController: CustomNavigationController(),
             interactorFactory: settingsInteractorFactory,

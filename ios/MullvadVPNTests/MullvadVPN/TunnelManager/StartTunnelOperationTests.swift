@@ -71,18 +71,21 @@ class StartTunnelOperationTests: XCTestCase {
         wait(for: [expectation], timeout: .UnitTest.timeout)
     }
 
-    func testStartsTunnelIfDisconnected() {
+    func testStartsTunnelIfDisconnected() async {
         let interactor = makeInteractor(deviceState: Device.loggedInDeviceState, tunnelState: .disconnected)
         let expectation = expectation(description: "Make tunnel provider and start tunnel")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
             interactor: interactor
         ) { _ in
-            XCTAssertNotNil(interactor.tunnel)
-            XCTAssertNotNil(interactor.tunnel?.startDate)
-            expectation.fulfill()
+            Task {
+                XCTAssertNotNil(interactor.tunnel)
+                let startDate = await interactor.tunnel?.startDate
+                XCTAssertNotNil(startDate)
+                expectation.fulfill()
+            }
         }
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: .UnitTest.timeout)
+        await fulfillment(of: [expectation], timeout: .UnitTest.timeout)
     }
 }

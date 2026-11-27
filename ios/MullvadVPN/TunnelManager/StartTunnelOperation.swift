@@ -106,7 +106,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             )
         }
 
-        try tunnel.start(options: tunnelOptions.rawOptions())
+        try await tunnel.start(options: tunnelOptions.rawOptions())
     }
 
     private func makeTunnelProvider(
@@ -126,9 +126,12 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
                 excludeLocalNetworks: settings.includeAllNetworks.localNetworkSharingIsEnabled
             )
 
-            tunnel.setConfiguration(configuration)
-            tunnel.saveToPreferences { error in
-                completionHandler(error.map { .failure($0) } ?? .success(tunnel))
+            await tunnel.setConfiguration(configuration)
+            do {
+                try await tunnel.saveToPreferences()
+                completionHandler(.success(tunnel))
+            } catch {
+                completionHandler(.failure(error))
             }
         }
     }

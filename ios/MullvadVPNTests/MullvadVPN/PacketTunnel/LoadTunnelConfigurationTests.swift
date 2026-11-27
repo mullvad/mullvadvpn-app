@@ -18,10 +18,7 @@ struct LoadTunnelConfigurationTests {
     let task: LoadTunnelConfigurationTask
     let tunnelInteractor: MockTunnelInteractor
     let settingsManager: SettingsManager
-    static let tunnel = MockTunnel(
-        tunnelProvider: SimulatorTunnelProviderManager(),
-        backgroundTaskProvider: UIApplicationStub()
-    )
+
     static let loggedInDevice = Device.loggedInDeviceState
     static let loggedOutDevice = DeviceState.loggedOut
 
@@ -30,6 +27,13 @@ struct LoadTunnelConfigurationTests {
             isConfigurationLoaded: false, settings: LatestTunnelSettings(), deviceState: .revoked)
         settingsManager = SettingsManager(store: InMemorySettingsStore<SettingNotFound>())
         task = LoadTunnelConfigurationTask(interactor: tunnelInteractor, settingsManager: settingsManager)
+    }
+
+    static func tunnel() async -> MockTunnel {
+        await MockTunnel(
+            tunnelProvider: SimulatorTunnelProviderManager(),
+            backgroundTaskProvider: UIApplicationStub()
+        )
     }
 
     @Test(
@@ -42,14 +46,14 @@ struct LoadTunnelConfigurationTests {
         """,
         arguments: [
             (
-                TestScenario(
+                await TestScenario(
                     settings: LatestTunnelSettings(),
                     deviceState: loggedInDevice,
-                    tunnel: tunnel),
-                TestScenario(
+                    tunnel: tunnel()),
+                await TestScenario(
                     settings: LatestTunnelSettings(),
                     deviceState: loggedInDevice,
-                    tunnel: tunnel)
+                    tunnel: tunnel())
             ),
             (
                 TestScenario(
@@ -62,24 +66,24 @@ struct LoadTunnelConfigurationTests {
                     tunnel: nil)
             ),
             (
-                TestScenario(
+                await TestScenario(
                     settings: nil,
                     deviceState: nil,
-                    tunnel: tunnel),
+                    tunnel: tunnel()),
                 TestScenario(
                     settings: LatestTunnelSettings(),
                     deviceState: loggedOutDevice,
                     tunnel: nil)
             ),
             (
-                TestScenario(
+                await TestScenario(
                     settings: nil,
                     deviceState: loggedInDevice,
-                    tunnel: tunnel),
-                TestScenario(
+                    tunnel: tunnel()),
+                await TestScenario(
                     settings: LatestTunnelSettings(),
                     deviceState: loggedInDevice,
-                    tunnel: tunnel)
+                    tunnel: tunnel())
             ),
         ]
     )
@@ -98,14 +102,19 @@ struct LoadTunnelConfigurationTests {
             #expect(shouldPersistDevice == false)
         }
 
+        var onSetTunnelTask: Task<(), Never>?
         tunnelInteractor.onSetTunnel = { newTunnel, shouldRefreshTunnelState in
-            if expectedOutcome.tunnel == nil {
-                #expect(newTunnel == nil)
-            } else {
-                /// `TunnelProtocol` is not equatable, use the `startDate` to determine whether it's the same tunnel
-                #expect(newTunnel?.startDate == expectedOutcome.tunnel?.startDate)
+            onSetTunnelTask = Task {
+                if expectedOutcome.tunnel == nil {
+                    #expect(await newTunnel == nil)
+                } else {
+                    let startDate = await expectedOutcome.tunnel?.startDate
+                    let newTunnelStartDate = await newTunnel?.startDate
+                    /// `TunnelProtocol` is not equatable, use the `startDate` to determine whether it's the same tunnel
+                    #expect(newTunnelStartDate == startDate)
+                }
+                #expect(shouldRefreshTunnelState == true)
             }
-            #expect(shouldRefreshTunnelState == true)
         }
 
         if let settings = input.settings {
@@ -123,6 +132,7 @@ struct LoadTunnelConfigurationTests {
 
         await task.start()
         #expect(tunnelInteractor.isConfigurationLoaded == true)
+        await onSetTunnelTask?.value
     }
 }
 

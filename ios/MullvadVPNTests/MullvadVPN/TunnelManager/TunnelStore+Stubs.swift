@@ -32,17 +32,17 @@ class DummyTunnelStatusObserver: TunnelStatusObserver, @unchecked Sendable {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {}
 }
 
-final class TunnelStub: TunnelProtocol, Equatable, @unchecked Sendable {
+actor TunnelStub: TunnelProtocol, Equatable {
     typealias TunnelManagerProtocol = SimulatorTunnelProviderManager
 
     static func == (lhs: TunnelStub, rhs: TunnelStub) -> Bool {
         ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 
-    convenience init(
+    init(
         tunnelProvider: SimulatorTunnelProviderManager,
         backgroundTaskProvider: any BackgroundTaskProviding
-    ) {
+    ) async {
         self.init(backgroundTaskProvider: backgroundTaskProvider, status: .invalid, isOnDemandEnabled: false)
     }
 
@@ -81,9 +81,13 @@ final class TunnelStub: TunnelProtocol, Equatable, @unchecked Sendable {
         ""
     }
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void) {}
+    func setIsOnDemandEnabled(_ newValue: Bool) async {
+        isOnDemandEnabled = newValue
+    }
 
-    func removeFromPreferences(completion: @escaping (Error?) -> Void) {}
+    func saveToPreferences() async throws {}
+
+    func removeFromPreferences() async throws {}
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}
 
@@ -91,5 +95,5 @@ final class TunnelStub: TunnelProtocol, Equatable, @unchecked Sendable {
 
     func stop() {}
 
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {}
+    func sendProviderMessage(_ messageData: Data) async throws -> Data? { nil }
 }

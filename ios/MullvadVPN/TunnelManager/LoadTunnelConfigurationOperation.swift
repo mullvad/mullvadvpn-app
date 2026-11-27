@@ -41,8 +41,10 @@ actor LoadTunnelConfigurationTask {
         }
 
         if deviceState == nil {
-            tunnel.removeFromPreferences { error in
-                error.flatMap { self.logger.error(error: $0, message: "Failed to remove VPN configuration.") }
+            do {
+                try await tunnel.removeFromPreferences()
+            } catch {
+                logger.error(error: error, message: "Failed to remove VPN configuration.")
             }
             await setTunnelAndLoadConfiguration(nil)
         } else {

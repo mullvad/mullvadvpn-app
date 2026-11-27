@@ -10,7 +10,7 @@
 
 import Foundation
 import MullvadTypes
-import NetworkExtension
+@preconcurrency import NetworkExtension
 
 // Switch to stabs on simulator
 #if targetEnvironment(simulator)
@@ -23,14 +23,15 @@ protocol TunnelStatusObserver: Sendable {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus)
 }
 
-protocol TunnelProtocol: AnyObject, Sendable {
-    associatedtype TunnelManagerProtocol: VPNTunnelProviderManagerProtocol
+protocol TunnelProtocol: Actor {
+    associatedtype TunnelManagerProtocol: TunnelProviderManagerType
+
     var status: NEVPNStatus { get }
-    var isOnDemandEnabled: Bool { get set }
+    var isOnDemandEnabled: Bool { get }
     var startDate: Date? { get }
     var backgroundTaskProvider: BackgroundTaskProviding { get }
 
-    init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding)
+    init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) async
 
     func addObserver(_ observer: any TunnelStatusObserver)
     func removeObserver(_ observer: any TunnelStatusObserver)
@@ -41,17 +42,20 @@ protocol TunnelProtocol: AnyObject, Sendable {
 
     func logFormat() -> String
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void)
-    func removeFromPreferences(completion: @escaping (Error?) -> Void)
+    func setIsOnDemandEnabled(_ newValue: Bool) async
+    func saveToPreferences() async throws
+    func removeFromPreferences() async throws
 
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
     func stop()
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
+    func sendProviderMessage(_ messageData: Data) async throws -> Data?
 }
 
 /// Tunnel wrapper class.
-final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
+actor Tunnel: TunnelProtocol {
+    typealias TunnelManagerProtocol = TunnelProviderManagerType
+
     /// Unique identifier assigned to instance at the time of creation.
     let identifier = UUID()
 
@@ -82,14 +86,16 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     /// It's set to `distantPast` when the VPN connection was established prior to being observed
     /// by the class.
     var startDate: Date? {
-        lock.withLock {
-            _startDate
-        }
+        _startDate
     }
 
     /// Tunnel connection status.
     var status: NEVPNStatus {
         tunnelProvider.connection.status
+    }
+
+    func setIsOnDemandEnabled(_ newValue: Bool) async {
+        self.isOnDemandEnabled = newValue
     }
 
     /// Whether on-demand VPN is enabled.
@@ -112,68 +118,74 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         return s
     }
 
-    private let lock = NSLock()
     private var observerList = ObserverList<any TunnelStatusObserver>()
+    private let vpnStatusNotificationsHandler: NotificationHandler
 
     private var _startDate: Date?
     internal let tunnelProvider: TunnelProviderManagerType
 
-    init(tunnelProvider: TunnelProviderManagerType, backgroundTaskProvider: BackgroundTaskProviding) {
+    init(tunnelProvider: TunnelProviderManagerType, backgroundTaskProvider: BackgroundTaskProviding) async {
         self.tunnelProvider = tunnelProvider
         self.backgroundTaskProvider = backgroundTaskProvider
 
-        // Observe ALL NEVPNStatusDidChange notifications rather than filtering by specific
-        // connection object. This is necessary because `loadFromPreferences` may internally
-        // replace the connection object, causing notifications to be sent to a different
-        // object than the one we originally registered for. We filter in the handler instead
-        // by comparing against the current `tunnelProvider.connection`.
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(handleVPNStatusChangeNotification(_:)),
-            name: .NEVPNStatusDidChange,
-            object: nil
-        )
+        self.vpnStatusNotificationsHandler = NotificationHandler()
 
         handleVPNStatus(tunnelProvider.connection.status)
     }
 
     func start(options: [String: NSObject]?) throws {
+        vpnStatusNotificationsHandler.start(onUpdate: handleConnectionStatusesUpdate)
         try tunnelProvider.connection.startVPNTunnel(options: options)
+    }
+
+    func handleConnectionStatusesUpdate(_ connection: VPNConnectionProtocol) {
+        guard connection == tunnelProvider.connection else { return }
+
+        let status = connection.status
+        handleVPNStatus(status)
+        observerList.notify { observer in
+            observer.tunnel(self, didReceiveStatus: status)
+        }
     }
 
     func stop() {
         tunnelProvider.connection.stopVPNTunnel()
+        vpnStatusNotificationsHandler.stop()
     }
 
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
+    func sendProviderMessage(_ messageData: Data) async throws -> Data? {
         let session = tunnelProvider.connection as? VPNTunnelProviderSessionProtocol
         // Explicitly fail to send the message if the tunnel session is not up
         guard let session else {
             throw SendTunnelProviderMessageError.tunnelDown(.invalid)
         }
 
-        try session.sendProviderMessage(messageData, responseHandler: responseHandler)
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try session.sendProviderMessage(messageData) { reply in
+                    continuation.resume(returning: reply)
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {
         configuration.apply(to: tunnelProvider)
     }
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
-        tunnelProvider.saveToPreferences { error in
-            if let error {
-                completion(error)
-            } else {
-                // Refresh connection status after saving the tunnel preferences.
-                // Basically it's only necessary to do for new instances of
-                // `NETunnelProviderManager`, but we do that for the existing ones too
-                // for simplicity as it has no side effects.
-                self.tunnelProvider.loadFromPreferences(completionHandler: completion)
-            }
-        }
+    func saveToPreferences() async throws {
+        try await tunnelProvider.saveToPreferences()
+        // Refresh connection status after saving the tunnel preferences.
+        // Basically it's only necessary to do for new instances of
+        // `NETunnelProviderManager`, but we do that for the existing ones too
+        // for simplicity as it has no side effects.
+        try await tunnelProvider.loadFromPreferences()
     }
 
-    func removeFromPreferences(completion: @escaping (Error?) -> Void) {
-        tunnelProvider.removeFromPreferences(completionHandler: completion)
+    func removeFromPreferences() async throws {
+        try await tunnelProvider.removeFromPreferences()
     }
 
     func addBlockObserver(
@@ -195,7 +207,7 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         observerList.remove(observer)
     }
 
-    @objc private func handleVPNStatusChangeNotification(_ notification: Notification) {
+    func handleVPNStatusChangeNotification(_ notification: Notification) {
         guard let connection = notification.object as? VPNConnectionProtocol else { return }
 
         // Filter to only handle notifications for our connection.
@@ -213,29 +225,55 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
-        lock.withLock {
-            switch status {
-            case .connecting:
-                _startDate = Date()
+        switch status {
+        case .connecting:
+            _startDate = Date()
 
-            case .connected, .reasserting:
-                if _startDate == nil {
-                    _startDate = .distantPast
-                }
-
-            case .disconnecting:
-                break
-
-            case .disconnected, .invalid:
-                _startDate = nil
-
-            @unknown default:
-                break
+        case .connected, .reasserting:
+            if _startDate == nil {
+                _startDate = .distantPast
             }
+
+        case .disconnecting:
+            break
+
+        case .disconnected, .invalid:
+            _startDate = nil
+
+        @unknown default:
+            break
         }
     }
+}
 
-    static func == (lhs: Tunnel, rhs: Tunnel) -> Bool {
-        lhs.tunnelProvider == rhs.tunnelProvider
+/// This needs to be a class type or a subclass of `NSObject` because of the `NSNotification` handling code
+/// Sendability is guaranteed by this class having no state and only being used in the context of the `Tunnel` actor
+private class NotificationHandler: @unchecked Sendable {
+    typealias VPNStatusChangedHandler = ((VPNConnectionProtocol) -> Void)
+    var onVPNStatusChanged: VPNStatusChangedHandler?
+
+    func start(onUpdate: @escaping VPNStatusChangedHandler) {
+        // Observe ALL NEVPNStatusDidChange notifications rather than filtering by specific
+        // connection object. This is necessary because `loadFromPreferences` may internally
+        // replace the connection object, causing notifications to be sent to a different
+        // object than the one we originally registered for. We filter in the handler instead
+        // by comparing against the current `tunnelProvider.connection`.
+
+        onVPNStatusChanged = onUpdate
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleVPNStatusChangeNotification(_:)),
+            name: .NEVPNStatusDidChange,
+            object: nil
+        )
+    }
+
+    @objc private func handleVPNStatusChangeNotification(_ notification: Notification) {
+        guard let connection = notification.object as? VPNConnectionProtocol else { return }
+        onVPNStatusChanged?(connection)
+    }
+
+    func stop() {
+        NotificationCenter.default.removeObserver(self, name: .NEVPNStatusDidChange, object: nil)
+        onVPNStatusChanged = nil
     }
 }

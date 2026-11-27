@@ -22,29 +22,13 @@ actor SendTunnelMessageService {
     }
 
     public func send<Output: SendableData>(message: TunnelProviderMessage) async throws -> Output {
-        let result: Output = try await withCheckedThrowingContinuation { continuation in
-            do {
-                let messageData = try message.encode()
-                /// No cancellation checks intentionally.
-                /// Otherwise there would be no easy way to send a cancellation message for a `ProxyAPIRequest`.
-                try tunnel.sendProviderMessage(messageData) { reply in
-                    do {
-                        guard let reply else {
-                            continuation.resume(throwing: SendTunnelProviderMessageError.tunnelDown(self.tunnel.status))
-                            return
-                        }
-                        let output = try JSONDecoder().decode(TunnelProviderReply<Output>.self, from: reply)
-                        continuation.resume(returning: output.value)
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            } catch {
-                continuation.resume(throwing: error)
-            }
+        let messageData = try message.encode()
+        let reply = try await tunnel.sendProviderMessage(messageData)
+        guard let reply else {
+            throw SendTunnelProviderMessageError.unexpectedNilReply
         }
-
-        return result
+        let output = try JSONDecoder().decode(TunnelProviderReply<Output>.self, from: reply)
+        return output.value
     }
 
     nonisolated public func send<Output: SendableData>(
@@ -70,9 +54,12 @@ actor SendTunnelMessageService {
 
 enum SendTunnelProviderMessageError: LocalizedError {
     /// Tunnel process is either down or about to go down.
+    case unexpectedNilReply
     case tunnelDown(NEVPNStatus)
     var errorDescription: String? {
         switch self {
+        case .unexpectedNilReply:
+            return "Tunnel couldn't encode reply, check PacketTunnel logs"
         case let .tunnelDown(status):
             return "Tunnel is either down or about to go down (status: \(status))."
         }
