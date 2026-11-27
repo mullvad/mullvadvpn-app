@@ -206,6 +206,9 @@ pub enum PrivateLoggedIn {
     Traditional(PrivateAccountAndDevice),
     /// Logged in to a single device without any knowledge about the account from which the device
     /// was derived from.
+    ///
+    /// Note: "Blind" devices can never be upgraded to "Traditional" devices. The user has to issue
+    /// a login event.
     Blind(PrivateDevice),
 }
 
@@ -317,9 +320,9 @@ pub(crate) enum AccountEvent {
 #[derive(Clone)]
 pub(crate) enum PrivateDeviceEvent {
     /// Logged in on a new device.
-    ///
-    /// TODO: Add login event for "Blind" devices.
     Login(PrivateAccountAndDevice),
+    /// Login event for "Blind" devices.
+    FlashBang(PrivateDevice),
     /// The device was removed due to user (or daemon) action.
     Logout,
     /// Device was removed because it was not found remotely.
@@ -338,6 +341,7 @@ impl From<PrivateDeviceEvent> for DeviceEvent {
     fn from(event: PrivateDeviceEvent) -> DeviceEvent {
         let cause = match event {
             PrivateDeviceEvent::Login(_) => DeviceEventCause::LoggedIn,
+            PrivateDeviceEvent::FlashBang(_) => DeviceEventCause::LoggedIn,
             PrivateDeviceEvent::Logout => DeviceEventCause::LoggedOut,
             PrivateDeviceEvent::Revoked => DeviceEventCause::Revoked,
             PrivateDeviceEvent::Updated(_) => DeviceEventCause::Updated,
@@ -353,6 +357,9 @@ impl PrivateDeviceEvent {
         match self {
             PrivateDeviceEvent::Login(config) => {
                 PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(config))
+            }
+            PrivateDeviceEvent::FlashBang(device) => {
+                PrivateDeviceState::LoggedIn(PrivateLoggedIn::Blind(device))
             }
             PrivateDeviceEvent::Updated(config) => {
                 PrivateDeviceState::LoggedIn(PrivateLoggedIn::Traditional(config))
@@ -380,6 +387,8 @@ type ResponseTx<T> = oneshot::Sender<Result<T, Error>>;
 
 enum AccountManagerCommand {
     Login(AccountNumber, ResponseTx<()>),
+    /// Throw away account number associated with this device.
+    Flashbang(PrivateDevice, ResponseTx<()>),
     Logout(ResponseTx<()>),
     SetData(PrivateAccountAndDevice, ResponseTx<()>),
     GetData(ResponseTx<PrivateDeviceState>),
@@ -408,6 +417,12 @@ pub(crate) struct AccountManagerHandle {
 impl AccountManagerHandle {
     pub async fn login(&self, number: AccountNumber) -> Result<(), Error> {
         self.send_command(|tx| AccountManagerCommand::Login(number, tx))
+            .await
+    }
+
+    /// Blind this client (de-associate the account number, only keep the WG key / device).
+    pub async fn blind(&self, device: PrivateDevice) -> Result<(), Error> {
+        self.send_command(|tx| AccountManagerCommand::Flashbang(device, tx))
             .await
     }
 
@@ -574,6 +589,9 @@ impl AccountManager {
                             let job = self.device_service
                                 .generate_for_account(number);
                             current_api_call.set_login(Box::pin(job), tx);
+                        }
+                        Some(AccountManagerCommand::Flashbang(device, tx)) => {
+                            let _ = tx.send(self.set(PrivateDeviceEvent::FlashBang(device)).await);
                         }
                         Some(AccountManagerCommand::Logout(tx)) => {
                             current_api_call.clear();

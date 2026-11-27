@@ -43,6 +43,7 @@ use futures::{
 };
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
+use log::error;
 use management_interface::ManagementInterfaceServer;
 use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
@@ -247,6 +248,8 @@ pub enum Error {
 
 /// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
+    /// Blind the current client.
+    Blind(oneshot::Sender<bool>),
     /// Set target state. Does nothing if the daemon already has the state that is being set.
     SetTargetState(oneshot::Sender<bool>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
@@ -1564,6 +1567,22 @@ impl Daemon {
         }
 
         match command {
+            Blind(tx) => {
+                let account_manager = self.account_manager.clone();
+                tokio::spawn(async move {
+                    // TODO: unwrap
+                    let device = account_manager.data_after_login().await.unwrap();
+                    let Some(device) = device.into_device() else {
+                        return;
+                    };
+                    if let Err(err) = account_manager.blind(device).await {
+                        error!("{}", err.display_chain_with_msg("Failed to blind device"));
+                        let _ = tx.send(false);
+                    } else {
+                        let _ = tx.send(true);
+                    };
+                });
+            }
             SetTargetState(tx, state) => self.on_set_target_state(tx, state).await,
             Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
@@ -1720,6 +1739,31 @@ impl Daemon {
 
     async fn handle_device_event(&mut self, event: AccountEvent) {
         match &event {
+            AccountEvent::Device(PrivateDeviceEvent::FlashBang(_device)) => {
+                // This is the promise of "Blind" devices.
+                if let Err(err) = self.account_history.clear().await {
+                    let error_msg =
+                        err.display_chain_with_msg("Unable to clear account number from client");
+                    log::error!("{error_msg}");
+                };
+                if self.settings.update_default_location
+                    && let Err(e) = self
+                        .settings
+                        .update(move |settings| settings.update_default_location = false)
+                        .await
+                        .map_err(Error::SettingsError)
+                {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Unable to save has_updated_default_country")
+                    );
+                }
+                if *self.target_state == TargetState::Secured {
+                    log::debug!("Initiating tunnel restart because the account number changed");
+                    self.reconnect_tunnel();
+                }
+                self.update_recents().await;
+            }
             AccountEvent::Device(PrivateDeviceEvent::Login(device)) => {
                 if let Err(error) = self
                     .account_history

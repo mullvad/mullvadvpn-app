@@ -416,6 +416,15 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn blind(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("blind");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::Blind(tx))?;
+        // TODO: Do something with return value.
+        let _x = self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
+    }
+
     async fn login_account(&self, request: Request<AccountNumber>) -> ServiceResult<()> {
         log::debug!("login_account");
         let account_number = request.into_inner();

@@ -59,6 +59,7 @@ service ManagementService {
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  rpc Blind(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc LogoutAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
