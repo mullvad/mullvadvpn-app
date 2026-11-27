@@ -216,10 +216,15 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
 extension AccessMethodRepository: MullvadAccessMethodChangeListening {
     public func accessMethodChangedTo(_ uuid: UUID) {
-        guard let method = accessMethodsSubject.value.first(where: { $0.id == uuid }) else {
+        guard var method = accessMethodsSubject.value.first(where: { $0.id == uuid }) else {
             logger.warning("Change reported to method with unknown ID: \(uuid)")
             return
         }
+
+        // If MullvadAccessMethod changes the API access method, update the local
+        // state as well to ensure the method is enabled, in case it was previously disabled.
+        method.isEnabled = true
+        save(method)
 
         Task {
             logger.debug("Mullvad API changed access method to \(method.name)")
