@@ -185,6 +185,10 @@ export default class AppRenderer {
       this.updateBlockedState(newState);
     });
 
+    IpcRendererEventChannel.deviceInstall.listen((deviceInstallDisabled?: boolean) => {
+      this.reduxActions.connection.updateDeviceInstallDisabled(deviceInstallDisabled);
+    });
+
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
       this.setSettings(newSettings);
       this.updateBlockedState(this.tunnelState);
@@ -338,6 +342,9 @@ export default class AppRenderer {
     this.setAccountExpiry(initialState.accountData?.expiry);
 
     this.setAccountHistory(initialState.accountHistory);
+    this.reduxActions.connection.updateDeviceInstallDisabled(
+      initialState.deviceInstallDisabled,
+    );
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState);
 

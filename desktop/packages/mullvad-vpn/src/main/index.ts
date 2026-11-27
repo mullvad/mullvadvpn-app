@@ -45,6 +45,7 @@ import {
   printElectronOptions,
 } from './command-line-options';
 import { DaemonRpc, SubscriptionListener } from './daemon-rpc';
+import { isDeviceInstallDisabled } from './device-install';
 import Expectation from './expectation';
 import { ConnectionObserver } from './grpc-client';
 import { IpcMainEventChannel } from './ipc-event-channel';
@@ -119,6 +120,8 @@ class ApplicationMain
   private linuxSplitTunneling?: typeof import('./linux-split-tunneling');
   private splitTunneling?: ISplitTunnelingAppListRetriever;
   private splitTunnelingSupported = false;
+
+  private deviceInstallDisabled?: boolean;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -902,6 +905,7 @@ class ApplicationMain
       accountData: this.account.accountData,
       accountHistory: this.account.accountHistory,
       tunnelState: this.tunnelState.tunnelState,
+      deviceInstallDisabled: this.deviceInstallDisabled,
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       daemonAllowed: this.daemonAllowed,
@@ -1265,12 +1269,15 @@ class ApplicationMain
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
     this.userInterface?.updateTray(this.account.isLoggedIn(), tunnelState);
 
+    this.updateDeviceInstallDisabled(tunnelState);
+
     this.notificationController.notifyTunnelState(
       tunnelState,
       this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.userInterface?.isWindowVisible() ?? false,
       this.settings.gui.enableSystemNotifications,
       this.splitTunnelingSupported,
+      this.deviceInstallDisabled,
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);
@@ -1279,6 +1286,41 @@ class ApplicationMain
       this.account.detectStaleAccountExpiry(tunnelState);
     }
   };
+
+  /**
+   * Check the `DeviceInstallDisabled` registry value when the tunnel error indicates that device
+   * installation is disabled, and push the result to the renderer.
+   */
+  private updateDeviceInstallDisabled(tunnelState: TunnelState) {
+    if (process.platform !== 'win32') {
+      // The tunnel adapter os errors only occur on Windows.
+      return;
+    }
+
+    // OS error returned when device install is disabled
+    const DEVICE_INSTALL_DISABLED_ERRORS = [1169, 1170];
+
+    const maybeDeviceInstallError =
+      tunnelState.state === 'error' &&
+      tunnelState.details.cause === ErrorStateCause.createTunnelDeviceError &&
+      tunnelState.details.osError !== undefined &&
+      DEVICE_INSTALL_DISABLED_ERRORS.includes(tunnelState.details.osError);
+
+    if (!maybeDeviceInstallError) {
+      this.setDeviceInstallDisabled(undefined);
+      return;
+    }
+
+    this.setDeviceInstallDisabled(isDeviceInstallDisabled());
+  }
+
+  private setDeviceInstallDisabled(deviceInstallDisabled: boolean | undefined) {
+    if (this.deviceInstallDisabled === deviceInstallDisabled) {
+      return;
+    }
+    this.deviceInstallDisabled = deviceInstallDisabled;
+    IpcMainEventChannel.deviceInstall.notify?.(deviceInstallDisabled);
+  }
 
   // SettingsDelegate
   public handleMonochromaticIconChange = (value: boolean) =>
