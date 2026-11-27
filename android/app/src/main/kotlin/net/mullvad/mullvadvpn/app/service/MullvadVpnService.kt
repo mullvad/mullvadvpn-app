@@ -71,7 +71,7 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy = get()
         }
 
-        keyguardManager = getSystemService<KeyguardManager>()!!
+        keyguardManager = requireNotNull(getSystemService<KeyguardManager>())
 
         prepareFiles()
         migrateSplitTunneling.migrate()

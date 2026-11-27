@@ -48,7 +48,7 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
     val backgroundColor = MaterialTheme.colorScheme.primary
 
     val context = LocalContext.current
-    BackHandler { finishAffinity(context.getActivity()!!) }
+    BackHandler { finishAffinity(requireNotNull(context.getActivity())) }
 
     ScaffoldWithTopBar(
         topBarColor = backgroundColor,
