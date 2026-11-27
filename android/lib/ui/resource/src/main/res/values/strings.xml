@@ -18,7 +18,6 @@
     <string name="create_new_account_warning_paragraph2">Do you want to create a new account?</string>
     <string name="creating_new_account">Creating account...</string>
     <string name="failed_to_create_account">Failed to create account</string>
-    <string name="congrats">Congrats!</string>
     <string name="here_is_your_account_number">Here’s your account number. Save it!</string>
     <string name="pay_to_start_using">To start using the app, you first need to add time to your account.</string>
     <string name="buy_credit">Buy credit</string>
@@ -642,4 +641,27 @@
     <string name="custom_tunnels_advanced_warning">Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution.</string>
     <string name="no_matching_relay_ip_availability">No servers match your settings, try changing server or device ip settings.</string>
     <string name="no_matching_relay_entry_ip_availability">No entry server match your settings, try changing server or device ip settings.</string>
+    <string name="get_started">Get started</string>
+    <string name="onboarding_add_time_first_paragraph">In order not to store any user data, Mullvad doesn’t have subscriptions. Instead, you pay upfront to add time to your account.</string>
+    <string name="onboarding_add_time_second_paragraph">Buy one or more months, then use the VPN as much as you want during that time.</string>
+    <string name="onboarding_add_time_third_paragraph">Add time below, or visit our website to redeem vouchers or pay using other methods.</string>
+    <string name="want_notifications">Want notifications?</string>
+    <string name="enable_notifications">Enable notifications</string>
+    <string name="no_thanks">No thanks</string>
+    <string name="onboarding_notifications_description">Get notified about your connection status and any issues with your connection or account.</string>
+    <string name="onboarding_notifications_no_ads">We’ll never send you any ads or tips.</string>
+    <string name="good_to_know_blocked_content_title">Good to know:\nBlocked content</string>
+    <string name="good_to_know_blocked_content_body">Websites and apps sometimes block VPNs. If this happens, try switching location.</string>
+    <string name="good_to_know_excluding_apps_title">Good to know:\nExcluding apps</string>
+    <string name="good_to_know_excluding_apps_body">Some apps, including many banking apps, block VPN traffic. You can use the Split tunneling feature to have these apps connect outside the VPN. This way you don’t have to disconnect the VPN.</string>
+    <string name="ready_to_connect">Ready to connect?</string>
+    <string name="selected_location">Selected location:</string>
+    <string name="you_can_change_location_at_any_time">You can change location at any time</string>
+    <string name="later">Later</string>
+    <string name="skip">Skip</string>
+    <string name="new_account_created">New account created</string>
+    <string name="account_number_explanation">This is your account number. Make sure to save it, as it is the only way to log in!</string>
+    <string name="new_device_added_to_your_account">New device added to your account</string>
+    <string name="up_to_five_devices_explanation">You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart.</string>
+    <string name="this_devices_name">This device’s name: <b>%1s</b></string>
 </resources>

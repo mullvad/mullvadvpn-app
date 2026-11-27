@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamista käyttöön VPN-asetuksista.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
     <string name="confirm_removal">Kyllä, kirjaa laite ulos</string>
-    <string name="congrats">Onnittelut!</string>
     <string name="connect">Yhdistä</string>
     <string name="connect_on_start">Luo yhteys, kun laite käynnistyy</string>
     <string name="connect_on_start_info_first">Muodosta yhteys automaattisesti, kun laite käynnistetään.</string>

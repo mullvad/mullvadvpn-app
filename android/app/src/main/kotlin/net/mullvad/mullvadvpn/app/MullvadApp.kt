@@ -64,6 +64,7 @@ import net.mullvad.mullvadvpn.feature.managedevices.impl.navigation.manageDevice
 import net.mullvad.mullvadvpn.feature.multihop.impl.navigation.multihopEntry
 import net.mullvad.mullvadvpn.feature.multihopmigration.impl.navigation.multihopMigrationEntry
 import net.mullvad.mullvadvpn.feature.notification.impl.navigation.notificationEntry
+import net.mullvad.mullvadvpn.feature.onboarding.impl.navigation.onboardingEntry
 import net.mullvad.mullvadvpn.feature.problemreport.impl.navigation.problemReportEntry
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.navigation.redeemVoucherEntry
 import net.mullvad.mullvadvpn.feature.serveripoverride.impl.navigation.serverIpOverrideEntry
@@ -143,6 +144,7 @@ fun MullvadApp() {
         noDaemonEntry(nav3)
         notificationEntry(nav3)
         customVpnEntry(nav3)
+        onboardingEntry(nav3)
         problemReportEntry(nav3)
         redeemVoucherEntry(nav3)
         removeDeviceConfirmationDialogEntry(nav3)

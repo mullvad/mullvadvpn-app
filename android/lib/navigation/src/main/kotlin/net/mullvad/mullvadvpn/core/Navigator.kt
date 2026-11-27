@@ -47,9 +47,9 @@ class Navigator(
         previousBackStack = state.backStack.toList()
 
         state.backStack.apply {
-            state.backStack.removeLastOrNull()
+            removeLastOrNull()
 
-            if (key != state.backStack.lastOrNull()) {
+            if (key != lastOrNull()) {
                 add(key)
             }
         }

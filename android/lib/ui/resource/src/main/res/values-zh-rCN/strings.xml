@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
     <string name="confirm_removal">是，退出登录设备</string>
-    <string name="congrats">恭喜！</string>
     <string name="connect">连接</string>
     <string name="connect_on_start">设备启动时连接</string>
     <string name="connect_on_start_info_first">设备启动时自动连接。</string>

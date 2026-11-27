@@ -6,13 +6,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
-import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeUiState
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -20,26 +15,12 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.koin.core.context.loadKoinModules
-import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.module
 
 @OptIn(ExperimentalTestApi::class)
 class OutOfTimeScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
-
-    private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
-
-    @BeforeEach
-    fun setup() {
-        MockKAnnotations.init(this)
-        loadKoinModules(module { viewModel { addTimeViewModel } })
-        every { addTimeViewModel.uiState } returns
-            MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
-    }
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, OutOfTimeUiState> = OutOfTimeUiState().toLc(),

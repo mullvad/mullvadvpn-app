@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「本機網路共享」。</string>
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
     <string name="confirm_removal">是，將裝置登出</string>
-    <string name="congrats">恭喜！</string>
     <string name="connect">連線</string>
     <string name="connect_on_start">裝置啟動時連線</string>
     <string name="connect_on_start_info_first">裝置啟動時自動連線。</string>

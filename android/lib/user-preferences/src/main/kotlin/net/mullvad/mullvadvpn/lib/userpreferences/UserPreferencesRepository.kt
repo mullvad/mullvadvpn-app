@@ -5,6 +5,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
@@ -17,7 +18,7 @@ class UserPreferencesRepository(
     fun preferencesFlow(): Flow<UserPreferences> = userPreferencesStore.data
 
     fun showAndroid16ConnectWarning(): Flow<Boolean> =
-        userPreferencesStore.data.map { it.showAndroid16ConnectWarning }
+        userPreferencesStore.data.map { it.showAndroid16ConnectWarning }.distinctUntilChanged()
 
     // Detekt incorrectly reports that suspend is not needed.
     @Suppress("RedundantSuspendModifier")
@@ -62,7 +63,7 @@ class UserPreferencesRepository(
         }
 
     fun showSystemAppsSplitTunneling(): Flow<Boolean> =
-        userPreferencesStore.data.map { it.showSystemAppsSplitTunneling }
+        userPreferencesStore.data.map { it.showSystemAppsSplitTunneling }.distinctUntilChanged()
 
     suspend fun setShowSystemAppsSplitTunneling(show: Boolean) {
         userPreferencesStore.updateData { prefs ->
@@ -71,7 +72,9 @@ class UserPreferencesRepository(
     }
 
     fun hasDismissedMultihopMigrationGuideBanner(): Flow<Boolean> =
-        userPreferencesStore.data.map { it.hasDismissedMultihopMigrationGuideBanner }
+        userPreferencesStore.data
+            .map { it.hasDismissedMultihopMigrationGuideBanner }
+            .distinctUntilChanged()
 
     suspend fun setHasDismissedMultihopMigrationGuideBanner() {
         userPreferencesStore.updateData { prefs ->
@@ -80,7 +83,7 @@ class UserPreferencesRepository(
     }
 
     fun hasSeenMultihopMigrationGuide(): Flow<Boolean> =
-        userPreferencesStore.data.map { it.hasSeenMultihopMigrationGuide }
+        userPreferencesStore.data.map { it.hasSeenMultihopMigrationGuide }.distinctUntilChanged()
 
     suspend fun setHasSeenMultihopMigrationGuide() {
         userPreferencesStore.updateData { prefs ->
@@ -109,6 +112,28 @@ class UserPreferencesRepository(
     suspend fun setLatestSuccessfulPurchase(purchaseToken: String) {
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setLatestSuccessfulPurchase(purchaseToken).build()
+        }
+    }
+
+    fun onboardingCheckpoint(): Flow<OnboardingCheckpoint> =
+        userPreferencesStore.data.map { it.onboardingCheckpoint.toDomain() }.distinctUntilChanged()
+
+    suspend fun setOnboardingCheckpoint(checkpoint: OnboardingCheckpoint) {
+
+        // If onboarding is completed you have to reinstall the app to reset it.
+        if (onboardingCheckpoint().first() != OnboardingCheckpoint.COMPLETED) {
+            userPreferencesStore.updateData { prefs ->
+                prefs.toBuilder().setOnboardingCheckpoint(checkpoint.toProto()).build()
+            }
+        }
+    }
+
+    fun notificationPermissionAsked(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.notificationPermissionAsked }.distinctUntilChanged()
+
+    suspend fun setNotificationPermissionAsked() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setNotificationPermissionAsked(true).build()
         }
     }
 }

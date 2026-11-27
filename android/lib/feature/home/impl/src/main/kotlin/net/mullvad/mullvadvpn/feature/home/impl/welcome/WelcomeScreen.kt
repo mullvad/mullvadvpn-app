@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.feature.home.impl.welcome
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,13 +8,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -32,6 +27,8 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,32 +43,27 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
-import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
-import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
-import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingStep
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
-import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.GET_STARTED_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Content|TunnelConnected")
 @Composable
@@ -84,18 +76,15 @@ private fun PreviewWelcomeScreen(
             state = state,
             onSettingsClick = {},
             onAccountClick = {},
-            navigateToDeviceInfoDialog = {},
-            onAddMoreTimeClick = {},
+            onGetStartedClick = {},
             onDisconnectClick = {},
-            onPlayPaymentInfoClick = {},
         )
     }
 }
 
 @Composable
 fun Welcome(navigator: Navigator) {
-    val activity = LocalActivity.current as ComponentActivity
-    val vm = koinViewModel<WelcomeViewModel> { parametersOf(activity.lifecycle) }
+    val vm = koinViewModel<WelcomeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,9 +95,6 @@ fun Welcome(navigator: Navigator) {
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
-            WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
-                navigator.navigate(ConnectNavKey, clearBackStack = true)
-            }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred),
@@ -132,13 +118,9 @@ fun Welcome(navigator: Navigator) {
         snackbarHostState = snackbarHostState,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
-        navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
-        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
-        onPlayPaymentInfoClick =
-            dropUnlessResumed { paymentStatus ->
-                navigator.navigate(VerificationPendingNavKey(paymentStatus))
-            },
+        onGetStartedClick =
+            dropUnlessResumed { navigator.navigate(OnboardingNavKey(OnboardingStep.AddTime)) },
     )
 }
 
@@ -148,10 +130,8 @@ fun WelcomeScreen(
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
-    navigateToDeviceInfoDialog: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -174,7 +154,7 @@ fun WelcomeScreen(
                     ),
         ) {
             // Welcome info area
-            WelcomeInfo(snackbarHostState, state, navigateToDeviceInfoDialog)
+            WelcomeInfo(snackbarHostState, state)
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -182,10 +162,8 @@ fun WelcomeScreen(
             if (state is Lc.Content) {
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
-                    paymentStatus = state.value.paymentStatus,
-                    onAddMoreTimeClick = onAddMoreTimeClick,
+                    onGetStartedClick = onGetStartedClick,
                     onDisconnectClick = onDisconnectClick,
-                    onInfoClick = onPlayPaymentInfoClick,
                 )
             }
         }
@@ -196,11 +174,10 @@ fun WelcomeScreen(
 private fun WelcomeInfo(
     snackbarHostState: SnackbarHostState,
     state: Lc<Unit, WelcomeUiState>,
-    navigateToDeviceInfoDialog: () -> Unit,
 ) {
     Column {
         Text(
-            text = stringResource(id = R.string.congrats),
+            text = stringResource(id = R.string.new_account_created),
             modifier =
                 Modifier.fillMaxWidth()
                     .padding(
@@ -208,20 +185,11 @@ private fun WelcomeInfo(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                     ),
-            style = MaterialTheme.typography.headlineLarge,
+            style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Text(
-            text = stringResource(id = R.string.here_is_your_account_number),
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = Dimens.sideMargin, vertical = Dimens.smallPadding),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-
         when (state) {
             is Lc.Loading ->
                 MullvadCircularProgressIndicatorMedium(
@@ -237,29 +205,28 @@ private fun WelcomeInfo(
                     // Account number
                     AccountNumberRow(snackbarHostState, state.value)
                 }
-                DeviceNameRow(deviceName = state.value.deviceName, navigateToDeviceInfoDialog)
+                Text(
+                    modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+                    text = stringResource(R.string.account_number_explanation),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(Dimens.largeSpacer))
+                Text(
+                    modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+                    text = stringResource(R.string.new_device_added_to_your_account),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+                    text = stringResource(R.string.up_to_five_devices_explanation),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(Dimens.largeSpacer))
+                state.value.deviceName?.let { deviceName -> DeviceName(deviceName) }
             }
         }
-
-        Text(
-            text =
-                buildString {
-                    append(stringResource(id = R.string.pay_to_start_using))
-                    if (state.contentOrNull()?.showSitePayment == true) {
-                        append(" ")
-                        append(stringResource(id = R.string.add_time_to_account))
-                    }
-                },
-            modifier =
-                Modifier.padding(
-                    top = Dimens.cellVerticalSpacing,
-                    bottom = Dimens.verticalSpace,
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                ),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
     }
 }
 
@@ -281,8 +248,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
                 .padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,
-                    top = Dimens.cellVerticalSpacing,
-                    bottom = Dimens.mediumPadding,
+                    top = Dimens.mediumSpacer,
                 ),
     ) {
         Text(
@@ -298,45 +264,34 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
 }
 
 @Composable
-fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
-    Row(
+fun DeviceName(deviceName: String) {
+    Text(
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            modifier = Modifier.weight(1f, fill = false),
-            text =
-                buildString {
-                    append(stringResource(id = R.string.device_name))
-                    append(": ")
-                    append(deviceName)
-                },
-            style = MaterialTheme.typography.labelLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        text =
+            buildAnnotatedString {
+                val text = stringResource(R.string.this_devices_name, deviceName)
+                append(text)
 
-        IconButton(
-            modifier = Modifier.align(Alignment.CenterVertically),
-            onClick = navigateToDeviceInfoDialog,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Info,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-    }
+                val nameStart = text.indexOf(deviceName)
+                addStyle(
+                    style =
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                        ),
+                    start = nameStart,
+                    end = nameStart + deviceName.length,
+                )
+            },
+    )
 }
 
 @Composable
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
-    paymentStatus: PaymentStatus?,
-    onAddMoreTimeClick: () -> Unit,
+    onGetStartedClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onInfoClick: (PaymentStatus) -> Unit,
 ) {
     Column(
         modifier =
@@ -355,37 +310,12 @@ private fun ButtonPanel(
                 modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
             )
         }
-        if (paymentStatus != null) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(
-                    onClick = { onInfoClick(paymentStatus) },
-                    modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                Text(
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    text =
-                        stringResource(
-                            id =
-                                when (paymentStatus) {
-                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
-                                    PaymentStatus.PURCHASED_UNVERIFIED ->
-                                        R.string.payment_status_verification_failed
-                                },
-                        ),
-                )
-            }
-        }
-        VariantButton(
-            onClick = onAddMoreTimeClick,
-            text = stringResource(id = R.string.add_time),
-            modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+        PrimaryButton(
+            onClick = onGetStartedClick,
+            text = stringResource(id = R.string.get_started),
+            modifier =
+                Modifier.padding(bottom = Dimens.screenBottomMarginNew)
+                    .testTag(GET_STARTED_BUTTON_TEST_TAG),
         )
     }
 }

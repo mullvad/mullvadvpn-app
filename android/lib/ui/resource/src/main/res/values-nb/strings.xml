@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under VPN-innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
     <string name="confirm_removal">Ja, logg ut av enheten</string>
-    <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
     <string name="connect_on_start">Koble til når enheten startes</string>
     <string name="connect_on_start_info_first">Koble automatisk til enheten ved oppstart.</string>

@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w obszarze Ustawienia VPN.</string>
     <string name="confirm_no_email">Za chwilę wyślesz zgłoszenie problemu, nie umożliwiając nam skontaktowania się z Tobą. Aby uzyskać odpowiedź na zgłoszenie, musisz podać adres e-mail.</string>
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
-    <string name="congrats">Gratulacje!</string>
     <string name="connect">Połącz</string>
     <string name="connect_on_start">Połącz przy uruchomieniu urządzenia</string>
     <string name="connect_on_start_info_first">Automatycznie połącz przy uruchamianiu urządzenia.</string>

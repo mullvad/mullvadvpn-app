@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">Локальний DNS-сервер не працюватиме, якщо в налаштуваннях VPN не ввімкнено «Обмін даними в локальній мережі».</string>
     <string name="confirm_no_email">Ви збираєтеся надіслати звіт про проблему, не залишивши контактних даних. Якщо ви хочете отримати відповідь, введіть адресу електронної пошти.</string>
     <string name="confirm_removal">Так, вийти з облікового запису на пристрої</string>
-    <string name="congrats">Вітаємо!</string>
     <string name="connect">Підключити</string>
     <string name="connect_on_start">Підключатися під час запуску пристрою</string>
     <string name="connect_on_start_info_first">Автоматичне підключення під час запуску пристрою.</string>

@@ -22,7 +22,9 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
+import net.mullvad.mullvadvpn.feature.home.api.WelcomeNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
+import net.mullvad.mullvadvpn.feature.onboarding.api.OnboardingNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -52,6 +54,11 @@ fun Splash(navigator: Navigator) {
                 navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToOutOfTime ->
                 navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
+            SplashUiSideEffect.NavigateToWelcome ->
+                navigator.navigate(WelcomeNavKey, clearBackStack = true)
+            is SplashUiSideEffect.NavigateToOnboarding -> {
+                navigator.navigate(OnboardingNavKey(it.step), clearBackStack = true)
+            }
         }
     }
 

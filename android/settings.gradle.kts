@@ -77,6 +77,8 @@ include(
     ":lib:feature:notification:api",
     ":lib:feature:customvpn:api",
     ":lib:feature:customvpn:impl",
+    ":lib:feature:onboarding:impl",
+    ":lib:feature:onboarding:api",
     ":lib:feature:problemreport:impl",
     ":lib:feature:problemreport:api",
     ":lib:feature:redeemvoucher:impl",

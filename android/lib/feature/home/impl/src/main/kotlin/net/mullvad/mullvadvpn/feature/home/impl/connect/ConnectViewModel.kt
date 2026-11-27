@@ -64,7 +64,6 @@ class ConnectViewModel(
     isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
-    private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -235,7 +234,7 @@ class ConnectViewModel(
     }
 
     fun setHasShownNotificationPrompt() = viewModelScope.launch {
-        hasShownNotificationPromptRepository.setHasShowNotificationPrompt(true)
+        userPreferencesRepository.setNotificationPermissionAsked()
     }
 
     private fun outOfTimeEffect() =
@@ -247,7 +246,8 @@ class ConnectViewModel(
         }
 
     private fun showNotificationPromptEffect() =
-        hasShownNotificationPromptRepository.hasShowNotificationPrompt
+        userPreferencesRepository
+            .notificationPermissionAsked()
             .filter { !it }
             .map { UiSideEffect.ShowNotificationPermissionPrompt }
 

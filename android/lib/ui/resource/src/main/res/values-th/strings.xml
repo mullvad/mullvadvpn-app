@@ -99,7 +99,6 @@
     <string name="confirm_local_dns">เซิร์ฟเวอร์ DNS ท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้งาน \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการตั้งค่า VPN</string>
     <string name="confirm_no_email">คุณกำลังจะส่งรายงานปัญหา โดยไม่มีการระบุวิธีการติดต่อกลับให้กับเรา และคุณจำเป็นต้องป้อนที่อยู่อีเมลของคุณ หากคุณอยากให้เราตอบกลับการรายงานของคุณ</string>
     <string name="confirm_removal">ใช่ นำอุปกรณ์ออกจากระบบ</string>
-    <string name="congrats">ยินดีด้วย!</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_on_start">เชื่อมต่อเมื่ออุปกรณ์เริ่มทำงาน</string>
     <string name="connect_on_start_info_first">เชื่อมต่ออัตโนมัติเมื่อเริ่มต้นอุปกรณ์</string>
