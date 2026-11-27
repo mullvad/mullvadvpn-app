@@ -1929,9 +1929,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e37c2134d46523ed5b3c4bbdb578225e2e7379d03aea65baef41584725b1991"
+checksum = "2d40029d208ab17a3280079618d4e7c4ef204e2cb3e137d4f7da570a7efe1c21"
 dependencies = [
  "aead 0.5.2",
  "aws-lc-rs",
@@ -1954,6 +1954,7 @@ dependencies = [
  "nix 0.31.3",
  "parking_lot",
  "pcap-file",
+ "portable-atomic",
  "rand 0.9.4",
  "rand_chacha",
  "rand_core 0.6.4",
