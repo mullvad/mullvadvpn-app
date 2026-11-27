@@ -402,6 +402,7 @@
     <string name="on">Вкл.</string>
     <string name="ongoing_verification_warning">Проверка вашей последней покупки еще не завершена. Если вы войдете в другую учетную запись, проверка не будет пройдена. Все равно выйти?</string>
     <string name="open_app_details">Открыть сведения о приложении</string>
+    <string name="open_system_settings">Открыть системные настройки</string>
     <string name="open_url">Открыть URL</string>
     <string name="out_of_time">Закончилось время</string>
     <string name="overrides_cleared">Переопределения удалены</string>

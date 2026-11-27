@@ -3777,6 +3777,9 @@ msgstr ""
 msgid "Could not display remaining days."
 msgstr ""
 
+msgid "Could not find any apps on your device.\\nIf this is incorrect, check app permissions."
+msgstr ""
+
 msgid "Create configuration"
 msgstr ""
 

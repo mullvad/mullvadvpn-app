@@ -402,6 +402,7 @@
     <string name="on">Aan</string>
     <string name="ongoing_verification_warning">Uw laatste aankoop wordt nog geverifieerd. Als u zich aanmeldt bij een ander account, mislukt de verificatie. Wilt u zich toch afmelden?</string>
     <string name="open_app_details">Appgegevens openen</string>
+    <string name="open_system_settings">Systeeminstellingen openen</string>
     <string name="open_url">URL openen</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>

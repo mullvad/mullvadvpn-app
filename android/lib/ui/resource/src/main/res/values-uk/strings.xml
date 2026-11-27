@@ -402,6 +402,7 @@
     <string name="on">Увімк.</string>
     <string name="ongoing_verification_warning">Перевірка вашої останньої покупки ще не завершена. Якщо ви ввійдете в інший обліковий запис, її буде перервано. Усе одно вийти?</string>
     <string name="open_app_details">Відкрити відомості про застосунок</string>
+    <string name="open_system_settings">Відкрити налаштування системи</string>
     <string name="open_url">Відкрити URL</string>
     <string name="out_of_time">Закінчився час</string>
     <string name="overrides_cleared">Перевизначення видалені</string>

@@ -402,6 +402,7 @@
     <string name="on">Wł.</string>
     <string name="ongoing_verification_warning">Twój najnowszy zakup jest nadal weryfikowany. Zalogowanie się na inne konto spowoduje niepowodzenie weryfikacji. Czy nadal chcesz się wylogować?</string>
     <string name="open_app_details">Otwórz szczegóły aplikacji</string>
+    <string name="open_system_settings">Otwórz ustawienia systemu</string>
     <string name="open_url">Otwórz adres URL</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="overrides_cleared">Usunięto zastąpienia</string>

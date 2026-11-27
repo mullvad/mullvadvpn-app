@@ -5,17 +5,23 @@ import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,8 +38,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +52,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSiz
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
+import net.mullvad.mullvadvpn.lib.common.util.openAppDetailsSettings
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
@@ -58,6 +67,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
+import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
@@ -83,6 +93,7 @@ private fun PreviewSplitTunnelingScreen(
             onBackClick = {},
             navigateToSearch = {},
             onResolveIcon = { null },
+            onClickSystemSettings = {},
         )
     }
 }
@@ -111,6 +122,7 @@ fun SharedTransitionScope.SplitTunneling(
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = dropUnlessResumed { navigator.goBack() },
         navigateToSearch = dropUnlessResumed { navigator.navigate(SearchSplitTunnelingNavKey) },
+        onClickSystemSettings = dropUnlessResumed { context.openAppDetailsSettings() },
         onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }
@@ -125,6 +137,7 @@ fun SplitTunnelingScreen(
     onBackClick: () -> Unit,
     onResolveIcon: (PackageName) -> Drawable?,
     navigateToSearch: () -> Unit,
+    onClickSystemSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -139,7 +152,7 @@ fun SplitTunnelingScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-        actions = { SearchButton(onClick = navigateToSearch, enabled = state.enabled()) },
+        actions = { SearchButton(onClick = navigateToSearch, enabled = state.searchEnabled()) },
     ) { contentModifier ->
         val lazyListState = rememberLazyListState()
         LazyColumn(
@@ -171,13 +184,22 @@ fun SplitTunnelingScreen(
                         onShowSystemAppsClick = onShowSystemAppsClick,
                         enabled = state.value.enabled,
                     )
-                    appList(
-                        state = state.value,
-                        focusManager = focusManager,
-                        onExcludeAppClick = onExcludeAppClick,
-                        onIncludeAppClick = onIncludeAppClick,
-                        onResolveIcon = onResolveIcon,
-                    )
+                    if (state.value.hasApps) {
+                        appList(
+                            state = state.value,
+                            focusManager = focusManager,
+                            onExcludeAppClick = onExcludeAppClick,
+                            onIncludeAppClick = onIncludeAppClick,
+                            onResolveIcon = onResolveIcon,
+                        )
+                    } else {
+                        headerItem(
+                            key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
+                            textId = R.string.all_applications,
+                            enabled = true,
+                        )
+                        empty(onClickSystemSettings = onClickSystemSettings)
+                    }
                 }
             }
         }
@@ -214,6 +236,35 @@ private fun LazyListScope.description() {
 private fun LazyListScope.loading() {
     item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
         MullvadCircularProgressIndicatorLarge()
+    }
+}
+
+private fun LazyListScope.empty(onClickSystemSettings: () -> Unit) {
+    item(key = CommonContentKey.EMPTY, contentType = ContentType.EMPTY) {
+        Column(
+            modifier = Modifier.fillParentMaxWidth().height(EMPTY_ITEM_HEIGHT),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(
+                modifier = Modifier.size(Dimens.largeIconSize),
+                imageVector = Icons.Default.Info,
+                tint = MaterialTheme.colorScheme.onSurface,
+                contentDescription = null,
+            )
+            Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+            Text(
+                textAlign = TextAlign.Center,
+                text = stringResource(id = R.string.split_tunneling_empty),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            PrimaryButton(
+                text = stringResource(R.string.open_system_settings),
+                onClick = onClickSystemSettings,
+            )
+        }
     }
 }
 
@@ -389,22 +440,22 @@ private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
         is Lc.Content -> value.isModal
     }
 
-private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
+private fun Lc<Loading, SplitTunnelingUiState>.searchEnabled(): Boolean =
     when (this) {
         is Lc.Loading -> false
-        is Lc.Content -> value.enabled
+        is Lc.Content -> value.enabled && value.hasApps
     }
 
 fun PackageManager.getApplicationIconOrNull(packageName: PackageName): Drawable? =
     try {
         getApplicationIcon(packageName.value)
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         // Name not found is thrown if the application is not installed
         null
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         // IllegalArgumentException is thrown if the application has an invalid icon
         null
-    } catch (e: OutOfMemoryError) {
+    } catch (_: OutOfMemoryError) {
         // OutOfMemoryError is thrown if the icon is too large
         null
     }
@@ -412,6 +463,7 @@ fun PackageManager.getApplicationIconOrNull(packageName: PackageName): Drawable?
 object CommonContentKey {
     const val DESCRIPTION = "description"
     const val PROGRESS = "progress"
+    const val EMPTY = "empty"
 }
 
 private inline fun <T> LazyListScope.itemsIndexedWithDivider(
@@ -440,3 +492,5 @@ internal object SplitTunnelingContentKey {
     const val SHOW_SYSTEM_APPLICATIONS = "show_system"
     const val INCLUDED_APPLICATIONS = "included"
 }
+
+private val EMPTY_ITEM_HEIGHT = 320.dp

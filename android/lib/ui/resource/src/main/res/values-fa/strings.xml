@@ -402,6 +402,7 @@
     <string name="on">روشن</string>
     <string name="ongoing_verification_warning">آخرین خرید شما همچنان در حال تأیید است. اگر به حساب کاربری دیگری وارد شوید، تأیید خرید ناموفق خواهد شد. آیا همچنان می‌خواهید از حساب خود خارج شوید؟</string>
     <string name="open_app_details">باز کردن جزئیات اپلیکیشن</string>
+    <string name="open_system_settings">تنظیمات سیستم را باز کنید</string>
     <string name="open_url">باز کردن URL</string>
     <string name="out_of_time">زمان به پایان رسیده است</string>
     <string name="overrides_cleared">جایگزینی‌ها پاک شدند</string>

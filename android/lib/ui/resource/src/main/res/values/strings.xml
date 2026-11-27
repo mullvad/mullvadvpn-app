@@ -642,4 +642,6 @@
     <string name="custom_tunnels_advanced_warning">Routing traffic incorrectly might expose your data, or stop the VPN from working. Proceed with caution.</string>
     <string name="no_matching_relay_ip_availability">No servers match your settings, try changing server or device ip settings.</string>
     <string name="no_matching_relay_entry_ip_availability">No entry server match your settings, try changing server or device ip settings.</string>
+    <string name="split_tunneling_empty">Could not find any apps on your device.\nIf this is incorrect, check app permissions.</string>
+    <string name="open_system_settings">Open system settings</string>
 </resources>

@@ -402,6 +402,7 @@
     <string name="on">On</string>
     <string name="ongoing_verification_warning">La verifica del tuo ultimo acquisto è ancora in corso. Se accedi a un altro account, la verifica non andrà a buon fine. Vuoi comunque uscire?</string>
     <string name="open_app_details">Apri dettagli app</string>
+    <string name="open_system_settings">Apri le impostazioni di sistema</string>
     <string name="open_url">Apri URL</string>
     <string name="out_of_time">Scaduto</string>
     <string name="overrides_cleared">Sovrascritture cancellate</string>

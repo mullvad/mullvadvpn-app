@@ -402,6 +402,7 @@
     <string name="on">เปิด</string>
     <string name="ongoing_verification_warning">การซื้อล่าสุดของคุณกำลังอยู่ในระหว่างการตรวจสอบ การเข้าสู่ระบบบัญชีอื่นจะทำให้การตรวจสอบล้มเหลว คุณยังต้องการออกจากระบบอยู่หรือไม่</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
+    <string name="open_system_settings">เปิดการตั้งค่าระบบ</string>
     <string name="open_url">Open URL</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="overrides_cleared">ล้างโอเวอร์ไรด์แล้ว</string>

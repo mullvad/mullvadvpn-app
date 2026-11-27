@@ -402,6 +402,7 @@
     <string name="on">オン</string>
     <string name="ongoing_verification_warning">最新の購入情報を現在確認中です。別のアカウントにログインすると確認処理が失敗します。それでもログアウトしますか？</string>
     <string name="open_app_details">アプリの詳細を開く</string>
+    <string name="open_system_settings">システム設定を開く</string>
     <string name="open_url">URLを開く</string>
     <string name="out_of_time">時間切れ</string>
     <string name="overrides_cleared">オーバーライドがクリアされました</string>

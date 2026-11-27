@@ -402,6 +402,7 @@
     <string name="on">Ligado</string>
     <string name="ongoing_verification_warning">A sua última compra ainda está a ser verificada. Se iniciar sessão noutra conta, a verificação falhará. Ainda assim, pretende terminar a sessão?</string>
     <string name="open_app_details">Abrir detalhes da aplicação</string>
+    <string name="open_system_settings">Abrir as definições de sistema</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="overrides_cleared">Substituições eliminadas</string>

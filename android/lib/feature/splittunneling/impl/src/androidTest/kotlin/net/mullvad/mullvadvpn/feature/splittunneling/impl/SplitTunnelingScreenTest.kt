@@ -42,6 +42,7 @@ class SplitTunnelingScreenTest {
         onBackClick: () -> Unit = {},
         onResolveIcon: (PackageName) -> Drawable? = { null },
         navigateToSearch: () -> Unit = {},
+        onClickSystemSettings: () -> Unit = {},
     ) {
         setContentWithTheme {
             SplitTunnelingScreen(
@@ -53,6 +54,7 @@ class SplitTunnelingScreenTest {
                 onBackClick = onBackClick,
                 onResolveIcon = onResolveIcon,
                 navigateToSearch = navigateToSearch,
+                onClickSystemSettings = onClickSystemSettings,
             )
         }
     }
