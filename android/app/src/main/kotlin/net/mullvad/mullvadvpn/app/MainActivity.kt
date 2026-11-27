@@ -117,11 +117,13 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         // We check for isFinishing to not trigger on configuration changes
         if (isFinishing) {
+            val paymentLogic = paymentLogic
             applicationScope.launch { paymentLogic.close() }
         }
+        // Required to be last due to the applicationScope being close by it.
+        super.onDestroy()
     }
 
     private fun handleIntent(intent: Intent) {
