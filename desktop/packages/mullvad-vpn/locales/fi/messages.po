@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -54,12 +51,6 @@ msgid_plural "%d years left"
 msgstr[0] "1 vuosi jäljellä"
 msgstr[1] "%d vuotta jäljellä"
 
-msgid "Account paid until %(expiry)s."
-msgstr "Tilin käyttö maksettu %(expiry)s asti."
-
-msgid "Account settings"
-msgstr "Tiliasetukset"
-
 msgid "Add"
 msgstr "Lisää"
 
@@ -83,9 +74,6 @@ msgstr "Verkkoyhteys estetään"
 
 msgid "Buy credit"
 msgstr "Osta käyttöaikaa"
-
-msgid "Buy more credit"
-msgstr "Uudista tilaus"
 
 msgid "Cancel"
 msgstr "Peruuta"
@@ -266,10 +254,6 @@ msgstr "Sulje"
 msgid "Reconnect"
 msgstr "Yhdistä uudelleen"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "Poista"
-
 msgid "Remove from list"
 msgstr "Poista luettelosta"
 
@@ -314,9 +298,6 @@ msgstr "Kokeile toista hakua."
 
 msgid "Type"
 msgstr "Tyyppi"
-
-msgid "Unblock"
-msgstr "Poista esto"
 
 msgid "UNSECURED CONNECTION"
 msgstr "SUOJAAMATON YHTEYS"
@@ -384,12 +365,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "Yhdistä sijaintiin %(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "Kopioi tilin numero"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -411,13 +386,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Näytä enemmän: %(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "Pyyhi tilin numero %(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -438,12 +406,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "Siirry diaan %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "Piilota tilin numero"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -453,18 +415,6 @@ msgstr "Havainnekuva esittää VPN-liikennettä, kun DAITA on käytössä"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "Havainnekuva esittää VPN-liikennettä, kun DAITA ei ole käytössä"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "Kirjaudu sisään"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "Kirjaudu sisään tilille numero %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -524,14 +474,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "Poista %(location)s luettelosta %(customList)s"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "Poista laite: %(deviceName)s"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Poista kohde"
@@ -544,12 +486,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks-asetukset"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "Näytä tilin numero"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP TCP:n kautta -asetukset"
@@ -557,37 +493,6 @@ msgstr "UDP TCP:n kautta -asetukset"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "Kohdista asetuspainike oikealla nuolinäppäimellä."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "Tili"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "Tilin numero"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "Ei saatavilla"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "Kirjaudu ulos"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "Hallitse laitteita"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "EI KÄYTTÖAIKAA"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "Maksu ennen"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1029,22 +934,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "Käytät uusinta versiota"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "Verkkoliikenne estetty: tilin käyttöaika on kulunut loppuun"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "Tällä tilillä on liian monta samanaikaista yhteyttä. Katkaise toisen laitteen yhteys tai yritä hetken kuluttua uudelleen."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Tilin todentaminen ei onnistu. Lähetä ongelmaraportti."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Olet kirjautunut sisään virheellisellä tilinumerolla. Kirjaudu ulos ja kokeile toista."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1076,88 +965,8 @@ msgid "Automatic multihop"
 msgstr "Automaattinen multihop"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "Onnittelut!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Yhteyden tiedot"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "Katkaise yhteys"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Syötä kuponkikoodi"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Aloita sovelluksen käyttäminen online-yksityisyytesi palauttamiseksi."
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "Tässä tulee tilisi numero. Laita se talteen!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "Lisätietoja yksityisyydestä"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "Ei käyttöaikaa"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "Lunasta kuponki"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Muista, että asetuksen poistaminen käytöstä sallii verkkoliikenteen ilman VPN-yhteyttä, kunnes otat sen takaisin käyttöön lisäasetuksista."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "Aloita sovelluksen käyttö"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "Aika lisättiin onnistuneesti"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "Sinun on katkaistava yhteys ja käytettävä internetiä suojaamattoman yhteyden kautta, jotta voit lisätä lisää."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "Vieraile verkkosivustollamme ja poimi mukaasi muita yksityisyyttä suojelevia tapoja ja työkaluja jatkaaksesi taipaleellasi yksityisyyttä suojelevana ninjana."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "Kupongin lunastus onnistui"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Jotta pääset internetiin lisäämään aikaa, sinun on poistettava lukitustila käytöstä."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "Olet valmis!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1254,126 +1063,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "Välitys"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "Jatka kirjautumista"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "Luotu: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "Nykyinen laite"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "Laite ei ole aktiivinen"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "Laitteen nimi"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "Laitteen nimi: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "Laitteen poistaminen epäonnistui"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "Siirry kirjautumiseen"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "Kirjautumiseen siirtyminen poistaa Internetin käytön eston tältä laitteelta."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "Hallitse laitteita"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "Poista"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "Poistetaanko <em>%(deviceName)s?</em>"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "Mahtavaa!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "Laite poistetaan luettelosta ja kirjataan ulos."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "Aikaa jäljellä: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "Liikaa laitteita"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "Yritä uudelleen"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Tarkastele ja hallitse kaikkia kirjautuneita laitteitasi. Sinulla voi olla enintään viisi laitetta yhdellä tilillä samaan aikaan. Jokainen laite saa nimen, kun se kirjataan sisään, jotta erotat ne helposti."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "Voit nyt jatkaa kirjautumista tällä laitteella."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1414,10 +1103,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "Vain vuokratut"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Osta lisää käyttöaikaa."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1428,10 +1113,6 @@ msgstr "%(suggestedUpgradeVersion)s on valmis asennettavaksi."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> on käytössä. Poista internetin esto napsauttamalla Yhdistä tai poistamalla %(lockdownModeSettingName)s käytöstä."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "TILIN KÄYTTÖAIKA PÄÄTTYY PIAN"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1517,10 +1198,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "VERKKOLIIKENNE SAATTAA VUOTAA"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "UUSI LAITE LUOTIIN"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "UUSI VERSIO ASENNETTIIN"
 
@@ -1569,13 +1246,6 @@ msgstr "Asennusohjelman käynnistys ei onnistunut."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "Valittua %(wireGuard)s-porttia ei tueta. <a>Vaihda se VPN-asetuksissa</a>."
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Tämän laitteen nimi on nyt <em>%(deviceName)s</em>. Katso lisää tililtä kohdasta <a>Hallitse laitteita</a>."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1709,131 +1379,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Lähtö"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> on käytössä. Pura verkkoyhteyden esto poistamalla se käytöstä."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "Tili luotu"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "Tarkistetaan tilin numeroa"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "Luo uusi tili"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "Luo uusi tili"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "Luodaan tiliä..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "Haluatko luoda uuden tilin?"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "Haluatko poistaa tallennetun tilin numeron?"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "Syötä tilisi numero"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "Virhe"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "Tilin luonti epäonnistui"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "Päivitystä viimeistellään."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "Virheellinen tilin numero"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "Kirjautuneena sisään"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "Kirjaudutaan sisään..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "Kirjaudu sisään"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "Sisäänkirjautuminen epäonnistui"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "tai"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "Tappokytkin estää tällä hetkellä yhteytesi."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "Odota"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Tallennetun tilin numeron poistamista tältä laitteelta ei voi kumota."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "Liikaa laitteita"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "Tuntematon virhe"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "Päivitetään..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "Oikea tilin numero"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1866,17 +1411,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "Ohjelmointirajapinnan käyttö"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Tilin käyttöaikaa on jäljellä %(duration)s. Osta lisää käyttöaikaa."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "Tilin käyttöaika on kulunut loppuun"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
@@ -1888,10 +1422,6 @@ msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "Beetapäivitys saatavilla. Kokeile uusinta beetaversiota (%(version)s)."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "Osta lisää"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2034,50 +1564,6 @@ msgstr "Yksityisyytesi saattaa olla vaarassa, koska tätä sovellusversiota ei t
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "Peruuta"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "Syötä kuponkikoodi"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "Lunasta kuponki"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "Ilmeni virhe."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "Lunasta"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "Kuponkia vahvistetaan..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "Kuponkikoodi on jo käytetty."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "Kuponkikoodi ei kelpaa."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "Kupongin lunastus onnistui."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4163,4 +3649,3 @@ msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "Menetät jäljellä olevan päivän."
 msgstr[1] "Menetät jäljellä olevat %d päivää."
-

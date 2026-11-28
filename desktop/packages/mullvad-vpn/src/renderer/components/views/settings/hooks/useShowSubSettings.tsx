@@ -1,7 +1,8 @@
-import { useAccountStatus, useUserInterfaceConnectedToDaemon } from '../../../../redux/hooks';
+import { useIdentity, useUserInterfaceConnectedToDaemon } from '../../../../redux/hooks';
 
+// The detailed settings are available as soon as there is a config to connect with.
 export const useShowSubSettings = () => {
-  const { status } = useAccountStatus();
+  const { identity } = useIdentity();
   const connectedToDaemon = useUserInterfaceConnectedToDaemon();
-  return status.type === 'ok' && connectedToDaemon;
+  return identity !== undefined && connectedToDaemon;
 };

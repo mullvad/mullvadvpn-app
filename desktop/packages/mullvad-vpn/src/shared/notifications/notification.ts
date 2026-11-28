@@ -17,7 +17,6 @@ export type SystemNotificationAction =
       link: {
         to: Url;
         text?: string;
-        withAuth?: boolean;
       };
     };
 
@@ -48,7 +47,7 @@ export type InAppNotificationAction =
     }
   | {
       type: 'navigate-external';
-      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
     }
   | {
       type: 'run-function';
@@ -66,7 +65,6 @@ export enum SystemNotificationSeverityType {
 
 export enum SystemNotificationCategory {
   tunnelState,
-  expiry,
   newVersion,
   inconsistentVersion,
 }

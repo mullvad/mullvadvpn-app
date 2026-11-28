@@ -9,7 +9,7 @@ use talpid_macos::process::{
 };
 use tokio::{fs::File, process::Command};
 
-use crate::device::AccountManagerHandle;
+use crate::identity::IdentityHandle;
 
 /// Mullvad app install path
 const APP_PATH: &str = "/Applications/Mullvad VPN.app";
@@ -54,7 +54,7 @@ pub fn bump_filehandle_limit() {
 
 /// Detect when the app bundle is deleted
 pub async fn handle_app_bundle_removal(
-    account_manager_handle: AccountManagerHandle,
+    identity: IdentityHandle,
 ) -> anyhow::Result<()> {
     /// Uninstall script to run if the .app disappears
     const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../dist-assets/uninstall_macos.sh");
@@ -143,10 +143,10 @@ pub async fn handle_app_bundle_removal(
         log(format_args!("{error:#?}"));
     }
 
-    // Remove the current device from the account
-    log(format_args!("Logging out"));
-    if let Err(error) = account_manager_handle.logout().await {
-        log(format_args!("Failed to remove device: {error:#?}"));
+    // Forget the WireGuard identity
+    log(format_args!("Clearing the WireGuard identity"));
+    if let Err(error) = identity.clear().await {
+        log(format_args!("Failed to clear the WireGuard identity: {error:#?}"));
     }
 
     // This will kill the daemon.

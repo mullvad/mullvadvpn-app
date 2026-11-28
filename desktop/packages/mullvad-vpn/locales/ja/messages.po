@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -48,12 +45,6 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "残り%d 年"
 
-msgid "Account paid until %(expiry)s."
-msgstr "アカウントは%(expiry)sまでに支払われます。"
-
-msgid "Account settings"
-msgstr "アカウント設定"
-
 msgid "Add"
 msgstr "追加"
 
@@ -77,9 +68,6 @@ msgstr "インターネットをブロック中"
 
 msgid "Buy credit"
 msgstr "クレジットを購入"
-
-msgid "Buy more credit"
-msgstr "追加クレジットを購入"
 
 msgid "Cancel"
 msgstr "キャンセル"
@@ -260,10 +248,6 @@ msgstr "終了"
 msgid "Reconnect"
 msgstr "再接続"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "削除"
-
 msgid "Remove from list"
 msgstr "リストから削除"
 
@@ -308,9 +292,6 @@ msgstr "別の検索をお試しください。"
 
 msgid "Type"
 msgstr "種類"
-
-msgid "Unblock"
-msgstr "ブロックを解除"
 
 msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
@@ -378,12 +359,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "%(location)sに接続する"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "アカウント番号のコピー"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -405,13 +380,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)sを展開する"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "アカウント番号 %(accountNumber)s との連携を解除します"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -432,12 +400,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "スライド %(index)s へ移動"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "アカウント番号の非表示"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -447,18 +409,6 @@ msgstr "DAITAを有効にした状態のVPNトラフィックのイメージ図"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "DAITAが無効な状態のVPNトラフィックの図"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "ログイン"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "アカウント番号 %(accountNumber)s でログインしてください"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -518,14 +468,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "%(location)sを%(customList)sから削除する"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "%(deviceName)sという名前のデバイスを削除"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "アイテムを削除する"
@@ -538,12 +480,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocksの設定"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "アカウント番号の表示"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCPの設定"
@@ -551,37 +487,6 @@ msgstr "UDP-over-TCPの設定"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "右矢印キーを使用して設定ボタンにフォーカスを移動します。"
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "アカウント"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "アカウント番号"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "現在使用不可"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "ログアウト"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "デバイスを管理"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "時間切れ"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "次の日時まで支払い済み"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1023,22 +928,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "最新バージョンを使用しています"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "インターネットのブロック：アカウントが時間切れです"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "このアカウントの同時接続が多すぎます。他のデバイスを切断するか、少し待ってから再接続してみてください。"
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "アカウントを認証できません。問題の報告を送信してください。"
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "無効なアカウント番号でログインしています。いったんログアウトして、別のアカウント番号を試してください。"
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1070,88 +959,8 @@ msgid "Automatic multihop"
 msgstr "自動マルチホップ"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "おめでとうございます！"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "接続の詳細"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "接続解除"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。"
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "バウチャーコードを入力"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "続行してこのアプリの使用を開始し、オンラインプライバシーを取り戻しましょう。"
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "これがあなたのアカウント番号です。保存してください！"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "プライバシーに関する詳細"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "時間切れ"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "バウチャーを使用する"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "この設定をオフにすると、\"詳細\" 設定で再びオンに戻すまで、VPN接続が解除されている間もネットワーク通信が許可されます。"
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "アプリの使用を開始"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "時間を正常に追加しました"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "時間を追加するには、いったん接続を解除し、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "プライバシー忍者であり続けるため、当社ウェブサイトにアクセスしてプライバシーに配慮したその他の習慣やツールをご覧ください。"
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。"
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "バウチャーを正常に使用しました"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "このアカウントには、もう残っているVPN時間がありません。"
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "インターネットにアクセスして時間を追加するには \"ロックダウンモード\" を無効にする必要があります。"
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "準備完了！"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1248,126 +1057,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "中継サーバー"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "ログインを続ける"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "作成日: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "現在のデバイス"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "デバイスが無効です"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "デバイス名"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "デバイス名: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "デバイスを削除できませんでした"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "ログインに進む"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。"
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "デバイスを管理"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。"
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "削除"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "<em>%(deviceName)s</em>を削除しますか？"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "素晴らしい！"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "リストからデバイスが削除され、ログアウトされます。"
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。"
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "残り時間: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "デバイスが多すぎます"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "再試行"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "ログイン中のすべてのデバイスを表示・管理します。1つのアカウントで最大5台のデバイスを同時に利用できます。各デバイスは識別しやすくするため、ログイン時に名前が付けられます。"
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "1つのMullvadアカウントで最大5台のデバイスにログインできます。"
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "このデバイスでログインを続けられるようになりました。"
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "このデバイスを削除しました。再度接続するには、ログインし直す必要があります。"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1408,10 +1097,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "レンタルサーバーのみ"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s。追加クレジットを購入してください。"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1422,10 +1107,6 @@ msgstr "%(suggestedUpgradeVersion)sをインストールできます。"
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a>が有効です。「接続」をクリックするか、「%(lockdownModeSettingName)s」を無効にしてインターネットのブロックを解除してください。"
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "アカウントのクレジットがもうすぐ無効になります。"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1511,10 +1192,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ネットワークトラフィックが漏れている可能性があります"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "新しいデバイスが作成されました"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "新バージョンがインストールされました"
 
@@ -1563,13 +1240,6 @@ msgstr "インストーラーが正常に起動しませんでした。"
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "選択した%(wireGuard)sポートには対応していません。<a>VPN設定で変更</a>してください。"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "このデバイス名は<em>「%(deviceName)s」</em>に変更されました。詳細はアカウントの <a>[デバイスを管理]</a> でご確認ください。"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1703,131 +1373,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "出口"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b>が有効になっています。接続のブロックを解除するには無効にしてください。"
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "アカウントを作成しました"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "アカウント番号を確認中"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "新規アカウントを作成"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "新規アカウントを作成"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "アカウントを作成中..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "新規アカウントを作成しますか？"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "保存済みのアカウント番号を削除しますか？"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "アカウント番号を入力してください"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "エラー"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "アカウントを作成できませんでした"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "アップグレードを終了しています。"
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "アカウント番号が無効です"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "ログインしました"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "ログイン中..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "ログイン"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "ログインに失敗しました"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "または"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "現在、キルスイッチが接続をブロックしています。"
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "お待ちください"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "このデバイスから保存済みのアカウント番号を削除すると、元には戻せません。"
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "デバイスが多すぎます"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "不明なエラー"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "アップグレード中..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "有効なアカウント番号"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1860,17 +1405,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "APIアクセス"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "アカウントクレジットは %(duration)sで期限切れになります。追加クレジットを購入。"
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "アカウントが時間切れです"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "アプリが同期していません。いったん終了して、再起動してください。"
@@ -1882,10 +1416,6 @@ msgstr "アプリが同期していません。いったん終了して、再起
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "ベータ版のアップデートを入手できます。最新のベータ版 (%(version)s) をお試しください。"
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "さらに購入する"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2028,50 +1558,6 @@ msgstr "このアプリバージョンはサポートされていないため、
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。"
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "キャンセル"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "バウチャーコードを入力"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "バウチャーを使用する"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "エラー発生。"
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。"
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "使用する"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "バウチャーを検証しています..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "バウチャーコードはすでに使用されています。"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "バウチャーコードが無効です。"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "バウチャーを正常に使用しました。"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4149,4 +3635,3 @@ msgstr[0] "アカウントのクレジットが%d時間後に無効になりま�
 msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "残りの%d日分が失われます。"
-

@@ -48,8 +48,8 @@ export function MainView() {
 
   return (
     <View>
-      <AppMainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
-        <AppMainHeader.AccountButton />
+      <AppMainHeader variant="basedOnConnectionStatus">
+        <AppMainHeader.ConfigButton />
         <AppMainHeader.SettingsButton />
       </AppMainHeader>
       <StyledContent flexGrow={1}>

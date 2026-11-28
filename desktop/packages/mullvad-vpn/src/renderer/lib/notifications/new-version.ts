@@ -15,6 +15,9 @@ export class NewVersionNotificationProvider implements InAppNotificationProvider
 
   public mayDisplay = () => {
     return (
+      // Nothing was displayed before on a fresh install, so there is no previous version to
+      // announce the changes since.
+      this.context.displayedForVersion !== '' &&
       this.context.displayedForVersion !== this.context.currentVersion &&
       this.context.changelog.length > 0
     );

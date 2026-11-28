@@ -1,14 +1,11 @@
 #![allow(clippy::identity_op)]
 use chrono::{DateTime, offset::Utc};
-use serde::{Deserialize, Deserializer, Serialize};
-use std::{fmt, str::FromStr, time::Duration};
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use serde::{Deserialize, Serialize};
+use std::{fmt, net::IpAddr, str::FromStr};
 use talpid_types::net::wireguard;
 
 use crate::Intersection;
-
-pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_hours(24);
-pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_hours(30 * 24);
-pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
 #[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq, Intersection)]
 #[serde(rename_all = "lowercase")]
@@ -58,134 +55,175 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-/// Contains account specific wireguard data
+/// The WireGuard identity of this installation.
+///
+/// This is the pair of a private key and the tunnel addresses that Mullvad has assigned to the
+/// corresponding public key. Both are found in a WireGuard config file generated at mullvad.net,
+/// and they are all that is needed to establish a tunnel to a Mullvad relay. The app never talks
+/// to any account service; the identity is created by importing such a config file.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
-pub struct WireguardData {
+pub struct WireguardIdentity {
     pub private_key: wireguard::PrivateKey,
-    pub addresses: AssociatedAddresses,
+    /// The IPv4 address assigned to the key (`Address` in the config file).
+    pub ipv4_address: Ipv4Network,
+    /// The IPv6 address assigned to the key, if the config file contained one.
+    #[serde(default)]
+    pub ipv6_address: Option<Ipv6Network>,
+    /// When the identity was imported.
     #[serde(default = "Utc::now")]
     pub created: DateTime<Utc>,
 }
 
-impl WireguardData {
-    /// Create a public key
+impl WireguardIdentity {
+    /// Create an identity from a private key and a list of tunnel addresses. The first IPv4 and
+    /// the first IPv6 address in `addresses` are used.
+    pub fn new(
+        private_key: wireguard::PrivateKey,
+        addresses: &[IpNetwork],
+    ) -> Result<Self, ConfigParseError> {
+        let ipv4_address = addresses
+            .iter()
+            .find_map(|net| match net {
+                IpNetwork::V4(net) => Some(*net),
+                IpNetwork::V6(_) => None,
+            })
+            .ok_or(ConfigParseError::MissingIpv4Address)?;
+        let ipv6_address = addresses.iter().find_map(|net| match net {
+            IpNetwork::V6(net) => Some(*net),
+            IpNetwork::V4(_) => None,
+        });
+        Ok(Self {
+            private_key,
+            ipv4_address,
+            ipv6_address,
+            created: Utc::now(),
+        })
+    }
+
+    /// Get the public key that corresponds to the private key.
     pub fn get_public_key(&self) -> PublicKey {
         PublicKey {
             key: self.private_key.public_key(),
             created: self.created,
         }
     }
-}
 
-#[derive(Debug, Clone)]
-pub enum RotationIntervalError {
-    TooSmall,
-    TooLarge,
-}
-
-impl fmt::Display for RotationIntervalError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        use RotationIntervalError::*;
-
-        match *self {
-            TooSmall => write!(
-                f,
-                "Rotation interval must be at least {} hours",
-                MIN_ROTATION_INTERVAL.as_secs() / 60 / 60
-            ),
-            TooLarge => write!(
-                f,
-                "Rotation interval must be at most {} hours",
-                MAX_ROTATION_INTERVAL.as_secs() / 60 / 60
-            ),
+    /// The tunnel addresses to configure on the tunnel interface.
+    pub fn tunnel_addresses(&self) -> Vec<IpAddr> {
+        let mut addresses = vec![IpAddr::V4(self.ipv4_address.ip())];
+        if let Some(ipv6) = self.ipv6_address {
+            addresses.push(IpAddr::V6(ipv6.ip()));
         }
+        addresses
     }
-}
 
-impl std::error::Error for RotationIntervalError {}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub struct RotationInterval(Duration);
-
-impl RotationInterval {
-    pub fn new(interval: Duration) -> Result<RotationInterval, RotationIntervalError> {
-        if interval < MIN_ROTATION_INTERVAL {
-            Err(RotationIntervalError::TooSmall)
-        } else if interval > MAX_ROTATION_INTERVAL {
-            Err(RotationIntervalError::TooLarge)
-        } else {
-            Ok(RotationInterval(interval))
+    /// Parse the `[Interface]` section of a WireGuard config file, as generated at mullvad.net,
+    /// into an identity. The `[Peer]` section, `DNS` and all other fields are ignored, since the
+    /// app selects relays, DNS servers and so on by itself.
+    pub fn from_config(config: &str) -> Result<Self, ConfigParseError> {
+        #[derive(PartialEq, Eq)]
+        enum Section {
+            None,
+            Interface,
+            Other,
         }
-    }
 
-    pub fn as_duration(&self) -> &Duration {
-        &self.0
+        let mut section = Section::None;
+        let mut seen_interface = false;
+        let mut private_key = None;
+        let mut addresses: Vec<IpNetwork> = vec![];
+
+        for (index, raw_line) in config.lines().enumerate() {
+            let line_number = index + 1;
+            // `#` starts a comment, also in the middle of a line.
+            let line = raw_line.split('#').next().unwrap_or_default().trim();
+            // Tolerate a byte order mark at the start of the file.
+            let line = line.trim_start_matches('\u{feff}');
+            if line.is_empty() {
+                continue;
+            }
+
+            if let Some(name) = line.strip_prefix('[').and_then(|l| l.strip_suffix(']')) {
+                section = if name.trim().eq_ignore_ascii_case("interface") {
+                    if seen_interface {
+                        return Err(ConfigParseError::MultipleInterfaces);
+                    }
+                    seen_interface = true;
+                    Section::Interface
+                } else {
+                    Section::Other
+                };
+                continue;
+            }
+
+            let Some((key, value)) = line.split_once('=') else {
+                return Err(ConfigParseError::MalformedLine { line: line_number });
+            };
+            if section != Section::Interface {
+                continue;
+            }
+            let value = value.trim();
+            match key.trim().to_ascii_lowercase().as_str() {
+                "privatekey" => {
+                    if private_key.is_some() {
+                        return Err(ConfigParseError::DuplicatePrivateKey);
+                    }
+                    private_key = Some(
+                        wireguard::PrivateKey::from_base64(value)
+                            .map_err(|_| ConfigParseError::InvalidPrivateKey)?,
+                    );
+                }
+                "address" => {
+                    for part in value.split(',').map(str::trim).filter(|p| !p.is_empty()) {
+                        addresses.push(parse_address(part)?);
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        if !seen_interface {
+            return Err(ConfigParseError::MissingInterface);
+        }
+        let private_key = private_key.ok_or(ConfigParseError::MissingPrivateKey)?;
+        if addresses.is_empty() {
+            return Err(ConfigParseError::MissingAddress);
+        }
+        Self::new(private_key, &addresses)
     }
 }
 
-impl<'de> Deserialize<'de> for RotationInterval {
-    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let ivl = <Duration>::deserialize(deserializer)?;
-        RotationInterval::new(ivl).map_err(|_error| {
-            serde::de::Error::invalid_value(
-                serde::de::Unexpected::Other("Duration"),
-                &"interval within allowed range",
-            )
-        })
+/// Parse `a.b.c.d/len` or a bare IP address, which implies a host prefix.
+fn parse_address(address: &str) -> Result<IpNetwork, ConfigParseError> {
+    if let Ok(network) = IpNetwork::from_str(address) {
+        return Ok(network);
     }
+    IpAddr::from_str(address)
+        .map(IpNetwork::from)
+        .map_err(|_| ConfigParseError::InvalidAddress(address.to_owned()))
 }
 
-impl TryFrom<Duration> for RotationInterval {
-    type Error = RotationIntervalError;
-
-    fn try_from(duration: Duration) -> Result<RotationInterval, RotationIntervalError> {
-        RotationInterval::new(duration)
-    }
-}
-
-impl fmt::Display for RotationInterval {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} hours", self.as_duration().as_secs() / 60 / 60)
-    }
-}
-
-#[cfg(feature = "clap")]
-impl clap::builder::ValueParserFactory for RotationInterval {
-    type Parser = clap::builder::RangedU64ValueParser<RotationInterval>;
-
-    fn value_parser() -> Self::Parser {
-        clap::builder::RangedU64ValueParser::new().range(
-            (MIN_ROTATION_INTERVAL.as_secs() / 60 / 60)
-                ..=(MAX_ROTATION_INTERVAL.as_secs() / 60 / 60),
-        )
-    }
-}
-
-impl TryFrom<u64> for RotationInterval {
-    type Error = RotationIntervalError;
-
-    fn try_from(value: u64) -> Result<Self, Self::Error> {
-        // Convert a u64, specified in hours, to a `RotationInterval`
-        let val = value
-            .checked_mul(60 * 60)
-            .ok_or(RotationIntervalError::TooLarge)?;
-        RotationInterval::new(Duration::from_secs(val))
-    }
-}
-
-impl From<RotationInterval> for Duration {
-    fn from(interval: RotationInterval) -> Duration {
-        *interval.as_duration()
-    }
-}
-
-impl Default for RotationInterval {
-    fn default() -> RotationInterval {
-        RotationInterval::new(DEFAULT_ROTATION_INTERVAL).unwrap()
-    }
+/// Errors when interpreting a WireGuard config file as a [`WireguardIdentity`].
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+pub enum ConfigParseError {
+    #[error("The config has no [Interface] section")]
+    MissingInterface,
+    #[error("The config has more than one [Interface] section")]
+    MultipleInterfaces,
+    #[error("The config has no PrivateKey")]
+    MissingPrivateKey,
+    #[error("The config has more than one PrivateKey")]
+    DuplicatePrivateKey,
+    #[error("The PrivateKey is not a valid base64 encoded WireGuard key")]
+    InvalidPrivateKey,
+    #[error("The config has no Address")]
+    MissingAddress,
+    #[error("The config has no IPv4 Address")]
+    MissingIpv4Address,
+    #[error("Invalid Address: {0}")]
+    InvalidAddress(String),
+    #[error("Line {line} is not of the form 'key = value'")]
+    MalformedLine { line: usize },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -199,8 +237,6 @@ pub struct TunnelOptions {
     pub daita: bool,
     /// Use userspace WireGuard.
     pub userspace: bool,
-    /// Interval used for automatic key rotation
-    pub rotation_interval: Option<RotationInterval>,
 }
 
 #[expect(clippy::derivable_impls)]
@@ -211,7 +247,6 @@ impl Default for TunnelOptions {
             quantum_resistant: QuantumResistantState::default(),
             daita: false,
             userspace: false,
-            rotation_interval: None,
         }
     }
 }
@@ -227,17 +262,144 @@ impl TunnelOptions {
     }
 }
 
-/// Represents a published public key
-#[derive(Serialize, Deserialize, Clone, Debug)]
+/// Represents the public key of the imported WireGuard identity
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct PublicKey {
     pub key: wireguard::PublicKey,
     pub created: DateTime<Utc>,
 }
 
-/// Contains a pair of local link addresses that are paired with a specific wireguard
-/// public/private keypair.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
-pub struct AssociatedAddresses {
-    pub ipv4_address: ipnetwork::Ipv4Network,
-    pub ipv6_address: ipnetwork::Ipv6Network,
+/// What the daemon tells its clients about the current [`WireguardIdentity`].
+/// This never includes the private key.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct WireguardIdentityInfo {
+    pub public_key: PublicKey,
+    pub ipv4_address: Ipv4Network,
+    pub ipv6_address: Option<Ipv6Network>,
+}
+
+impl From<&WireguardIdentity> for WireguardIdentityInfo {
+    fn from(identity: &WireguardIdentity) -> Self {
+        WireguardIdentityInfo {
+            public_key: identity.get_public_key(),
+            ipv4_address: identity.ipv4_address,
+            ipv6_address: identity.ipv6_address,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_config(private_key: &str) -> String {
+        format!(
+            "[Interface]\n# Device: Fancy Seagull\nPrivateKey = {private_key}\n\
+             Address = 10.66.185.96/32,fc00:bbbb:bbbb:bb01::3:b960/128\nDNS = 10.64.0.1\n\n\
+             [Peer]\nPublicKey = 8UVwpDWbYIdcP/rLZXtZBoSKvQXLbFVxxJyyvVefWFs=\n\
+             AllowedIPs = 0.0.0.0/0,::0/0\nEndpoint = 193.32.127.66:51820\n"
+        )
+    }
+
+    fn random_key() -> (wireguard::PrivateKey, String) {
+        let key = wireguard::PrivateKey::new_from_random();
+        let encoded = key.to_base64();
+        (key, encoded)
+    }
+
+    #[test]
+    fn parses_mullvad_config() {
+        let (key, encoded) = random_key();
+        let identity = WireguardIdentity::from_config(&sample_config(&encoded)).unwrap();
+        assert_eq!(identity.private_key.public_key(), key.public_key());
+        assert_eq!(identity.ipv4_address, "10.66.185.96/32".parse().unwrap());
+        assert_eq!(
+            identity.ipv6_address,
+            Some("fc00:bbbb:bbbb:bb01::3:b960/128".parse().unwrap())
+        );
+        assert_eq!(
+            identity.tunnel_addresses(),
+            vec![
+                "10.66.185.96".parse::<IpAddr>().unwrap(),
+                "fc00:bbbb:bbbb:bb01::3:b960".parse::<IpAddr>().unwrap(),
+            ]
+        );
+    }
+
+    #[test]
+    fn tolerates_case_whitespace_crlf_and_multiple_address_lines() {
+        let (_, encoded) = random_key();
+        let config = format!(
+            "\u{feff}[interface]\r\n  privatekey=  {encoded} # trailing comment\r\n\
+             ADDRESS = 10.1.2.3\r\nAddress = fd00::1/128\r\n"
+        );
+        let identity = WireguardIdentity::from_config(&config).unwrap();
+        assert_eq!(identity.ipv4_address, "10.1.2.3/32".parse().unwrap());
+        assert_eq!(identity.ipv6_address, Some("fd00::1/128".parse().unwrap()));
+    }
+
+    #[test]
+    fn ipv6_is_optional() {
+        let (_, encoded) = random_key();
+        let config = format!("[Interface]\nPrivateKey = {encoded}\nAddress = 10.1.2.3/32\n");
+        let identity = WireguardIdentity::from_config(&config).unwrap();
+        assert_eq!(identity.ipv6_address, None);
+        assert_eq!(identity.tunnel_addresses().len(), 1);
+    }
+
+    #[test]
+    fn rejects_invalid_configs() {
+        let (_, encoded) = random_key();
+        let cases: Vec<(String, ConfigParseError)> = vec![
+            (String::new(), ConfigParseError::MissingInterface),
+            (
+                "[Peer]\nPublicKey = x\n".into(),
+                ConfigParseError::MissingInterface,
+            ),
+            (
+                "[Interface]\nAddress = 10.0.0.2/32\n".into(),
+                ConfigParseError::MissingPrivateKey,
+            ),
+            (
+                "[Interface]\nPrivateKey = not-a-key\nAddress = 10.0.0.2/32\n".into(),
+                ConfigParseError::InvalidPrivateKey,
+            ),
+            (
+                format!("[Interface]\nPrivateKey = {encoded}\n"),
+                ConfigParseError::MissingAddress,
+            ),
+            (
+                format!("[Interface]\nPrivateKey = {encoded}\nAddress = fd00::1/128\n"),
+                ConfigParseError::MissingIpv4Address,
+            ),
+            (
+                format!("[Interface]\nPrivateKey = {encoded}\nAddress = banana\n"),
+                ConfigParseError::InvalidAddress("banana".into()),
+            ),
+            (
+                format!("[Interface]\nPrivateKey = {encoded}\nbroken line\n"),
+                ConfigParseError::MalformedLine { line: 3 },
+            ),
+            (
+                format!("[Interface]\nPrivateKey = {encoded}\n[Interface]\n"),
+                ConfigParseError::MultipleInterfaces,
+            ),
+        ];
+        for (config, expected) in cases {
+            assert_eq!(
+                WireguardIdentity::from_config(&config).unwrap_err(),
+                expected,
+                "config: {config:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn identity_roundtrips_through_json() {
+        let (_, encoded) = random_key();
+        let identity = WireguardIdentity::from_config(&sample_config(&encoded)).unwrap();
+        let json = serde_json::to_string(&identity).unwrap();
+        let back: WireguardIdentity = serde_json::from_str(&json).unwrap();
+        assert_eq!(identity, back);
+    }
 }

@@ -6,8 +6,6 @@ use serde::{Deserialize, Serialize};
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
 
-pub type AccountNumber = String;
-
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -49,11 +47,6 @@ pub enum SelectedObfuscation {
 
 // ======================================================
 
-pub struct MigrationData {
-    pub token: AccountNumber,
-    pub wg_data: Option<serde_json::Value>,
-}
-
 /// # Changes to the format
 ///
 /// The ability to disable WireGuard multihop while preserving the entry location was added.
@@ -64,14 +57,15 @@ pub struct MigrationData {
 /// It is also no longer valid to have `entry_location` set to null. So remove the field if it
 /// is null in order to make it default back to the default location.
 ///
-/// This also removes the account token and WireGuard key from the settings.
+/// This also removes the account token and WireGuard key from the settings. They are discarded:
+/// this app has no accounts, the WireGuard key is imported from a config file instead.
 ///
 /// Additionally, the WireGuard protocol constraint, if set to be using TCP, is migrated into
 /// having an active Udp2Tcp obfuscator. The protocol constraint is then removed from WireGuard
 /// settings since all WireGuard traffic is UDP.
-pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>> {
+pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
-        return Ok(None);
+        return Ok(());
     }
 
     log::info!("Migrating settings format to V6");
@@ -118,37 +112,15 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<Option<MigrationData>
         }
     }
 
-    let migration_data = if let Some(token) = settings.get("account_token").filter(|t| !t.is_null())
-    {
-        let token: AccountNumber =
-            serde_json::from_value(token.clone()).map_err(|_| Error::InvalidSettingsContent)?;
-        let migration_data =
-            if let Some(wg_data) = settings.get("wireguard").filter(|wg| !wg.is_null()) {
-                Some(MigrationData {
-                    token,
-                    wg_data: Some(wg_data.clone()),
-                })
-            } else {
-                Some(MigrationData {
-                    token,
-                    wg_data: None,
-                })
-            };
-
-        let settings_map = settings
-            .as_object_mut()
-            .ok_or(Error::InvalidSettingsContent)?;
-        settings_map.remove("account_token");
-        settings_map.remove("wireguard");
-
-        migration_data
-    } else {
-        None
-    };
+    let settings_map = settings
+        .as_object_mut()
+        .ok_or(Error::InvalidSettingsContent)?;
+    settings_map.remove("account_token");
+    settings_map.remove("wireguard");
 
     settings["settings_version"] = serde_json::json!(SettingsVersion::V6);
 
-    Ok(migration_data)
+    Ok(())
 }
 
 fn get_wireguard_constraints(settings: &mut serde_json::Value) -> Option<&mut serde_json::Value> {

@@ -1,6 +1,5 @@
 use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{constraints::Constraint, settings::CURRENT_SETTINGS_VERSION};
-use talpid_error::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
@@ -96,10 +95,6 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
     fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
         proto::TunnelOptions {
             mtu: options.wireguard.mtu.map(u32::from),
-            rotation_interval: options.wireguard.rotation_interval.map(|ivl| {
-                prost_types::Duration::try_from(std::time::Duration::from(ivl))
-                    .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.rotation_interval")
-            }),
             quantum_resistant: Some(proto::QuantumResistantState::from(options.wireguard.quantum_resistant)),
             daita: Some(proto::DaitaSettings::from(options.wireguard.daita)),
             enable_ipv6: options.generic.enable_ipv6,
@@ -223,20 +218,6 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
         Ok(Self {
             wireguard: mullvad_types::wireguard::TunnelOptions {
                 mtu: options.mtu.map(|mtu| mtu as u16),
-                rotation_interval: options
-                    .rotation_interval
-                    .map(std::time::Duration::try_from)
-                    .transpose()
-                    .map_err(|_| FromProtobufTypeError::invalid_argument("invalid duration"))?
-                    .map(mullvad_types::wireguard::RotationInterval::try_from)
-                    .transpose()
-                    .map_err(|error: mullvad_types::wireguard::RotationIntervalError| {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Invalid rotation interval")
-                        );
-                        FromProtobufTypeError::invalid_argument("invalid rotation interval")
-                    })?,
                 quantum_resistant: options
                     .quantum_resistant
                     .map(mullvad_types::wireguard::QuantumResistantState::try_from)

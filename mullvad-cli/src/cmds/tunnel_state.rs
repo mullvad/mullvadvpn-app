@@ -2,13 +2,17 @@ use crate::{BIN_NAME, format};
 use anyhow::{Result, anyhow, bail};
 use futures::{Stream, StreamExt};
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
-use mullvad_types::{device::DeviceState, states::TunnelState};
+use mullvad_types::states::TunnelState;
 
 pub async fn connect(wait: bool) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
 
-    let device_state = rpc.get_device().await?;
-    print_account_loggedout(&device_state);
+    if rpc.get_wireguard_identity().await?.is_none() {
+        bail!(
+            "No WireGuard config has been imported. Import one generated at mullvad.net with \
+             'mullvad config import <file>'"
+        );
+    }
 
     let listener = if wait {
         Some(rpc.events_listen().await?)
@@ -53,8 +57,12 @@ pub async fn disconnect(wait: bool) -> Result<()> {
 pub async fn reconnect(wait: bool) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
 
-    let device_state = rpc.get_device().await?;
-    print_account_loggedout(&device_state);
+    if rpc.get_wireguard_identity().await?.is_none() {
+        bail!(
+            "No WireGuard config has been imported. Import one generated at mullvad.net with \
+             'mullvad config import <file>'"
+        );
+    }
 
     let listener = if wait {
         Some(rpc.events_listen().await?)
@@ -93,28 +101,4 @@ async fn wait_for_tunnel_state(
         }
     }
     Err(anyhow!("Failed to wait for expected tunnel state"))
-}
-
-/// Checks the if the user is logged in. If not, we print a warning to get their
-/// attention.
-///
-/// When using the CLI, the user could potentially end up in a situation where
-/// they try to connect to a Mullvad relay without having successfully logged in
-/// to their account. In this case, we at least want to issue a warning to guide
-/// the user when they inevitably will go troubleshooting.
-fn print_account_loggedout(state: &DeviceState) {
-    match state {
-        DeviceState::LoggedOut => println!("Warning: You are not logged in to an account."),
-        DeviceState::Revoked => println!("Warning: This device has been revoked"),
-        DeviceState::LoggedIn(_) => return, // Normal case, do nothing.
-    };
-
-    println!(
-        "Mullvad is blocking all network traffic until you perform one of the following actions:
-
-1. Login to a Mullvad account with available time/credits.
-2. Disconnect from Mullvad VPN. This can either be done from the CLI or the Mullvad App.
-
-For more information, try 'mullvad account -h' or 'mullvad disconnect -h'"
-    );
 }

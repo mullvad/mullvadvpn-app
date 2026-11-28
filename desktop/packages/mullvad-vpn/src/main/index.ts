@@ -5,7 +5,6 @@ import * as path from 'path';
 import util from 'util';
 
 import { keyToSettingsMigration } from '../renderer/features/migration/utils';
-import { hasExpired } from '../shared/account-expiry';
 import {
   ISplitTunnelingApplication,
   ISplitTunnelingAppListRetriever,
@@ -15,7 +14,6 @@ import {
   AccessMethodSetting,
   DaemonAppUpgradeEvent,
   DaemonEvent,
-  DeviceEvent,
   DisconnectSource,
   ErrorStateCause,
   IRelayListWithEndpointData,
@@ -35,7 +33,6 @@ import {
   SystemNotificationCategory,
 } from '../shared/notifications/notification';
 import { RoutePath } from '../shared/routes';
-import Account, { AccountDelegate, LocaleProvider } from './account';
 import AppUpgrade from './app-upgrade';
 import { getOpenAtLogin } from './autostart';
 import { readChangelog } from './changelog';
@@ -47,6 +44,7 @@ import {
 import { DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import Expectation from './expectation';
 import { ConnectionObserver } from './grpc-client';
+import Identity, { IdentityDelegate } from './identity';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { findIconPath } from './linux-desktop-entry';
 import { loadTranslations } from './load-translations';
@@ -82,7 +80,9 @@ const execAsync = util.promisify(exec);
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
-const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
+// This build is not the official Mullvad app and must not be replaced by it, since the official app
+// requires a Mullvad account. Update notifications are therefore off unless explicitly enabled.
+const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_ENABLE_UPDATE_NOTIFICATION !== '1';
 
 const GEO_DIR = path.resolve(import.meta.dirname, 'assets/geo');
 
@@ -90,12 +90,11 @@ class ApplicationMain
   implements
     NotificationSender,
     TunnelStateProvider,
-    LocaleProvider,
     NotificationControllerDelegate,
     UserInterfaceDelegate,
     TunnelStateHandlerDelegate,
     SettingsDelegate,
-    AccountDelegate
+    IdentityDelegate
 {
   private daemonRpc: DaemonRpc;
   private relaySelectorRpc: RelaySelectorRpc;
@@ -103,7 +102,7 @@ class ApplicationMain
   private notificationController = new NotificationController(this);
   private version: Version;
   private settings: Settings;
-  private account: Account;
+  private identity: Identity;
   private appUpgrade: AppUpgrade;
   private userInterface?: UserInterface;
   private tunnelState = new TunnelStateHandler(this);
@@ -156,7 +155,7 @@ class ApplicationMain
 
     this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
     this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
-    this.account = new Account(this, this.daemonRpc);
+    this.identity = new Identity(this, this.daemonRpc);
     this.appUpgrade = new AppUpgrade(this.daemonRpc);
   }
 
@@ -250,14 +249,14 @@ class ApplicationMain
   }
 
   public connectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowConnect(this.daemonRpc.isConnected, this.account.isLoggedIn())) {
+    if (this.tunnelState.allowConnect(this.daemonRpc.isConnected, this.identity.hasIdentity())) {
       this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.connectTunnel();
     }
   };
 
   public reconnectTunnel = async (): Promise<void> => {
-    if (this.tunnelState.allowReconnect(this.daemonRpc.isConnected, this.account.isLoggedIn())) {
+    if (this.tunnelState.allowReconnect(this.daemonRpc.isConnected, this.identity.hasIdentity())) {
       this.tunnelState.expectNextTunnelState('connecting');
       await this.daemonRpc.reconnectTunnel();
     }
@@ -270,7 +269,7 @@ class ApplicationMain
     }
   };
 
-  public isLoggedIn = () => this.account.isLoggedIn();
+  public hasIdentity = () => this.identity.hasIdentity();
 
   public disconnectAndQuit = async (source: DisconnectSource) => {
     if (this.daemonRpc.isConnected) {
@@ -468,7 +467,7 @@ class ApplicationMain
       );
       await this.userInterface?.updateTrayTheme();
 
-      this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
+      this.userInterface?.updateTray(this.identity.hasIdentity(), this.tunnelState.tunnelState);
 
       if (process.platform === 'win32') {
         nativeTheme.on('updated', async () => {
@@ -500,7 +499,7 @@ class ApplicationMain
     }
 
     await this.userInterface.initializeWindow(
-      this.account.isLoggedIn(),
+      this.identity.hasIdentity(),
       this.tunnelState.tunnelState,
     );
   };
@@ -582,16 +581,6 @@ class ApplicationMain
       }
     }
 
-    // fetch account history
-    try {
-      this.account.setAccountHistory(await this.daemonRpc.getAccountHistory());
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to fetch the account history: ${error.message}`);
-
-      return this.handleBootstrapError(error);
-    }
-
     // fetch split tunneling support status
     try {
       if (process.platform === 'linux' || process.platform === 'win32') {
@@ -618,18 +607,12 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
-    // fetch device
+    // fetch the WireGuard identity
     try {
-      const deviceState = await this.daemonRpc.getDevice();
-      this.account.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
-      if (deviceState.type === 'logged in') {
-        void this.daemonRpc
-          .updateDevice()
-          .catch((error: Error) => log.warn(`Failed to update device info: ${error.message}`));
-      }
+      this.identity.handleIdentityEvent(await this.daemonRpc.getWireguardIdentity());
     } catch (e) {
       const error = e as Error;
-      log.error(`Failed to fetch device: ${error.message}`);
+      log.error(`Failed to fetch the WireGuard identity: ${error.message}`);
 
       return this.handleBootstrapError(error);
     }
@@ -739,8 +722,8 @@ class ApplicationMain
       void this.autoConnect();
     }
 
-    // show window when account is not set
-    if (!this.account.isLoggedIn()) {
+    // show window when no WireGuard config has been imported
+    if (!this.identity.hasIdentity()) {
       this.userInterface?.showWindow();
     }
   };
@@ -826,10 +809,8 @@ class ApplicationMain
           IpcMainEventChannel.relays.notify?.(daemonEvent.relayList);
         } else if ('appVersionInfo' in daemonEvent) {
           this.version.setLatestVersion(daemonEvent.appVersionInfo);
-        } else if ('device' in daemonEvent) {
-          this.account.handleDeviceEvent(daemonEvent.device);
-        } else if ('deviceRemoval' in daemonEvent) {
-          IpcMainEventChannel.account.notifyDevices?.(daemonEvent.deviceRemoval);
+        } else if ('wireguardIdentity' in daemonEvent) {
+          this.identity.handleIdentityEvent(daemonEvent.wireguardIdentity.identity);
         } else if ('accessMethodSetting' in daemonEvent) {
           IpcMainEventChannel.settings.notifyApiAccessMethodSettingChange?.(
             daemonEvent.accessMethodSetting,
@@ -850,7 +831,7 @@ class ApplicationMain
     const oldSettings = this.settings;
     this.settings.handleNewSettings(newSettings);
 
-    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
+    this.userInterface?.updateTray(this.identity.hasIdentity(), this.tunnelState.tunnelState);
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
       this.version.setLatestVersion(this.version.upgradeVersion);
@@ -889,13 +870,11 @@ class ApplicationMain
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this.daemonRpc.isConnected,
       autoStart: getOpenAtLogin(),
-      accountData: this.account.accountData,
-      accountHistory: this.account.accountHistory,
       tunnelState: this.tunnelState.tunnelState,
       settings: this.settings.all,
       isPerformingPostUpgrade: this.isPerformingPostUpgrade,
       daemonAllowed: this.daemonAllowed,
-      deviceState: this.account.deviceState,
+      wireguardIdentity: this.identity.identity,
       relayList: this.relayList,
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
@@ -1022,7 +1001,7 @@ class ApplicationMain
     problemReport.registerIpcListeners();
     this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();
-    this.account.registerIpcListeners();
+    this.identity.registerIpcListeners();
     this.appUpgrade.registerIpcListeners();
 
     if (this.splitTunneling) {
@@ -1035,10 +1014,7 @@ class ApplicationMain
   private async autoConnect() {
     if (process.env.NODE_ENV === 'development') {
       log.info('Skip autoconnect in development');
-    } else if (
-      this.account.isLoggedIn() &&
-      (!this.account.accountData || !hasExpired(this.account.accountData.expiry))
-    ) {
+    } else if (this.identity.hasIdentity()) {
       if (this.settings.gui.autoConnect) {
         try {
           log.info('Autoconnect the tunnel');
@@ -1052,7 +1028,7 @@ class ApplicationMain
         log.info('Skip autoconnect because GUI setting is disabled');
       }
     } else {
-      log.info('Skip autoconnect because account number is not set');
+      log.info('Skip autoconnect because no WireGuard config has been imported');
     }
   }
 
@@ -1070,7 +1046,7 @@ class ApplicationMain
       relayLocations: relayLocationsTranslations,
     };
 
-    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
+    this.userInterface?.updateTray(this.identity.hasIdentity(), this.tunnelState.tunnelState);
   }
 
   private blockPermissionRequests() {
@@ -1212,20 +1188,7 @@ class ApplicationMain
   /* eslint-disable @typescript-eslint/member-ordering */
   // NotificationControllerDelagate
   public openApp = () => this.userInterface?.showWindow();
-  public openLink = async (url: string, withAuth?: boolean) => {
-    if (withAuth) {
-      let token = '';
-      try {
-        token = await this.daemonRpc.getWwwAuthToken();
-      } catch (e) {
-        const error = e as Error;
-        log.error(`Failed to get the WWW auth token: ${error.message}`);
-      }
-      return shell.openExternal(`${url}?token=${token}`);
-    } else {
-      return shell.openExternal(url);
-    }
-  };
+  public openLink = (url: string) => shell.openExternal(url);
   public openRoute = (route: RoutePath) => {
     void IpcMainEventChannel.app.notifyOpenRoute?.(route);
   };
@@ -1247,13 +1210,11 @@ class ApplicationMain
   public dismissActiveNotifications = () =>
     this.notificationController.dismissActiveNotifications();
   public isUnpinnedWindow = () => this.settings.gui.unpinnedWindow;
-  public updateAccountData = () => this.account.updateAccountData();
-  public getAccountData = () => this.account.accountData;
   public getVersionInfo = () => this.version.fetchLatestVersion();
 
   // TunnelStateHandlerDelegate
   public handleTunnelStateUpdate = (tunnelState: TunnelState) => {
-    this.userInterface?.updateTray(this.account.isLoggedIn(), tunnelState);
+    this.userInterface?.updateTray(this.identity.hasIdentity(), tunnelState);
 
     this.notificationController.notifyTunnelState(
       tunnelState,
@@ -1264,10 +1225,6 @@ class ApplicationMain
     );
 
     IpcMainEventChannel.tunnel.notify?.(tunnelState);
-
-    if (this.account.accountData) {
-      this.account.detectStaleAccountExpiry(tunnelState);
-    }
   };
 
   // SettingsDelegate
@@ -1275,15 +1232,15 @@ class ApplicationMain
     this.userInterface?.setMonochromaticIcon(value) ?? Promise.resolve();
   public handleUnpinnedWindowChange = () =>
     void this.userInterface?.recreateWindow(
-      this.account.isLoggedIn(),
+      this.identity.hasIdentity(),
       this.tunnelState.tunnelState,
     );
 
-  // AccountDelegate
+  // IdentityDelegate
   public getLocale = () => this.locale;
   public getTunnelState = () => this.tunnelState.tunnelState;
-  public onDeviceEvent = () => {
-    this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
+  public onIdentityChanged = () => {
+    this.userInterface?.updateTray(this.identity.hasIdentity(), this.tunnelState.tunnelState);
 
     if (this.isPerformingPostUpgrade) {
       void this.performPostUpgradeCheck();

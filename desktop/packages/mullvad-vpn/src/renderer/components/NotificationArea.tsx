@@ -4,7 +4,6 @@ import { useCallback, useState } from 'react';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import {
-  CloseToAccountExpiryNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
   InAppNotificationAction,
@@ -23,14 +22,12 @@ import {
   useAppUpgradeEventType,
   useHasAppUpgradeError,
 } from '../hooks';
-import useActions from '../lib/actionsHook';
 import { Button } from '../lib/components';
 import { TransitionType, useHistory } from '../lib/history';
 import {
   AppUpgradeErrorNotificationProvider,
   AppUpgradeProgressNotificationProvider,
   AppUpgradeReadyNotificationProvider,
-  NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
   ResolveConnectionIssuesNotificationProvider,
   SettingsMigratedNotificationProvider,
@@ -38,7 +35,6 @@ import {
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
 import { useMounted } from '../lib/utility-hooks';
-import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
@@ -62,8 +58,6 @@ interface IProps {
 export default function NotificationArea(props: IProps) {
   const { showFullDiskAccessSettings } = useAppContext();
 
-  const account = useSelector((state: IReduxState) => state.account);
-  const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const connection = useSelector((state: IReduxState) => state.connection);
   const version = useSelector((state: IReduxState) => state.version);
@@ -75,8 +69,6 @@ export default function NotificationArea(props: IProps) {
     (state: IReduxState) =>
       state.settings.splitTunneling && state.settings.splitTunnelingApplications.length > 0,
   );
-
-  const { hideNewDeviceBanner } = useActions(accountActions);
 
   const {
     setDisplayedChangelog,
@@ -173,19 +165,7 @@ export default function NotificationArea(props: IProps) {
     new UnsupportedVersionNotificationProvider(version),
   ];
 
-  if (account.expiry) {
-    notificationProviders.push(
-      new CloseToAccountExpiryNotificationProvider({ accountExpiry: account.expiry, locale }),
-    );
-  }
-
   notificationProviders.push(
-    new NewDeviceNotificationProvider({
-      shouldDisplay: account.status.type === 'ok' && account.status.newDeviceBanner,
-      deviceName: account.deviceName ?? '',
-      close: hideNewDeviceBanner,
-    }),
-
     new SettingsMigratedNotificationProvider({
       isLatestMigrationIncomplete,
       dismissedMigrationNotification,
@@ -271,7 +251,7 @@ function NotificationActionWrapper({
   setIsModalOpen,
 }: NotificationActionWrapperProps) {
   const { push } = useHistory();
-  const { openUrlWithAuth, openUrl } = useAppContext();
+  const { openUrl } = useAppContext();
 
   const closeTroubleshootModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
 
@@ -279,11 +259,7 @@ function NotificationActionWrapper({
     if (action) {
       switch (action.type) {
         case 'navigate-external':
-          if (action.link.withAuth) {
-            return openUrlWithAuth(action.link.to);
-          } else {
-            return openUrl(action.link.to);
-          }
+          return openUrl(action.link.to);
         case 'troubleshoot-dialog':
           setIsModalOpen(true);
           break;
@@ -294,7 +270,7 @@ function NotificationActionWrapper({
     }
 
     return Promise.resolve();
-  }, [action, setIsModalOpen, openUrlWithAuth, openUrl]);
+  }, [action, setIsModalOpen, openUrl]);
 
   const goToProblemReport = useCallback(() => {
     closeTroubleshootModal();

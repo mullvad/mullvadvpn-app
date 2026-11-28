@@ -14,8 +14,6 @@ import {
   DaemonAppUpgradeError,
   DaemonAppUpgradeEvent,
   DaemonEvent,
-  DeviceEvent,
-  DeviceState,
   DirectMethod,
   DomainFronting,
   EncryptedDnsProxy,
@@ -27,7 +25,6 @@ import {
   FirewallPolicyErrorType,
   IAppVersionInfo,
   ICustomList,
-  IDevice,
   IObfuscationEndpoint,
   IpVersion,
   IRelayListCity,
@@ -40,8 +37,7 @@ import {
   ITunnelStateRelayInfo,
   IWireguardConstraints,
   IWireguardEndpointData,
-  LoggedInDeviceState,
-  LoggedOutDeviceState,
+  IWireguardIdentity,
   MultihopMode,
   NewAccessMethodSetting,
   NewCustomList,
@@ -821,14 +817,11 @@ export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent
     return { relayList: convertFromRelayList(relayList) };
   }
 
-  const deviceConfig = data.getDevice();
-  if (deviceConfig !== undefined) {
-    return { device: convertFromDeviceEvent(deviceConfig) };
-  }
-
-  const deviceRemoval = data.getRemoveDevice();
-  if (deviceRemoval !== undefined) {
-    return { deviceRemoval: convertFromDeviceRemoval(deviceRemoval) };
+  const wireguardIdentity = data.getWireguardIdentity();
+  if (wireguardIdentity !== undefined) {
+    return {
+      wireguardIdentity: { identity: convertFromWireguardIdentityState(wireguardIdentity) },
+    };
   }
 
   const versionInfo = data.getVersionInfo();
@@ -1132,54 +1125,23 @@ function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.Transpor
   }
 }
 
-function convertFromDeviceEvent(deviceEvent: grpcTypes.DeviceEvent): DeviceEvent {
-  const deviceState = convertFromDeviceState(deviceEvent.getNewState()!);
-  switch (deviceEvent.getCause()) {
-    case grpcTypes.DeviceEvent.Cause.LOGGED_IN:
-      return { type: 'logged in', deviceState: deviceState as LoggedInDeviceState };
-    case grpcTypes.DeviceEvent.Cause.LOGGED_OUT:
-      return { type: 'logged out', deviceState: deviceState as LoggedOutDeviceState };
-    case grpcTypes.DeviceEvent.Cause.REVOKED:
-      return { type: 'revoked', deviceState: deviceState as LoggedOutDeviceState };
-    case grpcTypes.DeviceEvent.Cause.UPDATED:
-      return { type: 'updated', deviceState: deviceState as LoggedInDeviceState };
-    case grpcTypes.DeviceEvent.Cause.ROTATED_KEY:
-      return { type: 'rotated_key', deviceState: deviceState as LoggedInDeviceState };
-  }
-}
-
-export function convertFromDeviceState(deviceState: grpcTypes.DeviceState): DeviceState {
-  switch (deviceState.getState()) {
-    case grpcTypes.DeviceState.State.LOGGED_IN: {
-      const accountAndDevice = deviceState.getDevice()!;
-      const device = accountAndDevice.getDevice();
-      return {
-        type: 'logged in',
-        accountAndDevice: {
-          accountNumber: accountAndDevice.getAccountNumber(),
-          device: device && convertFromDevice(device),
-        },
-      };
-    }
-    case grpcTypes.DeviceState.State.LOGGED_OUT:
-      return { type: 'logged out' };
-    case grpcTypes.DeviceState.State.REVOKED:
-      return { type: 'revoked' };
-  }
-}
-
-function convertFromDeviceRemoval(deviceRemoval: grpcTypes.RemoveDeviceEvent): Array<IDevice> {
-  return deviceRemoval.getNewDeviceListList().map(convertFromDevice);
-}
-
-export function convertFromDevice(device: grpcTypes.Device): IDevice {
-  const created = ensureExists(device.getCreated(), "no 'created' field for device").toDate();
-  const asObject = device.toObject();
-
+export function convertFromWireguardIdentity(
+  identity: grpcTypes.WireguardIdentity,
+): IWireguardIdentity {
+  const publicKey = ensureExists(identity.getPublicKey(), "no 'publicKey' field for identity");
+  const ipv6Address = identity.getIpv6Address();
   return {
-    ...asObject,
-    created: created,
+    publicKey: convertFromWireguardKey(publicKey.getKey_asU8()),
+    ipv4Address: identity.getIpv4Address(),
+    ipv6Address: ipv6Address === '' ? undefined : ipv6Address,
   };
+}
+
+export function convertFromWireguardIdentityState(
+  state: grpcTypes.WireguardIdentityState,
+): IWireguardIdentity | undefined {
+  const identity = state.getIdentity();
+  return identity === undefined ? undefined : convertFromWireguardIdentity(identity);
 }
 
 function convertFromCustomListSettings(

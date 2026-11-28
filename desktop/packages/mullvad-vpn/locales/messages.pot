@@ -5,9 +5,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr ""
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr ""
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -44,12 +41,6 @@ msgid_plural "%d years left"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Account paid until %(expiry)s."
-msgstr ""
-
-msgid "Account settings"
-msgstr ""
-
 msgid "Add"
 msgstr ""
 
@@ -72,15 +63,6 @@ msgid "Back"
 msgstr ""
 
 msgid "BLOCKED CONNECTION"
-msgstr ""
-
-msgid "Blocking internet"
-msgstr ""
-
-msgid "Buy credit"
-msgstr ""
-
-msgid "Buy more credit"
 msgstr ""
 
 msgid "Cancel"
@@ -165,11 +147,6 @@ msgid "Edit"
 msgstr ""
 
 msgid "Enable"
-msgstr ""
-
-#. Error message shown trying to login but the app fails
-#. to fetch the list of registered devices.
-msgid "Failed to fetch list of devices"
 msgstr ""
 
 msgid "FAILED TO SECURE CONNECTION"
@@ -272,10 +249,6 @@ msgstr ""
 msgid "Reconnect"
 msgstr ""
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr ""
-
 msgid "Remove from list"
 msgstr ""
 
@@ -324,9 +297,6 @@ msgid "Try a different search."
 msgstr ""
 
 msgid "Type"
-msgstr ""
-
-msgid "Unblock"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
@@ -446,10 +416,14 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s, will connect via an automatic entry"
 msgstr ""
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
 msgctxt "accessibility"
-msgid "Copy account number"
+msgid "Copy the public key to the clipboard"
+msgstr ""
+
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the value to the clipboard.
+msgctxt "accessibility"
+msgid "Copy to clipboard"
 msgstr ""
 
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
@@ -484,13 +458,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr ""
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr ""
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -512,9 +479,9 @@ msgid "Go to slide %(index)s"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
+#. the button which obscures a value.
 msgctxt "accessibility"
-msgid "Hide account number"
+msgid "Hide value"
 msgstr ""
 
 #. Accessibility label for illustration of multihop entry set to automatic.
@@ -555,18 +522,6 @@ msgstr ""
 #. Alt text for an illustration showing VPN traffic without DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
-msgstr ""
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr ""
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
 msgstr ""
 
 msgctxt "accessibility"
@@ -615,7 +570,6 @@ msgctxt "accessibility"
 msgid "Open select location menu"
 msgstr ""
 
-#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr ""
@@ -634,14 +588,6 @@ msgstr ""
 #. The second placeholder is replaced with the name of the custom list.
 msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
-msgstr ""
-
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
 msgstr ""
 
 msgctxt "accessibility"
@@ -679,9 +625,9 @@ msgid "Shadowsocks settings"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
+#. the button which unobscures a hidden value.
 msgctxt "accessibility"
-msgid "Show account number"
+msgid "Show value"
 msgstr ""
 
 msgctxt "accessibility"
@@ -701,37 +647,6 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
-msgstr ""
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr ""
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr ""
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr ""
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr ""
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr ""
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr ""
-
-msgctxt "account-view"
-msgid "Paid until"
 msgstr ""
 
 #. Page title for anti censorship settings view
@@ -1180,19 +1095,7 @@ msgid "You are using the latest version"
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr ""
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr ""
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr ""
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgid "Unable to authenticate. Please send a problem report."
 msgstr ""
 
 #. Text displayed when there are no updates for this platform in the app version
@@ -1220,87 +1123,7 @@ msgid "Active features"
 msgstr ""
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr ""
-
-msgctxt "connect-view"
 msgid "Connection details"
-msgstr ""
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr ""
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr ""
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr ""
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr ""
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr ""
-
-msgctxt "connect-view"
-msgid "You’re all set!"
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -1398,126 +1221,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr ""
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr ""
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr ""
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr ""
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr ""
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr ""
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr ""
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr ""
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr ""
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr ""
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr ""
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr ""
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr ""
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr ""
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr ""
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr ""
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr ""
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr ""
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr ""
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr ""
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr ""
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr ""
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr ""
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr ""
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr ""
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1568,8 +1271,70 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr ""
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
+msgctxt "import-config-view"
+msgid "All files"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Config imported"
+msgstr ""
+
+#. Error message shown when the app fails to talk to the background service.
+msgctxt "import-config-view"
+msgid "Could not reach the Mullvad VPN service"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Generate a WireGuard config on mullvad.net and import it here. It is used to connect to every server."
+msgstr ""
+
+#. Button label for selecting a WireGuard config file to import.
+msgctxt "import-config-view"
+msgid "Import config file"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Import failed"
+msgstr ""
+
+#. Button label for importing the WireGuard config text that was
+#. pasted into the text field.
+msgctxt "import-config-view"
+msgid "Import pasted config"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Import WireGuard config"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Importing..."
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Paste the contents of the WireGuard config here"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Please wait"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "Ready to connect"
+msgstr ""
+
+#. Error message shown when the selected config file could not be read.
+msgctxt "import-config-view"
+msgid "The file could not be read"
+msgstr ""
+
+#. Error message shown when the imported text is not a usable WireGuard config.
+msgctxt "import-config-view"
+msgid "This is not a valid WireGuard config"
+msgstr ""
+
+msgctxt "import-config-view"
+msgid "WireGuard config"
 msgstr ""
 
 #. Notification subtitle when the app upgrade is ready to install.
@@ -1584,10 +1349,6 @@ msgstr ""
 #. %(lockdownModeSettingName)s - The name of the Lockdown mode setting
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Connect to a location or disable %(lockdownModeSettingName)s to unblock the internet. Apps excluded with split tunneling might not work properly in this mode."
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1678,10 +1439,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr ""
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr ""
 
@@ -1745,13 +1502,6 @@ msgstr ""
 #. %(wireGuard)s - Will be replaced with WireGuard
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
-msgstr ""
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app beta update is
@@ -1910,131 +1660,6 @@ msgstr ""
 
 msgctxt "locations-feature"
 msgid "You currently have entry filters applied. Switching to “When needed”, the app will ignore filter settings for the entry server that is being automatically selected."
-msgstr ""
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr ""
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr ""
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr ""
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr ""
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr ""
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Error"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr ""
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr ""
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr ""
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr ""
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr ""
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr ""
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr ""
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr ""
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr ""
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr ""
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
 msgstr ""
 
 #. The title for the LWO port selector.
@@ -2219,17 +1844,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr ""
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr ""
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr ""
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
@@ -2240,10 +1854,6 @@ msgstr ""
 #. %(version)s - The version number of the new beta version.
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
-msgstr ""
-
-msgctxt "notifications"
-msgid "Buy more"
 msgstr ""
 
 msgctxt "notifications"
@@ -2386,50 +1996,6 @@ msgstr ""
 #. The system notification which is displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
-msgstr ""
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr ""
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr ""
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr ""
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr ""
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
 msgstr ""
 
 #. Title label in navigation bar
@@ -3290,6 +2856,55 @@ msgctxt "vpn-settings-view"
 msgid "With %(lockdownModeSettingName)s enabled, you can only reach the internet if you’re connected through the Mullvad app. Your network traffic will be blocked if you manually disconnect or quit the app."
 msgstr ""
 
+msgctxt "wireguard-config-view"
+msgid "IPv4 address"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "IPv6 address"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "Public key"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "Remove"
+msgstr ""
+
+#. Button label for removing the imported WireGuard config.
+msgctxt "wireguard-config-view"
+msgid "Remove config"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "Remove the WireGuard config?"
+msgstr ""
+
+#. Button label for replacing the current WireGuard config with the
+#. contents of a file.
+msgctxt "wireguard-config-view"
+msgid "Replace with config file"
+msgstr ""
+
+#. pasted text.
+msgctxt "wireguard-config-view"
+msgid "Replace with pasted config"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "The config was replaced"
+msgstr ""
+
+msgctxt "wireguard-config-view"
+msgid "The private key is deleted from this computer and the VPN is disconnected. You will have to import a config again to connect."
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "wireguard-config-view"
+msgid "WireGuard config"
+msgstr ""
+
 #. Title label in navigation bar
 msgctxt "wireguard-settings-nav"
 msgid "Shadowsocks"
@@ -3574,10 +3189,16 @@ msgstr ""
 msgid "API unreachable, save method anyway?"
 msgstr ""
 
+msgid "Account"
+msgstr ""
+
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
 msgid "Account deleted"
+msgstr ""
+
+msgid "Account number"
 msgstr ""
 
 msgid "Account number must match"
@@ -3631,6 +3252,9 @@ msgstr ""
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
 msgstr ""
 
+msgid "An error occurred."
+msgstr ""
+
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr ""
 
@@ -3670,6 +3294,9 @@ msgstr ""
 msgid "Automatically connect on device start-up."
 msgstr ""
 
+msgid "Blocking internet"
+msgstr ""
+
 msgid "Blocking internet (device offline)"
 msgstr ""
 
@@ -3677,6 +3304,9 @@ msgid "Blocking..."
 msgstr ""
 
 msgid "Browser"
+msgstr ""
+
+msgid "Buy credit"
 msgstr ""
 
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
@@ -3700,6 +3330,9 @@ msgstr ""
 msgid "Collapse"
 msgstr ""
 
+msgid "Congrats!"
+msgstr ""
+
 msgid "Connect on device start-up"
 msgstr ""
 
@@ -3715,6 +3348,9 @@ msgstr ""
 msgid "Contact support"
 msgstr ""
 
+msgid "Continue with login"
+msgstr ""
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
@@ -3724,13 +3360,28 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+msgid "Copy account number"
+msgstr ""
+
 msgid "Could not display remaining days."
+msgstr ""
+
+msgid "Create new account"
 msgstr ""
 
 msgid "Create new list"
 msgstr ""
 
+msgid "Created: %s"
+msgstr ""
+
+msgid "Creating account..."
+msgstr ""
+
 msgid "Critical error (your attention is required)"
+msgstr ""
+
+msgid "Current device"
 msgstr ""
 
 msgid "Current: %s"
@@ -3763,6 +3414,15 @@ msgstr ""
 msgid "Deleting your account:"
 msgstr ""
 
+msgid "Device is inactive"
+msgstr ""
+
+msgid "Device name"
+msgstr ""
+
+msgid "Device name: %s"
+msgstr ""
+
 msgid "Direct"
 msgstr ""
 
@@ -3787,6 +3447,9 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Do you want to create a new account?"
+msgstr ""
+
 msgid "Edit custom lists"
 msgstr ""
 
@@ -3797,6 +3460,9 @@ msgid "Edit lists"
 msgstr ""
 
 msgid "Edit locations"
+msgstr ""
+
+msgid "Either buy credit on our website or redeem a voucher."
 msgstr ""
 
 msgid "Enable all & retry"
@@ -3823,6 +3489,12 @@ msgstr ""
 msgid "Enter an account number"
 msgstr ""
 
+msgid "Enter voucher code"
+msgstr ""
+
+msgid "Enter your account number"
+msgstr ""
+
 msgid "Entry relay is the same as exit relay"
 msgstr ""
 
@@ -3841,10 +3513,19 @@ msgstr ""
 msgid "Failed to apply patch"
 msgstr ""
 
+msgid "Failed to create account"
+msgstr ""
+
 msgid "Failed to delete account, please contact support"
 msgstr ""
 
+msgid "Failed to fetch list of devices"
+msgstr ""
+
 msgid "Failed to load products, please try again"
+msgstr ""
+
+msgid "Failed to remove device"
 msgstr ""
 
 msgid "Failed to set to current - API not reachable"
@@ -3874,6 +3555,9 @@ msgstr ""
 msgid "Go to VPN settings"
 msgstr ""
 
+msgid "Go to login"
+msgstr ""
+
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
@@ -3887,6 +3571,12 @@ msgid "Google Play payment verification failed"
 msgstr ""
 
 msgid "Google Play unavailable"
+msgstr ""
+
+msgid "Here’s your account number. Save it!"
+msgstr ""
+
+msgid "Hide account number"
 msgstr ""
 
 msgid "How it works"
@@ -3908,6 +3598,9 @@ msgid "If these steps don’t work, please send an email to support using the bu
 msgstr ""
 
 msgid "If you have any issues"
+msgstr ""
+
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr ""
 
 msgid "Import new overrides by"
@@ -3937,10 +3630,16 @@ msgstr ""
 msgid "Invalid MTU value"
 msgstr ""
 
+msgid "Invalid account number"
+msgstr ""
+
 msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr ""
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
 msgstr ""
 
 msgid "Less than a day left on this account"
@@ -3964,7 +3663,22 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
+msgid "Log out"
+msgstr ""
+
+msgid "Logged in"
+msgstr ""
+
+msgid "Logging in..."
+msgstr ""
+
+msgid "Login failed"
+msgstr ""
+
 msgid "Makes sure the device is always on the VPN tunnel."
+msgstr ""
+
+msgid "Manage devices"
 msgstr ""
 
 msgid "More actions"
@@ -3989,6 +3703,9 @@ msgid "Multihop routes your traffic into one WireGuard server and out another, m
 msgstr ""
 
 msgid "Multihop when needed"
+msgstr ""
+
+msgid "NEW DEVICE CREATED"
 msgstr ""
 
 msgid "Name is already taken."
@@ -4045,6 +3762,12 @@ msgstr ""
 msgid "Open app details"
 msgstr ""
 
+msgid "Or"
+msgstr ""
+
+msgid "Out of time"
+msgstr ""
+
 msgid "Overrides active"
 msgstr ""
 
@@ -4052,6 +3775,9 @@ msgid "Overrides cleared"
 msgstr ""
 
 msgid "Overrides inactive"
+msgstr ""
+
+msgid "Paid until"
 msgstr ""
 
 msgid "Password (optional)"
@@ -4090,6 +3816,9 @@ msgstr ""
 msgid "Please enter an IP override text"
 msgstr ""
 
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr ""
+
 msgid "Please press connect to request VPN permission"
 msgstr ""
 
@@ -4115,6 +3844,12 @@ msgid "Recents disabled and history cleared"
 msgstr ""
 
 msgid "Recursion limit"
+msgstr ""
+
+msgid "Redeem"
+msgstr ""
+
+msgid "Redeem voucher"
 msgstr ""
 
 msgid "Refunds will not be possible."
@@ -4180,6 +3915,9 @@ msgstr ""
 msgid "Share…"
 msgstr ""
 
+msgid "Show account number"
+msgstr ""
+
 msgid "Show location in notification"
 msgstr ""
 
@@ -4199,6 +3937,9 @@ msgid "Submit"
 msgstr ""
 
 msgid "Suggested action"
+msgstr ""
+
+msgid "Super!"
 msgstr ""
 
 msgid "System network settings"
@@ -4249,6 +3990,9 @@ msgstr ""
 msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
 msgstr ""
 
+msgid "The device will be removed from the list and logged out."
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
@@ -4273,6 +4017,9 @@ msgstr ""
 msgid "This is already set as current"
 msgstr ""
 
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr ""
+
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr ""
 
@@ -4280,6 +4027,9 @@ msgid "This will be indicated by the %1$s symbol."
 msgstr ""
 
 msgid "Time added"
+msgstr ""
+
+msgid "Time left: %s"
 msgstr ""
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
@@ -4300,10 +4050,16 @@ msgstr ""
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr ""
 
+msgid "To start using the app, you first need to add time to your account."
+msgstr ""
+
 msgid "Toggle VPN"
 msgstr ""
 
 msgid "Too many attempts, please try again later"
+msgstr ""
+
+msgid "Too many devices"
 msgstr ""
 
 msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
@@ -4313,6 +4069,9 @@ msgid "UDP"
 msgstr ""
 
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr ""
+
+msgid "Unable to authenticate account. Please send a problem report."
 msgstr ""
 
 msgid "Unable to open the VPN permission dialog, please check your OS configuration"
@@ -4396,7 +4155,19 @@ msgstr ""
 msgid "Verifying voucher…"
 msgstr ""
 
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr ""
+
+msgid "Voucher code has already been used."
+msgstr ""
+
+msgid "Voucher code is invalid."
+msgstr ""
+
 msgid "Voucher code is too short"
+msgstr ""
+
+msgid "Voucher was successfully redeemed."
 msgstr ""
 
 msgid "Warning"
@@ -4435,6 +4206,9 @@ msgstr ""
 msgid "Yes, log out device"
 msgstr ""
 
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr ""
+
 msgid "You are about to delete your Mullvad VPN account."
 msgstr ""
 
@@ -4445,6 +4219,18 @@ msgid "You can add more time via the account view to continue using the VPN."
 msgstr ""
 
 msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
+msgstr ""
+
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr ""
+
+msgid "You can now continue logging in on this device."
+msgstr ""
+
+msgid "You have no more VPN time left on this account."
+msgstr ""
+
+msgid "You have removed this device. To connect again, you will need to log back in."
 msgstr ""
 
 msgid "You will lose access to this account on all devices."

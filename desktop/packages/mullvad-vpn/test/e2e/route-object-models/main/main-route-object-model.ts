@@ -29,9 +29,9 @@ export class MainRouteObjectModel {
     await this.utils.expectRoute(RoutePath.selectLocation);
   }
 
-  async gotoAccount() {
-    await this.selectors.accountButton().click();
-    await this.utils.expectRoute(RoutePath.account);
+  async gotoWireguardConfig() {
+    await this.selectors.configButton().click();
+    await this.utils.expectRoute(RoutePath.wireguardConfig);
   }
 
   async expandConnectionPanel() {

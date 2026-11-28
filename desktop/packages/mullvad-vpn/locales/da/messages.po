@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s blev tilføjet, konto betalt indtil %(expiry)s."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -54,12 +51,6 @@ msgid_plural "%d years left"
 msgstr[0] "1 år tilbage"
 msgstr[1] "%d år tilbage"
 
-msgid "Account paid until %(expiry)s."
-msgstr "Konto betalt indtil %(expiry)s."
-
-msgid "Account settings"
-msgstr "Kontoindstillinger"
-
 msgid "Add"
 msgstr "Tilføj"
 
@@ -83,9 +74,6 @@ msgstr "Blokerer internettet"
 
 msgid "Buy credit"
 msgstr "Køb kredit"
-
-msgid "Buy more credit"
-msgstr "Køb mere kredit"
 
 msgid "Cancel"
 msgstr "Annuller"
@@ -266,10 +254,6 @@ msgstr "Afslut"
 msgid "Reconnect"
 msgstr "Genopret forbindelse"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "Fjern"
-
 msgid "Remove from list"
 msgstr "Fjern fra liste"
 
@@ -314,9 +298,6 @@ msgstr "Prøv en anden søgning."
 
 msgid "Type"
 msgstr "Type"
-
-msgid "Unblock"
-msgstr "Fjern blokering"
 
 msgid "UNSECURED CONNECTION"
 msgstr "IKKE-SIKRET FORBINDELSE"
@@ -384,12 +365,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "Tilslut til %(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "Kopiér kontonummer"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -411,13 +386,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Udvid %(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "Glem kontonummer %(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -438,12 +406,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "Gå til billede %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "Skjul kontonummer"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -453,18 +415,6 @@ msgstr "Illustration, der viser VPN-trafik med DAITA aktiveret"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "Illustration, der viser VPN-trafik uden DAITA"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "Log ind"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "Log ind med kontonummer %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -524,14 +474,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "Fjern %(location)s fra %(customList)s"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "Fjern enhed med navnet %(deviceName)s"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Fjern element"
@@ -544,12 +486,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks-indstillinger"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "Vis kontonummer"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP-indstillinger"
@@ -557,37 +493,6 @@ msgstr "UDP-over-TCP-indstillinger"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "Brug højre pil til at fokusere indstillingsknappen."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "Konto"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "Kontonummer"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "Ikke tilgængelig i øjeblikket"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "Log af"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "Administrer enheder"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "TID UDLØBET"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "Betalt indtil"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1029,22 +934,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "Du bruger den nyeste version"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "Blokerer for internet: kontoen er udløbet"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "For mange samtidige forbindelser på denne konto. Afbryd en anden enhed, eller prøv at oprette forbindelse igen snart."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Kan ikke godkende konto. Indsend en problemrapport."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Du er logget ind med et ugyldigt kontonummer. Log ud og prøv et andet."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1076,88 +965,8 @@ msgid "Automatic multihop"
 msgstr "Automatisk multihop"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "Tillykke!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Forbindelsesoplysninger"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "Afbryd forbindelse"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Køb enten kredit på vores hjemmeside, eller indløs en kupon."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Indtast kuponkode"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Fortsæt med at bruge appen for at få dit online privatliv tilbage."
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "Her er dit kontonummer. Gem det!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "Lær mere om privatlivets fred"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "Tid udløbet"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "Indløs kupon"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Husk, hvis du aktiverer det, tillades netværkstrafik mens VPN'en er slået fra, indtil du aktiverer det igen under Avancerede indstillinger."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "Begynd at bruge appen"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "Tid blev tilføjet"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "For at tilføje mere skal du afbryde forbindelsen og tilgå internettet med en usikker forbindelse."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "For at fortsætte med at leve som en privatlivs-ninja skal du besøge vores websted for at lære om andre vaner og værktøjer, der værner om fortroligheden."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "For at begynde at bruge appen skal du først føje tid til din konto."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "Kupon blev indløst"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "Du har ikke mere VPN-tid tilbage på denne konto."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Du skal deaktivere \"Lockdown-tilstand\" for at få adgang til internettet og tilføje tid."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "Du er klar!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1254,126 +1063,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "Relæ"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "Fortsæt med login"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "Oprettet: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "Nuværende enhed"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "Enheden er inaktiv"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "Enhedsnavn"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "Enhedsnavn: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "Enheden kunne ikke fjernes"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "Gå til login"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "Hvis du logger på, ophæves blokeringen af ​​internettet på denne enhed."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Hvis du logger ud, fjernes enheden og enhedsnavnet. Når du logger på igen, får enheden et nyt navn."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "Administrer enheder"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "Fjern"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "Fjern <em>%(deviceName)s?</em>"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "Super!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "Enheden fjernes fra listen og logges ud."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "Resterende tid: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "For mange enheder"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "Prøv igen"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Vis og administrer alle dine enheder, der er logget på. Du kan have op til 5 enheder på en konto ad gangen. Hver enhed tildeles et navn, når du logger på, så du let kan se forskel på dem."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Du kan have op til 5 enheder logget ind på én Mullvad-konto."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "Du kan nu fortsætte med at logge ind på denne enhed."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1414,10 +1103,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "Kun lejet"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Køb mere kredit."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1428,10 +1113,6 @@ msgstr "%(suggestedUpgradeVersion)s er klar til at blive installeret."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> er aktiveret. Klik på \"Tilslut\" eller deaktiver “%(lockdownModeSettingName)s“ for at ophæve blokeringen af ​​internettet."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "KONTOKREDIT UDLØBER SNART"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1517,10 +1198,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "NETVÆRKSTRAFIK LÆKKES MÅSKE"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "NY ENHED OPRETTET"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "NY VERSION INSTALLERET"
 
@@ -1569,13 +1246,6 @@ msgstr "Installationsprogrammet kunne ikke starte."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "Den valgte %(wireGuard)s-port understøttes ikke, <a>skift den under VPN-indstillinger.</a>"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Denne enhed har nu navnet <em>%(deviceName)s</em>. Få mere at vide under <a>Administrer enheder</a> under Konto."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1709,131 +1379,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Udgang"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> er aktiveret. Deaktiver det for at fjerne blokeringen af ​​din forbindelse."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "Konto oprettet"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "Kontrollerer kontonummer"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "Opret en ny konto"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "Opret ny konto"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "Opretter konto..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "Vil du oprette en ny konto?"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "Vil du fjerne det gemte kontonummer?"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "Indtast dit kontonummer"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "Fejl"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "Kunne ikke oprette konto"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "Færdiggør opgradering."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "Ugyldigt kontonummer"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "Logget ind"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "Logger ind..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "Log ind"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "Login mislykkedes"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "Eller"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "Vores kill-switch blokerer i øjeblikket din forbindelse."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "Vent venligst"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke fortryde det."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "For mange enheder"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "Ukendt fejl"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "Opgraderer..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "Gyldigt kontonummer"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1866,17 +1411,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API-adgang"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Kontokredit udløber om %(duration)s. Køb mere kredit."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "Kontoen er udløbet"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Appen er ikke synkroniseret. Afslut og genstart."
@@ -1888,10 +1422,6 @@ msgstr "Appen er ikke synkroniseret. Afslut og genstart."
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "Beta-opdatering tilgængelig. Prøv den nyeste betaversion (%(version)s)."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "Køb mere"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2034,50 +1564,6 @@ msgstr "Dit privatliv kan være i fare med denne ikke-understøttede appversion.
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Dit privatliv kan være i fare med denne ikke-understøttede appversion. Opdater den straks."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "Annuller"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "Indtast kuponkode"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "Indløs kupon"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "Der opstod en fejl."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "Indløs"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "Bekræfter kupon..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "Kuponkode er allerede brugt."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "Kuponkode er ugyldig."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "Indløsning af kuponen lykkedes."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4163,4 +3649,3 @@ msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "Du vil miste den resterende dag."
 msgstr[1] "Du vil miste de resterende %d dage."
-

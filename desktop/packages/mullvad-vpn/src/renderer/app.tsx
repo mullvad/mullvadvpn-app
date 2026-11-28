@@ -5,7 +5,6 @@ import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { StyleSheetManager } from 'styled-components';
 
-import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import {
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
@@ -13,21 +12,16 @@ import {
 import { dimensions, Url } from '../shared/constants';
 import {
   AccessMethodSetting,
-  AccountNumber,
   CustomProxy,
-  DeviceEvent,
   DisconnectSource,
-  IAccountData,
   IAppVersionInfo,
   ICustomList,
-  IDevice,
-  IDeviceRemoval,
   IDnsOptions,
   ILocation,
   IRelayListWithEndpointData,
   ISettings,
+  IWireguardIdentity,
   liftConstraint,
-  LogoutSource,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -47,7 +41,6 @@ import {
 import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { RoutePath } from '../shared/routes';
-import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
 import ErrorBoundary from './components/ErrorBoundary';
 import { KeyboardNavigation } from './components/keyboard-navigation';
@@ -59,9 +52,9 @@ import { getNavigationBase } from './lib/functions/navigation-base';
 import History from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
-import accountActions from './redux/account/actions';
 import { appUpgradeActions } from './redux/app-upgrade/actions';
 import connectionActions from './redux/connection/actions';
+import identityActions from './redux/identity/actions';
 import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
@@ -77,8 +70,6 @@ interface IPreferredLocaleDescriptor {
   name: string;
   code: string;
 }
-
-type LoginState = 'none' | 'logging in' | 'creating account' | 'too many devices';
 
 const SUPPORTED_LOCALE_LIST = [
   { name: 'Dansk', code: 'da' },
@@ -112,9 +103,9 @@ export default class AppRenderer {
   private history: History;
   private reduxStore = configureStore();
   private reduxActions = {
-    account: bindActionCreators(accountActions, this.reduxStore.dispatch),
     appUpgrade: bindActionCreators(appUpgradeActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
+    identity: bindActionCreators(identityActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
     userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
@@ -124,11 +115,7 @@ export default class AppRenderer {
   private relayList?: IRelayListWithEndpointData;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
-  private loginState: LoginState = 'none';
   private connectedToDaemon = false;
-
-  private loginScheduler = new Scheduler();
-  private expiryScheduler = new Scheduler();
 
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -160,20 +147,8 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setDaemonAllowed(daemonAllowed);
     });
 
-    IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
-      this.setAccountExpiry(newAccountData?.expiry);
-    });
-
-    IpcRendererEventChannel.account.listenDevice((deviceEvent) => {
-      this.handleDeviceEvent(deviceEvent);
-    });
-
-    IpcRendererEventChannel.account.listenDevices((devices) => {
-      this.reduxActions.account.updateDevices(devices);
-    });
-
-    IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountNumber) => {
-      this.setAccountHistory(newAccountHistory);
+    IpcRendererEventChannel.identity.listen((identity?: IWireguardIdentity) => {
+      this.setWireguardIdentity(identity);
     });
 
     IpcRendererEventChannel.tunnel.listen((newState: TunnelState) => {
@@ -326,14 +301,7 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setDaemonAllowed(initialState.daemonAllowed);
     }
 
-    if (initialState.deviceState) {
-      const deviceState = initialState.deviceState;
-      this.handleDeviceEvent({ type: deviceState.type, deviceState } as DeviceEvent);
-    }
-    // Login state and account needs to be set before expiry.
-    this.setAccountExpiry(initialState.accountData?.expiry);
-
-    this.setAccountHistory(initialState.accountHistory);
+    this.setWireguardIdentity(initialState.wireguardIdentity);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState);
 
@@ -376,8 +344,8 @@ export default class AppRenderer {
       initialState.navigationHistory.lastAction = 'POP';
       this.history = History.fromSavedHistory(initialState.navigationHistory);
     } else {
-      const loginState = this.reduxStore.getState().account.status;
-      const navigationBase = getNavigationBase(this.connectedToDaemon, loginState);
+      const hasIdentity = this.reduxStore.getState().identity.identity !== undefined;
+      const navigationBase = getNavigationBase(this.connectedToDaemon, hasIdentity);
       this.history = new History(navigationBase);
     }
 
@@ -414,10 +382,11 @@ export default class AppRenderer {
     );
   }
 
-  public submitVoucher = (code: string) => IpcRendererEventChannel.account.submitVoucher(code);
-  public updateAccountData = () => IpcRendererEventChannel.account.updateData();
-  public removeDevice = (device: IDeviceRemoval) =>
-    IpcRendererEventChannel.account.removeDevice(device);
+  public importWireguardConfigText = (config: string) =>
+    IpcRendererEventChannel.identity.importText(config);
+  public importWireguardConfigFile = (path: string) =>
+    IpcRendererEventChannel.identity.importFile(path);
+  public clearWireguardIdentity = () => IpcRendererEventChannel.identity.clear();
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
   public disconnectTunnel = (source: DisconnectSource) =>
     IpcRendererEventChannel.tunnel.disconnect(source);
@@ -426,7 +395,6 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
   public setDnsOptions = (dnsOptions: IDnsOptions) =>
     IpcRendererEventChannel.settings.setDnsOptions(dnsOptions);
-  public clearAccountHistory = () => IpcRendererEventChannel.accountHistory.clear();
   public setAutoConnect = (value: boolean) =>
     IpcRendererEventChannel.guiSettings.setAutoConnect(value);
   public setEnableSystemNotifications = (value: boolean) =>
@@ -535,84 +503,6 @@ export default class AppRenderer {
     } else {
       log.error('App upgrade was invoked without a valid verified installer path.');
     }
-  };
-
-  public login = async (accountNumber: AccountNumber) => {
-    const actions = this.reduxActions;
-    actions.account.startLogin(accountNumber);
-
-    log.info('Logging in');
-
-    this.loginState = 'logging in';
-
-    const response = await IpcRendererEventChannel.account.login(accountNumber);
-    if (response?.type === 'error') {
-      if (response.error === 'too-many-devices') {
-        try {
-          await this.fetchDevices(accountNumber);
-
-          actions.account.loginTooManyDevices();
-          this.loginState = 'too many devices';
-        } catch {
-          log.error('Failed to fetch device list');
-          actions.account.loginFailed('list-devices');
-        }
-      } else {
-        actions.account.loginFailed(response.error);
-      }
-    }
-  };
-
-  public cancelLogin = (): void => {
-    const reduxAccount = this.reduxActions.account;
-    reduxAccount.loggedOut();
-    this.loginState = 'none';
-  };
-
-  public logout = async (source: LogoutSource) => {
-    try {
-      await IpcRendererEventChannel.account.logout(source);
-    } catch (e) {
-      const error = e as Error;
-      log.info('Failed to logout: ', error.message);
-    }
-  };
-
-  public leaveRevokedDevice = async () => {
-    await this.logout('gui-device-revoked');
-    await this.disconnectTunnel('gui-device-revoked');
-  };
-
-  public createNewAccount = async () => {
-    log.info('Creating account');
-
-    const actions = this.reduxActions;
-    actions.account.startCreateAccount();
-    this.loginState = 'creating account';
-
-    try {
-      await IpcRendererEventChannel.account.create();
-    } catch (e) {
-      const error = e as Error;
-      actions.account.createAccountFailed(error);
-    }
-  };
-
-  public fetchDevices = async (accountNumber: AccountNumber): Promise<Array<IDevice>> => {
-    const devices = await IpcRendererEventChannel.account.listDevices(accountNumber);
-    this.reduxActions.account.updateDevices(devices);
-    return devices;
-  };
-
-  public openUrlWithAuth = async (url: Url): Promise<void> => {
-    let token = '';
-    try {
-      token = await IpcRendererEventChannel.account.getWwwAuthToken();
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to get the WWW auth token: ${error.message}`);
-    }
-    void this.openUrl(`${url}?token=${token}`);
   };
 
   public setAllowLan = async (allowLan: boolean) => {
@@ -889,8 +779,8 @@ export default class AppRenderer {
     this.reduxActions.appUpgrade.resetAppUpgrade();
   }
 
-  private setAccountHistory(accountHistory?: AccountNumber) {
-    this.reduxActions.account.updateAccountHistory(accountHistory);
+  private setWireguardIdentity(identity?: IWireguardIdentity) {
+    this.reduxActions.identity.updateWireguardIdentity(identity);
   }
 
   private setTunnelState(tunnelState: TunnelState) {
@@ -980,41 +870,6 @@ export default class AppRenderer {
     }
   }
 
-  private handleDeviceEvent(deviceEvent: DeviceEvent) {
-    const reduxAccount = this.reduxActions.account;
-
-    switch (deviceEvent.type) {
-      case 'logged in': {
-        const accountNumber = deviceEvent.deviceState.accountAndDevice.accountNumber;
-        const device = deviceEvent.deviceState.accountAndDevice.device;
-
-        switch (this.loginState) {
-          case 'none':
-            reduxAccount.loggedIn(accountNumber, device);
-            break;
-          case 'logging in':
-            reduxAccount.loggedIn(accountNumber, device);
-            break;
-          case 'creating account':
-            reduxAccount.accountCreated(accountNumber, device, new Date().toISOString());
-            break;
-        }
-        break;
-      }
-      case 'logged out':
-        this.loginScheduler.cancel();
-        reduxAccount.loggedOut();
-        break;
-      case 'revoked': {
-        this.loginScheduler.cancel();
-        reduxAccount.deviceRevoked();
-        break;
-      }
-    }
-
-    this.loginState = 'none';
-  }
-
   private setLocation(location: Partial<ILocation>) {
     this.location = location;
     this.propagateLocationToRedux();
@@ -1058,29 +913,6 @@ export default class AppRenderer {
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {
     this.reduxActions.settings.updateGuiSettings(guiSettings);
-  }
-
-  private setAccountExpiry(expiry?: string) {
-    log.info(`setAccountExpiry(${expiry}) called at ${new Date().toISOString()}`);
-    this.expiryScheduler.cancel();
-
-    if (expiry !== undefined) {
-      const expired = hasExpired(expiry);
-
-      // Set state to expired when expiry date passes.
-      if (!expired && closeToExpiry(expiry)) {
-        const delay = new Date(expiry).getTime() - Date.now() + 1;
-        this.expiryScheduler.schedule(() => this.handleExpiry(expiry), delay);
-      }
-
-      this.handleExpiry(expiry);
-    } else {
-      this.handleExpiry(expiry);
-    }
-  }
-
-  private handleExpiry(expiry?: string) {
-    this.reduxActions.account.updateAccountExpiry(expiry);
   }
 
   private storeAutoStart(autoStart: boolean) {

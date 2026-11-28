@@ -19,17 +19,6 @@ function deserialize_google_protobuf_BoolValue(buffer_arg) {
   return google_protobuf_wrappers_pb.BoolValue.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_google_protobuf_Duration(arg) {
-  if (!(arg instanceof google_protobuf_duration_pb.Duration)) {
-    throw new Error('Expected argument of type google.protobuf.Duration');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_google_protobuf_Duration(buffer_arg) {
-  return google_protobuf_duration_pb.Duration.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_google_protobuf_Empty(arg) {
   if (!(arg instanceof google_protobuf_empty_pb.Empty)) {
     throw new Error('Expected argument of type google.protobuf.Empty');
@@ -83,28 +72,6 @@ function serialize_mullvad_daemon_management_interface_AccessMethodSetting(arg) 
 
 function deserialize_mullvad_daemon_management_interface_AccessMethodSetting(buffer_arg) {
   return management_interface_pb.AccessMethodSetting.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_AccountData(arg) {
-  if (!(arg instanceof management_interface_pb.AccountData)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.AccountData');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_AccountData(buffer_arg) {
-  return management_interface_pb.AccountData.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_AccountHistory(arg) {
-  if (!(arg instanceof management_interface_pb.AccountHistory)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.AccountHistory');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_AccountHistory(buffer_arg) {
-  return management_interface_pb.AccountHistory.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_mullvad_daemon_management_interface_AllowedIpsList(arg) {
@@ -228,39 +195,6 @@ function deserialize_mullvad_daemon_management_interface_DaitaSettings(buffer_ar
   return management_interface_pb.DaitaSettings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_mullvad_daemon_management_interface_DeviceList(arg) {
-  if (!(arg instanceof management_interface_pb.DeviceList)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.DeviceList');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_DeviceList(buffer_arg) {
-  return management_interface_pb.DeviceList.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_DeviceRemoval(arg) {
-  if (!(arg instanceof management_interface_pb.DeviceRemoval)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.DeviceRemoval');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_DeviceRemoval(buffer_arg) {
-  return management_interface_pb.DeviceRemoval.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_DeviceState(arg) {
-  if (!(arg instanceof management_interface_pb.DeviceState)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.DeviceState');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_DeviceState(buffer_arg) {
-  return management_interface_pb.DeviceState.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_mullvad_daemon_management_interface_DnsOptions(arg) {
   if (!(arg instanceof management_interface_pb.DnsOptions)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.DnsOptions');
@@ -358,39 +292,6 @@ function serialize_mullvad_daemon_management_interface_ObfuscationSettings(arg) 
 
 function deserialize_mullvad_daemon_management_interface_ObfuscationSettings(buffer_arg) {
   return management_interface_pb.ObfuscationSettings.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId(arg) {
-  if (!(arg instanceof management_interface_pb.PlayExternalObfuscatedAccountId)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId(buffer_arg) {
-  return management_interface_pb.PlayExternalObfuscatedAccountId.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_PlayPurchase(arg) {
-  if (!(arg instanceof management_interface_pb.PlayPurchase)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayPurchase');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_PlayPurchase(buffer_arg) {
-  return management_interface_pb.PlayPurchase.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_PublicKey(arg) {
-  if (!(arg instanceof management_interface_pb.PublicKey)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.PublicKey');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_PublicKey(buffer_arg) {
-  return management_interface_pb.PublicKey.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_mullvad_daemon_management_interface_QuantumResistantState(arg) {
@@ -525,15 +426,26 @@ function deserialize_mullvad_daemon_management_interface_UUID(buffer_arg) {
   return management_interface_pb.UUID.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_mullvad_daemon_management_interface_VoucherSubmission(arg) {
-  if (!(arg instanceof management_interface_pb.VoucherSubmission)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.VoucherSubmission');
+function serialize_mullvad_daemon_management_interface_WireguardIdentity(arg) {
+  if (!(arg instanceof management_interface_pb.WireguardIdentity)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.WireguardIdentity');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_mullvad_daemon_management_interface_VoucherSubmission(buffer_arg) {
-  return management_interface_pb.VoucherSubmission.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_mullvad_daemon_management_interface_WireguardIdentity(buffer_arg) {
+  return management_interface_pb.WireguardIdentity.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_mullvad_daemon_management_interface_WireguardIdentityState(arg) {
+  if (!(arg instanceof management_interface_pb.WireguardIdentityState)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.WireguardIdentityState');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_WireguardIdentityState(buffer_arg) {
+  return management_interface_pb.WireguardIdentityState.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -901,64 +813,22 @@ setDaitaSettings: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
-  // Account management
-createNewAccount: {
-    path: '/mullvad_daemon.management_interface.ManagementService/CreateNewAccount',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_wrappers_pb.StringValue,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_StringValue,
-    responseDeserialize: deserialize_google_protobuf_StringValue,
-  },
-  loginAccount: {
-    path: '/mullvad_daemon.management_interface.ManagementService/LoginAccount',
+  // WireGuard identity. There are no accounts: the identity is the private key and the tunnel
+// addresses taken from a WireGuard config file generated at mullvad.net.
+// Takes the text of a WireGuard config file. Replaces any existing identity.
+importWireguardConfig: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ImportWireguardConfig',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_wrappers_pb.StringValue,
-    responseType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.WireguardIdentity,
     requestSerialize: serialize_google_protobuf_StringValue,
     requestDeserialize: deserialize_google_protobuf_StringValue,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_WireguardIdentity,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_WireguardIdentity,
   },
-  logoutAccount: {
-    path: '/mullvad_daemon.management_interface.ManagementService/LogoutAccount',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_wrappers_pb.StringValue,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_StringValue,
-    requestDeserialize: deserialize_google_protobuf_StringValue,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  getAccountData: {
-    path: '/mullvad_daemon.management_interface.ManagementService/GetAccountData',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_wrappers_pb.StringValue,
-    responseType: management_interface_pb.AccountData,
-    requestSerialize: serialize_google_protobuf_StringValue,
-    requestDeserialize: deserialize_google_protobuf_StringValue,
-    responseSerialize: serialize_mullvad_daemon_management_interface_AccountData,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_AccountData,
-  },
-  getAccountHistory: {
-    path: '/mullvad_daemon.management_interface.ManagementService/GetAccountHistory',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: management_interface_pb.AccountHistory,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_mullvad_daemon_management_interface_AccountHistory,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_AccountHistory,
-  },
-  clearAccountHistory: {
-    path: '/mullvad_daemon.management_interface.ManagementService/ClearAccountHistory',
+  clearWireguardIdentity: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ClearWireguardIdentity',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,
@@ -968,129 +838,16 @@ createNewAccount: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
-  getWwwAuthToken: {
-    path: '/mullvad_daemon.management_interface.ManagementService/GetWwwAuthToken',
+  getWireguardIdentity: {
+    path: '/mullvad_daemon.management_interface.ManagementService/GetWireguardIdentity',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_wrappers_pb.StringValue,
+    responseType: management_interface_pb.WireguardIdentityState,
     requestSerialize: serialize_google_protobuf_Empty,
     requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_StringValue,
-    responseDeserialize: deserialize_google_protobuf_StringValue,
-  },
-  submitVoucher: {
-    path: '/mullvad_daemon.management_interface.ManagementService/SubmitVoucher',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_wrappers_pb.StringValue,
-    responseType: management_interface_pb.VoucherSubmission,
-    requestSerialize: serialize_google_protobuf_StringValue,
-    requestDeserialize: deserialize_google_protobuf_StringValue,
-    responseSerialize: serialize_mullvad_daemon_management_interface_VoucherSubmission,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_VoucherSubmission,
-  },
-  // Android only
-deleteAccount: {
-    path: '/mullvad_daemon.management_interface.ManagementService/DeleteAccount',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  // Device management
-getDevice: {
-    path: '/mullvad_daemon.management_interface.ManagementService/GetDevice',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: management_interface_pb.DeviceState,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_mullvad_daemon_management_interface_DeviceState,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_DeviceState,
-  },
-  updateDevice: {
-    path: '/mullvad_daemon.management_interface.ManagementService/UpdateDevice',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  listDevices: {
-    path: '/mullvad_daemon.management_interface.ManagementService/ListDevices',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_wrappers_pb.StringValue,
-    responseType: management_interface_pb.DeviceList,
-    requestSerialize: serialize_google_protobuf_StringValue,
-    requestDeserialize: deserialize_google_protobuf_StringValue,
-    responseSerialize: serialize_mullvad_daemon_management_interface_DeviceList,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_DeviceList,
-  },
-  removeDevice: {
-    path: '/mullvad_daemon.management_interface.ManagementService/RemoveDevice',
-    requestStream: false,
-    responseStream: false,
-    requestType: management_interface_pb.DeviceRemoval,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_mullvad_daemon_management_interface_DeviceRemoval,
-    requestDeserialize: deserialize_mullvad_daemon_management_interface_DeviceRemoval,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  // WireGuard key management
-setWireguardRotationInterval: {
-    path: '/mullvad_daemon.management_interface.ManagementService/SetWireguardRotationInterval',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_duration_pb.Duration,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Duration,
-    requestDeserialize: deserialize_google_protobuf_Duration,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  resetWireguardRotationInterval: {
-    path: '/mullvad_daemon.management_interface.ManagementService/ResetWireguardRotationInterval',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  rotateWireguardKey: {
-    path: '/mullvad_daemon.management_interface.ManagementService/RotateWireguardKey',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
-  getWireguardKey: {
-    path: '/mullvad_daemon.management_interface.ManagementService/GetWireguardKey',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: management_interface_pb.PublicKey,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_mullvad_daemon_management_interface_PublicKey,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_PublicKey,
+    responseSerialize: serialize_mullvad_daemon_management_interface_WireguardIdentityState,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_WireguardIdentityState,
   },
   // Custom lists
 createCustomList: {
@@ -1363,29 +1120,6 @@ clearSplitTunnelApps: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_mullvad_daemon_management_interface_ExcludedProcessList,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_ExcludedProcessList,
-  },
-  // Play payment (Android)
-initPlayPurchase: {
-    path: '/mullvad_daemon.management_interface.ManagementService/InitPlayPurchase',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
-    responseType: management_interface_pb.PlayExternalObfuscatedAccountId,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId,
-  },
-  verifyPlayPurchase: {
-    path: '/mullvad_daemon.management_interface.ManagementService/VerifyPlayPurchase',
-    requestStream: false,
-    responseStream: false,
-    requestType: management_interface_pb.PlayPurchase,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_mullvad_daemon_management_interface_PlayPurchase,
-    requestDeserialize: deserialize_mullvad_daemon_management_interface_PlayPurchase,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
   },
   // Check whether the app needs TCC approval for split tunneling (macOS)
 needFullDiskPermissions: {

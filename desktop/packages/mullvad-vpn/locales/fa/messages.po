@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "‏%(amount)d بیشتر..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "‏%(duration)s اضافه شد، حساب تا %(expiry)s پرداخت شد."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -54,12 +51,6 @@ msgid_plural "%d years left"
 msgstr[0] "1 سال باقی‌مانده"
 msgstr[1] "%d سال باقی‌مانده"
 
-msgid "Account paid until %(expiry)s."
-msgstr "حساب تا ‏%(expiry)s پرداخت شده است."
-
-msgid "Account settings"
-msgstr "تنظیمات حساب"
-
 msgid "Add"
 msgstr "افزودن"
 
@@ -83,9 +74,6 @@ msgstr "مسدود کردن اینترنت"
 
 msgid "Buy credit"
 msgstr "خرید اعتبار"
-
-msgid "Buy more credit"
-msgstr "خرید اعتبار بیشتر"
 
 msgid "Cancel"
 msgstr "لغو"
@@ -266,10 +254,6 @@ msgstr "خروج"
 msgid "Reconnect"
 msgstr "اتصال دوباره"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "حذف"
-
 msgid "Remove from list"
 msgstr "حذف از لیست"
 
@@ -314,9 +298,6 @@ msgstr "جست‌وجوی دیگری امتحان کنید."
 
 msgid "Type"
 msgstr "نوع"
-
-msgid "Unblock"
-msgstr "رفع انسداد"
 
 msgid "UNSECURED CONNECTION"
 msgstr "اتصال ناامن"
@@ -384,12 +365,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "اتصال به %(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "کپی کردن شمارهٔ حساب"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -411,13 +386,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "باز کردن ‏%(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "فراموش کردن شمارهٔ حساب ‏%(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -438,12 +406,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "برو به اسلاید %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "پنهان کردن شمارهٔ حساب"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -453,18 +415,6 @@ msgstr "تصویری که ترافیک VPN را با DAITA فعال نشان م�
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "تصویری که ترافیک VPN را بدون DAITA نشان می‌دهد"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "ورود"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "با شمارهٔ حساب ‏%(accountNumber)s وارد شوید"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -524,14 +474,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "%(location)s را از %(customList)s حذف کنید"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "حذف دستگاه با نام ‏%(deviceName)s"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "حذف مورد"
@@ -544,12 +486,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "تنظیمات Shadowsocks"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "نمایش شمارهٔ حساب"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "تنظیمات ‏‏UDP روی TCP"
@@ -557,37 +493,6 @@ msgstr "تنظیمات ‏‏UDP روی TCP"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "برای فوکوس کردن روی دکمهٔ تنظیمات، کلید فلش راست را فشار دهید."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "حساب"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "شماره حساب"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "در حال حاضر در دسترس نیست"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "خروج از حساب کاربری"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "مدیریت دستگاه‌ها"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "زمان به پایان رسیده است"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "پرداخت شده تا"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1029,22 +934,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "شما از آخرین نسخه استفاده می‌کنید"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "مسدود کردن اینترنت: زمان حساب به پایان رسیده است"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "اتصالات هم‌زمان این حساب بیش از حد مجاز است. یکی از دستگاه‌ها را قطع نمایید یا کمی بعد دوباره تلاش کنید."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "نمی‌توان حساب را احراز هویت کرد. لطفاً یک گزارش مشکل ارسال کنید."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "شما با یک شماره‌حساب نامعتبر وارد شده‌اید. لطفاً خارج شوید و شمارهٔ دیگری را امتحان نمایید."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1076,88 +965,8 @@ msgid "Automatic multihop"
 msgstr "چندگامیِ (multihop) خودکار"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "تبریک!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "جزئیات اتصال"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "قطع اتصال"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "یا از وب‌سایت ما اعتبار بخرید یا یک ووچر را فعال کنید."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "کد ووچر را وارد کنید"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "شروع کنید و از اپلیکیشن استفاده نمایید تا بازپس‌گیری حریم خصوصی آنلاین خود را آغاز کنید."
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "این هم شمارهٔ حساب شما. آن را ذخیره کنید!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "دربارهٔ حریم خصوصی بیشتر بدانید"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "زمان به پایان رسیده است"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "فعال‌سازی ووچر"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "به یاد داشته باشید: اگر این گزینه را خاموش کنید، تا زمانی که دوباره آن را در تنظیمات پیشرفته روشن نکنید، هنگام قطع بودن VPN ترافیک شبکه اجازهٔ عبور خواهد داشت."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "شروع استفاده از اپلیکیشن"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "زمان با موفقیت اضافه شد"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "برای افزودن زمان بیشتر، باید اتصال را قطع کنید و با یک اتصالِ غیرامن به اینترنت دسترسی داشته باشید."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "برای ادامهٔ مسیرتان به‌عنوان یک نینجای حریم خصوصی، به وب‌سایت ما سر بزنید و با عادت‌ها و ابزارهای سازگار با حریم خصوصی بیشتر آشنا شوید."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "برای شروع استفاده از اپلیکیشن، ابتدا باید به حساب خود زمان اضافه کنید."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "ووچر با موفقیت فعال شد"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "شما هیچگونه زمان VPN باقیمانده دیگری در این حساب ندارید."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "برای افزودن زمان، باید «حالت قفل» را غیرفعال کنید تا بتوانید به اینترنت دسترسی داشته باشید."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "همه‌چیز آماده است!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1254,126 +1063,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "رله"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "ادامه با ورود"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "ایجاد شده: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "دستگاه فعلی"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "دستگاه غیرفعال است"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "نام دستگاه"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "نام دستگاه: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "حذف دستگاه ناموفق بود"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "رفتن به صفحهٔ ورود"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "با رفتن به صفحهٔ ورود، اینترنت روی این دستگاه باز خواهد شد."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "اگر خارج شوید، دستگاه و نام آن حذف می‌شوند. وقتی دوباره وارد شوید، دستگاه نام جدیدی خواهد گرفت."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "مدیریت دستگاه‌ها"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "لطفاً حداقل یکی از دستگاه‌ها را با حذف آن از فهرست زیر خارج کنید. نام دستگاه مربوطه را می‌توانید در تنظیمات حساب همان دستگاه پیدا کنید."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "حذف"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "حذف <em>%(deviceName)s؟</em>"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "عالی!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "دستگاه از فهرست حذف شده و خارج خواهد شد."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "این نام به دستگاه اختصاص داده شده است. هر دستگاهی که وارد حساب Mullvad می‌شود، یک نام منحصر‌به‌فرد دریافت می‌کند تا هنگام مدیریت دستگاه‌ها در اپلیکیشن یا وب‌سایت، بتوانید آن را شناسایی کنید."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "زمان باقی‌مانده: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "تعداد دستگاه‌ها بیش از حد مجاز است"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "دوباره تلاش کنید"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "تمام دستگاه‌های وارد شده به حساب خود را مشاهده و مدیریت کنید. شما می‌توانید هم‌زمان حداکثر 5 دستگاه در یک حساب داشته باشید. هر دستگاه هنگام ورود یک نام دریافت می‌کند تا بتوانید به‌راحتی آن‌ها را از هم تشخیص دهید."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "شما می‌توانید حداکثر 5 دستگاه را هم‌زمان در یک حساب Mullvad وارد کنید."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "اکنون می‌توانید ورود به این دستگاه را ادامه دهید."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "شما این دستگاه را حذف کرده‌اید. برای اتصال دوباره، باید مجدداً وارد شوید."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1414,10 +1103,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "فقط اجاره‌ای"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. اعتبار بیشتری بخرید."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1428,10 +1113,6 @@ msgstr "نسخهٔ %(suggestedUpgradeVersion)s آمادهٔ نصب است."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> فعال است. لطفاً برای رفع مسدودیت اینترنت، روی «اتصال» کلیک نمایید یا «%(lockdownModeSettingName)s» را غیرفعال کنید."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "اعتبار حساب به‌زودی منقضی می‌شود"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1517,10 +1198,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ممکن است ترافیک شبکه در حال نشت باشد"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "دستگاه جدید ایجاد شد"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "نسخهٔ جدید نصب شد"
 
@@ -1569,13 +1246,6 @@ msgstr "نصب‌کننده با موفقیت اجرا نشد."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "پورت انتخاب‌شدهٔ %(wireGuard)s پشتیبانی نمی‌شود، لطفاً <a>آن را در تنظیمات VPN تغییر دهید.</a>"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "این دستگاه اکنون با نام <em>%(deviceName)s</em> شناخته می‌شود. جزئیات بیشتر را در <a>مدیریت دستگاه‌ها</a> در حساب خود مشاهده کنید."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1709,131 +1379,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "خروج"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> فعال است. برای باز کردن اتصال، آن را غیرفعال کنید."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "حساب ایجاد شد"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "در حال بررسی شمارهٔ حساب"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "ایجاد یک حساب جدید"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "ایجاد حساب جدید"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "در حال ایجاد حساب..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "می‌خواهید یک حساب جدید ایجاد کنید؟"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "می‌خواهید شمارهٔ حساب ذخیره‌شده را حذف کنید؟"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "شمارهٔ حساب خود را وارد کنید"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "خطا"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "ایجاد حساب موفقیت‌آمیز نبود"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "در حال تکمیل ارتقا."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "شمارهٔ حساب نامعتبر است"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "وارد شده‌اید"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "در حال ورود..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "ورود"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "ورود ناموفق بود"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "یا"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "کلید قطع‌کننده ما در حال حاضر اتصال شما را مسدود کرده است."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "لطفاً صبر کنید"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "حذف شمارهٔ حساب ذخیره‌شده از این دستگاه غیرقابل بازگشت است."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "تعداد دستگاه‌ها بیش از حد مجاز است"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "خطای ناشناخته"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "در حال ارتقا..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "شمارهٔ حساب معتبر"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "شما از قبل یک شمارهٔ حساب ذخیره‌شده دارید. با ایجاد حساب جدید، شمارهٔ حساب ذخیره‌شده از این دستگاه حذف خواهد شد. این عمل قابل بازگشت نیست."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1866,17 +1411,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "دسترسی به API"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "اعتبار حساب در %(duration)s منقضی می‌شود. اعتبار بیشتری خریداری کنید."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "زمان حساب به پایان رسیده است"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "اپلیکیشن همگام نیست. لطفاً اپلیکیشن را ببندید و دوباره اجرا کنید."
@@ -1888,10 +1422,6 @@ msgstr "اپلیکیشن همگام نیست. لطفاً اپلیکیشن را �
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "نسخهٔ بتای جدید موجود است. جدیدترین نسخهٔ بتا (%(version)s) را امتحان کنید."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "خرید بیشتر"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2034,50 +1564,6 @@ msgstr "حریم خصوصی شما ممکن است با این نسخهٔ اپل
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "حریم خصوصی شما ممکن است با این نسخهٔ اپلیکیشن پشتیبانی‌نشده در خطر باشد. لطفاً هم‌اکنون به‌روزرسانی کنید."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "لغو"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "کد ووچر را وارد کنید"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "فعال‌سازی ووچر"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "خطایی رخ داد."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "به نظر می‌رسد که به جای کد ووچر، شمارهٔ حساب وارد کرده‌اید. اگر می‌خواهید حساب فعال را تغییر دهید، لطفاً ابتدا خارج شوید."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "فعال‌سازی"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "در حال تأیید ووچر..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "کد ووچر قبلاً استفاده شده است."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "کد ووچر نامعتبر است."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "ووچر با موفقیت فعال شد."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4166,4 +3652,3 @@ msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "روز باقی‌مانده خود را از دست خواهید داد."
 msgstr[1] "%d روز باقی‌مانده خود را از دست خواهید داد."
-

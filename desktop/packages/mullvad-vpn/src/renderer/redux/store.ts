@@ -1,12 +1,12 @@
 import { useSelector as useReduxSelector } from 'react-redux';
 import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from 'redux';
 
-import accountActions, { AccountAction } from './account/actions';
-import accountReducer, { IAccountReduxState } from './account/reducers';
 import { AppUpgradeAction, appUpgradeActions } from './app-upgrade/actions';
 import { appUpgradeReducer, AppUpgradeReduxState } from './app-upgrade/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
+import identityActions, { IdentityAction } from './identity/actions';
+import identityReducer, { IIdentityReduxState } from './identity/reducers';
 import settingsActions, { SettingsAction } from './settings/actions';
 import settingsReducer, { ISettingsReduxState } from './settings/reducers';
 import { SettingsImportAction } from './settings-import/actions';
@@ -19,9 +19,9 @@ import versionActions, { VersionAction } from './version/actions';
 import versionReducer, { IVersionReduxState } from './version/reducers';
 
 export interface IReduxState {
-  account: IAccountReduxState;
   appUpgrade: AppUpgradeReduxState;
   connection: IConnectionReduxState;
+  identity: IIdentityReduxState;
   settings: ISettingsReduxState;
   support: ISupportReduxState;
   version: IVersionReduxState;
@@ -31,8 +31,8 @@ export interface IReduxState {
 
 export type ReduxAction =
   | AppUpgradeAction
-  | AccountAction
   | ConnectionAction
+  | IdentityAction
   | SettingsAction
   | SupportAction
   | VersionAction
@@ -43,9 +43,9 @@ export type ReduxDispatch = Dispatch<ReduxAction>;
 
 export default function configureStore() {
   const reducers = {
-    account: accountReducer,
     appUpgrade: appUpgradeReducer,
     connection: connectionReducer,
+    identity: identityReducer,
     settings: settingsReducer,
     support: supportReducer,
     version: versionReducer,
@@ -60,9 +60,9 @@ export default function configureStore() {
 
 function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
-    ...accountActions,
     ...appUpgradeActions,
     ...connectionActions,
+    ...identityActions,
     ...settingsActions,
     ...supportActions,
     ...versionActions,

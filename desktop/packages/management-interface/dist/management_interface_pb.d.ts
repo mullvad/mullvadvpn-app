@@ -309,81 +309,6 @@ export namespace UUID {
     }
 }
 
-export class AccountData extends jspb.Message { 
-    getId(): string;
-    setId(value: string): AccountData;
-
-    hasExpiry(): boolean;
-    clearExpiry(): void;
-    getExpiry(): google_protobuf_timestamp_pb.Timestamp | undefined;
-    setExpiry(value?: google_protobuf_timestamp_pb.Timestamp): AccountData;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): AccountData.AsObject;
-    static toObject(includeInstance: boolean, msg: AccountData): AccountData.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: AccountData, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): AccountData;
-    static deserializeBinaryFromReader(message: AccountData, reader: jspb.BinaryReader): AccountData;
-}
-
-export namespace AccountData {
-    export type AsObject = {
-        id: string,
-        expiry?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    }
-}
-
-export class AccountHistory extends jspb.Message { 
-
-    hasNumber(): boolean;
-    clearNumber(): void;
-    getNumber(): google_protobuf_wrappers_pb.StringValue | undefined;
-    setNumber(value?: google_protobuf_wrappers_pb.StringValue): AccountHistory;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): AccountHistory.AsObject;
-    static toObject(includeInstance: boolean, msg: AccountHistory): AccountHistory.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: AccountHistory, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): AccountHistory;
-    static deserializeBinaryFromReader(message: AccountHistory, reader: jspb.BinaryReader): AccountHistory;
-}
-
-export namespace AccountHistory {
-    export type AsObject = {
-        number?: google_protobuf_wrappers_pb.StringValue.AsObject,
-    }
-}
-
-export class VoucherSubmission extends jspb.Message { 
-    getSecondsAdded(): number;
-    setSecondsAdded(value: number): VoucherSubmission;
-
-    hasNewExpiry(): boolean;
-    clearNewExpiry(): void;
-    getNewExpiry(): google_protobuf_timestamp_pb.Timestamp | undefined;
-    setNewExpiry(value?: google_protobuf_timestamp_pb.Timestamp): VoucherSubmission;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): VoucherSubmission.AsObject;
-    static toObject(includeInstance: boolean, msg: VoucherSubmission): VoucherSubmission.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: VoucherSubmission, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): VoucherSubmission;
-    static deserializeBinaryFromReader(message: VoucherSubmission, reader: jspb.BinaryReader): VoucherSubmission;
-}
-
-export namespace VoucherSubmission {
-    export type AsObject = {
-        secondsAdded: number,
-        newExpiry?: google_protobuf_timestamp_pb.Timestamp.AsObject,
-    }
-}
-
 export class ErrorState extends jspb.Message { 
     getCause(): ErrorState.Cause;
     setCause(value: ErrorState.Cause): ErrorState;
@@ -2547,11 +2472,6 @@ export class TunnelOptions extends jspb.Message {
     getMtu(): number | undefined;
     setMtu(value: number): TunnelOptions;
 
-    hasRotationInterval(): boolean;
-    clearRotationInterval(): void;
-    getRotationInterval(): google_protobuf_duration_pb.Duration | undefined;
-    setRotationInterval(value?: google_protobuf_duration_pb.Duration): TunnelOptions;
-
     hasQuantumResistant(): boolean;
     clearQuantumResistant(): void;
     getQuantumResistant(): QuantumResistantState | undefined;
@@ -2584,7 +2504,6 @@ export class TunnelOptions extends jspb.Message {
 export namespace TunnelOptions {
     export type AsObject = {
         mtu?: number,
-        rotationInterval?: google_protobuf_duration_pb.Duration.AsObject,
         quantumResistant?: QuantumResistantState.AsObject,
         daita?: DaitaSettings.AsObject,
         enableIpv6: boolean,
@@ -3065,15 +2984,10 @@ export class DaemonEvent extends jspb.Message {
     getVersionInfo(): AppVersionInfo | undefined;
     setVersionInfo(value?: AppVersionInfo): DaemonEvent;
 
-    hasDevice(): boolean;
-    clearDevice(): void;
-    getDevice(): DeviceEvent | undefined;
-    setDevice(value?: DeviceEvent): DaemonEvent;
-
-    hasRemoveDevice(): boolean;
-    clearRemoveDevice(): void;
-    getRemoveDevice(): RemoveDeviceEvent | undefined;
-    setRemoveDevice(value?: RemoveDeviceEvent): DaemonEvent;
+    hasWireguardIdentity(): boolean;
+    clearWireguardIdentity(): void;
+    getWireguardIdentity(): WireguardIdentityState | undefined;
+    setWireguardIdentity(value?: WireguardIdentityState): DaemonEvent;
 
     hasNewAccessMethod(): boolean;
     clearNewAccessMethod(): void;
@@ -3103,8 +3017,7 @@ export namespace DaemonEvent {
         settings?: Settings.AsObject,
         relayList?: RelayList.AsObject,
         versionInfo?: AppVersionInfo.AsObject,
-        device?: DeviceEvent.AsObject,
-        removeDevice?: RemoveDeviceEvent.AsObject,
+        wireguardIdentity?: WireguardIdentityState.AsObject,
         newAccessMethod?: AccessMethodSetting.AsObject,
         leakInfo?: LeakInfo.AsObject,
     }
@@ -3115,8 +3028,7 @@ export namespace DaemonEvent {
         SETTINGS = 2,
         RELAY_LIST = 3,
         VERSION_INFO = 4,
-        DEVICE = 5,
-        REMOVE_DEVICE = 6,
+        WIREGUARD_IDENTITY = 5,
         NEW_ACCESS_METHOD = 7,
         LEAK_INFO = 8,
     }
@@ -3332,204 +3244,55 @@ export namespace PortRange {
     }
 }
 
-export class AccountAndDevice extends jspb.Message { 
-    getAccountNumber(): string;
-    setAccountNumber(value: string): AccountAndDevice;
+export class WireguardIdentity extends jspb.Message { 
 
-    hasDevice(): boolean;
-    clearDevice(): void;
-    getDevice(): Device | undefined;
-    setDevice(value?: Device): AccountAndDevice;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): AccountAndDevice.AsObject;
-    static toObject(includeInstance: boolean, msg: AccountAndDevice): AccountAndDevice.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: AccountAndDevice, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): AccountAndDevice;
-    static deserializeBinaryFromReader(message: AccountAndDevice, reader: jspb.BinaryReader): AccountAndDevice;
-}
-
-export namespace AccountAndDevice {
-    export type AsObject = {
-        accountNumber: string,
-        device?: Device.AsObject,
-    }
-}
-
-export class Device extends jspb.Message { 
-    getId(): string;
-    setId(value: string): Device;
-    getName(): string;
-    setName(value: string): Device;
-    getPubkey(): Uint8Array | string;
-    getPubkey_asU8(): Uint8Array;
-    getPubkey_asB64(): string;
-    setPubkey(value: Uint8Array | string): Device;
-    getHijackDns(): boolean;
-    setHijackDns(value: boolean): Device;
-
-    hasCreated(): boolean;
-    clearCreated(): void;
-    getCreated(): google_protobuf_timestamp_pb.Timestamp | undefined;
-    setCreated(value?: google_protobuf_timestamp_pb.Timestamp): Device;
+    hasPublicKey(): boolean;
+    clearPublicKey(): void;
+    getPublicKey(): PublicKey | undefined;
+    setPublicKey(value?: PublicKey): WireguardIdentity;
+    getIpv4Address(): string;
+    setIpv4Address(value: string): WireguardIdentity;
+    getIpv6Address(): string;
+    setIpv6Address(value: string): WireguardIdentity;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): Device.AsObject;
-    static toObject(includeInstance: boolean, msg: Device): Device.AsObject;
+    toObject(includeInstance?: boolean): WireguardIdentity.AsObject;
+    static toObject(includeInstance: boolean, msg: WireguardIdentity): WireguardIdentity.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: Device, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): Device;
-    static deserializeBinaryFromReader(message: Device, reader: jspb.BinaryReader): Device;
+    static serializeBinaryToWriter(message: WireguardIdentity, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): WireguardIdentity;
+    static deserializeBinaryFromReader(message: WireguardIdentity, reader: jspb.BinaryReader): WireguardIdentity;
 }
 
-export namespace Device {
+export namespace WireguardIdentity {
     export type AsObject = {
-        id: string,
-        name: string,
-        pubkey: Uint8Array | string,
-        hijackDns: boolean,
-        created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+        publicKey?: PublicKey.AsObject,
+        ipv4Address: string,
+        ipv6Address: string,
     }
 }
 
-export class DeviceList extends jspb.Message { 
-    clearDevicesList(): void;
-    getDevicesList(): Array<Device>;
-    setDevicesList(value: Array<Device>): DeviceList;
-    addDevices(value?: Device, index?: number): Device;
+export class WireguardIdentityState extends jspb.Message { 
+
+    hasIdentity(): boolean;
+    clearIdentity(): void;
+    getIdentity(): WireguardIdentity | undefined;
+    setIdentity(value?: WireguardIdentity): WireguardIdentityState;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): DeviceList.AsObject;
-    static toObject(includeInstance: boolean, msg: DeviceList): DeviceList.AsObject;
+    toObject(includeInstance?: boolean): WireguardIdentityState.AsObject;
+    static toObject(includeInstance: boolean, msg: WireguardIdentityState): WireguardIdentityState.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: DeviceList, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): DeviceList;
-    static deserializeBinaryFromReader(message: DeviceList, reader: jspb.BinaryReader): DeviceList;
+    static serializeBinaryToWriter(message: WireguardIdentityState, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): WireguardIdentityState;
+    static deserializeBinaryFromReader(message: WireguardIdentityState, reader: jspb.BinaryReader): WireguardIdentityState;
 }
 
-export namespace DeviceList {
+export namespace WireguardIdentityState {
     export type AsObject = {
-        devicesList: Array<Device.AsObject>,
-    }
-}
-
-export class DeviceRemoval extends jspb.Message { 
-    getAccountNumber(): string;
-    setAccountNumber(value: string): DeviceRemoval;
-    getDeviceId(): string;
-    setDeviceId(value: string): DeviceRemoval;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): DeviceRemoval.AsObject;
-    static toObject(includeInstance: boolean, msg: DeviceRemoval): DeviceRemoval.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: DeviceRemoval, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): DeviceRemoval;
-    static deserializeBinaryFromReader(message: DeviceRemoval, reader: jspb.BinaryReader): DeviceRemoval;
-}
-
-export namespace DeviceRemoval {
-    export type AsObject = {
-        accountNumber: string,
-        deviceId: string,
-    }
-}
-
-export class DeviceState extends jspb.Message { 
-    getState(): DeviceState.State;
-    setState(value: DeviceState.State): DeviceState;
-
-    hasDevice(): boolean;
-    clearDevice(): void;
-    getDevice(): AccountAndDevice | undefined;
-    setDevice(value?: AccountAndDevice): DeviceState;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): DeviceState.AsObject;
-    static toObject(includeInstance: boolean, msg: DeviceState): DeviceState.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: DeviceState, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): DeviceState;
-    static deserializeBinaryFromReader(message: DeviceState, reader: jspb.BinaryReader): DeviceState;
-}
-
-export namespace DeviceState {
-    export type AsObject = {
-        state: DeviceState.State,
-        device?: AccountAndDevice.AsObject,
-    }
-
-    export enum State {
-    LOGGED_IN = 0,
-    LOGGED_OUT = 1,
-    REVOKED = 2,
-    }
-
-}
-
-export class DeviceEvent extends jspb.Message { 
-    getCause(): DeviceEvent.Cause;
-    setCause(value: DeviceEvent.Cause): DeviceEvent;
-
-    hasNewState(): boolean;
-    clearNewState(): void;
-    getNewState(): DeviceState | undefined;
-    setNewState(value?: DeviceState): DeviceEvent;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): DeviceEvent.AsObject;
-    static toObject(includeInstance: boolean, msg: DeviceEvent): DeviceEvent.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: DeviceEvent, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): DeviceEvent;
-    static deserializeBinaryFromReader(message: DeviceEvent, reader: jspb.BinaryReader): DeviceEvent;
-}
-
-export namespace DeviceEvent {
-    export type AsObject = {
-        cause: DeviceEvent.Cause,
-        newState?: DeviceState.AsObject,
-    }
-
-    export enum Cause {
-    LOGGED_IN = 0,
-    LOGGED_OUT = 1,
-    REVOKED = 2,
-    UPDATED = 3,
-    ROTATED_KEY = 4,
-    }
-
-}
-
-export class RemoveDeviceEvent extends jspb.Message { 
-    getAccountNumber(): string;
-    setAccountNumber(value: string): RemoveDeviceEvent;
-    clearNewDeviceListList(): void;
-    getNewDeviceListList(): Array<Device>;
-    setNewDeviceListList(value: Array<Device>): RemoveDeviceEvent;
-    addNewDeviceList(value?: Device, index?: number): Device;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): RemoveDeviceEvent.AsObject;
-    static toObject(includeInstance: boolean, msg: RemoveDeviceEvent): RemoveDeviceEvent.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: RemoveDeviceEvent, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): RemoveDeviceEvent;
-    static deserializeBinaryFromReader(message: RemoveDeviceEvent, reader: jspb.BinaryReader): RemoveDeviceEvent;
-}
-
-export namespace RemoveDeviceEvent {
-    export type AsObject = {
-        accountNumber: string,
-        newDeviceListList: Array<Device.AsObject>,
+        identity?: WireguardIdentity.AsObject,
     }
 }
 
@@ -3555,72 +3318,6 @@ export namespace LeakInfo {
     export type AsObject = {
         ipAddrsList: Array<string>,
         pb_interface: string,
-    }
-}
-
-export class PlayExternalObfuscatedAccountId extends jspb.Message { 
-    getId(): string;
-    setId(value: string): PlayExternalObfuscatedAccountId;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): PlayExternalObfuscatedAccountId.AsObject;
-    static toObject(includeInstance: boolean, msg: PlayExternalObfuscatedAccountId): PlayExternalObfuscatedAccountId.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: PlayExternalObfuscatedAccountId, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): PlayExternalObfuscatedAccountId;
-    static deserializeBinaryFromReader(message: PlayExternalObfuscatedAccountId, reader: jspb.BinaryReader): PlayExternalObfuscatedAccountId;
-}
-
-export namespace PlayExternalObfuscatedAccountId {
-    export type AsObject = {
-        id: string,
-    }
-}
-
-export class PlayPurchase extends jspb.Message { 
-    getProductId(): string;
-    setProductId(value: string): PlayPurchase;
-
-    hasPurchaseToken(): boolean;
-    clearPurchaseToken(): void;
-    getPurchaseToken(): PlayPurchasePaymentToken | undefined;
-    setPurchaseToken(value?: PlayPurchasePaymentToken): PlayPurchase;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): PlayPurchase.AsObject;
-    static toObject(includeInstance: boolean, msg: PlayPurchase): PlayPurchase.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: PlayPurchase, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): PlayPurchase;
-    static deserializeBinaryFromReader(message: PlayPurchase, reader: jspb.BinaryReader): PlayPurchase;
-}
-
-export namespace PlayPurchase {
-    export type AsObject = {
-        productId: string,
-        purchaseToken?: PlayPurchasePaymentToken.AsObject,
-    }
-}
-
-export class PlayPurchasePaymentToken extends jspb.Message { 
-    getToken(): string;
-    setToken(value: string): PlayPurchasePaymentToken;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): PlayPurchasePaymentToken.AsObject;
-    static toObject(includeInstance: boolean, msg: PlayPurchasePaymentToken): PlayPurchasePaymentToken.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: PlayPurchasePaymentToken, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): PlayPurchasePaymentToken;
-    static deserializeBinaryFromReader(message: PlayPurchasePaymentToken, reader: jspb.BinaryReader): PlayPurchasePaymentToken;
-}
-
-export namespace PlayPurchasePaymentToken {
-    export type AsObject = {
-        token: string,
     }
 }
 

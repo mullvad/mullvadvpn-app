@@ -16,39 +16,23 @@ test.afterAll(async () => {
   await util?.closePage();
 });
 
-test('Account button should be displayed correctly', async () => {
-  const accountButton = page.getByLabel('Account settings');
-  await expect(accountButton).toBeVisible();
+test('WireGuard config button should be displayed correctly', async () => {
+  const configButton = page.getByTestId('config-button');
+  await expect(configButton).toBeVisible();
 });
 
-test('Headerbar account info should be displayed correctly', async () => {
-  const expiryText = page.getByText(/^Time left:/);
-  await expect(expiryText).toContainText(/Time left: 29 days/i);
+test('WireGuard config view should show the imported identity', async () => {
+  await page.getByTestId('config-button').click();
+  await util.expectRoute(RoutePath.wireguardConfig);
 
-  /**
-   * 729 days left
-   * Add a one-second margin to the test, since it randomly fails in Github Actions otherwise
-   */
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000 - 1000).toISOString(),
-  });
-  await expect(expiryText).toContainText(/Time left: 729 days/i);
+  await expect(page.getByTestId('wireguard-ipv4')).toContainText('10.64.0.2/32');
+  await expect(page.getByTestId('wireguard-ipv6')).toContainText('fc00:bbbb:bbbb:bb01::1/128');
+  await expect(page.getByTestId('wireguard-public-key')).toContainText(
+    'bXlwdWJsaWNrZXlmb3J0ZXN0aW5nb25seTEyMzQ1Njc=',
+  );
 
-  /**
-   * 2 years left
-   */
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() + 731 * 24 * 60 * 60 * 1000).toISOString(),
-  });
-  await expect(expiryText).toContainText(/Time left: 2 years/i);
-
-  /**
-   * Expiry 1 day ago should show 'out of time'
-   */
-  await util.ipc.account[''].notify({
-    expiry: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  });
-  await expect(expiryText).not.toBeVisible();
+  await page.getByRole('button', { name: /(Back|Close)/ }).click();
+  await util.expectRoute(RoutePath.main);
 });
 
 test('Settings Page', async () => {

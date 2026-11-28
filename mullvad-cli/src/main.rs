@@ -62,9 +62,9 @@ impl CompletionShell {
 #[command(version = mullvad_version::VERSION, about, long_about = None)]
 #[command(propagate_version = true)]
 enum Cli {
-    /// Control and display information about your Mullvad account
+    /// Import, show or remove the WireGuard config that this app connects with
     #[clap(subcommand)]
-    Account(account::Account),
+    Config(config::Config),
 
     /// Control the daemon auto-connect setting
     #[clap(subcommand)]
@@ -178,7 +178,7 @@ enum Cli {
         assume_yes: bool,
     },
 
-    /// Reset settings only, but remain logged in and keep logs and caches
+    /// Reset settings only, but keep the imported WireGuard config, logs and caches
     ResetSettings {
         #[clap(long, short = 'y', default_value_t = false)]
         assume_yes: bool,
@@ -224,7 +224,7 @@ async fn main() -> Result<()> {
     handle_sigpipe().unwrap();
 
     match Cli::parse() {
-        Cli::Account(cmd) => cmd.handle().await,
+        Cli::Config(cmd) => cmd.handle().await,
         Cli::Connect { wait } => tunnel_state::connect(wait).await,
         Cli::Reconnect { wait } => tunnel_state::reconnect(wait).await,
         Cli::Debug(cmd) => cmd.handle().await,

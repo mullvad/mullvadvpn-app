@@ -80,23 +80,11 @@ pub enum Error {
     #[error("Missing daemon event")]
     MissingDaemonEvent,
 
-    #[error("This voucher code is invalid")]
-    InvalidVoucher,
+    #[error("Invalid WireGuard config: {0}")]
+    InvalidWireguardConfig(String),
 
-    #[error("This voucher code has already been used")]
-    UsedVoucher,
-
-    #[error("There are too many devices on the account. One must be revoked to log in")]
-    TooManyDevices,
-
-    #[error("You are already logged in. Log out to create a new account")]
-    AlreadyLoggedIn,
-
-    #[error("The account does not exist")]
-    InvalidAccount,
-
-    #[error("There is no such device")]
-    DeviceNotFound,
+    #[error("No WireGuard config has been imported")]
+    NoWireguardIdentity,
 
     #[error("Location data is unavailable")]
     NoLocationData,

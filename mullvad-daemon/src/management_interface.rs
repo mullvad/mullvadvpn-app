@@ -1,5 +1,5 @@
 use crate::{
-    DaemonCommand, DaemonCommandSender, account_history, device,
+    DaemonCommand, DaemonCommandSender, identity::IdentityHandle,
     migrations::multihop::scenario::Scenario,
 };
 use futures::{
@@ -18,7 +18,6 @@ use mullvad_management_interface::{
 };
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
-    account::AccountNumber,
     relay_constraints::{
         ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
@@ -26,7 +25,7 @@ use mullvad_types::{
     settings::{DnsOptions, Settings, SettingsKeyList},
     states::{TargetState, TunnelState},
     version,
-    wireguard::{RotationInterval, RotationIntervalError},
+    wireguard::WireguardIdentityInfo,
 };
 use std::collections::BTreeSet;
 use std::{
@@ -35,7 +34,6 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use talpid_error::ErrorExt;
 use tokio::time::timeout;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -55,6 +53,7 @@ struct ManagementServiceImpl {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
     log_reload_handle: crate::logging::LogHandle,
+    identity: IdentityHandle,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -63,9 +62,6 @@ type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::Dae
 
 type AppUpgradeEventListenerReceiver =
     Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
-
-const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
-const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 
 #[mullvad_management_interface::async_trait]
 impl ManagementService for ManagementServiceImpl {
@@ -79,6 +75,12 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("connect_tunnel");
+
+        if self.identity.get().await.is_none() {
+            return Err(Status::failed_precondition(
+                "No WireGuard config has been imported. Import a config generated at mullvad.net first",
+            ));
+        }
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
@@ -399,224 +401,45 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    // Account management
+    // WireGuard identity
     //
 
-    async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
-        log::debug!("create_new_account");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    async fn login_account(&self, request: Request<AccountNumber>) -> ServiceResult<()> {
-        log::debug!("login_account");
-        let account_number = request.into_inner();
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::LoginAccount(tx, account_number))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    async fn logout_account(&self, request: Request<String>) -> ServiceResult<()> {
-        let source = request.into_inner();
-        log::debug!("logout_account (source: {source})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::LogoutAccount(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    #[cfg(target_os = "android")]
-    async fn delete_account(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("delete_account");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::DeleteAccount(tx))?;
-        let result = self
-            .wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error);
-        let (tx, _) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
-        result
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn delete_account(&self, _: Request<()>) -> ServiceResult<()> {
-        log::error!("Called `delete_account` on non-Android platform");
-        Ok(Response::new(()))
-    }
-
-    async fn get_account_data(
-        &self,
-        request: Request<AccountNumber>,
-    ) -> ServiceResult<types::AccountData> {
-        log::debug!("get_account_data");
-        let account_number = request.into_inner();
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_number))?;
-        let result = self.wait_for_result(rx).await?;
-        result
-            .map(|account_data| Response::new(types::AccountData::from(account_data)))
-            .map_err(|error: RestError| {
-                log::error!(
-                    "Unable to get account data from API: {}",
-                    error.display_chain()
-                );
-                map_rest_error(&error)
-            })
-    }
-
-    async fn get_account_history(&self, _: Request<()>) -> ServiceResult<types::AccountHistory> {
-        log::debug!("get_account_history");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))?;
-        self.wait_for_result(rx)
-            .await
-            .map(|history| Response::new(types::AccountHistory { number: history }))
-    }
-
-    async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("clear_account_history");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    async fn get_www_auth_token(&self, _: Request<()>) -> ServiceResult<String> {
-        log::debug!("get_www_auth_token");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))?;
-        let result = self.wait_for_result(rx).await?;
-        result.map(Response::new).map_err(|error| {
-            log::error!(
-                "Unable to get account data from API: {}",
-                error.display_chain()
-            );
-            map_daemon_error(error)
-        })
-    }
-
-    async fn submit_voucher(
+    async fn import_wireguard_config(
         &self,
         request: Request<String>,
-    ) -> ServiceResult<types::VoucherSubmission> {
-        log::debug!("submit_voucher");
-        let voucher = request.into_inner();
+    ) -> ServiceResult<types::WireguardIdentity> {
+        // Note: the config contains a private key, so it must never be logged.
+        log::debug!("import_wireguard_config");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))?;
-        let result = self.wait_for_result(rx).await?;
-        result
-            .map(|submission| Response::new(types::VoucherSubmission::from(submission)))
-            .map_err(map_daemon_error)
-    }
-
-    // Device management
-    async fn get_device(&self, _: Request<()>) -> ServiceResult<types::DeviceState> {
-        log::debug!("get_device");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetDevice(tx))?;
-        let device = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-        Ok(Response::new(types::DeviceState::from(device)))
-    }
-
-    async fn update_device(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("update_device");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::UpdateDevice(tx))?;
+        self.send_command_to_daemon(DaemonCommand::ImportWireguardConfig(
+            tx,
+            request.into_inner(),
+        ))?;
         self.wait_for_result(rx)
             .await?
+            .map(|info| Response::new(types::WireguardIdentity::from(info)))
             .map_err(map_daemon_error)
-            .map(Response::new)
     }
 
-    async fn list_devices(
-        &self,
-        request: Request<AccountNumber>,
-    ) -> ServiceResult<types::DeviceList> {
-        log::debug!("list_devices");
+    async fn clear_wireguard_identity(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_wireguard_identity");
         let (tx, rx) = oneshot::channel();
-        let token = request.into_inner();
-        self.send_command_to_daemon(DaemonCommand::ListDevices(tx, token))?;
-        let device = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-        Ok(Response::new(types::DeviceList::from(device)))
-    }
-
-    async fn remove_device(&self, request: Request<types::DeviceRemoval>) -> ServiceResult<()> {
-        log::debug!("remove_device");
-        let (tx, rx) = oneshot::channel();
-        let removal = request.into_inner();
-        self.send_command_to_daemon(DaemonCommand::RemoveDevice(
-            tx,
-            removal.account_number,
-            removal.device_id,
-        ))?;
-        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-        Ok(Response::new(()))
-    }
-
-    // WireGuard key management
-    //
-
-    async fn set_wireguard_rotation_interval(
-        &self,
-        request: Request<types::Duration>,
-    ) -> ServiceResult<()> {
-        let interval: RotationInterval = Duration::try_from(request.into_inner())
-            .map_err(|_| Status::invalid_argument("unexpected negative rotation interval"))?
-            .try_into()
-            .map_err(|error: RotationIntervalError| {
-                Status::invalid_argument(error.display_chain())
-            })?;
-
-        log::debug!("set_wireguard_rotation_interval({:?})", interval);
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(
-            tx,
-            Some(interval),
-        ))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
-    async fn reset_wireguard_rotation_interval(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("reset_wireguard_rotation_interval");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))?;
-        self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
-    async fn rotate_wireguard_key(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("rotate_wireguard_key");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RotateWireguardKey(tx))?;
+        self.send_command_to_daemon(DaemonCommand::ClearWireguardIdentity(tx))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
             .map_err(map_daemon_error)
     }
 
-    async fn get_wireguard_key(&self, _: Request<()>) -> ServiceResult<types::PublicKey> {
-        log::debug!("get_wireguard_key");
+    async fn get_wireguard_identity(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::WireguardIdentityState> {
+        log::debug!("get_wireguard_identity");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))?;
-        let key = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-        match key {
-            Some(key) => Ok(Response::new(types::PublicKey::from(key))),
-            None => Err(Status::not_found("no WireGuard key was found")),
-        }
+        self.send_command_to_daemon(DaemonCommand::GetWireguardIdentity(tx))?;
+        let info = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::identity_state_to_proto(info)))
     }
 
     async fn set_wireguard_allowed_ips(
@@ -1067,60 +890,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(blob))
     }
 
-    #[cfg(target_os = "android")]
-    async fn init_play_purchase(
-        &self,
-        _request: Request<()>,
-    ) -> ServiceResult<types::PlayExternalObfuscatedAccountId> {
-        log::debug!("init_play_purchase");
-
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::InitPlayPurchase(tx))?;
-
-        let external_obufscated_account_id = self
-            .wait_for_result(rx)
-            .await?
-            .map(types::PlayExternalObfuscatedAccountId::from)
-            .map_err(map_daemon_error)?;
-
-        Ok(Response::new(external_obufscated_account_id))
-    }
-
-    /// On non-Android platforms, the return value will be useless.
-    #[cfg(not(target_os = "android"))]
-    async fn init_play_purchase(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<types::PlayExternalObfuscatedAccountId> {
-        log::error!("Called `init_play_purchase` on non-Android platform");
-        Ok(Response::new(types::PlayExternalObfuscatedAccountId {
-            id: String::default(),
-        }))
-    }
-
-    #[cfg(target_os = "android")]
-    async fn verify_play_purchase(
-        &self,
-        request: Request<types::PlayPurchase>,
-    ) -> ServiceResult<()> {
-        log::debug!("verify_play_purchase");
-
-        let (tx, rx) = oneshot::channel();
-        let play_purchase = mullvad_types::account::PlayPurchase::try_from(request.into_inner())?;
-
-        self.send_command_to_daemon(DaemonCommand::VerifyPlayPurchase(tx, play_purchase))?;
-
-        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
-
-        Ok(Response::new(()))
-    }
-
-    #[cfg(not(target_os = "android"))]
-    async fn verify_play_purchase(&self, _: Request<types::PlayPurchase>) -> ServiceResult<()> {
-        log::error!("Called `verify_play_purchase` on non-Android platform");
-        Ok(Response::new(()))
-    }
-
     async fn get_feature_indicators(
         &self,
         _: Request<()>,
@@ -1507,6 +1276,7 @@ impl ManagementInterfaceServer {
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
         relay_selector: RelaySelectorIO,
+        identity: IdentityHandle,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1520,6 +1290,7 @@ impl ManagementInterfaceServer {
             subscriptions: subscriptions.clone(),
             app_upgrade_broadcast,
             log_reload_handle,
+            identity,
         };
 
         let relay_selector_service = RelaySelectorServer::new(relay_selector);
@@ -1668,25 +1439,12 @@ impl ManagementInterfaceEventBroadcaster {
         })
     }
 
-    /// Notify that device changed (login, logout, or key rotation).
-    pub(crate) fn notify_device_event(&self, device: mullvad_types::device::DeviceEvent) {
-        log::debug!("Broadcasting device event");
+    /// Notify that the WireGuard identity was imported, replaced or cleared.
+    pub(crate) fn notify_wireguard_identity(&self, identity: Option<WireguardIdentityInfo>) {
+        log::debug!("Broadcasting WireGuard identity event");
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::Device(types::DeviceEvent::from(
-                device,
-            ))),
-        })
-    }
-
-    /// Notify that a device was revoked using `RemoveDevice`.
-    pub(crate) fn notify_remove_device_event(
-        &self,
-        remove_event: mullvad_types::device::RemoveDeviceEvent,
-    ) {
-        log::debug!("Broadcasting remove device event");
-        self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::RemoveDevice(
-                types::RemoveDeviceEvent::from(remove_event),
+            event: Some(daemon_event::Event::WireguardIdentity(
+                types::identity_state_to_proto(identity),
             )),
         })
     }
@@ -1712,23 +1470,13 @@ fn map_daemon_error(error: crate::Error) -> Status {
     match error {
         DaemonError::RestError(error) => map_rest_error(&error),
         DaemonError::SettingsError(error) => Status::from(error),
-        DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
-        DaemonError::LoginError(error) => map_device_error(&error),
-        DaemonError::LogoutError(error) => map_device_error(&error),
-        DaemonError::DeleteAccountError(error) => map_device_error(&error),
-        DaemonError::KeyRotationError(error) => map_device_error(&error),
-        DaemonError::ListDevicesError(error) => map_device_error(&error),
-        DaemonError::RemoveDeviceError(error) => map_device_error(&error),
-        DaemonError::UpdateDeviceError(error) => map_device_error(&error),
-        DaemonError::VoucherSubmission(error) => map_device_error(&error),
-        #[cfg(target_os = "android")]
-        DaemonError::VerifyPlayPurchase(error) => map_device_error(&error),
+        DaemonError::Identity(crate::identity::Error::InvalidConfig(error)) => {
+            Status::invalid_argument(error.to_string())
+        }
+        DaemonError::Identity(error) => Status::internal(error.to_string()),
+        DaemonError::NoIdentity => Status::failed_precondition(error.to_string()),
         #[cfg(any(target_os = "windows", target_os = "macos"))]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
-        DaemonError::AccountHistory(error) => map_account_history_error(error),
-        DaemonError::NoAccountNumber | DaemonError::NoAccountNumberHistory => {
-            Status::unauthenticated(error.to_string())
-        }
         DaemonError::VersionCheckError(error) => map_version_check_error(error),
         error => Status::unknown(error.to_string()),
     }
@@ -1778,34 +1526,6 @@ fn map_rest_error(error: &RestError) -> Status {
             Status::unavailable("Cannot reach the API")
         }
         error => Status::unknown(format!("REST error: {error}")),
-    }
-}
-
-/// Converts an instance of [`crate::device::Error`] into a tonic status.
-fn map_device_error(error: &device::Error) -> Status {
-    match error {
-        device::Error::MaxDevicesReached => Status::new(Code::ResourceExhausted, error.to_string()),
-        device::Error::InvalidAccount => Status::new(Code::Unauthenticated, error.to_string()),
-        device::Error::InvalidDevice | device::Error::NoDevice => {
-            Status::new(Code::NotFound, error.to_string())
-        }
-        device::Error::InvalidVoucher => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
-        device::Error::UsedVoucher => Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE),
-        device::Error::DeviceIoError(_error) => Status::new(Code::Unavailable, error.to_string()),
-        device::Error::OtherRestError(error) => map_rest_error(error),
-        _ => Status::new(Code::Unknown, error.to_string()),
-    }
-}
-
-/// Converts an instance of [`crate::account_history::Error`] into a tonic status.
-fn map_account_history_error(error: account_history::Error) -> Status {
-    match error {
-        account_history::Error::Read(..) | account_history::Error::Write(..) => {
-            Status::new(Code::FailedPrecondition, error.to_string())
-        }
-        account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
-            Status::new(Code::Internal, error.to_string())
-        }
     }
 }
 

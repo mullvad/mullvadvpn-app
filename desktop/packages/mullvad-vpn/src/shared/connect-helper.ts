@@ -2,30 +2,30 @@ import { TunnelState } from './daemon-rpc-types';
 
 export function connectEnabled(
   connectedToDaemon: boolean,
-  loggedIn: boolean,
+  hasIdentity: boolean,
   tunnelState: TunnelState['state'],
 ) {
   return (
     connectedToDaemon &&
-    loggedIn &&
+    hasIdentity &&
     (tunnelState === 'disconnected' || tunnelState === 'disconnecting' || tunnelState === 'error')
   );
 }
 
 export function reconnectEnabled(
   connectedToDaemon: boolean,
-  loggedIn: boolean,
+  hasIdentity: boolean,
   tunnelState: TunnelState['state'],
 ) {
   return (
     connectedToDaemon &&
-    loggedIn &&
+    hasIdentity &&
     (tunnelState === 'connected' || tunnelState === 'connecting' || tunnelState === 'error')
   );
 }
 
-// Disconnecting while logged out is allowed since it's possible to "connect" and end up in the
-// blocked state with the CLI.
+// Disconnecting without a config is allowed since it's possible to end up in the blocked state
+// with the CLI.
 export function disconnectEnabled(connectedToDaemon: boolean, tunnelState: TunnelState['state']) {
   return (
     connectedToDaemon &&

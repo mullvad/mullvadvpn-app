@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s hinzugefügt. Konto bezahlt bis %(expiry)s."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -54,12 +51,6 @@ msgid_plural "%d years left"
 msgstr[0] "1 Jahr übrig"
 msgstr[1] "%d Jahre übrig"
 
-msgid "Account paid until %(expiry)s."
-msgstr "Konto bezahlt bis %(expiry)s."
-
-msgid "Account settings"
-msgstr "Kontoeinstellungen"
-
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -83,9 +74,6 @@ msgstr "Internet wird gesperrt"
 
 msgid "Buy credit"
 msgstr "Guthaben erwerben"
-
-msgid "Buy more credit"
-msgstr "Mehr Guthaben erwerben"
 
 msgid "Cancel"
 msgstr "Abbrechen"
@@ -266,10 +254,6 @@ msgstr "Beenden"
 msgid "Reconnect"
 msgstr "Erneut verbinden"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "Entfernen"
-
 msgid "Remove from list"
 msgstr "Aus Liste entfernen"
 
@@ -314,9 +298,6 @@ msgstr "Versuchen Sie es mit einer anderen Suchanfrage."
 
 msgid "Type"
 msgstr "Typ"
-
-msgid "Unblock"
-msgstr "Entsperren"
 
 msgid "UNSECURED CONNECTION"
 msgstr "UNGESICHERTE VERBINDUNG"
@@ -384,12 +365,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "Mit %(location)s verbinden"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "Kontonummer kopieren"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -411,13 +386,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s ausklappen"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "Kontonummer %(accountNumber)s vergessen"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -438,12 +406,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "Zu Folie %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "Kontonummer verbergen"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -453,18 +415,6 @@ msgstr "Illustration, die VPN-Traffic mit aktiviertem DAITA darstellt"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "Illustration, die VPN-Traffic ohne DAITA darstellt"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "Anmelden"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "Mit Kontonummer %(accountNumber)s anmelden"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -524,14 +474,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "%(location)s von %(customList)s entfernen"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "Gerät %(deviceName)s entfernt"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Element entfernen"
@@ -544,12 +486,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks-Einstellungen"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "Kontonummer anzeigen"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-über-TCP-Einstellungen"
@@ -557,37 +493,6 @@ msgstr "UDP-über-TCP-Einstellungen"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "Verwenden Sie die rechte Pfeiltaste, um die Schaltfläche „Einstellungen“ zu fokussieren."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "Konto"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "Kontonummer"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "Derzeit nicht verfügbar"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "Abmelden"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "Geräte verwalten"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "ZEIT ABGELAUFEN"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "Bezahlt bis"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1029,22 +934,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "Sie verwenden die aktuellste Version"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "Internet wird blockiert: Auf dem Konto ist keine Zeit mehr"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "Zu viele gleichzeitige Verbindungen mit diesem Konto. Trennen Sie ein anderes Gerät oder versuchen Sie sich gleich erneut zu verbinden."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Sie sind mit einer ungültigen Kontonummer angemeldet. Bitte melden Sie sich ab und versuchen Sie es mit einer anderen."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1076,88 +965,8 @@ msgid "Automatic multihop"
 msgstr "Automatisches Multihop"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "Glückwunsch!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Verbindungsdetails"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "Trennen"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Gutscheincode eingeben"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Legen Sie los und erobern Sie Ihre Online-Privatsphäre mit dieser App zurück!"
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "Mehr über Privatsphäre erfahren"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "Zeit abgelaufen"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "Gutschein einlösen"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Vergessen Sie nicht: Das Ausschalten erlaubt Netzverkehr während das VPN nicht verbunden ist, bis Sie es unter den erweiterten Einstellungen wieder einschalten."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "Mit dem Benutzen der App anfangen"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "Zeit erfolgreich hinzugefügt"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "Um mehr hinzuzufügen, müssen Sie Ihre Verbindung trennen und mit einer unsicheren Verbindung auf das Internet zugreifen."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "Besuchen Sie unsere Website, um mehr über datenschutzfreundliche Gewohnheiten & Tools zu erfahren und Ihre Reise als Datenschutz-Ninja fortzufahren."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "Der Gutschein wurde erfolgreich eingelöst"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "Sie haben keine VPN-Zeit mehr auf diesem Konto."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Sie müssen den „Sperrmodus“ deaktivieren, um auf das Internet zuzugreifen und Zeit hinzuzufügen."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "Sie sind startklar!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1254,126 +1063,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "Relay"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "Weiter mit Anmeldung"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "Erstellt: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "Aktuelles Gerät"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "Gerät ist inaktiv"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "Gerätename"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "Gerätename: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "Fehler beim Entfernen des Geräts"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "Zur Anmeldung"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "Geräte verwalten"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Bitte melden Sie sich von mindestens einem Gerät ab, indem Sie es aus der Liste unten entfernen. Sie finden den entsprechenden Gerätenamen unter den Kontoeinstellungen des Geräts."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "Entfernen"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "<em>%(deviceName)s</em> entfernen?"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "Super!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "Das Gerät wird aus der Liste entfernt und abgemeldet."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "Verbleibende Zeit: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "Zu viele Geräte"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "Erneut versuchen"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Lassen Sie all Ihre angemeldeten Geräte anzeigen und verwalten Sie sie. Sie können bis zu fünf Geräte gleichzeitig bei einem Konto haben. Jedes Gerät bekommt beim Anmelden einen Namen, damit Sie sie leicht unterscheiden können."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "Sie können jetzt mit der Anmeldung auf diesem Gerät fortfahren."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1414,10 +1103,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "Nur gemietet"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Mehr Guthaben erwerben."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1428,10 +1113,6 @@ msgstr "%(suggestedUpgradeVersion)s ist bereit für die Installation."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> ist aktiviert. Klicken Sie bitte auf „Verbinden“ oder deaktivieren Sie „%(lockdownModeSettingName)s“, um den Internetzugang zu entsperren."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "KONTOGUTHABEN LÄUFT BALD AB"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1517,10 +1198,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ES KÖNNTE NETZWERK-TRAFFIC LEAKEN"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "NEUES GERÄT ERSTELLT"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "NEUE VERSION INSTALLIERT"
 
@@ -1569,13 +1246,6 @@ msgstr "Das Installationsprogramm wurde nicht erfolgreich gestartet."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "Der ausgewählte %(wireGuard)s-Port wird nicht unterstützt, bitte <a>ändern Sie ihn in den VPN-Einstellungen</a>."
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Dieses Gerät heißt jetzt <em>%(deviceName)s</em>. Weitere Informationen finden Sie in Ihrem Konto unter <a>Geräte verwalten</a>."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1709,131 +1379,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Ausgang"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> ist aktiviert. Deaktivieren Sie dies, um Ihre Verbindung freizugeben."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "Konto erstellt"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "Ihre Kontonummer wird geprüft"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "Neues Konto erstellen"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "Neues Konto erstellen"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "Konto wird erstellt ..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "Möchten Sie ein neues Konto erstellen?"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "Möchten Sie die gespeicherte Kontonummer entfernen?"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "Geben Sie Ihre Kontonummer ein"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "Fehler"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "Konto konnte nicht erstellt werden"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "Upgrade wird abgeschlossen."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "Ungültige Kontonummer"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "Angemeldet"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "Anmeldung läuft..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "Anmelden"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "Anmeldung fehlgeschlagen"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "Oder"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "Unser Killswitch blockiert derzeit Ihre Verbindung."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "Bitte warten"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Das Entfernen der gespeicherten Kontonummer von diesem Gerät kann nicht rückgängig gemacht werden."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "Zu viele Geräte"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "Unbekannter Fehler"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "Upgrade läuft …"
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "Gültige Kontonummer"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Sie haben bereits eine gespeicherte Kontonummer. Wenn Sie ein neues Konto erstellen, wird die gespeicherte Kontonummer von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1866,17 +1411,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API-Zugriff"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Kontoguthaben läuft in %(duration)s ab. Erwerben Sie mehr Guthaben."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "Die Zeit auf dem Konto ist ausgelaufen"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Die App ist nicht synchronisiert. Bitte verlassen Sie die App und starten Sie sie neu."
@@ -1888,10 +1422,6 @@ msgstr "Die App ist nicht synchronisiert. Bitte verlassen Sie die App und starte
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "Beta-Update verfügbar. Testen Sie unsere neuste Beta-Version (%(version)s)."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "Mehr kaufen"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2034,50 +1564,6 @@ msgstr "Ihre Recht auf Datenschutz könnte durch diese nicht unterstützen Versi
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "Abbrechen"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "Gutscheincode eingeben"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "Gutschein einlösen"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "Ein Fehler ist aufgetreten."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "Einlösen"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "Gutschein wird verifiziert ..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "Der Gutscheincode wurde bereits verwendet."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "Der Gutscheincode ist ungültig."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "Der Gutschein wurde erfolgreich eingelöst."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4164,4 +3650,3 @@ msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "Sie verlieren Ihren verbleibenden Tag."
 msgstr[1] "Sie verlieren Ihre verbleibenden %d Tage."
-

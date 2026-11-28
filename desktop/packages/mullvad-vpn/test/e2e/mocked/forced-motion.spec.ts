@@ -28,11 +28,8 @@ test.describe('Transitions and animations', () => {
     await expectToTakeTime(() => routes.vpnSettings.goBack(), 450);
 
     await expectToTakeTime(async () => {
-      await util.ipc.account.device.notify({
-        type: 'logged out',
-        deviceState: { type: 'logged out' },
-      });
-      await routes.login.waitForRoute();
+      await util.ipc.identity[''].notify(undefined);
+      await routes.importConfig.waitForRoute();
     }, 450);
   });
 });

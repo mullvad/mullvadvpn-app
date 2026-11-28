@@ -22,11 +22,10 @@ fn main() {
         res.compile().expect("Unable to generate windows resources");
     }
 
-    // Enable in-app upgrades on macOS and Windows
+    // In-app upgrades are disabled in this build on purpose: they would replace this app with the
+    // official Mullvad installer, which requires an account. The `in_app_upgrade` cfg is only
+    // declared here so that the code gated behind it still type checks.
     println!("cargo::rustc-check-cfg=cfg(in_app_upgrade)");
-    if matches!(target_os(), Os::Windows | Os::Macos) {
-        println!(r#"cargo::rustc-cfg=in_app_upgrade"#);
-    }
 
     if matches!(target_os(), Os::Macos) {
         // Set the minimum version of macOS on which mullvad-daemon can run.

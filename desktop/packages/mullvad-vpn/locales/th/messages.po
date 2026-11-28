@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -48,12 +45,6 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "คงเหลือ %d ปี"
 
-msgid "Account paid until %(expiry)s."
-msgstr "บัญชีได้ชำระเงินจนถึง %(expiry)s"
-
-msgid "Account settings"
-msgstr "การตั้งค่าบัญชี"
-
 msgid "Add"
 msgstr "เพิ่ม"
 
@@ -77,9 +68,6 @@ msgstr "กำลังบล็อกอินเทอร์เน็ต"
 
 msgid "Buy credit"
 msgstr "ซื้อเครดิต"
-
-msgid "Buy more credit"
-msgstr "ซื้อเครดิตเพิ่ม"
 
 msgid "Cancel"
 msgstr "ยกเลิก"
@@ -260,10 +248,6 @@ msgstr "ออก"
 msgid "Reconnect"
 msgstr "เชื่อมต่อใหม่"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "ลบ"
-
 msgid "Remove from list"
 msgstr "ลบออกจากรายการ"
 
@@ -308,9 +292,6 @@ msgstr "ลองใช้การค้นหาอื่น"
 
 msgid "Type"
 msgstr "ประเภท"
-
-msgid "Unblock"
-msgstr "ปลดบล็อก"
 
 msgid "UNSECURED CONNECTION"
 msgstr "การเชื่อมต่อที่ไม่ปลอดภัย"
@@ -378,12 +359,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "เชื่อมต่อกับ %(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "คัดลอกหมายเลขบัญชี"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -405,13 +380,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "ขยาย %(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "ลืมหมายเลขบัญชี %(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -432,12 +400,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "ไปที่สไลด์ %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "ซ่อนหมายเลขบัญชี"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -447,18 +409,6 @@ msgstr "ภาพแสดงการรับส่งข้อมูล VPN �
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "ภาพแสดงการรับส่งข้อมูล VPN โดยไม่ใช้ DAITA"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "เข้าสู่ระบบ"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "เข้าสู่ระบบด้วยหมายเลขบัญชี %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -518,14 +468,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "ลบ %(location)s จาก %(customList)s"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "ลบอุปกรณ์ที่มีชื่อว่า %(deviceName)s"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "นำรายการออก"
@@ -538,12 +480,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "การตั้งค่า Shadowsocks"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "แสดงหมายเลขบัญชี"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "การตั้งค่า UDP-ผ่าน-TCP"
@@ -551,37 +487,6 @@ msgstr "การตั้งค่า UDP-ผ่าน-TCP"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "ใช้ปุ่มลูกศรขวาเพื่อโฟกัสไปที่ปุ่มการตั้งค่า"
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "บัญชี"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "หมายเลขบัญชี"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "ไม่พร้อมใช้งานในปัจจุบัน"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "ลงชื่อออก"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "จัดการอุปกรณ์"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "หมดเวลา"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "ชำระเงินแล้วจนถึง"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1023,22 +928,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "คุณกำลังใช้เวอร์ชันล่าสุด"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "บล็อกอินเทอร์เน็ต: บัญชีหมดเวลา"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "มีการเชื่อมต่อพร้อมกันมากเกินไปบนบัญชีนี้ โปรดตัดการเชื่อมต่อจากอุปกรณ์อีกเครื่อง หรือลองเชื่อมต่อใหม่อีกครั้งในอีกสักครู่"
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา"
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น"
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1070,88 +959,8 @@ msgid "Automatic multihop"
 msgstr "มัลติฮอปแบบอัตโนมัติ"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "ยินดีด้วย!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "รายละเอียดการเชื่อมต่อ"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "ตัดการเชื่อมต่อ"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล"
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "ป้อนรหัสบัตรกำนัล"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "เข้ามาและเริ่มใช้แอปเพื่อเริ่มยึดความเป็นส่วนตัวบนออนไลน์ของคุณคืนมา"
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "เรียนรู้เกี่ยวกับความเป็นส่วนตัว"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "หมดเวลา"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "แลกบัตรกำนัล"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "โปรดจำไว้ว่า การปิดใช้งานตัวเลือกนี้จะเป็นการอนุญาตให้มีการรับส่งข้อมูลทางเครือข่าย ในขณะที่ VPN ถูกตัดการเชื่อมต่ออยู่ จนกว่าคุณจะเปิดใช้งานตัวเลือกนี้ในการตั้งค่าขั้นสูงอีกครั้ง"
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "เริ่มใช้แอป"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "เพิ่มเวลาสำเร็จแล้ว"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "ในการเพิ่ม คุณจำเป็นจะต้องตัดการเชื่อมต่อ และเข้าใช้อินเทอร์เน็ตผ่านการเชื่อมต่อที่ไม่ปลอดภัย"
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "เยี่ยมชมเว็บไซต์ของเรา เพื่อฝึกนิสัยและรับเครื่องมือต่างๆ ที่เป็นมิตรต่อความเป็นส่วนตัว เพื่อเดินทางต่อไปในฐานะนินจาผู้มีความเป็นส่วนตัว"
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป"
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "แลกบัตรกำนัลสำเร็จแล้ว"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว"
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "คุณจำเป็นต้องปิดใช้งาน \"โหมดล็อกดาวน์\" เพื่อเข้าอินเทอร์เน็ตไปเพิ่มเวลา"
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "คุณพร้อมแล้ว!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1248,126 +1057,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "รีเลย์"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "เข้าสู่ระบบต่อ"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "วันที่สร้าง: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "อุปกรณ์ปัจจุบัน"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "อุปกรณ์ไม่ได้ใช้งาน"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "ชื่ออุปกรณ์"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "ชื่ออุปกรณ์: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "ไม่สามารถลบอุปกรณ์ได้"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "ไปเข้าสู่ระบบ"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่"
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "จัดการอุปกรณ์"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์"
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "ลบ"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "ลบ <em>%(deviceName)s หรือไม่</em>"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "เยี่ยมยอด!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "อุปกรณ์จะถูกลบออกจากรายการและออกจากระบบ"
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์"
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "เหลือเวลา: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "มีอุปกรณ์มากเกินไป"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "ลองอีกครั้ง"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "ดูและจัดการอุปกรณ์ทั้งหมดที่คุณลงชื่อเข้าใช้ คุณสามารถมีอุปกรณ์ได้สูงสุด 5 เครื่องในหนึ่งบัญชีในเวลาเดียวกัน แต่ละอุปกรณ์จะได้รับชื่อในขณะที่ลงชื่อเข้าใช้ เพื่อช่วยให้คุณแยกแยะอุปกรณ์แต่ละเครื่องได้อย่างง่ายดาย"
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี"
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "คุณสามารถดำเนินการเข้าสู่ระบบต่อบนอุปกรณ์เครื่องนี้ได้แล้ว"
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1408,10 +1097,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "เช่าเท่านั้น"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s ซื้อเครดิตเพิ่ม"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1422,10 +1107,6 @@ msgstr "%(suggestedUpgradeVersion)s พร้อมที่จะติดต�
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> เปิดใช้งานอยู่ โปรดคลิก “เชื่อมต่อ” หรือปิดใช้งาน “%(lockdownModeSettingName)s” เพื่อปลดบล็อกอินเทอร์เน็ต"
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "เครดิตในบัญชีจะหมดอายุในเร็ว ๆ นี้"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1511,10 +1192,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "การรับส่งข้อมูลทางเครือข่ายอาจรั่วไหล"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "สร้างอุปกรณ์ใหม่แล้ว"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "ติดตั้งเวอร์ชันใหม่แล้ว"
 
@@ -1563,13 +1240,6 @@ msgstr "โปรแกรมติดตั้งไม่สามารถเ
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "ไม่รองรับพอร์ต %(wireGuard)s ที่เลือก โปรด<a>เปลี่ยนแปลงภายใต้การตั้งค่า VPN</a>"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "ตอนนี้อุปกรณ์นี้ได้รับการตั้งชื่อว่า <em>%(deviceName)s</em> แล้ว ดูเพิ่มเติมได้ภายใต้หัวข้อ <a>จัดการอุปกรณ์</a> ในบัญชี"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1703,131 +1373,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "ออก"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> ได้เปิดใช้งานแล้ว ปิดใช้งานเพื่อปลดบล็อกการเชื่อมต่อของคุณ"
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "สร้างบัญชีแล้ว"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "กำลังตรวจสอบหมายเลขบัญชี"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "สร้างบัญชีใหม่"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "สร้างบัญชีใหม่"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "กำลังสร้างบัญชี..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "คุณต้องการสร้างบัญชีใหม่หรือไม่"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "คุณต้องการลบหมายเลขบัญชีที่บันทึกไว้หรือไม่"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "ป้อนหมายเลขบัญชีของคุณ"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "ข้อผิดพลาด"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "ไม่สามารถสร้างบัญชีได้"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "กำลังอัปเกรดให้เสร็จสิ้น"
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "หมายเลขบัญชีไม่ถูกต้อง"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "เข้าสู่ระบบแล้ว"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "กำลังเข้าสู่ระบบ..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "เข้าสู่ระบบ"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "การเข้าสู่ระบบล้มเหลว"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "หรือ"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "คิลสวิตช์ของเราได้บล็อกการเชื่อมต่อของคุณอยู่ในขณะนี้"
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "โปรดรอ"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "การลบหมายเลขบัญชีที่บันทึกไว้จากอุปกรณ์นี้ไม่สามารถย้อนกลับได้"
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "มีอุปกรณ์มากเกินไป"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "ข้อผิดพลาดที่ไม่รู้จัก"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "กำลังอัปเกรด…"
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "หมายเลขบัญชีที่ถูกต้อง"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "คุณมีหมายเลขบัญชีที่บันทึกไว้แล้ว การสร้างบัญชีใหม่จะเป็นการลบหมายเลขบัญชีที่บันทึกไว้ออกจากอุปกรณ์นี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้"
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1860,17 +1405,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "การเข้าถึง API"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "เครดิตบัญชีจะหมดอายุใน %(duration)s ซื้อเครดิตเพิ่ม"
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "บัญชีหมดเวลาแล้ว"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "แอปไม่ได้รับการซิงค์ โปรดออกและเปิดแอปใหม่"
@@ -1882,10 +1416,6 @@ msgstr "แอปไม่ได้รับการซิงค์ โปร�
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "มีการอัปเดตเบต้าให้ใช้งาน ลองใช้เวอร์ชันเบต้าใหม่ล่าสุด (%(version)s)"
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "ซื้อเพิ่ม"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2028,50 +1558,6 @@ msgstr "ความเป็นส่วนตัวของคุณอาจ
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย"
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "ยกเลิก"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "ป้อนรหัสบัตรกำนัล"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "แลกบัตรกำนัล"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "เกิดข้อผิดพลาดขึ้น"
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน"
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "แลกรับ"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "กำลังตรวจสอบบัตรกำนัล..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "รหัสบัตรกำนัลถูกใช้ไปแล้ว"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "รหัสบัตรกำนัลไม่ถูกต้อง"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "แลกบัตรกำนัลสำเร็จแล้ว"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4149,4 +3635,3 @@ msgstr[0] "เครดิตของบัญชีจะหมดอายุ
 msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "คุณจะสูญเสียจำนวนวันที่เหลืออีก %d วัน"
-

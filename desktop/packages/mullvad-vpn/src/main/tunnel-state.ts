@@ -80,12 +80,12 @@ export default class TunnelStateHandler {
     }
   }
 
-  public allowConnect(connectToDaemon: boolean, isLoggedIn: boolean) {
-    return connectEnabled(connectToDaemon, isLoggedIn, this.tunnelState.state);
+  public allowConnect(connectToDaemon: boolean, hasIdentity: boolean) {
+    return connectEnabled(connectToDaemon, hasIdentity, this.tunnelState.state);
   }
 
-  public allowReconnect(connectToDaemon: boolean, isLoggedIn: boolean) {
-    return reconnectEnabled(connectToDaemon, isLoggedIn, this.tunnelState.state);
+  public allowReconnect(connectToDaemon: boolean, hasIdentity: boolean) {
+    return reconnectEnabled(connectToDaemon, hasIdentity, this.tunnelState.state);
   }
 
   public allowDisconnect(connectToDaemon: boolean) {

@@ -2,27 +2,34 @@ import { IChangelog } from './ipc-types';
 
 export type DisconnectSource =
   | 'gui-disconnect-button'
-  | 'gui-expired-account'
-  | 'gui-login-unblock'
-  | 'gui-device-revoked'
+  | 'gui-config-removed'
   | 'gui-quit-button'
   | 'tray-disconnect'
   | 'tray-disconnect-quit';
 
-export type LogoutSource = 'gui-logout-button' | 'gui-device-revoked';
-
-export interface IAccountData {
-  expiry: string;
+/**
+ * The WireGuard identity the daemon uses for every tunnel. It is created by importing a config
+ * file generated at mullvad.net, the private key never leaves the daemon.
+ */
+export interface IWireguardIdentity {
+  /** Base64 encoded public key derived from the imported private key. */
+  publicKey: string;
+  /** Tunnel address in CIDR notation, as found in the imported config. */
+  ipv4Address: string;
+  /** Only set if the imported config contained an IPv6 address. */
+  ipv6Address?: string;
 }
 
-export type AccountDataError = {
+export type ImportConfigError = {
   type: 'error';
-  error: 'invalid-account' | 'too-many-devices' | 'list-devices' | 'communication';
+  error: 'invalid-config' | 'file-read' | 'communication';
+  message?: string;
 };
 
-export type AccountDataResponse = ({ type: 'success' } & IAccountData) | AccountDataError;
+export type ImportConfigResponse =
+  | { type: 'success'; identity: IWireguardIdentity }
+  | ImportConfigError;
 
-export type AccountNumber = string;
 export type Ip = string;
 export interface ILocation {
   ipv4?: string;
@@ -169,8 +176,7 @@ export type DaemonEvent =
   | { settings: ISettings }
   | { relayList: IRelayListWithEndpointData }
   | { appVersionInfo: IAppVersionInfo }
-  | { device: DeviceEvent }
-  | { deviceRemoval: Array<IDevice> }
+  | { wireguardIdentity: { identity?: IWireguardIdentity } }
   | { accessMethodSetting: AccessMethodSetting };
 
 export type DaemonAppUpgradeEventStatusDownloadStarted = {
@@ -421,31 +427,6 @@ export interface IAppVersionInfo {
   suggestedIsBeta?: boolean;
 }
 
-export interface IAccountAndDevice {
-  accountNumber: AccountNumber;
-  device?: IDevice;
-}
-
-export type LoggedInDeviceState = { type: 'logged in'; accountAndDevice: IAccountAndDevice };
-export type LoggedOutDeviceState = { type: 'logged out' | 'revoked' };
-
-export type DeviceState = LoggedInDeviceState | LoggedOutDeviceState;
-
-export type DeviceEvent =
-  | { type: 'logged in' | 'updated' | 'rotated_key'; deviceState: LoggedInDeviceState }
-  | { type: 'logged out' | 'revoked'; deviceState: LoggedOutDeviceState };
-
-export interface IDevice {
-  id: string;
-  name: string;
-  created: Date;
-}
-
-export interface IDeviceRemoval {
-  accountNumber: string;
-  deviceId: string;
-}
-
 export type CustomLists = Array<ICustomList>;
 
 // Extend with new event types as needed.
@@ -560,10 +541,6 @@ export interface ISocketAddress {
   host: string;
   port: number;
 }
-
-export type VoucherResponse =
-  | { type: 'success'; newExpiry: string; secondsAdded: number }
-  | { type: 'invalid' | 'already_used' | 'error' };
 
 export interface SocksAuth {
   username: string;

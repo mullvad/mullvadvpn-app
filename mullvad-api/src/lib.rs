@@ -3,9 +3,6 @@ use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
-use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
-#[cfg(target_os = "android")]
-use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeSource};
 use std::sync::LazyLock;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
@@ -26,43 +23,19 @@ mod tls_stream;
 #[cfg(target_os = "android")]
 pub use crate::https_client::SocketBypassRequest;
 
-mod access;
 mod address_cache;
-pub mod device;
-#[cfg(not(target_os = "android"))]
-pub mod partner;
 mod relay_list;
 
 pub mod relay_list_transparency;
 pub use address_cache::Error as AddressCacheError;
 pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 
-pub use device::DevicesProxy;
 pub use hyper::StatusCode;
 pub use relay_list::{CachedRelayList, RelayListProxy};
 pub use sigsum::PublicKey as SigsumPublicKey;
 
-/// Error code returned by the Mullvad API if the voucher has alreaby been used.
-pub const VOUCHER_USED: &str = "VOUCHER_USED";
-
-/// Error code returned by the Mullvad API if the voucher code is invalid.
-pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
-
-/// Error code returned by the Mullvad API if the account number is invalid.
-pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
-
-/// Error code returned by the Mullvad API if the device does not exist.
-pub const DEVICE_NOT_FOUND: &str = "DEVICE_NOT_FOUND";
-
-/// Error code returned by the Mullvad API if the access token is invalid.
-pub const INVALID_ACCESS_TOKEN: &str = "INVALID_ACCESS_TOKEN";
-
-pub const MAX_DEVICES_REACHED: &str = "MAX_DEVICES_REACHED";
-pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
-
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
-const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
@@ -289,22 +262,6 @@ impl ApiEndpoint {
     pub fn stagemole() -> Self {
         Self::new(
             API_HOST_STAGING.to_owned(),
-            SocketAddr::new(API_IP_STAGING, API_PORT_STAGING),
-        )
-    }
-
-    /// Returns a new partner API endpoint pointing to the production environment.
-    pub fn mullvad_partner() -> Self {
-        Self::new(
-            PARTNER_API_HOST_DEFAULT.to_owned(),
-            SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
-        )
-    }
-
-    /// Returns a new partner API endpoint pointing to the staging environment.
-    pub fn stagemole_partner() -> Self {
-        Self::new(
-            PARTNER_API_HOST_STAGING.to_owned(),
             SocketAddr::new(API_IP_STAGING, API_PORT_STAGING),
         )
     }
@@ -602,216 +559,6 @@ impl<B: AddressCacheBacking> Runtime<B> {
 
     pub fn availability_handle(&self) -> ApiAvailability {
         self.api_availability.clone()
-    }
-}
-
-#[derive(Clone)]
-pub struct AccountsProxy {
-    handle: rest::MullvadRestHandle,
-}
-
-impl AccountsProxy {
-    pub fn new(handle: rest::MullvadRestHandle) -> Self {
-        Self { handle }
-    }
-
-    pub fn get_data(
-        &self,
-        account: AccountNumber,
-    ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
-        let span = trace_span!("get_data");
-        let request = self.get_data_response(account);
-
-        async move { request.await?.deserialize().await }.instrument(span)
-    }
-
-    pub fn get_data_response(
-        &self,
-        account: AccountNumber,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let span = trace_span!("get_data_response");
-        let request = self
-            .handle
-            .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
-        async move {
-            request?
-                .expected_status(&[StatusCode::OK])
-                .account(account)
-                .await
-        }
-        .instrument(span)
-    }
-
-    pub fn create_account(
-        &self,
-    ) -> impl Future<Output = Result<AccountNumber, rest::Error>> + use<> {
-        #[derive(serde::Deserialize)]
-        struct AccountCreationResponse {
-            number: AccountNumber,
-        }
-
-        let span = trace_span!("create_account");
-        let request = self.create_account_response();
-
-        async move {
-            let account: AccountCreationResponse = request.await?.deserialize().await?;
-            Ok(account.number)
-        }
-        .instrument(span)
-    }
-
-    pub fn create_account_response(
-        &self,
-    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let span = trace_span!("create_account_response");
-        let request = self.handle.post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"));
-        async move { request?.expected_status(&[StatusCode::CREATED]).await }.instrument(span)
-    }
-
-    pub fn submit_voucher(
-        &self,
-        account: AccountNumber,
-        voucher_code: String,
-    ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> + use<> {
-        #[derive(serde::Serialize)]
-        struct VoucherSubmission {
-            voucher_code: String,
-        }
-
-        let span = trace_span!("submit_voucher");
-        let submission = VoucherSubmission { voucher_code };
-        let request = self
-            .handle
-            .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission);
-        async move {
-            request?
-                .account(account)
-                .expected_status(&[StatusCode::OK])
-                .await?
-                .deserialize()
-                .await
-        }
-        .instrument(span)
-    }
-
-    pub fn delete_account(
-        &self,
-        account: AccountNumber,
-    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let span = trace_span!("delete_account");
-        let request = self
-            .handle
-            .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
-        async move {
-            request?
-                .account(account.clone())
-                .header("Mullvad-Account-Number", &account)?
-                .expected_status(&[StatusCode::NO_CONTENT])
-                .await?;
-            Ok(())
-        }
-        .instrument(span)
-    }
-
-    #[cfg(any(target_os = "ios", target_os = "tvos"))]
-    pub async fn init_storekit_payment(
-        &self,
-        account: AccountNumber,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
-        self.handle
-            .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
-            .expected_status(&[StatusCode::OK])
-            .account(account)
-            .await
-    }
-
-    #[cfg(any(target_os = "ios", target_os = "tvos"))]
-    pub async fn check_storekit_payment(
-        &self,
-        body: Vec<u8>,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
-        self.handle
-            .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
-            .expected_status(&[StatusCode::OK])
-            .await
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn init_play_purchase(
-        &mut self,
-        account: AccountNumber,
-    ) -> impl Future<Output = Result<PlayExternalObfuscatedAccountId, rest::Error>> + use<> {
-        #[derive(serde::Deserialize)]
-        struct PlayPurchaseInitResponse {
-            obfuscated_id: String,
-        }
-
-        let span = trace_span!("init_play_purchase");
-        let request = self
-            .handle
-            .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &());
-        async move {
-            let response = request?
-                .account(account)
-                .expected_status(&[StatusCode::OK])
-                .await?;
-
-            let PlayPurchaseInitResponse { obfuscated_id } = response.deserialize().await?;
-
-            Ok(obfuscated_id)
-        }
-        .instrument(span)
-    }
-
-    #[cfg(target_os = "android")]
-    pub fn verify_play_purchase(
-        &mut self,
-        account: AccountNumber,
-        play_purchase: PlayPurchase,
-    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let span = trace_span!("verify_play_purchase");
-        let request = self.handle.post_json(
-            &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
-            &play_purchase,
-        );
-        async move {
-            let response = request?
-                .account(account)
-                .expected_status(&[StatusCode::NO_CONTENT])
-                .await;
-
-            match response {
-                Err(e) => {
-                    tracing::error!("verify_play_purchase failed: #{:?}", e);
-                    Err(e)
-                }
-                Ok(_) => Ok(()),
-            }
-        }
-        .instrument(span)
-    }
-
-    pub fn get_www_auth_token(
-        &self,
-        account: AccountNumber,
-    ) -> impl Future<Output = Result<String, rest::Error>> + use<> {
-        #[derive(serde::Deserialize)]
-        struct AuthTokenResponse {
-            auth_token: String,
-        }
-
-        let request = self
-            .handle
-            .post(&format!("{APP_URL_PREFIX}/www-auth-token"));
-        async move {
-            let response: AuthTokenResponse = request?
-                .account(account)
-                .expected_status(&[StatusCode::OK])
-                .await?
-                .deserialize()
-                .await?;
-            Ok(response.auth_token)
-        }
     }
 }
 

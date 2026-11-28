@@ -1,6 +1,6 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
+use std::{future::Future, pin::Pin, sync::Arc};
 use talpid_error::ErrorExt;
 
 use talpid_types::net::wireguard::TunnelParameters;
@@ -21,21 +21,19 @@ use talpid_types::net::{
 };
 use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError};
 
-use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
+use crate::identity::IdentityHandle;
+use mullvad_types::wireguard::WireguardIdentity;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Not logged in on a valid device")]
-    NoAuthDetails,
+    #[error("No WireGuard config has been imported")]
+    NoIdentity,
 
     #[error("Failed to select a matching relay")]
     SelectRelay(#[from] mullvad_relay_selector::Error),
 
     #[error("Failed to resolve hostname for custom relay")]
     ResolveCustomHostname,
-
-    #[error("Failed to get device data")]
-    Device(#[from] DeviceError),
 }
 
 #[derive(Clone)]
@@ -45,7 +43,7 @@ struct InnerParametersGenerator {
     relay_selector: RelaySelectorIO,
     relay_settings: RelaySettings,
     tunnel_options: TunnelOptions,
-    account_manager: AccountManagerHandle,
+    identity: IdentityHandle,
     #[cfg(feature = "custom-vpn")]
     custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
 
@@ -55,7 +53,7 @@ struct InnerParametersGenerator {
 impl ParametersGenerator {
     /// Constructs a new tunnel parameters generator.
     pub fn new(
-        account_manager: AccountManagerHandle,
+        identity: IdentityHandle,
         relay_selector: RelaySelectorIO,
         relay_settings: RelaySettings,
         tunnel_options: TunnelOptions,
@@ -67,7 +65,7 @@ impl ParametersGenerator {
             tunnel_options,
             relay_selector,
             relay_settings,
-            account_manager,
+            identity,
             #[cfg(feature = "custom-vpn")]
             custom_vpn,
             last_generated_relays: None,
@@ -211,7 +209,7 @@ impl InnerParametersGenerator {
                 });
         }
 
-        let data = self.device().await?;
+        let identity = self.identity().await?;
         let selected_relay = self
             .relay_selector
             .get_relay(retry_attempt as usize, ip_availability)?;
@@ -238,20 +236,18 @@ impl InnerParametersGenerator {
             server_override,
         });
 
-        Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator))
+        Ok(self.create_wireguard_tunnel_parameters(endpoint, identity, obfuscator))
     }
 
     fn create_wireguard_tunnel_parameters(
         &self,
         mut endpoint: MullvadEndpoint,
-        data: PrivateAccountAndDevice,
+        identity: WireguardIdentity,
         obfuscator_config: Option<Obfuscators>,
     ) -> TunnelParameters {
-        let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
-        let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
         let tunnel = wireguard::TunnelConfig {
-            private_key: data.device.wg_data.private_key,
-            addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
+            addresses: identity.tunnel_addresses(),
+            private_key: identity.private_key,
         };
 
         // Deliberately filter out private IP ranges but keep the routes, to prevent unexpected
@@ -297,9 +293,8 @@ impl InnerParametersGenerator {
         }
     }
 
-    async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {
-        let device_state = self.account_manager.data().await?;
-        device_state.into_device().ok_or(Error::NoAuthDetails)
+    async fn identity(&self) -> Result<WireguardIdentity, Error> {
+        self.identity.get().await.ok_or(Error::NoIdentity)
     }
 }
 
@@ -344,7 +339,7 @@ impl From<Error> for ParameterGenerationError {
             Error::SelectRelay(mullvad_relay_selector::Error::NoRelayExit(_)) => {
                 ParameterGenerationError::NoMatchingRelayExit
             }
-            Error::NoAuthDetails | Error::SelectRelay(_) | Error::Device(_) => {
+            Error::NoIdentity | Error::SelectRelay(_) => {
                 ParameterGenerationError::NoMatchingRelay
             }
         }
@@ -366,6 +361,7 @@ struct LastSelectedRelays {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::net::IpAddr;
 
     fn allowed_ips(nets: &[&str]) -> Vec<IpNetwork> {
         nets.iter().map(|net| net.parse().unwrap()).collect()

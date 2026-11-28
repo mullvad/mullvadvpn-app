@@ -57,29 +57,12 @@ service ManagementService {
   rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetUserspaceWireguard(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
-  // Account management
-  rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-  rpc LoginAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc LogoutAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
-  rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
-  rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-  rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
-  // Android only
-  rpc DeleteAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-  // Device management
-  rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}
-  rpc UpdateDevice(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc ListDevices(google.protobuf.StringValue) returns (DeviceList) {}
-  rpc RemoveDevice(DeviceRemoval) returns (google.protobuf.Empty) {}
-
-  // WireGuard key management
-  rpc SetWireguardRotationInterval(google.protobuf.Duration) returns (google.protobuf.Empty) {}
-  rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc RotateWireguardKey(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
+  // WireGuard identity. There are no accounts: the identity is the private key and the tunnel
+  // addresses taken from a WireGuard config file generated at mullvad.net.
+  // Takes the text of a WireGuard config file. Replaces any existing identity.
+  rpc ImportWireguardConfig(google.protobuf.StringValue) returns (WireguardIdentity) {}
+  rpc ClearWireguardIdentity(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetWireguardIdentity(google.protobuf.Empty) returns (WireguardIdentityState) {}
 
   // Custom lists
   rpc CreateCustomList(NewCustomList) returns (google.protobuf.StringValue) {}
@@ -121,10 +104,6 @@ service ManagementService {
   // Split tunneling (Windows, macOS)
   rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
-
-  // Play payment (Android)
-  rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayExternalObfuscatedAccountId) {}
-  rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
 
   // Check whether the app needs TCC approval for split tunneling (macOS)
   rpc NeedFullDiskPermissions(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
@@ -230,18 +209,6 @@ message Seed { uint32 seed = 1; }
 message Rollout { float threshold = 1; }
 
 message UUID { string value = 1; }
-
-message AccountData {
-  string id = 1;
-  google.protobuf.Timestamp expiry = 2;
-}
-
-message AccountHistory { google.protobuf.StringValue number = 1; }
-
-message VoucherSubmission {
-  uint64 seconds_added = 1;
-  google.protobuf.Timestamp new_expiry = 2;
-}
 
 enum AfterDisconnect {
   NOTHING = 0;
@@ -738,7 +705,7 @@ message DaitaSettings { bool enabled = 1; }
 
 message TunnelOptions {
   optional uint32 mtu = 1;
-  google.protobuf.Duration rotation_interval = 2;
+  reserved 2;
   QuantumResistantState quantum_resistant = 3;
   DaitaSettings daita = 4;
 
@@ -855,11 +822,11 @@ message DaemonEvent {
     Settings settings = 2;
     RelayList relay_list = 3;
     AppVersionInfo version_info = 4;
-    DeviceEvent device = 5;
-    RemoveDeviceEvent remove_device = 6;
+    WireguardIdentityState wireguard_identity = 5;
     AccessMethodSetting new_access_method = 7;
     LeakInfo leak_info = 8;
   }
+  reserved 6;
 }
 
 // List of VPN relays
@@ -907,51 +874,17 @@ message PortRange {
   uint32 last = 2;
 }
 
-message AccountAndDevice {
-  string account_number = 1;
-  Device device = 2;
+message WireguardIdentity {
+  PublicKey public_key = 1;
+  // Tunnel addresses in CIDR notation, as found in the config file.
+  string ipv4_address = 2;
+  // Empty if the config file contained no IPv6 address.
+  string ipv6_address = 3;
 }
 
-message Device {
-  string id = 1;
-  string name = 2;
-  bytes pubkey = 3;
-  bool hijack_dns = 5;
-  google.protobuf.Timestamp created = 6;
-}
-
-message DeviceList { repeated Device devices = 1; }
-
-message DeviceRemoval {
-  string account_number = 1;
-  string device_id = 2;
-}
-
-message DeviceState {
-  enum State {
-    LOGGED_IN = 0;
-    LOGGED_OUT = 1;
-    REVOKED = 2;
-  }
-  State state = 1;
-  AccountAndDevice device = 2;
-}
-
-message DeviceEvent {
-  enum Cause {
-    LOGGED_IN = 0;
-    LOGGED_OUT = 1;
-    REVOKED = 2;
-    UPDATED = 3;
-    ROTATED_KEY = 4;
-  }
-  Cause cause = 1;
-  DeviceState new_state = 2;
-}
-
-message RemoveDeviceEvent {
-  string account_number = 1;
-  repeated Device new_device_list = 2;
+message WireguardIdentityState {
+  // Not set if no config has been imported.
+  WireguardIdentity identity = 1;
 }
 
 /// Details about a potential leak that was detected in the connected state.
@@ -965,15 +898,6 @@ message LeakInfo {
   /// Format: The name of the leaky interface.
   string interface = 2;
 }
-
-message PlayExternalObfuscatedAccountId { string id = 1; }
-
-message PlayPurchase {
-  string product_id = 1;
-  PlayPurchasePaymentToken purchase_token = 2;
-}
-
-message PlayPurchasePaymentToken { string token = 1; }
 
 message AllowedIpsList { repeated string values = 1; }
 

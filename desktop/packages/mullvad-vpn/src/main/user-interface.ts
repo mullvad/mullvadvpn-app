@@ -5,7 +5,7 @@ import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { DisconnectSource, IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { DisconnectSource, ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import log from '../shared/logging';
 import { Scheduler } from '../shared/scheduler';
@@ -27,14 +27,12 @@ const execAsync = promisify(exec);
 
 export interface UserInterfaceDelegate {
   dismissActiveNotifications(): void;
-  updateAccountData(): void;
   connectTunnel(): void;
   reconnectTunnel(): void;
   disconnectTunnel(source: DisconnectSource): void;
   disconnectAndQuit(source: DisconnectSource): void;
   isUnpinnedWindow(): boolean;
-  isLoggedIn(): boolean;
-  getAccountData(): IAccountData | undefined;
+  hasIdentity(): boolean;
   getTunnelState(): TunnelState;
   getVersionInfo(): Promise<void>;
 }
@@ -150,7 +148,7 @@ export default class UserInterface implements WindowControllerDelegate {
     this.trayIconController = new TrayIconController(this.tray, iconType, monochromaticIcon, false);
   }
 
-  public async initializeWindow(isLoggedIn: boolean, tunnelState: TunnelState) {
+  public async initializeWindow(hasIdentity: boolean, tunnelState: TunnelState) {
     if (!this.windowController.window) {
       throw new Error('No window available in initializeWindow');
     }
@@ -186,7 +184,7 @@ export default class UserInterface implements WindowControllerDelegate {
         this.setMacOsAppMenu();
         break;
       case 'linux':
-        this.setTrayContextMenu(isLoggedIn, tunnelState);
+        this.setTrayContextMenu(hasIdentity, tunnelState);
         this.setLinuxAppMenu();
         window.setMenuBarVisibility(false);
         break;
@@ -212,13 +210,13 @@ export default class UserInterface implements WindowControllerDelegate {
     }
   }
 
-  public updateTray = (isLoggedIn: boolean, tunnelState: TunnelState) => {
+  public updateTray = (hasIdentity: boolean, tunnelState: TunnelState) => {
     this.updateTrayIcon(tunnelState);
-    this.setTrayContextMenu(isLoggedIn, tunnelState);
+    this.setTrayContextMenu(hasIdentity, tunnelState);
     this.setTrayTooltip(tunnelState);
   };
 
-  public async recreateWindow(isLoggedIn: boolean, tunnelState: TunnelState): Promise<void> {
+  public async recreateWindow(hasIdentity: boolean, tunnelState: TunnelState): Promise<void> {
     if (this.tray) {
       this.tray.removeAllListeners();
       // Prevent the IPC webcontents reference to be reset when replacing window. Resetting wouldn't
@@ -234,7 +232,7 @@ export default class UserInterface implements WindowControllerDelegate {
       this.windowController.close();
       this.windowController = new WindowController(this, window);
 
-      await this.initializeWindow(isLoggedIn, tunnelState);
+      await this.initializeWindow(hasIdentity, tunnelState);
       this.windowController.show();
     }
   }
@@ -375,8 +373,6 @@ export default class UserInterface implements WindowControllerDelegate {
       // cancel notifications when window appears
       this.delegate.dismissActiveNotifications();
 
-      this.delegate.updateAccountData();
-
       void this.delegate.getVersionInfo();
     });
 
@@ -400,10 +396,10 @@ export default class UserInterface implements WindowControllerDelegate {
     });
   }
 
-  private setTrayContextMenu(isLoggedIn: boolean, tunnelState: TunnelState) {
+  private setTrayContextMenu(hasIdentity: boolean, tunnelState: TunnelState) {
     if (process.platform === 'linux') {
       this.tray.setContextMenu(
-        this.createContextMenu(this.daemonRpc.isConnected, isLoggedIn, tunnelState),
+        this.createContextMenu(this.daemonRpc.isConnected, hasIdentity, tunnelState),
       );
     }
   }
@@ -606,7 +602,7 @@ export default class UserInterface implements WindowControllerDelegate {
           // This needs to be executed on click since if it is added to the tray icon it will be
           // displayed on left click as well.
           this.tray?.on('right-click', () =>
-            this.popUpContextMenu(this.delegate.isLoggedIn(), this.delegate.getTunnelState()),
+            this.popUpContextMenu(this.delegate.hasIdentity(), this.delegate.getTunnelState()),
           );
           this.tray?.on('click', () => this.windowController.toggle());
         } else {
@@ -645,9 +641,9 @@ export default class UserInterface implements WindowControllerDelegate {
     }
   }
 
-  private popUpContextMenu(isLoggedIn: boolean, tunnelState: TunnelState) {
+  private popUpContextMenu(hasIdentity: boolean, tunnelState: TunnelState) {
     this.tray.popUpContextMenu(
-      this.createContextMenu(this.daemonRpc.isConnected, isLoggedIn, tunnelState),
+      this.createContextMenu(this.daemonRpc.isConnected, hasIdentity, tunnelState),
     );
   }
 
@@ -698,7 +694,7 @@ export default class UserInterface implements WindowControllerDelegate {
 
   private createContextMenu(
     connectedToDaemon: boolean,
-    loggedIn: boolean,
+    hasIdentity: boolean,
     tunnelState: TunnelState,
   ) {
     const template: Electron.MenuItemConstructorOptions[] = [
@@ -712,13 +708,13 @@ export default class UserInterface implements WindowControllerDelegate {
       {
         id: 'connect',
         label: messages.gettext('Connect'),
-        enabled: connectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
+        enabled: connectEnabled(connectedToDaemon, hasIdentity, tunnelState.state),
         click: this.delegate.connectTunnel,
       },
       {
         id: 'reconnect',
         label: messages.gettext('Reconnect'),
-        enabled: reconnectEnabled(connectedToDaemon, loggedIn, tunnelState.state),
+        enabled: reconnectEnabled(connectedToDaemon, hasIdentity, tunnelState.state),
         click: this.delegate.reconnectTunnel,
       },
       {

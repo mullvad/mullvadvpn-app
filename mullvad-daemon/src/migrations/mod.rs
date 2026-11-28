@@ -43,10 +43,8 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
-use crate::{DaemonEventSender, InternalDaemonEvent, migrations::multihop::scenario::Scenario};
+use crate::migrations::multihop::scenario::Scenario;
 
-mod account_history;
-mod device;
 pub(crate) mod multihop;
 mod v1;
 mod v10;
@@ -96,15 +94,6 @@ pub enum Error {
     #[error("Unable to sync settings to disk")]
     SyncSettings(#[source] io::Error),
 
-    #[error("Failed to read the account history")]
-    ReadHistory(#[source] io::Error),
-
-    #[error("Failed to write new account history")]
-    WriteHistory(#[source] io::Error),
-
-    #[error("Failed to parse account history")]
-    ParseHistory,
-
     #[cfg(windows)]
     #[error("Failed to restore Windows update backup")]
     WinMigration(#[source] windows::Error),
@@ -124,23 +113,19 @@ impl MigrationComplete {
     pub fn is_complete(&self) -> bool {
         self.0.load(Ordering::Relaxed)
     }
-
-    fn set_complete(&mut self) {
-        self.0.store(true, Ordering::Relaxed);
-    }
 }
 
 /// Directories that may be passed to the migration logic.
 pub struct Directories<'path> {
     cache_dir: &'path Path,
     resource_dir: &'path Path,
+    #[cfg(target_os = "android")]
     settings_dir: &'path Path,
 }
 
 /// Contains discarded data that may be useful for later work.
 #[derive(Default)]
 pub struct MigrationData {
-    pub(crate) v5: Option<v5::MigrationData>,
     pub(crate) multihop_split_filter_migration: Option<Scenario>,
 }
 
@@ -169,10 +154,11 @@ pub async fn migrate_all(
     let directories = Directories {
         cache_dir,
         resource_dir,
+        #[cfg(target_os = "android")]
         settings_dir,
     };
 
-    let migration_data = migrate_settings(Some(directories), &mut settings).await?;
+    let migration_data = migrate_settings(Some(directories), &mut settings)?;
 
     if settings == old_settings {
         // Nothing changed
@@ -198,7 +184,7 @@ pub async fn migrate_all(
     Ok(migration_data)
 }
 
-async fn migrate_settings(
+fn migrate_settings(
     directories: Option<Directories<'_>>,
     settings: &mut serde_json::Value,
 ) -> Result<MigrationData> {
@@ -211,12 +197,9 @@ async fn migrate_settings(
     v3::migrate(settings)?;
     v4::migrate(settings)?;
 
-    if let Some(dirs) = directories.as_ref() {
-        account_history::migrate_location(dirs.cache_dir, dirs.settings_dir).await;
-        account_history::migrate_formats(dirs.settings_dir, settings).await?;
-    }
-
-    let v5 = v5::migrate(settings)?;
+    // The account token that old settings versions contained is deliberately discarded: this app
+    // has no accounts.
+    v5::migrate(settings)?;
     v6::migrate(settings)?;
     v7::migrate(settings)?;
     v8::migrate(settings)?;
@@ -247,24 +230,8 @@ async fn migrate_settings(
     };
 
     Ok(MigrationData {
-        v5,
         multihop_split_filter_migration,
     })
-}
-
-pub(crate) fn migrate_device(
-    migration_data: v5::MigrationData,
-    rest_handle: mullvad_api::rest::MullvadRestHandle,
-    daemon_tx: DaemonEventSender<InternalDaemonEvent>,
-) -> MigrationComplete {
-    let migration_complete = MigrationComplete::new(false);
-    device::generate_device(
-        migration_data,
-        migration_complete.clone(),
-        rest_handle,
-        daemon_tx,
-    );
-    migration_complete
 }
 
 #[cfg(windows)]
@@ -292,10 +259,9 @@ mod windows {
     type SECURITY_INFORMATION = u32;
 
     const MIGRATION_DIRNAME: &str = "windows.old";
-    const MIGRATE_FILES: [(&str, bool); 3] = [
+    const MIGRATE_FILES: [(&str, bool); 2] = [
         ("settings.json", true),
-        ("device.json", true),
-        ("account-history.json", false),
+        (crate::identity::IDENTITY_FILENAME, false),
     ];
 
     #[derive(thiserror::Error, Debug)]
@@ -487,24 +453,22 @@ mod test {
 
     /// Ensure that no migration logic runs for the default settings by checking whether anything
     /// has changed after running the migration code
-    #[tokio::test]
-    async fn test_settings_format_version() {
+    #[test]
+    fn test_settings_format_version() {
         let default_settings = serde_json::to_value(Settings::default()).unwrap();
         let mut migrated_settings = default_settings.clone();
 
-        migrate_settings(None, &mut migrated_settings)
-            .await
-            .unwrap();
+        migrate_settings(None, &mut migrated_settings).unwrap();
 
         assert_eq!(default_settings, migrated_settings);
     }
 
     /// Ensure that the settings version is correct after running all migration code
-    #[tokio::test]
-    async fn test_all_migrations() {
+    #[test]
+    fn test_all_migrations() {
         const V1_SETTINGS: &str = include_str!("v1_settings.json");
         let mut settings = serde_json::from_str(V1_SETTINGS).unwrap();
-        migrate_settings(None, &mut settings).await.unwrap();
+        migrate_settings(None, &mut settings).unwrap();
         let deserialized: Settings = serde_json::from_value(settings).unwrap();
         assert_eq!(deserialized.settings_version, CURRENT_SETTINGS_VERSION);
     }

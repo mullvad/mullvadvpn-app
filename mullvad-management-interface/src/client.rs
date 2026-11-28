@@ -4,23 +4,21 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     access_method::AccessMethodSetting,
-    device::{DeviceEvent, RemoveDeviceEvent},
     relay_list::RelayList,
     settings::Settings,
     states::TunnelState,
     version::AppVersionInfo,
+    wireguard::WireguardIdentityInfo,
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_types::{
     access_method::{self, AccessMethod},
-    account::{AccountData, AccountNumber, VoucherSubmission},
     custom_list::{CustomList, Id},
-    device::{Device, DeviceId, DeviceState},
     features::FeatureIndicators,
     relay_constraints::{AllowedIps, ObfuscationSettings, RelayOverride, RelaySettings},
     relay_list::BridgeList,
     settings::{DnsOptions, SettingsKeyList},
-    wireguard::{PublicKey, QuantumResistantState, RotationInterval},
+    wireguard::QuantumResistantState,
 };
 use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
@@ -45,8 +43,8 @@ pub enum DaemonEvent {
     Settings(Settings),
     RelayList(RelayList),
     AppVersionInfo(AppVersionInfo),
-    Device(DeviceEvent),
-    RemoveDevice(RemoveDeviceEvent),
+    /// The WireGuard identity was imported, replaced or cleared.
+    WireguardIdentity(Option<WireguardIdentityInfo>),
     NewAccessMethod(AccessMethodSetting),
     LeakDetected(LeakInfo),
 }
@@ -68,12 +66,11 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
             types::daemon_event::Event::VersionInfo(info) => AppVersionInfo::try_from(info)
                 .map(DaemonEvent::AppVersionInfo)
                 .map_err(Error::InvalidResponse),
-            types::daemon_event::Event::Device(event) => DeviceEvent::try_from(event)
-                .map(DaemonEvent::Device)
-                .map_err(Error::InvalidResponse),
-            types::daemon_event::Event::RemoveDevice(event) => RemoveDeviceEvent::try_from(event)
-                .map(DaemonEvent::RemoveDevice)
-                .map_err(Error::InvalidResponse),
+            types::daemon_event::Event::WireguardIdentity(state) => {
+                types::identity_state_from_proto(state)
+                    .map(DaemonEvent::WireguardIdentity)
+                    .map_err(Error::InvalidResponse)
+            }
             types::daemon_event::Event::NewAccessMethod(event) => {
                 AccessMethodSetting::try_from(event)
                     .map(DaemonEvent::NewAccessMethod)
@@ -328,125 +325,34 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn create_new_account(&mut self) -> Result<AccountNumber> {
-        Ok(self
+    /// Import the `[Interface]` section of a WireGuard config file generated at mullvad.net.
+    /// This replaces any existing identity.
+    pub async fn import_wireguard_config(
+        &mut self,
+        config: String,
+    ) -> Result<WireguardIdentityInfo> {
+        let identity = self
             .0
-            .create_new_account(())
+            .import_wireguard_config(config)
             .await
-            .map_err(map_device_error)?
-            .into_inner())
-    }
-
-    pub async fn login_account(&mut self, account: AccountNumber) -> Result<()> {
-        self.0
-            .login_account(account)
-            .await
-            .map_err(map_device_error)?;
-        Ok(())
-    }
-
-    pub async fn logout_account(&mut self, source: &str) -> Result<()> {
-        self.0.logout_account(source.to_owned()).await?;
-        Ok(())
-    }
-
-    pub async fn get_account_data(&mut self, account: AccountNumber) -> Result<AccountData> {
-        let data = self.0.get_account_data(account).await?.into_inner();
-        AccountData::try_from(data).map_err(Error::InvalidResponse)
-    }
-
-    pub async fn get_account_history(&mut self) -> Result<Option<AccountNumber>> {
-        let history = self.0.get_account_history(()).await?.into_inner();
-        Ok(history.number)
-    }
-
-    pub async fn clear_account_history(&mut self) -> Result<()> {
-        self.0.clear_account_history(()).await?;
-        Ok(())
-    }
-
-    // get_www_auth_token
-
-    pub async fn submit_voucher(&mut self, voucher: String) -> Result<VoucherSubmission> {
-        let result = self
-            .0
-            .submit_voucher(voucher)
-            .await
-            .map_err(|error| match error.code() {
-                Code::NotFound => Error::InvalidVoucher,
-                Code::ResourceExhausted => Error::UsedVoucher,
-                _other => Error::Rpc(Box::new(error)),
+            .map_err(|status| match status.code() {
+                Code::InvalidArgument => Error::InvalidWireguardConfig(status.message().to_owned()),
+                _other => Error::Rpc(Box::new(status)),
             })?
             .into_inner();
-        VoucherSubmission::try_from(result).map_err(Error::InvalidResponse)
+        WireguardIdentityInfo::try_from(identity).map_err(Error::InvalidResponse)
     }
 
-    pub async fn get_device(&mut self) -> Result<DeviceState> {
-        let state = self
-            .0
-            .get_device(())
-            .await
-            .map_err(map_device_error)?
-            .into_inner();
-        DeviceState::try_from(state).map_err(Error::InvalidResponse)
-    }
-
-    pub async fn update_device(&mut self) -> Result<()> {
-        self.0.update_device(()).await.map_err(map_device_error)?;
+    /// Forget the imported identity. This also disconnects the tunnel.
+    pub async fn clear_wireguard_identity(&mut self) -> Result<()> {
+        self.0.clear_wireguard_identity(()).await?;
         Ok(())
     }
 
-    pub async fn list_devices(&mut self, account: AccountNumber) -> Result<Vec<Device>> {
-        let list = self
-            .0
-            .list_devices(account)
-            .await
-            .map_err(map_device_error)?
-            .into_inner();
-        list.devices
-            .into_iter()
-            .map(|d| Device::try_from(d).map_err(Error::InvalidResponse))
-            .collect::<Result<_>>()
-    }
-
-    pub async fn remove_device(
-        &mut self,
-        account: AccountNumber,
-        device_id: DeviceId,
-    ) -> Result<()> {
-        self.0
-            .remove_device(types::DeviceRemoval {
-                account_number: account,
-                device_id,
-            })
-            .await
-            .map_err(map_device_error)?;
-        Ok(())
-    }
-
-    pub async fn set_wireguard_rotation_interval(
-        &mut self,
-        interval: RotationInterval,
-    ) -> Result<()> {
-        let duration = types::Duration::try_from(*interval.as_duration())
-            .map_err(|_| Error::DurationTooLarge)?;
-        self.0.set_wireguard_rotation_interval(duration).await?;
-        Ok(())
-    }
-
-    pub async fn reset_wireguard_rotation_interval(&mut self) -> Result<()> {
-        self.0.reset_wireguard_rotation_interval(()).await?;
-        Ok(())
-    }
-
-    pub async fn rotate_wireguard_key(&mut self) -> Result<()> {
-        self.0.rotate_wireguard_key(()).await?;
-        Ok(())
-    }
-
-    pub async fn get_wireguard_key(&mut self) -> Result<PublicKey> {
-        let key = self.0.get_wireguard_key(()).await?.into_inner();
-        PublicKey::try_from(key).map_err(Error::InvalidResponse)
+    /// Get the public details of the imported identity, if there is one.
+    pub async fn get_wireguard_identity(&mut self) -> Result<Option<WireguardIdentityInfo>> {
+        let state = self.0.get_wireguard_identity(()).await?.into_inner();
+        types::identity_state_from_proto(state).map_err(Error::InvalidResponse)
     }
 
     pub async fn create_custom_list(&mut self, name: String) -> Result<Id> {
@@ -698,17 +604,6 @@ impl MullvadProxyClient {
     pub async fn import_custom_vpn_config(&mut self, body: String) -> Result<String> {
         let response = self.0.import_custom_vpn_config(body).await?;
         Ok(response.into_inner().error)
-    }
-}
-
-#[cfg(not(target_os = "android"))]
-fn map_device_error(status: Status) -> Error {
-    match status.code() {
-        Code::ResourceExhausted => Error::TooManyDevices,
-        Code::Unauthenticated => Error::InvalidAccount,
-        Code::AlreadyExists => Error::AlreadyLoggedIn,
-        Code::NotFound => Error::DeviceNotFound,
-        _other => Error::Rpc(Box::new(status)),
     }
 }
 

@@ -11,7 +11,3 @@ export function isInRanges(value: number, ranges: [number, number][]): boolean {
 export function isNumber(number: unknown): number is number {
   return !Number.isNaN(number);
 }
-
-export function isAccountNumber(value: string): boolean {
-  return /^\d{10,16}$/.test(value);
-}

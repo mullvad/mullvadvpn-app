@@ -72,3 +72,59 @@ impl From<bool> for proto::DaitaSettings {
         proto::DaitaSettings { enabled }
     }
 }
+
+impl From<mullvad_types::wireguard::WireguardIdentityInfo> for proto::WireguardIdentity {
+    fn from(info: mullvad_types::wireguard::WireguardIdentityInfo) -> Self {
+        proto::WireguardIdentity {
+            public_key: Some(proto::PublicKey::from(info.public_key)),
+            ipv4_address: info.ipv4_address.to_string(),
+            ipv6_address: info
+                .ipv6_address
+                .map(|address| address.to_string())
+                .unwrap_or_default(),
+        }
+    }
+}
+
+impl TryFrom<proto::WireguardIdentity> for mullvad_types::wireguard::WireguardIdentityInfo {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(identity: proto::WireguardIdentity) -> Result<Self, Self::Error> {
+        let public_key = identity
+            .public_key
+            .ok_or(FromProtobufTypeError::invalid_argument("missing public key"))?;
+        let ipv6_address = if identity.ipv6_address.is_empty() {
+            None
+        } else {
+            Some(identity.ipv6_address.parse().map_err(|_| {
+                FromProtobufTypeError::invalid_argument("invalid IPv6 tunnel address")
+            })?)
+        };
+        Ok(mullvad_types::wireguard::WireguardIdentityInfo {
+            public_key: mullvad_types::wireguard::PublicKey::try_from(public_key)?,
+            ipv4_address: identity.ipv4_address.parse().map_err(|_| {
+                FromProtobufTypeError::invalid_argument("invalid IPv4 tunnel address")
+            })?,
+            ipv6_address,
+        })
+    }
+}
+
+/// Convert the (possibly missing) identity into its protobuf representation.
+pub fn identity_state_to_proto(
+    info: Option<mullvad_types::wireguard::WireguardIdentityInfo>,
+) -> proto::WireguardIdentityState {
+    proto::WireguardIdentityState {
+        identity: info.map(proto::WireguardIdentity::from),
+    }
+}
+
+/// Convert the protobuf representation of the identity state into an optional identity.
+pub fn identity_state_from_proto(
+    state: proto::WireguardIdentityState,
+) -> Result<Option<mullvad_types::wireguard::WireguardIdentityInfo>, FromProtobufTypeError> {
+    state
+        .identity
+        .map(mullvad_types::wireguard::WireguardIdentityInfo::try_from)
+        .transpose()
+}

@@ -2,7 +2,6 @@
 pub use crate::https_client::SocketBypassRequest;
 use crate::{
     DnsResolver, SigsumPublicKey,
-    access::AccessTokenStore,
     availability::ApiAvailability,
     https_client::HttpsConnector,
     proxy::{ApiConnectionMode, ConnectionModeSource},
@@ -20,7 +19,6 @@ use hyper::{
     client::conn::http1,
     header::{self, HeaderValue},
 };
-use mullvad_types::account::AccountNumber;
 use std::{
     convert::Infallible,
     error::Error as StdError,
@@ -162,7 +160,6 @@ impl Error {
 pub struct RequestService {
     host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
-    access_tokens: AccessTokenStore,
     /// [`Notify`] that is used to signal whether [`Connection`] should be closed.
     reset: Arc<Notify>,
     /// The active HTTP connection to the server, if any.
@@ -232,7 +229,6 @@ impl RequestService {
             connection_mode_source,
             api_availability,
             connection: None,
-            access_tokens: Default::default(),
         };
         let handle = RequestServiceHandle {
             host,
@@ -373,19 +369,7 @@ impl RequestService {
 
         tracing::trace!("{method} host={host:?} target={uri:?}");
 
-        let mut result = self.send_request_timeout(request.clone()).await;
-
-        // The access token may have expired since it was obtained.
-        // Discard the token, fetch a new one, and give the request another chance.
-        if let Some(account) = &request.account
-            && let Err(Error::ApiError(_, code)) = &result
-            && code == crate::INVALID_ACCESS_TOKEN
-        {
-            tracing::debug!("Access token was rejected. Retrying with a new one");
-            self.access_tokens.invalidate_token(account);
-            // Retry with new token
-            result = self.send_request_timeout(request).await;
-        }
+        let result = self.send_request_timeout(request).await;
 
         if let Err(err) = &result
             && err.is_network_error()
@@ -454,24 +438,9 @@ impl RequestService {
 
     async fn send_request_inner(
         &mut self,
-        mut request: Request<Full<Bytes>>,
+        request: Request<Full<Bytes>>,
     ) -> Result<Response<Incoming>> {
         let _ = self.api_availability.wait_for_unsuspend().await;
-
-        if let Some(account) = &request.account {
-            let connection = self.get_connection().await?;
-            let connection = self.connection.insert(connection);
-            let access_token = self
-                .access_tokens
-                .get_token(account, &self.host, &mut connection.send_request)
-                .await?;
-            let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
-                .map_err(|_| Error::InvalidHeaderError)?;
-            request
-                .request
-                .headers_mut()
-                .insert(header::AUTHORIZATION, auth);
-        }
 
         let connection = self.get_connection().await?;
         let connection = self.connection.insert(connection);
@@ -562,7 +531,6 @@ pub struct Request<B> {
     request: hyper::Request<B>,
     timeout: Duration,
     service: RequestServiceHandle,
-    account: Option<AccountNumber>,
     expected_status: &'static [hyper::StatusCode],
 }
 
@@ -572,17 +540,8 @@ impl<B: Body> Request<B> {
             request,
             timeout: DEFAULT_TIMEOUT,
             service,
-            account: None,
             expected_status: &[],
         }
-    }
-
-    /// Set the account number to obtain authentication for.
-    ///
-    /// If set, the [`RequestService`] may preempt this request with a request to fetch an access token.
-    pub fn account(mut self, account: AccountNumber) -> Self {
-        self.account = Some(account);
-        self
     }
 
     /// Sets timeout for the request.
@@ -911,14 +870,8 @@ impl_into_arc_err!(http::uri::InvalidUri);
 
 #[cfg(test)]
 mod test {
-    use http::header::AUTHORIZATION;
-    use mockito::Matcher;
-
     use super::*;
     use crate::proxy::ApiConnectionMode;
-
-    const ACCOUNT: &str = "1111222233334444";
-    const AUTH_TOKEN: &str = "supersecret";
 
     /// Resolve every host to a fixed address.
     struct MockResolver(SocketAddr);
@@ -953,43 +906,6 @@ mod test {
         (service, server)
     }
 
-    // Use macros (instead of fns) for mock helpers to make insta snapshots work.
-    macro_rules! mock_auth_token {
-        ($server:expr, $expiry:expr) => {{
-            let server: &mut mockito::ServerGuard = $server;
-            let expiry: &str = $expiry;
-            server
-                .mock("POST", "/auth/v1/token")
-                .match_body(format!("{{\"account_number\":\"{ACCOUNT}\"}}").as_str())
-                .with_body_from_request(move |request| {
-                    insta::assert_debug_snapshot!(request);
-                    serde_json::json!({
-                        "access_token": AUTH_TOKEN,
-                        "expiry":expiry,
-                    })
-                    .to_string().into()
-                })
-                .expect(99) // don't unregister the handler after the first request
-                .create()
-        }};
-    }
-
-    macro_rules! mock_secret_ok {
-        ($server:expr) => {{
-            let server: &mut mockito::ServerGuard = $server;
-            server
-                .mock("GET", "/secret")
-                .match_header(AUTHORIZATION, format!("Bearer {AUTH_TOKEN}").as_str())
-                .with_status(200)
-                .with_body_from_request(|request| {
-                    insta::assert_debug_snapshot!(request);
-                    r#"{"foo":"bar"}"#.to_string().into()
-                })
-                .expect(99) // don't unregister the handler after the first request
-                .create()
-        }};
-    }
-
     /// Helper macro for dispatching a request, awaiting the response, and snapshotting them for testing.
     macro_rules! test_request {
         ($f:expr) => {
@@ -1021,57 +937,5 @@ mod test {
             .with_body(r#"{"foo":"bar"}"#)
             .create();
         test_request!(|| service.request().get("test").unwrap()).await;
-    }
-
-    /// Test fetching auth token, and that the token is not reused when expired.
-    #[tokio::test]
-    async fn auth_evict() {
-        let (service, mut server) = setup().await;
-
-        // fetch an (expired) bearer token
-        let mock_auth_token = mock_auth_token!(&mut server, "2000-01-01T00:00:00Z").expect(2);
-        // route that requires a bearer token
-        let mock_secret_ok = mock_secret_ok!(&mut server).expect(2);
-        // route for when bearer token is not present
-        let mock_forbidden = server.mock("GET", Matcher::Any).expect(0).create();
-
-        for _ in 0..2 {
-            test_request!(|| service
-                .request()
-                .get("secret")
-                .unwrap()
-                .account(ACCOUNT.into()))
-            .await;
-        }
-
-        mock_auth_token.assert();
-        mock_secret_ok.assert();
-        mock_forbidden.assert();
-    }
-
-    /// Test fetching auth token, and that the token is reused between requests.
-    #[tokio::test]
-    async fn auth_reuse() {
-        let (service, mut server) = setup().await;
-
-        // 200 for fetching a bearer token
-        let mock_auth_token = mock_auth_token!(&mut server, "2999-01-01T00:00:00Z").expect(1);
-        // route that requires a bearer token
-        let mock_secret_ok = mock_secret_ok!(&mut server).expect(2);
-        // route for when bearer token is not present
-        let mock_forbidden = server.mock("GET", Matcher::Any).expect(0).create();
-
-        for _ in 0..2 {
-            test_request!(|| service
-                .request()
-                .get("secret")
-                .unwrap()
-                .account(ACCOUNT.into()))
-            .await;
-        }
-
-        mock_auth_token.assert();
-        mock_secret_ok.assert();
-        mock_forbidden.assert();
     }
 }

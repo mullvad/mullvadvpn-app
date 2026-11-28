@@ -44,23 +44,9 @@ interface IManagementServiceService extends grpc.ServiceDefinition<grpc.UntypedS
     clearAllRelayOverrides: IManagementServiceService_IClearAllRelayOverrides;
     setEnableRecents: IManagementServiceService_ISetEnableRecents;
     setUserspaceWireguard: IManagementServiceService_ISetUserspaceWireguard;
-    createNewAccount: IManagementServiceService_ICreateNewAccount;
-    loginAccount: IManagementServiceService_ILoginAccount;
-    logoutAccount: IManagementServiceService_ILogoutAccount;
-    getAccountData: IManagementServiceService_IGetAccountData;
-    getAccountHistory: IManagementServiceService_IGetAccountHistory;
-    clearAccountHistory: IManagementServiceService_IClearAccountHistory;
-    getWwwAuthToken: IManagementServiceService_IGetWwwAuthToken;
-    submitVoucher: IManagementServiceService_ISubmitVoucher;
-    deleteAccount: IManagementServiceService_IDeleteAccount;
-    getDevice: IManagementServiceService_IGetDevice;
-    updateDevice: IManagementServiceService_IUpdateDevice;
-    listDevices: IManagementServiceService_IListDevices;
-    removeDevice: IManagementServiceService_IRemoveDevice;
-    setWireguardRotationInterval: IManagementServiceService_ISetWireguardRotationInterval;
-    resetWireguardRotationInterval: IManagementServiceService_IResetWireguardRotationInterval;
-    rotateWireguardKey: IManagementServiceService_IRotateWireguardKey;
-    getWireguardKey: IManagementServiceService_IGetWireguardKey;
+    importWireguardConfig: IManagementServiceService_IImportWireguardConfig;
+    clearWireguardIdentity: IManagementServiceService_IClearWireguardIdentity;
+    getWireguardIdentity: IManagementServiceService_IGetWireguardIdentity;
     createCustomList: IManagementServiceService_ICreateCustomList;
     deleteCustomList: IManagementServiceService_IDeleteCustomList;
     updateCustomList: IManagementServiceService_IUpdateCustomList;
@@ -85,8 +71,6 @@ interface IManagementServiceService extends grpc.ServiceDefinition<grpc.UntypedS
     setSplitTunnelState: IManagementServiceService_ISetSplitTunnelState;
     clearSplitTunnelApps: IManagementServiceService_IClearSplitTunnelApps;
     getExcludedProcesses: IManagementServiceService_IGetExcludedProcesses;
-    initPlayPurchase: IManagementServiceService_IInitPlayPurchase;
-    verifyPlayPurchase: IManagementServiceService_IVerifyPlayPurchase;
     needFullDiskPermissions: IManagementServiceService_INeedFullDiskPermissions;
     checkVolumes: IManagementServiceService_ICheckVolumes;
     applyJsonSettings: IManagementServiceService_IApplyJsonSettings;
@@ -400,53 +384,17 @@ interface IManagementServiceService_ISetUserspaceWireguard extends grpc.MethodDe
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IManagementServiceService_ICreateNewAccount extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.StringValue> {
-    path: "/mullvad_daemon.management_interface.ManagementService/CreateNewAccount";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    responseDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-}
-interface IManagementServiceService_ILoginAccount extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/LoginAccount";
+interface IManagementServiceService_IImportWireguardConfig extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, management_interface_pb.WireguardIdentity> {
+    path: "/mullvad_daemon.management_interface.ManagementService/ImportWireguardConfig";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
     requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
+    responseSerialize: grpc.serialize<management_interface_pb.WireguardIdentity>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.WireguardIdentity>;
 }
-interface IManagementServiceService_ILogoutAccount extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/LogoutAccount";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IGetAccountData extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, management_interface_pb.AccountData> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetAccountData";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-    responseSerialize: grpc.serialize<management_interface_pb.AccountData>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.AccountData>;
-}
-interface IManagementServiceService_IGetAccountHistory extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.AccountHistory> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetAccountHistory";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.AccountHistory>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.AccountHistory>;
-}
-interface IManagementServiceService_IClearAccountHistory extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/ClearAccountHistory";
+interface IManagementServiceService_IClearWireguardIdentity extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
+    path: "/mullvad_daemon.management_interface.ManagementService/ClearWireguardIdentity";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
@@ -454,104 +402,14 @@ interface IManagementServiceService_IClearAccountHistory extends grpc.MethodDefi
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IManagementServiceService_IGetWwwAuthToken extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.StringValue> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetWwwAuthToken";
+interface IManagementServiceService_IGetWireguardIdentity extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.WireguardIdentityState> {
+    path: "/mullvad_daemon.management_interface.ManagementService/GetWireguardIdentity";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    responseDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-}
-interface IManagementServiceService_ISubmitVoucher extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, management_interface_pb.VoucherSubmission> {
-    path: "/mullvad_daemon.management_interface.ManagementService/SubmitVoucher";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-    responseSerialize: grpc.serialize<management_interface_pb.VoucherSubmission>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.VoucherSubmission>;
-}
-interface IManagementServiceService_IDeleteAccount extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/DeleteAccount";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IGetDevice extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.DeviceState> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetDevice";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.DeviceState>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.DeviceState>;
-}
-interface IManagementServiceService_IUpdateDevice extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/UpdateDevice";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IListDevices extends grpc.MethodDefinition<google_protobuf_wrappers_pb.StringValue, management_interface_pb.DeviceList> {
-    path: "/mullvad_daemon.management_interface.ManagementService/ListDevices";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.StringValue>;
-    requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.StringValue>;
-    responseSerialize: grpc.serialize<management_interface_pb.DeviceList>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.DeviceList>;
-}
-interface IManagementServiceService_IRemoveDevice extends grpc.MethodDefinition<management_interface_pb.DeviceRemoval, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/RemoveDevice";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<management_interface_pb.DeviceRemoval>;
-    requestDeserialize: grpc.deserialize<management_interface_pb.DeviceRemoval>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_ISetWireguardRotationInterval extends grpc.MethodDefinition<google_protobuf_duration_pb.Duration, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/SetWireguardRotationInterval";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_duration_pb.Duration>;
-    requestDeserialize: grpc.deserialize<google_protobuf_duration_pb.Duration>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IResetWireguardRotationInterval extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/ResetWireguardRotationInterval";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IRotateWireguardKey extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/RotateWireguardKey";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_IGetWireguardKey extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.PublicKey> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetWireguardKey";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.PublicKey>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.PublicKey>;
+    responseSerialize: grpc.serialize<management_interface_pb.WireguardIdentityState>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.WireguardIdentityState>;
 }
 interface IManagementServiceService_ICreateCustomList extends grpc.MethodDefinition<management_interface_pb.NewCustomList, google_protobuf_wrappers_pb.StringValue> {
     path: "/mullvad_daemon.management_interface.ManagementService/CreateCustomList";
@@ -768,24 +626,6 @@ interface IManagementServiceService_IGetExcludedProcesses extends grpc.MethodDef
     requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
     responseSerialize: grpc.serialize<management_interface_pb.ExcludedProcessList>;
     responseDeserialize: grpc.deserialize<management_interface_pb.ExcludedProcessList>;
-}
-interface IManagementServiceService_IInitPlayPurchase extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.PlayExternalObfuscatedAccountId> {
-    path: "/mullvad_daemon.management_interface.ManagementService/InitPlayPurchase";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.PlayExternalObfuscatedAccountId>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.PlayExternalObfuscatedAccountId>;
-}
-interface IManagementServiceService_IVerifyPlayPurchase extends grpc.MethodDefinition<management_interface_pb.PlayPurchase, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/VerifyPlayPurchase";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<management_interface_pb.PlayPurchase>;
-    requestDeserialize: grpc.deserialize<management_interface_pb.PlayPurchase>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
 interface IManagementServiceService_INeedFullDiskPermissions extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.BoolValue> {
     path: "/mullvad_daemon.management_interface.ManagementService/NeedFullDiskPermissions";
@@ -1030,23 +870,9 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     clearAllRelayOverrides: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
     setEnableRecents: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
     setUserspaceWireguard: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
-    createNewAccount: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.StringValue>;
-    loginAccount: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty>;
-    logoutAccount: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty>;
-    getAccountData: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, management_interface_pb.AccountData>;
-    getAccountHistory: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.AccountHistory>;
-    clearAccountHistory: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
-    getWwwAuthToken: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.StringValue>;
-    submitVoucher: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, management_interface_pb.VoucherSubmission>;
-    deleteAccount: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
-    getDevice: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.DeviceState>;
-    updateDevice: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
-    listDevices: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, management_interface_pb.DeviceList>;
-    removeDevice: grpc.handleUnaryCall<management_interface_pb.DeviceRemoval, google_protobuf_empty_pb.Empty>;
-    setWireguardRotationInterval: grpc.handleUnaryCall<google_protobuf_duration_pb.Duration, google_protobuf_empty_pb.Empty>;
-    resetWireguardRotationInterval: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
-    rotateWireguardKey: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
-    getWireguardKey: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.PublicKey>;
+    importWireguardConfig: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, management_interface_pb.WireguardIdentity>;
+    clearWireguardIdentity: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
+    getWireguardIdentity: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.WireguardIdentityState>;
     createCustomList: grpc.handleUnaryCall<management_interface_pb.NewCustomList, google_protobuf_wrappers_pb.StringValue>;
     deleteCustomList: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty>;
     updateCustomList: grpc.handleUnaryCall<management_interface_pb.CustomList, google_protobuf_empty_pb.Empty>;
@@ -1071,8 +897,6 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     setSplitTunnelState: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
     clearSplitTunnelApps: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
     getExcludedProcesses: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.ExcludedProcessList>;
-    initPlayPurchase: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.PlayExternalObfuscatedAccountId>;
-    verifyPlayPurchase: grpc.handleUnaryCall<management_interface_pb.PlayPurchase, google_protobuf_empty_pb.Empty>;
     needFullDiskPermissions: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.BoolValue>;
     checkVolumes: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
     applyJsonSettings: grpc.handleUnaryCall<google_protobuf_wrappers_pb.StringValue, google_protobuf_empty_pb.Empty>;
@@ -1194,57 +1018,15 @@ export interface IManagementServiceClient {
     setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    createNewAccount(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    createNewAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    createNewAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    loginAccount(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    loginAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    loginAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    logoutAccount(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    logoutAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    logoutAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    getAccountData(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    getAccountData(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    getAccountData(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    getAccountHistory(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    getAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    getAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    clearAccountHistory(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    clearAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    clearAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    getWwwAuthToken(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    getWwwAuthToken(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    getWwwAuthToken(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    submitVoucher(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    submitVoucher(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    submitVoucher(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    deleteAccount(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    deleteAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    deleteAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    getDevice(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    getDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    getDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    updateDevice(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    updateDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    updateDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    listDevices(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    listDevices(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    listDevices(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    removeDevice(request: management_interface_pb.DeviceRemoval, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    removeDevice(request: management_interface_pb.DeviceRemoval, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    removeDevice(request: management_interface_pb.DeviceRemoval, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    rotateWireguardKey(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    rotateWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    rotateWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    getWireguardKey(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
-    getWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
-    getWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
+    importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    getWireguardIdentity(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
+    getWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
+    getWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
     createCustomList(request: management_interface_pb.NewCustomList, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
     createCustomList(request: management_interface_pb.NewCustomList, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
     createCustomList(request: management_interface_pb.NewCustomList, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
@@ -1316,12 +1098,6 @@ export interface IManagementServiceClient {
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    verifyPlayPurchase(request: management_interface_pb.PlayPurchase, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
@@ -1488,57 +1264,15 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setUserspaceWireguard(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public createNewAccount(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public createNewAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public createNewAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public loginAccount(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public loginAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public loginAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public logoutAccount(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public logoutAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public logoutAccount(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public getAccountData(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    public getAccountData(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    public getAccountData(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountData) => void): grpc.ClientUnaryCall;
-    public getAccountHistory(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    public getAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    public getAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.AccountHistory) => void): grpc.ClientUnaryCall;
-    public clearAccountHistory(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public clearAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public clearAccountHistory(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public getWwwAuthToken(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public getWwwAuthToken(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public getWwwAuthToken(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
-    public submitVoucher(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    public submitVoucher(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    public submitVoucher(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.VoucherSubmission) => void): grpc.ClientUnaryCall;
-    public deleteAccount(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public deleteAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public deleteAccount(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public getDevice(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    public getDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    public getDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceState) => void): grpc.ClientUnaryCall;
-    public updateDevice(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public updateDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public updateDevice(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public listDevices(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    public listDevices(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    public listDevices(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.DeviceList) => void): grpc.ClientUnaryCall;
-    public removeDevice(request: management_interface_pb.DeviceRemoval, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public removeDevice(request: management_interface_pb.DeviceRemoval, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public removeDevice(request: management_interface_pb.DeviceRemoval, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setWireguardRotationInterval(request: google_protobuf_duration_pb.Duration, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public resetWireguardRotationInterval(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public rotateWireguardKey(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public rotateWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public rotateWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public getWireguardKey(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
-    public getWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
-    public getWireguardKey(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PublicKey) => void): grpc.ClientUnaryCall;
+    public importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    public importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    public importWireguardConfig(request: google_protobuf_wrappers_pb.StringValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentity) => void): grpc.ClientUnaryCall;
+    public clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public clearWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public getWireguardIdentity(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
+    public getWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
+    public getWireguardIdentity(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.WireguardIdentityState) => void): grpc.ClientUnaryCall;
     public createCustomList(request: management_interface_pb.NewCustomList, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
     public createCustomList(request: management_interface_pb.NewCustomList, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
     public createCustomList(request: management_interface_pb.NewCustomList, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.StringValue) => void): grpc.ClientUnaryCall;
@@ -1610,12 +1344,6 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
-    public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     public needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     public needFullDiskPermissions(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;

@@ -5,10 +5,9 @@ import { getDefaultSettings } from '../../../src/main/default-settings';
 import { changeIpcWebContents, IpcMainEventChannel } from '../../../src/main/ipc-event-channel';
 import { loadTranslations } from '../../../src/main/load-translations';
 import {
-  DeviceState,
-  IAccountData,
   IAppVersionInfo,
   ILocation,
+  IWireguardIdentity,
 } from '../../../src/shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../src/shared/gettext';
 import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
@@ -43,20 +42,10 @@ class ApplicationMain {
 
   private isConnectedToDaemon = true;
 
-  private accountData: IAccountData = {
-    expiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-  };
-
-  private deviceState: DeviceState = {
-    type: 'logged in',
-    accountAndDevice: {
-      accountNumber: '1234123412341234',
-      device: {
-        id: '1234',
-        name: 'Testing Mole',
-        created: new Date(),
-      },
-    },
+  private wireguardIdentity?: IWireguardIdentity = {
+    publicKey: 'bXlwdWJsaWNrZXlmb3J0ZXN0aW5nb25seTEyMzQ1Njc=',
+    ipv4Address: '10.64.0.2/32',
+    ipv6Address: 'fc00:bbbb:bbbb:bb01::1/128',
   };
 
   private currentVersion: ICurrentAppVersionInfo = {
@@ -79,7 +68,11 @@ class ApplicationMain {
   };
 
   public constructor() {
-    app.enableSandbox();
+    // Enabling the sandbox explicitly overrides --no-sandbox, which is needed when the tests are run
+    // as root (e.g. in a container).
+    if (!app.commandLine.hasSwitch('no-sandbox')) {
+      app.enableSandbox();
+    }
     app.on('ready', this.onReady);
   }
 
@@ -128,12 +121,10 @@ class ApplicationMain {
     IpcMainEventChannel.state.handleGet(() => ({
       isConnected: this.isConnectedToDaemon,
       autoStart: false,
-      accountData: this.accountData,
-      accountHistory: undefined,
       tunnelState: { state: 'disconnected', location: this.location, lockedDown: false },
       settings: this.settings,
       isPerformingPostUpgrade: false,
-      deviceState: this.deviceState,
+      wireguardIdentity: this.wireguardIdentity,
       relayList: {
         relayList: mockData.relayList,
         wireguardEndpointData: mockData.wireguardEndpointData,

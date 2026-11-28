@@ -25,4 +25,3 @@ systemctl stop mullvad-early-boot-blocking.service || true
 systemctl disable mullvad-early-boot-blocking.service || true
 
 /opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
-/opt/Mullvad\ VPN/resources/mullvad-setup remove-device || echo "Failed to remove device from account"

@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s ထပ်ပေါင်းပြီးပါပြီ၊ %(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -48,12 +45,6 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "%d နှစ်သာ ကျန်တော့သည်"
 
-msgid "Account paid until %(expiry)s."
-msgstr "%(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
-
-msgid "Account settings"
-msgstr "အကောင့် ဆက်တင်"
-
 msgid "Add"
 msgstr "ပေါင်းထည့်ရန်"
 
@@ -77,9 +68,6 @@ msgstr "အင်တာနက် ပိတ်ဆို့နေပါသည်"
 
 msgid "Buy credit"
 msgstr "ခရက်ဒစ် ဝယ်ရန်"
-
-msgid "Buy more credit"
-msgstr "ခရက်ဒစ်များ ဝယ်ရန်"
 
 msgid "Cancel"
 msgstr "မလုပ်တော့ပါ"
@@ -260,10 +248,6 @@ msgstr "ထွက်ရန်"
 msgid "Reconnect"
 msgstr "ပြန်ချိတ်ဆက်ရန်"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "ဖယ်ရှားရန်"
-
 msgid "Remove from list"
 msgstr "စာရင်းမှ ဖယ်ရှားရန်"
 
@@ -308,9 +292,6 @@ msgstr "မတူညီသော ရှာဖွေမှုဖြင့် က�
 
 msgid "Type"
 msgstr "အမျိုးအစား"
-
-msgid "Unblock"
-msgstr "ပိတ်ဆို့မှုမှ ဖယ်ရန်"
 
 msgid "UNSECURED CONNECTION"
 msgstr "မလုံခြုံသည့် ချိတ်ဆက်မှု"
@@ -378,12 +359,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "%(location)s သို့ ချိတ်ဆက်ရန်"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "အကောင့်နံပါတ်ကို ကူးရန်"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -405,13 +380,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s ကို ဖြန့်ပြရန်"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "အကောင့်နံပါတ် %(accountNumber)s ကို မမှတ်ထားရန်"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -432,12 +400,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "ဆလိုက် %(index)s သို့ သွားရန်"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "အကောင့်နံပါတ်ကို ဝှက်ရန်"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -447,18 +409,6 @@ msgstr "DAITA ဖွင့်ထားချိန်တွင် VPN ဒေတ�
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "DAITA မပါသော VPN ဒေတာအသွားအလာကို ပြသသော ရုပ်ပုံ"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "ဝင်ရန်"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "အကောင့်နံပါတ် %(accountNumber)s ဖြင့် ဝင်ရောက်ရန်"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -518,14 +468,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "%(customList)s မှ %(location)s ကို ဖယ်ရှားရန်"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "%(deviceName)s စက်ကို ဖယ်ရှားရန်"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "ဖယ်ရှားရန်"
@@ -538,12 +480,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks ဆက်တင်များ"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "အကောင့်နံပါတ်ကို ပြရန်"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP ဆက်တင်များ"
@@ -551,37 +487,6 @@ msgstr "UDP-over-TCP ဆက်တင်များ"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "ဆက်တင်ခလုတ်ကို ရွေးချယ်ရန် ညာမြှားကီးကို သုံးပါ။"
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "အကောင့်"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "အကောင့် နံပါတ်"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "လက်ရှိ၌ မရရှိနိုင်ပါ"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "ထွက်ရန်"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "စက်များကို စီမံရန်"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "အချိန်စေ့သွားပါပြီ"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "ဖော်ပြပါအထိ ပေးချေထားပြီး"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1023,22 +928,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "နောက်ဆုံးထွက် ဗားရှင်းကို အသုံးပြုလျက်ရှိသည်"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "အင်တာနက် ပိတ်ဆို့နေပါသည်- အကောင့် အချိန်စေ့သွားပါပြီ"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "ဤအကောင့်တွင် တစ်ပြိုင်နက် ချိတ်ဆက်မှုများ များလွန်းနေပါသည်။ အခြားစက်တွင် ချိတ်ဆက်မှု ဖြုတ်ပေးပါ သို့မဟုတ် ခဏကြာပြီးနောက် ထပ်မံချိတ်ဆက်ကြည့်ပါ။"
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။"
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "မှားနေသည့် အကောင့်နံပါတ်ဖြင့် စနစ်တွင်း ဝင်ရောက်ထားပါသည်။ စနစ်တွင်းမှ ထွက်ပြီး အခြားတစ်ခုဖြင့် ကြိုးစားကြည့်ပါ။"
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1070,88 +959,8 @@ msgid "Automatic multihop"
 msgstr "အလိုအလျောက် Multihop"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "ဝမ်းသာပါတယ်။"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "ချိတ်ဆက်မှု အသေးစိတ်အချက်များ"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "ချိတ်ဆက်မှုဖြုတ်ရန်"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။"
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "သင်၏ အွန်လိုင်းကိုယ်ရေးအချက်အလက်လုံခြုံရေး ပြန်လည်ရယူခြင်းကို စတင်ရန် ဆက်လုပ်ပြီး ဤအက်ပ်ကို စသုံးပါ။"
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "ကိုယ်ရေးအချက်အလက်လုံခြုံရေးအကြောင်း လေ့လာရန်"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "အချိန်စေ့သွားပါပြီ"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "ဘောက်ချာဖြင့် လဲယူရန်"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "၎င်းကို ပိတ်ခြင်းဖြင့် အဆင့်မြင့် ဆက်တင်တွင် ၎င်းကို ပြန်မဖွင့်မချင်း VPN ချိတ်ဆက်မှုဖြုတ်ထားချိန်တွင် ကွန်ရက် ကူးလူးမှုကို ခွင့်ပြုသွားမည်ဖြစ်ကြောင်း မှတ်ထားပေးပါ။"
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "ဤအက်ပ်ကို စသုံးရန်"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "အချိန်ကို အောင်မြင်စွာ ပေါင်းထည့်ပြီးပြီ"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "နောက်ထပ် ပေါင်းထည့်ရန်အတွက် ချိတ်ဆက်မှုဖြုတ်ပြီး မလုံခြုံသည့် ချိတ်ဆက်မှုဖြင့် အင်တာနက် ရယူသုံးစွဲရန် လိုပါမည်။"
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "ကိုယ်ရေးအချက်အလက် လုံခြုံသော နင်ဂျာတစ်ဦးကဲ့သို့ ခရီးဆက်ရန်အတွက် အခြားသော ကိုယ်ရေးအချက်အလက်လုံခြုံရေး အထောက်အကူပြု အလေ့အကျင့်နှင့် တူးလ်များကို ရွေးရန် ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်ကို ဝင်ကြည့်ပါ။"
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။"
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။"
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "အချိန် ပေါင်းထည့်ရန်အတွက် အင်တာနက် ရယူသုံးစွဲရန် \"လော့ခ်ဒေါင်းစနစ်\"ကို ပိတ်ရန် လိုအပ်ပါသည်။"
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "အားလုံး သတ်မှတ်ပြီးပါပြီ။"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1248,126 +1057,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "ရီလေး (Relay)"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "ဆက်လက် ဝင်ရောက်ရန်"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "ဖန်တီးသည့် အချိန်- %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "လက်ရှိစက်"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "စက်အမည်"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "စက်အမည်- %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "စက်ကို ဖယ်ရှားရန် မအောင်မြင်ခဲ့ပါ"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "ဝင်ရောက်ရန် သွားပါ"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "ဝင်ရောက်ရန်သွားခြင်းသည် ဤစက်ရှိ အင်တာနက်ကို ပိတ်ဆို့မှုမှ ဖယ်ပါလိမ့်မည်။"
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။"
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "စက်များကို စီမံရန်"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။"
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "ဖယ်ရှားရန်"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "<em>%(deviceName)s</em> ကို ဖယ်ရှားမလား"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "အလွန်ကောင်း။"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "စက်ကို စာရင်းမှ ဖယ်ရှားပြီး စနစ်မှ ထွက်သွားလိမ့်မည်။"
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။"
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "ကျန်သည့် အချိန်- %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "စက်များလွန်းနေသည်"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "ထပ်ကြိုးစားရန်"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "သင်ဝင်ရောက်ထားသည့် စက်အားလုံးကို ကြည့်ရှုစီမံပါ။ အကောင့်တစ်ခုလျှင် စက် ၅ လုံးအထိ တစ်ပြိုင်နက်ဝင်ထားနိုင်သည်။ ဝင်ရောက်သည့်အခါတိုင်း ခွဲခြားရလွယ်ကူစေရန် စက်တစ်လုံးချင်းကို အမည်ပေးထားသည်။"
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။"
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "သင်သည် ယခု ဤစက်တွင် ဆက်လက် ဝင်ရောက်နိုင်သည်။"
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1408,10 +1097,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "အငှားသီးသန့်"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s ။ နောက်ထပ် ခရက်ဒစ်များ ဝယ်ယူပါ။"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1422,10 +1107,6 @@ msgstr "%(suggestedUpgradeVersion)s သည် ထည့်သွင်းရန�
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> ကို ဖွင့်ထားပါသည်။ အင်တာနက် ပြန်ဖွင့်ရန်အတွက် \"ချိတ်ဆက်မည်\" ကို နှိပ်ပါ သို့မဟုတ် \"%(lockdownModeSettingName)s\" ကို ပိတ်လိုက်ပါ။"
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1511,10 +1192,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "စက်အသစ် ဖန်တီးထားသည်"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်"
 
@@ -1563,13 +1240,6 @@ msgstr "ထည့်သွင်းမှုဆော့ဖ်ဝဲကို �
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "ရွေးချယ်ထားသော %(wireGuard)s ပေါ့တ်ကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိပါ၊ <a>VPN ဆက်တင်အောက်တွင် ပေါ့တ် ပြောင်းပေးပါ။</a>"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "ဤစက်ကို <em>%(deviceName)s</em> ဟု ယခု အမည်ပေးထားသည်။ အကောင့်အောက်ရှိ <a>စက်များ စီမံရန်</a> တွင် အသေးစိတ် ကြည့်ရှုပါ။"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1703,131 +1373,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "အထွက်"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> ကို ဖွင့်ထားပါသည်။ သင့်ချိတ်ဆက်မှုကို ပိတ်ဆို့ထားမှုမှ ဖယ်ရန် ၎င်းကို ပိတ်ပါ။"
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "အကောင့် ဖန်တီးပြီး"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "အကောင့်နံပါတ်ကို စစ်နေပါသည်"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "အကောင့်သစ် ဖွင့်ရန်"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "အကောင့်သစ် ဖွင့်ရန်"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "အကောင့် ဖန်တီးနေဆဲ..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "အကောင့်သစ် ဖွင့်လိုပါသလား။"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "သိမ်းထားသည့် အကောင့်နံပါတ်ကို ဖြုတ်လိုပါသလား။"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "သင့်အကောင့်နံပါတ်ကို ဖြည့်သွင်းပါ"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "ချို့ယွင်းချက်"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "အဆင့်မြှင့်ခြင်း ပြီးပါပြီ။"
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "အကောင့်နံပါတ် မမှန်ကန်ပါ"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "ဝင်ရောက်ထားပြီး"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "ဝင်ရောက်နေဆဲ..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "ဝင်ရန်"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "ဝင်ရောက်မှု မအောင်မြင်ပါ"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "သို့မဟုတ်"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "ကျွန်ုပ်တို့၏ Kill Switch သည် လက်ရှိတွင် သင်၏ ချိတ်ဆက်မှုကို ပိတ်ဆို့ထားသည်။"
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "ကျေးဇူးပြု၍ စောင့်ပေးပါ"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "ဤစက်မှ အကောင့်နံပါတ်ကို ဖြုတ်ပြီးသွားလျှင် ပြန်ယူ၍မရပါ။"
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "စက်များလွန်းနေသည်"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "မသိသည့် ချို့ယွင်းချက်"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "အဆင့်မြှင့်တင်နေဆဲ..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "မှန်ကန်သည့် အကောင့်နံပါတ်"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။"
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1860,17 +1405,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API ရယူသုံးစွဲခွင့်"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "အကောင့်ခရက်ဒစ်သည် %(duration)s တွင် သက်တမ်းကုန်ပါမည်။ နောက်ထပ် ခရက်ဒစ်များ ဝယ်ပါ။"
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "အကောင့် အချိန်စေ့သွားပါပြီ"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ။ ထွက်ပြီး ပြန်ဖွင့်ပေးပါ။"
@@ -1882,10 +1416,6 @@ msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မ�
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "အစမ်းသုံး အပ်ဒိတ် ရနိုင်ပါပြီ။ နောက်ဆုံးထွက် အစမ်းသုံးဗားရှင်း (%(version)s) ကို စမ်းကြည့်ပါ။"
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "နောက်ထပ် ဝယ်ရန်"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2028,50 +1558,6 @@ msgstr "ဤပံ့ပိုးမှုမရှိသော အက်ပ်�
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။"
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "မလုပ်တော့ပါ"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "ဘောက်ချာဖြင့် လဲယူရန်"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။"
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "ဘောက်ချာကုဒ်မဟုတ်ဘဲ အကောင့်နံပါတ်ကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။"
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "လဲယူရန်"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "ဘောက်ချာကို စိစစ်နေဆဲ..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "ဘောက်ချာကုဒ် မှားနေပါသည်။"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4149,4 +3635,3 @@ msgstr[0] "%d နာရီအကြာတွင် အကောင့်ခရ�
 msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "သင်သည် သင့်လက်ကျန် %d ရက်ကို ဆုံးရှုံးပါမည်။"
-

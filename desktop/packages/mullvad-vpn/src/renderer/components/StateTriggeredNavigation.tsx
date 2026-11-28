@@ -11,14 +11,14 @@ export default function StateTriggeredNavigation() {
   const { location, reset } = useHistory();
 
   const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
-  const loginState = useSelector((state) => state.account.status);
+  const hasIdentity = useSelector((state) => state.identity.identity !== undefined);
 
   const delayScheduler = useScheduler();
 
-  const prevPath = useRef<RoutePath>(getNavigationBase(connectedToDaemon, loginState));
+  const prevPath = useRef<RoutePath>(getNavigationBase(connectedToDaemon, hasIdentity));
   const nextPath = useMemo(
-    () => getNavigationBase(connectedToDaemon, loginState),
-    [connectedToDaemon, loginState],
+    () => getNavigationBase(connectedToDaemon, hasIdentity),
+    [connectedToDaemon, hasIdentity],
   );
 
   const updatePath = useEffectEvent((nextPath: RoutePath) => {
@@ -53,10 +53,7 @@ export default function StateTriggeredNavigation() {
 }
 
 function getNavigationDelay(currentPath: RoutePath, nextPath: RoutePath): number | void {
-  if (
-    currentPath === RoutePath.login &&
-    (nextPath === RoutePath.main || nextPath === RoutePath.expired)
-  ) {
+  if (currentPath === RoutePath.importConfig && nextPath === RoutePath.main) {
     return 1000;
   }
 }
@@ -68,39 +65,19 @@ function getNavigationTransition(currentPath: RoutePath, nextPath: RoutePath) {
     Record<RoutePath, Partial<Record<RoutePath | '*', TransitionType>>>
   > = {
     [RoutePath.launch]: {
-      [RoutePath.login]: TransitionType.pop,
+      [RoutePath.importConfig]: TransitionType.pop,
       [RoutePath.main]: TransitionType.pop,
       '*': TransitionType.dismiss,
     },
-    [RoutePath.login]: {
+    [RoutePath.importConfig]: {
       [RoutePath.launch]: TransitionType.push,
       [RoutePath.main]: TransitionType.pop,
-      [RoutePath.deviceRevoked]: TransitionType.pop,
-      [RoutePath.tooManyDevices]: TransitionType.pop,
       '*': TransitionType.dismiss,
     },
     [RoutePath.main]: {
       [RoutePath.launch]: TransitionType.push,
-      [RoutePath.login]: TransitionType.push,
-      [RoutePath.tooManyDevices]: TransitionType.push,
+      [RoutePath.importConfig]: TransitionType.push,
       '*': TransitionType.dismiss,
-    },
-    [RoutePath.expired]: {
-      [RoutePath.launch]: TransitionType.push,
-      [RoutePath.login]: TransitionType.push,
-      [RoutePath.tooManyDevices]: TransitionType.push,
-      '*': TransitionType.dismiss,
-    },
-    [RoutePath.timeAdded]: {
-      [RoutePath.expired]: TransitionType.push,
-      [RoutePath.redeemVoucher]: TransitionType.push,
-      '*': TransitionType.dismiss,
-    },
-    [RoutePath.deviceRevoked]: {
-      '*': TransitionType.pop,
-    },
-    [RoutePath.tooManyDevices]: {
-      [RoutePath.login]: TransitionType.push,
     },
   };
 

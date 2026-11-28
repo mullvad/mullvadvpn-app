@@ -36,9 +36,6 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod.Direct
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod.DomainFronting', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod.EncryptedDnsProxy', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethodSetting', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.AccountAndDevice', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.AccountData', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.AccountHistory', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AfterDisconnect', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AllowedIpsList', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.ApiAccessMethodSettings', null, global);
@@ -71,13 +68,6 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.DaemonEvent', null,
 goog.exportSymbol('proto.mullvad_daemon.management_interface.DaemonEvent.EventCase', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.DaitaSettings', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.DefaultDnsOptions', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.Device', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceEvent', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceEvent.Cause', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceList', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceRemoval', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceState', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.DeviceState.State', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.DnsOptions', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.DnsOptions.DnsState', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.Endpoint', null, global);
@@ -123,9 +113,6 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.ObfuscationSettings
 goog.exportSymbol('proto.mullvad_daemon.management_interface.ObfuscationSettings.Udp2TcpObfuscation', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.ObfuscationSettings.WireguardPort', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.Ownership', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.PlayPurchase', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.PortRange', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.PublicKey', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.QuantumResistantState', null, global);
@@ -140,7 +127,6 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.RelayListCountry', 
 goog.exportSymbol('proto.mullvad_daemon.management_interface.RelayOverride', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.RelaySettings', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.RelaySettings.EndpointCase', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.RemoveDeviceEvent', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.Rollout', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.Seed', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.Settings', null, global);
@@ -171,13 +157,14 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.TunnelState.Error',
 goog.exportSymbol('proto.mullvad_daemon.management_interface.TunnelState.StateCase', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.TunnelStateRelayInfo', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.UUID', null, global);
-goog.exportSymbol('proto.mullvad_daemon.management_interface.VoucherSubmission', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardConfig', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardConfig.PeerConfig', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardConfig.TunnelConfig', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardConstraints', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardConstraints.Multihop', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardEndpointData', null, global);
+goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardIdentity', null, global);
+goog.exportSymbol('proto.mullvad_daemon.management_interface.WireguardIdentityState', null, global);
 /**
  * Generated by JsPbCodeGenerator.
  * @param {Array=} opt_data Optional initial data array, typically from a
@@ -429,69 +416,6 @@ if (goog.DEBUG && !COMPILED) {
    * @override
    */
   proto.mullvad_daemon.management_interface.UUID.displayName = 'proto.mullvad_daemon.management_interface.UUID';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.AccountData = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.AccountData, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.AccountData.displayName = 'proto.mullvad_daemon.management_interface.AccountData';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.AccountHistory = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.AccountHistory, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.AccountHistory.displayName = 'proto.mullvad_daemon.management_interface.AccountHistory';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.VoucherSubmission, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.VoucherSubmission.displayName = 'proto.mullvad_daemon.management_interface.VoucherSubmission';
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -2393,16 +2317,16 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.mullvad_daemon.management_interface.AccountAndDevice = function(opt_data) {
+proto.mullvad_daemon.management_interface.WireguardIdentity = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.mullvad_daemon.management_interface.AccountAndDevice, jspb.Message);
+goog.inherits(proto.mullvad_daemon.management_interface.WireguardIdentity, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.mullvad_daemon.management_interface.AccountAndDevice.displayName = 'proto.mullvad_daemon.management_interface.AccountAndDevice';
+  proto.mullvad_daemon.management_interface.WireguardIdentity.displayName = 'proto.mullvad_daemon.management_interface.WireguardIdentity';
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -2414,121 +2338,16 @@ if (goog.DEBUG && !COMPILED) {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.mullvad_daemon.management_interface.Device = function(opt_data) {
+proto.mullvad_daemon.management_interface.WireguardIdentityState = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.mullvad_daemon.management_interface.Device, jspb.Message);
+goog.inherits(proto.mullvad_daemon.management_interface.WireguardIdentityState, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   /**
    * @public
    * @override
    */
-  proto.mullvad_daemon.management_interface.Device.displayName = 'proto.mullvad_daemon.management_interface.Device';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.DeviceList = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.mullvad_daemon.management_interface.DeviceList.repeatedFields_, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.DeviceList, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.DeviceList.displayName = 'proto.mullvad_daemon.management_interface.DeviceList';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.DeviceRemoval, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.DeviceRemoval.displayName = 'proto.mullvad_daemon.management_interface.DeviceRemoval';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.DeviceState = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.DeviceState, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.DeviceState.displayName = 'proto.mullvad_daemon.management_interface.DeviceState';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.DeviceEvent = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.DeviceEvent, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.DeviceEvent.displayName = 'proto.mullvad_daemon.management_interface.DeviceEvent';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.mullvad_daemon.management_interface.RemoveDeviceEvent.repeatedFields_, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.RemoveDeviceEvent, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.RemoveDeviceEvent.displayName = 'proto.mullvad_daemon.management_interface.RemoveDeviceEvent';
+  proto.mullvad_daemon.management_interface.WireguardIdentityState.displayName = 'proto.mullvad_daemon.management_interface.WireguardIdentityState';
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -2550,69 +2369,6 @@ if (goog.DEBUG && !COMPILED) {
    * @override
    */
   proto.mullvad_daemon.management_interface.LeakInfo.displayName = 'proto.mullvad_daemon.management_interface.LeakInfo';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.displayName = 'proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.PlayPurchase = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.PlayPurchase, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.PlayPurchase.displayName = 'proto.mullvad_daemon.management_interface.PlayPurchase';
-}
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  /**
-   * @public
-   * @override
-   */
-  proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.displayName = 'proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken';
 }
 /**
  * Generated by JsPbCodeGenerator.
@@ -4616,519 +4372,6 @@ proto.mullvad_daemon.management_interface.UUID.prototype.getValue = function() {
  */
 proto.mullvad_daemon.management_interface.UUID.prototype.setValue = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.AccountData.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.AccountData} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.AccountData.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    id: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    expiry: (f = msg.getExpiry()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.AccountData}
- */
-proto.mullvad_daemon.management_interface.AccountData.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.AccountData;
-  return proto.mullvad_daemon.management_interface.AccountData.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.AccountData} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.AccountData}
- */
-proto.mullvad_daemon.management_interface.AccountData.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setId(value);
-      break;
-    case 2:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setExpiry(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.AccountData.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.AccountData} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.AccountData.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getId();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getExpiry();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional string id = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.getId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.AccountData} returns this
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.setId = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional google.protobuf.Timestamp expiry = 2;
- * @return {?proto.google.protobuf.Timestamp}
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.getExpiry = function() {
-  return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 2));
-};
-
-
-/**
- * @param {?proto.google.protobuf.Timestamp|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.AccountData} returns this
-*/
-proto.mullvad_daemon.management_interface.AccountData.prototype.setExpiry = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.AccountData} returns this
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.clearExpiry = function() {
-  return this.setExpiry(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.AccountData.prototype.hasExpiry = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.AccountHistory.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.AccountHistory} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.AccountHistory.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    number: (f = msg.getNumber()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.AccountHistory}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.AccountHistory;
-  return proto.mullvad_daemon.management_interface.AccountHistory.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.AccountHistory} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.AccountHistory}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new google_protobuf_wrappers_pb.StringValue;
-      reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
-      msg.setNumber(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.AccountHistory.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.AccountHistory} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.AccountHistory.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getNumber();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional google.protobuf.StringValue number = 1;
- * @return {?proto.google.protobuf.StringValue}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.getNumber = function() {
-  return /** @type{?proto.google.protobuf.StringValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 1));
-};
-
-
-/**
- * @param {?proto.google.protobuf.StringValue|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.AccountHistory} returns this
-*/
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.setNumber = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.AccountHistory} returns this
- */
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.clearNumber = function() {
-  return this.setNumber(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.AccountHistory.prototype.hasNumber = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.VoucherSubmission.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.VoucherSubmission} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    secondsAdded: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    newExpiry: (f = msg.getNewExpiry()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.VoucherSubmission}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.VoucherSubmission;
-  return proto.mullvad_daemon.management_interface.VoucherSubmission.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.VoucherSubmission} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.VoucherSubmission}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setSecondsAdded(value);
-      break;
-    case 2:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setNewExpiry(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.VoucherSubmission.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.VoucherSubmission} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getSecondsAdded();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = message.getNewExpiry();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional uint64 seconds_added = 1;
- * @return {number}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.getSecondsAdded = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.mullvad_daemon.management_interface.VoucherSubmission} returns this
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.setSecondsAdded = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
-};
-
-
-/**
- * optional google.protobuf.Timestamp new_expiry = 2;
- * @return {?proto.google.protobuf.Timestamp}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.getNewExpiry = function() {
-  return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 2));
-};
-
-
-/**
- * @param {?proto.google.protobuf.Timestamp|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.VoucherSubmission} returns this
-*/
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.setNewExpiry = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.VoucherSubmission} returns this
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.clearNewExpiry = function() {
-  return this.setNewExpiry(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.VoucherSubmission.prototype.hasNewExpiry = function() {
-  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -20065,7 +19308,6 @@ proto.mullvad_daemon.management_interface.TunnelOptions.prototype.toObject = fun
 proto.mullvad_daemon.management_interface.TunnelOptions.toObject = function(includeInstance, msg) {
   var f, obj = {
     mtu: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    rotationInterval: (f = msg.getRotationInterval()) && google_protobuf_duration_pb.Duration.toObject(includeInstance, f),
     quantumResistant: (f = msg.getQuantumResistant()) && proto.mullvad_daemon.management_interface.QuantumResistantState.toObject(includeInstance, f),
     daita: (f = msg.getDaita()) && proto.mullvad_daemon.management_interface.DaitaSettings.toObject(includeInstance, f),
     enableIpv6: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
@@ -20110,11 +19352,6 @@ proto.mullvad_daemon.management_interface.TunnelOptions.deserializeBinaryFromRea
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setMtu(value);
-      break;
-    case 2:
-      var value = new google_protobuf_duration_pb.Duration;
-      reader.readMessage(value,google_protobuf_duration_pb.Duration.deserializeBinaryFromReader);
-      msg.setRotationInterval(value);
       break;
     case 3:
       var value = new proto.mullvad_daemon.management_interface.QuantumResistantState;
@@ -20173,14 +19410,6 @@ proto.mullvad_daemon.management_interface.TunnelOptions.serializeBinaryToWriter 
     writer.writeUint32(
       1,
       f
-    );
-  }
-  f = message.getRotationInterval();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      google_protobuf_duration_pb.Duration.serializeBinaryToWriter
     );
   }
   f = message.getQuantumResistant();
@@ -20257,43 +19486,6 @@ proto.mullvad_daemon.management_interface.TunnelOptions.prototype.clearMtu = fun
  */
 proto.mullvad_daemon.management_interface.TunnelOptions.prototype.hasMtu = function() {
   return jspb.Message.getField(this, 1) != null;
-};
-
-
-/**
- * optional google.protobuf.Duration rotation_interval = 2;
- * @return {?proto.google.protobuf.Duration}
- */
-proto.mullvad_daemon.management_interface.TunnelOptions.prototype.getRotationInterval = function() {
-  return /** @type{?proto.google.protobuf.Duration} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_duration_pb.Duration, 2));
-};
-
-
-/**
- * @param {?proto.google.protobuf.Duration|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.TunnelOptions} returns this
-*/
-proto.mullvad_daemon.management_interface.TunnelOptions.prototype.setRotationInterval = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.TunnelOptions} returns this
- */
-proto.mullvad_daemon.management_interface.TunnelOptions.prototype.clearRotationInterval = function() {
-  return this.setRotationInterval(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.TunnelOptions.prototype.hasRotationInterval = function() {
-  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -23850,7 +23042,7 @@ proto.mullvad_daemon.management_interface.Location.prototype.setLongitude = func
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_ = [[1,2,3,4,5,6,7,8]];
+proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_ = [[1,2,3,4,5,7,8]];
 
 /**
  * @enum {number}
@@ -23861,8 +23053,7 @@ proto.mullvad_daemon.management_interface.DaemonEvent.EventCase = {
   SETTINGS: 2,
   RELAY_LIST: 3,
   VERSION_INFO: 4,
-  DEVICE: 5,
-  REMOVE_DEVICE: 6,
+  WIREGUARD_IDENTITY: 5,
   NEW_ACCESS_METHOD: 7,
   LEAK_INFO: 8
 };
@@ -23909,8 +23100,7 @@ proto.mullvad_daemon.management_interface.DaemonEvent.toObject = function(includ
     settings: (f = msg.getSettings()) && proto.mullvad_daemon.management_interface.Settings.toObject(includeInstance, f),
     relayList: (f = msg.getRelayList()) && proto.mullvad_daemon.management_interface.RelayList.toObject(includeInstance, f),
     versionInfo: (f = msg.getVersionInfo()) && proto.mullvad_daemon.management_interface.AppVersionInfo.toObject(includeInstance, f),
-    device: (f = msg.getDevice()) && proto.mullvad_daemon.management_interface.DeviceEvent.toObject(includeInstance, f),
-    removeDevice: (f = msg.getRemoveDevice()) && proto.mullvad_daemon.management_interface.RemoveDeviceEvent.toObject(includeInstance, f),
+    wireguardIdentity: (f = msg.getWireguardIdentity()) && proto.mullvad_daemon.management_interface.WireguardIdentityState.toObject(includeInstance, f),
     newAccessMethod: (f = msg.getNewAccessMethod()) && proto.mullvad_daemon.management_interface.AccessMethodSetting.toObject(includeInstance, f),
     leakInfo: (f = msg.getLeakInfo()) && proto.mullvad_daemon.management_interface.LeakInfo.toObject(includeInstance, f)
   };
@@ -23970,14 +23160,9 @@ proto.mullvad_daemon.management_interface.DaemonEvent.deserializeBinaryFromReade
       msg.setVersionInfo(value);
       break;
     case 5:
-      var value = new proto.mullvad_daemon.management_interface.DeviceEvent;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.DeviceEvent.deserializeBinaryFromReader);
-      msg.setDevice(value);
-      break;
-    case 6:
-      var value = new proto.mullvad_daemon.management_interface.RemoveDeviceEvent;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.RemoveDeviceEvent.deserializeBinaryFromReader);
-      msg.setRemoveDevice(value);
+      var value = new proto.mullvad_daemon.management_interface.WireguardIdentityState;
+      reader.readMessage(value,proto.mullvad_daemon.management_interface.WireguardIdentityState.deserializeBinaryFromReader);
+      msg.setWireguardIdentity(value);
       break;
     case 7:
       var value = new proto.mullvad_daemon.management_interface.AccessMethodSetting;
@@ -24050,20 +23235,12 @@ proto.mullvad_daemon.management_interface.DaemonEvent.serializeBinaryToWriter = 
       proto.mullvad_daemon.management_interface.AppVersionInfo.serializeBinaryToWriter
     );
   }
-  f = message.getDevice();
+  f = message.getWireguardIdentity();
   if (f != null) {
     writer.writeMessage(
       5,
       f,
-      proto.mullvad_daemon.management_interface.DeviceEvent.serializeBinaryToWriter
-    );
-  }
-  f = message.getRemoveDevice();
-  if (f != null) {
-    writer.writeMessage(
-      6,
-      f,
-      proto.mullvad_daemon.management_interface.RemoveDeviceEvent.serializeBinaryToWriter
+      proto.mullvad_daemon.management_interface.WireguardIdentityState.serializeBinaryToWriter
     );
   }
   f = message.getNewAccessMethod();
@@ -24234,20 +23411,20 @@ proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasVersionInfo =
 
 
 /**
- * optional DeviceEvent device = 5;
- * @return {?proto.mullvad_daemon.management_interface.DeviceEvent}
+ * optional WireguardIdentityState wireguard_identity = 5;
+ * @return {?proto.mullvad_daemon.management_interface.WireguardIdentityState}
  */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.getDevice = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.DeviceEvent} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.DeviceEvent, 5));
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.getWireguardIdentity = function() {
+  return /** @type{?proto.mullvad_daemon.management_interface.WireguardIdentityState} */ (
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.WireguardIdentityState, 5));
 };
 
 
 /**
- * @param {?proto.mullvad_daemon.management_interface.DeviceEvent|undefined} value
+ * @param {?proto.mullvad_daemon.management_interface.WireguardIdentityState|undefined} value
  * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
 */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.setDevice = function(value) {
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.setWireguardIdentity = function(value) {
   return jspb.Message.setOneofWrapperField(this, 5, proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_[0], value);
 };
 
@@ -24256,8 +23433,8 @@ proto.mullvad_daemon.management_interface.DaemonEvent.prototype.setDevice = func
  * Clears the message field making it undefined.
  * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
  */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearDevice = function() {
-  return this.setDevice(undefined);
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearWireguardIdentity = function() {
+  return this.setWireguardIdentity(undefined);
 };
 
 
@@ -24265,45 +23442,8 @@ proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearDevice = fu
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasDevice = function() {
+proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasWireguardIdentity = function() {
   return jspb.Message.getField(this, 5) != null;
-};
-
-
-/**
- * optional RemoveDeviceEvent remove_device = 6;
- * @return {?proto.mullvad_daemon.management_interface.RemoveDeviceEvent}
- */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.getRemoveDevice = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.RemoveDeviceEvent} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.RemoveDeviceEvent, 6));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.RemoveDeviceEvent|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
-*/
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.setRemoveDevice = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 6, proto.mullvad_daemon.management_interface.DaemonEvent.oneofGroups_[0], value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.DaemonEvent} returns this
- */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.clearRemoveDevice = function() {
-  return this.setRemoveDevice(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.DaemonEvent.prototype.hasRemoveDevice = function() {
-  return jspb.Message.getField(this, 6) != null;
 };
 
 
@@ -26002,8 +25142,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.AccountAndDevice.toObject(opt_includeInstance, this);
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.toObject = function(opt_includeInstance) {
+  return proto.mullvad_daemon.management_interface.WireguardIdentity.toObject(opt_includeInstance, this);
 };
 
 
@@ -26012,14 +25152,15 @@ proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.toObject = 
  * @param {boolean|undefined} includeInstance Deprecated. Whether to include
  *     the JSPB instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.AccountAndDevice} msg The msg instance to transform.
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentity} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.mullvad_daemon.management_interface.AccountAndDevice.toObject = function(includeInstance, msg) {
+proto.mullvad_daemon.management_interface.WireguardIdentity.toObject = function(includeInstance, msg) {
   var f, obj = {
-    accountNumber: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    device: (f = msg.getDevice()) && proto.mullvad_daemon.management_interface.Device.toObject(includeInstance, f)
+    publicKey: (f = msg.getPublicKey()) && proto.mullvad_daemon.management_interface.PublicKey.toObject(includeInstance, f),
+    ipv4Address: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    ipv6Address: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -26033,23 +25174,23 @@ proto.mullvad_daemon.management_interface.AccountAndDevice.toObject = function(i
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.AccountAndDevice}
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity}
  */
-proto.mullvad_daemon.management_interface.AccountAndDevice.deserializeBinary = function(bytes) {
+proto.mullvad_daemon.management_interface.WireguardIdentity.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.AccountAndDevice;
-  return proto.mullvad_daemon.management_interface.AccountAndDevice.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.mullvad_daemon.management_interface.WireguardIdentity;
+  return proto.mullvad_daemon.management_interface.WireguardIdentity.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.AccountAndDevice} msg The message object to deserialize into.
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentity} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.AccountAndDevice}
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity}
  */
-proto.mullvad_daemon.management_interface.AccountAndDevice.deserializeBinaryFromReader = function(msg, reader) {
+proto.mullvad_daemon.management_interface.WireguardIdentity.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -26057,209 +25198,17 @@ proto.mullvad_daemon.management_interface.AccountAndDevice.deserializeBinaryFrom
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setAccountNumber(value);
-      break;
-    case 2:
-      var value = new proto.mullvad_daemon.management_interface.Device;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader);
-      msg.setDevice(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.AccountAndDevice.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.AccountAndDevice} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getAccountNumber();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getDevice();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      proto.mullvad_daemon.management_interface.Device.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional string account_number = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.getAccountNumber = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.AccountAndDevice} returns this
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.setAccountNumber = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional Device device = 2;
- * @return {?proto.mullvad_daemon.management_interface.Device}
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.getDevice = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.Device} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.Device, 2));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.Device|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.AccountAndDevice} returns this
-*/
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.setDevice = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.AccountAndDevice} returns this
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.clearDevice = function() {
-  return this.setDevice(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.AccountAndDevice.prototype.hasDevice = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.Device.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.Device} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.Device.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    id: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    pubkey: msg.getPubkey_asB64(),
-    hijackDns: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-    created: (f = msg.getCreated()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.Device}
- */
-proto.mullvad_daemon.management_interface.Device.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.Device;
-  return proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.Device} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.Device}
- */
-proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setId(value);
+      var value = new proto.mullvad_daemon.management_interface.PublicKey;
+      reader.readMessage(value,proto.mullvad_daemon.management_interface.PublicKey.deserializeBinaryFromReader);
+      msg.setPublicKey(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
+      msg.setIpv4Address(value);
       break;
     case 3:
-      var value = /** @type {!Uint8Array} */ (reader.readBytes());
-      msg.setPubkey(value);
-      break;
-    case 5:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setHijackDns(value);
-      break;
-    case 6:
-      var value = new google_protobuf_timestamp_pb.Timestamp;
-      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-      msg.setCreated(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setIpv6Address(value);
       break;
     default:
       reader.skipField();
@@ -26274,9 +25223,9 @@ proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader = f
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.mullvad_daemon.management_interface.Device.prototype.serializeBinary = function() {
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.Device.serializeBinaryToWriter(this, writer);
+  proto.mullvad_daemon.management_interface.WireguardIdentity.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -26284,501 +25233,107 @@ proto.mullvad_daemon.management_interface.Device.prototype.serializeBinary = fun
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.Device} message
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentity} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.mullvad_daemon.management_interface.Device.serializeBinaryToWriter = function(message, writer) {
+proto.mullvad_daemon.management_interface.WireguardIdentity.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getId();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getPublicKey();
+  if (f != null) {
+    writer.writeMessage(
       1,
-      f
+      f,
+      proto.mullvad_daemon.management_interface.PublicKey.serializeBinaryToWriter
     );
   }
-  f = message.getName();
+  f = message.getIpv4Address();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getPubkey_asU8();
+  f = message.getIpv6Address();
   if (f.length > 0) {
-    writer.writeBytes(
+    writer.writeString(
       3,
       f
     );
   }
-  f = message.getHijackDns();
-  if (f) {
-    writer.writeBool(
-      5,
-      f
-    );
-  }
-  f = message.getCreated();
-  if (f != null) {
-    writer.writeMessage(
-      6,
-      f,
-      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
-    );
-  }
 };
 
 
 /**
- * optional string id = 1;
+ * optional PublicKey public_key = 1;
+ * @return {?proto.mullvad_daemon.management_interface.PublicKey}
+ */
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.getPublicKey = function() {
+  return /** @type{?proto.mullvad_daemon.management_interface.PublicKey} */ (
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.PublicKey, 1));
+};
+
+
+/**
+ * @param {?proto.mullvad_daemon.management_interface.PublicKey|undefined} value
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity} returns this
+*/
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.setPublicKey = function(value) {
+  return jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity} returns this
+ */
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.clearPublicKey = function() {
+  return this.setPublicKey(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.hasPublicKey = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional string ipv4_address = 2;
  * @return {string}
  */
-proto.mullvad_daemon.management_interface.Device.prototype.getId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
- */
-proto.mullvad_daemon.management_interface.Device.prototype.setId = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional string name = 2;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.getName = function() {
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.getIpv4Address = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
  * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity} returns this
  */
-proto.mullvad_daemon.management_interface.Device.prototype.setName = function(value) {
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.setIpv4Address = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional bytes pubkey = 3;
- * @return {!(string|Uint8Array)}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.getPubkey = function() {
-  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/**
- * optional bytes pubkey = 3;
- * This is a type-conversion wrapper around `getPubkey()`
+ * optional string ipv6_address = 3;
  * @return {string}
  */
-proto.mullvad_daemon.management_interface.Device.prototype.getPubkey_asB64 = function() {
-  return /** @type {string} */ (jspb.Message.bytesAsB64(
-      this.getPubkey()));
-};
-
-
-/**
- * optional bytes pubkey = 3;
- * Note that Uint8Array is not supported on all browsers.
- * @see http://caniuse.com/Uint8Array
- * This is a type-conversion wrapper around `getPubkey()`
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.getPubkey_asU8 = function() {
-  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
-      this.getPubkey()));
-};
-
-
-/**
- * @param {!(string|Uint8Array)} value
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
- */
-proto.mullvad_daemon.management_interface.Device.prototype.setPubkey = function(value) {
-  return jspb.Message.setProto3BytesField(this, 3, value);
-};
-
-
-/**
- * optional bool hijack_dns = 5;
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.getHijackDns = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
- */
-proto.mullvad_daemon.management_interface.Device.prototype.setHijackDns = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 5, value);
-};
-
-
-/**
- * optional google.protobuf.Timestamp created = 6;
- * @return {?proto.google.protobuf.Timestamp}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.getCreated = function() {
-  return /** @type{?proto.google.protobuf.Timestamp} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 6));
-};
-
-
-/**
- * @param {?proto.google.protobuf.Timestamp|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
-*/
-proto.mullvad_daemon.management_interface.Device.prototype.setCreated = function(value) {
-  return jspb.Message.setWrapperField(this, 6, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.Device} returns this
- */
-proto.mullvad_daemon.management_interface.Device.prototype.clearCreated = function() {
-  return this.setCreated(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.Device.prototype.hasCreated = function() {
-  return jspb.Message.getField(this, 6) != null;
-};
-
-
-
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.mullvad_daemon.management_interface.DeviceList.repeatedFields_ = [1];
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.DeviceList.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.DeviceList.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.DeviceList} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceList.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    devicesList: jspb.Message.toObjectList(msg.getDevicesList(),
-    proto.mullvad_daemon.management_interface.Device.toObject, includeInstance)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.DeviceList}
- */
-proto.mullvad_daemon.management_interface.DeviceList.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.DeviceList;
-  return proto.mullvad_daemon.management_interface.DeviceList.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.DeviceList} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.DeviceList}
- */
-proto.mullvad_daemon.management_interface.DeviceList.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new proto.mullvad_daemon.management_interface.Device;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader);
-      msg.addDevices(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.DeviceList.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.DeviceList.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.DeviceList} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceList.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getDevicesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.mullvad_daemon.management_interface.Device.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * repeated Device devices = 1;
- * @return {!Array<!proto.mullvad_daemon.management_interface.Device>}
- */
-proto.mullvad_daemon.management_interface.DeviceList.prototype.getDevicesList = function() {
-  return /** @type{!Array<!proto.mullvad_daemon.management_interface.Device>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.mullvad_daemon.management_interface.Device, 1));
-};
-
-
-/**
- * @param {!Array<!proto.mullvad_daemon.management_interface.Device>} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceList} returns this
-*/
-proto.mullvad_daemon.management_interface.DeviceList.prototype.setDevicesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-/**
- * @param {!proto.mullvad_daemon.management_interface.Device=} opt_value
- * @param {number=} opt_index
- * @return {!proto.mullvad_daemon.management_interface.Device}
- */
-proto.mullvad_daemon.management_interface.DeviceList.prototype.addDevices = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.mullvad_daemon.management_interface.Device, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.mullvad_daemon.management_interface.DeviceList} returns this
- */
-proto.mullvad_daemon.management_interface.DeviceList.prototype.clearDevicesList = function() {
-  return this.setDevicesList([]);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.DeviceRemoval.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.DeviceRemoval} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    accountNumber: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    deviceId: jspb.Message.getFieldWithDefault(msg, 2, "")
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.DeviceRemoval}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.DeviceRemoval;
-  return proto.mullvad_daemon.management_interface.DeviceRemoval.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.DeviceRemoval} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.DeviceRemoval}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setAccountNumber(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setDeviceId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.DeviceRemoval.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.DeviceRemoval} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getAccountNumber();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getDeviceId();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-};
-
-
-/**
- * optional string account_number = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.getAccountNumber = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.getIpv6Address = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /**
  * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceRemoval} returns this
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentity} returns this
  */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.setAccountNumber = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional string device_id = 2;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.getDeviceId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceRemoval} returns this
- */
-proto.mullvad_daemon.management_interface.DeviceRemoval.prototype.setDeviceId = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+proto.mullvad_daemon.management_interface.WireguardIdentity.prototype.setIpv6Address = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -26798,8 +25353,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.DeviceState.toObject(opt_includeInstance, this);
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.toObject = function(opt_includeInstance) {
+  return proto.mullvad_daemon.management_interface.WireguardIdentityState.toObject(opt_includeInstance, this);
 };
 
 
@@ -26808,14 +25363,13 @@ proto.mullvad_daemon.management_interface.DeviceState.prototype.toObject = funct
  * @param {boolean|undefined} includeInstance Deprecated. Whether to include
  *     the JSPB instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.DeviceState} msg The msg instance to transform.
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentityState} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.mullvad_daemon.management_interface.DeviceState.toObject = function(includeInstance, msg) {
+proto.mullvad_daemon.management_interface.WireguardIdentityState.toObject = function(includeInstance, msg) {
   var f, obj = {
-    state: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    device: (f = msg.getDevice()) && proto.mullvad_daemon.management_interface.AccountAndDevice.toObject(includeInstance, f)
+    identity: (f = msg.getIdentity()) && proto.mullvad_daemon.management_interface.WireguardIdentity.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -26829,23 +25383,23 @@ proto.mullvad_daemon.management_interface.DeviceState.toObject = function(includ
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.DeviceState}
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentityState}
  */
-proto.mullvad_daemon.management_interface.DeviceState.deserializeBinary = function(bytes) {
+proto.mullvad_daemon.management_interface.WireguardIdentityState.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.DeviceState;
-  return proto.mullvad_daemon.management_interface.DeviceState.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.mullvad_daemon.management_interface.WireguardIdentityState;
+  return proto.mullvad_daemon.management_interface.WireguardIdentityState.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.DeviceState} msg The message object to deserialize into.
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentityState} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.DeviceState}
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentityState}
  */
-proto.mullvad_daemon.management_interface.DeviceState.deserializeBinaryFromReader = function(msg, reader) {
+proto.mullvad_daemon.management_interface.WireguardIdentityState.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -26853,13 +25407,9 @@ proto.mullvad_daemon.management_interface.DeviceState.deserializeBinaryFromReade
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {!proto.mullvad_daemon.management_interface.DeviceState.State} */ (reader.readEnum());
-      msg.setState(value);
-      break;
-    case 2:
-      var value = new proto.mullvad_daemon.management_interface.AccountAndDevice;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.AccountAndDevice.deserializeBinaryFromReader);
-      msg.setDevice(value);
+      var value = new proto.mullvad_daemon.management_interface.WireguardIdentity;
+      reader.readMessage(value,proto.mullvad_daemon.management_interface.WireguardIdentity.deserializeBinaryFromReader);
+      msg.setIdentity(value);
       break;
     default:
       reader.skipField();
@@ -26874,9 +25424,9 @@ proto.mullvad_daemon.management_interface.DeviceState.deserializeBinaryFromReade
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.serializeBinary = function() {
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.DeviceState.serializeBinaryToWriter(this, writer);
+  proto.mullvad_daemon.management_interface.WireguardIdentityState.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -26884,82 +25434,48 @@ proto.mullvad_daemon.management_interface.DeviceState.prototype.serializeBinary 
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.DeviceState} message
+ * @param {!proto.mullvad_daemon.management_interface.WireguardIdentityState} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.mullvad_daemon.management_interface.DeviceState.serializeBinaryToWriter = function(message, writer) {
+proto.mullvad_daemon.management_interface.WireguardIdentityState.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getState();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      1,
-      f
-    );
-  }
-  f = message.getDevice();
+  f = message.getIdentity();
   if (f != null) {
     writer.writeMessage(
-      2,
+      1,
       f,
-      proto.mullvad_daemon.management_interface.AccountAndDevice.serializeBinaryToWriter
+      proto.mullvad_daemon.management_interface.WireguardIdentity.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * @enum {number}
+ * optional WireguardIdentity identity = 1;
+ * @return {?proto.mullvad_daemon.management_interface.WireguardIdentity}
  */
-proto.mullvad_daemon.management_interface.DeviceState.State = {
-  LOGGED_IN: 0,
-  LOGGED_OUT: 1,
-  REVOKED: 2
-};
-
-/**
- * optional State state = 1;
- * @return {!proto.mullvad_daemon.management_interface.DeviceState.State}
- */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.getState = function() {
-  return /** @type {!proto.mullvad_daemon.management_interface.DeviceState.State} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.getIdentity = function() {
+  return /** @type{?proto.mullvad_daemon.management_interface.WireguardIdentity} */ (
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.WireguardIdentity, 1));
 };
 
 
 /**
- * @param {!proto.mullvad_daemon.management_interface.DeviceState.State} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceState} returns this
- */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.setState = function(value) {
-  return jspb.Message.setProto3EnumField(this, 1, value);
-};
-
-
-/**
- * optional AccountAndDevice device = 2;
- * @return {?proto.mullvad_daemon.management_interface.AccountAndDevice}
- */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.getDevice = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.AccountAndDevice} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.AccountAndDevice, 2));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.AccountAndDevice|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceState} returns this
+ * @param {?proto.mullvad_daemon.management_interface.WireguardIdentity|undefined} value
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentityState} returns this
 */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.setDevice = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.setIdentity = function(value) {
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.DeviceState} returns this
+ * @return {!proto.mullvad_daemon.management_interface.WireguardIdentityState} returns this
  */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.clearDevice = function() {
-  return this.setDevice(undefined);
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.clearIdentity = function() {
+  return this.setIdentity(undefined);
 };
 
 
@@ -26967,390 +25483,8 @@ proto.mullvad_daemon.management_interface.DeviceState.prototype.clearDevice = fu
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.mullvad_daemon.management_interface.DeviceState.prototype.hasDevice = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.DeviceEvent.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.DeviceEvent} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    cause: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    newState: (f = msg.getNewState()) && proto.mullvad_daemon.management_interface.DeviceState.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.DeviceEvent;
-  return proto.mullvad_daemon.management_interface.DeviceEvent.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.DeviceEvent} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {!proto.mullvad_daemon.management_interface.DeviceEvent.Cause} */ (reader.readEnum());
-      msg.setCause(value);
-      break;
-    case 2:
-      var value = new proto.mullvad_daemon.management_interface.DeviceState;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.DeviceState.deserializeBinaryFromReader);
-      msg.setNewState(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.DeviceEvent.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.DeviceEvent} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getCause();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      1,
-      f
-    );
-  }
-  f = message.getNewState();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      proto.mullvad_daemon.management_interface.DeviceState.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * @enum {number}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.Cause = {
-  LOGGED_IN: 0,
-  LOGGED_OUT: 1,
-  REVOKED: 2,
-  UPDATED: 3,
-  ROTATED_KEY: 4
-};
-
-/**
- * optional Cause cause = 1;
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent.Cause}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.getCause = function() {
-  return /** @type {!proto.mullvad_daemon.management_interface.DeviceEvent.Cause} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
-};
-
-
-/**
- * @param {!proto.mullvad_daemon.management_interface.DeviceEvent.Cause} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent} returns this
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.setCause = function(value) {
-  return jspb.Message.setProto3EnumField(this, 1, value);
-};
-
-
-/**
- * optional DeviceState new_state = 2;
- * @return {?proto.mullvad_daemon.management_interface.DeviceState}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.getNewState = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.DeviceState} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.DeviceState, 2));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.DeviceState|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent} returns this
-*/
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.setNewState = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.DeviceEvent} returns this
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.clearNewState = function() {
-  return this.setNewState(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.DeviceEvent.prototype.hasNewState = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.repeatedFields_ = [2];
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.RemoveDeviceEvent.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    accountNumber: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    newDeviceListList: jspb.Message.toObjectList(msg.getNewDeviceListList(),
-    proto.mullvad_daemon.management_interface.Device.toObject, includeInstance)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.RemoveDeviceEvent;
-  return proto.mullvad_daemon.management_interface.RemoveDeviceEvent.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setAccountNumber(value);
-      break;
-    case 2:
-      var value = new proto.mullvad_daemon.management_interface.Device;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.Device.deserializeBinaryFromReader);
-      msg.addNewDeviceList(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.RemoveDeviceEvent.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getAccountNumber();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getNewDeviceListList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      2,
-      f,
-      proto.mullvad_daemon.management_interface.Device.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional string account_number = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.getAccountNumber = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} returns this
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.setAccountNumber = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * repeated Device new_device_list = 2;
- * @return {!Array<!proto.mullvad_daemon.management_interface.Device>}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.getNewDeviceListList = function() {
-  return /** @type{!Array<!proto.mullvad_daemon.management_interface.Device>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.mullvad_daemon.management_interface.Device, 2));
-};
-
-
-/**
- * @param {!Array<!proto.mullvad_daemon.management_interface.Device>} value
- * @return {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} returns this
-*/
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.setNewDeviceListList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 2, value);
-};
-
-
-/**
- * @param {!proto.mullvad_daemon.management_interface.Device=} opt_value
- * @param {number=} opt_index
- * @return {!proto.mullvad_daemon.management_interface.Device}
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.addNewDeviceList = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 2, opt_value, proto.mullvad_daemon.management_interface.Device, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.mullvad_daemon.management_interface.RemoveDeviceEvent} returns this
- */
-proto.mullvad_daemon.management_interface.RemoveDeviceEvent.prototype.clearNewDeviceListList = function() {
-  return this.setNewDeviceListList([]);
+proto.mullvad_daemon.management_interface.WireguardIdentityState.prototype.hasIdentity = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 
@@ -27537,447 +25671,6 @@ proto.mullvad_daemon.management_interface.LeakInfo.prototype.getInterface = func
  */
 proto.mullvad_daemon.management_interface.LeakInfo.prototype.setInterface = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    id: jspb.Message.getFieldWithDefault(msg, 1, "")
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId}
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId;
-  return proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId}
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setId(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getId();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-};
-
-
-/**
- * optional string id = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.prototype.getId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId} returns this
- */
-proto.mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId.prototype.setId = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.PlayPurchase.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchase} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    productId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    purchaseToken: (f = msg.getPurchaseToken()) && proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchase}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.PlayPurchase;
-  return proto.mullvad_daemon.management_interface.PlayPurchase.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchase} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchase}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setProductId(value);
-      break;
-    case 2:
-      var value = new proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken;
-      reader.readMessage(value,proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.deserializeBinaryFromReader);
-      msg.setPurchaseToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.PlayPurchase.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchase} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getProductId();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = message.getPurchaseToken();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional string product_id = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.getProductId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchase} returns this
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.setProductId = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional PlayPurchasePaymentToken purchase_token = 2;
- * @return {?proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.getPurchaseToken = function() {
-  return /** @type{?proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken, 2));
-};
-
-
-/**
- * @param {?proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken|undefined} value
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchase} returns this
-*/
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.setPurchaseToken = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchase} returns this
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.clearPurchaseToken = function() {
-  return this.setPurchaseToken(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.PlayPurchase.prototype.hasPurchaseToken = function() {
-  return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * Optional fields that are not set will be set to undefined.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
- * @param {boolean=} opt_includeInstance Deprecated. whether to include the
- *     JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.prototype.toObject = function(opt_includeInstance) {
-  return proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Deprecated. Whether to include
- *     the JSPB instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    token: jspb.Message.getFieldWithDefault(msg, 1, "")
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken}
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken;
-  return proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken}
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setToken(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getToken();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-};
-
-
-/**
- * optional string token = 1;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.prototype.getToken = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken} returns this
- */
-proto.mullvad_daemon.management_interface.PlayPurchasePaymentToken.prototype.setToken = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

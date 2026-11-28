@@ -3,16 +3,9 @@ import { Route, Switch } from 'react-router';
 
 import { RoutePath } from '../../shared/routes';
 import { useViewTransitions } from '../lib/transition-hooks';
-import {
-  SetupFinished,
-  TimeAdded,
-  VoucherInput,
-  VoucherVerificationSuccess,
-} from './ExpiredAccountAddTime';
 import Focus, { IFocusHandle } from './Focus';
 import StateTriggeredNavigation from './StateTriggeredNavigation';
 import {
-  AccountView,
   AntiCensorshipView,
   ApiAccessView,
   AppInfoView,
@@ -20,16 +13,13 @@ import {
   ChangelogView,
   DaitaSettingsView,
   DebugView,
-  DeviceRevokedView,
   EditApiAccessView,
-  ExpiredAccountErrorView,
   FilterView,
+  ImportConfigView,
   KillSwitchView,
   LaunchView,
-  LoginView,
   LwoSettingsView,
   MainView,
-  ManageDevicesView,
   MigratedSettingsView,
   MultihopSettingsView,
   ProblemReportView,
@@ -41,10 +31,10 @@ import {
   ShadowsocksSettingsView,
   SplitTunnelingView,
   SupportView,
-  TooManyDevicesView,
   UdpOverTcpSettingsView,
   UserInterfaceSettingsView,
   VpnSettingsView,
+  WireguardConfigView,
   WireguardPortView,
 } from './views';
 
@@ -62,17 +52,10 @@ export default function AppRouter() {
       <Focus ref={focusRef}>
         <Switch key={currentLocation.key} location={currentLocation}>
           <Route exact path={RoutePath.launch} component={LaunchView} />
-          <Route exact path={RoutePath.login} component={LoginView} />
-          <Route exact path={RoutePath.tooManyDevices} component={TooManyDevicesView} />
-          <Route exact path={RoutePath.deviceRevoked} component={DeviceRevokedView} />
+          <Route exact path={RoutePath.importConfig} component={ImportConfigView} />
           <Route exact path={RoutePath.main} component={MainView} />
           <Route exact path={RoutePath.migratedSettings} component={MigratedSettingsView} />
-          <Route exact path={RoutePath.expired} component={ExpiredAccountErrorView} />
-          <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
-          <Route exact path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
-          <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
-          <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
-          <Route exact path={RoutePath.account} component={AccountView} />
+          <Route exact path={RoutePath.wireguardConfig} component={WireguardConfigView} />
           <Route exact path={RoutePath.settings} component={SettingsView} />
           <Route exact path={RoutePath.selectLanguage} component={SelectLanguageView} />
           <Route
@@ -98,7 +81,6 @@ export default function AppRouter() {
           <Route exact path={RoutePath.appInfo} component={AppInfoView} />
           <Route exact path={RoutePath.changelog} component={ChangelogView} />
           <Route exact path={RoutePath.appUpgrade} component={AppUpgradeView} />
-          <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
           <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
           <Route exact path={RoutePath.lwo} component={LwoSettingsView} />

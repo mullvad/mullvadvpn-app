@@ -34,7 +34,7 @@ export interface NotificationSender {
 
 export interface NotificationControllerDelegate {
   openApp(): void;
-  openLink(url: string, withAuth?: boolean): Promise<void>;
+  openLink(url: string): Promise<void>;
   openRoute(url: RoutePath): void;
   /**
    * We have experienced issues where the
@@ -288,7 +288,7 @@ export default class NotificationController {
   private performAction(action?: SystemNotificationAction) {
     if (action) {
       if (action.type === 'navigate-external') {
-        void this.notificationControllerDelegate.openLink(action.link.to, action.link.withAuth);
+        void this.notificationControllerDelegate.openLink(action.link.to);
       }
 
       if (action.type === 'navigate-internal') {

@@ -2,15 +2,11 @@ import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { Flex, HeaderProps, Logo, LogoProps, MainHeader } from '../../lib/components';
 import { useSelector } from '../../redux/store';
 import { InitialFocus } from '../initial-focus';
-import {
-  AppMainHeaderBarAccountButton,
-  AppMainHeaderDeviceInfo,
-  AppMainHeaderSettingsButton,
-} from './components';
+import { AppMainHeaderBarConfigButton, AppMainHeaderSettingsButton } from './components';
 
 export interface MainHeaderProps extends Omit<HeaderProps, 'variant' | 'size'> {
   variant?: HeaderProps['variant'] | 'basedOnConnectionStatus';
-  size?: HeaderProps['size'] | 'basedOnLoginStatus';
+  size?: HeaderProps['size'];
   logoVariant?: LogoProps['variant'] | 'none';
   children?: React.ReactNode;
 }
@@ -18,7 +14,7 @@ export interface MainHeaderProps extends Omit<HeaderProps, 'variant' | 'size'> {
 const AppMainHeader = ({
   logoVariant = 'both',
   variant: variantProp,
-  size: sizeProp,
+  size,
   children,
   ...props
 }: MainHeaderProps) => {
@@ -28,9 +24,6 @@ const AppMainHeader = ({
     variantProp === 'basedOnConnectionStatus'
       ? getVariantByTunnelState(connectionStatus)
       : variantProp;
-
-  const loggedIn = useSelector((state) => state.account.status.type === 'ok');
-  const size = sizeProp === 'basedOnLoginStatus' ? (loggedIn ? '2' : '1') : sizeProp;
 
   return (
     <MainHeader variant={variant} size={size} {...props}>
@@ -42,17 +35,12 @@ const AppMainHeader = ({
           {children}
         </Flex>
       </Flex>
-      {size == '2' && (
-        <Flex alignItems="flex-end">
-          <AppMainHeaderDeviceInfo />
-        </Flex>
-      )}
     </MainHeader>
   );
 };
 
 const AppMainHeaderNamespace = Object.assign(AppMainHeader, {
-  AccountButton: AppMainHeaderBarAccountButton,
+  ConfigButton: AppMainHeaderBarConfigButton,
   SettingsButton: AppMainHeaderSettingsButton,
 });
 

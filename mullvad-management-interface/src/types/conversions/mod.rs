@@ -1,12 +1,10 @@
 use std::str::FromStr;
 
 mod access_method;
-mod account;
 mod custom_list;
 mod custom_tunnel;
 #[cfg(feature = "custom-vpn")]
 mod custom_vpn;
-mod device;
 mod features;
 mod location;
 mod logging;
@@ -21,6 +19,8 @@ mod split_tunnel;
 mod states;
 mod version;
 mod wireguard;
+
+pub use wireguard::{identity_state_from_proto, identity_state_to_proto};
 
 #[derive(thiserror::Error, Debug)]
 pub enum FromProtobufTypeError {

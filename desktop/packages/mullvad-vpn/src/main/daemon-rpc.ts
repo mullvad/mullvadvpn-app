@@ -7,23 +7,17 @@ import * as grpcTypes from 'management-interface/management-interface/grpc-types
 import {
   AccessMethodExistsError,
   AccessMethodSetting,
-  AccountDataError,
-  AccountDataResponse,
-  AccountNumber,
   CustomListError,
   CustomProxy,
   DaemonAppUpgradeEvent,
   DaemonEvent,
-  DeviceState,
   DisconnectSource,
   IAppVersionInfo,
   ICustomList,
-  IDevice,
-  IDeviceRemoval,
   IDnsOptions,
   IRelayListWithEndpointData,
   ISettings,
-  LogoutSource,
+  IWireguardIdentity,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -31,7 +25,6 @@ import {
   type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
-  VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client';
 import {
@@ -39,13 +32,13 @@ import {
   convertFromAppUpgradeEvent,
   convertFromAppVersionInfo,
   convertFromDaemonEvent,
-  convertFromDevice,
-  convertFromDeviceState,
   convertFromGrpcShadowsocksCiphers,
   convertFromMigrationEvent,
   convertFromRelayList,
   convertFromSettings,
   convertFromTunnelState,
+  convertFromWireguardIdentity,
+  convertFromWireguardIdentityState,
   convertToAntiCensorshipSettings,
   convertToApiAccessMethodSetting,
   convertToCustomList,
@@ -53,7 +46,6 @@ import {
   convertToNewApiAccessMethodSetting,
   convertToNewCustomList,
   convertToRelayConstraints,
-  ensureExists,
 } from './grpc-type-convertions';
 
 export class SubscriptionListener<T> {
@@ -183,69 +175,6 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     }
   }
 
-  public async getAccountData(accountNumber: AccountNumber): Promise<AccountDataResponse> {
-    try {
-      const response = await this.callString<grpcTypes.AccountData>(
-        this.client.getAccountData,
-        accountNumber,
-      );
-      const expiry = response.getExpiry()!.toDate().toISOString();
-      return { type: 'success', expiry };
-    } catch (e) {
-      const error = e as grpc.ServiceError;
-      if (error.code) {
-        switch (error.code) {
-          case grpc.status.UNAUTHENTICATED:
-            return { type: 'error', error: 'invalid-account' };
-          default:
-            return { type: 'error', error: 'communication' };
-        }
-      }
-      throw error;
-    }
-  }
-
-  public async getWwwAuthToken(): Promise<string> {
-    const response = await this.callEmpty<StringValue>(this.client.getWwwAuthToken);
-    return response.getValue();
-  }
-
-  public async submitVoucher(voucherCode: string): Promise<VoucherResponse> {
-    try {
-      const response = await this.callString<grpcTypes.VoucherSubmission>(
-        this.client.submitVoucher,
-        voucherCode,
-      );
-
-      const secondsAdded = ensureExists(
-        response.getSecondsAdded(),
-        "no 'secondsAdded' field in voucher response",
-      );
-      const newExpiry = ensureExists(
-        response.getNewExpiry(),
-        "no 'newExpiry' field in voucher response",
-      )
-        .toDate()
-        .toISOString();
-      return {
-        type: 'success',
-        secondsAdded,
-        newExpiry,
-      };
-    } catch (e) {
-      const error = e as grpc.ServiceError;
-      if (error.code) {
-        switch (error.code) {
-          case grpc.status.NOT_FOUND:
-            return { type: 'invalid' };
-          case grpc.status.RESOURCE_EXHAUSTED:
-            return { type: 'already_used' };
-        }
-      }
-      return { type: 'error' };
-    }
-  }
-
   public async getRelayLocations(): Promise<IRelayListWithEndpointData> {
     if (this.isConnected) {
       const response = await this.callEmpty<grpcTypes.RelayList>(this.client.getRelayLocations);
@@ -255,30 +184,23 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     }
   }
 
-  public async createNewAccount(): Promise<string> {
-    const response = await this.callEmpty<StringValue>(this.client.createNewAccount);
-    return response.getValue();
+  public async importWireguardConfig(config: string): Promise<IWireguardIdentity> {
+    const response = await this.callString<grpcTypes.WireguardIdentity>(
+      this.client.importWireguardConfig,
+      config,
+    );
+    return convertFromWireguardIdentity(response);
   }
 
-  public async loginAccount(accountNumber: AccountNumber): Promise<AccountDataError | void> {
-    try {
-      await this.callString(this.client.loginAccount, accountNumber);
-    } catch (e) {
-      const error = e as grpc.ServiceError;
-      switch (error.code) {
-        case grpc.status.RESOURCE_EXHAUSTED:
-          return { type: 'error', error: 'too-many-devices' };
-        case grpc.status.UNAUTHENTICATED:
-          return { type: 'error', error: 'invalid-account' };
-        default:
-          return { type: 'error', error: 'communication' };
-      }
-    }
+  public async clearWireguardIdentity(): Promise<void> {
+    await this.callEmpty(this.client.clearWireguardIdentity);
   }
 
-  public async logoutAccount(source: LogoutSource): Promise<void> {
-    const prefixedSource = `desktop ${source}`;
-    await this.callString(this.client.logoutAccount, prefixedSource);
+  public async getWireguardIdentity(): Promise<IWireguardIdentity | undefined> {
+    const response = await this.callEmpty<grpcTypes.WireguardIdentityState>(
+      this.client.getWireguardIdentity,
+    );
+    return convertFromWireguardIdentityState(response);
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
@@ -387,15 +309,6 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     await this.callEmpty(this.client.clearMigrationMessage);
   }
 
-  public async getAccountHistory(): Promise<AccountNumber | undefined> {
-    const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
-    return response.getNumber()?.getValue();
-  }
-
-  public async clearAccountHistory(): Promise<void> {
-    await this.callEmpty(this.client.clearAccountHistory);
-  }
-
   public async getCurrentVersion(): Promise<string> {
     const response = await this.callEmpty<StringValue>(this.client.getCurrentVersion);
     return response.getValue();
@@ -470,42 +383,12 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     return response.getValue();
   }
 
-  public async getDevice(): Promise<DeviceState> {
-    const response = await this.callEmpty<grpcTypes.DeviceState>(this.client.getDevice);
-    return convertFromDeviceState(response);
-  }
-
-  public async updateDevice(): Promise<void> {
-    await this.callEmpty(this.client.updateDevice);
-  }
-
   public async prepareRestart(quit: boolean) {
     await this.callBool(this.client.prepareRestartV2, quit);
   }
 
   public async setEnableDaita(value: boolean): Promise<void> {
     await this.callBool(this.client.setEnableDaita, value);
-  }
-
-  public async listDevices(accountNumber: AccountNumber): Promise<Array<IDevice>> {
-    try {
-      const response = await this.callString<grpcTypes.DeviceList>(
-        this.client.listDevices,
-        accountNumber,
-      );
-
-      return response.getDevicesList().map(convertFromDevice);
-    } catch {
-      throw new Error('Failed to list devices');
-    }
-  }
-
-  public async removeDevice(deviceRemoval: IDeviceRemoval): Promise<void> {
-    const grpcDeviceRemoval = new grpcTypes.DeviceRemoval();
-    grpcDeviceRemoval.setAccountNumber(deviceRemoval.accountNumber);
-    grpcDeviceRemoval.setDeviceId(deviceRemoval.deviceId);
-
-    await this.call<grpcTypes.DeviceRemoval, Empty>(this.client.removeDevice, grpcDeviceRemoval);
   }
 
   public async createCustomList(newCustomList: NewCustomList): Promise<void | CustomListError> {

@@ -267,6 +267,16 @@ const WINDOWS_SIGNING_OPTIONS = {
   },
 };
 
+// Builds the native windows-utils node module with cargo. Cargo can't link for Windows when it
+// runs on another OS, so when cross-compiling (see build-windows-on-linux.sh) the module is built
+// beforehand with cargo-xwin and SKIP_NATIVE_MODULES_BUILD=1 makes this use that prebuilt module.
+function buildWindowsUtils(script) {
+  if (process.env.SKIP_NATIVE_MODULES_BUILD === '1') {
+    return;
+  }
+  execFileSync('npm', ['-w', 'windows-utils', 'run', script], { shell: true });
+}
+
 async function packWin() {
   const DEFAULT_ARCH = targets === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
 
@@ -297,7 +307,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
             process.env.DIST_SUBDIR = '';
 
-            execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-x86'], { shell: true });
+            buildWindowsUtils('build-x86');
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
@@ -305,7 +315,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
             process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
 
-            execFileSync('npm', ['-w', 'windows-utils', 'run', 'build-arm'], { shell: true });
+            buildWindowsUtils('build-arm');
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');

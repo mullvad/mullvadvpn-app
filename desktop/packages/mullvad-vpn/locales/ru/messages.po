@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "Добавлено: %(duration)s. Учетная запись оплачена до %(expiry)s."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -66,12 +63,6 @@ msgstr[1] "Осталось %d года"
 msgstr[2] "Осталось %d лет"
 msgstr[3] "Осталось %d года"
 
-msgid "Account paid until %(expiry)s."
-msgstr "Учетная запись оплачена до %(expiry)s."
-
-msgid "Account settings"
-msgstr "Настройки учетной записи"
-
 msgid "Add"
 msgstr "Добавить"
 
@@ -94,9 +85,6 @@ msgid "Blocking internet"
 msgstr "Блокируется доступ в Интернет"
 
 msgid "Buy credit"
-msgstr "Пополнить баланс"
-
-msgid "Buy more credit"
 msgstr "Пополнить баланс"
 
 msgid "Cancel"
@@ -278,10 +266,6 @@ msgstr "Выйти"
 msgid "Reconnect"
 msgstr "Переподключить"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "Удалить"
-
 msgid "Remove from list"
 msgstr "Удалить из списка"
 
@@ -326,9 +310,6 @@ msgstr "Измените условие поиска."
 
 msgid "Type"
 msgstr "Тип"
-
-msgid "Unblock"
-msgstr "Разблокировать"
 
 msgid "UNSECURED CONNECTION"
 msgstr "НЕЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
@@ -396,12 +377,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "Подключиться к местоположению %(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "Копировать номер учетной записи"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -423,13 +398,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Развернуть %(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "Забыть номер учетной записи %(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -450,12 +418,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "Перейти к слайду %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "Скрыть номер учетной записи"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -465,18 +427,6 @@ msgstr "Иллюстрация VPN-трафика при включенной ф
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "Иллюстрация VPN-трафика при выключенной функции DAITA"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "Вход"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "Войти с номером учетной записи %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -536,14 +486,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "Удалить местоположение %(location)s из списка %(customList)s"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "Удалить устройство «%(deviceName)s»"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Удалить элемент"
@@ -556,12 +498,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Настройки Shadowsocks"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "Показать номер учетной записи"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "Настройки UDP через TCP"
@@ -569,37 +505,6 @@ msgstr "Настройки UDP через TCP"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "Нажмите клавишу со стрелкой вправо, чтобы перейти к кнопке настроек."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "Учетная запись"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "Номер учетной записи"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "Сейчас недоступно"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "Выйти"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "Управление устройствами"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "ЗАКОНЧИЛОСЬ ВРЕМЯ"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "Оплачено до"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1041,22 +946,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "Вы используете последнюю версию"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "Интернет блокируется: время на учетной записи вышло"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "Слишком много одновременных подключений с этой учетной записи. Отключите другое устройство или попробуйте подключиться еще раз через некоторое время."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Вы вошли в систему под недействительным номером учетной записи. Выйдите из системы и попробуйте еще раз."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1088,88 +977,8 @@ msgid "Automatic multihop"
 msgstr "Автоматический многократный переход"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "Поздравляем!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Сведения о подключении"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "Отключить"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Пополните баланс у нас на сайте или погасите ваучер."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Введите код ваучера"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Начните использовать приложение и верните себе право на конфиденциальность в Интернете."
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "Вот номер вашей учетной записи. Сохраните его!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "Подробнее о конфиденциальности"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "Закончилось время"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "Погасить ваучер"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Внимание: если отключить этот параметр, то сетевой трафик при отсутствии VPN-подключения будет идти без ограничений. Чтобы ограничить трафик в отсутствие VPN, нужно будет вновь активировать этот параметр в дополнительных настройках."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "Начать использовать приложение"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "Время добавлено"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "Чтобы добавить время, необходимо отключиться, а затем выйти в Интернет по незащищенному соединению."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "На нашем сайте вы сможете узнать о полезных привычках и инструментах, которые помогут повысить ваши навыки ниндзя приватности."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "Чтобы пользоваться приложением, нужно добавить время на учетную запись."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "Ваучер погашен"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "На этой учетной записи времени VPN не осталось."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Для выхода в Интернет и добавления времени необходимо отключить «Режим блокировки»."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "Готово!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1266,126 +1075,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "Сервер ретрансляции"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "Войти"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "Создано: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "Текущее устройство"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "Устройство неактивно"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "Имя устройства"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "Имя устройства: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "Не удалось удалить устройство"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "Войти"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "Вход в учетную запись разблокирует Интернет на этом устройстве."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "Управление устройствами"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "Удалить"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "Удалить устройство <em>%(deviceName)s</em>?"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "Отлично!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "Устройство выйдет из профиля и будет удалено из списка."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "Осталось времени: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "Слишком много устройств"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "Повторить"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Просмотр подключенных устройств и управление ими. К одной учетной записи можно подключить 5 устройств. При входе каждому устройству присваивается имя, чтобы их было легче различать."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "К одной учетной записи Mullvad можно подключить до 5 устройств."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "Теперь можно войти в учетную запись на этом устройстве."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1426,10 +1115,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "Только арендованные"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Пополните баланс."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1440,10 +1125,6 @@ msgstr "%(suggestedUpgradeVersion)s: готово к установке."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "Включена опция «<a>%(lockdownModeSettingName)s</a>». Нажмите «Подключить» либо отключите «%(lockdownModeSettingName)s», чтобы восстановить доступ к Интернету."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "ЗАКАНЧИВАЕТСЯ БАЛАНС НА УЧЕТНОЙ ЗАПИСИ"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1529,10 +1210,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "СОЗДАНО НОВОЕ УСТРОЙСТВО"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "УСТАНОВЛЕНА НОВАЯ ВЕРСИЯ"
 
@@ -1581,13 +1258,6 @@ msgstr "Не удалось запустить установщик."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "Выбранный порт %(wireGuard)s не поддерживается — <a>измените его в настройках VPN</a>."
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Имя этого устройства изменено на <em>%(deviceName)s</em>. Подробности указаны в разделе <a>«Управление устройствами»</a> учетной записи."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1721,131 +1391,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Выход"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "Включена опция <b>%(lockdownModeSettingName)s</b>. Отключите ее, чтобы разблокировать соединение."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "Учетная запись создана"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "Проверка номера учетной записи"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "Создать учетную запись"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "Создать учетную запись"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "Создание учетной записи..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "Создать учетную запись?"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "Удалить сохраненный номер учетной записи?"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "Введите номер учетной записи"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "Ошибка"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "Не удалось создать учетную запись"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "Завершение обновления."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "Недействительный номер учетной записи"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "Вход выполнен"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "Выполняется вход..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "Вход"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "Ошибка входа"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "или"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "Функция аварийного отключения блокирует соединение."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "Подождите"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Удаление с этого устройства сохраненного номера учетной записи нельзя будет отменить."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "Слишком много устройств"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "Неизвестная ошибка"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "Обновление…"
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "Действительный номер учетной записи"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1878,17 +1423,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "Доступ к API"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Баланс на учетной записи заканчивается через %(duration)s. Пополните баланс."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "Время на учетной записи вышло"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Приложение не синхронизировано. Закройте и перезапустите его."
@@ -1900,10 +1434,6 @@ msgstr "Приложение не синхронизировано. Закрой
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "Доступно обновление до бета-версии. Попробуйте новейшую бета-версию (%(version)s)."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "Купить еще"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2046,50 +1576,6 @@ msgstr "Эта версия приложения не поддерживаетс
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "Отмена"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "Введите код ваучера"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "Погасить ваучер"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "Произошла ошибка."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "Погасить"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "Идет проверка ваучера…"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "Этот код ваучера уже использовался."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "Код ваучера недействителен."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "Ваучер погашен."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4191,4 +3677,3 @@ msgstr[0] "Вы потеряете %d оставшийся день."
 msgstr[1] "Вы потеряете %d оставшихся дня."
 msgstr[2] "Вы потеряете %d оставшихся дней."
 msgstr[3] "Вы потеряете оставшиеся %d дня."
-

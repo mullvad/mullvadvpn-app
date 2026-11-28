@@ -1,11 +1,11 @@
 use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
 use std::{io::stdin, ops::Deref};
 
-pub mod account;
 pub mod anti_censorship;
 pub mod api_access;
 pub mod auto_connect;
 pub mod beta_program;
+pub mod config;
 pub mod custom_list;
 #[cfg(feature = "custom-vpn")]
 pub mod custom_vpn;

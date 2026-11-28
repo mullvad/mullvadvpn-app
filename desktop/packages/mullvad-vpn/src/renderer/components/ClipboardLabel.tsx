@@ -14,21 +14,26 @@ interface IProps extends React.HTMLAttributes<HTMLElement> {
   displayValue?: string;
   obscureValue?: boolean;
   message?: string;
+  // Accessible name of the copy button.
+  copyLabel?: string;
 }
 
 const StyledLabelContainer = styled.div({
   display: 'flex',
   flex: 1,
-  height: '19px',
+  minHeight: '19px',
   alignItems: 'center',
 });
 
 const StyledLabel = styled.span({
   flex: 1,
+  minWidth: 0,
+  // Long values such as WireGuard public keys have no natural break points.
+  overflowWrap: 'anywhere',
 });
 
 export default function ClipboardLabel(props: IProps) {
-  const { value, obscureValue, displayValue, message, ...otherProps } = props;
+  const { value, obscureValue, displayValue, message, copyLabel, ...otherProps } = props;
 
   const [obscured, , , toggleObscured] = useBoolean(obscureValue ?? true);
   const [justCopied, setJustCopied, resetJustCopied] = useBoolean(false);
@@ -59,12 +64,12 @@ export default function ClipboardLabel(props: IProps) {
               obscured
                 ? // This line is here to prevent the following one to be moved up here by prettier
                   // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
-                  // TRANSLATORS: the button which unobscures the account number.
-                  messages.pgettext('accessibility', 'Show account number')
+                  // TRANSLATORS: the button which unobscures a hidden value.
+                  messages.pgettext('accessibility', 'Show value')
                 : // This line is here to prevent the following one to be moved up here by prettier
                   // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
-                  // TRANSLATORS: the button which obscures the account number.
-                  messages.pgettext('accessibility', 'Hide account number')
+                  // TRANSLATORS: the button which obscures a value.
+                  messages.pgettext('accessibility', 'Hide value')
             }>
             {obscured ? <IconButton.Icon icon="show" /> : <IconButton.Icon icon="hide" />}
           </IconButton>
@@ -75,9 +80,10 @@ export default function ClipboardLabel(props: IProps) {
           <IconButton
             onClick={onCopy}
             aria-label={
+              copyLabel ??
               // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe a button
-              // TRANSLATORS: which copies the account number to the clipboard.
-              messages.pgettext('accessibility', 'Copy account number')
+              // TRANSLATORS: which copies the value to the clipboard.
+              messages.pgettext('accessibility', 'Copy to clipboard')
             }>
             <IconButton.Icon icon={'copy'} />
           </IconButton>

@@ -1,3 +1,2 @@
-export * from './AppMainHeaderDeviceInfo';
-export * from './AppMainHeaderAccountButton';
+export * from './AppMainHeaderConfigButton';
 export * from './AppMainHeaderSettingsButton';

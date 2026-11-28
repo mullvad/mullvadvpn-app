@@ -591,36 +591,6 @@ ManifestDPIAware true
 !define FirewallWarningCheck '!insertmacro "FirewallWarningCheck"'
 
 #
-# RemoveCurrentDevice
-#
-# Remove the device from the account, if there is one
-#
-!macro RemoveCurrentDevice
-
-	mullvad_nsis::Log "RemoveCurrentDevice()"
-
-	Push $0
-	Push $1
-
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" remove-device'
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MVSETUP_OK}
-		mullvad_nsis::LogWithDetails "RemoveCurrentDevice() failed" $1
-	${Else}
-		mullvad_nsis::Log "RemoveCurrentDevice() completed successfully"
-	${EndIf}
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveCurrentDevice '!insertmacro "RemoveCurrentDevice"'
-
-
-#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -1161,7 +1131,6 @@ ManifestDPIAware true
 
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
-		${RemoveCurrentDevice}
 
 		${ExtractWireGuard}
 		${RemoveWintun}

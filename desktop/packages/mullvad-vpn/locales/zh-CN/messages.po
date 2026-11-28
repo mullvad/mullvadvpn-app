@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -48,12 +45,6 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "剩余 %d 年"
 
-msgid "Account paid until %(expiry)s."
-msgstr "帐户到期时间为 %(expiry)s。"
-
-msgid "Account settings"
-msgstr "帐户设置"
-
 msgid "Add"
 msgstr "添加"
 
@@ -77,9 +68,6 @@ msgstr "正在阻止网络"
 
 msgid "Buy credit"
 msgstr "购买额度"
-
-msgid "Buy more credit"
-msgstr "购买更多额度"
 
 msgid "Cancel"
 msgstr "取消"
@@ -260,10 +248,6 @@ msgstr "退出"
 msgid "Reconnect"
 msgstr "重新连接"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "移除"
-
 msgid "Remove from list"
 msgstr "从列表中移除"
 
@@ -308,9 +292,6 @@ msgstr "尝试其他搜索词。"
 
 msgid "Type"
 msgstr "类型"
-
-msgid "Unblock"
-msgstr "解除阻止"
 
 msgid "UNSECURED CONNECTION"
 msgstr "未受保护的连接"
@@ -378,12 +359,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "连接到%(location)s"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "复制帐号"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -405,13 +380,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "展开 %(location)s"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "忘记帐号 %(accountNumber)s"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -432,12 +400,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "转到幻灯片 %(index)s"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "隐藏帐号"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -447,18 +409,6 @@ msgstr "显示启用了 DAITA 的 VPN 流量的插图"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "显示没有 DAITA 的 VPN 流量的插图"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "登录"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "使用帐号 %(accountNumber)s 登录"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -518,14 +468,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "将%(location)s从“%(customList)s”中移除"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "移除名为“%(deviceName)s”的设备"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "移除条目"
@@ -538,12 +480,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks 设置"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "显示帐号"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "UDP-over-TCP 设置"
@@ -551,37 +487,6 @@ msgstr "UDP-over-TCP 设置"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "使用向右箭头键将焦点移至设置按钮。"
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "帐户"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "帐号"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "当前不可用"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "退出"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "管理设备"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "已没有时间"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "到期时间"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1023,22 +928,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "您正在使用最新版本"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "正在阻止网络：帐户已没有时间"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "此帐户的同步连接数过多。请断开另一个设备或者稍后再次尝试连接。"
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "无法验证帐户。请发送问题报告。"
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "您登录时使用的帐号无效。请退出并尝试其他帐号。"
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1070,88 +959,8 @@ msgid "Automatic multihop"
 msgstr "自动多跳"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "恭喜！"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "连接详细信息"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "断开连接"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "在我们的网站上购买额度或兑换优惠券。"
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "输入优惠码"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "现在就开始使用应用，重新夺回您的在线隐私。"
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "以下是您的帐号。请妥善保存！"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "了解隐私"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "已没有时间"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "兑换优惠券"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "注意，在 VPN 断开连接时关闭此选项将允许网络流量，直到您在“高级”设置下将其重新打开。"
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "开始使用应用"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "时间已成功添加"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "要添加更多时间，您需要断开连接并使用不安全的连接访问网络。"
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "要以隐私忍者身份继续您的旅程，请访问我们的网站以选择其他对隐私友好的习惯和工具。"
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "要开始使用本应用，您首先需要向帐户中充入时间。"
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "优惠券已成功兑换"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "此帐户没有更多的 VPN 时间了。"
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "您需要停用“锁定模式”来访问网络以增加时间。"
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "您已设置完毕！"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1248,126 +1057,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "中继"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "继续登录"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "创建日期：%(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "当前设备"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "设备处于非活动状态"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "设备名称"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "设备名称：%(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "无法移除设备"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "前往登录"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "前往登录将在此设备上解除阻止 Internet。"
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。"
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "管理设备"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "请通过从以下列表中移除的方式退出至少一个帐户。您可以在设备的帐户设置下找到相应设备名称。"
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "移除"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "是否移除 <em>%(deviceName)s</em>？"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "太棒了！"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "该设备将从列表中移除并退出登录。"
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "这是为设备分配的名称。每台登录 Mullvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "剩余时间：%(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "设备过多"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "重试"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "查看和管理您所有已登录的设备。一个帐户最多可以同时登录 5 台设备。每台设备登录时都会获得一个名称，以便您能够轻松区分。"
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "一个 Mullvad 帐户最多可以登录 5 台设备。"
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "您现在可以继续在此设备上登录。"
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "您已移除此设备。要重新连接，您需要重新登录。"
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1408,10 +1097,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "仅租用"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s。购买更多额度。"
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1422,10 +1107,6 @@ msgstr "%(suggestedUpgradeVersion)s 已准备好安装。"
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a>已启用。请点击“连接”或停用“%(lockdownModeSettingName)s“以解除阻止互联网。"
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "帐户额度即将到期"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1511,10 +1192,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "网络流量可能正在泄漏"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "已创建新设备"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "已安装新版本"
 
@@ -1563,13 +1240,6 @@ msgstr "安装程序未能成功启动。"
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "所选 %(wireGuard)s 端口不受支持，请<a>在“VPN 设置”下更改</a>。"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "此设备现已被命名为 <em>%(deviceName)s</em>。请在“帐户”中的<a>管理设备</a>下查看更多信息。"
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1703,131 +1373,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "出口"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b>已启用。将其停用以解除阻止您的连接。"
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "已创建帐户"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "正在检查帐号"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "创建新帐户"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "创建新帐户"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "正在创建帐户…"
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "是否要创建新帐户？"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "是否要移除已保存的帐号？"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "输入您的帐号"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "错误"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "无法创建帐户"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "即将完成升级。"
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "帐号无效"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "已登录"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "登录中…"
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "登录"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "登录失败"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "或者"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "我们的终止开关当前正在阻止您的连接。"
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "请稍候"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "从此设备移除已保存的帐号的操作无法撤消。"
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "设备过多"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "未知错误"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "正在升级…"
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "有效帐号"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "您已保存一个帐号，如果创建新帐户，已保存的帐号将从此设备中移除。此操作无法撤消。"
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1860,17 +1405,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API 访问"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "帐户额度将在 %(duration)s后到期。购买更多额度。"
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "帐户已没有时间"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "应用不同步。请退出后重新启动。"
@@ -1882,10 +1416,6 @@ msgstr "应用不同步。请退出后重新启动。"
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "有可用 Beta 更新。试用最新的 Beta 版本 (%(version)s)。"
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "购买更多"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2028,50 +1558,6 @@ msgstr "此应用版本不受支持，因此您的隐私可能存在风险。"
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。"
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "取消"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "输入优惠码"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "兑换优惠券"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "出错了。"
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。"
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "兑换"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "正在验证优惠券…"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "该优惠券码已被使用。"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "该优惠券码无效。"
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "优惠券已成功兑换。"
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4149,4 +3635,3 @@ msgstr[0] "帐户额度将在 %d 小时后到期"
 msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "您会失去剩余的 %d 天。"
-

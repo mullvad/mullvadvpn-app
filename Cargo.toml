@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "android/translations-converter",
   "desktop/packages/nseventforwarder",
   "desktop/packages/windows-utils",
   "installer-downloader",
@@ -13,8 +12,6 @@ members = [
   "mullvad-encrypted-dns-proxy",
   "mullvad-exclude",
   "mullvad-fs",
-  "mullvad-ios",
-  "mullvad-jni",
   "mullvad-leak-checker",
   "mullvad-logging",
   "mullvad-management-interface",
@@ -23,7 +20,6 @@ members = [
   "mullvad-paths",
   "mullvad-problem-report",
   "mullvad-relay-selector",
-  "mullvad-release-android",
   "mullvad-setup",
   "mullvad-tls-client",
   "mullvad-types",
@@ -288,7 +284,6 @@ inherits = "dev"
 chacha20.opt-level = 3
 chacha20poly1305.opt-level = 3
 gotatun.opt-level = 3
-mullvad-ios.opt-level = 2
 poly1305.opt-level = 3
 ring.opt-level = 3
 smoltcp.opt-level = 3

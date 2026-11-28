@@ -1,11 +1,9 @@
 use clap::Parser;
-use mullvad_api::{ApiEndpoint, DEVICE_NOT_FOUND, proxy::ApiConnectionMode};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_version::Version;
-use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
+use std::{process, str::FromStr, sync::LazyLock};
 use talpid_core::firewall::{self, Firewall};
 use talpid_error::ErrorExt;
-use talpid_future::retry::{ConstantInterval, retry_future};
 use tracing_subscriber::EnvFilter;
 
 #[cfg(target_os = "windows")]
@@ -15,8 +13,6 @@ mod service;
 
 static APP_VERSION: LazyLock<Version> =
     LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
-
-const DEVICE_REMOVAL_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(5));
 
 #[repr(i32)]
 enum ExitStatus {
@@ -48,24 +44,6 @@ pub enum Error {
 
     #[error("Firewall error")]
     FirewallError(#[source] firewall::Error),
-
-    #[error("Failed to initialize mullvad RPC runtime")]
-    RpcInitializationError(#[source] mullvad_api::Error),
-
-    #[error("Failed to remove device from account")]
-    RemoveDeviceError(#[source] mullvad_api::rest::Error),
-
-    #[error("Failed to obtain settings directory path")]
-    SettingsPathError(#[source] mullvad_paths::Error),
-
-    #[error("Failed to obtain cache directory path")]
-    CachePathError(#[source] mullvad_paths::Error),
-
-    #[error("Failed to read the device cache")]
-    ReadDeviceCacheError(#[source] mullvad_daemon::device::Error),
-
-    #[error("Failed to write the device cache")]
-    WriteDeviceCacheError(#[source] mullvad_daemon::device::Error),
 
     #[error("Cannot parse the version string")]
     ParseVersionStringError,
@@ -132,8 +110,6 @@ enum Cli {
     PrepareRestart,
     /// Remove any firewall rules introduced by the daemon
     ResetFirewall,
-    /// Remove the current device from the active account
-    RemoveDevice,
     /// Checks whether the given version is older than the current version
     IsOlderVersion {
         /// Version string to compare the current version
@@ -182,7 +158,6 @@ async fn main() {
     let result = match Cli::parse() {
         Cli::PrepareRestart => prepare_restart().await,
         Cli::ResetFirewall => reset_firewall().await,
-        Cli::RemoveDevice => remove_device().await,
         Cli::IsOlderVersion { old_version } => {
             match is_older_version(&old_version) {
                 // Returning exit status
@@ -247,53 +222,4 @@ async fn reset_firewall() -> Result<(), Error> {
     .map_err(Error::FirewallError)?
     .reset_policy()
     .map_err(Error::FirewallError)
-}
-
-async fn remove_device() -> Result<(), Error> {
-    let (cache_path, settings_path) = get_paths()?;
-    let (cacher, state) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
-        .await
-        .map_err(Error::ReadDeviceCacheError)?;
-    if let Some(device) = state.into_device() {
-        let api_runtime =
-            mullvad_api::Runtime::with_cache(&ApiEndpoint::from_env_vars(), &cache_path, false)
-                .await
-                .map_err(Error::RpcInitializationError)?;
-
-        let connection_mode = ApiConnectionMode::try_from_cache(&cache_path).await;
-        let proxy =
-            mullvad_api::DevicesProxy::new(api_runtime.mullvad_rest_handle(connection_mode));
-
-        let device_removal = retry_future(
-            move || proxy.remove(device.account_number.clone(), device.device.id.clone()),
-            move |result| match result {
-                Err(error) => error.is_network_error(),
-                _ => false,
-            },
-            DEVICE_REMOVAL_STRATEGY,
-        )
-        .await;
-
-        // `DEVICE_NOT_FOUND` is not considered to be an error in this context.
-        match device_removal {
-            Ok(_) => Ok(()),
-            Err(mullvad_api::rest::Error::ApiError(_status, code)) if code == DEVICE_NOT_FOUND => {
-                Ok(())
-            }
-            Err(e) => Err(Error::RemoveDeviceError(e)),
-        }?;
-
-        cacher
-            .remove()
-            .await
-            .map_err(Error::WriteDeviceCacheError)?;
-    }
-
-    Ok(())
-}
-
-fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
-    let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
-    let settings_path = mullvad_paths::settings_dir().map_err(Error::SettingsPathError)?;
-    Ok((cache_path, settings_path))
 }

@@ -2,10 +2,8 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../src/main/default-settings';
-import { colorTokens } from '../../../src/renderer/lib/foundations';
 import { Constraint, ErrorStateCause, TunnelState } from '../../../src/shared/daemon-rpc-types';
 import { RoutesObjectModel } from '../route-object-models';
-import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 
 let page: Page;
@@ -18,47 +16,6 @@ const startup = async () => {
 
   await routes.main.waitForRoute();
 };
-
-/**
- * Expires soon
- */
-test.describe('Expiration notifications', () => {
-  test.beforeAll(async () => {
-    await startup();
-  });
-
-  test.afterAll(async () => {
-    await util?.closePage();
-  });
-
-  test('App should notify user about account expiring soon', async () => {
-    await util.ipc.account[''].notify({
-      expiry: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    });
-
-    const title = page.getByTestId('notificationTitle');
-    await expect(title).toContainText(/account credit expires soon/i);
-
-    let subTitle = page.getByTestId('notificationSubTitle');
-    await expect(subTitle).toContainText(/1 day left\. buy more credit\./i);
-
-    const indicator = page.getByTestId('notificationIndicator');
-    const indicatorColor = await getBackgroundColor(indicator);
-    expect(indicatorColor).toBe(colorTokens.yellow);
-
-    await util.ipc.account[''].notify({
-      expiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    });
-    subTitle = page.getByTestId('notificationSubTitle');
-    await expect(subTitle).toContainText(/2 days left\. buy more credit\./i);
-
-    await util.ipc.account[''].notify({
-      expiry: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    });
-    subTitle = page.getByTestId('notificationSubTitle');
-    await expect(subTitle).toContainText(/less than a day left\. buy more credit\./i);
-  });
-});
 
 test.describe('Error notifications', () => {
   test.beforeAll(async () => {

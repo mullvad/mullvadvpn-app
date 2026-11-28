@@ -36,8 +36,6 @@ sudo rm -f "$DAEMON_PLIST_PATH"
 if [[ $FROMDAEMON == "n" ]]; then
     echo "Resetting firewall"
     sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
-    echo "Removing device from account"
-    sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device || echo "Failed to remove device from account"
 fi
 
 echo "Removing zsh shell completion symlink ..."

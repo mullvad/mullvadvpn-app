@@ -2,7 +2,6 @@ import { sprintf } from 'sprintf-js';
 
 import { strings } from '../constants';
 import {
-  AuthFailedError,
   ErrorStateCause,
   ErrorStateDetails,
   TunnelParameterError,
@@ -124,29 +123,10 @@ export class ErrorNotificationProvider
     } else {
       switch (errorState.cause) {
         case ErrorStateCause.authFailed:
-          switch (errorState.authFailedError) {
-            case AuthFailedError.invalidAccount:
-              return messages.pgettext(
-                'auth-failure',
-                'You are logged in with an invalid account number. Please log out and try another one.',
-              );
-
-            case AuthFailedError.expiredAccount:
-              return messages.pgettext('auth-failure', 'Blocking internet: account is out of time');
-
-            case AuthFailedError.tooManyConnections:
-              return messages.pgettext(
-                'auth-failure',
-                'Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly.',
-              );
-
-            case AuthFailedError.unknown:
-            default:
-              return messages.pgettext(
-                'auth-failure',
-                'Unable to authenticate account. Please send a problem report.',
-              );
-          }
+          return messages.pgettext(
+            'auth-failure',
+            'Unable to authenticate. Please send a problem report.',
+          );
         case ErrorStateCause.ipv6Unavailable:
           return messages.pgettext(
             'notifications',

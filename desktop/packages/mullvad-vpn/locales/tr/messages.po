@@ -15,9 +15,6 @@ msgstr ""
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
 
-msgid "%(duration)s was added, account paid until %(expiry)s."
-msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
-
 #. The label for the WireGuard port option.
 #. Available placeholders:
 #. %(wireguard)s - will be replaced with WireGuard
@@ -54,12 +51,6 @@ msgid_plural "%d years left"
 msgstr[0] "1 yıl kaldı"
 msgstr[1] "%d yıl kaldı"
 
-msgid "Account paid until %(expiry)s."
-msgstr "Hesap için %(expiry)s tarihine kadar ödeme yapıldı."
-
-msgid "Account settings"
-msgstr "Hesap ayarları"
-
 msgid "Add"
 msgstr "Ekle"
 
@@ -83,9 +74,6 @@ msgstr "İnternet bağlantısı engelleniyor"
 
 msgid "Buy credit"
 msgstr "Kredi satın alın"
-
-msgid "Buy more credit"
-msgstr "Daha fazla kredi satın alın"
 
 msgid "Cancel"
 msgstr "İptal et"
@@ -266,10 +254,6 @@ msgstr "Çık"
 msgid "Reconnect"
 msgstr "Yeniden Bağlan"
 
-#. Button label in confirmation dialog that confirms a remove action.
-msgid "Remove"
-msgstr "Kaldır"
-
 msgid "Remove from list"
 msgstr "Listeden kaldır"
 
@@ -314,9 +298,6 @@ msgstr "Farklı bir arama deneyin."
 
 msgid "Type"
 msgstr "Tür"
-
-msgid "Unblock"
-msgstr "Engeli kaldır"
 
 msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
@@ -384,12 +365,6 @@ msgctxt "accessibility"
 msgid "Connect to %(location)s"
 msgstr "%(location)s konumuna bağlan"
 
-#. Provided to accessibility tools such as screenreaders to describe a button
-#. which copies the account number to the clipboard.
-msgctxt "accessibility"
-msgid "Copy account number"
-msgstr "Hesap numarasını kopyala"
-
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
@@ -411,13 +386,6 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s listesini genişlet"
 
-#. This is used by screenreaders to communicate the "x" button next to a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the account number to the left of the button
-msgctxt "accessibility"
-msgid "Forget account number %(accountNumber)s"
-msgstr "%(accountNumber)s hesap numarasını unut"
-
 #. Accessibility label for link to VPN settings where
 #. the user can change WireGuard port.
 #. Available placeholders:
@@ -438,12 +406,6 @@ msgctxt "accessibility"
 msgid "Go to slide %(index)s"
 msgstr "%(index)s. slayta git"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which obscures the account number.
-msgctxt "accessibility"
-msgid "Hide account number"
-msgstr "Hesap numarasını gizle"
-
 #. Alt text for an illustration showing VPN traffic with DAITA.
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic with DAITA enabled"
@@ -453,18 +415,6 @@ msgstr "İllüstrasyon: DAITA etkinleştirilmiş VPN trafiği"
 msgctxt "accessibility"
 msgid "Illustration showing VPN traffic without DAITA"
 msgstr "İllüstrasyon: DAITA etkinleştirilmemiş VPN trafiği"
-
-#. This is used by screenreaders to communicate the login button.
-msgctxt "accessibility"
-msgid "Login"
-msgstr "Oturum Aç"
-
-#. This is used by screenreaders to communicate logging in with a saved account number.
-#. Available placeholders:
-#. %(accountNumber)s - the saved account number
-msgctxt "accessibility"
-msgid "Login with account number %(accountNumber)s"
-msgstr "%(accountNumber)s hesap numarasıyla giriş yap"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -524,14 +474,6 @@ msgctxt "accessibility"
 msgid "Remove %(location)s from %(customList)s"
 msgstr "%(location)s, %(customList)s listesinden kaldırılsın"
 
-#. Button action description provided to accessibility tools such as screen
-#. readers.
-#. Available placeholders:
-#. %(deviceName)s - The device name to remove.
-msgctxt "accessibility"
-msgid "Remove device named %(deviceName)s"
-msgstr "%(deviceName)s adlı cihazı kaldırın"
-
 msgctxt "accessibility"
 msgid "Remove item"
 msgstr "Öğeyi kaldır"
@@ -544,12 +486,6 @@ msgctxt "accessibility"
 msgid "Shadowsocks settings"
 msgstr "Shadowsocks ayarları"
 
-#. Provided to accessibility tools such as screenreaders to describe
-#. the button which unobscures the account number.
-msgctxt "accessibility"
-msgid "Show account number"
-msgstr "Hesap numarasını göster"
-
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
 msgstr "TCP üzerinden UDP ayarları"
@@ -557,37 +493,6 @@ msgstr "TCP üzerinden UDP ayarları"
 msgctxt "accessibility"
 msgid "Use the right arrow key to focus the settings button."
 msgstr "Ayarlar düğmesine odaklanmak için sağ ok tuşunu kullanın."
-
-#. Title label in navigation bar
-msgctxt "account-view"
-msgid "Account"
-msgstr "Hesap"
-
-msgctxt "account-view"
-msgid "Account number"
-msgstr "Hesap Kimliği"
-
-msgctxt "account-view"
-msgid "Currently unavailable"
-msgstr "Şu an kullanılamıyor"
-
-#. Button label for logging out.
-msgctxt "account-view"
-msgid "Log out"
-msgstr "Oturumu kapat"
-
-#. Link text in the account view to navigate to the manage devices view.
-msgctxt "account-view"
-msgid "Manage devices"
-msgstr "Cihazları yönet"
-
-msgctxt "account-view"
-msgid "OUT OF TIME"
-msgstr "SÜRE DOLDU"
-
-msgctxt "account-view"
-msgid "Paid until"
-msgstr "Şu tarihe kadar ödendi:"
 
 #. Page title for anti censorship settings view
 msgctxt "anti-censorship-view"
@@ -1029,22 +934,6 @@ msgctxt "app-upgrade-view"
 msgid "You are using the latest version"
 msgstr "En yeni sürümü kullanıyorsunuz"
 
-msgctxt "auth-failure"
-msgid "Blocking internet: account is out of time"
-msgstr "İnternet bağlantısı engelleniyor: hesabın süresi doldu"
-
-msgctxt "auth-failure"
-msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
-msgstr "Bu hesabın çok fazla eş zamanlı bağlantısı var. Diğer cihazlardan bir tanesinin bağlantısını kesin veya kısa süre sonra tekrar bağlanmayı deneyin."
-
-msgctxt "auth-failure"
-msgid "Unable to authenticate account. Please send a problem report."
-msgstr "Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin."
-
-msgctxt "auth-failure"
-msgid "You are logged in with an invalid account number. Please log out and try another one."
-msgstr "Geçersiz bir hesap numarası ile giriş yaptınız. Lütfen çıkış yapın ve farklı bir hesap numarası ile tekrar deneyin."
-
 #. Text displayed when there are no updates for this platform in the app version
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -1076,88 +965,8 @@ msgid "Automatic multihop"
 msgstr "Otomatik çoklu geçiş"
 
 msgctxt "connect-view"
-msgid "Congrats!"
-msgstr "Tebrikler!"
-
-msgctxt "connect-view"
 msgid "Connection details"
 msgstr "Bağlantı ayrıntıları"
-
-#. Button label for disconnecting from the VPN.
-msgctxt "connect-view"
-msgid "Disconnect"
-msgstr "Bağlantıyı kes"
-
-msgctxt "connect-view"
-msgid "Either buy credit on our website or redeem a voucher."
-msgstr "Web sitemizden kredi satın alın veya kupon kullanın."
-
-msgctxt "connect-view"
-msgid "Enter voucher code"
-msgstr "Kupon kodunu girin"
-
-msgctxt "connect-view"
-msgid "Go ahead and start using the app to begin reclaiming your online privacy."
-msgstr "Devam edin ve çevrimiçi gizliliğinizi geri kazanmak için uygulamayı kullanmaya başlayın."
-
-msgctxt "connect-view"
-msgid "Here’s your account number. Save it!"
-msgstr "İşte hesap numaranız. Kaydedin!"
-
-#. Button label for opening privacy information link.
-msgctxt "connect-view"
-msgid "Learn about privacy"
-msgstr "Gizlilik hakkında bilgi edinin"
-
-msgctxt "connect-view"
-msgid "Out of time"
-msgstr "Süre doldu"
-
-#. Button label for navigating to the voucher redemption view.
-msgctxt "connect-view"
-msgid "Redeem voucher"
-msgstr "Kuponu kullan"
-
-msgctxt "connect-view"
-msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
-msgstr "Devre dışı bırakmanın, Gelişmiş ayarlar altında tekrar etkinleştirene kadar VPN bağlantısını keserek ağ trafiğine izin verdiğini unutmayın."
-
-#. Button label for starting the app.
-msgctxt "connect-view"
-msgid "Start using the app"
-msgstr "Uygulamayı kullanmaya başlayın"
-
-msgctxt "connect-view"
-msgid "Time was successfully added"
-msgstr "Süre başarıyla eklendi"
-
-msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
-msgstr "Daha fazla süre eklemek için, bağlantıyı keserek güvenli olmayan bir bağlantıyla internete erişmeniz gerekir."
-
-msgctxt "connect-view"
-msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
-msgstr "Yolculuğunuza bir gizlilik ninjası olarak devam etmek için web sitemizi ziyaret edin ve diğer gizlilik dostu alışkanlıklar ve araçlar hakkında bilgi edinin."
-
-msgctxt "connect-view"
-msgid "To start using the app, you first need to add time to your account."
-msgstr "Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir."
-
-msgctxt "connect-view"
-msgid "Voucher was successfully redeemed"
-msgstr "Kupon başarıyla kullanıldı"
-
-msgctxt "connect-view"
-msgid "You have no more VPN time left on this account."
-msgstr "Bu hesap için artık VPN süreniz kalmadı."
-
-msgctxt "connect-view"
-msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
-msgstr "Süre bilgisi ekleyerek internete erişmek için \"Kilitleme modu\" seçeneğini devre dışı bırakmanız gerekir."
-
-msgctxt "connect-view"
-msgid "You’re all set!"
-msgstr "Artık hazırsınız!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1254,126 +1063,6 @@ msgctxt "custom-list-feature"
 msgid "Relay"
 msgstr "Geçiş"
 
-#. Button for continuing login process.
-msgctxt "device-management"
-msgid "Continue with login"
-msgstr "Giriş yapmak için devam et"
-
-#. Label informing the user when a device was created.
-#. Available placeholders:
-#. %(createdDate)s - The creation date of the device.
-msgctxt "device-management"
-msgid "Created: %(createdDate)s"
-msgstr "Oluşturma tarihi: %(createdDate)s"
-
-#. Label indicating that this device is the current device.
-msgctxt "device-management"
-msgid "Current device"
-msgstr "Mevcut cihaz"
-
-msgctxt "device-management"
-msgid "Device is inactive"
-msgstr "Cihaz etkin değil"
-
-msgctxt "device-management"
-msgid "Device name"
-msgstr "Cihaz adı"
-
-#. A label that will display the newly created device name to inform the user
-#. about it.
-#. Available placeholders:
-#. %(deviceName)s - The name of the current device
-msgctxt "device-management"
-msgid "Device name: %(deviceName)s"
-msgstr "Cihaz adı: %(deviceName)s"
-
-msgctxt "device-management"
-msgid "Failed to remove device"
-msgstr "Cihaz kaldırılamadı"
-
-#. Button label for navigating to login.
-msgctxt "device-management"
-msgid "Go to login"
-msgstr "Giriş sayfasına git"
-
-msgctxt "device-management"
-msgid "Going to login will unblock the Internet on this device."
-msgstr "Giriş yapmak bu cihazdaki internet engelini kaldıracaktır."
-
-msgctxt "device-management"
-msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
-msgstr "Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir."
-
-#. Title label in navigation bar for the manage devices view.
-#. Title text in the manage devices view
-msgctxt "device-management"
-msgid "Manage devices"
-msgstr "Cihazları yönet"
-
-msgctxt "device-management"
-msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
-msgstr "Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz."
-
-#. Button label for confirming removing a device.
-msgctxt "device-management"
-msgid "Remove"
-msgstr "Kaldır"
-
-#. Text displayed above button which logs out another device.
-#. The text enclosed in "<b></b>" will appear bold.
-#. Available placeholders:
-#. %(deviceName)s - The name of the device to log out.
-msgctxt "device-management"
-msgid "Remove <em>%(deviceName)s?</em>"
-msgstr "<em>%(deviceName)s</em> cihazı kaldırılsın mı?"
-
-#. Page title informing user that enough devices has been removed to continue
-#. login process.
-msgctxt "device-management"
-msgid "Super!"
-msgstr "Süper!"
-
-msgctxt "device-management"
-msgid "The device will be removed from the list and logged out."
-msgstr "Cihaz listeden kaldırılacak ve oturum kapatılacak."
-
-msgctxt "device-management"
-msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
-msgstr "Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir."
-
-msgctxt "device-management"
-msgid "Time left: %(timeLeft)s"
-msgstr "Kalan süre: %(timeLeft)s"
-
-#. Page title informing user that the login failed due to too many registered
-#. devices on account.
-msgctxt "device-management"
-msgid "Too many devices"
-msgstr "Cihaz sayısı çok fazla"
-
-#. Button text to retry fetching devices.
-msgctxt "device-management"
-msgid "Try again"
-msgstr "Tekrar dene"
-
-#. Subtitle text in the manage devices view, explaining
-#. devices and what they can do in the manage devices view.
-msgctxt "device-management"
-msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
-msgstr "Oturum açtığınız tüm cihazları görüntüleyin ve yönetin. Bir hesapta aynı anda en fazla 5 cihaz bulunabilir. Kolayca ayırt edebilmeniz için her cihaza giriş sırasında bir ad atanır."
-
-msgctxt "device-management"
-msgid "You can have up to 5 devices logged in on one Mullvad account."
-msgstr "Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz."
-
-msgctxt "device-management"
-msgid "You can now continue logging in on this device."
-msgstr "Artık bu cihazda oturum açmaya devam edebilirsiniz."
-
-msgctxt "device-management"
-msgid "You have removed this device. To connect again, you will need to log back in."
-msgstr "Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek."
-
 #. The message displayed to the user in case of critical error in the GUI
 #. Available placeholders:
 #. %(email)s - support email
@@ -1414,10 +1103,6 @@ msgctxt "filter-view"
 msgid "Rented only"
 msgstr "Sadece kiralananlar"
 
-msgctxt "in-app-notifications"
-msgid "%(duration)s. Buy more credit."
-msgstr "%(duration)s. Daha fazla kredi satın alın."
-
 #. Notification subtitle when the app upgrade is ready to install.
 #. Available placeholders:
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
@@ -1428,10 +1113,6 @@ msgstr "%(suggestedUpgradeVersion)s kuruluma hazır."
 msgctxt "in-app-notifications"
 msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr "<a>%(lockdownModeSettingName)s</a> ayarı etkin. İnternet bağlantısı engelini kaldırmak için lütfen \"Bağlan\"a dokunun veya \"%(lockdownModeSettingName)s\" seçeneğini devre dışı bırakın."
-
-msgctxt "in-app-notifications"
-msgid "ACCOUNT CREDIT EXPIRES SOON"
-msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
 
 msgctxt "in-app-notifications"
 msgid "APP IS OUT OF SYNC"
@@ -1517,10 +1198,6 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "AĞ BAĞLANTISI TRAFİĞİNDE SIZINTI OLABİLİR"
 
 msgctxt "in-app-notifications"
-msgid "NEW DEVICE CREATED"
-msgstr "YENİ CİHAZ OLUŞTURULDU"
-
-msgctxt "in-app-notifications"
 msgid "NEW VERSION INSTALLED"
 msgstr "YENİ SÜRÜM YÜKLENDİ"
 
@@ -1569,13 +1246,6 @@ msgstr "Yükleyici başarıyla başlatılamadı."
 msgctxt "in-app-notifications"
 msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
 msgstr "Seçili %(wireGuard)s portu desteklenmiyor, lütfen <a>VPN ayarları altından portu değiştirin.</a>"
-
-#. Notification text when a new device has been created.
-#. Available placeholders:
-#. - %(deviceName)s: Name of created device.
-msgctxt "in-app-notifications"
-msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
-msgstr "Bu cihazın adı artık <em>%(deviceName)s</em>. Daha fazla bilgi için Hesap menüsündeki <a>Cihazları yönet</a> bölümüne bakın."
 
 #. The in-app banner displayed to the user when the app beta update is
 #. available.
@@ -1709,131 +1379,6 @@ msgctxt "locations-feature"
 msgid "Exit"
 msgstr "Çıkış"
 
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-#. Available placeholder:
-#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
-msgctxt "login-view"
-msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
-msgstr "<b>%(lockdownModeSettingName)s</b> etkinleştirildi. Bağlantınızın engelini kaldırmak için bu seçeneği devre dışı bırakın."
-
-msgctxt "login-view"
-msgid "Account created"
-msgstr "Hesap oluşturuldu"
-
-msgctxt "login-view"
-msgid "Checking account number"
-msgstr "Hesap numarası kontrol ediliyor"
-
-#. Text in button that allows user to create a new account.
-msgctxt "login-view"
-msgid "Create a new account"
-msgstr "Yeni hesap oluştur"
-
-#. Button which confirms the action to create a new account.
-msgctxt "login-view"
-msgid "Create new account"
-msgstr "Yeni hesap oluştur"
-
-msgctxt "login-view"
-msgid "Creating account..."
-msgstr "Hesap oluşturuluyor..."
-
-#. Text that asks the user if they really want to create a new account.
-msgctxt "login-view"
-msgid "Do you want to create a new account?"
-msgstr "Yeni bir hesap oluşturmak istiyor musunuz?"
-
-#. Text that asks the user if they really want to remove the saved account.
-msgctxt "login-view"
-msgid "Do you want to remove the saved account number?"
-msgstr "Kayıtlı hesap numarasını kaldırmak istiyor musunuz?"
-
-msgctxt "login-view"
-msgid "Enter your account number"
-msgstr "Hesap numaranızı girin"
-
-msgctxt "login-view"
-msgid "Error"
-msgstr "Hata"
-
-msgctxt "login-view"
-msgid "Failed to create account"
-msgstr "Hesap oluşturulamadı"
-
-msgctxt "login-view"
-msgid "Finishing upgrade."
-msgstr "Yükseltme tamamlanıyor."
-
-#. Error message shown above login input when trying to login with a
-#. non-existent account number.
-msgctxt "login-view"
-msgid "Invalid account number"
-msgstr "Geçersiz hesap numarası"
-
-msgctxt "login-view"
-msgid "Logged in"
-msgstr "Oturum açıldı"
-
-msgctxt "login-view"
-msgid "Logging in..."
-msgstr "Oturum açılıyor..."
-
-#. Label for the login button.
-msgctxt "login-view"
-msgid "Login"
-msgstr "Oturum Aç"
-
-msgctxt "login-view"
-msgid "Login failed"
-msgstr "Oturum açma başarısız"
-
-#. Text shown between two horizontal lines above the "create account" button.
-#. In this context it is used to separate the users alternative of logging in
-#. or creating a new account, "Login or Create a new account".
-msgctxt "login-view"
-msgid "Or"
-msgstr "Ya da"
-
-#. This is a warning message shown when the app is blocking the users
-#. internet connection while logged out.
-msgctxt "login-view"
-msgid "Our kill switch is currently blocking your connection."
-msgstr "Kill Switch özelliğimiz şu anda bağlantınızı engelliyor."
-
-msgctxt "login-view"
-msgid "Please wait"
-msgstr "Lütfen bekleyin"
-
-#. Text that informs the user about the consequences of clearing the saved
-#. account number.
-msgctxt "login-view"
-msgid "Removing the saved account number from this device cannot be undone."
-msgstr "Kayıtlı hesap numarası bu cihazdan kaldırıldığında işlem geri alınamaz."
-
-#. Error message shown above login input when trying to login to an account
-#. with too many registered devices.
-msgctxt "login-view"
-msgid "Too many devices"
-msgstr "Cihaz sayısı çok fazla"
-
-msgctxt "login-view"
-msgid "Unknown error"
-msgstr "Bilinmeyen hata"
-
-msgctxt "login-view"
-msgid "Upgrading..."
-msgstr "Yükseltiliyor..."
-
-msgctxt "login-view"
-msgid "Valid account number"
-msgstr "Geçerli hesap numarası"
-
-#. Text that informs the users about consequences of creating a new account.
-msgctxt "login-view"
-msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
-msgstr "Zaten kayıtlı bir hesap numaranız var. Yeni bir hesap oluşturduğunuzda kayıtlı hesap numarası bu cihazdan kaldırılır. Bu işlem geri alınamaz."
-
 #. The title for the LWO port selector.
 msgctxt "lwo-settings-view"
 msgid "Port"
@@ -1866,17 +1411,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr "API erişimi"
 
-#. The system notification displayed to the user when the account credit is close to expiry.
-#. Available placeholder:
-#. %(duration)s - remaining time, e.g. "2 days"
-msgctxt "notifications"
-msgid "Account credit expires in %(duration)s. Buy more credit."
-msgstr "Hesap kredisi %(duration)s içinde sona eriyor. Daha fazla kredi satın alın."
-
-msgctxt "notifications"
-msgid "Account is out of time"
-msgstr "Hesabın süresi doldu"
-
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
@@ -1888,10 +1422,6 @@ msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlat�
 msgctxt "notifications"
 msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr "Beta güncelleme mevcut. En yeni beta sürümü (%(version)s) deneyin."
-
-msgctxt "notifications"
-msgid "Buy more"
-msgstr "Daha fazla satın al"
 
 msgctxt "notifications"
 msgid "Connected"
@@ -2034,50 +1564,6 @@ msgstr "Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olab
 msgctxt "notifications"
 msgid "Your privacy might be at risk with this unsupported app version. Please update now."
 msgstr "Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin."
-
-#. Cancel button label for voucher redemption.
-msgctxt "redeem-voucher-alert"
-msgid "Cancel"
-msgstr "İptal et"
-
-#. Input field label for voucher code.
-msgctxt "redeem-voucher-alert"
-msgid "Enter voucher code"
-msgstr "Kupon kodunu girin"
-
-#. Button label for redeeming a voucher.
-msgctxt "redeem-voucher-alert"
-msgid "Redeem voucher"
-msgstr "Kuponu kullan"
-
-msgctxt "redeem-voucher-view"
-msgid "An error occurred."
-msgstr "Bir hata oluştu."
-
-msgctxt "redeem-voucher-view"
-msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
-msgstr "Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın."
-
-#. Button label for voucher redemption.
-msgctxt "redeem-voucher-view"
-msgid "Redeem"
-msgstr "Kullan"
-
-msgctxt "redeem-voucher-view"
-msgid "Verifying voucher..."
-msgstr "Kupon doğrulanıyor..."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code has already been used."
-msgstr "Kupon kodu zaten kullanılmış."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher code is invalid."
-msgstr "Kupon kodu geçersiz."
-
-msgctxt "redeem-voucher-view"
-msgid "Voucher was successfully redeemed."
-msgstr "Kupon başarıyla kullanıldı."
 
 #. Title label in navigation bar
 msgctxt "select-language-nav"
@@ -4163,4 +3649,3 @@ msgid "You will lose your remaining day."
 msgid_plural "You will lose your remaining %d days."
 msgstr[0] "Kalan günlerinizi kaybedeceksiniz."
 msgstr[1] "Kalan %d gününüzü kaybedeceksiniz."
-

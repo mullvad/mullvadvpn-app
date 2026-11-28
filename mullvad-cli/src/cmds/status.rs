@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
-use mullvad_types::{device::DeviceState, states::TunnelState};
+use mullvad_types::states::TunnelState;
 use serde::Serialize;
 use std::fmt::Debug;
 
@@ -53,11 +53,8 @@ impl Status {
                 DaemonEvent::AppVersionInfo(app_version_info) => {
                     print_debug_or_json(&args, "New app version info", &app_version_info)?;
                 }
-                DaemonEvent::Device(device) => {
-                    print_debug_or_json(&args, "Device event", &device)?;
-                }
-                DaemonEvent::RemoveDevice(device) => {
-                    print_debug_or_json(&args, "Remove device event", &device)?;
+                DaemonEvent::WireguardIdentity(identity) => {
+                    print_debug_or_json(&args, "WireGuard config event", &identity)?;
                 }
                 DaemonEvent::NewAccessMethod(access_method) => {
                     print_debug_or_json(&args, "New access method", &access_method)?;
@@ -83,9 +80,11 @@ impl Status {
 pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     let mut rpc = MullvadProxyClient::new().await?;
     let state = rpc.get_tunnel_state().await?;
-    let device = rpc.get_device().await?;
+    let identity = rpc.get_wireguard_identity().await?;
 
-    print_account_logged_out(&state, &device);
+    if identity.is_none() {
+        println!("No WireGuard config has been imported. Run 'mullvad config import <file>'.");
+    }
 
     if !print_debug_or_json(&args, "New tunnel state", &state)? {
         format::print_state(&state, None, args.verbose);
@@ -95,21 +94,6 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
         Status::listen(rpc, args, state).await?;
     }
     Ok(())
-}
-
-fn print_account_logged_out(state: &TunnelState, device: &DeviceState) {
-    match state {
-        TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(_) => {
-            match device {
-                DeviceState::LoggedOut => {
-                    println!("Warning: You are not logged in to an account.")
-                }
-                DeviceState::Revoked => println!("Warning: This device has been revoked."),
-                DeviceState::LoggedIn(_) => (),
-            }
-        }
-        TunnelState::Disconnected { .. } | TunnelState::Disconnecting(_) => (),
-    }
 }
 
 /// Print the given value as debug or JSON output based on the provided arguments.

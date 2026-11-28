@@ -6,22 +6,16 @@ import { ILinuxSplitTunnelingApplication, ISplitTunnelingApplication } from './a
 import {
   AccessMethodExistsError,
   AccessMethodSetting,
-  AccountDataError,
-  AccountNumber,
   CustomListError,
   CustomProxy,
-  DeviceEvent,
-  DeviceState,
   DisconnectSource,
-  IAccountData,
   IAppVersionInfo,
   ICustomList,
-  IDevice,
-  IDeviceRemoval,
   IDnsOptions,
+  ImportConfigResponse,
   IRelayListWithEndpointData,
   ISettings,
-  LogoutSource,
+  IWireguardIdentity,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -29,7 +23,6 @@ import {
   type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
-  VoucherResponse,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
@@ -66,13 +59,11 @@ export enum MacOsScrollbarVisibility {
 export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
-  accountData?: IAccountData;
-  accountHistory?: AccountNumber;
   tunnelState: TunnelState;
   settings: ISettings;
   isPerformingPostUpgrade: boolean;
   daemonAllowed?: boolean;
-  deviceState?: DeviceState;
+  wireguardIdentity?: IWireguardIdentity;
   relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
@@ -231,21 +222,10 @@ export const ipcSchema = {
     dismissedSettingsMigrationNotification: send<void>(),
     completedSettingsMigration: send<string>(),
   },
-  account: {
-    '': notifyRenderer<IAccountData | undefined>(),
-    device: notifyRenderer<DeviceEvent>(),
-    devices: notifyRenderer<Array<IDevice>>(),
-    create: invoke<void, string>(),
-    login: invoke<AccountNumber, AccountDataError | undefined>(),
-    logout: invoke<LogoutSource, void>(),
-    getWwwAuthToken: invoke<void, string>(),
-    submitVoucher: invoke<string, VoucherResponse>(),
-    updateData: send<void>(),
-    listDevices: invoke<AccountNumber, Array<IDevice>>(),
-    removeDevice: invoke<IDeviceRemoval, void>(),
-  },
-  accountHistory: {
-    '': notifyRenderer<AccountNumber | undefined>(),
+  identity: {
+    '': notifyRenderer<IWireguardIdentity | undefined>(),
+    importText: invoke<string, ImportConfigResponse>(),
+    importFile: invoke<string, ImportConfigResponse>(),
     clear: invoke<void, void>(),
   },
   autoStart: {
